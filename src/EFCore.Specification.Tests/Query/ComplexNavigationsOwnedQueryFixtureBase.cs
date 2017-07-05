@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             l2.Property(e => e.Id).ValueGeneratedNever();
 
             l2.HasOne(e => e.OneToOne_Required_PK_Inverse)
-                .WithOne(e => e.OneToOne_Required_PK);
+                .WithOne(e => e.OneToOne_Required_PK)
+                .Metadata.IsOwnership = false; // #9093
 
             l2.HasOne(e => e.OneToOne_Optional_PK_Inverse)
                 .WithOne(e => e.OneToOne_Optional_PK)
@@ -93,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             l3.Property(e => e.Id).ValueGeneratedNever();
 
             l3.HasOne(e => e.OneToOne_Required_PK_Inverse)
-                .WithOne(e => e.OneToOne_Required_PK);
+                .WithOne(e => e.OneToOne_Required_PK)
+                .Metadata.IsOwnership = false; // #9093
 
             l3.HasOne(e => e.OneToOne_Optional_PK_Inverse)
                 .WithOne(e => e.OneToOne_Optional_PK)
@@ -130,7 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             l4.Property(e => e.Id).ValueGeneratedNever();
 
             l4.HasOne(e => e.OneToOne_Required_PK_Inverse)
-                .WithOne(e => e.OneToOne_Required_PK);
+                .WithOne(e => e.OneToOne_Required_PK)
+                .Metadata.IsOwnership = false; // #9093
 
             l4.HasOne(e => e.OneToOne_Optional_PK_Inverse)
                 .WithOne(e => e.OneToOne_Optional_PK)

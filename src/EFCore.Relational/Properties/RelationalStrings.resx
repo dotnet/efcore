@@ -284,6 +284,9 @@
   <data name="IncompatibleTableNoRelationship" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and there is no relationship between the primary key {primaryKey} and the primary key {otherPrimaryKey}.</value>
   </data>
+  <data name="IncompatibleTableDerivedPrincipal" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{dependentType}' since it has a relationship to a derived entity type '{principalType}'. Either point the relationship to the base type '{rootType}' or map '{dependentType}' to a different table.</value>
+  </data>
   <data name="LogKeyHasDefaultValue" xml:space="preserve">
     <value>Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.</value>
     <comment>Warning RelationalEventId.ModelValidationKeyDefaultValueWarning string string</comment>

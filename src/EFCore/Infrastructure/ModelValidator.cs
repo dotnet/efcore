@@ -371,6 +371,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     CoreStrings.InconsistentOwnership(entityType.DisplayName(), otherEntityType.DisplayName()));
                             }
                         }
+
+                        foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership))
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.PrincipalOwnedType(
+                                    referencingFk.DeclaringEntityType.DisplayName() +
+                                    (referencingFk.DependentToPrincipal == null
+                                        ? ""
+                                        : "." + referencingFk.DependentToPrincipal.Name),
+                                    referencingFk.PrincipalEntityType.DisplayName() +
+                                    (referencingFk.PrincipalToDependent == null
+                                        ? ""
+                                        : "." + referencingFk.PrincipalToDependent.Name),
+                                    entityType.DisplayName()));
+                        }
+                        
+                        foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null))
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.InverseToOwnedType(
+                                    fk.PrincipalEntityType.DisplayName(),
+                                    fk.PrincipalToDependent.Name,
+                                    entityType.DisplayName()));
+                        }
                     }
                 }
             }

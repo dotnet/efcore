@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql("");
         }
 
+        [Fact(Skip = "#8973")]
         public override void Query_for_leaf_type_loads_all_owned_navs()
         {
             base.Query_for_leaf_type_loads_all_owned_navs();

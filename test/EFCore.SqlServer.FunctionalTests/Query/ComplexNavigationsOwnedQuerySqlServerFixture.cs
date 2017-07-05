@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsOwnedQuerySqlServerFixture
-        : ComplexNavigationsOwnedQueryFixtureBase<SqlServerTestStore>
+        : ComplexNavigationsOwnedQueryRelationalFixtureBase<SqlServerTestStore>
     {
         public static readonly string DatabaseName = "ComplexNavigationsOwned";
 

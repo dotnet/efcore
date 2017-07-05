@@ -1699,12 +1699,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ownershipNavigation, definingNavigation, entityType);
 
         /// <summary>
-        ///     The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not.
+        ///     The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. All entity types sharin a CLR type must be configured as owned.
         /// </summary>
         public static string InconsistentOwnership([CanBeNull] object ownedEntityType, [CanBeNull] object nonOwnedEntityType)
             => string.Format(
                 GetString("InconsistentOwnership", nameof(ownedEntityType), nameof(nonOwnedEntityType)),
                 ownedEntityType, nonOwnedEntityType);
+
+        /// <summary>
+        ///     The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the owner entity type can declare a navigation to an owned entity type.
+        /// </summary>
+        public static string InverseToOwnedType([CanBeNull] object principalEntityType, [CanBeNull] object navigation, [CanBeNull] object ownedType)
+            => string.Format(
+                GetString("InverseToOwnedType", nameof(principalEntityType), nameof(navigation), nameof(ownedType)),
+                principalEntityType, navigation, ownedType);
+
+        /// <summary>
+        ///     The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' is not supported because the owned entity type '{ownedType}' cannot be on the principal side.
+        /// </summary>
+        public static string PrincipalOwnedType([CanBeNull] object referencingEntityTypeOrNavigation, [CanBeNull] object referencedEntityTypeOrNavigation, [CanBeNull] object ownedType)
+            => string.Format(
+                GetString("PrincipalOwnedType", nameof(referencingEntityTypeOrNavigation), nameof(referencedEntityTypeOrNavigation), nameof(ownedType)),
+                referencingEntityTypeOrNavigation, referencedEntityTypeOrNavigation, ownedType);
 
         /// <summary>
         ///     The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference call '{targetEntryCall}' on the owner entry.

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -264,6 +263,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (fk.PrincipalEntityType == principalEntityType)
                     {
+                        if (principalEntityType.BaseType != null)
+                        {
+                            // #8973
+                            throw new InvalidOperationException(
+                                RelationalStrings.IncompatibleTableDerivedPrincipal(
+                                    dependEntityType.Relational().TableName,
+                                    dependEntityType.DisplayName(),
+                                    principalEntityType.DisplayName(),
+                                    principalEntityType.RootType().DisplayName()));
+                        }
                         return true;
                     }
 

@@ -38,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Query_when_subquery();
         }
 
+        [Fact(Skip = "#8973")]
+        public override void Query_for_leaf_type_loads_all_owned_navs()
+        {
+            base.Query_for_leaf_type_loads_all_owned_navs();
+        }
+
         protected override DbContext CreateContext() => _fixture.CreateContext();
     }
 }

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class TableSplittingTestBase<TTestStore>
         where TTestStore : TestStore
     {
-        [Fact]
+        [Fact(Skip = "#8973")]
         public void Can_query_shared()
         {
             using (var store = CreateTestStore(OnModelCreating))
@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
+        [Fact(Skip = "#8973")]
         public void Can_use_with_redundant_relationships()
         {
             Test_roundtrip(OnModelCreating);
         }
 
-        [Fact]
+        [Fact(Skip = "#8973")]
         public void Can_use_with_chained_relationships()
         {
             Test_roundtrip(modelBuilder =>
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [Fact]
+        [Fact(Skip = "#8973")]
         public void Can_use_with_fanned_relationships()
         {
             Test_roundtrip(modelBuilder =>

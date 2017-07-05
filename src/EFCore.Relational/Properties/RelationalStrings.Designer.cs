@@ -469,6 +469,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 table, entityType, otherEntityType, primaryKey, otherPrimaryKey);
 
         /// <summary>
+        ///     Cannot use table '{table}' for entity type '{dependentType}' since it has a relation ship to a derived entity type '{principalType}'. Either point the relationship to the base type '{rootType}' or map '{dependentType}' to a different table.
+        /// </summary>
+        public static string IncompatibleTableDerivedPrincipal([CanBeNull] object table, [CanBeNull] object dependentType, [CanBeNull] object principalType, [CanBeNull] object rootType)
+            => string.Format(
+                GetString("IncompatibleTableDerivedPrincipal", nameof(table), nameof(dependentType), nameof(principalType), nameof(rootType)),
+                table, dependentType, principalType, rootType);
+
+        /// <summary>
         ///     Property '{property}' on entity type '{entityType}' is part of a primary or alternate key but has a constant default value set. Constant default values are not useful for primary or alternate keys since these properties must always have non-null unqiue values.
         /// </summary>
         public static readonly EventDefinition<string, string> LogKeyHasDefaultValue

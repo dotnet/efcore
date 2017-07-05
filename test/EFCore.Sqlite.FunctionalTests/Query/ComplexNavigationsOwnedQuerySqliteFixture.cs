@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsOwnedQuerySqliteFixture : ComplexNavigationsOwnedQueryFixtureBase<SqliteTestStore>
+    public class ComplexNavigationsOwnedQuerySqliteFixture : ComplexNavigationsOwnedQueryRelationalFixtureBase<SqliteTestStore>
     {
         public static readonly string DatabaseName = "ComplexNavigationsOwned";
 

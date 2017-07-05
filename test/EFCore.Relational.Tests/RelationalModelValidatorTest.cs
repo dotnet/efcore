@@ -161,6 +161,21 @@ namespace Microsoft.EntityFrameworkCore
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "default_int_mapping"), modelBuilder.Model);
         }
 
+        [Fact]// #8973
+        public virtual void Detects_derived_principal_with_shared_table()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
+
+            modelBuilder.Entity<D>().HasOne<B>().WithOne().IsRequired().HasForeignKey<B>(a => a.Id).HasPrincipalKey<D>(b => b.Id);
+            modelBuilder.Entity<D>().HasBaseType<A>().ToTable("Table");
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+            
+            VerifyError(
+                RelationalStrings.IncompatibleTableDerivedPrincipal(
+                    "Table", nameof(B), nameof(D), nameof(A)), modelBuilder.Model);
+        }
+
         [Fact]
         public virtual void Passes_for_compatible_shared_table()
         {
