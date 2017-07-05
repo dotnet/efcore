@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
             [NotNull] string clrMethodName,
             [NotNull] string sqlFunctionName)
         {
-            _methodInfo = declaringType.GetRuntimeMethod(clrMethodName, new Type[] { });
+            _methodInfo = declaringType.GetTypeInfo().GetDeclaredMethods(clrMethodName).Single();
 
             _sqlFunctionName = sqlFunctionName;
         }
