@@ -4,11 +4,15 @@
     <id>Microsoft.EntityFrameworkCore.Tools.DotNet</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
+    <copyright>Copyright © Microsoft Corporation</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Entity Framework Core .NET Command Line Tools. Includes dotnet-ef.</description>
     <tags>Entity Framework Core,entity-framework-core,EF,Data,O/RM</tags>
     <repository type="git" url="https://github.com/aspnet/EntityFramework.Tools.git" />
     <serviceable>true</serviceable>
+    <licenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</licenseUrl>
+    <iconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</iconUrl>
+    <projectUrl>https://asp.net</projectUrl>
     <packageTypes>
       <packageType name="DotnetCliTool" />
     </packageTypes>

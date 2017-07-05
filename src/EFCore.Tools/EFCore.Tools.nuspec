@@ -4,6 +4,7 @@
     <id>Microsoft.EntityFrameworkCore.Tools</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
+    <copyright>Copyright © Microsoft Corporation</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
     <description>Entity Framework Core Package Manager Console Tools. Includes Scaffold-DbContext, Add-Migration, and Update-Database.</description>
@@ -15,6 +16,9 @@
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Build,Analyzers" />
       </group>
     </dependencies>
+    <licenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</licenseUrl>
+    <iconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</iconUrl>
+    <projectUrl>https://asp.net</projectUrl>
   </metadata>
   <files>
     <file src="lib/**/*" target="" />
