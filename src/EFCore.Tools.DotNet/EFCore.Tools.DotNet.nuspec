@@ -5,7 +5,7 @@
     <version>$version$</version>
     <authors>Microsoft</authors>
     <copyright>Copyright © Microsoft Corporation</copyright>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Entity Framework Core .NET Command Line Tools. Includes dotnet-ef.</description>
     <tags>Entity Framework Core,entity-framework-core,EF,Data,O/RM</tags>
     <repository type="git" url="https://github.com/aspnet/EntityFramework.Tools.git" />
