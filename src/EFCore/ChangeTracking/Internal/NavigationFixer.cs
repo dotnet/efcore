@@ -310,7 +310,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         var collectionAccessor = principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null;
 
-                        if (oldPrincipalEntry != null)
+                        if (oldPrincipalEntry != null
+                            && oldPrincipalEntry.EntityState != EntityState.Deleted)
                         {
                             // Remove this entity from the principal collection that it was previously part of,
                             // or null the navigation for a 1:1 unless that reference was already changed.

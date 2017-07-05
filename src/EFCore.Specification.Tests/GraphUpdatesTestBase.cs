@@ -3341,6 +3341,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -3403,6 +3406,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
                             Assert.Equal(orphanedIds.Count, context.Optional2s.Count(e => orphanedIds.Contains(e.Id)));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -3460,6 +3466,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
                             Assert.Equal(1, context.OptionalSingle2s.Count(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -3516,6 +3525,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -3572,6 +3584,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -3633,6 +3648,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
                             Assert.Equal(orphanedIds.Count, context.OptionalAk2s.Count(e => orphanedIds.Contains(e.Id)));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -3700,6 +3718,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -3763,6 +3784,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
                             Assert.Equal(1, context.OptionalSingleAk2s.Count(e => e.Id == orphanedId));
                             Assert.Equal(1, context.OptionalSingleComposite2s.Count(e => e.Id == orphanedIdC));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -3825,6 +3849,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
                             Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -3882,6 +3909,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -3943,6 +3973,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(0, removed.Children.Count());
                         }
                     },
                 context =>
@@ -3981,6 +4014,7 @@ namespace Microsoft.EntityFrameworkCore
                         var root = context.Roots.Include(e => e.RequiredSingle).Single(IsTheRoot);
 
                         var removed = root.RequiredSingle;
+                        var orphaned = removed.Single;
 
                         context.Remove(removed);
 
@@ -4002,6 +4036,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4039,6 +4076,7 @@ namespace Microsoft.EntityFrameworkCore
                         var root = context.Roots.Include(e => e.RequiredNonPkSingle).Single(IsTheRoot);
 
                         var removed = root.RequiredNonPkSingle;
+                        var orphaned = removed.Single;
 
                         context.Remove(removed);
 
@@ -4060,6 +4098,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4125,6 +4166,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
                             Assert.Empty(context.RequiredComposite2s.Where(e => orphanedIdCs.Contains(e.Id)));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(0, removed.Children.Count()); // Never loaded
                         }
                     },
                 context =>
@@ -4166,6 +4210,7 @@ namespace Microsoft.EntityFrameworkCore
                         var root = context.Roots.Include(e => e.RequiredSingleAk).Single(IsTheRoot);
 
                         var removed = root.RequiredSingleAk;
+                        var orphaned = removed.Single;
 
                         context.Remove(removed);
 
@@ -4188,6 +4233,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
                             Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4226,6 +4274,7 @@ namespace Microsoft.EntityFrameworkCore
                         var root = context.Roots.Include(e => e.RequiredNonPkSingleAk).Single(IsTheRoot);
 
                         var removed = root.RequiredNonPkSingleAk;
+                        var orphaned = removed.Single;
 
                         context.Remove(removed);
 
@@ -4247,6 +4296,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
                             Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4313,6 +4365,9 @@ namespace Microsoft.EntityFrameworkCore
                             var orphaned = context.Optional2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIds.Count, orphaned.Count);
                             Assert.True(orphaned.All(e => e.ParentId == null));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(0, removed.Children.Count()); // Never loaded
                         }
                     },
                 context =>
@@ -4354,6 +4409,7 @@ namespace Microsoft.EntityFrameworkCore
                         var root = context.Roots.Include(e => e.OptionalSingle).Single(IsTheRoot);
 
                         var removed = root.OptionalSingle;
+                        var orphaned = removed.Single;
 
                         context.Remove(removed);
 
@@ -4375,6 +4431,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
                             Assert.Null(context.OptionalSingle2s.Single(e => e.Id == orphanedId).BackId);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4429,7 +4488,9 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (Fixture.ForceRestrict)
                         {
-                            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                            Assert.Equal(
+                                CoreStrings.RelationshipConceptualNull(nameof(OptionalAk1), nameof(OptionalComposite2)),
+                                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
                         {
@@ -4451,6 +4512,9 @@ namespace Microsoft.EntityFrameworkCore
                             var orphanedC = context.OptionalComposite2s.Where(e => orphanedIdCs.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIdCs.Count, orphanedC.Count);
                             Assert.True(orphanedC.All(e => e.ParentId == null));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(0, removed.Children.Count()); // Never loaded
                         }
                     },
                 context =>
@@ -4498,6 +4562,7 @@ namespace Microsoft.EntityFrameworkCore
                         var root = context.Roots.Include(e => e.OptionalSingleAk).Single(IsTheRoot);
 
                         var removed = root.OptionalSingleAk;
+                        var orphaned = removed.Single;
 
                         context.Remove(removed);
 
@@ -4509,7 +4574,9 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (Fixture.ForceRestrict)
                         {
-                            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                            Assert.Equal(
+                                CoreStrings.RelationshipConceptualNull(nameof(OptionalSingleAk1), nameof(OptionalSingleComposite2)),
+                                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
                         {
@@ -4524,6 +4591,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
                             Assert.Null(context.OptionalSingleAk2s.Single(e => e.Id == orphanedId).BackId);
                             Assert.Null(context.OptionalSingleComposite2s.Single(e => e.Id == orphanedIdC).BackId);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4588,6 +4658,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -4652,6 +4725,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -4708,6 +4784,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4763,6 +4842,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context => { root = LoadRequiredGraph(context); },
@@ -4817,6 +4899,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -4886,6 +4971,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
                             Assert.True(orphanedC.All(e => context.Entry(e).State == EntityState.Unchanged));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -4956,6 +5044,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
                             Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(2, removed.Children.Count());
                         }
                     },
                 context =>
@@ -5018,6 +5109,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
                             Assert.Equal(EntityState.Unchanged, context.Entry(orphanedC).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -5079,6 +5173,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -5135,6 +5232,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -5207,6 +5307,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(added).State);
                             Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(3, removed.Children.Count());
                         }
                     },
                 context =>
@@ -5267,6 +5370,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -5326,6 +5432,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -5410,6 +5519,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(addedC).State);
                             Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
                             Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
+
+                            Assert.Same(root, removed.Parent);
+                            Assert.Equal(3, removed.Children.Count());
                         }
                     },
                 context =>
@@ -5478,6 +5590,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -5538,6 +5653,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                             Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                            Assert.Same(root, removed.Root);
+                            Assert.Same(orphaned, removed.Single);
                         }
                     },
                 context =>
@@ -6114,7 +6232,7 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private int _parentId;
             private Root _parent;
-            private IEnumerable<Required2> _children = new ObservableHashSet<Required2>();
+            private IEnumerable<Required2> _children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -6215,8 +6333,8 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private int? _parentId;
             private Root _parent;
-            private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>();
-            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>();
+            private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
+            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -6645,8 +6763,8 @@ namespace Microsoft.EntityFrameworkCore
             private Guid _alternateId;
             private Guid _parentId;
             private Root _parent;
-            private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>();
-            private IEnumerable<RequiredComposite2> _compositeChildren = new ObservableHashSet<RequiredComposite2>();
+            private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
+            private IEnumerable<RequiredComposite2> _compositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -6752,7 +6870,7 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private Guid _parentAlternateId;
             private Root _parent;
-            private ICollection<OptionalOverlaping2> _compositeChildren = new ObservableHashSet<OptionalOverlaping2>();
+            private ICollection<OptionalOverlaping2> _compositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -6894,8 +7012,8 @@ namespace Microsoft.EntityFrameworkCore
             private Guid _alternateId;
             private Guid? _parentId;
             private Root _parent;
-            private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>();
-            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>();
+            private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
+            private ICollection<OptionalComposite2> _compositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
@@ -7539,7 +7657,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _id;
             private int _status;
-            private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>();
+            private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>(ReferenceEqualityComparer.Instance);
 
             public int Id
             {
