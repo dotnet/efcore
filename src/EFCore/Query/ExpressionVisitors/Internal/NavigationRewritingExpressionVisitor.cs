@@ -1368,6 +1368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             private readonly CollectionNavigationSubqueryInjector _subqueryInjector;
             private readonly bool _navigationExpansionSubquery;
+            private readonly QueryCompilationContext _queryCompilationContext;
 
             public AdditionalFromClause AdditionalFromClauseBeingProcessed { get; private set; }
 
@@ -1379,10 +1380,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 _subqueryInjector = new CollectionNavigationSubqueryInjector(queryModelVisitor, shouldInject: true);
                 _navigationExpansionSubquery = navigationExpansionSubquery;
+                _queryCompilationContext = queryModelVisitor.QueryCompilationContext;
             }
 
             public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
             {
+                // ReSharper disable once PatternAlwaysOfType
+                if (fromClause.TryGetFlattenedGroupJoinClause()?.JoinClause is JoinClause joinClause
+                    // ReSharper disable once PatternAlwaysOfType
+                    && _queryCompilationContext.FindEntityType(joinClause) is IEntityType entityType)
+                {
+                    _queryCompilationContext.AddOrUpdateMapping(fromClause, entityType);
+                }
+
                 var oldAdditionalFromClause = AdditionalFromClauseBeingProcessed;
                 AdditionalFromClauseBeingProcessed = fromClause;
                 fromClause.TransformExpressions(TransformingVisitor.Visit);

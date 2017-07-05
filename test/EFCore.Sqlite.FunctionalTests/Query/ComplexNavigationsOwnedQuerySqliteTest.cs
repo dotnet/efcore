@@ -18,11 +18,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Nested_group_join_with_take();
         }
-
-        [ConditionalFact(Skip = "issue #8492")]
-        public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
-        {
-            base.Explicit_GroupJoin_in_subquery_with_unrelated_projection2();
-        }
     }
 }

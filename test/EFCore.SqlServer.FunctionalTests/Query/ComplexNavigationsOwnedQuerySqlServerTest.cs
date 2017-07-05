@@ -81,10 +81,41 @@ WHERE ([l1].[Id] IS NOT NULL AND [l1].[Id] IS NOT NULL) AND [l1].[Id] IS NOT NUL
             base.Nested_group_join_with_take();
         }
 
-        [ConditionalFact(Skip = "issue #8492")]
+        [ConditionalFact]
         public override void Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
         {
             base.Explicit_GroupJoin_in_subquery_with_unrelated_projection2();
+
+            AssertSql(
+                @"SELECT [t1].[Id]
+FROM (
+    SELECT DISTINCT [l1].*
+    FROM [Level1] AS [l1]
+    LEFT JOIN (
+        SELECT [t].*
+        FROM [Level1] AS [t]
+        WHERE [t].[Id] IS NOT NULL
+    ) AS [t0] ON [l1].[Id] = [t0].[OneToOne_Required_PK_Level1_Optional_Id]
+    WHERE ([t0].[OneToOne_Required_PK_Name] <> N'Foo') OR [t0].[OneToOne_Required_PK_Name] IS NULL
+) AS [t1]");
+        }
+
+        [ConditionalFact]
+        public override void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
+        {
+            base.Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty();
+
+            AssertSql(
+                @"SELECT SUM(CASE
+    WHEN [t0].[Id] IS NULL
+    THEN 0 ELSE [t0].[OneToOne_Required_PK_Level1_Required_Id]
+END)
+FROM [Level1] AS [l1]
+LEFT JOIN (
+    SELECT [t].*
+    FROM [Level1] AS [t]
+    WHERE [t].[Id] IS NOT NULL
+) AS [t0] ON [l1].[Id] = [t0].[OneToOne_Required_PK_Level1_Optional_Id]");
         }
 
         private void AssertSql(params string[] expected)
