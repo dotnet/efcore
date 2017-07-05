@@ -225,13 +225,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
+                dbCommand.Parameters.Clear();
+
                 if (!readerOpen)
                 {
                     dbCommand.Dispose();
                     connection.Close();
                 }
-
-                dbCommand.Parameters.Clear();
             }
 
             return result;
@@ -328,13 +328,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
+                dbCommand.Parameters.Clear();
+
                 if (!readerOpen)
                 {
                     dbCommand.Dispose();
                     connection.Close();
                 }
-
-                dbCommand.Parameters.Clear();
             }
 
             return result;
