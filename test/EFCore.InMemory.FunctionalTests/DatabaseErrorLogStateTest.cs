@@ -137,46 +137,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public async Task SaveChanges_logs_concurrent_access_nonasync()
-        {
-            await SaveChanges_logs_concurrent_access_test(async: false);
-        }
-
-        [Fact]
-        public async Task SaveChanges_logs_concurrent_access_async()
-        {
-            await SaveChanges_logs_concurrent_access_test(async: true);
-        }
-
-        private async Task SaveChanges_logs_concurrent_access_test(bool async)
-        {
-            var loggerFactory = new TestLoggerFactory();
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider();
-
-            using (var context = new BloggingContext(serviceProvider))
-            {
-                context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
-
-                context.GetService<IConcurrencyDetector>().EnterCriticalSection();
-
-                Exception ex;
-                if (async)
-                {
-                    ex = await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync());
-                }
-                else
-                {
-                    ex = Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                }
-
-                Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
-            }
-        }
-
         public class BloggingContext : DbContext
         {
             private readonly IServiceProvider _serviceProvider;

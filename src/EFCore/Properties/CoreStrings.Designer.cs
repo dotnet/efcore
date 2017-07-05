@@ -827,7 +827,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("RecursiveOnModelCreating");
 
         /// <summary>
-        ///     An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.
+        ///     An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point. This can happen if a second operation is started on this context before a previous operation completed. Any instance members are not guaranteed to be thread safe.
         /// </summary>
         public static string RecursiveOnConfiguring
             => GetString("RecursiveOnConfiguring");
