@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {

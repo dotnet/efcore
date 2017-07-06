@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlite()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
                 _options = new DbContextOptionsBuilder()
                     .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))

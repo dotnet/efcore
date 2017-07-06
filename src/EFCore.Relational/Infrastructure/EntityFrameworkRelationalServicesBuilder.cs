@@ -42,7 +42,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesBuilder
     {
-        private static readonly IDictionary<Type, ServiceCharacteristics> _relationalServices
+        /// <summary>
+        ///     <para>
+        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///         directly from your code. This API may change or be removed in future releases.
+        ///     </para>
+        ///     <para>
+        ///         This dictionary is exposed for testing and provider-validation only.
+        ///         It should not be used from application code.
+        ///     </para>
+        /// </summary>
+        public static readonly IDictionary<Type, ServiceCharacteristics> RelationalServices
             = new Dictionary<Type, ServiceCharacteristics>
             {
                 { typeof(IKeyValueIndexFactorySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -98,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
         {
             ServiceCharacteristics characteristics;
-            return _relationalServices.TryGetValue(serviceType, out characteristics)
+            return RelationalServices.TryGetValue(serviceType, out characteristics)
                 ? characteristics
                 : base.GetServiceCharacteristics(serviceType);
         }

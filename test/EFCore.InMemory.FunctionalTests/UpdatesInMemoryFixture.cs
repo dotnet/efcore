@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             _optionsBuilder = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(nameof(UpdatesInMemoryFixture))

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .AddEntityFrameworkSqlServer()
                             .AddSingleton(_modelSourceFactory(OnModelCreating))
                             .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                            .BuildServiceProvider()))
+                            .BuildServiceProvider(validateScopes: true)))
                 .UseSqlServer(
                     _testStore.ConnectionString,
                     b =>

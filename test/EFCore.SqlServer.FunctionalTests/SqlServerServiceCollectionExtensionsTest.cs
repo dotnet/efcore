@@ -4,7 +4,7 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqlServerServiceCollectionExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
+    public class SqlServerServiceCollectionExtensionsTest : RelationalServiceCollectionExtensionsTest
     {
         public SqlServerServiceCollectionExtensionsTest()
             : base(SqlServerTestHelpers.Instance)

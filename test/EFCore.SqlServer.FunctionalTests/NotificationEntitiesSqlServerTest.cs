@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(new ServiceCollection()
                         .AddEntityFrameworkSqlServer()
                         .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .BuildServiceProvider())
+                        .BuildServiceProvider(validateScopes: true))
                     .Options;
             }
 

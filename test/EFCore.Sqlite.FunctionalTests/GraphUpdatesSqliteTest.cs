@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                     _serviceProvider = new ServiceCollection()
                         .AddEntityFrameworkSqlite()
                         .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .BuildServiceProvider();
+                        .BuildServiceProvider(validateScopes: true);
                 }
 
                 public override SqliteTestStore CreateTestStore()

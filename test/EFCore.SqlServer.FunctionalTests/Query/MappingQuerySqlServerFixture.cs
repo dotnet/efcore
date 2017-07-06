@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             _testDatabase = SqlServerTestStore.GetNorthwindStore();
 

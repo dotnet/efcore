@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                    .BuildServiceProvider())
+                    .BuildServiceProvider(validateScopes: true))
                 .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration())
                 .Options;
 

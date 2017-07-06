@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .AddEntityFrameworkSqlite()
                             .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                             .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                            .BuildServiceProvider()))
+                            .BuildServiceProvider(validateScopes: true)))
                 .UseSqlite(
                     _testStore.ConnectionString,
                     b => ConfigureOptions(b).SuppressForeignKeyEnforcement())

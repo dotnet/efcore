@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             _options = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(DatabaseName)

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
         }
 
         public override InMemoryTestStore CreateTestStore()

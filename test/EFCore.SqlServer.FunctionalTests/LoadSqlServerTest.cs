@@ -1461,7 +1461,7 @@ WHERE 0 = 1",
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
                 _options = new DbContextOptionsBuilder()
                     .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())

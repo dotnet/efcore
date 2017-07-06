@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
         }
 
         protected virtual string DatabaseName => "PartialUpdateSqlServerTest";

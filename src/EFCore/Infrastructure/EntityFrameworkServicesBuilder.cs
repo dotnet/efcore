@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -22,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -45,7 +45,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class EntityFrameworkServicesBuilder
     {
-        private static readonly IDictionary<Type, ServiceCharacteristics> _coreServices
+        /// <summary>
+        ///     <para>
+        ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///         directly from your code. This API may change or be removed in future releases.
+        ///     </para>
+        ///     <para>
+        ///         This dictionary is exposed for testing and provider-validation only.
+        ///         It should not be used from application code.
+        ///     </para>
+        /// </summary>
+        public static readonly IDictionary<Type, ServiceCharacteristics> CoreServices
             = new Dictionary<Type, ServiceCharacteristics>
             {
                 { typeof(IDatabaseProvider), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
@@ -144,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         protected virtual ServiceCharacteristics GetServiceCharacteristics([NotNull] Type serviceType)
         {
-            if (!_coreServices.TryGetValue(serviceType, out var characteristics))
+            if (!CoreServices.TryGetValue(serviceType, out var characteristics))
             {
                 throw new InvalidOperationException(CoreStrings.NotAnEFService(serviceType.Name));
             }
@@ -242,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
-            
+
             ServiceCollectionMap
                 .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
 
@@ -253,15 +263,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
                 .AddDependencySingleton<ModelValidatorDependencies>()
                 .AddDependencySingleton<CoreConventionSetBuilderDependencies>()
+                .AddDependencySingleton<CoreTypeMapperDependencies>()
+                .AddDependencySingleton<ModelCustomizerDependencies>()
+                .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
                 .AddDependencyScoped<ExecutionStrategyDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()
                 .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
                 .AddDependencyScoped<EntityQueryModelVisitorDependencies>()
                 .AddDependencyScoped<DatabaseDependencies>()
-                .AddDependencyScoped<ModelCustomizerDependencies>()
-                .AddDependencyScoped<CoreTypeMapperDependencies>()
-                .AddDependencyScoped<ModelCacheKeyFactoryDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .ServiceCollection.AddMemoryCache();
 
@@ -423,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected struct ServiceCharacteristics
+        public struct ServiceCharacteristics
         {
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

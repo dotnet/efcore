@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                 _serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
             }
 
             protected abstract string DatabaseName { get; }

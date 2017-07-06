@@ -68,7 +68,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                 var serviceProvider = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
                     .AddSingleton<ILoggerFactory>(loggingFactory)
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
                 using (var context = new Bug6091Context(serviceProvider, testStore.ConnectionString))
                 {

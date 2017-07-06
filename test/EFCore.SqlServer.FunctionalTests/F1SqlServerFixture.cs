@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
         }
 
         public override SqlServerTestStore CreateTestStore()

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlite()
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             _testDatabase = SqliteTestStore.GetNorthwindStore();
 

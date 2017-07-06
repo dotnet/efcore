@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlite()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
         }
 
         public override SqliteTestStore CreateTestStore()

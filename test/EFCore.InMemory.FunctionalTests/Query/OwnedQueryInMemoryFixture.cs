@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                 .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             _options = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(nameof(OwnedQueryInMemoryFixture))

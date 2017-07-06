@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                     .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
-                    .BuildServiceProvider())
+                    .BuildServiceProvider(validateScopes: true))
                 .Options;
     }
 }
