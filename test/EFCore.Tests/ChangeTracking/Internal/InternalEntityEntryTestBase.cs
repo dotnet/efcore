@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -1020,6 +1021,65 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [Fact]
+        public virtual void AcceptChanges_does_nothing_for_unchanged_owned_entities()
+            => AcceptChangesOwned(EntityState.Unchanged);
+
+        [Fact]
+        public virtual void AcceptChanges_does_nothing_for_unknown_owned_entities()
+            => AcceptChangesOwned(EntityState.Detached);
+
+        [Fact]
+        public virtual void AcceptChanges_makes_Modified_owned_entities_Unchanged_and_resets_used_original_values()
+            => AcceptChangesOwned(EntityState.Modified);
+
+        [Fact]
+        public virtual void AcceptChanges_makes_Added_owned_entities_Unchanged()
+            => AcceptChangesOwned(EntityState.Added);
+
+        [Fact]
+        public virtual void AcceptChanges_detaches_Deleted_owned_entities()
+            => AcceptChangesOwned(EntityState.Deleted);
+
+        private void AcceptChangesOwned(EntityState entityState)
+        {
+            var model = BuildModel();
+            var ownerType = model.FindEntityType(typeof(OwnerClass).FullName);
+            var ownedType = ownerType.FindNavigation(nameof(OwnerClass.Owned)).GetTargetType();
+            var valueProperty = ownedType.FindProperty(nameof(OwnedClass.Value));
+            var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
+
+            var entry = CreateInternalEntry(
+                contextServices,
+                ownedType,
+                new OwnedClass { Value = "Kool" },
+                new ValueBuffer(new object[] { 1, "Kool" }));
+
+            entry.SetEntityState(entityState);
+
+            if (entityState != EntityState.Unchanged)
+            {
+                entry[valueProperty] = "Pickle";
+            }
+            entry.SetOriginalValue(valueProperty, "Cheese");
+
+            entry.AcceptChanges();
+
+            Assert.Equal(entityState == EntityState.Deleted || entityState == EntityState.Detached ?
+                EntityState.Detached : EntityState.Unchanged, entry.EntityState);
+            if (entityState == EntityState.Unchanged)
+            {
+                Assert.Equal("Kool", entry[valueProperty]);
+                Assert.Equal("Kool", entry.GetOriginalValue(valueProperty));
+            }
+            else
+            {
+                Assert.Equal("Pickle", entry[valueProperty]);
+                Assert.Equal(entityState == EntityState.Detached || entityState == EntityState.Deleted ?
+                    "Cheese" : "Pickle", entry.GetOriginalValue(valueProperty));
+            }
+        }
+
+        [Fact]
         public virtual void Non_transparent_sidecar_does_not_intercept_normal_property_read_and_write()
         {
             var model = BuildModel();
@@ -1308,7 +1368,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         protected virtual Model BuildModel()
         {
-            var model = new Model();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
             var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
@@ -1322,12 +1383,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
-            entityType1.HasBaseType(someSimpleEntityType);
+            entityType1.BaseType = someSimpleEntityType;
             var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsConcurrencyToken = true;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
-            entityType2.HasBaseType(someCompositeEntityType);
+            entityType2.BaseType = someCompositeEntityType;
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
             // TODO: declare this on the derived type
@@ -1341,22 +1402,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entityType3.GetOrSetPrimaryKey(property6);
             var property7 = entityType3.AddProperty("Name", typeof(string));
             property7.IsConcurrencyToken = true;
-            entityType3.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            ((EntityType)entityType3).ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
             var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
             var property8 = entityType4.AddProperty("Id", typeof(int));
             entityType4.GetOrSetPrimaryKey(property8);
             var property9 = entityType4.AddProperty("Name", typeof(string));
             property9.IsConcurrencyToken = true;
-            entityType4.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            ((EntityType)entityType4).ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
-            entityType5.HasBaseType(someSimpleEntityType);
+            entityType5.BaseType = someSimpleEntityType;
             var fk5a = entityType5.AddProperty("Fk1", typeof(int));
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
 
-            return model;
+            modelBuilder.Entity<OwnerClass>(eb =>
+                {
+                    eb.HasKey(e => e.Id);
+                    var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
+                    owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
+                    owned.Property(e => e.Value);
+                });
+
+            return (Model)model;
         }
 
         protected interface ISomeEntity
@@ -1471,6 +1540,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             private void NotifyChanged([CallerMemberName] string propertyName = "")
                 => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected class OwnerClass
+        {
+            public int Id { get; set; }
+            public virtual OwnedClass Owned { get; set; }
+        }
+
+        protected class OwnedClass
+        {
+            public string Value { get; set; }
         }
     }
 }

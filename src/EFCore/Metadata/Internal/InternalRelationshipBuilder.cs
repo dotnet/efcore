@@ -960,7 +960,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if ((Metadata.PrincipalToDependent != null)
+            if (Metadata.PrincipalToDependent != null
+                && !Metadata.PrincipalToDependent.IsShadowProperty
                 && !Navigation.IsCompatible(
                     Metadata.PrincipalToDependent.PropertyInfo,
                     Metadata.PrincipalEntityType.ClrType,

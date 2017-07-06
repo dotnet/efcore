@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Passes_on_shadow_primary_key_created_by_convention_in_diet()
+        public virtual void Passes_on_shadow_primary_key_created_by_convention_in_dependent_type()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));

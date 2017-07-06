@@ -66,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void DuplicateDependentEntityTypeInstanceWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            [NotNull] IEntityType diet1,
-            [NotNull] IEntityType diet2)
+            [NotNull] IEntityType dependent1,
+            [NotNull] IEntityType dependent2)
         {
             var definition = CoreStrings.LogDuplicateDependentEntityTypeInstance;
 
-            definition.Log(diagnostics, diet1.DisplayName(), diet2.DisplayName());
+            definition.Log(diagnostics, dependent1.DisplayName(), dependent2.DisplayName());
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -80,8 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new SharedDependentEntityEventData(
                         definition,
                         DuplicateDependentEntityTypeInstanceWarning,
-                        diet1,
-                        diet2));
+                        dependent1,
+                        dependent2));
             }
         }
 

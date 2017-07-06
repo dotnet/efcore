@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
@@ -95,7 +96,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         protected override Model BuildModel()
         {
-            var model = new Model();
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
 
             var someSimpleEntityType = model.AddEntityType(typeof(SomeSimpleEntityBase));
             var simpleKeyProperty = someSimpleEntityType.AddProperty("Id", typeof(int));
@@ -109,12 +111,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
-            entityType1.HasBaseType(someSimpleEntityType);
+            entityType1.BaseType = someSimpleEntityType;
             var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsConcurrencyToken = false;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
-            entityType2.HasBaseType(someCompositeEntityType);
+            entityType2.BaseType = someCompositeEntityType;
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
             // TODO: declare this on the derived type
@@ -128,22 +130,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             entityType3.GetOrSetPrimaryKey(property6);
             var property7 = entityType3.AddProperty("Name", typeof(string));
             property7.IsConcurrencyToken = true;
-            entityType3.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            ((EntityType)entityType3).ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
 
             var entityType4 = model.AddEntityType(typeof(ChangedOnlyEntity));
             var property8 = entityType4.AddProperty("Id", typeof(int));
             entityType4.GetOrSetPrimaryKey(property8);
             var property9 = entityType4.AddProperty("Name", typeof(string));
             property9.IsConcurrencyToken = true;
-            entityType4.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            ((EntityType)entityType4).ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
-            entityType5.HasBaseType(someSimpleEntityType);
+            entityType5.BaseType = someSimpleEntityType;
             var fk5a = entityType5.AddProperty("Fk1", typeof(int));
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
+            
+            modelBuilder.Entity<OwnerClass>(eb =>
+                {
+                    eb.HasKey(e => e.Id);
+                    var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
+                    owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
+                    owned.Property(e => e.Value);
+                });
 
-            return model;
+            return (Model)model;
         }
     }
 }

@@ -3595,6 +3595,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
         }
 
+        [ConditionalFact]
+        public void Entries_for_detached_entities_are_removed()
+        {
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+                var entity = Set<Level2>(context).First();
+                var entry = context.ChangeTracker.Entries().Single();
+                Assert.Same(entity, entry.Entity);
+
+                entry.State = EntityState.Detached;
+
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

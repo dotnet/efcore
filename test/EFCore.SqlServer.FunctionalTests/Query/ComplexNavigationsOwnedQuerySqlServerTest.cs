@@ -19,8 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // TODO: Assert SQL
-
         [Fact]
         public override void Simple_owned_level1()
         {

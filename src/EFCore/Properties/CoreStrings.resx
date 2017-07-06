@@ -787,7 +787,7 @@
     <comment>Warning CoreEventId.PossibleUnintendedReferenceComparisonWarning object object</comment>
   </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
-    <value>The same entity is being tracked as different dependent entity types '{diet1}' and '{diet2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
+    <value>The same entity is being tracked as different dependent entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
   </data>
 </root>

@@ -1735,6 +1735,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (builder != null)
                 {
                     builder = builder.RelatedEntityTypes(Metadata, existingNavigation.GetTargetType(), configurationSource);
+                    builder = builder?.IsRequired(true, configurationSource);
                     builder = builder?.IsOwnership(true, configurationSource);
                     builder = builder?.Navigations(inverse, navigation, configurationSource);
                     
@@ -1756,6 +1757,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     inverseNavigation: navigation,
                     setTargetAsPrincipal: true,
                     configurationSource: configurationSource);
+                relationship.IsRequired(true, configurationSource);
                 relationship = batch.Run(relationship.IsOwnership(true, configurationSource));
             }
 
