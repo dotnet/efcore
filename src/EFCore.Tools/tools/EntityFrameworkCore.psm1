@@ -6,7 +6,7 @@
 
 Register-TabExpansion Add-Migration @{
     OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
-    Context = { param($x) GetContextTypes $x.Project $x.StartupProject $x.Environment }
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -27,9 +27,6 @@ Register-TabExpansion Add-Migration @{
 .PARAMETER Context
     The DbContext type to use.
 
-.PARAMETER Environment
-    The environment to use. Defaults to "Development".
-
 .PARAMETER Project
     The project to use.
 
@@ -49,7 +46,6 @@ function Add-Migration
         [string] $Name,
         [string] $OutputDir,
         [string] $Context,
-        [string] $Environment,
         [string] $Project,
         [string] $StartupProject)
 
@@ -65,7 +61,7 @@ function Add-Migration
         $params += '--output-dir', $OutputDir
     }
 
-    $params += GetParams $Context $Environment
+    $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
@@ -85,7 +81,7 @@ function Add-Migration
 #
 
 Register-TabExpansion Drop-Database @{
-    Context = { param($x) GetContextTypes $x.Environment $x.Project $x.StartupProject }
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -100,9 +96,6 @@ Register-TabExpansion Drop-Database @{
 .PARAMETER Context
     The DbContext to use.
 
-.PARAMETER Environment
-    The environment to use. Defaults to "Development".
-
 .PARAMETER Project
     The project to use.
 
@@ -116,7 +109,7 @@ Register-TabExpansion Drop-Database @{
 function Drop-Database
 {
     [CmdletBinding(PositionalBinding = $false, SupportsShouldProcess = $true, ConfirmImpact = 'High')]
-    param([string] $Context, [string] $Environment, [string] $Project, [string] $StartupProject)
+    param([string] $Context, [string] $Project, [string] $StartupProject)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -128,7 +121,7 @@ function Drop-Database
     }
 
     $params = 'dbcontext', 'info', '--json'
-    $params += GetParams $Context $Environment
+    $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $info = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
@@ -136,7 +129,7 @@ function Drop-Database
     if ($PSCmdlet.ShouldProcess("database '$($info.databaseName)' on server '$($info.dataSource)'"))
     {
         $params = 'database', 'drop', '--force'
-        $params += GetParams $Context $Environment
+        $params += GetParams $Context
 
         EF $dteProject $dteStartupProject $params -skipBuild
     }
@@ -157,7 +150,7 @@ function Enable-Migrations
 #
 
 Register-TabExpansion Remove-Migration @{
-    Context = { param($x) GetContextTypes $x.Environment $x.Project $x.StartupProject }
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -175,9 +168,6 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER Context
     The DbContext to use.
 
-.PARAMETER Environment
-    The environment to use. Defaults to "Development".
-
 .PARAMETER Project
     The project to use.
 
@@ -191,7 +181,7 @@ Register-TabExpansion Remove-Migration @{
 function Remove-Migration
 {
     [CmdletBinding(PositionalBinding = $false)]
-    param([switch] $Force, [string] $Context, [string] $Environment, [string] $Project, [string] $StartupProject)
+    param([switch] $Force, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -208,7 +198,7 @@ function Remove-Migration
         $params += '--force'
     }
 
-    $params += GetParams $Context $Environment
+    $params += GetParams $Context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
@@ -265,9 +255,6 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER Force
     Overwrite existing files.
 
-.PARAMETER Environment
-    The environment to use. Defaults to "Development".
-
 .PARAMETER Project
     The project to use.
 
@@ -291,7 +278,6 @@ function Scaffold-DbContext
         [string[]] $Tables = @(),
         [switch] $DataAnnotations,
         [switch] $Force,
-        [string] $Environment,
         [string] $Project,
         [string] $StartupProject)
 
@@ -323,8 +309,6 @@ function Scaffold-DbContext
         $params += '--force'
     }
 
-    $params += GetParams -Environment $Environment
-
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
 
@@ -339,9 +323,9 @@ function Scaffold-DbContext
 #
 
 Register-TabExpansion Script-Migration @{
-    From = { param($x) GetMigrations $x.Context $x.Environment $x.Project $x.StartupProject }
-    To = { param($x) GetMigrations $x.Context $x.Environment $x.Project $x.StartupProject }
-    Context = { param($x) GetContextTypes $x.Environment $x.Project $x.StartupProject }
+    From = { param($x) GetMigrations $x.Context $x.Project $x.StartupProject }
+    To = { param($x) GetMigrations $x.Context $x.Project $x.StartupProject }
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -368,9 +352,6 @@ Register-TabExpansion Script-Migration @{
 .PARAMETER Context
     The DbContext to use.
 
-.PARAMETER Environment
-    The environment to use. Defaults to "Development".
-
 .PARAMETER Project
     The project to use.
 
@@ -393,7 +374,6 @@ function Script-Migration
         [switch] $Idempotent,
         [string] $Output,
         [string] $Context,
-        [string] $Environment,
         [string] $Project,
         [string] $StartupProject)
 
@@ -434,7 +414,7 @@ function Script-Migration
         $params += '--idempotent'
     }
 
-    $params += GetParams $Context $Environment
+    $params += GetParams $Context
 
     EF $dteProject $dteStartupProject $params
 
@@ -447,8 +427,8 @@ function Script-Migration
 #
 
 Register-TabExpansion Update-Database @{
-    Migration = { param($x) GetMigrations $x.Context $x.Environment $x.Project $x.StartupProject }
-    Context = { param($x) GetContextTypes $x.Environment $x.Project $x.StartupProject }
+    Migration = { param($x) GetMigrations $x.Context $x.Project $x.StartupProject }
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -465,9 +445,6 @@ Register-TabExpansion Update-Database @{
 
 .PARAMETER Context
     The DbContext to use.
-
-.PARAMETER Environment
-    The environment to use. Defaults to "Development".
 
 .PARAMETER Project
     The project to use.
@@ -486,7 +463,6 @@ function Update-Database
         [Parameter(Position = 0)]
         [string] $Migration,
         [string] $Context,
-        [string] $Environment,
         [string] $Project,
         [string] $StartupProject)
 
@@ -508,7 +484,7 @@ function Update-Database
         $params += $Migration
     }
 
-    $params += GetParams $Context $Environment
+    $params += GetParams $Context
 
     EF $dteProject $dteStartupProject $params
 }
@@ -532,13 +508,12 @@ function GetProviders($projectName)
     return Get-Package -ProjectName $projectName | %{ $_.Id }
 }
 
-function GetContextTypes($environment, $projectName, $startupProjectName)
+function GetContextTypes($projectName, $startupProjectName)
 {
     $project = GetProject $projectName
     $startupProject = GetStartupProject $startupProjectName $project
 
     $params = 'dbcontext', 'list', '--json'
-    $params += GetParams -Environment $environment
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $project $startupProject $params -skipBuild) -join "`n" | ConvertFrom-Json
@@ -546,13 +521,13 @@ function GetContextTypes($environment, $projectName, $startupProjectName)
     return $result | %{ $_.safeName }
 }
 
-function GetMigrations($context, $environment, $projectName, $startupProjectName)
+function GetMigrations($context, $projectName, $startupProjectName)
 {
     $project = GetProject $projectName
     $startupProject = GetStartupProject $startupProjectName $project
 
     $params = 'migrations', 'list', '--json'
-    $params += GetParams $context $environment
+    $params += GetParams $context
 
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $project $startupProject $params -skipBuild) -join "`n" | ConvertFrom-Json
@@ -657,18 +632,13 @@ function GetSolutionProjects()
     }
 }
 
-function GetParams($context, $environment)
+function GetParams($context)
 {
     $params = @()
 
     if ($context)
     {
         $params += '--context', $context
-    }
-
-    if ($environment)
-    {
-        $params += '--environment', $environment
     }
 
     return $params
@@ -917,7 +887,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $process.WaitForExit()
-    
+
     if ($process.ExitCode)
     {
         exit
