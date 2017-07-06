@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
-            var lastModel = modelSnapshot?.Model;
+            var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model);
             var upOperations = Dependencies.MigrationsModelDiffer.GetDifferences(lastModel, Dependencies.Model);
             var downOperations = upOperations.Any()
                 ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model, lastModel)
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 var migration = migrations[migrations.Count - 1];
                 model = migration.TargetModel;
 
-                if (!Dependencies.MigrationsModelDiffer.HasDifferences(model, modelSnapshot.Model))
+                if (!Dependencies.MigrationsModelDiffer.HasDifferences(model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
                 {
                     if (force)
                     {

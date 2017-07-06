@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var currentContext = new CurrentDbContext(new TContext());
             var idGenerator = new MigrationsIdGenerator();
             var code = new CSharpHelper();
+            var reporter = new TestOperationReporter();
 
             return new MigrationsScaffolder(
                 new MigrationsScaffolderDependencies(
@@ -66,8 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 new CSharpMigrationOperationGeneratorDependencies(code)),
                             new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code)))),
                     new MockHistoryRepository(),
-                    new TestOperationReporter(),
-                    new MockProvider()));
+                    reporter,
+                    new MockProvider(),
+                    new SnapshotModelProcessor(reporter)));
         }
 
         private class GenericContext<T> : DbContext

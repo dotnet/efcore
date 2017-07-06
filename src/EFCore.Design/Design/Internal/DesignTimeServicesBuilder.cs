@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -95,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => services
                 .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<MigrationsScaffolder>()
+                .AddTransient<ISnapshotModelProcessor, SnapshotModelProcessor>()
                 .AddTransient(_ => contextServices.GetService<ICurrentDbContext>())
                 .AddTransient(_ => contextServices.GetService<IDatabaseProvider>())
                 .AddTransient(_ => contextServices.GetService<IDbContextOptions>())

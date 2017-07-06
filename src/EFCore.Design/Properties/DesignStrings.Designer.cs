@@ -551,6 +551,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 indexName, columnNames);
 
         /// <summary>
+        ///     The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.
+        /// </summary>
+        public static string MultipleAnnotationConflict([CanBeNull] object annotationName)
+            => string.Format(
+                GetString("MultipleAnnotationConflict", nameof(annotationName)),
+                annotationName);
+
+        /// <summary>
         ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
         /// </summary>
         public static string SequencesRequireName

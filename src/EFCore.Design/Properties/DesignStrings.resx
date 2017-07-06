@@ -330,6 +330,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="UnableToScaffoldIndexMissingProperty" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
   </data>
+  <data name="MultipleAnnotationConflict" xml:space="preserve">
+    <value>The annotation '{annotationName}' was specified twice with potentially different values. Specifying the same annotation multiple times for different providers is no longer supported. Review the generated Migration to ensure it is correct and, if necessary, edit the Migration to fix any issues.</value>
+  </data>
   <data name="SequencesRequireName" xml:space="preserve">
     <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
   </data>
