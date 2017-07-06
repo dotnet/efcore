@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
             => ConfigureOptions(
                     new DbContextOptionsBuilder()
-                        .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                         .EnableSensitiveDataLogging()
                         .UseInternalServiceProvider(
                             (additionalServices ?? new ServiceCollection())

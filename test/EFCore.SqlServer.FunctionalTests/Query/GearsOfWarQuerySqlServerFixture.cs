@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _options = new DbContextOptionsBuilder()
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }

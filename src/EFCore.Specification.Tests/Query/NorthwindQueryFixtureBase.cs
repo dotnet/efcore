@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             EnableFilters = enableFilters;
 
             return new NorthwindContext(
-                Options
-                ?? (Options = new DbContextOptionsBuilder(BuildOptions())
-                    .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning)).Options),
+                Options ?? (Options = new DbContextOptionsBuilder(BuildOptions()).Options),
                 queryTrackingBehavior);
         }
 

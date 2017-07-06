@@ -38,9 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxPoolSize;
         private long? _serviceProviderHash;
         private string _logFragment;
-
-        private WarningsConfiguration _warningsConfiguration 
-            = new WarningsConfiguration().TryWithExplicit(CoreEventId.IncludeIgnoredWarning, WarningBehavior.Throw);
+        private WarningsConfiguration _warningsConfiguration = new WarningsConfiguration();
 
         /// <summary>
         ///     Creates a new set of options with everything set to default values.

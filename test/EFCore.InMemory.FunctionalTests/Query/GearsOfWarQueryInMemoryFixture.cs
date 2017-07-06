@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _options = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(DatabaseName)
-                .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }

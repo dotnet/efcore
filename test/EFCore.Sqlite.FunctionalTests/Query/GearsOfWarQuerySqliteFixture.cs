@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _options = new DbContextOptionsBuilder()
                 .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                .ConfigureWarnings(w => w.Log(CoreEventId.IncludeIgnoredWarning))
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
         }

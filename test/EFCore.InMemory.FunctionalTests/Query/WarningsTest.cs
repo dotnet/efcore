@@ -76,9 +76,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public void Throws_by_default_for_ignored_includes()
+        public void Logs_by_default_for_ignored_includes()
         {
-            using (var context = new WarningAsErrorContext())
+            var messages = new List<string>();
+            using (var context = new WarningAsErrorContext(messages))
+            {
+                context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
+
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), messages);
+            }
+        }
+
+        [Fact]
+        public void Ignored_includes_can_be_configured_to_throw()
+        {
+            using (var context = new WarningAsErrorContext(toThrow: CoreEventId.IncludeIgnoredWarning))
             {
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
@@ -86,18 +98,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
                     Assert.Throws<InvalidOperationException>(()
                         => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
-            }
-        }
-
-        [Fact]
-        public void Ignored_includes_can_be_configured_to_not_throw()
-        {
-            var messages = new List<string>();
-            using (var context = new WarningAsErrorContext(messages, toLog: CoreEventId.IncludeIgnoredWarning))
-            {
-                context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
-
-                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), messages);
             }
         }
 
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             c.Log(_toLog.Value);
                         }
-                        else
+                        else if (_sink == null)
                         {
                             c.Default(WarningBehavior.Throw);
                         }
