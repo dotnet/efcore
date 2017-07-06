@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateClass(model, contextName, connectionString, useDataAnnotations);
             }
 
-            _sb.Append("}");
+            _sb.AppendLine("}");
 
             return _sb.ToString();
         }
@@ -428,8 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var annotations = index.GetAnnotations().ToList();
 
-            if (!string.IsNullOrEmpty(index.Relational().Name)
-                && index.Relational().Name != ConstraintNamer.GetDefaultName(index))
+            if (!string.IsNullOrEmpty((string)index[RelationalAnnotationNames.Name]))
             {
                 lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({_cSharpUtilities.DelimitString(index.Relational().Name)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
@@ -542,6 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var valueGenerated = property.ValueGenerated;
+            var isRowVersion = false;
             if (((Property)property).GetValueGeneratedConfigurationSource().HasValue
                 && new RelationalValueGeneratorConvention().GetValueGenerated((Property)property) != valueGenerated)
             {
@@ -553,7 +553,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         break;
 
                     case ValueGenerated.OnAddOrUpdate:
-                        methodName = nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
+                        isRowVersion = property.IsConcurrencyToken;
+                        methodName = isRowVersion
+                            ? nameof(PropertyBuilder.IsRowVersion)
+                            : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
                         break;
 
                     case ValueGenerated.Never:
@@ -566,6 +569,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
 
                 lines.Add($".{methodName}()");
+            }
+
+            if (property.IsConcurrencyToken
+                && !isRowVersion)
+            {
+                lines.Add($".{nameof(PropertyBuilder.IsConcurrencyToken)}()");
             }
 
             var annotationsToRemove = new List<IAnnotation>();
@@ -639,12 +648,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add($".{nameof(ReferenceReferenceBuilder.OnDelete)}({_cSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
             }
 
-            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
-
-            if (foreignKey.Relational().Name != ConstraintNamer.GetDefaultName(foreignKey))
+            if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
             {
                 canUseDataAnnotations = false;
                 lines.Add($".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}({_cSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
+                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
             var annotationsToRemove = new List<IAnnotation>();

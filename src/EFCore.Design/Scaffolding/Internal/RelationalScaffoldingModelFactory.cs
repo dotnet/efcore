@@ -28,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-
         protected virtual IOperationReporter Reporter { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual ICandidateNamingService CandidateNamingService { get; }
@@ -40,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly HashSet<DatabaseColumn> _unmappedColumns = new HashSet<DatabaseColumn>();
         private readonly IPluralizer _pluralizer;
-        private readonly IScaffoldingProviderCodeGenerator _providerCodeGenerator;
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
 
@@ -50,7 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] ICandidateNamingService candidateNamingService,
             [NotNull] IPluralizer pluralizer,
-            [NotNull] IScaffoldingProviderCodeGenerator providerCodeGenerator,
             [NotNull] ICSharpUtilities cSharpUtilities,
             [NotNull] IScaffoldingTypeMapper scaffoldingTypeMapper)
         {
@@ -59,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(candidateNamingService, nameof(candidateNamingService));
             Check.NotNull(pluralizer, nameof(pluralizer));
-            Check.NotNull(providerCodeGenerator, nameof(providerCodeGenerator));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(scaffoldingTypeMapper, nameof(scaffoldingTypeMapper));
 
@@ -68,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             CandidateNamingService = candidateNamingService;
             _databaseModelFactory = databaseModelFactory;
             _pluralizer = pluralizer;
-            _providerCodeGenerator = providerCodeGenerator;
             _cSharpUtilities = cSharpUtilities;
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
         }
@@ -143,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         c => CandidateNamingService.GenerateCandidateIdentifier(c.Name),
                         usedNames,
                         _cSharpUtilities,
-                        null));
+                        singularizePluralizer: null));
             }
 
             return _columnNamers[table].GetName(column);
@@ -336,7 +331,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             property.HasColumnName(column.Name);
 
-            if (!typeScaffoldingInfo.IsInferred && !string.IsNullOrWhiteSpace(column.StoreType))
+            if (!typeScaffoldingInfo.IsInferred
+                && !string.IsNullOrWhiteSpace(column.StoreType))
             {
                 property.HasColumnType(column.StoreType);
             }
@@ -376,15 +372,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 property.HasComputedColumnSql(column.ComputedColumnSql);
             }
 
-            if (!((column.Table.PrimaryKey?.Columns.Contains(column)) ?? false))
+            if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
             {
                 property.IsRequired(!column.IsNullable && !forceNullable);
+            }
+
+            if ((bool?)column[ScaffoldingAnnotationNames.ConcurrencyToken] == true)
+            {
+                property.IsConcurrencyToken();
             }
 
             property.Metadata.Scaffolding().ColumnOrdinal = column.Table.Columns.IndexOf(column);
 
             property.Metadata.AddAnnotations(
-                column.GetAnnotations().Where(a => a.Name != ScaffoldingAnnotationNames.UnderlyingStoreType));
+                column.GetAnnotations().Where(
+                    a => a.Name != ScaffoldingAnnotationNames.UnderlyingStoreType
+                         && a.Name != ScaffoldingAnnotationNames.ConcurrencyToken));
 
             return property;
         }
@@ -470,7 +473,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var propertyNames = uniqueConstraint.Columns.Select(GetPropertyName).ToArray();
             var indexBuilder = builder.HasIndex(propertyNames).IsUnique();
 
-
             if (!string.IsNullOrEmpty(uniqueConstraint.Name))
             {
                 indexBuilder.HasName(uniqueConstraint.Name);
@@ -479,7 +481,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             indexBuilder.Metadata.AddAnnotations(uniqueConstraint.GetAnnotations());
 
             return indexBuilder;
-
         }
 
         protected virtual EntityTypeBuilder VisitIndexes([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseIndex> indexes)
@@ -522,7 +523,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 indexBuilder.HasFilter(index.Filter);
             }
 
-            if (!string.IsNullOrEmpty(index.Name))
+            if (!string.IsNullOrEmpty(index.Name)
+                && index.Name != ConstraintNamer.GetDefaultName(indexBuilder.Metadata))
             {
                 indexBuilder.HasName(index.Name);
             }
@@ -591,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var dependentProperties = foreignKey.Columns
-                .Select(fc => GetPropertyName(fc))
+                .Select(GetPropertyName)
                 .Select(name => dependentEntityType.FindProperty(name))
                 .ToList()
                 .AsReadOnly();
@@ -621,7 +623,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var principalPropertiesMap = foreignKey.PrincipalColumns
                 .Select(
-                    fc => (property: principalEntityType.FindProperty(GetPropertyName(fc)), column: fc));
+                    fc => (property: principalEntityType.FindProperty(GetPropertyName(fc)), column: fc)).ToList();
             var principalProperties = principalPropertiesMap
                 .Select(tuple => tuple.property)
                 .ToList();
@@ -636,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // ensure all principal properties are non-nullable even if the columns
                     // are nullable on the database. EF's concept of a key requires this.
                     var nullablePrincipalProperties =
-                        principalPropertiesMap.Where(tuple => tuple.property.IsNullable);
+                        principalPropertiesMap.Where(tuple => tuple.property.IsNullable).ToList();
                     if (nullablePrincipalProperties.Any())
                     {
                         Reporter.WriteWarning(
@@ -672,9 +674,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var dependentKey = dependentEntityType.FindKey(dependentProperties);
             var dependentIndex = dependentEntityType.FindIndex(dependentProperties);
             key.IsUnique = dependentKey != null
-                           || (dependentIndex != null && dependentIndex.IsUnique);
+                           || dependentIndex != null && dependentIndex.IsUnique;
 
-            key.Relational().Name = foreignKey.Name;
+            if (!string.IsNullOrEmpty(foreignKey.Name)
+                && foreignKey.Name != ConstraintNamer.GetDefaultName(key))
+            {
+                key.Relational().Name = foreignKey.Name;
+            }
 
             AssignOnDeleteAction(foreignKey, key);
 
@@ -694,8 +700,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _cSharpUtilities.GenerateCSharpIdentifier(
                     dependentEndNavigationPropertyCandidateName,
                     dependentEndExistingIdentifiers,
-                    null,
-                    NavigationUniquifier);
+                    singularizePluralizer: null,
+                    uniquifier: NavigationUniquifier);
 
             foreignKey.HasDependentToPrincipal(dependentEndNavigationPropertyName);
 
@@ -718,8 +724,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _cSharpUtilities.GenerateCSharpIdentifier(
                     principalEndNavigationPropertyCandidateName,
                     principalEndExistingIdentifiers,
-                    null,
-                    NavigationUniquifier);
+                    singularizePluralizer: null,
+                    uniquifier: NavigationUniquifier);
 
             foreignKey.HasPrincipalToDependent(principalEndNavigationPropertyName);
         }
@@ -753,8 +759,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var typeScaffoldingInfo = _scaffoldingTypeMapper.FindMapping(
                 column.GetUnderlyingStoreType() ?? column.StoreType,
-                keyOrIndex: false,
-                rowVersion: false);
+                column.IsKeyOrIndex(),
+                column.IsRowVersion());
+
             if (column.GetUnderlyingStoreType() != null)
             {
                 return new TypeScaffoldingInfo(

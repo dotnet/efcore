@@ -99,7 +99,7 @@ namespace E2ETest.Namespace.SubDir
         public byte[] Varbinary123Column { get; set; }
         [Column("varbinaryMaxColumn")]
         public byte[] VarbinaryMaxColumn { get; set; }
-        [Column("timestampColumn", TypeName = "timestamp")]
+        [Column("timestampColumn")]
         public byte[] TimestampColumn { get; set; }
         [Column("uniqueidentifierColumn")]
         public Guid? UniqueidentifierColumn { get; set; }

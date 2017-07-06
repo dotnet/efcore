@@ -445,6 +445,67 @@ DROP TABLE dbo.History;
             }
         }
 
+        [ConditionalFact]
+        public void Correct_arguments_to_scaffolding_typemapper()
+        {
+            using (var scratch = SqlServerTestStore.Create("StringKeys"))
+            {
+                scratch.ExecuteNonQuery(@"
+CREATE TABLE [StringKeysBlogs] (
+    [PrimaryKey] nvarchar(450) NOT NULL,
+    [AlternateKey] nvarchar(450) NOT NULL,
+    [IndexProperty] nvarchar(450) NULL,
+    [RowVersion] rowversion NULL,
+    CONSTRAINT [PK_StringKeysBlogs] PRIMARY KEY ([PrimaryKey]),
+    CONSTRAINT [AK_StringKeysBlogs_AlternateKey] UNIQUE ([AlternateKey])
+);
+
+CREATE INDEX [IX_StringKeysBlogs_IndexProperty] ON [StringKeysBlogs] ([IndexProperty]);
+
+CREATE TABLE [StringKeysPosts] (
+    [Id] int NOT NULL IDENTITY,
+    [BlogAlternateKey] nvarchar(450) NULL,
+    CONSTRAINT [PK_StringKeysPosts] PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_StringKeysPosts_StringKeysBlogs_BlogAlternateKey] FOREIGN KEY ([BlogAlternateKey]) REFERENCES [StringKeysBlogs] ([AlternateKey]) ON DELETE NO ACTION
+);
+
+CREATE INDEX [IX_StringKeysPosts_BlogAlternateKey] ON [StringKeysPosts] ([BlogAlternateKey]);
+");
+
+                var expectedFileSet = new FileSet(new FileSystemFileService(),
+                    Path.Combine("ReverseEngineering", "Expected"),
+                    contents => contents.Replace("{{connectionString}}", scratch.ConnectionString))
+                {
+                    Files = new List<string>
+                    {
+                        "StringKeysContext.cs",
+                        "StringKeysBlogs.cs",
+                        "StringKeysPosts.cs",
+                    }
+                };
+
+                var filePaths = Generator.Generate(
+                    scratch.ConnectionString,
+                    Enumerable.Empty<string>(),
+                    Enumerable.Empty<string>(),
+                    TestProjectDir + Path.DirectorySeparatorChar,
+                    outputPath: null, // not used for this test
+                    rootNamespace: TestNamespace,
+                    contextName: "StringKeysContext",
+                    useDataAnnotations: false,
+                    overwriteFiles: false,
+                    useDatabaseNames: false);
+
+                var actualFileSet = new FileSet(InMemoryFiles, Path.GetFullPath(TestProjectDir))
+                {
+                    Files = new[] { filePaths.ContextFile }.Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
         protected override ICollection<BuildReference> References { get; } = new List<BuildReference>
         {
             BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer"),

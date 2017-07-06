@@ -24,7 +24,6 @@ namespace E2ETest.Namespace.SubDir
         [Column("SumOfAAndB")]
         public int? SumOfAandB { get; set; }
         [Required]
-        [Column(TypeName = "timestamp")]
         public byte[] RowversionColumn { get; set; }
         [Column("PropertyConfiguration")]
         public int? PropertyConfiguration1 { get; set; }

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual TypeScaffoldingInfo FindMapping(
-            [NotNull] string storeType,
+            string storeType,
             bool keyOrIndex,
             bool rowVersion)
         {
@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return null;
             }
 
-            bool canInfer = false;
+            var canInfer = false;
             bool? scaffoldUnicode = null;
-            int? scaffoldMaxLengh = null;
+            int? scaffoldMaxLength = null;
 
             if (mapping.ClrType == typeof(byte[])
                 && TypeMapper.ByteArrayMapper != null)
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     // Check for size
                     var sizedMapping = TypeMapper.ByteArrayMapper.FindMapping(rowVersion, keyOrIndex, size: null);
-                    scaffoldMaxLengh = sizedMapping.Size != byteArrayMapping.Size ? byteArrayMapping.Size : null;
+                    scaffoldMaxLength = sizedMapping.Size != byteArrayMapping.Size ? byteArrayMapping.Size : null;
                 }
             }
             else if (mapping.ClrType == typeof(string)
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     scaffoldUnicode = unicodeMapping.IsUnicode != stringMapping.IsUnicode ? (bool?)stringMapping.IsUnicode : null;
 
                     // Check for size
-                    var sizedMapping = TypeMapper.StringMapper.FindMapping(unicode: mapping.IsUnicode, keyOrIndex: keyOrIndex, maxLength: null);
-                    scaffoldMaxLengh = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
+                    var sizedMapping = TypeMapper.StringMapper.FindMapping(mapping.IsUnicode, keyOrIndex, maxLength: null);
+                    scaffoldMaxLength = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
                 }
             }
             else
@@ -83,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return new TypeScaffoldingInfo(
                 mapping.ClrType,
-                inferred: canInfer,
-                scaffoldUnicode: scaffoldUnicode,
-                scaffoldMaxLength: scaffoldMaxLengh);
+                canInfer,
+                scaffoldUnicode,
+                scaffoldMaxLength);
         }
     }
 }

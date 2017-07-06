@@ -1036,31 +1036,9 @@ namespace Microsoft.EntityFrameworkCore
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer,
-                new FakeScaffoldingCodeGenerator(),
                 new CSharpUtilities(),
                 new ScaffoldingTypeMapper(new TestTypeMapper(new RelationalTypeMapperDependencies())))
         {
-        }
-    }
-
-    public class FakeScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
-    {
-        public string GenerateUseProvider(string connectionString, string language)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TypeScaffoldingInfo GetTypeScaffoldingInfo(DatabaseColumn column)
-        {
-            if (column.StoreType == null)
-            {
-                return null;
-            }
-
-            var scaffoldingTypeMapper = new ScaffoldingTypeMapper(
-                new TestTypeMapper(new RelationalTypeMapperDependencies()));
-
-            return scaffoldingTypeMapper.FindMapping(column.StoreType, keyOrIndex: false, rowVersion: false);
         }
     }
 

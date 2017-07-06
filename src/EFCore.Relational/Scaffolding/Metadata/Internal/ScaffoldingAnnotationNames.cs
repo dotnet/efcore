@@ -6,5 +6,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
     public static class ScaffoldingAnnotationNames
     {
         public const string UnderlyingStoreType = "UnderlyingStoreType";
+        public const string ConcurrencyToken = "ConcurrencyToken";
     }
 }

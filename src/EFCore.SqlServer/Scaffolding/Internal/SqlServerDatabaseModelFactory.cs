@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -422,10 +423,9 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                     }
 
                     string storeType;
-                    string underlyingStoreType;
                     if (typeAliases.TryGetValue(
                         SchemaQualifiedKey(dataTypeName, dataTypeSchemaName),
-                        out underlyingStoreType))
+                        out var underlyingStoreType))
                     {
                         storeType = dataTypeName;
                         underlyingStoreType = GetStoreType(underlyingStoreType, precision, scale, maxLength);
@@ -456,10 +456,16 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                         ComputedColumnSql = computedValue,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
-                            : isComputed || (underlyingStoreType ?? storeType) == "timestamp"
+                            : isComputed || (underlyingStoreType ?? storeType) == "rowversion"
                                 ? ValueGenerated.OnAddOrUpdate
                                 : default(ValueGenerated?)
                     };
+
+                    if ((underlyingStoreType ?? storeType) == "rowversion")
+                    {
+                        column[ScaffoldingAnnotationNames.ConcurrencyToken] = true;
+                    }
+
                     column.SetUnderlyingStoreType(underlyingStoreType);
 
                     table.Columns.Add(column);
@@ -471,7 +477,7 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
         private string GetStoreType(string dataTypeName, int? precision, int? scale, int? maxLength)
         {
             if ((dataTypeName == "nvarchar"
-                || dataTypeName == "nchar")
+                 || dataTypeName == "nchar")
                 && maxLength != -1)
             {
                 maxLength /= 2;
@@ -482,18 +488,22 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
             {
                 return $"{dataTypeName}({precision}, {scale})";
             }
-            else if (_dateTimePrecisionTypes.Contains(dataTypeName)
-                     && scale != null)
+            if (_dateTimePrecisionTypes.Contains(dataTypeName)
+                && scale != null)
             {
                 return $"{dataTypeName}({scale})";
             }
-            else if (maxLength == -1)
+            if (maxLength == -1)
             {
                 return $"{dataTypeName}(max)";
             }
-            else if (maxLength.HasValue)
+            if (maxLength.HasValue)
             {
                 return $"{dataTypeName}({maxLength.Value})";
+            }
+            if (dataTypeName == "timestamp")
+            {
+                return "rowversion";
             }
 
             return dataTypeName;
@@ -550,6 +560,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Debug.Assert(primaryKey == null || primaryKey.Table != null);
                     if (primaryKey == null
                         || primaryKey.Name != indexName
+                        // ReSharper disable once PossibleNullReferenceException
                         || primaryKey.Table.Name != tableName
                         || primaryKey.Table.Schema != schemaName)
                     {
@@ -643,6 +654,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Debug.Assert(uniqueConstraint == null || uniqueConstraint.Table != null);
                     if (uniqueConstraint == null
                         || uniqueConstraint.Name != indexName
+                        // ReSharper disable once PossibleNullReferenceException
                         || uniqueConstraint.Table.Name != tableName
                         || uniqueConstraint.Table.Schema != schemaName)
                     {
@@ -656,7 +668,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         uniqueConstraint = new DatabaseUniqueConstraint
                         {
                             Table = table,
-                            Name = indexName,
+                            Name = indexName
                         };
 
                         if (typeDesc == "CLUSTERED")
@@ -743,6 +755,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Debug.Assert(index == null || index.Table != null);
                     if (index == null
                         || index.Name != indexName
+                        // ReSharper disable once PossibleNullReferenceException
                         || index.Table.Name != tableName
                         || index.Table.Schema != schemaName)
                     {

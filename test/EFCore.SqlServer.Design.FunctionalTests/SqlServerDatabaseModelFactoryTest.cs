@@ -237,7 +237,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
                     {
                         Assert.Equal("Modified", modified.Name);
                         Assert.Equal(ValueGenerated.OnAddOrUpdate, modified.ValueGenerated);
-                        Assert.Equal("timestamp", modified.StoreType); // intentional - testing the alias
+                        Assert.Equal("rowversion", modified.StoreType);
                     });
         }
 

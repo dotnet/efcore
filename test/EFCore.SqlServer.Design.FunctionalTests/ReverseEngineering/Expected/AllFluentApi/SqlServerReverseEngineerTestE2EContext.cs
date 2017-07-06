@@ -233,8 +233,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.TimestampColumn)
                     .HasColumnName("timestampColumn")
-                    .HasColumnType("timestamp")
-                    .ValueGeneratedOnAddOrUpdate();
+                    .IsRowVersion();
 
                 entity.Property(e => e.TinyintColumn).HasColumnName("tinyintColumn");
 
@@ -503,8 +502,7 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.RowversionColumn)
                     .IsRequired()
-                    .HasColumnType("timestamp")
-                    .ValueGeneratedOnAddOrUpdate();
+                    .IsRowVersion();
 
                 entity.Property(e => e.SumOfAandB)
                     .HasColumnName("SumOfAAndB")

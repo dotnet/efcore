@@ -49,7 +49,7 @@ namespace E2ETest.Namespace.SubDir
 
                 entity.Property(e => e.CharacterVaryingMaxColumn).IsUnicode(false);
 
-                entity.Property(e => e.TimestampColumn).ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.TimestampColumn).IsRowVersion();
 
                 entity.Property(e => e.Varchar66Column).IsUnicode(false);
 
@@ -169,7 +169,7 @@ namespace E2ETest.Namespace.SubDir
 
                 entity.Property(e => e.ComputedDateTimeColumn).HasComputedColumnSql("(getdate())");
 
-                entity.Property(e => e.RowversionColumn).ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.RowversionColumn).IsRowVersion();
 
                 entity.Property(e => e.SumOfAandB).HasComputedColumnSql("([A]+[B])");
 
