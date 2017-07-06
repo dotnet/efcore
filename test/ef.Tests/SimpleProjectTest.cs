@@ -120,8 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public void GetContextInfo_returns_connection_string()
         {
             var info = _project.Executor.GetContextInfo("SimpleContext");
+            Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info["ProviderName"]);
             Assert.Equal(@"(localdb)\MSSQLLocalDB", info["DataSource"]);
             Assert.Equal("SimpleProject.SimpleContext", info["DatabaseName"]);
+            Assert.Equal("None", info["Options"]);
         }
 
         public class SimpleProject : IDisposable

@@ -24,6 +24,8 @@ LONG DESCRIPTION
 
         Drop-Database               Drops the database.
 
+        Get-DbContext               Gets information about a DbContext type.
+
         Remove-Migration            Removes the last migration.
 
         Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
@@ -35,6 +37,7 @@ LONG DESCRIPTION
 SEE ALSO
     Add-Migration
     Drop-Database
+    Get-DbContext
     Remove-Migration
     Scaffold-DbContext
     Script-Migration

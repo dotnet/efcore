@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -165,12 +166,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             using (var context = CreateContext(contextType))
             {
+                var info = new ContextInfo();
+
+                var provider = context.GetService<IDatabaseProvider>();
+                info.ProviderName = provider.Name;
+
                 var connection = context.Database.GetDbConnection();
-                return new ContextInfo
-                {
-                    DatabaseName = connection.Database,
-                    DataSource = connection.DataSource
-                };
+                info.DataSource = connection.DataSource;
+                info.DatabaseName = connection.Database;
+
+                var options = context.GetService<IDbContextOptions>();
+                info.Options = options.BuildOptionsFragment().Trim();
+
+                return info;
             }
         }
 

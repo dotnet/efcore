@@ -419,6 +419,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("DesignNotFound", nameof(startupProject)),
                 startupProject);
 
+        /// <summary>
+        ///     Provider name: {provider}
+        /// </summary>
+        public static string ProviderName([CanBeNull] object provider)
+            => string.Format(
+                GetString("ProviderName", nameof(provider)),
+                provider);
+
+        /// <summary>
+        ///     Options: {options}
+        /// </summary>
+        public static string Options([CanBeNull] object options)
+            => string.Format(
+                GetString("Options", nameof(options)),
+                options);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

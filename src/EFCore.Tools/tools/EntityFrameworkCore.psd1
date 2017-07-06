@@ -61,6 +61,7 @@
         'Add-Migration',
         'Drop-Database',
         'Enable-Migrations',
+        'Get-DbContext',
         'Remove-Migration',
         'Scaffold-DbContext',
         'Script-Migration',

@@ -303,4 +303,10 @@
   <data name="DesignNotFound" xml:space="preserve">
     <value>Your startup project '{startupProject}' doesn't reference Microsoft.EntityFrameworkCore.Design. This package is required for the Entity Framework Core Tools to work. Ensure your startup project is correct, install the package, and try again.</value>
   </data>
+  <data name="ProviderName" xml:space="preserve">
+    <value>Provider name: {provider}</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>Options: {options}</value>
+  </data>
 </root>

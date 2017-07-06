@@ -22,6 +22,11 @@ function Enable-Migrations
     throw $versionErrorMessage
 }
 
+function Get-DbContext
+{
+    throw $versionErrorMessage
+}
+
 function Remove-Migration
 {
     throw $versionErrorMessage

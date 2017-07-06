@@ -155,11 +155,13 @@ namespace Microsoft.EntityFrameworkCore.Design
 
         private IDictionary GetContextInfoImpl([CanBeNull] string contextType)
         {
-            var databaseInfo = _contextOperations.Value.GetContextInfo(contextType);
+            var info = _contextOperations.Value.GetContextInfo(contextType);
             return new Hashtable
             {
-                ["DatabaseName"] = databaseInfo.DatabaseName,
-                ["DataSource"] = databaseInfo.DataSource
+                ["ProviderName"] = info.ProviderName,
+                ["DatabaseName"] = info.DatabaseName,
+                ["DataSource"] = info.DataSource,
+                ["Options"] = info.Options
             };
         }
 

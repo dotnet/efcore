@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -523,11 +522,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
             {
                 definition.Log(
-                    diagnostics, 
-                    ProductInfo.GetVersion(), 
-                    context.GetType().ShortDisplayName(), 
+                    diagnostics,
+                    ProductInfo.GetVersion(),
+                    context.GetType().ShortDisplayName(),
                     context.Database.ProviderName,
-                    BuildOptionsFragment(contextOptions));
+                    contextOptions.BuildOptionsFragment());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -542,19 +541,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        private static string BuildOptionsFragment(DbContextOptions contextOptions)
-        {
-            var builder = new StringBuilder();
-            foreach (var extension in contextOptions.Extensions)
-            {
-                builder.Append(extension.LogFragment);
-
-            }
-            var fragment = builder.ToString();
-
-            return string.IsNullOrWhiteSpace(fragment) ? "None" : fragment;
-        }
-
         private static string ContextInitialized(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string, string>)definition;
@@ -563,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ProductInfo.GetVersion(),
                 p.Context.GetType().ShortDisplayName(),
                 p.Context.Database.ProviderName,
-                BuildOptionsFragment(p.ContextOptions));
+                p.ContextOptions.BuildOptionsFragment());
 
         }
     }
