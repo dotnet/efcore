@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -285,7 +286,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             serviceCollection
                 .AddMemoryCache()
-                .AddLogging();
+                .AddLogging(b => b.SetMinimumLevel(LogLevel.Debug));
 
             serviceCollection.TryAdd(new ServiceDescriptor(
                 typeof(DbContextOptions<TContext>), 
