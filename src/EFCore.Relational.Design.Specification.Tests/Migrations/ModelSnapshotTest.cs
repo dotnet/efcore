@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -37,6 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public int Id { get; set; }
             public int AlternateId { get; set; }
             public EntityWithOneProperty EntityWithOneProperty { get; set; }
+            [NotMapped]
+            public EntityWithStringProperty EntityWithStringProperty { get; set; }
         }
 
         private class EntityWithStringProperty
@@ -282,7 +285,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Deri
                             t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
                             t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
                             t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
-                        );
+                            );
                     });
         }
 
@@ -376,7 +379,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             o.GetEntityTypes().First().GetProperties(),
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                        );
+                            );
                     });
         }
 
@@ -408,7 +411,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             o.GetEntityTypes().First().FindPrimaryKey().Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                        );
+                            );
                     });
         }
 
@@ -442,7 +445,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             o.GetEntityTypes().First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                        );
+                            );
                     });
         }
 
@@ -563,6 +566,88 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         Assert.Equal("AlternateId", foreignKey.Properties[0].Name);
                         Assert.Equal("EntityWithTwoProperties", foreignKey.PrincipalToDependent.Name);
                         Assert.Equal("EntityWithOneProperty", foreignKey.DependentToPrincipal.Name);
+                    });
+        }
+
+        [Fact]
+        public virtual void Owned_types_are_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                    {
+                        builder
+                            .Entity<EntityWithOneProperty>()
+                            .OwnsOne(e => e.EntityWithTwoProperties, eb =>
+                                {
+                                    eb.HasForeignKey(e => e.AlternateId);
+                                    eb.HasOne(e => e.EntityWithOneProperty)
+                                        .WithOne(e => e.EntityWithTwoProperties);
+
+                                    eb.OwnsOne(e => e.EntityWithStringProperty);
+                                });
+                    },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
+            {
+                b1.Property<int>(""AlternateId"");
+
+                b1.Property<int>(""Id"");
+
+                b1.ToTable(""EntityWithOneProperty"");
+
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+                    .WithOne(""EntityWithTwoProperties"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
+                    {
+                        b2.Property<int>(""EntityWithTwoPropertiesAlternateId"");
+
+                        b2.Property<int>(""Id"");
+
+                        b2.Property<string>(""Name"");
+
+                        b2.ToTable(""EntityWithOneProperty"");
+
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"")
+                            .WithOne(""EntityWithStringProperty"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""EntityWithTwoPropertiesAlternateId"")
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+            });
+    });
+",
+                o =>
+                    {
+                        var ownership1 = o.FindEntityType(typeof(EntityWithOneProperty)).GetReferencingForeignKeys().Single();
+                        Assert.Equal("AlternateId", ownership1.Properties[0].Name);
+                        Assert.Equal("EntityWithTwoProperties", ownership1.PrincipalToDependent.Name);
+                        Assert.Equal("EntityWithOneProperty", ownership1.DependentToPrincipal.Name);
+                        Assert.True(ownership1.IsRequired);
+                        var ownedType1 = ownership1.DeclaringEntityType;
+                        Assert.Equal("AlternateId", ownedType1.FindPrimaryKey().Properties[0].Name);
+                        Assert.Equal(1, ownedType1.GetKeys().Count());
+                        var ownership2 = ownedType1.GetReferencingForeignKeys().Single();
+                        Assert.Equal("EntityWithTwoPropertiesAlternateId", ownership2.Properties[0].Name);
+                        Assert.Equal("EntityWithStringProperty", ownership2.PrincipalToDependent.Name);
+                        Assert.Null(ownership2.DependentToPrincipal);
+                        Assert.True(ownership2.IsRequired);
+                        var ownedType2 = ownership2.DeclaringEntityType;
+                        Assert.Equal("EntityWithTwoPropertiesAlternateId", ownedType2.FindPrimaryKey().Properties[0].Name);
+                        Assert.Equal(1, ownedType2.GetKeys().Count());
                     });
         }
 
@@ -705,7 +790,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
     });
 ",
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"]); }
-            );
+                );
         }
 
         [Fact]
@@ -729,7 +814,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
     });
 ",
                 o => { Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactoryAnnotation]); }
-            );
+                );
         }
 
         [Fact]

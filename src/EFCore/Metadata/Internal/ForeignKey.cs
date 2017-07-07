@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
             if (principalEntityType.HasDefiningNavigation()
-                && principalEntityType.ClrType == dependentEntityType.ClrType)
+                && principalEntityType.Name == dependentEntityType.Name)
             {
                 if (shouldThrow)
                 {

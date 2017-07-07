@@ -1401,7 +1401,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyIdentity? navigationToTarget,
             PropertyIdentity? inverseNavigation,
             bool setTargetAsPrincipal,
-            ConfigurationSource configurationSource)
+            ConfigurationSource configurationSource,
+            bool? required = null)
         {
             Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder));
 
@@ -1415,7 +1416,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     targetEntityTypeBuilder.Metadata.ClrType.GetTypeInfo()))
             {
                 // Only one nav specified and it can't be the nav to principal
-                return targetEntityTypeBuilder.Relationship(this, null, navigationToTarget, setTargetAsPrincipal, configurationSource);
+                return targetEntityTypeBuilder.Relationship(
+                    this, null, navigationToTarget, setTargetAsPrincipal, configurationSource, required);
             }
 
             var existingRelationship = InternalRelationshipBuilder.FindCurrentRelationshipBuilder(
@@ -1446,6 +1448,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
                 if (!setTargetAsPrincipal)
                 {
+                    if (required.HasValue)
+                    {
+                        existingRelationship.IsRequired(required.Value, configurationSource);
+                    }
                     return existingRelationship;
                 }
             }
@@ -1478,6 +1484,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
                 if (!setTargetAsPrincipal)
                 {
+                    if (required.HasValue)
+                    {
+                        existingRelationship.IsRequired(required.Value, configurationSource);
+                    }
                     return existingRelationship;
                 }
             }
@@ -1500,7 +1510,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             dependentProperties: null,
                             principalKey: null,
                             navigationToPrincipalName: navigationProperty?.Name,
-                            isRequired: null,
+                            isRequired: required,
                             configurationSource: configurationSource);
                     }
                     else
@@ -1756,8 +1766,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     navigationToTarget: inverse,
                     inverseNavigation: navigation,
                     setTargetAsPrincipal: true,
-                    configurationSource: configurationSource);
-                relationship.IsRequired(true, configurationSource);
+                    configurationSource: configurationSource,
+                    required: true);
                 relationship = batch.Run(relationship.IsOwnership(true, configurationSource));
             }
 

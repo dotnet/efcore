@@ -860,6 +860,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     otherOwnership.Builder.IsOwnership(false, configurationSource);
                 }
+
+                Metadata.DeclaringEntityType.Builder.PrimaryKey(
+                    Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
             }
 
             Metadata.SetIsOwnership(ownership, configurationSource);
