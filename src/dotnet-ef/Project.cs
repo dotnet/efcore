@@ -54,6 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 buildExtensionsDir = Path.Combine(Path.GetDirectoryName(file), "obj");
             }
 
+            Directory.CreateDirectory(buildExtensionsDir);
+
             var efTargetsPath = Path.Combine(
                 buildExtensionsDir,
                 Path.GetFileName(file) + ".EntityFrameworkCore.targets");
