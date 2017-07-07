@@ -6,9 +6,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -27,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly SqlServerFixture _fixture;
 
+        // ReSharper disable once UnusedParameter.Local
         public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         {
             _fixture = fixture;
@@ -113,6 +119,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             public DbSet<Customer> Customers { get; set; }
             public DbSet<Postcode> Postcodes { get; set; }
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public class Customer
             {
                 public int CustomerID { get; set; }
@@ -145,8 +152,8 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     var count
                         = await context.Persons
                             .Where(
-                                p => (p.AddressOne != null && p.AddressOne.Street.Contains("Low Street"))
-                                     || (p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street")))
+                                p => p.AddressOne != null && p.AddressOne.Street.Contains("Low Street")
+                                     || p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street"))
                             .CountAsync();
 
                     Assert.Equal(0, count);
@@ -224,7 +231,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
                 modelBuilder.Entity<Address>().HasKey(a => a.Id);
 
-                modelBuilder.Entity<Address>().Property(a => a.Street).IsRequired(true);
+                modelBuilder.Entity<Address>().Property(a => a.Street).IsRequired();
 
                 modelBuilder.Entity<Address>().HasOne(a => a.Person)
                     .WithMany()
@@ -474,18 +481,18 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                 {
                     //TestSqlLoggerFactory.CaptureOutput(_testOutputHelper);
 
-                    var query = from p in context.Project
+                    var query = from p in context.Projects
                                 select new ProjectView
                                 {
                                     Permissions
-                                        = from u in p.User
+                                        = from u in p.ProjectUsers
                                           select new PermissionView
                                           {
                                               UserName = u.User.Name
                                           }
                                 };
 
-                    var target = context.ProjectUser.First();
+                    var target = context.ProjectUsers.First();
 
                     query.SingleOrDefault(item => item.Id == target.ProjectId);
                 }
@@ -501,7 +508,9 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
         {
             public Guid Id { get; set; }
             public string Name { get; set; }
-            public ISet<ProjectUser> User { get; set; }
+
+            // ReSharper disable once CollectionNeverUpdated.Local
+            public ISet<ProjectUser> ProjectUsers { get; set; }
         }
 
         private class ProjectUser : IHasKey
@@ -540,9 +549,9 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
             {
             }
 
-            public DbSet<Project> Project { get; set; }
-            public DbSet<ProjectUser> ProjectUser { get; set; }
-            public DbSet<User> User { get; set; }
+            public DbSet<Project> Projects { get; set; }
+            public DbSet<ProjectUser> ProjectUsers { get; set; }
+            public DbSet<User> Users { get; set; }
         }
 
         private SqlServerTestStore CreateDatabase7293()
@@ -552,21 +561,21 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                     {
                         var projects = new[]
                         {
-                            new Project { Name = "Project 1" },
-                            new Project { Name = "Project 2" },
-                            new Project { Name = "Project 3" }
+                            new Project { Name = "Projects 1" },
+                            new Project { Name = "Projects 2" },
+                            new Project { Name = "Projects 3" }
                         };
 
-                        context.Project.AddRange(projects);
+                        context.Projects.AddRange(projects);
 
                         var users = new[]
                         {
-                            new User { Name = "User 1" },
-                            new User { Name = "User 2" },
-                            new User { Name = "User 3" }
+                            new User { Name = "Users 1" },
+                            new User { Name = "Users 2" },
+                            new User { Name = "Users 3" }
                         };
 
-                        context.User.AddRange(users);
+                        context.Users.AddRange(users);
 
                         var permissions = (from project in projects
                                            from user in users
@@ -578,7 +587,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                                                User = user
                                            }).ToList();
 
-                        context.ProjectUser.AddRange(permissions);
+                        context.ProjectUsers.AddRange(permissions);
                         context.SaveChanges();
                     });
 
@@ -867,6 +876,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             public MyInvalidCollection3758(int argument)
             {
+                var _ = argument;
             }
         }
 
@@ -1190,6 +1200,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                 on eVersion.RootEntityId equals (int?)eRoot.Id
                                 into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
+                                // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1210,6 +1221,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                 on eVersion.RootEntityId equals (int?)eRoot.Id
                                 into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
+                                // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1230,6 +1242,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                 on eVersion.RootEntityId equals (int?)eRoot.Id
                                 into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
+                                // ReSharper disable once MergeConditionalExpression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
                     var result = query.ToList();
@@ -1252,10 +1265,9 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
 
-                    var result = query.ToList();
+                    query.ToList();
 
-                    var foo = ctx.ChangeTracker.Entries().ToList();
-                    Assert.True(ctx.ChangeTracker.Entries().Count() > 0);
+                    Assert.True(ctx.ChangeTracker.Entries().Any());
                 }
             }
         }
@@ -1293,7 +1305,6 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             }
 
             public DbSet<Entity3101> Entities { get; set; }
-
             public DbSet<Child3101> Children { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1911,6 +1922,159 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
 
                         ClearLog();
                     });
+
+        #endregion
+
+        #region Bug8909
+
+        [Fact]
+        public virtual void Variable_from_closure_is_parametrized()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var id = 1;
+                    context.Entities.Where(c => c.Id == id).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    id = 2;
+                    context.Entities.Where(c => c.Id == id).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    AssertSql(
+                        @"@__id_0='1'
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0",
+                        //
+                        @"@__id_0='2'
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Variable_from_nested_closure_is_parametrized()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var id = 0;
+                    // ReSharper disable once AccessToModifiedClosure
+                    Expression<Func<Entity8909, bool>> whereExpression = c => c.Id == id;
+
+                    id = 1;
+                    context.Entities.Where(whereExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    id = 2;
+                    context.Entities.Where(whereExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    AssertSql(
+                        @"@__id_0='1'
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0",
+                        //
+                        @"@__id_0='2'
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Variable_from_multi_level_nested_closure_is_parametrized()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var id = 0;
+                    // ReSharper disable once AccessToModifiedClosure
+                    Expression<Func<Entity8909, bool>> whereExpression = c => c.Id == id;
+                    Expression<Func<Entity8909, bool>> containsExpression = c => context.Entities.Where(whereExpression).Select(e => e.Id).Contains(c.Id);
+
+                    id = 1;
+                    context.Entities.Where(containsExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    id = 2;
+                    context.Entities.Where(containsExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    AssertSql(
+                        @"@__id_0='1'
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] IN (
+    SELECT [c0].[Id]
+    FROM [Entities] AS [c0]
+    WHERE [c0].[Id] = @__id_0
+)",
+                        //
+                        @"@__id_0='2'
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] IN (
+    SELECT [c0].[Id]
+    FROM [Entities] AS [c0]
+    WHERE [c0].[Id] = @__id_0
+)");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase8909()
+            => CreateTestStore(
+                () => new MyContext8909(_options),
+                context => { ClearLog(); });
+
+        public class MyContext8909 : DbContext
+        {
+            public MyContext8909(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Entity8909> Entities { get; set; }
+
+            public MemoryCache Cache
+            {
+                get
+                {
+                    var compiledQueryCache = this.GetService<ICompiledQueryCache>();
+
+                    return (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
+                        .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
+                        .GetValue(compiledQueryCache);
+                }
+            }
+        }
+
+        public class Entity8909
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
 
         #endregion
 

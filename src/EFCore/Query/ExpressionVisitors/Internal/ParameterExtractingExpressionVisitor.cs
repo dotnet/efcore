@@ -352,9 +352,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var parameterValue = Evaluate(expression, out var parameterName);
 
-            if (parameterValue is Expression parameterExpression)
+            if (parameterValue is Expression valueExpression)
             {
-                return ExtractParameters(parameterExpression);
+                return ExtractParameters(valueExpression);
             }
 
             if (!_parameterize)
