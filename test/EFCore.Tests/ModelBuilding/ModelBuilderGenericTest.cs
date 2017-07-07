@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestIndexBuilder HasIndex(params string[] propertyNames)
                 => new TestIndexBuilder(ReferenceOwnershipBuilder.HasIndex(propertyNames));
 
-            public override TestIndexBuilder HasIndex(Expression<Func<TEntity, object>> indexExpression)
+            public override TestIndexBuilder HasIndex(Expression<Func<TRelatedEntity, object>> indexExpression)
                 => new TestIndexBuilder(ReferenceOwnershipBuilder.HasIndex(indexExpression));
 
             public override TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(

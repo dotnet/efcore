@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TRelatedEntity, object>> propertyExpression);
 
             public abstract TestIndexBuilder HasIndex(params string[] propertyNames);
-            public abstract TestIndexBuilder HasIndex(Expression<Func<TEntity, object>> indexExpression);
+            public abstract TestIndexBuilder HasIndex(Expression<Func<TRelatedEntity, object>> indexExpression);
 
             public abstract TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(
                 Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression)

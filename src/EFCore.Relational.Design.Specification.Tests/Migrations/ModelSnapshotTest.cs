@@ -577,11 +577,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                     {
                         builder
                             .Entity<EntityWithOneProperty>()
-                            .OwnsOne(e => e.EntityWithTwoProperties, eb =>
+                            .OwnsOne(eo => eo.EntityWithTwoProperties, eb =>
                                 {
                                     eb.HasForeignKey(e => e.AlternateId);
                                     eb.HasOne(e => e.EntityWithOneProperty)
                                         .WithOne(e => e.EntityWithTwoProperties);
+                                    eb.HasIndex(e => e.Id);
 
                                     eb.OwnsOne(e => e.EntityWithStringProperty);
                                 });
@@ -604,6 +605,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                 b1.Property<int>(""AlternateId"");
 
                 b1.Property<int>(""Id"");
+
+                b1.HasIndex(""Id"");
 
                 b1.ToTable(""EntityWithOneProperty"");
 
@@ -640,6 +643,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         var ownedType1 = ownership1.DeclaringEntityType;
                         Assert.Equal("AlternateId", ownedType1.FindPrimaryKey().Properties[0].Name);
                         Assert.Equal(1, ownedType1.GetKeys().Count());
+                        Assert.Equal("Id", ownedType1.GetIndexes().Single().Properties[0].Name);
                         var ownership2 = ownedType1.GetReferencingForeignKeys().Single();
                         Assert.Equal("EntityWithTwoPropertiesAlternateId", ownership2.Properties[0].Name);
                         Assert.Equal("EntityWithStringProperty", ownership2.PrincipalToDependent.Name);
