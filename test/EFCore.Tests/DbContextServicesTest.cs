@@ -37,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             DebugLogTest(useLoggerFactory: true, configureForDebug: false, shouldLog: false);
         }
+
         [Fact]
         public void Can_log_debug_events_with_UseLoggerFactory_when_configured()
         {
@@ -95,6 +96,14 @@ namespace Microsoft.EntityFrameworkCore
                                 .BuildServiceProvider();
 
                     optionsBuilder.UseLoggerFactory(externalProvider.GetService<ILoggerFactory>());
+                }
+                else
+                {
+                    var internalServiceProvider = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase()
+                        .BuildServiceProvider();
+
+                    optionsBuilder.UseInternalServiceProvider(internalServiceProvider);
                 }
             }
         }
