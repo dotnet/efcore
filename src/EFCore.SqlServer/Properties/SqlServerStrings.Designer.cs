@@ -381,6 +381,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     SqlServerEventId.ForeignKeyColumnNotNamedWarning,
                     _resourceManager.GetString("LogColumnNameEmptyOnForeignKey")));
 
+        /// <summary>
+        ///     The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.
+        /// </summary>
+        public static string NoInitialCatalog
+            => GetString("NoInitialCatalog");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

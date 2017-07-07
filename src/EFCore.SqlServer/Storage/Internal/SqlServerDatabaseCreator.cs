@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
@@ -248,11 +249,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private IReadOnlyList<MigrationCommand> CreateDropCommands()
         {
+            var databaseName = _connection.DbConnection.Database;
+            if (string.IsNullOrEmpty(databaseName))
+            {
+                throw new InvalidOperationException(SqlServerStrings.NoInitialCatalog);
+            }
+
             var operations = new MigrationOperation[]
             {
-                // TODO Check DbConnection.Database always gives us what we want
-                // Issue #775
-                new SqlServerDropDatabaseOperation { Name = _connection.DbConnection.Database }
+                new SqlServerDropDatabaseOperation { Name = databaseName }
             };
 
             var masterCommands = Dependencies.MigrationsSqlGenerator.Generate(operations);

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -576,6 +577,19 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
+
+        [ConditionalFact]
+        public void Throws_when_no_initial_catalog()
+        {
+            var connectionStringBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
+            connectionStringBuilder.Remove("Initial Catalog");
+
+            var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(connectionStringBuilder.ToString());
+
+            var ex = Assert.Throws<InvalidOperationException>(() => creator.Delete());
+
+            Assert.Equal(SqlServerStrings.NoInitialCatalog, ex.Message);
+        }
     }
 
     [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
@@ -756,7 +770,10 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorTest
     {
         public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
-            => GetDatabaseCreator(new BloggingContext(testStore));
+            => GetDatabaseCreator(testStore.ConnectionString);
+
+        public static TestDatabaseCreator GetDatabaseCreator(string connectionString)
+            => GetDatabaseCreator(new BloggingContext(connectionString));
 
         public static TestDatabaseCreator GetDatabaseCreator(BloggingContext context)
             => (TestDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
@@ -782,16 +799,21 @@ namespace Microsoft.EntityFrameworkCore
 
         public class BloggingContext : DbContext
         {
-            private readonly SqlServerTestStore _testStore;
+            private readonly string _connectionString;
 
             public BloggingContext(SqlServerTestStore testStore)
+                : this(testStore.ConnectionString)
             {
-                _testStore = testStore;
+            }
+
+            public BloggingContext(string connectionString)
+            {
+                _connectionString = connectionString;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(600))
+                    .UseSqlServer(_connectionString, b => b.ApplyConfiguration().CommandTimeout(600))
                     .UseInternalServiceProvider(CreateServiceProvider());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
