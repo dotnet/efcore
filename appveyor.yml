@@ -1,4 +1,4 @@
-version: 2.0.0-preview3-{build}
+﻿version: 2.0.0-preview3-{build}
 init:
   - git config --global core.autocrlf true
 build_script:
@@ -28,3 +28,7 @@ matrix:
 artifacts:
   - path: 'artifacts\build\*.nupkg'
 os: Visual Studio 2017
+env:
+  global:
+    - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+    - DOTNET_CLI_TELEMETRY_OPTOUT: 1
