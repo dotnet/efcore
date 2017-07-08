@@ -118,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     public IList<IChangeToken> ExpirationTokens { get; }
                     public IList<PostEvictionCallbackRegistration> PostEvictionCallbacks { get; }
                     public CacheItemPriority Priority { get; set; }
+                    public long? Size { get; set; }
                 }
 
                 public void Remove(object key)
