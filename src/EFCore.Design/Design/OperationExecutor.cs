@@ -74,26 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                     rootNamespace));
         }
 
-        public class GetContextType : OperationBase
-        {
-            public GetContextType(
-                [NotNull] OperationExecutor executor,
-                [NotNull] object resultHandler,
-                [NotNull] IDictionary args)
-                : base(resultHandler)
-            {
-                Check.NotNull(executor, nameof(executor));
-                Check.NotNull(args, nameof(args));
-
-                var name = (string)args["name"];
-
-                Execute(() => executor.GetContextTypeImpl(name));
-            }
-        }
-
-        private string GetContextTypeImpl([CanBeNull] string name) =>
-            _contextOperations.Value.GetContextType(name).AssemblyQualifiedName;
-
         public class AddMigration : OperationBase
         {
             public AddMigration(
