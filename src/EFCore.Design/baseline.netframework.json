@@ -8909,36 +8909,6 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Design.OperationExecutor+GetContextType",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Design.OperationExecutor+OperationBase",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "executor",
-              "Type": "Microsoft.EntityFrameworkCore.Design.OperationExecutor"
-            },
-            {
-              "Name": "resultHandler",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "args",
-              "Type": "System.Collections.IDictionary"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
       "Name": "Microsoft.EntityFrameworkCore.Design.OperationExecutor+AddMigration",
       "Visibility": "Public",
       "Kind": "Class",

@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
         IEnumerable<IDictionary> GetMigrations(string contextType);
         void DropDatabase(string contextType);
         IDictionary GetContextInfo(string name);
-        string GetContextType(string name);
         void UpdateDatabase(string migration, string contextType);
         IEnumerable<IDictionary> GetContextTypes();
 

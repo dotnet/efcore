@@ -168,12 +168,5 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     ["idempotent"] = idempotent,
                     ["contextType"] = contextType
                 });
-
-        public string GetContextType(string name)
-            => InvokeOperation<string>("GetContextType",
-                new Dictionary<string, string>
-                {
-                    ["name"] = name
-                });
     }
 }

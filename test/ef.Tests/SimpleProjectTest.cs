@@ -96,13 +96,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         [Fact]
-        public void GetContextType()
-        {
-            var contextTypeName = _project.Executor.GetContextType("SimpleContext");
-            Assert.StartsWith("SimpleProject.SimpleContext, ", contextTypeName);
-        }
-
-        [Fact]
         public void GetContextTypes()
         {
             var contextTypes = _project.Executor.GetContextTypes();
