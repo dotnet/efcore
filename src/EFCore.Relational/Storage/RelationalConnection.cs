@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the connection string for the database.
         /// </summary>
-        public virtual string ConnectionString => _connectionString ?? _connection.Value.ConnectionString;
+        public virtual string ConnectionString => _connectionString ?? DbConnection.ConnectionString;
 
         /// <summary>
         ///     Gets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
@@ -273,14 +273,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CheckForAmbientTransactions();
 
-            if (_connection.Value.State == ConnectionState.Broken)
+            if (DbConnection.State == ConnectionState.Broken)
             {
-                _connection.Value.Close();
+                DbConnection.Close();
             }
 
             var wasOpened = false;
 
-            if (_connection.Value.State != ConnectionState.Open)
+            if (DbConnection.State != ConnectionState.Open)
             {
                 var startTime = DateTimeOffset.UtcNow;
                 var stopwatch = Stopwatch.StartNew();
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 try
                 {
-                    _connection.Value.Open();
+                    DbConnection.Open();
 
                     wasOpened = true;
 
@@ -344,14 +344,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             CheckForAmbientTransactions();
 
-            if (_connection.Value.State == ConnectionState.Broken)
+            if (DbConnection.State == ConnectionState.Broken)
             {
-                _connection.Value.Close();
+                DbConnection.Close();
             }
 
             var wasOpened = false;
 
-            if (_connection.Value.State != ConnectionState.Open)
+            if (DbConnection.State != ConnectionState.Open)
             {
                 var startTime = DateTimeOffset.UtcNow;
                 var stopwatch = Stopwatch.StartNew();
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 try
                 {
-                    await _connection.Value.OpenAsync(cancellationToken);
+                    await DbConnection.OpenAsync(cancellationToken);
 
                     wasOpened = true;
 
@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 && --_openedCount == 0
                 && _openedInternally)
             {
-                if (_connection.Value.State != ConnectionState.Closed)
+                if (DbConnection.State != ConnectionState.Closed)
                 {
                     var startTime = DateTimeOffset.UtcNow;
                     var stopwatch = Stopwatch.StartNew();
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     try
                     {
-                        _connection.Value.Close();
+                        DbConnection.Close();
 
                         wasClosed = true;
 
@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (_connectionOwned && _connection.HasValue)
             {
-                _connection.Value.Dispose();
+                DbConnection.Dispose();
                 _connection.Reset(CreateDbConnection);
                 _activeQueries.Clear();
                 _openedCount = 0;

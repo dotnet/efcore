@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(optionsExtension.Connection);
 
-            var connection = Mock.Of<DbConnection>();
+            var connection = new FakeDbConnection("A=B");
             optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithConnection(connection);
 
             Assert.Same(connection, optionsExtension.Connection);

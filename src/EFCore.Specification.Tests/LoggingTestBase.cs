@@ -52,13 +52,13 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual string ActualMessage(DbContextOptionsBuilder optionsBuilder)
         {
-            var log = new List<Tuple<LogLevel, EventId, string>>();
+            var log = new List<(LogLevel Level, EventId Id, string Message)>();
             using (var context = new LoggingContext(optionsBuilder.UseLoggerFactory(new ListLoggerFactory(log))))
             {
                 var _ = context.Model;
             }
 
-            return log.Single(t => t.Item2.Id == CoreEventId.ContextInitialized.Id).Item3;
+            return log.Single(t => t.Id.Id == CoreEventId.ContextInitialized.Id).Message;
         }
 
         protected class LoggingContext : DbContext

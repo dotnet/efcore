@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 // ReSharper disable MemberCanBePrivate.Local
@@ -81,14 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
-            var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
+            var fakeSqlGenerator = new FakeSqlGenerator(
+                RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
+            var batch = new ModificationCommandBatchFake(fakeSqlGenerator);
             batch.AddCommand(command);
 
             batch.UpdateCachedCommandTextBase(0);
 
-            sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendInsertOperation(It.IsAny<StringBuilder>(), command, 0));
+            Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
+            Assert.Equal(1, fakeSqlGenerator.AppendInsertOperationCalls);
         }
 
         [Fact]
@@ -99,14 +99,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
-            var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
+            var fakeSqlGenerator = new FakeSqlGenerator(
+                RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
+            var batch = new ModificationCommandBatchFake(fakeSqlGenerator);
             batch.AddCommand(command);
 
             batch.UpdateCachedCommandTextBase(0);
 
-            sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendUpdateOperation(It.IsAny<StringBuilder>(), command, 0));
+            Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
+            Assert.Equal(1, fakeSqlGenerator.AppendUpdateOperationCalls);
         }
 
         [Fact]
@@ -117,14 +118,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry);
 
-            var sqlGeneratorMock = new Mock<IUpdateSqlGenerator>();
-            var batch = new ModificationCommandBatchFake(sqlGeneratorMock.Object);
+            var fakeSqlGenerator = new FakeSqlGenerator(
+                RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
+            var batch = new ModificationCommandBatchFake(fakeSqlGenerator);
             batch.AddCommand(command);
 
             batch.UpdateCachedCommandTextBase(0);
 
-            sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), command, 0));
+            Assert.Equal(1, fakeSqlGenerator.AppendBatchHeaderCalls);
+            Assert.Equal(1, fakeSqlGenerator.AppendDeleteOperationCalls);
         }
 
         [Fact]

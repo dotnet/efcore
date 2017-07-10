@@ -4,17 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -24,13 +25,10 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void GetDbConnection_returns_the_current_connection()
         {
-            var dbConnection = Mock.Of<DbConnection>();
+            var dbConnection = new FakeDbConnection("A=B");
+            var context = RelationalTestHelpers.Instance.CreateContext();
 
-            var connectionMock = new Mock<IRelationalConnection>();
-            connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnection);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+            ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
             Assert.Same(dbConnection, context.Database.GetDbConnection());
         }
@@ -49,160 +47,134 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
-        [Fact]
-        public void Can_open_the_underlying_connection()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_open_the_underlying_connection(bool async)
         {
-            var connectionMock = new Mock<IRelationalConnection>();
+            var dbConnection = new FakeDbConnection("A=B");
+            var context = RelationalTestHelpers.Instance.CreateContext();
 
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+            ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
-            context.Database.OpenConnection();
-
-            connectionMock.Verify(m => m.Open(/*errorsExpected:*/ false), Times.Once);
-        }
-
-        [Fact]
-        public void Can_open_the_underlying_connection_async()
-        {
-            var connectionMock = new Mock<IRelationalConnection>();
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
-
-            var cancellationToken = new CancellationToken();
-
-            context.Database.OpenConnectionAsync(cancellationToken);
-
-            connectionMock.Verify(m => m.OpenAsync(cancellationToken, /*errorsExpected:*/ false), Times.Once);
+            if (async)
+            {
+                await context.Database.OpenConnectionAsync();
+                Assert.Equal(1, dbConnection.OpenAsyncCount);
+            }
+            else
+            {
+                context.Database.OpenConnection();
+                Assert.Equal(1, dbConnection.OpenCount);
+            }
         }
 
         [Fact]
         public void Can_close_the_underlying_connection()
         {
-            var connectionMock = new Mock<IRelationalConnection>();
+            var dbConnection = new FakeDbConnection("A=B");
+            var context = RelationalTestHelpers.Instance.CreateContext();
 
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+            ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
+            context.Database.OpenConnection();
             context.Database.CloseConnection();
 
-            connectionMock.Verify(m => m.Close(), Times.Once);
+            Assert.Equal(1, dbConnection.CloseCount);
         }
 
-        [Fact]
-        public void Can_begin_transaction_with_isolation_level()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_begin_transaction_with_isolation_level(bool async)
         {
-            var transactionManagerMock = new Mock<IRelationalTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
+            var dbConnection = new FakeDbConnection("A=B");
+            var context = RelationalTestHelpers.Instance.CreateContext();
+            ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
-            transactionManagerMock.Setup(m => m.BeginTransaction(It.IsAny<IsolationLevel>())).Returns(transaction);
+            var transaction = async
+                ? await context.Database.BeginTransactionAsync(IsolationLevel.Chaos)
+                : context.Database.BeginTransaction(IsolationLevel.Chaos);
 
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(transactionManagerMock.Object));
-
-            var isolationLevel = IsolationLevel.Chaos;
-
-            Assert.Same(transaction, context.Database.BeginTransaction(isolationLevel));
-
-            transactionManagerMock.Verify(m => m.BeginTransaction(isolationLevel), Times.Once);
-        }
-
-        [Fact]
-        public void Can_begin_transaction_with_isolation_level_async()
-        {
-            var transactionManagerMock = new Mock<IRelationalTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
-
-            var transactionTask = new Task<IDbContextTransaction>(() => transaction);
-
-            transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<IsolationLevel>(), It.IsAny<CancellationToken>()))
-                .Returns(transactionTask);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(transactionManagerMock.Object));
-
-            var cancellationToken = new CancellationToken();
-            var isolationLevel = IsolationLevel.Chaos;
-
-            Assert.Same(transactionTask, context.Database.BeginTransactionAsync(isolationLevel, cancellationToken));
-
-            transactionManagerMock.Verify(m => m.BeginTransactionAsync(isolationLevel, cancellationToken), Times.Once);
+            Assert.Same(dbConnection.DbTransactions.Single(), transaction.GetDbTransaction());
+            Assert.Equal(IsolationLevel.Chaos, transaction.GetDbTransaction().IsolationLevel);
         }
 
         [Fact]
         public void Can_use_transaction()
         {
-            var transactionManagerMock = new Mock<IRelationalTransactionManager>();
-            var dbTransaction = Mock.Of<DbTransaction>();
-            var transaction = Mock.Of<IDbContextTransaction>();
+            var dbConnection = new FakeDbConnection("A=B");
+            var context = RelationalTestHelpers.Instance.CreateContext();
+            ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
+            var transaction = new FakeDbTransaction(dbConnection, IsolationLevel.Chaos);
 
-            transactionManagerMock.Setup(m => m.UseTransaction(dbTransaction)).Returns(transaction);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(transactionManagerMock.Object));
-
-            Assert.Same(transaction, context.Database.UseTransaction(dbTransaction));
-
-            transactionManagerMock.Verify(m => m.UseTransaction(dbTransaction), Times.Once);
+            Assert.Same(transaction, context.Database.UseTransaction(transaction).GetDbTransaction());
         }
 
-        [Fact]
-        public void Begin_transaction_ignores_isolation_level_on_non_relational_provider()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Begin_transaction_ignores_isolation_level_on_non_relational_provider(bool async)
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
+            var context = InMemoryTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddScoped<IDbContextTransactionManager, FakeDbContextTransactionManager>());
 
-            transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
-
-            var isolationLevel = IsolationLevel.Chaos;
-
-            Assert.Same(transaction, context.Database.BeginTransaction(isolationLevel));
-
-            transactionManagerMock.Verify(m => m.BeginTransaction(), Times.Once);
+            var transactionManager = (FakeDbContextTransactionManager)context.GetService<IDbContextTransactionManager>();
+            
+            if (async)
+            {
+                await context.Database.BeginTransactionAsync(IsolationLevel.Chaos);
+                Assert.Equal(1, transactionManager.BeginAsyncCount);
+            }
+            else
+            {
+                context.Database.BeginTransaction(IsolationLevel.Chaos);
+                Assert.Equal(1, transactionManager.BeginCount);
+            }
         }
 
-        [Fact]
-        public void Begin_transaction_ignores_isolation_level_on_non_relational_provider_async()
+        private class FakeDbContextTransactionManager : IDbContextTransactionManager
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
+            public int BeginCount { get; set; }
+            public int BeginAsyncCount { get; set; }
+            
+            public void ResetState()
+            {
+            }
 
-            var transactionTask = new Task<IDbContextTransaction>(() => transaction);
+            public IDbContextTransaction BeginTransaction()
+            {
+                BeginCount++;
+                return new InMemoryTransaction();
+            }
 
-            transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                .Returns(transactionTask);
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+            {
+                BeginAsyncCount++;
+                return Task.FromResult<IDbContextTransaction>(new InMemoryTransaction());
+            }
 
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+            public void CommitTransaction()
+            {
+            }
 
-            var cancellationToken = new CancellationToken();
-            var isolationLevel = IsolationLevel.Chaos;
+            public void RollbackTransaction()
+            {
+            }
 
-            Assert.Same(transactionTask, context.Database.BeginTransactionAsync(isolationLevel, cancellationToken));
-
-            transactionManagerMock.Verify(m => m.BeginTransactionAsync(cancellationToken), Times.Once);
+            public IDbContextTransaction CurrentTransaction { get; }
         }
 
         [Fact]
         public void use_transaction_throws_on_non_relational_provider()
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
-            var dbTransaction = Mock.Of<DbTransaction>();
-            var transaction = Mock.Of<IDbContextTransaction>();
-
-            transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+            var transaction = new FakeDbTransaction(new FakeDbConnection("A=B"));
+            var context = InMemoryTestHelpers.Instance.CreateContext();
 
             Assert.Equal(
                 RelationalStrings.RelationalNotInUse,
                 Assert.Throws<InvalidOperationException>(
-                    () => context.Database.UseTransaction(dbTransaction)).Message);
+                    () => context.Database.UseTransaction(transaction)).Message);
         }
 
         [Fact]
@@ -214,90 +186,79 @@ namespace Microsoft.EntityFrameworkCore
                 "00000000000002_Two",
                 "00000000000003_Three"
             };
-            var migrationsAssembly = new Mock<IMigrationsAssembly>();
-            migrationsAssembly.SetupGet(a => a.Migrations)
-                .Returns(migrations.ToDictionary(x => x, x => default(TypeInfo)));
+            
+            var migrationsAssembly = new FakeIMigrationsAssembly
+            {
+                Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo))
+            };
 
             var db = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(migrationsAssembly.Object));
+                new ServiceCollection().AddSingleton<IMigrationsAssembly>(migrationsAssembly));
 
-            var result = db.Database.GetMigrations();
-
-            Assert.Equal(migrations, result);
+            Assert.Equal(migrations, db.Database.GetMigrations());
         }
 
-        [Fact]
-        public void GetAppliedMigrations_works()
+        private class FakeIMigrationsAssembly : IMigrationsAssembly
+        {
+            public IReadOnlyDictionary<string, TypeInfo> Migrations { get; set; }
+            public ModelSnapshot ModelSnapshot { get; }
+            public Assembly Assembly { get; }
+            public string FindMigrationId(string nameOrId) => throw new NotImplementedException();
+            public Migration CreateMigration(TypeInfo migrationClass, string activeProvider) => throw new NotImplementedException();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetAppliedMigrations_works(bool async)
         {
             var migrations = new[]
             {
                 "00000000000001_One",
                 "00000000000002_Two"
             };
-            var historyRepository = new Mock<IHistoryRepository>();
-            historyRepository.Setup(a => a.GetAppliedMigrations())
-                .Returns(migrations.Select(id => new HistoryRow(id, "1.1.0")).ToList());
 
-            var db = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(historyRepository.Object));
+            var repository = new FakeHistoryRepository
+            {
+                AppliedMigrations = migrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()
+            };
 
-            var result = db.Database.GetAppliedMigrations();
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddSingleton<IHistoryRepository>(repository));
 
-            Assert.Equal(migrations, result);
+            Assert.Equal(
+                migrations,
+                async
+                    ? await context.Database.GetAppliedMigrationsAsync()
+                    : context.Database.GetAppliedMigrations());
         }
 
-        [Fact]
-        public async Task GetAppliedMigrationsAsync_works()
+        private class FakeHistoryRepository : IHistoryRepository
         {
-            var migrations = new[]
-            {
-                "00000000000001_One",
-                "00000000000002_Two"
-            };
-            var historyRepository = new Mock<IHistoryRepository>();
-            historyRepository.Setup(a => a.GetAppliedMigrationsAsync(It.IsAny<CancellationToken>())).Returns(
-                Task.FromResult<IReadOnlyList<HistoryRow>>(
-                    migrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()));
+            public List<HistoryRow> AppliedMigrations { get; set; }
 
-            var db = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(historyRepository.Object));
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations() 
+                => AppliedMigrations;
 
-            var result = await db.Database.GetAppliedMigrationsAsync();
+            public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default(CancellationToken))
+                => Task.FromResult<IReadOnlyList<HistoryRow>>(AppliedMigrations);
 
-            Assert.Equal(migrations, result);
+            public bool Exists() => throw new NotImplementedException();
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            public string GetCreateScript() => throw new NotImplementedException();
+            public string GetCreateIfNotExistsScript() => throw new NotImplementedException();
+            public string GetInsertScript(HistoryRow row) => throw new NotImplementedException();
+            public string GetDeleteScript(string migrationId) => throw new NotImplementedException();
+            public string GetBeginIfNotExistsScript(string migrationId) => throw new NotImplementedException();
+            public string GetBeginIfExistsScript(string migrationId) => throw new NotImplementedException();
+            public string GetEndIfScript() => throw new NotImplementedException();
         }
 
-        [Fact]
-        public void GetPendingMigrations_works()
-        {
-            var migrations = new[]
-            {
-                "00000000000001_One",
-                "00000000000002_Two",
-                "00000000000003_Three"
-            };
-            var appliedMigrations = new[]
-            {
-                "00000000000001_One",
-                "00000000000002_Two"
-            };
-            var migrationsAssembly = new Mock<IMigrationsAssembly>();
-            migrationsAssembly.SetupGet(a => a.Migrations)
-                .Returns(migrations.ToDictionary(x => x, x => default(TypeInfo)));
-            var historyRepository = new Mock<IHistoryRepository>();
-            historyRepository.Setup(a => a.GetAppliedMigrations())
-                .Returns(appliedMigrations.Select(id => new HistoryRow(id, "1.1.0")).ToList());
 
-            var db = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(migrationsAssembly.Object).AddSingleton(historyRepository.Object));
-
-            var result = db.Database.GetPendingMigrations();
-
-            Assert.Equal(new[] { "00000000000003_Three" }, result);
-        }
-
-        [Fact]
-        public async Task GetPendingMigrationsAsync_works()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task GetPendingMigrations_works(bool async)
         {
             var migrations = new[]
             {
@@ -305,25 +266,33 @@ namespace Microsoft.EntityFrameworkCore
                 "00000000000002_Two",
                 "00000000000003_Three"
             };
+            
             var appliedMigrations = new[]
             {
                 "00000000000001_One",
                 "00000000000002_Two"
             };
-            var migrationsAssembly = new Mock<IMigrationsAssembly>();
-            migrationsAssembly.SetupGet(a => a.Migrations)
-                .Returns(migrations.ToDictionary(x => x, x => default(TypeInfo)));
-            var historyRepository = new Mock<IHistoryRepository>();
-            historyRepository.Setup(a => a.GetAppliedMigrationsAsync(It.IsAny<CancellationToken>())).Returns(
-                Task.FromResult<IReadOnlyList<HistoryRow>>(
-                    appliedMigrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()));
 
-            var db = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(migrationsAssembly.Object).AddSingleton(historyRepository.Object));
+            var migrationsAssembly = new FakeIMigrationsAssembly
+            {
+                Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo))
+            };
 
-            var result = await db.Database.GetPendingMigrationsAsync();
+            var repository = new FakeHistoryRepository
+            {
+                AppliedMigrations = appliedMigrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()
+            };
 
-            Assert.Equal(new[] { "00000000000003_Three" }, result);
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection()
+                    .AddSingleton<IHistoryRepository>(repository)
+                    .AddSingleton<IMigrationsAssembly>(migrationsAssembly));
+
+            Assert.Equal(
+                new[] { "00000000000003_Three" },
+                async
+                    ? await context.Database.GetPendingMigrationsAsync()
+                    : context.Database.GetPendingMigrations());
         }
     }
 }

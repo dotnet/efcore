@@ -1,70 +1,97 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
     public class BatchExecutorTest
     {
-        [Fact]
-        public async Task ExecuteAsync_calls_Commit_if_no_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ExecuteAsync_calls_Commit_if_no_transaction(bool async)
         {
-            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
-            mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
+            using (var context = new TestContext())
+            {
+                var connection = SetupConnection(context);
 
-            var mockRelationalConnection = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<IDbContextTransaction>();
+                context.Add(new Foo { Id = "1" });
 
-            IDbContextTransaction currentTransaction = null;
-            mockRelationalConnection.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                .Returns(() => Task.FromResult(currentTransaction = transactionMock.Object));
-            mockRelationalConnection.Setup(m => m.CurrentTransaction).Returns(() => currentTransaction);
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
 
-            var cancellationToken = new CancellationTokenSource().Token;
-
-            var batchExecutor = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IBatchExecutor>();
-
-            await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
-
-            mockRelationalConnection.Verify(rc => rc.BeginTransactionAsync(cancellationToken));
-            mockRelationalConnection.Verify(rc => rc.Close(), Times.Never);
-            transactionMock.Verify(t => t.Commit());
-
-            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
-                It.IsAny<IRelationalConnection>(),
-                cancellationToken));
+                Assert.Equal(1, connection.DbTransactions.Single().CommitCount);
+            }
         }
 
-        [Fact]
-        public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction(bool async)
         {
-            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
-            mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
+            using (var context = new TestContext())
+            {
+                var connection = SetupConnection(context);
+                var transaction = new FakeDbTransaction(connection);
+                context.Database.UseTransaction(transaction);
 
-            var mockRelationalConnection = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<IDbContextTransaction>();
-            mockRelationalConnection.Setup(m => m.CurrentTransaction).Returns(transactionMock.Object);
+                context.Add(new Foo { Id = "1" });
 
-            var cancellationToken = new CancellationTokenSource().Token;
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
 
-            var batchExecutor = RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IBatchExecutor>();
+                Assert.Empty(connection.DbTransactions);
+                Assert.Equal(0, transaction.CommitCount);
+            }
+        }
 
-            await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
+        private static FakeDbConnection SetupConnection(TestContext context)
+        {
+            var dataReader = new FakeDbDataReader(new[] { "RowsAffected" }, new List<object[]> { new object[] { 1 } });
 
-            mockRelationalConnection.Verify(rc => rc.OpenAsync(cancellationToken, /*errorsExpected:*/ false));
-            mockRelationalConnection.Verify(rc => rc.Close());
-            mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
-            transactionMock.Verify(t => t.Commit(), Times.Never);
-            mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
-                It.IsAny<IRelationalConnection>(),
-                cancellationToken));
+            var connection = new FakeDbConnection(
+                "A=B", new FakeCommandExecutor(
+                    executeReader: (c, b) => dataReader,
+                    executeReaderAsync: (c, b, ct) => Task.FromResult<DbDataReader>(dataReader)));
+
+            ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(connection);
+            return connection;
+        }
+
+        private class TestContext : DbContext
+        {
+            public TestContext()
+                : base(RelationalTestHelpers.Instance.CreateOptions())
+            {
+            }
+
+            public DbSet<Foo> Foos { get; set; }
+        }
+
+        private class Foo
+        {
+            public string Id { get; set; }
         }
     }
 }

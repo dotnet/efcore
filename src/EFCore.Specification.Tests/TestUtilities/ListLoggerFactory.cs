@@ -11,15 +11,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public class ListLoggerFactory : ILoggerFactory
     {
         private readonly Func<string, bool> _shouldCreateLogger;
-        private readonly List<Tuple<LogLevel, EventId, string>> _log;
+        private readonly List<(LogLevel, EventId, string)> _log;
 
-        public ListLoggerFactory(List<Tuple<LogLevel, EventId, string>> log)
+        public ListLoggerFactory(List<(LogLevel, EventId, string)> log)
             : this(log, null)
 
         {
         }
 
-        public ListLoggerFactory(List<Tuple<LogLevel, EventId, string>> log, Func<string, bool> shouldCreateLogger)
+        public ListLoggerFactory(List<(LogLevel, EventId, string)> log, Func<string, bool> shouldCreateLogger)
         {
             _log = log;
             _shouldCreateLogger = shouldCreateLogger;

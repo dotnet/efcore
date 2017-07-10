@@ -2,8 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
-using Moq;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -63,16 +62,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                 }
 
-                public TimeoutContext(int? commandTimeout)
-                {
-                    Database.SetCommandTimeout(commandTimeout);
-                }
+                public TimeoutContext(int? commandTimeout) 
+                    => Database.SetCommandTimeout(commandTimeout);
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                {
-                    var connectionMock = new Mock<DbConnection>();
-                    optionsBuilder.UseSqlServer(connectionMock.Object);
-                }
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                    => optionsBuilder.UseSqlServer(new FakeDbConnection("A=B"));
             }
         }
     }

@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Update
@@ -260,7 +259,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         [Fact]
         public void BatchCommands_creates_batches_lazily()
         {
-            var configuration = CreateContextServices(CreateSimpleFKModel());
+            var configuration = RelationalTestHelpers.Instance.CreateContextServices(
+                new ServiceCollection().AddScoped<IModificationCommandBatchFactory, TestModificationCommandBatchFactory>(),
+                CreateSimpleFKModel());
+
             var stateManager = configuration.GetRequiredService<IStateManager>();
 
             var fakeEntity = new FakeEntity { Id = 42, Value = "Test" };
@@ -270,23 +272,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 42 });
             relatedentry.SetEntityState(EntityState.Added);
 
-            var modificationCommandBatchFactoryMock = new Mock<IModificationCommandBatchFactory>();
-            modificationCommandBatchFactoryMock.Setup(f => f.Create()).Returns(Mock.Of<ModificationCommandBatch>());
-
-            var commandBatches = CreateCommandBatchPreparer(modificationCommandBatchFactoryMock.Object).BatchCommands(new[] { relatedentry, entry });
+            var factory = (TestModificationCommandBatchFactory)configuration.GetService<IModificationCommandBatchFactory>();
+            
+            var commandBatches = CreateCommandBatchPreparer(factory).BatchCommands(new[] { relatedentry, entry });
 
             var commandBatchesEnumerator = commandBatches.GetEnumerator();
             commandBatchesEnumerator.MoveNext();
 
-            modificationCommandBatchFactoryMock.Verify(
-                mcb => mcb.Create(),
-                Times.Once);
+            Assert.Equal(1, factory.CreateCount);
 
             commandBatchesEnumerator.MoveNext();
 
-            modificationCommandBatchFactoryMock.Verify(
-                mcb => mcb.Create(),
-                Times.Exactly(2));
+            Assert.Equal(2, factory.CreateCount);
         }
 
         [Fact]
@@ -984,13 +981,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                 _updateSqlGenerator = updateSqlGenerator;
                 _valueBufferFactoryFactory = valueBufferFactoryFactory;
             }
+            
+            public int CreateCount { get; set; }
 
             public ModificationCommandBatch Create()
-                => new SingularModificationCommandBatch(
+            {
+                CreateCount++;
+                
+                return new SingularModificationCommandBatch(
                     _commandBuilderFactory,
                     _sqlGenerationHelper,
                     _updateSqlGenerator,
                     _valueBufferFactoryFactory);
+            }
         }
     }
 }

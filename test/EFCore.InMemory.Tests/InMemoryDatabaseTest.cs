@@ -2,16 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -128,14 +130,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Should_log_writes()
         {
-            var mockLogger = new Mock<ILogger>();
-            mockLogger.Setup(l => l.IsEnabled(LogLevel.Information)).Returns(true);
-
-            var mockFactory = new Mock<ILoggerFactory>();
-            mockFactory.Setup(m => m.CreateLogger(It.IsAny<string>())).Returns(mockLogger.Object);
-
+            var log = new List<(LogLevel Level, EventId Id, string Message)>();
+            var loggerFactory = new ListLoggerFactory(log);
+            
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton(mockFactory.Object);
+            serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
             var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
@@ -147,14 +146,10 @@ namespace Microsoft.EntityFrameworkCore
 
             await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
 
-            mockLogger.Verify(
-                l => l.Log(
-                    LogLevel.Information,
-                    InMemoryEventId.ChangesSaved,
-                    It.IsAny<object>(),
-                    null,
-                    It.IsAny<Func<object, Exception, string>>()),
-                Times.Once);
+            var entry = log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
+            
+            Assert.Equal(LogLevel.Information, entry.Level);
+            Assert.Equal(InMemoryStrings.LogSavedChanges.GenerateMessage(1), entry.Message);
         }
 
         private static IModel CreateModel()

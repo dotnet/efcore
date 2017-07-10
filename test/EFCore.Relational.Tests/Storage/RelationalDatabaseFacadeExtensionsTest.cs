@@ -7,8 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -264,22 +264,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private class ThudContext : DbContext
         {
-            private static readonly IServiceProvider _serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddScoped<IRawSqlCommandBuilder, TestRawSqlCommandBuilder>()
-                    .AddSingleton(p => Mock.Of<IRelationalConnection>())
-                    .BuildServiceProvider();
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseInternalServiceProvider(_serviceProvider)
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+            public ThudContext()
+                : base(
+                    RelationalTestHelpers.Instance.CreateOptions(
+                        RelationalTestHelpers.Instance.CreateServiceProvider(
+                            new ServiceCollection()
+                                .AddScoped<IRawSqlCommandBuilder, TestRawSqlCommandBuilder>())))
+            {
+            }
         }
 
         [UsedImplicitly]
         private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
+            private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+
+            public TestRawSqlCommandBuilder(IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
+            {
+                _commandBuilderFactory = relationalCommandBuilderFactory;
+            }
+
             public string Sql { get; private set; }
             public IEnumerable<object> Parameters { get; private set; }
 
@@ -290,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Sql = sql;
                 Parameters = parameters;
 
-                return new RawSqlCommand(Mock.Of<IRelationalCommand>(), new Dictionary<string, object>());
+                return new RawSqlCommand(_commandBuilderFactory.Create().Build(), new Dictionary<string, object>());
             }
         }
     }

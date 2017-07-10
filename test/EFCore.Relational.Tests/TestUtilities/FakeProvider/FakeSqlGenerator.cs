@@ -15,16 +15,33 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override ResultSetMapping AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
+            AppendInsertOperationCalls++;
+
             if (!string.IsNullOrEmpty(command.Schema))
             {
                 commandStringBuilder.Append(command.Schema + ".");
             }
             commandStringBuilder.Append(command.TableName);
 
-            return ResultSetMapping.NotLastInResultSet;
+            return ResultSetMapping.LastInResultSet;
+        }
+
+        public override ResultSetMapping AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        {
+            AppendUpdateOperationCalls++;
+            return base.AppendUpdateOperation(commandStringBuilder, command, commandPosition);
+        }
+
+        public override ResultSetMapping AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
+        {
+            AppendDeleteOperationCalls++;
+            return base.AppendDeleteOperation(commandStringBuilder, command, commandPosition);
         }
 
         public int AppendBatchHeaderCalls { get; set; }
+        public int AppendInsertOperationCalls { get; set; }
+        public int AppendUpdateOperationCalls { get; set; }
+        public int AppendDeleteOperationCalls { get; set; }
 
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
         {

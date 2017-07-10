@@ -10,12 +10,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class ListLogger : ILogger
     {
-        public ListLogger(List<Tuple<LogLevel, EventId, string>> logMessages)
+        public ListLogger(List<(LogLevel, EventId, string)> logMessages)
         {
             LogMessages = logMessages;
         }
 
-        public List<Tuple<LogLevel, EventId, string>> LogMessages { get; }
+        public List<(LogLevel, EventId, string)> LogMessages { get; }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            LogMessages.Add(new Tuple<LogLevel, EventId, string>(logLevel, eventId, message.ToString()));
+            LogMessages.Add((logLevel, eventId, message.ToString()));
         }
 
         public bool IsEnabled(LogLevel logLevel) => true;
