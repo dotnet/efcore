@@ -151,24 +151,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (properties.Count == 1)
             {
-                builder.Append(Lambda(properties[0], "x"));
+                builder
+                    .Append("x.")
+                    .Append(properties[0]);
             }
             else
             {
                 builder.Append("new { ");
-                builder.Append(string.Join(", ", properties.Select(p => Lambda(p, "x"))));
+                builder.Append(string.Join(", ", properties.Select(p => "x." + p)));
                 builder.Append(" }");
             }
 
             return builder.ToString();
-        }
-
-        public virtual string Lambda(string property, string variable)
-        {
-            Check.NotEmpty(property, nameof(property));
-            Check.NotEmpty(variable, nameof(variable));
-
-            return variable + "." + property;
         }
 
         public virtual string Reference(Type type)

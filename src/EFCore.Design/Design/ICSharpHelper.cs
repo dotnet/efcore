@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Design
     {
         string Identifier([NotNull] string name, [CanBeNull] ICollection<string> scope = null);
         string Lambda([NotNull] IReadOnlyList<string> properties);
-        string Lambda([NotNull] string property, [NotNull] string variable);
         string Literal([NotNull] object[,] values);
         string Literal<T>([NotNull] T? value) where T : struct;
         string Literal([NotNull] byte[] values);
