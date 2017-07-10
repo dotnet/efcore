@@ -11,11 +11,20 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// </summary>
     public class OperationException : Exception
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OperationException"/> class.
+        /// </summary>
+        /// <param name="message"> The message that describes the error. </param>
         public OperationException([NotNull] string message)
             : base(message)
         {
         }
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OperationException"/> class.
+        /// </summary>
+        /// <param name="message"> The message that describes the error. </param>
+        /// <param name="innerException"> The exception that is the cause of the current exception. </param>
         public OperationException([NotNull] string message, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {
