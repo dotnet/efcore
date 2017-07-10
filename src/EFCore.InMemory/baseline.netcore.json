@@ -1,5 +1,5 @@
 {
-  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.InMemory, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.InMemory, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
       "Name": "Microsoft.Extensions.DependencyInjection.InMemoryServiceCollectionExtensions",
@@ -15,7 +15,7 @@
           "Name": "AddEntityFrameworkInMemoryDatabase",
           "Parameters": [
             {
-              "Name": "services",
+              "Name": "serviceCollection",
               "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
             }
           ],
@@ -29,7 +29,7 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.WarningConfigurationBuilderExtensions",
+      "Name": "Microsoft.EntityFrameworkCore.InMemoryDatabaseFacadeExtensions",
       "Visibility": "Public",
       "Kind": "Class",
       "Abstract": true,
@@ -39,59 +39,14 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "Throw",
+          "Name": "IsInMemory",
           "Parameters": [
             {
-              "Name": "warningsConfigurationBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder"
-            },
-            {
-              "Name": "inMemoryEventIds",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.InMemoryEventId[]",
-              "IsParams": true
+              "Name": "database",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Log",
-          "Parameters": [
-            {
-              "Name": "warningsConfigurationBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder"
-            },
-            {
-              "Name": "inMemoryEventIds",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.InMemoryEventId[]",
-              "IsParams": true
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Ignore",
-          "Parameters": [
-            {
-              "Name": "warningsConfigurationBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder"
-            },
-            {
-              "Name": "inMemoryEventIds",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.InMemoryEventId[]",
-              "IsParams": true
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.WarningsConfigurationBuilder",
+          "ReturnType": "System.Boolean",
           "Static": true,
           "Extension": true,
           "Visibility": "Public",
@@ -297,23 +252,6 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.ValueGeneration.Internal.InMemoryValueGeneratorCache",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorCache",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
       "Name": "Microsoft.EntityFrameworkCore.ValueGeneration.Internal.InMemoryValueGeneratorSelector",
       "Visibility": "Public",
       "Kind": "Class",
@@ -344,8 +282,8 @@
           "Name": ".ctor",
           "Parameters": [
             {
-              "Name": "cache",
-              "Type": "Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorCache"
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.ValueGeneration.ValueGeneratorSelectorDependencies"
             }
           ],
           "Visibility": "Public",
@@ -432,8 +370,8 @@
               "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Update.IUpdateEntry>"
             },
             {
-              "Name": "logger",
-              "Type": "Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryDatabase>"
+              "Name": "updateLogger",
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Update>"
             }
           ],
           "ReturnType": "System.Int32",
@@ -443,7 +381,7 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource",
+      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreCache",
       "Visibility": "Public",
       "Kind": "Interface",
       "Abstract": true,
@@ -451,7 +389,7 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "GetNamedStore",
+          "Name": "GetStore",
           "Parameters": [
             {
               "Name": "name",
@@ -637,20 +575,20 @@
           "Name": ".ctor",
           "Parameters": [
             {
-              "Name": "queryCompilationContextFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.IQueryCompilationContextFactory"
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.DatabaseDependencies"
             },
             {
-              "Name": "storeSource",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource"
+              "Name": "storeCache",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreCache"
             },
             {
               "Name": "options",
               "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions"
             },
             {
-              "Name": "logger",
-              "Type": "Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryDatabase>"
+              "Name": "updateLogger",
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Update>"
             }
           ],
           "Visibility": "Public",
@@ -739,138 +677,6 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryDatabaseProviderServices",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.DatabaseProviderServices",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_InvariantName",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Database",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IDatabase",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_TransactionManager",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransactionManager",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_QueryContextFactory",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IQueryContextFactory",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Creator",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_ValueGeneratorSelector",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorSelector",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_ModelSource",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.IModelSource",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_ValueGeneratorCache",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.ValueGeneration.IValueGeneratorCache",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_EntityQueryableExpressionVisitorFactory",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_EntityQueryModelVisitorFactory",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IEntityQueryModelVisitorFactory",
-          "Virtual": true,
-          "Override": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProviderServices",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "services",
-              "Type": "System.IServiceProvider"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
       "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryStore",
       "Visibility": "Public",
       "Kind": "Class",
@@ -927,8 +733,8 @@
               "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Update.IUpdateEntry>"
             },
             {
-              "Name": "logger",
-              "Type": "Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryDatabase>"
+              "Name": "updateLogger",
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Update>"
             }
           ],
           "ReturnType": "System.Int32",
@@ -953,16 +759,16 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryStoreSource",
+      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryStoreCache",
       "Visibility": "Public",
       "Kind": "Class",
       "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource"
+        "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreCache"
       ],
       "Members": [
         {
           "Kind": "Method",
-          "Name": "GetNamedStore",
+          "Name": "GetStore",
           "Parameters": [
             {
               "Name": "name",
@@ -971,7 +777,7 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStore",
           "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource",
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreCache",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -991,7 +797,7 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryStoreSourceExtensions",
+      "Name": "Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryStoreCacheExtensions",
       "Visibility": "Public",
       "Kind": "Class",
       "Abstract": true,
@@ -1004,27 +810,12 @@
           "Name": "GetStore",
           "Parameters": [
             {
-              "Name": "storeSource",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource"
+              "Name": "storeCache",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreCache"
             },
             {
               "Name": "options",
               "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStore",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetGlobalStore",
-          "Parameters": [
-            {
-              "Name": "storeSource",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStore",
@@ -1207,6 +998,16 @@
       "Members": [
         {
           "Kind": "Method",
+          "Name": "get_TransactionId",
+          "Parameters": [],
+          "ReturnType": "System.Guid",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Commit",
           "Parameters": [],
           "ReturnType": "System.Void",
@@ -1311,11 +1112,12 @@
         },
         {
           "Kind": "Method",
-          "Name": "LogWarning",
+          "Name": "ResetState",
           "Parameters": [],
           "ReturnType": "System.Void",
           "Virtual": true,
-          "Visibility": "Protected",
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IResettableService",
+          "Visibility": "Public",
           "GenericParameter": []
         },
         {
@@ -1324,7 +1126,7 @@
           "Parameters": [
             {
               "Name": "logger",
-              "Type": "Microsoft.Extensions.Logging.ILogger<Microsoft.EntityFrameworkCore.Storage.Internal.InMemoryTransactionManager>"
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Database+Transaction>"
             }
           ],
           "Visibility": "Public",
@@ -1376,20 +1178,16 @@
           "Name": ".ctor",
           "Parameters": [
             {
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.Query.QueryContextDependencies"
+            },
+            {
               "Name": "queryBufferFactory",
               "Type": "System.Func<Microsoft.EntityFrameworkCore.Query.Internal.IQueryBuffer>"
             },
             {
               "Name": "store",
               "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStore"
-            },
-            {
-              "Name": "stateManager",
-              "Type": "Microsoft.EntityFrameworkCore.Internal.LazyRef<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>"
-            },
-            {
-              "Name": "concurrencyDetector",
-              "Type": "Microsoft.EntityFrameworkCore.Internal.IConcurrencyDetector"
             }
           ],
           "Visibility": "Public",
@@ -1421,16 +1219,12 @@
           "Name": ".ctor",
           "Parameters": [
             {
-              "Name": "currentContext",
-              "Type": "Microsoft.EntityFrameworkCore.Internal.ICurrentDbContext"
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.Query.QueryContextDependencies"
             },
             {
-              "Name": "concurrencyDetector",
-              "Type": "Microsoft.EntityFrameworkCore.Internal.IConcurrencyDetector"
-            },
-            {
-              "Name": "storeSource",
-              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreSource"
+              "Name": "storeCache",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.Internal.IInMemoryStoreCache"
             },
             {
               "Name": "contextOptions",
@@ -1451,95 +1245,12 @@
       "ImplementedInterfaces": [],
       "Members": [
         {
-          "Kind": "Method",
-          "Name": "IncludeNavigations",
-          "Parameters": [
-            {
-              "Name": "includeSpecification",
-              "Type": "Microsoft.EntityFrameworkCore.Query.IncludeSpecification"
-            },
-            {
-              "Name": "resultType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "accessorExpression",
-              "Type": "System.Linq.Expressions.Expression"
-            },
-            {
-              "Name": "querySourceRequiresTracking",
-              "Type": "System.Boolean"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
           "Kind": "Constructor",
           "Name": ".ctor",
           "Parameters": [
             {
-              "Name": "queryOptimizer",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer"
-            },
-            {
-              "Name": "navigationRewritingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory"
-            },
-            {
-              "Name": "subQueryMemberPushDownExpressionVisitor",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ISubQueryMemberPushDownExpressionVisitor"
-            },
-            {
-              "Name": "querySourceTracingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory"
-            },
-            {
-              "Name": "entityResultFindingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory"
-            },
-            {
-              "Name": "taskBlockingExpressionVisitor",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor"
-            },
-            {
-              "Name": "memberAccessBindingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory"
-            },
-            {
-              "Name": "orderingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IOrderingExpressionVisitorFactory"
-            },
-            {
-              "Name": "projectionExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory"
-            },
-            {
-              "Name": "entityQueryableExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory"
-            },
-            {
-              "Name": "queryAnnotationExtractor",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor"
-            },
-            {
-              "Name": "resultOperatorHandler",
-              "Type": "Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler"
-            },
-            {
-              "Name": "entityMaterializerSource",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource"
-            },
-            {
-              "Name": "expressionPrinter",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter"
-            },
-            {
-              "Name": "materializerFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IMaterializerFactory"
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorDependencies"
             },
             {
               "Name": "queryCompilationContext",
@@ -1591,15 +1302,6 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "get_MaterializerFactory",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.Internal.IMaterializerFactory",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "Create",
           "Parameters": [
             {
@@ -1623,64 +1325,8 @@
           "Name": ".ctor",
           "Parameters": [
             {
-              "Name": "queryOptimizer",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer"
-            },
-            {
-              "Name": "navigationRewritingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory"
-            },
-            {
-              "Name": "subQueryMemberPushDownExpressionVisitor",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ISubQueryMemberPushDownExpressionVisitor"
-            },
-            {
-              "Name": "querySourceTracingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory"
-            },
-            {
-              "Name": "entityResultFindingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory"
-            },
-            {
-              "Name": "taskBlockingExpressionVisitor",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor"
-            },
-            {
-              "Name": "memberAccessBindingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory"
-            },
-            {
-              "Name": "orderingExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IOrderingExpressionVisitorFactory"
-            },
-            {
-              "Name": "projectionExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory"
-            },
-            {
-              "Name": "entityQueryableExpressionVisitorFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory"
-            },
-            {
-              "Name": "queryAnnotationExtractor",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor"
-            },
-            {
-              "Name": "resultOperatorHandler",
-              "Type": "Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler"
-            },
-            {
-              "Name": "entityMaterializerSource",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource"
-            },
-            {
-              "Name": "expressionPrinter",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter"
-            },
-            {
-              "Name": "materializerFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Internal.IMaterializerFactory"
+              "Name": "dependencies",
+              "Type": "Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorDependencies"
             }
           ],
           "Visibility": "Public",
@@ -1853,64 +1499,6 @@
       "GenericParameters": []
     },
     {
-      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.InMemoryEventId",
-      "Visibility": "Public",
-      "Kind": "Enumeration",
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Field",
-          "Name": "SavedChanges",
-          "Parameters": [],
-          "GenericParameter": [],
-          "Literal": "1"
-        },
-        {
-          "Kind": "Field",
-          "Name": "TransactionIgnoredWarning",
-          "Parameters": [],
-          "GenericParameter": [],
-          "Literal": "2"
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.Internal.InMemoryModelSource",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Infrastructure.ModelSource",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "setFinder",
-              "Type": "Microsoft.EntityFrameworkCore.Internal.IDbSetFinder"
-            },
-            {
-              "Name": "coreConventionSetBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ICoreConventionSetBuilder"
-            },
-            {
-              "Name": "modelCustomizer",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer"
-            },
-            {
-              "Name": "modelCacheKeyFactory",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
       "Name": "Microsoft.EntityFrameworkCore.Infrastructure.Internal.InMemoryOptionsExtension",
       "Visibility": "Public",
       "Kind": "Class",
@@ -1918,6 +1506,15 @@
         "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension"
       ],
       "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Clone",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.Internal.InMemoryOptionsExtension",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
         {
           "Kind": "Method",
           "Name": "get_StoreName",
@@ -1929,14 +1526,14 @@
         },
         {
           "Kind": "Method",
-          "Name": "set_StoreName",
+          "Name": "WithStoreName",
           "Parameters": [
             {
-              "Name": "value",
+              "Name": "storeName",
               "Type": "System.String"
             }
           ],
-          "ReturnType": "System.Void",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.Internal.InMemoryOptionsExtension",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -1950,7 +1547,42 @@
               "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
             }
           ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetServiceProviderHashCode",
+          "Parameters": [],
+          "ReturnType": "System.Int64",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Validate",
+          "Parameters": [
+            {
+              "Name": "options",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions"
+            }
+          ],
           "ReturnType": "System.Void",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_LogFragment",
+          "Parameters": [],
+          "ReturnType": "System.String",
           "Virtual": true,
           "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
           "Visibility": "Public",
@@ -1972,6 +1604,56 @@
               "Type": "Microsoft.EntityFrameworkCore.Infrastructure.Internal.InMemoryOptionsExtension"
             }
           ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Internal.InMemoryLoggerExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "TransactionIgnoredWarning",
+          "Parameters": [
+            {
+              "Name": "diagnostics",
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Database+Transaction>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ChangesSaved",
+          "Parameters": [
+            {
+              "Name": "diagnostics",
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Update>"
+            },
+            {
+              "Name": "entries",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Update.IUpdateEntry>"
+            },
+            {
+              "Name": "rowsAffected",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -1989,33 +1671,62 @@
       "Members": [
         {
           "Kind": "Method",
-          "Name": "LogSavedChanges",
-          "Parameters": [
-            {
-              "Name": "count",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_TransactionsNotSupported",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "get_UpdateConcurrencyException",
           "Parameters": [],
           "ReturnType": "System.String",
           "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "LogSavedChanges",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition<System.Int32>",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "LogTransactionsNotSupported",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Diagnostics.EventDefinition",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Diagnostics.InMemoryEventId",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Field",
+          "Name": "TransactionIgnoredWarning",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.EventId",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "ChangesSaved",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.EventId",
+          "Static": true,
+          "ReadOnly": true,
           "Visibility": "Public",
           "GenericParameter": []
         }
