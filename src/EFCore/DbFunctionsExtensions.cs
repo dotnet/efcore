@@ -18,8 +18,16 @@ namespace Microsoft.EntityFrameworkCore
     public static class DbFunctionsExtensions
     {
         /// <summary>
-        ///     An implementation of the SQL LIKE operation. On relational databases this is usually directly
-        ///     translated to SQL.
+        ///     <para>
+        ///         An implementation of the SQL LIKE operation. On relational databases this is usually directly
+        ///         translated to SQL.
+        ///     </para>
+        ///     <para>
+        ///         Note that if this function is translated into SQL, then the semantics of the comparison will
+        ///         depend on the database configuration. In particular, it may be either case-sensitive or
+        ///         case-insenstitive. If this function is evaluated on the client, then it will always use
+        ///         a case-insenstitive comparison.
+        ///     </para>
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
@@ -27,13 +35,21 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>true if there is a match.</returns>
         public static bool Like(
             [CanBeNull] this DbFunctions _,
-            [CanBeNull] string matchExpression, 
+            [CanBeNull] string matchExpression,
             [CanBeNull] string pattern)
             => LikeCore(matchExpression, pattern, escapeCharacter: null);
 
         /// <summary>
-        ///     An implementation of the SQL LIKE operation. On relational databases this is usually directly
-        ///     translated to SQL.
+        ///     <para>
+        ///         An implementation of the SQL LIKE operation. On relational databases this is usually directly
+        ///         translated to SQL.
+        ///     </para>
+        ///     <para>
+        ///         Note that if this function is translated into SQL, then the semantics of the comparison will
+        ///         depend on the database configuration. In particular, it may be either case-sensitive or
+        ///         case-insenstitive. If this function is evaluated on the client, then it will always use
+        ///         a case-insenstitive comparison.
+        ///     </para>
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
@@ -47,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] this DbFunctions _,
             [CanBeNull] string matchExpression,
             [CanBeNull] string pattern,
-            [CanBeNull] string escapeCharacter) 
+            [CanBeNull] string escapeCharacter)
             => LikeCore(matchExpression, pattern, escapeCharacter);
 
         // Regex special chars defined here:
@@ -74,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore
             // in which case we need to change the way we construct the regex below.
             var singleEscapeCharacter =
                 (escapeCharacter == null || escapeCharacter.Length == 0)
-                ? (char?)null
-                : escapeCharacter.First();
+                    ? (char?)null
+                    : escapeCharacter.First();
 
             if (matchExpression == null
                 || pattern == null)
