@@ -141,7 +141,7 @@ function Drop-Database
 
 function Enable-Migrations
 {
-    WarnIfEF6 'Update-Database'
+    WarnIfEF6 'Enable-Migrations'
     Write-Warning 'Enable-Migrations is obsolete. Use Add-Migration to start using Migrations.'
 }
 
