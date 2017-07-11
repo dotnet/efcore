@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -16,10 +16,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IForeignKey_throws()
         {
-            var moq = Mock.Of<IForeignKey>();
+            var foreignKey = new FakeForeignKey();
+            
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IForeignKey), moq.GetType().ShortDisplayName()),
-                Assert.Throws<NotSupportedException>(() => moq.AsForeignKey()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IForeignKey), nameof(FakeForeignKey)),
+                Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
+        }
+
+        private class FakeForeignKey : IForeignKey
+        {
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public IEntityType DeclaringEntityType { get; }
+            public IReadOnlyList<IProperty> Properties { get; }
+            public IEntityType PrincipalEntityType { get; }
+            public IKey PrincipalKey { get; }
+            public INavigation DependentToPrincipal { get; }
+            public INavigation PrincipalToDependent { get; }
+            public bool IsUnique { get; }
+            public bool IsRequired { get; }
+            public bool IsOwnership { get; }
+            public DeleteBehavior DeleteBehavior { get; }
         }
 
         [Fact]

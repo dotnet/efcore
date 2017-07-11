@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_create_new_generic_DbSet()
         {
-            var context = new Mock<DbContext>().Object;
+            var context = InMemoryTestHelpers.Instance.CreateContext();
 
             var factorySource = new DbSetSource();
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Always_creates_a_new_DbSet_instance()
         {
-            var context = new Mock<DbContext>().Object;
+            var context = InMemoryTestHelpers.Instance.CreateContext();
 
             var factorySource = new DbSetSource();
 

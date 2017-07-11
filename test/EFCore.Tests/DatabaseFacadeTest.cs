@@ -9,47 +9,68 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class DatabaseFacadeTest
     {
-        [Fact]
-        public void Methods_delegate_to_configured_store_creator()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Methods_delegate_to_configured_store_creator(bool async)
         {
-            var creatorMock = new Mock<IDatabaseCreator>();
-            creatorMock.Setup(m => m.EnsureCreated()).Returns(true);
-            creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
+            var creator = new FakeDatabaseCreator();
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(creatorMock.Object));
+                new ServiceCollection().AddSingleton<IDatabaseCreator>(creator));
 
-            Assert.True(context.Database.EnsureCreated());
-            creatorMock.Verify(m => m.EnsureCreated(), Times.Once);
-
-            Assert.True(context.Database.EnsureDeleted());
-            creatorMock.Verify(m => m.EnsureDeleted(), Times.Once);
+            if (async)
+            {
+                Assert.True(await context.Database.EnsureCreatedAsync());
+                Assert.Equal(1, creator.EnsureCreatedAsyncCount);
+                Assert.True(await context.Database.EnsureDeletedAsync());
+                Assert.Equal(1, creator.EnsureDeletedAsyncCount);
+            }
+            else
+            {
+                Assert.True(context.Database.EnsureCreated());
+                Assert.Equal(1, creator.EnsureCreatedCount);
+                Assert.True(context.Database.EnsureDeleted());
+                Assert.Equal(1, creator.EnsureDeletedCount);
+            }
         }
 
-        [Fact]
-        public async void Async_methods_delegate_to_configured_store_creator()
+        private class FakeDatabaseCreator : IDatabaseCreator
         {
-            var cancellationToken = new CancellationTokenSource().Token;
+            public int EnsureDeletedCount;
+            public int EnsureDeletedAsyncCount;
+            public int EnsureCreatedCount;
+            public int EnsureCreatedAsyncCount;
 
-            var creatorMock = new Mock<IDatabaseCreator>();
-            creatorMock.Setup(m => m.EnsureCreatedAsync(cancellationToken)).Returns(Task.FromResult(true));
-            creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
+            public bool EnsureDeleted()
+            {
+                EnsureDeletedCount++;
+                return true;
+            }
 
-            var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(creatorMock.Object));
+            public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+            {
+                EnsureDeletedAsyncCount++;
+                return Task.FromResult(true);
+            }
 
-            Assert.True(await context.Database.EnsureCreatedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureCreatedAsync(cancellationToken), Times.Once);
+            public bool EnsureCreated()
+            {
+                EnsureCreatedCount++;
+                return true;
+            }
 
-            Assert.True(await context.Database.EnsureDeletedAsync(cancellationToken));
-            creatorMock.Verify(m => m.EnsureDeletedAsync(cancellationToken), Times.Once);
+            public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
+            {
+                EnsureCreatedAsyncCount++;
+                return Task.FromResult(true);
+            }
         }
 
         [Fact]
@@ -83,79 +104,91 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void Can_begin_transaction()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_begin_transaction(bool async)
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
-
-            transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
+            var transaction = new FakeDbContextTransaction();
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(
+                    new FakeDbContextTransactionManager(transaction)));
 
-            Assert.Same(transaction, context.Database.BeginTransaction());
-
-            transactionManagerMock.Verify(m => m.BeginTransaction(), Times.Once);
+            Assert.Same(
+                transaction,
+                async
+                    ? await context.Database.BeginTransactionAsync()
+                    : context.Database.BeginTransaction());
         }
 
-        [Fact]
-        public void Can_begin_transaction_async()
+        private class FakeDbContextTransactionManager : IDbContextTransactionManager
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
+            private readonly FakeDbContextTransaction _transaction;
+            
+            public FakeDbContextTransactionManager(FakeDbContextTransaction transaction)
+            {
+                _transaction = transaction;
+            }
 
-            var transactionTask = new Task<IDbContextTransaction>(() => transaction);
+            public int CommitCalls;
+            public int RollbackCalls;
 
-            transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                .Returns(transactionTask);
+            public IDbContextTransaction BeginTransaction() 
+                => _transaction;
 
-            var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+                => Task.FromResult<IDbContextTransaction>(_transaction);
 
-            var cancellationToken = new CancellationToken();
+            public void CommitTransaction() => CommitCalls++;
+            public void RollbackTransaction() => RollbackCalls++;
+            public IDbContextTransaction CurrentTransaction => _transaction;
 
-            Assert.Same(transactionTask, context.Database.BeginTransactionAsync(cancellationToken));
+            public void ResetState() => throw new NotImplementedException();
+        }
 
-            transactionManagerMock.Verify(m => m.BeginTransactionAsync(cancellationToken), Times.Once);
+        private class FakeDbContextTransaction : IDbContextTransaction
+        {
+            public void Dispose() => throw new NotImplementedException();
+            public Guid TransactionId { get; }
+            public void Commit() => throw new NotImplementedException();
+            public void Rollback() => throw new NotImplementedException();
         }
 
         [Fact]
         public void Can_commit_transaction()
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
 
             context.Database.CommitTransaction();
 
-            transactionManagerMock.Verify(m => m.CommitTransaction(), Times.Once);
+            Assert.Equal(1, manager.CommitCalls);
         }
 
         [Fact]
         public void Can_roll_back_transaction()
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var manager = new FakeDbContextTransactionManager(new FakeDbContextTransaction());
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(manager));
 
             context.Database.RollbackTransaction();
 
-            transactionManagerMock.Verify(m => m.RollbackTransaction(), Times.Once);
+            Assert.Equal(1, manager.RollbackCalls);
         }
 
         [Fact]
         public void Can_get_current_transaction()
         {
-            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
-            var transaction = Mock.Of<IDbContextTransaction>();
-
-            transactionManagerMock.Setup(m => m.CurrentTransaction).Returns(transaction);
+            var transaction = new FakeDbContextTransaction();
 
             var context = InMemoryTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(
+                    new FakeDbContextTransactionManager(transaction)));
 
             Assert.Same(transaction, context.Database.CurrentTransaction);
         }

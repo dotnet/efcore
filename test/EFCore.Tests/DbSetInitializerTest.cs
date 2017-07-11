@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -15,20 +15,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Initializes_all_entity_set_properties_with_setters()
         {
-            var setterFactory = new ClrPropertySetterFactory();
 
-            var setFinderMock = new Mock<IDbSetFinder>();
-            setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
-                new[]
-                {
-                    new DbSetProperty("One", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("One"))),
-                    new DbSetProperty("Two", typeof(object), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Two"))),
-                    new DbSetProperty("Three", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Three"))),
-                    new DbSetProperty("Four", typeof(string), null)
-                });
+            var setFinder = new FakeSetFinder();
 
             var customServices = new ServiceCollection()
-                .AddSingleton<IDbSetInitializer>(new DbSetInitializer(setFinderMock.Object, new DbSetSource()));
+                .AddSingleton<IDbSetInitializer>(new DbSetInitializer(setFinder, new DbSetSource()));
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(customServices);
 
@@ -42,7 +33,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class JustAContext : DbContext
+        private class FakeSetFinder : IDbSetFinder
+        {
+            public IReadOnlyList<DbSetProperty> FindSets(DbContext context)
+            {
+                var setterFactory = new ClrPropertySetterFactory();
+
+                return new[]
+                {
+                    new DbSetProperty("One", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("One"))),
+                    new DbSetProperty("Two", typeof(object), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Two"))),
+                    new DbSetProperty("Three", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Three"))),
+                    new DbSetProperty("Four", typeof(string), null)
+                };
+            }
+        }
+
+        private class JustAContext : DbContext
         {
             public JustAContext(DbContextOptions options)
                 : base(options)

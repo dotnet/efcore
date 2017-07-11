@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -10,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -31,21 +31,25 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Adds_all_entities_based_on_all_distinct_entity_types_found()
         {
-            var setFinderMock = new Mock<IDbSetFinder>();
-            setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
-                new[]
-                {
-                    new DbSetProperty("One", typeof(SetA), setter: null),
-                    new DbSetProperty("Two", typeof(SetB), setter: null),
-                    new DbSetProperty("Three", typeof(SetA), setter: null)
-                });
+            var setFinder = new FakeSetFinder();
 
-            var model = CreateDefaultModelSource(setFinderMock.Object)
-                .GetModel(new Mock<DbContext>().Object, _nullConventionSetBuilder, _coreModelValidator);
+            var model = CreateDefaultModelSource(setFinder)
+                .GetModel(InMemoryTestHelpers.Instance.CreateContext(), _nullConventionSetBuilder, _coreModelValidator);
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
                 model.GetEntityTypes().Select(e => e.Name).ToArray());
+        }
+
+        private class FakeSetFinder : IDbSetFinder
+        {
+            public IReadOnlyList<DbSetProperty> FindSets(DbContext context)
+                => new[]
+                {
+                    new DbSetProperty("One", typeof(SetA), setter: null),
+                    new DbSetProperty("Two", typeof(SetB), setter: null),
+                    new DbSetProperty("Three", typeof(SetA), setter: null)
+                };
         }
 
         private class JustAClass

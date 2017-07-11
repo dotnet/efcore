@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -605,15 +604,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var listeners = new[]
             {
-                new Mock<IEntityStateListener>(),
-                new Mock<IEntityStateListener>(),
-                new Mock<IEntityStateListener>()
+                new TestListener(),
+                new TestListener(),
+                new TestListener()
             };
 
             var services = new ServiceCollection()
-                .AddSingleton(listeners[0].Object)
-                .AddSingleton(listeners[1].Object)
-                .AddSingleton(listeners[2].Object);
+                .AddSingleton<IEntityStateListener>(listeners[0])
+                .AddSingleton<IEntityStateListener>(listeners[1])
+                .AddSingleton<IEntityStateListener>(listeners[2]);
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(services, BuildModel());
 
@@ -624,22 +623,44 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var listener in listeners)
             {
-                listener.Verify(m => m.StateChanging(entry, It.IsAny<EntityState>()), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false), Times.Once);
+                Assert.Equal(1, listener.ChangingCount);
+                Assert.Equal(1, listener.ChangedCount);
 
-                listener.Verify(m => m.StateChanging(entry, EntityState.Added), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false), Times.Once);
+                Assert.Equal(EntityState.Added, listener.ChangingState);
+                Assert.Equal(EntityState.Detached, listener.ChangedState);
             }
 
             entry.SetEntityState(EntityState.Modified);
 
             foreach (var listener in listeners)
             {
-                listener.Verify(m => m.StateChanging(entry, It.IsAny<EntityState>()), Times.Exactly(2));
-                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false), Times.Exactly(2));
+                Assert.Equal(2, listener.ChangingCount);
+                Assert.Equal(2, listener.ChangedCount);
 
-                listener.Verify(m => m.StateChanging(entry, EntityState.Modified), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false), Times.Once);
+                Assert.Equal(EntityState.Modified, listener.ChangingState);
+                Assert.Equal(EntityState.Added, listener.ChangedState);
+            }
+        }
+
+        private class TestListener : IEntityStateListener
+        {
+            public int ChangingCount;
+            public int ChangedCount;
+            public EntityState ChangingState;
+            public EntityState ChangedState;
+            
+            public void StateChanging(InternalEntityEntry entry, EntityState newState)
+            {
+                ChangingCount++;
+                ChangingState = newState;
+            }
+
+            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
+            {
+                ChangedCount++;
+                ChangedState = oldState;
+                
+                Assert.False(fromQuery);
             }
         }
 

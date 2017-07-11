@@ -7,8 +7,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Moq;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -73,11 +73,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IEntityType_throws()
         {
-            var moq = Mock.Of<IEntityType>();
+            var type = new FakeEntityType();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IEntityType_throws), nameof(IEntityType), moq.GetType().ShortDisplayName()),
-                Assert.Throws<NotSupportedException>(() => moq.AsEntityType()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IEntityType_throws), nameof(IEntityType), nameof(FakeEntityType)),
+                Assert.Throws<NotSupportedException>(() => type.AsEntityType()).Message);
+        }
+
+        private class FakeEntityType : IEntityType
+        {
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public IModel Model { get; }
+            public string Name { get; }
+            public Type ClrType { get; }
+            public IEntityType BaseType { get; }
+            public string DefiningNavigationName { get; }
+            public IEntityType DefiningEntityType { get; }
+            public LambdaExpression QueryFilter { get; }
+            public IKey FindPrimaryKey() => throw new NotImplementedException();
+            public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
+            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
+            public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
+            public IProperty FindProperty(string name) => throw new NotImplementedException();
+            public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
         }
 
         [Fact]

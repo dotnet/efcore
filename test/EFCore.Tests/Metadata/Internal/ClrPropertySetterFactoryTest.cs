@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
-using Moq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -13,12 +14,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Property_is_returned_if_it_implements_IClrPropertySetter()
         {
-            var setterMock = new Mock<IClrPropertySetter>();
-            var propertyMock = setterMock.As<IProperty>();
+            var property = new FakeProperty();
 
-            var source = new ClrPropertySetterFactory();
-
-            Assert.Same(setterMock.Object, source.Create(propertyMock.Object));
+            Assert.Same(property, new ClrPropertySetterFactory().Create(property));
+        }
+        
+        private class FakeProperty : IProperty, IClrPropertySetter
+        {
+            public void SetClrValue(object instance, object value) => throw new NotImplementedException();
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public string Name { get; }
+            public ITypeBase DeclaringType { get; }
+            public Type ClrType { get; }
+            public bool IsShadowProperty { get; }
+            public IEntityType DeclaringEntityType { get; }
+            public bool IsNullable { get; }
+            public PropertySaveBehavior BeforeSaveBehavior { get; }
+            public PropertySaveBehavior AfterSaveBehavior { get; }
+            public bool IsReadOnlyBeforeSave { get; }
+            public bool IsReadOnlyAfterSave { get; }
+            public bool IsStoreGeneratedAlways { get; }
+            public ValueGenerated ValueGenerated { get; }
+            public bool IsConcurrencyToken { get; }
+            public PropertyInfo PropertyInfo { get; }
+            public FieldInfo FieldInfo { get; }
         }
 
         [Fact]

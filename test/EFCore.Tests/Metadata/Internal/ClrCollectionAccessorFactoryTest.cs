@@ -6,9 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Moq;
 using Xunit;
 
 // ReSharper disable FieldCanBeMadeReadOnly.Local
@@ -26,12 +26,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Navigation_is_returned_if_it_implements_IClrCollectionAccessor()
         {
-            var accessorMock = new Mock<IClrCollectionAccessor>();
-            var navigationMock = accessorMock.As<INavigation>();
+            var navigation = new FakeNavigation();
 
-            var source = new ClrCollectionAccessorFactory();
+            Assert.Same(navigation, new ClrCollectionAccessorFactory().Create(navigation));
+        }
 
-            Assert.Same(accessorMock.Object, source.Create(navigationMock.Object));
+        private class FakeNavigation : INavigation, IClrCollectionAccessor
+        {
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public string Name { get; }
+            public ITypeBase DeclaringType { get; }
+            public Type ClrType { get; }
+            public PropertyInfo PropertyInfo { get; }
+            public FieldInfo FieldInfo { get; }
+            public bool IsShadowProperty { get; }
+            public IEntityType DeclaringEntityType { get; }
+            public IForeignKey ForeignKey { get; }
+            public bool IsEagerLoaded { get; }
+            public bool Add(object instance, object value) => throw new NotImplementedException();
+            public void AddRange(object instance, IEnumerable<object> values) => throw new NotImplementedException();
+            public bool Contains(object instance, object value) => throw new NotImplementedException();
+            public void Remove(object instance, object value) => throw new NotImplementedException();
+            public object Create() => throw new NotImplementedException();
+            public object Create(IEnumerable<object> values) => throw new NotImplementedException();
+            public object GetOrCreate(object instance) => throw new NotImplementedException();
+            public Type CollectionType { get; }
         }
 
         [Fact]

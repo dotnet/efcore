@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,14 +11,12 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -227,17 +224,27 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_start_with_custom_services_by_passing_in_base_service_provider()
         {
-            var factory = Mock.Of<INavigationFixer>();
+            var service = new FakeNavigationFixer();
 
             var provider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(factory)
+                .AddSingleton<INavigationFixer>(service)
                 .BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                Assert.Same(factory, context.GetService<INavigationFixer>());
+                Assert.Same(service, context.GetService<INavigationFixer>());
             }
+        }
+
+        private class FakeNavigationFixer : INavigationFixer
+        {
+            public void StateChanging(InternalEntityEntry entry, EntityState newState) => throw new NotImplementedException();
+            public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery) => throw new NotImplementedException();
+            public void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue) => throw new NotImplementedException();
+            public void NavigationCollectionChanged(InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed) => throw new NotImplementedException();
+            public void KeyPropertyChanged(InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys, IReadOnlyList<IForeignKey> containingForeignKeys, object oldValue, object newValue) => throw new NotImplementedException();
+            public void TrackedFromQuery(InternalEntityEntry entry, ISet<IForeignKey> handledForeignKeys) => throw new NotImplementedException();
         }
 
         [Fact]
@@ -283,15 +290,15 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_replace_already_registered_service_with_new_service()
         {
-            var factory = Mock.Of<INavigationFixer>();
+            var service = new FakeNavigationFixer();
             var provider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton(factory)
+                .AddSingleton<INavigationFixer>(service)
                 .BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                Assert.Same(factory, context.GetService<INavigationFixer>());
+                Assert.Same(service, context.GetService<INavigationFixer>());
             }
         }
 

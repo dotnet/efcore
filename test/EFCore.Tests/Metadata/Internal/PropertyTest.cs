@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Moq;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -14,21 +15,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Use_of_custom_IProperty_throws()
         {
-            var moq = Mock.Of<IProperty>();
+            var property = new FakeProperty();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), moq.GetType().ShortDisplayName()),
-                Assert.Throws<NotSupportedException>(() => moq.AsProperty()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), nameof(FakeProperty)),
+                Assert.Throws<NotSupportedException>(() => property.AsProperty()).Message);
         }
 
         [Fact]
         public void Use_of_custom_IPropertyBase_throws()
         {
-            var moq = Mock.Of<IPropertyBase>();
+            var property = new FakeProperty();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), moq.GetType().ShortDisplayName()),
-                Assert.Throws<NotSupportedException>(() => moq.AsPropertyBase()).Message);
+                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), nameof(FakeProperty)),
+                Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
+        }
+        
+        private class FakeProperty : IProperty
+        {
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public string Name { get; }
+            public ITypeBase DeclaringType { get; }
+            public Type ClrType { get; }
+            public bool IsShadowProperty { get; }
+            public IEntityType DeclaringEntityType { get; }
+            public bool IsNullable { get; }
+            public PropertySaveBehavior BeforeSaveBehavior { get; }
+            public PropertySaveBehavior AfterSaveBehavior { get; }
+            public bool IsReadOnlyBeforeSave { get; }
+            public bool IsReadOnlyAfterSave { get; }
+            public bool IsStoreGeneratedAlways { get; }
+            public ValueGenerated ValueGenerated { get; }
+            public bool IsConcurrencyToken { get; }
+            public PropertyInfo PropertyInfo { get; }
+            public FieldInfo FieldInfo { get; }
         }
 
         [Fact]

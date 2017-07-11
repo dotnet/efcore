@@ -2,11 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Moq;
 using Xunit;
 
 // ReSharper disable ConvertPropertyToExpressionBody
@@ -18,14 +19,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Delegate_from_entity_type_is_returned_if_it_implements_IEntityMaterializer()
         {
-            var materializerMock = new Mock<IEntityMaterializer>();
-            var typeMock = materializerMock.As<IEntityType>();
-            typeMock.SetupGet(et => et.ClrType).Returns(typeof(string));
+            Assert.Equal("Bazinga!", GetMaterializer(new EntityMaterializerSource(), new FakeType())(ValueBuffer.Empty));
+        }
 
-            var reader = ValueBuffer.Empty;
-            GetMaterializer(new EntityMaterializerSource(), typeMock.Object)(reader);
+        private class FakeType : IEntityType, IEntityMaterializer
+        {
+            public object CreateEntity(ValueBuffer valueBuffer) => "Bazinga!";
 
-            materializerMock.Verify(m => m.CreateEntity(reader));
+            public object this[string name] => throw new NotImplementedException();
+            public IAnnotation FindAnnotation(string name) => throw new NotImplementedException();
+            public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
+            public IModel Model { get; }
+            public string Name { get; }
+            public Type ClrType { get; }
+            public IEntityType BaseType { get; }
+            public string DefiningNavigationName { get; }
+            public IEntityType DefiningEntityType { get; }
+            public LambdaExpression QueryFilter { get; }
+            public IKey FindPrimaryKey() => throw new NotImplementedException();
+            public IKey FindKey(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IEnumerable<IKey> GetKeys() => throw new NotImplementedException();
+            public IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType) => throw new NotImplementedException();
+            public IEnumerable<IForeignKey> GetForeignKeys() => throw new NotImplementedException();
+            public IIndex FindIndex(IReadOnlyList<IProperty> properties) => throw new NotImplementedException();
+            public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
+            public IProperty FindProperty(string name) => throw new NotImplementedException();
+            public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
         }
 
         [Fact]
