@@ -34,17 +34,35 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Connection_can_be_nullified()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = "CREATE TABLE Data (Value);";
+                command.Prepare();
+
+                command.Connection = null;
+                Assert.Null(command.Connection);
+            }
+        }
+
+        [Fact]
         public void CommandType_text_by_default()
         {
             Assert.Equal(CommandType.Text, new SqliteCommand().CommandType);
         }
 
-        [Fact]
-        public void CommandType_validates_value()
+        [Theory]
+        [InlineData(CommandType.StoredProcedure)]
+        [InlineData(CommandType.TableDirect)]
+        public void CommandType_validates_value(CommandType commandType)
         {
-            var ex = Assert.Throws<ArgumentException>(() => new SqliteCommand().CommandType = CommandType.StoredProcedure);
+            var ex = Assert.Throws<ArgumentException>(() => new SqliteCommand().CommandType = commandType);
 
-            Assert.Equal(Resources.InvalidCommandType(CommandType.StoredProcedure), ex.Message);
+            Assert.Equal(Resources.InvalidCommandType(commandType), ex.Message);
         }
 
         [Fact]
@@ -65,9 +83,49 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void Prepare_does_nothing()
+        public void Prepare_throws_when_no_connection()
         {
-            new SqliteCommand().Prepare();
+            var ex = Assert.Throws<InvalidOperationException>(() => new SqliteCommand().Prepare());
+
+            Assert.Equal(Resources.CallRequiresOpenConnection("Prepare"), ex.Message);
+        }
+
+        [Fact]
+        public void Prepare_throws_when_connection_closed()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().Prepare());
+
+                Assert.Equal(Resources.CallRequiresOpenConnection("Prepare"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void Prepare_throws_when_no_command_text()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateCommand().Prepare());
+
+                Assert.Equal(Resources.CallRequiresSetCommandText("Prepare"), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void Prepare_throws_when_command_text_contains_dependent_commands()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);";
+                var ex = Assert.Throws<SqliteException>(() => command.Prepare());
+
+                Assert.Equal(1, ex.SqliteErrorCode);
+            }
         }
 
         [Fact]
@@ -168,6 +226,19 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ExecuteNonQuery_processes_dependent_commands()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);";
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        [Fact]
         public void ExecuteScalar_returns_null_when_empty()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -256,6 +327,24 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
 
                 Assert.Equal(1L, command.ExecuteScalar());
+            }
+        }
+
+        [Fact]
+        public void ExecuteReader_reuse_statement()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Parameter;";
+                command.Prepare();
+                command.Parameters.AddWithValue("@Parameter", 1);
+
+                Assert.Equal(1L, command.ExecuteScalar());
+
+                command.Parameters["@Parameter"].Value = 2;
+                Assert.Equal(2L, command.ExecuteScalar());
             }
         }
 

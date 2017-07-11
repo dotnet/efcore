@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
@@ -18,6 +19,8 @@ namespace Microsoft.Data.Sqlite
     public partial class SqliteConnection : DbConnection
     {
         private const string MainDatabaseName = "main";
+
+        private readonly IList<WeakReference<SqliteCommand>> _commands = new List<WeakReference<SqliteCommand>>();
 
         private string _connectionString;
         private ConnectionState _state;
@@ -220,6 +223,17 @@ namespace Microsoft.Data.Sqlite
             }
 
             Transaction?.Dispose();
+
+            foreach (var reference in _commands)
+            {
+                if (reference.TryGetTarget(out var command))
+                {
+                    command.Dispose();
+                }
+            }
+
+            _commands.Clear();
+
             _db.Dispose2();
             _db = null;
             SetState(ConnectionState.Closed);
@@ -264,6 +278,20 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The new command.</returns>
         protected override DbCommand CreateDbCommand()
             => CreateCommand();
+
+        internal void AddCommand(SqliteCommand command)
+            => _commands.Add(new WeakReference<SqliteCommand>(command));
+
+        internal void RemoveCommand(SqliteCommand command)
+        {
+            for (int i = _commands.Count - 1; i >= 0; i--)
+            {
+                if (!_commands[i].TryGetTarget(out var item) || item == command)
+                {
+                    _commands.RemoveAt(i);
+                }
+            }
+        }
 
         /// <summary>
         /// Create custom collation.
