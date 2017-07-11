@@ -12,7 +12,7 @@
     <NETFrameworkPackageVersion>2.0.0-*</NETFrameworkPackageVersion>
     <NETStandardImplicitPackageVersion>2.0.0-*</NETStandardImplicitPackageVersion>
     <RelinqVersion>2.1.1</RelinqVersion>
-    <RoslynVersion>1.3.0</RoslynVersion>
+    <RoslynVersion>2.3.0-beta4-*</RoslynVersion>
     <RuntimeFrameworkVersion Condition="'$(TargetFramework)'=='netcoreapp2.0'">2.0.0-*</RuntimeFrameworkVersion>
     <SQLitePCLRawVersion>1.1.7</SQLitePCLRawVersion>
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
