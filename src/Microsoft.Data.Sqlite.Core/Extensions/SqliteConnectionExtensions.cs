@@ -9,10 +9,12 @@ namespace Microsoft.Data.Sqlite
             this SqliteConnection connection,
             string commandText)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = commandText;
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = commandText;
 
-            return command.ExecuteNonQuery();
+                return command.ExecuteNonQuery();
+            }
         }
 
         public static T ExecuteScalar<T>(
@@ -22,10 +24,12 @@ namespace Microsoft.Data.Sqlite
 
         private static object ExecuteScalar(this SqliteConnection connection, string commandText)
         {
-            var command = connection.CreateCommand();
-            command.CommandText = commandText;
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = commandText;
 
-            return command.ExecuteScalar();
+                return command.ExecuteScalar();
+            }
         }
     }
 }

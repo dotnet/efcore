@@ -206,6 +206,20 @@ namespace Microsoft.Data.Sqlite.Properties
         public static string CannotStoreNaN
             => GetString("CannotStoreNaN");
 
+        /// <summary>
+        /// An open reader is already associated with this command. Close it before opening a new one.
+        /// </summary>
+        public static string DataReaderOpen
+            => GetString("DataReaderOpen");
+
+        /// <summary>
+        /// An open reader is associated with this command. Close it before changing the {propertyName} property.
+        /// </summary>
+        public static string SetRequiresNoOpenReader(object propertyName)
+            => string.Format(
+                GetString("SetRequiresNoOpenReader", nameof(propertyName)),
+                propertyName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

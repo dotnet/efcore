@@ -284,7 +284,7 @@ namespace Microsoft.Data.Sqlite
 
         internal void RemoveCommand(SqliteCommand command)
         {
-            for (int i = _commands.Count - 1; i >= 0; i--)
+            for (var i = _commands.Count - 1; i >= 0; i--)
             {
                 if (!_commands[i].TryGetTarget(out var item) || item == command)
                 {

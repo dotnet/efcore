@@ -10,7 +10,6 @@ using System.Globalization;
 using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-using System.Text;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Sqlite
 
         private readonly SqliteCommand _command;
         private readonly bool _closeConnection;
-        private readonly Queue<(sqlite3_stmt, bool)> _stmtQueue;
+        private readonly Queue<(sqlite3_stmt stmt, bool)> _stmtQueue;
         private sqlite3_stmt _stmt;
         private bool _hasRows;
         private bool _stepped;
@@ -151,6 +150,8 @@ namespace Microsoft.Data.Sqlite
                 return false;
             }
 
+            raw.sqlite3_reset(_stmt);
+
             (_stmt, _hasRows) = _stmtQueue.Dequeue();
             _stepped = false;
             _done = false;
@@ -175,6 +176,19 @@ namespace Microsoft.Data.Sqlite
             if (!disposing)
             {
                 return;
+            }
+
+            _command.DataReader = null;
+
+            if (_stmt != null)
+            {
+                raw.sqlite3_reset(_stmt);
+                _stmt = null;
+            }
+
+            while (_stmtQueue.Count != 0)
+            {
+                raw.sqlite3_reset(_stmtQueue.Dequeue().stmt);
             }
 
             _closed = true;
