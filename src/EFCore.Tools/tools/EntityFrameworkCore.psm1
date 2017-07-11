@@ -296,6 +296,9 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER DataAnnotations
     Use attributes to configure the model (where possible). If omitted, only the fluent API is used.
 
+.PARAMETER UseDatabaseNames
+    Use table and column names directly from the database.
+
 .PARAMETER Force
     Overwrite existing files.
 
@@ -321,6 +324,7 @@ function Scaffold-DbContext
         [string[]] $Schemas = @(),
         [string[]] $Tables = @(),
         [switch] $DataAnnotations,
+        [switch] $UseDatabaseNames,
         [switch] $Force,
         [string] $Project,
         [string] $StartupProject)
@@ -346,6 +350,11 @@ function Scaffold-DbContext
     if ($DataAnnotations)
     {
         $params += '--data-annotations'
+    }
+
+    if ($UseDatabaseNames)
+    {
+        $params += '--use-database-names'
     }
 
     if ($Force)
