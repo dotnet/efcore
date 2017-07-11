@@ -269,19 +269,19 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             Assert.Equal(@"@p0='ValidString' (Size = 16)
 
 SET NOCOUNT ON;
-INSERT INTO [Two] ([Data])
+INSERT INTO [Twos] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
-FROM [Two]
+FROM [Twos]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
 
 @p0='ValidButLongString' (Size = -1)
 
 SET NOCOUNT ON;
-INSERT INTO [Two] ([Data])
+INSERT INTO [Twos] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
-FROM [Two]
+FROM [Twos]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
                 Sql);
         }

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ReverseEngineering
         {
             _testStore = SqlServerTestStore.GetOrCreateShared(
                 "SqlServerReverseEngineerTestE2E",
-                () => SqlServerTestStore.ExecuteScript("SqlServerReverseEngineerTestE2E", "ReverseEngineering/E2E.sql"));
+                "ReverseEngineering/E2E.sql");
         }
 
         public void Dispose() => _testStore.Dispose();

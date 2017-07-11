@@ -15,6 +15,25 @@ namespace Microsoft.EntityFrameworkCore
             = new ConcurrentDictionary<string, object>();
 
         private static readonly object _hashSetLock = new object();
+        private readonly Func<DbContextOptions, DbContext> _createContext;
+        private readonly Func<DbContextOptionsBuilder, DbContextOptionsBuilder> _addOptions;
+        private DbContextOptions _options;
+        
+        protected DbContextOptions Options => _options ?? (_options = CreateOptions());
+        protected IServiceProvider ServiceProvider { get; }
+        public string Name { get; protected set; }
+
+        protected TestStore(
+            string name,
+            IServiceProvider serviceProvider,
+            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions,
+            Func<DbContextOptions, DbContext> createContext)
+        {
+            Name = name;
+            ServiceProvider = serviceProvider;
+            _addOptions = addOptions ?? (b => b);
+            _createContext = createContext;
+        }
 
         protected virtual void CreateShared(string name, Action initializeDatabase)
         {
@@ -38,6 +57,13 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
+
+        protected DbContextOptions CreateOptions()
+            => _addOptions(AddProviderOptions(new DbContextOptionsBuilder())).Options;
+
+        protected abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
+
+        public virtual DbContext CreateContext() => _createContext(Options);
 
         public virtual void Dispose()
         {

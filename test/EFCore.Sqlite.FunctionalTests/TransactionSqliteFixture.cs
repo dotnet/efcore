@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override SqliteTestStore CreateTestStore()
         {
-            return SqliteTestStore.GetOrCreateShared(DatabaseName, false, true, () =>
+            return SqliteTestStore.GetOrCreateShared(DatabaseName, true, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
                         .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))

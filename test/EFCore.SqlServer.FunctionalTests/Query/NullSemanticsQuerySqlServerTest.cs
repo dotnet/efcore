@@ -21,19 +21,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[NullableBoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -43,19 +43,19 @@ WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NUL
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -65,19 +65,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS 
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -87,19 +87,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS 
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] = [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -109,19 +109,19 @@ WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -131,19 +131,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] = [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -153,19 +153,19 @@ WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NU
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] = [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -175,19 +175,19 @@ WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NU
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -197,19 +197,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -219,19 +219,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] = [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -241,19 +241,19 @@ WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NU
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] = [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -263,19 +263,19 @@ WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NU
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -285,19 +285,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[NullableBoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -307,19 +307,19 @@ WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NUL
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -329,19 +329,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS 
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -351,19 +351,19 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS 
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] = [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -373,19 +373,19 @@ WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] = [e].[NullableBoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
@@ -395,19 +395,19 @@ WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NUL
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[BoolA] <> [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[BoolA] <> [e].[NullableBoolB]) OR [e].[NullableBoolB] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)");
         }
 
@@ -417,7 +417,7 @@ WHERE (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS N
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[BoolA] = [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -427,7 +427,7 @@ END = CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[NullableBoolA] = [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -437,7 +437,7 @@ END = CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -453,7 +453,7 @@ END");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[BoolA] = [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -463,7 +463,7 @@ END <> CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[NullableBoolA] = [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -473,7 +473,7 @@ END <> CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -489,7 +489,7 @@ END");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[BoolA] <> [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -499,7 +499,7 @@ END = CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -509,7 +509,7 @@ END = CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -525,7 +525,7 @@ END");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[BoolA] <> [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -535,7 +535,7 @@ END <> CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -545,7 +545,7 @@ END <> CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -561,7 +561,7 @@ END");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[BoolA] <> [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -571,7 +571,7 @@ END = CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -581,7 +581,7 @@ END = CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -597,7 +597,7 @@ END");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN [e].[BoolA] <> [e].[BoolB]
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -607,7 +607,7 @@ END <> CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN ([e].[NullableBoolA] <> [e].[BoolB]) OR [e].[NullableBoolA] IS NULL
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -617,7 +617,7 @@ END <> CASE
 END",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN (([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL OR [e].[NullableBoolB] IS NULL)) AND ([e].[NullableBoolA] IS NOT NULL OR [e].[NullableBoolB] IS NOT NULL)
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -633,7 +633,7 @@ END");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] IS NULL");
         }
 
@@ -645,7 +645,7 @@ WHERE [e].[NullableStringA] IS NULL");
                 @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] = @__prm_0");
         }
 
@@ -655,8 +655,8 @@ WHERE [e].[NullableStringA] = @__prm_0");
 
             AssertSql(
                 @"SELECT [e1].[Id] AS [Id1], [e2].[Id] AS [Id2], [e1].[NullableIntA], [e2].[NullableIntB]
-FROM [NullSemanticsEntity1] AS [e1]
-INNER JOIN [NullSemanticsEntity2] AS [e2] ON [e1].[NullableIntA] = [e2].[NullableIntB]");
+FROM [Entities1] AS [e1]
+INNER JOIN [Entities2] AS [e2] ON [e1].[NullableIntA] = [e2].[NullableIntB]");
         }
 
         public override void Contains_with_local_array_closure_with_null()
@@ -665,7 +665,7 @@ INNER JOIN [NullSemanticsEntity2] AS [e2] ON [e1].[NullableIntA] = [e2].[Nullabl
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
         }
 
@@ -675,7 +675,7 @@ WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NULL");
         }
 
@@ -685,7 +685,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo') AND [e].[NullableStringA] IS NOT NUL
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
         }
 
@@ -695,7 +695,7 @@ WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] IN (N'Foo', N'Blah') OR [e].[NullableStringA] IS NULL");
         }
 
@@ -705,7 +705,7 @@ WHERE [e].[NullableStringA] IN (N'Foo', N'Blah') OR [e].[NullableStringA] IS NUL
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] NOT IN (N'Foo', N'Blah') AND [e].[NullableStringA] IS NOT NULL");
         }
 
@@ -715,7 +715,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo', N'Blah') AND [e].[NullableStringA] I
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
         }
 
@@ -727,7 +727,7 @@ WHERE ([e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL)");
                 @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] NOT IN (N'Foo', @__prm3_2) AND [e].[NullableStringA] IS NOT NULL");
         }
 
@@ -739,7 +739,7 @@ WHERE [e].[NullableStringA] NOT IN (N'Foo', @__prm3_2) AND [e].[NullableStringA]
                 @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL)) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)");
         }
 
@@ -749,7 +749,7 @@ WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo'
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE COALESCE([e].[NullableBoolA], 1) = 1");
         }
 
@@ -759,7 +759,7 @@ WHERE COALESCE([e].[NullableBoolA], 1) = 1");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] IS NULL");
         }
 
@@ -769,7 +769,7 @@ WHERE [e].[NullableStringA] IS NULL");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] IS NOT NULL");
         }
 
@@ -779,7 +779,7 @@ WHERE [e].[NullableStringA] IS NOT NULL");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC]) OR (([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) AND [e].[NullableStringC] IS NULL)");
         }
 
@@ -789,7 +789,7 @@ WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStr
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC]) OR (([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL)) AND (([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) OR [e].[NullableStringC] IS NOT NULL)");
         }
 
@@ -799,7 +799,7 @@ WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableS
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[StringA], [e].[StringB])");
         }
 
@@ -809,7 +809,7 @@ WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[Str
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ((COALESCE([e].[NullableIntA], [e].[NullableIntB]) <> COALESCE([e].[NullableIntC], [e].[NullableIntB])) OR (([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL) OR ([e].[NullableIntC] IS NULL AND [e].[NullableIntB] IS NULL))) AND (([e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL) OR ([e].[NullableIntC] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL))");
         }
 
@@ -819,7 +819,7 @@ WHERE ((COALESCE([e].[NullableIntA], [e].[NullableIntB]) <> COALESCE([e].[Nullab
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (CASE
     WHEN ([e].[NullableStringA] = [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL)
     THEN [e].[NullableStringA] ELSE [e].[NullableStringB]
@@ -835,7 +835,7 @@ END IS NULL AND [e].[NullableStringC] IS NULL)");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE (([e].[NullableStringC] <> CASE
     WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL)
     THEN [e].[NullableStringA] ELSE [e].[NullableStringB]
@@ -854,7 +854,7 @@ END IS NOT NULL)");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableStringC] <> CASE
     WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL)
     THEN [e].[StringA] ELSE [e].[StringB]
@@ -867,7 +867,7 @@ END) OR [e].[NullableStringC] IS NULL");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ((CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) OR ([e].[NullableStringB] = N'')) AND ([e].[BoolA] = 1)");
         }
 
@@ -879,7 +879,7 @@ WHERE ((CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) OR ([e].[Nu
                 @"@__prm_0='True'
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN @__prm_0 = 1
     THEN CASE
@@ -891,7 +891,7 @@ END = 1",
                 @"@__prm_0='True'
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN @__prm_0 = 0
     THEN CAST(1 AS BIT) ELSE CASE
@@ -910,7 +910,7 @@ END = 1");
 @__prm2_1='False'
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE CASE
     WHEN @__prm1_0 = 1
     THEN CASE
@@ -941,7 +941,7 @@ END = 1");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
         }
 
@@ -951,7 +951,7 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = 1");
         }
 
@@ -961,7 +961,7 @@ WHERE [e].[NullableBoolA] = 1");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = 1");
         }
 
@@ -971,7 +971,7 @@ WHERE [e].[NullableBoolA] = 1");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)");
         }
 
@@ -983,7 +983,7 @@ WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = 1)");
                 @"@__prm_0='' (DbType = String)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = @__prm_0");
         }
 
@@ -993,7 +993,7 @@ WHERE [e].[NullableBoolA] = @__prm_0");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
         }
 
@@ -1003,7 +1003,7 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
         }
 
@@ -1015,7 +1015,7 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
                 @"@__prm_0='' (DbType = String)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] <> @__prm_0");
         }
 
@@ -1025,7 +1025,7 @@ WHERE [e].[NullableBoolA] <> @__prm_0");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
         }
 
@@ -1037,13 +1037,13 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
                 @"@__prm_0='' (Size = 4000) (DbType = String)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE @__prm_0 IS NULL",
                 //
                 @"@__prm_0='' (Size = 4000) (DbType = String)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE @__prm_0 IS NOT NULL");
         }
 
@@ -1055,13 +1055,13 @@ WHERE @__prm_0 IS NOT NULL");
                 @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE @__prm_0 IS NULL",
                 //
                 @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE @__prm_0 IS NOT NULL");
         }
 
@@ -1071,11 +1071,11 @@ WHERE @__prm_0 IS NOT NULL");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE 0 = 1",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]");
+FROM [Entities1] AS [e]");
         }
 
         public override void Where_comparison_null_semantics_optimization_works_with_complex_predicates()
@@ -1084,7 +1084,7 @@ FROM [NullSemanticsEntity1] AS [e]");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableStringA] IS NULL");
         }
 
@@ -1094,11 +1094,11 @@ WHERE [e].[NullableStringA] IS NULL");
 
             AssertSql(
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
         }
 
@@ -1110,11 +1110,11 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
                 @"@__prm_0='Foo' (Size = 4000)
 
 SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE @__prm_0 = N'Foo'",
                 //
                 @"SELECT [e].[Id]
-FROM [NullSemanticsEntity1] AS [e]
+FROM [Entities1] AS [e]
 WHERE 0 = 1");
         }
 
@@ -1125,7 +1125,7 @@ WHERE 0 = 1");
             AssertSql(
                 @"SELECT [c].[Id], [c].[BoolA], [c].[BoolB], [c].[BoolC], [c].[IntA], [c].[IntB], [c].[IntC], [c].[NullableBoolA], [c].[NullableBoolB], [c].[NullableBoolC], [c].[NullableIntA], [c].[NullableIntB], [c].[NullableIntC], [c].[NullableStringA], [c].[NullableStringB], [c].[NullableStringC], [c].[StringA], [c].[StringB], [c].[StringC]
 FROM (
-    SELECT * FROM ""NullSemanticsEntity1""
+    SELECT * FROM ""Entities1""
 ) AS [c]
 WHERE [c].[StringA] = [c].[StringB]");
         }
@@ -1136,7 +1136,7 @@ WHERE [c].[StringA] = [c].[StringB]");
 
             AssertSql(
                 @"SELECT [e].[Id], CAST(COALESCE([e].[NullableBoolA], 0) AS bit) AS [Coalesce]
-FROM [NullSemanticsEntity1] AS [e]");
+FROM [Entities1] AS [e]");
         }
 
         public override void Projecting_nullable_bool_with_coalesce_nested()
@@ -1145,7 +1145,7 @@ FROM [NullSemanticsEntity1] AS [e]");
 
             AssertSql(
                 @"SELECT [e].[Id], CAST(COALESCE([e].[NullableBoolA], COALESCE([e].[NullableBoolB], 0)) AS bit) AS [Coalesce]
-FROM [NullSemanticsEntity1] AS [e]");
+FROM [Entities1] AS [e]");
         }
 
         private void AssertSql(params string[] expected)

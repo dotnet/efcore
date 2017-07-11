@@ -2175,7 +2175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (useBuilder)
             {
-                Assert.Null(new InternalModelBuilder(model).Validate());
+                Assert.Null(new InternalModelBuilder(model).Metadata.Validate());
             }
             else
             {

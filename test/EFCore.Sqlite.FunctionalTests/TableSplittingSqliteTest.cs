@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
     public class TableSplittingSqliteTest : TableSplittingTestBase<SqliteTestStore>
     {
         public override SqliteTestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
-            => SqliteTestStore.GetOrCreateShared(DatabaseName, false, true, () =>
+            => SqliteTestStore.GetOrCreateShared(DatabaseName, false, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
                         .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))

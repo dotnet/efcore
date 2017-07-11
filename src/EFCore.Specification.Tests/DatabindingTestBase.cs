@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,15 +9,13 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class DatabindingTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+    public abstract class DatabindingTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
         where TTestStore : TestStore
         where TFixture : F1FixtureBase<TTestStore>, new()
     {
         protected DatabindingTestBase(TFixture fixture)
         {
             Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
         }
 
         protected const int TotalCount = 40;
@@ -931,15 +928,11 @@ namespace Microsoft.EntityFrameworkCore
 
         protected F1Context CreateF1Context()
         {
-            var context = Fixture.CreateContext(TestStore);
+            var context = Fixture.CreateContext();
             context.ChangeTracker.AutoDetectChangesEnabled = false;
             return context;
         }
 
         protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public virtual void Dispose() => TestStore.Dispose();
     }
 }

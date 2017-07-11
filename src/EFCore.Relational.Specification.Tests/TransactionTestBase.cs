@@ -15,7 +15,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class TransactionTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : RelationalTestStore
+        where TTestStore : IRelationalTestStore<DbConnection>
         where TFixture : TransactionFixtureBase<TTestStore>, new()
     {
         [Fact]

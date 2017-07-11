@@ -347,13 +347,13 @@ namespace Microsoft.EntityFrameworkCore
                         await testDatabase.Connection.OpenAsync();
                     }
 
-                    var tables = (await testDatabase.QueryAsync<string>(
-                        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).ToList();
+                    var tables = testDatabase.Query<string>(
+                        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'").ToList();
                     Assert.Equal(1, tables.Count);
                     Assert.Equal("Blogs", tables.Single());
 
-                    var columns = (await testDatabase.QueryAsync<string>(
-                        "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME")).ToArray();
+                    var columns = testDatabase.Query<string>(
+                        "SELECT TABLE_NAME + '.' + COLUMN_NAME + ' (' + DATA_TYPE + ')' FROM INFORMATION_SCHEMA.COLUMNS  WHERE TABLE_NAME = 'Blogs' ORDER BY TABLE_NAME, COLUMN_NAME").ToArray();
                     Assert.Equal(14, columns.Length);
 
                     Assert.Equal(

@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[NullableBool], [c2].[Id], [c2].[FirstName], [c2].[LastName], [c2].[NullableBool]
-FROM [FunkyCustomer] AS [c]
-CROSS JOIN [FunkyCustomer] AS [c2]
+FROM [FunkyCustomers] AS [c]
+CROSS JOIN [FunkyCustomers] AS [c2]
 WHERE CASE
     WHEN (RIGHT([c].[FirstName], LEN([c2].[LastName])) = [c2].[LastName]) OR ([c2].[LastName] = N'')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
@@ -37,8 +37,8 @@ END = [c].[NullableBool]",
 
             Assert.Equal(
                 @"SELECT [c].[Id], [c].[FirstName], [c].[LastName], [c].[NullableBool], [c2].[Id], [c2].[FirstName], [c2].[LastName], [c2].[NullableBool]
-FROM [FunkyCustomer] AS [c]
-CROSS JOIN [FunkyCustomer] AS [c2]
+FROM [FunkyCustomers] AS [c]
+CROSS JOIN [FunkyCustomers] AS [c2]
 WHERE (CASE
     WHEN (RIGHT([c].[FirstName], LEN([c2].[LastName])) = [c2].[LastName]) OR ([c2].[LastName] = N'')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)

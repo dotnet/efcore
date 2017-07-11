@@ -56,8 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
-            context.Database.UseTransaction(testStore.Transaction);
-
             return context;
         }
     }

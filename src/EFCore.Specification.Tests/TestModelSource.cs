@@ -14,13 +14,11 @@ namespace Microsoft.EntityFrameworkCore
     public class TestModelSource : ModelSource
     {
         private readonly Action<ModelBuilder> _onModelCreating;
-        private readonly Action<ModelBuilder, DbContext> _customizeModel;
 
-        public TestModelSource(Action<ModelBuilder> onModelCreating, ModelSourceDependencies dependencies, Action<ModelBuilder, DbContext> customizeModel = null)
+        public TestModelSource(Action<ModelBuilder> onModelCreating, ModelSourceDependencies dependencies)
             : base(dependencies)
         {
             _onModelCreating = onModelCreating;
-            _customizeModel = customizeModel;
         }
 
         protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
@@ -28,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore
             var conventionSet = CreateConventionSet(conventionSetBuilder);
 
             var modelBuilder = new ModelBuilder(conventionSet);
-            var model = (Model)modelBuilder.Model;
+            var model = modelBuilder.GetInfrastructure().Metadata;
             model.SetProductVersion(ProductInfo.GetVersion());
 
-            _customizeModel?.Invoke(modelBuilder, context);
+            Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
             _onModelCreating(modelBuilder);
-            
+
             model.Validate();
 
             validator.Validate(model);
@@ -45,13 +43,6 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<IServiceProvider, IModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
             => p => new TestModelSource(
                 onModelCreating,
-                p.GetRequiredService<ModelSourceDependencies>(),
-                (mb, dbc) =>
-                    {
-                        foreach (var setInfo in p.GetRequiredService<IDbSetFinder>().FindSets(dbc))
-                        {
-                            mb.Entity(setInfo.ClrType);
-                        }
-                    });
+                p.GetRequiredService<ModelSourceDependencies>());
     }
 }

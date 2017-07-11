@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.From_sql_queryable_simple_columns_out_of_order();
 
             Assert.Equal(
-                @"SELECT ""Id"", ""Name"", ""IsAutomatic"", ""AmmunitionType"", ""OwnerFullName"", ""SynergyWithId"" FROM ""Weapon"" ORDER BY ""Name""",
+                @"SELECT ""Id"", ""Name"", ""IsAutomatic"", ""AmmunitionType"", ""OwnerFullName"", ""SynergyWithId"" FROM ""Weapons"" ORDER BY ""Name""",
                 Sql);
         }
 

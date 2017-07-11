@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -13,17 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindQuerySqlServerFixture : NorthwindQueryRelationalFixture, IDisposable
     {
-        private readonly Func<Action<ModelBuilder>, Func<IServiceProvider, IModelSource>> _modelSourceFactory;
-
-        public NorthwindQuerySqlServerFixture() : this(TestModelSource.GetFactory)
-        {
-        }
-
-        protected NorthwindQuerySqlServerFixture(Func<Action<ModelBuilder>, Func<IServiceProvider, IModelSource>> modelSourceFactory)
-        {
-            _modelSourceFactory = modelSourceFactory;
-        }
-
         private readonly SqlServerTestStore _testStore = SqlServerTestStore.GetNorthwindStore();
 
         public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
@@ -35,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .UseInternalServiceProvider(
                             (additionalServices ?? new ServiceCollection())
                             .AddEntityFrameworkSqlServer()
-                            .AddSingleton(_modelSourceFactory(OnModelCreating))
+                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
                             .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                             .BuildServiceProvider(validateScopes: true)))
                 .UseSqlServer(

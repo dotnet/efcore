@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public virtual TestModelBuilder Validate()
             {
-                var modelBuilder = ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate();
+                var modelBuilder = ModelBuilder.GetInfrastructure().Metadata.Validate();
                 ModelValidator.Validate(modelBuilder.Metadata);
 
                 return this;

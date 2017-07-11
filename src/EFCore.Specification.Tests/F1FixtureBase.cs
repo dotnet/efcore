@@ -5,14 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class F1FixtureBase<TTestStore>
+    public abstract class F1FixtureBase<TTestStore> : SharedStoreFixtureBase<TTestStore, F1Context>
         where TTestStore : TestStore
     {
-        public abstract TTestStore CreateTestStore();
-
-        public abstract F1Context CreateContext(TTestStore testStore);
-
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected override string StoreName { get; } = "F1Test";
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
 
@@ -47,9 +45,20 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<TestDriver>();
             modelBuilder.Entity<TitleSponsor>()
-                .OwnsOne(s => s.Details);
+                .Ignore(s => s.Details);
+            // #8973
+            //.OwnsOne(s => s.Details);
 
-            // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue#1368
+            // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue #1368
         }
+
+        protected override void Seed(F1Context context)
+            => F1Context.Seed(context);
+
+        protected override F1Context CreateContext(DbContextOptions options)
+            => new F1Context(options);
+
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => builder.ConfigureWarnings(b => b.Default(WarningBehavior.Throw));
     }
 }

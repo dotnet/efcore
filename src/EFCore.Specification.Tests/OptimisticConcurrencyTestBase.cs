@@ -13,7 +13,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class OptimisticConcurrencyTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+    public abstract class OptimisticConcurrencyTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
         where TTestStore : TestStore
         where TFixture : F1FixtureBase<TTestStore>, new()
     {
@@ -592,20 +592,14 @@ namespace Microsoft.EntityFrameworkCore
             // default do nothing. Allow provider-specific entry reset
         }
 
-        protected F1Context CreateF1Context() => Fixture.CreateContext(TestStore);
+        protected F1Context CreateF1Context() => Fixture.CreateContext();
 
         protected OptimisticConcurrencyTestBase(TFixture fixture)
         {
             Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
         }
 
-        public void Dispose() => TestStore.Dispose();
-
         protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
 
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
         {

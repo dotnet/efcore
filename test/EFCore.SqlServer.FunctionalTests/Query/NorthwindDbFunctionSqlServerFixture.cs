@@ -4,27 +4,11 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindDbFunctionSqlServerFixture : NorthwindQuerySqlServerFixture
     {
-        public NorthwindDbFunctionSqlServerFixture()
-            : base(mb =>
-                        p =>
-                             new TestModelSource(
-                                mb, 
-                                p.GetRequiredService<ModelSourceDependencies>(),
-                                (modelBuilder, context) =>
-                                    {
-                                        new RelationalModelCustomizer(p.GetRequiredService<ModelCustomizerDependencies>()).Customize(modelBuilder, context);
-                                    })
-                    )
-        {
-        }
-
         public override NorthwindContext CreateContext(
             QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll,
             bool enableFilters = false)
@@ -38,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.OnModelCreating(modelBuilder);
 
-            var methodInfo = typeof(NorthwindDbFunctionContext).GetRuntimeMethod(nameof(NorthwindDbFunctionContext.MyCustomLength), new[] { typeof(string) }) ;
+            var methodInfo = typeof(NorthwindDbFunctionContext).GetRuntimeMethod(nameof(NorthwindDbFunctionContext.MyCustomLength), new[] { typeof(string) });
 
             modelBuilder.HasDbFunction(methodInfo)
-                .HasTranslation((args) => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
+                .HasTranslation(args => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
 
             modelBuilder.HasDbFunction(typeof(DateTimeExtensions).GetRuntimeMethod(nameof(DateTimeExtensions.IsDate), new[] { typeof(string) }));
         }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
@@ -9,7 +8,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class PropertyEntryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+    public abstract class PropertyEntryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
         where TTestStore : TestStore
         where TFixture : F1FixtureBase<TTestStore>, new()
     {
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         using (context.Database.BeginTransaction())
                         {
-                            var engine = context.Engines.First();
+                            var engine = context.Engines.OrderBy(e => e.Id).First();
                             var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
                             trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
 
@@ -33,19 +32,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected F1Context CreateF1Context() => Fixture.CreateContext(TestStore);
+        protected F1Context CreateF1Context() => Fixture.CreateContext();
 
         protected PropertyEntryTestBase(TFixture fixture)
         {
             Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
         }
 
         protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public void Dispose() => TestStore.Dispose();
     }
 }

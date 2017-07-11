@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void Validate(ModelBuilder modelBuilder)
         {
-            modelBuilder.GetInfrastructure().Validate();
+            modelBuilder.GetInfrastructure().Metadata.Validate();
             var context = CreateContext();
             context.GetService<IModelValidator>().Validate(modelBuilder.Model);
         }

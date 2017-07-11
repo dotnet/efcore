@@ -73,17 +73,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var conventionSet = CreateConventionSet(conventionSetBuilder);
 
             var modelBuilder = new ModelBuilder(conventionSet);
-            var internalModelBuilder = ((IInfrastructure<InternalModelBuilder>)modelBuilder).Instance;
-
-            internalModelBuilder.Metadata.SetProductVersion(ProductInfo.GetVersion());
+            var model = modelBuilder.GetInfrastructure().Metadata;
+            model.SetProductVersion(ProductInfo.GetVersion());
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            internalModelBuilder.Validate();
+            model.Validate();
 
-            validator.Validate(modelBuilder.Model);
+            validator.Validate(model);
 
-            return modelBuilder.Model;
+            return model;
         }
 
         /// <summary>

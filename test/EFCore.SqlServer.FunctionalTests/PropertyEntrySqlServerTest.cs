@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -12,29 +10,30 @@ namespace Microsoft.EntityFrameworkCore
         public PropertyEntrySqlServerTest(F1SqlServerFixture fixture)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void Property_entry_original_value_is_set()
         {
             base.Property_entry_original_value_is_set();
 
-            Assert.Contains(
+            AssertContainsSql(
                 @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[Id], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
-FROM [Engines] AS [e]",
-                Sql);
+FROM [Engines] AS [e]
+ORDER BY [e].[Id]",
+                //
+                @"@p1='?'
+@p2='?'
+@p0='?' (Size = 4000)
+@p3='?' (Size = 4000)
 
-            Assert.Contains(
-                @"SET NOCOUNT ON;
+SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p0
 WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3;
-SELECT @@ROWCOUNT;",
-                Sql);
+SELECT @@ROWCOUNT;");
         }
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private void AssertContainsSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
     }
 }
