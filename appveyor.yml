@@ -15,6 +15,7 @@ branches:
     - release
     - dev
     - /^rel\/.*/
+    - /^feature\/.*/
     - /^(.*\/)?ci-.*$/
 environment:
   global:
