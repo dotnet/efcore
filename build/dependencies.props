@@ -5,7 +5,7 @@
     <DiagnosticSourceVersion>4.4.1-*</DiagnosticSourceVersion>
     <DependencyModelVersion>2.0.0-preview1-*</DependencyModelVersion>
     <EF6Version>6.1.3</EF6Version>
-    <ImmutableCollectionsVersion>1.3.1</ImmutableCollectionsVersion>
+    <ImmutableCollectionsVersion>1.4.0-*</ImmutableCollectionsVersion>
     <InternalAspNetCoreSdkVersion>2.0.1-*</InternalAspNetCoreSdkVersion>
     <JsonNetVersion>10.0.1</JsonNetVersion>
     <MoqVersion>4.7.49</MoqVersion>
