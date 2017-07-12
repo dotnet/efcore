@@ -3,7 +3,7 @@
     <AspNetCoreVersion>2.0.0-*</AspNetCoreVersion>
     <CoreFxVersion>4.4.0-*</CoreFxVersion>
     <DiagnosticSourceVersion>4.4.1-*</DiagnosticSourceVersion>
-    <DependencyModelVersion>2.0.0-preview1-*</DependencyModelVersion>
+    <DependencyModelVersion>2.0.0-*</DependencyModelVersion>
     <EF6Version>6.1.3</EF6Version>
     <InternalAspNetCoreSdkVersion>2.0.1-*</InternalAspNetCoreSdkVersion>
     <JsonNetVersion>10.0.1</JsonNetVersion>
