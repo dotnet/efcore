@@ -4,34 +4,36 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ConcurrencyDetectorRelationalTest<TFixture> : ConcurrencyDetectorTestBase<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
         protected ConcurrencyDetectorRelationalTest(TFixture fixture)
             : base(fixture)
         {
         }
-
+        
         [Fact]
-        public virtual async Task FromSql_logs_concurrent_access_nonasync()
+        public virtual Task FromSql_logs_concurrent_access_nonasync()
         {
-            await ConcurrencyDetectorTest(
+            return ConcurrencyDetectorTest(
                 c =>
                     {
-                        c.Products.FromSql("select * from products").ToList();
+                        // ReSharper disable once UnusedVariable
+                        var result = c.Products.FromSql("select * from products").ToList();
                         return Task.FromResult(false);
-                    },
-                async: false);
+                    });
         }
 
         [Fact]
-        public virtual async Task FromSql_logs_concurrent_access_async()
+        public virtual Task FromSql_logs_concurrent_access_async()
         {
-            await ConcurrencyDetectorTest(c => c.Products.FromSql("select * from products").ToListAsync(), async: true);
+            return ConcurrencyDetectorTest(c => c.Products.FromSql("select * from products").ToListAsync());
         }
     }
 }

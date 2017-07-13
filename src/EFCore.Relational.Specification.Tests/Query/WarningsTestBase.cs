@@ -6,22 +6,28 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class WarningsTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryRelationalFixture, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+
+        protected WarningsTestBase(TFixture fixture) => Fixture = fixture;
+        
         [Fact]
         public virtual void Throws_when_warning_as_error()
         {
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("where [c].IsLondon")),
+                    RelationalEventId.QueryClientEvaluationWarning,
+                    RelationalStrings.LogClientEvalWarning.GenerateMessage("where [c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
             }
@@ -63,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var query = context.Customers.Where(c => c.CustomerID == "ALFKI").FirstOrDefault();
+                var query = context.Customers.FirstOrDefault(c => c.CustomerID == "ALFKI");
                 Assert.NotNull(query);
             }
         }
@@ -73,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var query1 = context.Customers.Where(c => c.CustomerID == "ALFKI").Single();
+                var query1 = context.Customers.Single(c => c.CustomerID == "ALFKI");
                 Assert.NotNull(query1);
 
-                var query2 = context.Customers.Where(c => c.CustomerID == "AROUT").SingleOrDefault();
+                var query2 = context.Customers.SingleOrDefault(c => c.CustomerID == "AROUT");
                 Assert.NotNull(query2);
             }
         }
@@ -110,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
+                    RelationalEventId.QueryClientEvaluationWarning,
+                    RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Last()).Message);
             }
@@ -123,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
+                    RelationalEventId.QueryClientEvaluationWarning,
+                    RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
             }
@@ -136,8 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                        RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()")),
+                    RelationalEventId.QueryClientEvaluationWarning,
+                    RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.LastOrDefault()).Message);
             }
@@ -161,13 +167,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = context.Customers.Where(c => c.Orders == c.Orders).ToList();
                 Assert.Equal(91, query.Count);
             }
-        }
-
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected WarningsTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
         }
 
         protected TFixture Fixture { get; }

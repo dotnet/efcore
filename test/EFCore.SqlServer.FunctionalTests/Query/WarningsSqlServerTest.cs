@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class WarningsSqlServerTest : WarningsTestBase<WarningsSqlServerFixture>
+    public class WarningsSqlServerTest : WarningsTestBase<QueryNoClientEvalSqlServerFixture>
     {
-        public WarningsSqlServerTest(WarningsSqlServerFixture fixture)
+        public WarningsSqlServerTest(QueryNoClientEvalSqlServerFixture fixture)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();

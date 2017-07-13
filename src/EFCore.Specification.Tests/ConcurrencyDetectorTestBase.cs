@@ -8,97 +8,89 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable UnusedVariable
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        protected ConcurrencyDetectorTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected ConcurrencyDetectorTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
+        
         [Fact]
-        public virtual async Task SaveChanges_logs_concurrent_access_nonasync()
+        public virtual Task SaveChanges_logs_concurrent_access_nonasync()
         {
-            await ConcurrencyDetectorTest(
+            return ConcurrencyDetectorTest(
                 c =>
                     {
                         c.SaveChanges();
                         return Task.FromResult(false);
-                    },
-                async: false);
+                    });
         }
 
         [Fact]
-        public virtual async Task SaveChanges_logs_concurrent_access_async()
+        public virtual Task SaveChanges_logs_concurrent_access_async()
         {
-            await ConcurrencyDetectorTest(c => c.SaveChangesAsync(), async: true);
+            return ConcurrencyDetectorTest(c => c.SaveChangesAsync());
         }
 
         [Fact]
-        public virtual async Task Find_logs_concurrent_access_nonasync()
+        public virtual Task Find_logs_concurrent_access_nonasync()
         {
-            await ConcurrencyDetectorTest(
+            return ConcurrencyDetectorTest(
                 c =>
                     {
                         c.Products.Find(1);
                         return Task.FromResult(false);
-                    },
-                async: false);
+                    });
+        }
+
+        [Fact(Skip = "#9074")]
+        public virtual Task Find_logs_concurrent_access_async()
+        {
+            return ConcurrencyDetectorTest(c => c.Products.FindAsync(1));
         }
 
         [Fact]
-        public virtual async Task Find_logs_concurrent_access_async()
+        public virtual Task Count_logs_concurrent_access_nonasync()
         {
-            await ConcurrencyDetectorTest(c => c.Products.FindAsync(1), async: true);
-        }
-
-        [Fact]
-        public virtual async Task Count_logs_concurrent_access_nonasync()
-        {
-            await ConcurrencyDetectorTest(
+            return ConcurrencyDetectorTest(
                 c =>
                     {
-                        c.Products.Count();
+                        var result = c.Products.Count();
                         return Task.FromResult(false);
-                    },
-                async: false);
+                    });
+        }
+
+        [Fact(Skip = "#9074")]
+        public virtual Task Count_logs_concurrent_access_async()
+        {
+            return ConcurrencyDetectorTest(c => c.Products.CountAsync());
         }
 
         [Fact]
-        public virtual async Task Count_logs_concurrent_access_async()
+        public virtual Task ToList_logs_concurrent_access_nonasync()
         {
-            await ConcurrencyDetectorTest(c => c.Products.ToListAsync(), async: true);
-        }
-
-        [Fact]
-        public virtual async Task ToList_logs_concurrent_access_nonasync()
-        {
-            await ConcurrencyDetectorTest(
+            return ConcurrencyDetectorTest(
                 c =>
                     {
-                        c.Products.Count();
+                        var result = c.Products.ToList();
                         return Task.FromResult(false);
-                    },
-                async: false);
+                    });
         }
 
         [Fact]
-        public virtual async Task ToList_logs_concurrent_access_async()
+        public virtual Task ToList_logs_concurrent_access_async()
         {
-            await ConcurrencyDetectorTest(c => c.Products.ToListAsync(), async: true);
+            return ConcurrencyDetectorTest(c => c.Products.ToListAsync());
         }
 
-        protected virtual async Task ConcurrencyDetectorTest(Func<NorthwindContext, Task> test, bool async)
+        protected virtual async Task ConcurrencyDetectorTest(Func<NorthwindContext, Task> test)
         {
             using (var context = CreateContext())
             {
@@ -106,18 +98,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.GetService<IConcurrencyDetector>().EnterCriticalSection();
 
-                Exception ex;
-                if (async)
-                {
-                    ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
-                }
-                else
-                {
-                    ex = Assert.Throws<InvalidOperationException>(() => { test(context); });
-                }
+                Exception ex = await Assert.ThrowsAsync<InvalidOperationException>(() => test(context));
 
                 Assert.Equal(CoreStrings.ConcurrentMethodInvocation, ex.Message);
             }
         }
+
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

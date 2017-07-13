@@ -1,39 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindQuerySqliteFixture : NorthwindQueryRelationalFixture, IDisposable
+    public class NorthwindQuerySqliteFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>
+        where TModelCustomizer : IModelCustomizer, new()
     {
-        private readonly SqliteTestStore _testStore = SqliteTestStore.GetNorthwindStore();
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
-
-        public override DbContextOptions BuildOptions(IServiceCollection additionalServices = null)
-            => ConfigureOptions(
-                    new DbContextOptionsBuilder()
-                        .UseInternalServiceProvider(
-                            (additionalServices ?? new ServiceCollection())
-                            .AddEntityFrameworkSqlite()
-                            .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                            .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                            .BuildServiceProvider(validateScopes: true)))
-                .UseSqlite(
-                    _testStore.ConnectionString,
-                    b => ConfigureOptions(b).SuppressForeignKeyEnforcement())
-                .Options;
-
-        protected virtual DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
-            => dbContextOptionsBuilder;
-
-        protected virtual SqliteDbContextOptionsBuilder ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
-            => sqliteDbContextOptionsBuilder;
-
-        public void Dispose() => _testStore.Dispose();
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        {
+            builder = base.AddOptions(builder);
+            new SqliteDbContextOptionsBuilder(builder).SuppressForeignKeyEnforcement();
+            return builder;
+        }
     }
 }

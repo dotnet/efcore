@@ -2,16 +2,39 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public class NorthwindDbFunctionContext : NorthwindContext
+    public class NorthwindRelationalContext : NorthwindContext
     {
-        public NorthwindDbFunctionContext(DbContextOptions options, QueryTrackingBehavior queryTrackingBehavior = QueryTrackingBehavior.TrackAll)
-            : base(options, queryTrackingBehavior)
+        public NorthwindRelationalContext(DbContextOptions options)
+            : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Employee>().ToTable("Employees");
+            modelBuilder.Entity<Product>().ToTable("Products");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+            modelBuilder.Entity<OrderDetail>().ToTable("Order Details");
+
+            modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
+            modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
+
+            var methodInfo = typeof(NorthwindRelationalContext)
+                .GetRuntimeMethod(nameof(MyCustomLength), new[] { typeof(string) });
+
+            modelBuilder.HasDbFunction(methodInfo)
+                .HasTranslation(args => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
+
+            modelBuilder.HasDbFunction(typeof(NorthwindRelationalContext)
+                .GetRuntimeMethod(nameof(IsDate), new[] { typeof(string) }));
         }
 
         public enum ReportingPeriod
@@ -27,6 +50,11 @@ namespace Microsoft.EntityFrameworkCore
             throw new Exception();
         }
 
+        public static bool IsDate(string date)
+        {
+            throw new Exception();
+        }
+
         [DbFunction(Schema = "dbo", FunctionName = "EmployeeOrderCount")]
         public static int EmployeeOrderCount(int employeeId)
         {
@@ -38,8 +66,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             switch (employeeId)
             {
-                case 3: return 127;
-                default: return 1;
+                case 3:
+                    return 127;
+                default:
+                    return 1;
             }
         }
 

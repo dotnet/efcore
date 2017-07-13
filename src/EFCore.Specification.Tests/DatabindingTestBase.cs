@@ -9,9 +9,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class DatabindingTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
-        where TTestStore : TestStore
-        where TFixture : F1FixtureBase<TTestStore>, new()
+    public abstract class DatabindingTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : F1FixtureBase, new()
     {
         protected DatabindingTestBase(TFixture fixture)
         {

@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
-            return FindTracked(keyValues, out IReadOnlyList<IProperty> keyProperties)
+            return FindTracked(keyValues, out var keyProperties)
                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
-            var tracked = FindTracked(keyValues, out IReadOnlyList<IProperty> keyProperties);
+            var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
                 ? Task.FromResult(tracked)
                 : _queryRoot.FirstOrDefaultAsync(BuildLambda(keyProperties, new ValueBuffer(keyValues)), cancellationToken);
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
-            var tracked = FindTracked(keyValues, out IReadOnlyList<IProperty> keyProperties);
+            var tracked = FindTracked(keyValues, out var keyProperties);
             return tracked != null
                 ? Task.FromResult((object)tracked)
                 : _queryRoot.FirstOrDefaultAsync(

@@ -5,12 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class F1FixtureBase<TTestStore> : SharedStoreFixtureBase<TTestStore, F1Context>
-        where TTestStore : TestStore
+    public abstract class F1FixtureBase : SharedStoreFixtureBase<F1Context>
     {
         protected override string StoreName { get; } = "F1Test";
         
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });
 
@@ -52,13 +51,6 @@ namespace Microsoft.EntityFrameworkCore
             // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue #1368
         }
 
-        protected override void Seed(F1Context context)
-            => F1Context.Seed(context);
-
-        protected override F1Context CreateContext(DbContextOptions options)
-            => new F1Context(options);
-
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder.ConfigureWarnings(b => b.Default(WarningBehavior.Throw));
+        protected override void Seed(F1Context context) => F1Context.Seed(context);
     }
 }

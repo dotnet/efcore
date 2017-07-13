@@ -9,9 +9,9 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersSqlServerTest : FiltersTestBase<NorthwindQuerySqlServerFixture>
+    public class FiltersSqlServerTest : FiltersTestBase<NorthwindQuerySqlServerFixture<NorthwindFiltersCustomizer>>
     {
-        public FiltersSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public FiltersSqlServerTest(NorthwindQuerySqlServerFixture<NorthwindFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
@@ -35,7 +35,7 @@ WHERE ([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyNam
             base.Client_eval();
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]");
         }
 
@@ -181,11 +181,11 @@ LEFT JOIN (
             base.Included_one_to_many_query_with_client_eval();
 
             AssertContains(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY [p].[ProductID]",
                 //
-                @"SELECT [p1].[ProductID], [p1].[Discontinued], [p1].[ProductName], [p1].[UnitPrice], [p1].[UnitsInStock]
+                @"SELECT [p1].[ProductID], [p1].[Discontinued], [p1].[ProductName], [p1].[SupplierID], [p1].[UnitPrice], [p1].[UnitsInStock]
 FROM [Products] AS [p1]",
                 //
                 @"@___quantity_0='50'

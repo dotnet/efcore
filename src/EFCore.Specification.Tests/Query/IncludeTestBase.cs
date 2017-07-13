@@ -8,25 +8,21 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable StringStartsWithIsCultureSpecific
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class IncludeTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-        protected IncludeTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected IncludeTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
+        
         [Fact]
         public virtual void Include_reference_invalid()
         {
@@ -110,15 +106,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new List<Expression>
                     {
                         Expression.MakeMemberAccess(
-                            Expression.Parameter(typeof(Order), "o"), 
+                            Expression.Parameter(typeof(Order), "o"),
                             typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer")),
                         Expression.MakeMemberAccess(
-                            Expression.Parameter(typeof(Order), "o"), 
+                            Expression.Parameter(typeof(Order), "o"),
                             typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails"))
                     },
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer"),
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails")
-                ),
+                    ),
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
@@ -185,15 +181,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new List<Expression>
                     {
                         Expression.MakeMemberAccess(
-                            Expression.Parameter(typeof(Order), "o"), 
+                            Expression.Parameter(typeof(Order), "o"),
                             typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer")),
                         Expression.MakeMemberAccess(
-                            Expression.Parameter(typeof(Order), "o"), 
+                            Expression.Parameter(typeof(Order), "o"),
                             typeof(Order).GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails"))
                     },
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer"),
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails")
-                ),
+                    ),
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
@@ -996,13 +992,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = useString
                         ? (from c in context.Set<Customer>()
                            join o in context.Set<Order>().Include("OrderDetails").Include("Customer")
-                           on c.CustomerID equals o.CustomerID into g
+                               on c.CustomerID equals o.CustomerID into g
                            where c.CustomerID == "ALFKI"
                            select new { c, g })
                             .ToList()
                         : (from c in context.Set<Customer>()
                            join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
-                           on c.CustomerID equals o.CustomerID into g
+                               on c.CustomerID equals o.CustomerID into g
                            where c.CustomerID == "ALFKI"
                            select new { c, g })
                             .ToList();
@@ -1069,14 +1065,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var grouping
                     = useString
                         ? (from c in context.Set<Customer>()
-                               .Include("Orders.OrderDetails.Product")
+                            .Include("Orders.OrderDetails.Product")
                            where c.CustomerID == "ALFKI"
                            group c by c.City)
                             .SingleOrDefault()
                         : (from c in context.Set<Customer>()
-                               .Include(c => c.Orders)
-                               .ThenInclude(o => o.OrderDetails)
-                               .ThenInclude(od => od.Product)
+                            .Include(c => c.Orders)
+                            .ThenInclude(o => o.OrderDetails)
+                            .ThenInclude(od => od.Product)
                            where c.CustomerID == "ALFKI"
                            group c by c.City)
                             .SingleOrDefault();
@@ -1531,9 +1527,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = useString
                         ? (from c1 in context.Set<Customer>()
-                               .Include("Orders")
-                               .OrderBy(c => c.CustomerID)
-                               .Take(2)
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include("Orders")
                                .OrderBy(c => c.CustomerID)
@@ -1542,9 +1538,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                            select new { c1, c2 })
                             .ToList()
                         : (from c1 in context.Set<Customer>()
-                               .Include(c => c.Orders)
-                               .OrderBy(c => c.CustomerID)
-                               .Take(2)
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include(c => c.Orders)
                                .OrderBy(c => c.CustomerID)
@@ -1592,9 +1588,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = useString
                         ? (from c1 in context.Set<Customer>()
-                               .Include("Orders")
-                               .OrderBy(c => c.CustomerID)
-                               .Take(2)
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include("Orders")
                                .OrderBy(c => c.CustomerID)
@@ -1604,9 +1600,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Take(1)
                             .ToList()
                         : (from c1 in context.Set<Customer>()
-                               .Include(c => c.Orders)
-                               .OrderBy(c => c.CustomerID)
-                               .Take(2)
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include(c => c.Orders)
                                .OrderBy(c => c.CustomerID)
@@ -1655,9 +1651,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = useString
                         ? (from c1 in context.Set<Customer>()
-                               .Include("Orders")
-                               .OrderBy(c => c.CustomerID)
-                               .Take(2)
+                            .Include("Orders")
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
                            from c2 in context.Set<Customer>()
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
@@ -1666,9 +1662,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Take(1)
                             .ToList()
                         : (from c1 in context.Set<Customer>()
-                               .Include(c => c.Orders)
-                               .OrderBy(c => c.CustomerID)
-                               .Take(2)
+                            .Include(c => c.Orders)
+                            .OrderBy(c => c.CustomerID)
+                            .Take(2)
                            from c2 in context.Set<Customer>()
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
@@ -1715,9 +1711,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders
                     = useString
                         ? (from o1 in context.Set<Order>()
-                               .Include("Customer")
-                               .OrderBy(o => o.CustomerID)
-                               .Take(2)
+                            .Include("Customer")
+                            .OrderBy(o => o.CustomerID)
+                            .Take(2)
                            from o2 in context.Set<Order>()
                                .Include("Customer")
                                .OrderBy(o => o.CustomerID)
@@ -1726,9 +1722,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                            select new { o1, o2 })
                             .ToList()
                         : (from o1 in context.Set<Order>()
-                               .Include(o => o.Customer)
-                               .OrderBy(o => o.CustomerID)
-                               .Take(2)
+                            .Include(o => o.Customer)
+                            .OrderBy(o => o.CustomerID)
+                            .Take(2)
                            from o2 in context.Set<Order>()
                                .Include(o => o.Customer)
                                .OrderBy(o => o.CustomerID)
@@ -1778,9 +1774,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders
                     = useString
                         ? (from o1 in context.Set<Order>()
-                               .Include("Customer")
-                               .OrderBy(o => o.OrderID)
-                               .Take(2)
+                            .Include("Customer")
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Skip(2)
@@ -1788,9 +1784,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                            select new { o1, o2 })
                             .ToList()
                         : (from o1 in context.Set<Order>()
-                               .Include(o => o.Customer)
-                               .OrderBy(o => o.OrderID)
-                               .Take(2)
+                            .Include(o => o.Customer)
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Skip(2)
@@ -1838,8 +1834,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders
                     = useString
                         ? (from o1 in context.Set<Order>()
-                               .OrderBy(o => o.OrderID)
-                               .Take(2)
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Include("Customer")
@@ -1848,8 +1844,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                            select new { o1, o2 })
                             .ToList()
                         : (from o1 in context.Set<Order>()
-                               .OrderBy(o => o.OrderID)
-                               .Take(2)
+                            .OrderBy(o => o.OrderID)
+                            .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Include(o => o.Customer)
@@ -3009,6 +3005,37 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual void Include_with_complex_projection_does_not_change_ordering_of_projection(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var q = useString
+                    ? from c in context.Customers.Include(nameof(Customer.Orders))
+                          .Where(c => c.ContactTitle == "Owner")
+                          .OrderBy(c => c.CustomerID)
+                      select new
+                      {
+                          Id = c.CustomerID,
+                          TotalOrders = c.Orders.Count
+                      }
+                    : from c in context.Customers.Include(c => c.Orders)
+                          .Where(c => c.ContactTitle == "Owner")
+                          .OrderBy(c => c.CustomerID)
+                      select new
+                      {
+                          Id = c.CustomerID,
+                          TotalOrders = c.Orders.Count
+                      };
+
+                var result = q.Where(e => e.TotalOrders > 2).ToList();
+
+                Assert.Equal(15, result.Count);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual void Include_with_take(bool useString)
         {
             using (var context = CreateContext())
@@ -3121,14 +3148,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(@"Include(""Item1.Orders"")", "Item1"),
                     Assert.Throws<NotSupportedException>(
                         () => useString
-                                ? context.Customers
-                                    .Select(c => new Tuple<Customer, int>(c, 5))
-                                    .Include(t => t.Item1.Orders)
-                                    .ToList()
-                                : context.Customers
-                                    .Select(c => new Tuple<Customer, int>(c, 5))
-                                    .Include("Item1.Orders")
-                                    .ToList()).Message);
+                            ? context.Customers
+                                .Select(c => new Tuple<Customer, int>(c, 5))
+                                .Include(t => t.Item1.Orders)
+                                .ToList()
+                            : context.Customers
+                                .Select(c => new Tuple<Customer, int>(c, 5))
+                                .Include("Item1.Orders")
+                                .ToList()).Message);
             }
         }
 
@@ -3271,5 +3298,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual void ClearLog()
         {
         }
+
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

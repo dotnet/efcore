@@ -7,12 +7,12 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+    public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [ConditionalFact]
         public virtual void Select_into()

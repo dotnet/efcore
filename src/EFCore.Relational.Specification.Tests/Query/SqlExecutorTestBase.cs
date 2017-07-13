@@ -7,17 +7,21 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToConstant.Local
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected SqlExecutorTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Executes_stored_procedure()
         {
@@ -239,10 +243,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected SqlExecutorTestBase(TFixture fixture) => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
 
         protected abstract DbParameter CreateDbParameter(string name, object value);
 

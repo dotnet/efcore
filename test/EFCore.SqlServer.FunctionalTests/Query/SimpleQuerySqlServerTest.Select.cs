@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public partial class SimpleQuerySqlServerTest : SimpleQueryTestBase<NorthwindQuerySqlServerFixture>
+    public partial class SimpleQuerySqlServerTest
     {
         public override void Projection_when_arithmetic_expression_precendence()
         {

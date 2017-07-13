@@ -1,18 +1,20 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public partial class SimpleQuerySqlServerTest : SimpleQueryTestBase<NorthwindQuerySqlServerFixture>
+    public partial class SimpleQuerySqlServerTest : SimpleQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public SimpleQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public SimpleQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -30,7 +32,7 @@ WHERE [e].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT COUNT(*)
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] = N'ALFKI'");            
+WHERE [e].[CustomerID] = N'ALFKI'");
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()
@@ -80,31 +82,31 @@ FROM [Orders] AS [c1_Orders]");
         public virtual void Cache_key_contexts_are_detached()
         {
             var weakRef = Scoper(() =>
-            {
-                var context = CreateContext();
-
-                var wr = new WeakReference(context);
-
-                using (context)
                 {
-                    var orderDetails = context.OrderDetails;
+                    var context = new NorthwindRelationalContext(Fixture.CreateOptions());
 
-                    Func<NorthwindContext, Customer> query
-                        = param
-                            => (from c in context.Customers
-                                from o in context.Set<Order>()
-                                from od in orderDetails
-                                from e1 in param.Employees
-                                from e2 in param.Set<Order>()
-                                select c).First();
+                    var wr = new WeakReference(context);
 
-                    query(context);
+                    using (context)
+                    {
+                        var orderDetails = context.OrderDetails;
 
-                    Assert.True(wr.IsAlive);
+                        Func<NorthwindContext, Customer> query
+                            = param
+                                => (from c in context.Customers
+                                    from o in context.Set<Order>()
+                                    from od in orderDetails
+                                    from e1 in param.Employees
+                                    from e2 in param.Set<Order>()
+                                    select c).First();
 
-                    return wr;
-                }
-            });
+                        query(context);
+
+                        Assert.True(wr.IsAlive);
+
+                        return wr;
+                    }
+                });
 
             GC.Collect();
 
@@ -787,7 +789,7 @@ ORDER BY [e].[EmployeeID] - [e].[EmployeeID]");
             base.OrderBy_condition_comparison();
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY CASE
     WHEN [p].[UnitsInStock] > 0
@@ -800,7 +802,7 @@ END, [p].[ProductID]");
             base.OrderBy_ternary_conditions();
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 ORDER BY CASE
     WHEN (([p].[UnitsInStock] > 10) AND ([p].[ProductID] > 40)) OR (([p].[UnitsInStock] <= 10) AND ([p].[ProductID] <= 40))
@@ -2320,7 +2322,7 @@ FROM [Orders] AS [o]");
             base.Where_subquery_on_bool();
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE N'Chai' IN (
     SELECT [p2].[ProductName]
@@ -2333,7 +2335,7 @@ WHERE N'Chai' IN (
             base.Where_subquery_on_collection();
 
             AssertSql(
-                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE 5 IN (
     SELECT [o].[Quantity]
@@ -2529,25 +2531,6 @@ OFFSET @__p_1 ROWS");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY COALESCE([c].[Region], N'ZZ')");
-        }
-
-        public override void Does_not_change_ordering_of_projection_with_complex_projections()
-        {
-            base.Does_not_change_ordering_of_projection_with_complex_projections();
-
-            AssertSql(
-                @"SELECT [e].[CustomerID] AS [Id], (
-    SELECT COUNT(*)
-    FROM [Orders] AS [o0]
-    WHERE [e].[CustomerID] = [o0].[CustomerID]
-) AS [TotalOrders]
-FROM [Customers] AS [e]
-WHERE ([e].[ContactTitle] = N'Owner') AND ((
-    SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [e].[CustomerID] = [o].[CustomerID]
-) > 2)
-ORDER BY [Id]");
         }
 
         public override void DateTime_parse_is_parameterized()
@@ -3273,7 +3256,7 @@ FROM (
 
 SELECT DISTINCT [t].*
 FROM (
-    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
 ) AS [t]");
@@ -3290,12 +3273,11 @@ FROM (
 
 SELECT DISTINCT [t].*
 FROM (
-    SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]");
-
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
@@ -3310,7 +3292,7 @@ FROM (
 
 SELECT DISTINCT TOP(@__p_2) [t].*
 FROM (
-    SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY

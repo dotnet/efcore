@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>, IDisposable
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider();
 
-            public virtual SqlServerTestStore CreateDatabase() => SqlServerTestStore.GetOrCreateShared("CommandConfiguration");
+            public virtual SqlServerTestStore CreateDatabase() => SqlServerTestStore.GetOrCreateShared("CommandConfiguration", () => { });
         }
 
         [Fact]
@@ -113,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class KettleChips
         {
+            // ReSharper disable once UnusedMember.Local
             public int Id { get; set; }
             public string Name { get; set; }
             public DateTime BestBuyDate { get; set; }

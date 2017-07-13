@@ -6,9 +6,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeSqliteTest : IncludeTestBase<NorthwindQuerySqliteFixture>
+    public class IncludeSqliteTest : IncludeTestBase<IncludeSqliteFixture>
     {
-        public IncludeSqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeSqliteTest(IncludeSqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);

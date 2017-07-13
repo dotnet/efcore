@@ -11,12 +11,17 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class OptimisticConcurrencyTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
-        where TTestStore : TestStore
-        where TFixture : F1FixtureBase<TTestStore>, new()
+    public abstract class OptimisticConcurrencyTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : F1FixtureBase, new()
     {
+        protected OptimisticConcurrencyTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Nullable_client_side_concurrency_token_can_be_used()
         {
@@ -594,16 +599,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected F1Context CreateF1Context() => Fixture.CreateContext();
 
-        protected OptimisticConcurrencyTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
-
         private Task ConcurrencyTestAsync(int expectedPodiums, Action<F1Context, DbUpdateConcurrencyException> resolver)
-        {
-            return ConcurrencyTestAsync(
+            => ConcurrencyTestAsync(
                 c => c.Drivers.Single(d => d.CarNumber == 1).Podiums = StorePodiums,
                 c => c.Drivers.Single(d => d.CarNumber == 1).Podiums = ClientPodiums,
                 (c, ex) =>
@@ -613,7 +610,6 @@ namespace Microsoft.EntityFrameworkCore
                         resolver(c, (DbUpdateConcurrencyException)ex);
                     },
                 c => Assert.Equal(expectedPodiums, c.Drivers.Single(d => d.CarNumber == 1).Podiums));
-        }
 
         /// <summary>
         ///     Runs the same action twice inside a transaction scope but with two different contexts and calling

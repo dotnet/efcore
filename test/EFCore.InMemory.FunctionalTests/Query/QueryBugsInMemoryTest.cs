@@ -565,17 +565,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private const string DatabaseName = "QueryBugs";
 
-        private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> Seed)
+        private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed)
             where TContext : DbContext, new()
             => InMemoryTestStore.CreateScratch(
                 () =>
                     {
                         using (var context = new TContext())
                         {
-                            Seed(context);
+                            seed(context);
                         }
                     },
-                () =>
+                s =>
                     {
                         using (var context = new TContext())
                         {

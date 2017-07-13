@@ -5,15 +5,20 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestModels.NorthwindSproc;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected FromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void From_sql_queryable_stored_procedure()
         {
@@ -169,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .FromSql("SelectStoredProcedure")
                             .Include(p => p.OrderDetails)
                             .ToArray()
-                    ).Message);
+                        ).Message);
             }
         }
 
@@ -221,11 +226,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext(QueryTrackingBehavior.NoTracking);
+        protected NorthwindContext CreateContext()
+        {
+            var context = Fixture.CreateContext();
 
-        protected FromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
-        protected TFixture Fixture { get; }
+            return context;
+        }
 
         protected abstract string TenMostExpensiveProductsSproc { get; }
         protected abstract string CustomerOrderHistorySproc { get; }

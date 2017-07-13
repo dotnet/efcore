@@ -6,13 +6,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestModels.NorthwindSproc;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class AsyncFromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
         [Fact]
         public virtual async Task From_sql_queryable_stored_procedure()
@@ -133,16 +134,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .FromSql("SelectStoredProcedure")
                                 .Include(p => p.OrderDetails)
                                 .ToArrayAsync()
-                    )).Message);
+                        )).Message);
             }
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        protected AsyncFromSqlSprocQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected AsyncFromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 

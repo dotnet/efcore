@@ -5,9 +5,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeInMemoryTest : IncludeTestBase<NorthwindQueryInMemoryFixture>
+    public class IncludeInMemoryTest : IncludeTestBase<IncludeInMemoryFixture>
     {
-        public IncludeInMemoryTest(NorthwindQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeInMemoryTest(IncludeInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;

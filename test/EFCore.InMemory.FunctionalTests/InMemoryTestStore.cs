@@ -3,60 +3,26 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryTestStore : TestStore
     {
-        private Action _deleteDatabase;
+        private Action<InMemoryTestStore> _deleteDatabase;
 
-        public InMemoryTestStore(
-            string name = null,
-            IServiceProvider serviceProvider = null,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions = null,
-            Func<DbContextOptions, DbContext> createContext = null)
-            : base(name,
-                serviceProvider ??
-                InMemoryTestStoreFactory.Instance.AddProviderServices(new ServiceCollection()).BuildServiceProvider(),
-                addOptions,
-                createContext)
+        public InMemoryTestStore(string name = null)
+            : base(name)
         {
         }
-
-        protected override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder
-                .UseInMemoryDatabase(Name)
-                .UseInternalServiceProvider(ServiceProvider);
 
         public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase)
-            => new InMemoryTestStore(name).CreateShared(initializeDatabase);
+            => new InMemoryTestStore(name).InitializeShared(null, initializeDatabase);
 
-        public static InMemoryTestStore GetOrCreateShared(
-            string name,
-            IServiceProvider serviceProvider,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions, 
-            Func<DbContextOptions, DbContext> createContext,
-            Action<DbContext> seed)
-            => new InMemoryTestStore(name, serviceProvider, addOptions, createContext).CreateShared(seed);
-
-        private InMemoryTestStore CreateShared(Action<DbContext> seed)
-            => CreateShared(() =>
-                {
-                    using (var context = CreateContext())
-                    {
-                        context.Database.EnsureCreated();
-                        seed(context);
-                    }
-                });
-
-        private InMemoryTestStore CreateShared(Action initializeDatabase)
-        {
-            base.CreateShared(typeof(InMemoryTestStore).Name + Name, initializeDatabase);
-
-            return this;
-        }
+        public static InMemoryTestStore GetOrCreateShared(string name)
+            => new InMemoryTestStore(name);
 
         public static InMemoryTestStore CreateScratch(
             IServiceProvider serviceProvider,
@@ -64,12 +30,30 @@ namespace Microsoft.EntityFrameworkCore
             Action initializeDatabase)
             => CreateScratch(
                 initializeDatabase,
-                () => serviceProvider.GetRequiredService<IInMemoryStoreCache>().GetStore(databaseName).Clear());
+                s => serviceProvider.GetRequiredService<IInMemoryStoreCache>().GetStore(databaseName).Clear());
 
-        public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action deleteDatabase)
-            => new InMemoryTestStore().CreateTransient(initializeDatabase, deleteDatabase);
+        public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action<InMemoryTestStore> deleteDatabase)
+            => new InMemoryTestStore().InitializeTransient(initializeDatabase, deleteDatabase);
 
-        private InMemoryTestStore CreateTransient(Action initializeDatabase, Action deleteDatabase)
+        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+            => InitializeShared(serviceProvider, () =>
+                {
+                    using (var context = createContext())
+                    {
+                        context.Database.EnsureCreated();
+                        seed(context);
+                    }
+                });
+
+        private InMemoryTestStore InitializeShared(IServiceProvider serviceProvider, Action initializeDatabase)
+        {
+            var testStoreIndex = serviceProvider == null ? GlobalTestStoreIndex : serviceProvider.GetRequiredService<TestStoreIndex>();
+            testStoreIndex.CreateShared(typeof(InMemoryTestStore).Name + Name, initializeDatabase);
+
+            return this;
+        }
+
+        private InMemoryTestStore InitializeTransient(Action initializeDatabase, Action<InMemoryTestStore> deleteDatabase)
         {
             initializeDatabase?.Invoke();
 
@@ -77,14 +61,17 @@ namespace Microsoft.EntityFrameworkCore
             return this;
         }
 
+        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+            => serviceCollection.AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
+                .AddSingleton<TestStoreIndex>();
+
+        public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
+            => builder.UseInMemoryDatabase(Name);
+
         public override void Dispose()
         {
-            _deleteDatabase?.Invoke();
-
-            if (Name != null)
-            {
-                ServiceProvider?.GetRequiredService<IInMemoryStoreCache>().GetStore(Name).Clear();
-            }
+            _deleteDatabase?.Invoke(this);
 
             base.Dispose();
         }

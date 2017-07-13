@@ -3,30 +3,24 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public static class DateTimeExtensions
+    public class UdfDbFunctionSqlServerTests : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public static bool IsDate(this string date)
-        {
-            throw new Exception();
-        }
-    }
-
-    public class UdfDbFunctionSqlServerTests : IClassFixture<NorthwindDbFunctionSqlServerFixture>
-    {
-        public UdfDbFunctionSqlServerTests(NorthwindDbFunctionSqlServerFixture fixture)
+        public UdfDbFunctionSqlServerTests(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         {
             Fixture = fixture;
 
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        protected NorthwindDbFunctionSqlServerFixture Fixture { get; }
+        protected NorthwindQuerySqlServerFixture<NoopModelCustomizer> Fixture { get; }
 
-        protected NorthwindDbFunctionContext CreateContext() => Fixture.CreateContext() as NorthwindDbFunctionContext;
+        protected NorthwindRelationalContext CreateContext() => Fixture.CreateContext() as NorthwindRelationalContext;
 
         #region Scalar Tests
 
@@ -36,12 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        void Scalar_Function_Extension_Method()
+        private void Scalar_Function_Extension_Method()
         {
             using (var context = CreateContext())
             {
-                var len = context.Employees.Where(e => e.FirstName.IsDate() == false).Count();
-                
+                var len = context.Employees.Count(e => NorthwindRelationalContext.IsDate(e.FirstName) == false);
+
                 Assert.Equal(9, len);
 
                 AssertSql(
@@ -54,14 +48,14 @@ END = 0");
             }
         }
 
-        [Fact] 
-        void Scalar_Function_With_Translator_Translates()
+        [Fact]
+        private void Scalar_Function_With_Translator_Translates()
         {
             using (var context = CreateContext())
             {
                 var employeeId = 5;
 
-                var len = context.Employees.Where(e => e.EmployeeID == employeeId).Select(e => NorthwindDbFunctionContext.MyCustomLength(e.FirstName)).Single();
+                var len = context.Employees.Where(e => e.EmployeeID == employeeId).Select(e => NorthwindRelationalContext.MyCustomLength(e.FirstName)).Single();
 
                 Assert.Equal(6, len);
 
@@ -84,7 +78,7 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
                                                               select new
                                                               {
                                                                   e.FirstName,
-                                                                  OrderCount = NorthwindDbFunctionContext.EmployeeOrderCount(AddFive(e.EmployeeID - 5))
+                                                                  OrderCount = NorthwindRelationalContext.EmployeeOrderCount(AddFive(e.EmployeeID - 5))
                                                               }).Single());
             }
         }
@@ -96,7 +90,7 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
             {
                 var employeeId = 5;
 
-                var emps = context.Employees.Select(e => NorthwindDbFunctionContext.EmployeeOrderCount(employeeId)).ToList();
+                var emps = context.Employees.Select(e => NorthwindRelationalContext.EmployeeOrderCount(employeeId)).ToList();
 
                 Assert.Equal(9, emps.Count);
 
@@ -118,14 +112,14 @@ FROM [Employees] AS [e]");
                            select new
                            {
                                e.FirstName,
-                               OrderCount = NorthwindDbFunctionContext.EmployeeOrderCount(e.EmployeeID)
+                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(e.EmployeeID)
                            }).Single();
 
                 Assert.Equal("Steven", emp.FirstName);
                 Assert.Equal(42, emp.OrderCount);
 
                 AssertSql(
-                   @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount([e].[EmployeeID]) AS [OrderCount]
+                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount([e].[EmployeeID]) AS [OrderCount]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 5");
             }
@@ -141,14 +135,14 @@ WHERE [e].[EmployeeID] = 5");
                            select new
                            {
                                e.FirstName,
-                               OrderCount = NorthwindDbFunctionContext.EmployeeOrderCount(5)
+                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(5)
                            }).Single();
 
                 Assert.Equal("Steven", emp.FirstName);
                 Assert.Equal(42, emp.OrderCount);
 
                 AssertSql(
-                 @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(5) AS [OrderCount]
+                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(5) AS [OrderCount]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 5");
             }
@@ -166,14 +160,14 @@ WHERE [e].[EmployeeID] = 5");
                            select new
                            {
                                e.FirstName,
-                               OrderCount = NorthwindDbFunctionContext.EmployeeOrderCount(employeeId)
+                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(employeeId)
                            }).Single();
 
                 Assert.Equal("Steven", emp.FirstName);
                 Assert.Equal(42, emp.OrderCount);
 
                 AssertSql(
-                 @"@__employeeId_1='5'
+                    @"@__employeeId_1='5'
 @__employeeId_0='5'
 
 SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(@__employeeId_1) AS [OrderCount]
@@ -195,14 +189,14 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
                            select new
                            {
                                e.FirstName,
-                               OrderCount = NorthwindDbFunctionContext.StarValue(starCount, NorthwindDbFunctionContext.EmployeeOrderCount(employeeId))
+                               OrderCount = NorthwindRelationalContext.StarValue(starCount, NorthwindRelationalContext.EmployeeOrderCount(employeeId))
                            }).Single();
 
                 Assert.Equal("Steven", emp.FirstName);
                 Assert.Equal("***42", emp.OrderCount);
 
                 AssertSql(
-                 @"@__starCount_1='3'
+                    @"@__starCount_1='3'
 @__employeeId_2='5'
 @__employeeId_0='5'
 
@@ -218,7 +212,7 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
             using (var context = CreateContext())
             {
                 var emp = (from e in context.Employees
-                           where NorthwindDbFunctionContext.IsTopEmployee(e.EmployeeID)
+                           where NorthwindRelationalContext.IsTopEmployee(e.EmployeeID)
                            select e.EmployeeID.ToString().ToLower()).ToList();
 
                 Assert.Equal(3, emp.Count);
@@ -238,38 +232,38 @@ WHERE [dbo].IsTopEmployee([e].[EmployeeID]) = 1");
                 var startDate = DateTime.Parse("1/1/1998");
 
                 var emp = (from e in context.Employees
-                            where NorthwindDbFunctionContext.GetEmployeeWithMostOrdersAfterDate(startDate) == e.EmployeeID
-                            select e).SingleOrDefault();
-
-                Assert.NotNull(emp);
-                Assert.True(emp.EmployeeID == 4);
-
-                AssertSql(
-               @"@__startDate_0='01/01/1998 00:00:00'
-
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE [dbo].GetEmployeeWithMostOrdersAfterDate(@__startDate_0) = [e].[EmployeeID]");
-            }
-        }
-           
-        [Fact]
-        public void Scalar_Function_Where_Parameter()
-        {
-            using (var context = CreateContext())
-            {
-                var period = NorthwindDbFunctionContext.ReportingPeriod.Winter;
-
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == NorthwindDbFunctionContext.GetEmployeeWithMostOrdersAfterDate(
-                                                    NorthwindDbFunctionContext.GetReportingPeriodStartDate(period))
+                           where NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(startDate) == e.EmployeeID
                            select e).SingleOrDefault();
 
                 Assert.NotNull(emp);
                 Assert.True(emp.EmployeeID == 4);
 
                 AssertSql(
-             @"@__period_0='Winter'
+                    @"@__startDate_0='01/01/1998 00:00:00'
+
+SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [dbo].GetEmployeeWithMostOrdersAfterDate(@__startDate_0) = [e].[EmployeeID]");
+            }
+        }
+
+        [Fact]
+        public void Scalar_Function_Where_Parameter()
+        {
+            using (var context = CreateContext())
+            {
+                var period = NorthwindRelationalContext.ReportingPeriod.Winter;
+
+                var emp = (from e in context.Employees
+                           where e.EmployeeID == NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(
+                               NorthwindRelationalContext.GetReportingPeriodStartDate(period))
+                           select e).SingleOrDefault();
+
+                Assert.NotNull(emp);
+                Assert.True(emp.EmployeeID == 4);
+
+                AssertSql(
+                    @"@__period_0='Winter'
 
 SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -283,16 +277,16 @@ WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetRepor
             using (var context = CreateContext())
             {
                 var emp = (from e in context.Employees
-                           where e.EmployeeID == NorthwindDbFunctionContext.GetEmployeeWithMostOrdersAfterDate(
-                                                   NorthwindDbFunctionContext.GetReportingPeriodStartDate(
-                                                       NorthwindDbFunctionContext.ReportingPeriod.Winter))
+                           where e.EmployeeID == NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(
+                               NorthwindRelationalContext.GetReportingPeriodStartDate(
+                                   NorthwindRelationalContext.ReportingPeriod.Winter))
                            select e).SingleOrDefault();
 
                 Assert.NotNull(emp);
                 Assert.True(emp.EmployeeID == 4);
 
                 AssertSql(
-             @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))");
             }
@@ -304,7 +298,7 @@ WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetRepor
             using (var context = CreateContext())
             {
                 var emp = (from e in context.Employees
-                           let orderCount = NorthwindDbFunctionContext.EmployeeOrderCount(e.EmployeeID)
+                           let orderCount = NorthwindRelationalContext.EmployeeOrderCount(e.EmployeeID)
                            where e.EmployeeID == 5
                            select new
                            {
@@ -316,7 +310,7 @@ WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetRepor
                 Assert.Equal(42, emp.OrderCount);
 
                 AssertSql(
-           @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount([e].[EmployeeID]) AS [OrderCount]
+                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount([e].[EmployeeID]) AS [OrderCount]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 5");
             }
@@ -328,7 +322,7 @@ WHERE [e].[EmployeeID] = 5");
             using (var context = CreateContext())
             {
                 var emp = (from e in context.Employees
-                           let orderCount = NorthwindDbFunctionContext.EmployeeOrderCount(5)
+                           let orderCount = NorthwindRelationalContext.EmployeeOrderCount(5)
                            where e.EmployeeID == 5
                            select new
                            {
@@ -340,7 +334,7 @@ WHERE [e].[EmployeeID] = 5");
                 Assert.Equal(42, emp.OrderCount);
 
                 AssertSql(
-             @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(5) AS [OrderCount]
+                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(5) AS [OrderCount]
 FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 5");
             }
@@ -354,7 +348,7 @@ WHERE [e].[EmployeeID] = 5");
             using (var context = CreateContext())
             {
                 var emp = (from e in context.Employees
-                           let orderCount = NorthwindDbFunctionContext.EmployeeOrderCount(employeeId)
+                           let orderCount = NorthwindRelationalContext.EmployeeOrderCount(employeeId)
                            where e.EmployeeID == employeeId
                            select new
                            {
@@ -364,9 +358,9 @@ WHERE [e].[EmployeeID] = 5");
 
                 Assert.Equal("Steven", emp.FirstName);
                 Assert.Equal(42, emp.OrderCount);
-           
+
                 AssertSql(
-             @"@__employeeId_0='5'
+                    @"@__employeeId_0='5'
 @__employeeId_1='5'
 
 SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(@__employeeId_0) AS [OrderCount]
@@ -386,7 +380,7 @@ WHERE [e].[EmployeeID] = @__employeeId_1");
                 var starCount = 3;
 
                 var emp = (from e in context.Employees
-                           let orderCount = NorthwindDbFunctionContext.StarValue(starCount, NorthwindDbFunctionContext.EmployeeOrderCount(employeeId))
+                           let orderCount = NorthwindRelationalContext.StarValue(starCount, NorthwindRelationalContext.EmployeeOrderCount(employeeId))
                            where e.EmployeeID == employeeId
                            select new
                            {
@@ -398,7 +392,7 @@ WHERE [e].[EmployeeID] = @__employeeId_1");
                 Assert.Equal("***42", emp.OrderCount);
 
                 AssertSql(
-             @"@__starCount_0='3'
+                    @"@__starCount_0='3'
 @__employeeId_1='5'
 @__employeeId_2='5'
 
@@ -472,12 +466,12 @@ ORDER BY [e].[EmployeeID]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 128 == AddOne(Math.Abs(NorthwindDbFunctionContext.EmployeeOrderCountWithClient(e.EmployeeID)))
+                               where 128 == AddOne(Math.Abs(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID)))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(3, results);
                 AssertSql(
-                     @"SELECT [e].[EmployeeID]
+                    @"SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]");
             }
         }
@@ -488,7 +482,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 128 == AddOne(NorthwindDbFunctionContext.EmployeeOrderCountWithClient(Math.Abs(e.EmployeeID)))
+                               where 128 == AddOne(NorthwindRelationalContext.EmployeeOrderCountWithClient(Math.Abs(e.EmployeeID)))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(3, results);
@@ -504,7 +498,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 128 == Math.Abs(AddOne(NorthwindDbFunctionContext.EmployeeOrderCountWithClient(e.EmployeeID)))
+                               where 128 == Math.Abs(AddOne(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID)))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(3, results);
@@ -520,7 +514,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 127 == Math.Abs(NorthwindDbFunctionContext.EmployeeOrderCountWithClient(AddOne(e.EmployeeID)))
+                               where 127 == Math.Abs(NorthwindRelationalContext.EmployeeOrderCountWithClient(AddOne(e.EmployeeID)))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(2, results);
@@ -536,7 +530,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 127 == NorthwindDbFunctionContext.EmployeeOrderCountWithClient(Math.Abs(AddOne(e.EmployeeID)))
+                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(Math.Abs(AddOne(e.EmployeeID)))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(2, results);
@@ -552,7 +546,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 127 == NorthwindDbFunctionContext.EmployeeOrderCountWithClient(AddOne(Math.Abs(e.EmployeeID)))
+                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(AddOne(Math.Abs(e.EmployeeID)))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(2, results);
@@ -584,7 +578,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 128 == AddOne(NorthwindDbFunctionContext.EmployeeOrderCountWithClient(e.EmployeeID))
+                               where 128 == AddOne(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(3, results);
@@ -616,7 +610,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 127 == Math.Abs(NorthwindDbFunctionContext.EmployeeOrderCountWithClient(e.EmployeeID))
+                               where 127 == Math.Abs(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(3, results);
@@ -633,7 +627,7 @@ WHERE 127 = ABS([dbo].EmployeeOrderCount([e].[EmployeeID]))");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 127 == NorthwindDbFunctionContext.EmployeeOrderCountWithClient(AddOne(e.EmployeeID))
+                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(AddOne(e.EmployeeID))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(2, results);
@@ -649,7 +643,7 @@ FROM [Employees] AS [e]");
             using (var context = CreateContext())
             {
                 var results = (from e in context.Employees
-                               where 127 == NorthwindDbFunctionContext.EmployeeOrderCountWithClient(Math.Abs(e.EmployeeID))
+                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(Math.Abs(e.EmployeeID))
                                select e.EmployeeID).Single();
 
                 Assert.Equal(3, results);
@@ -661,8 +655,6 @@ WHERE 127 = [dbo].EmployeeOrderCount(ABS([e].[EmployeeID]))");
         }
 
         private void AssertSql(params string[] expected)
-           => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
-
-

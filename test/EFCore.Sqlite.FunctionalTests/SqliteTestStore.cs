@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.IO;
 using System.Threading;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,25 +13,24 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteTestStore : RelationalTestStore<SqliteConnection>
     {
+        public const int CommandTimeout = 30;
         private static int _scratchCount;
+
+        private static string BaseDirectory => AppContext.BaseDirectory;
 
         public static SqliteTestStore GetNorthwindStore() => GetOrCreateShared("northwind", () => { });
 
         public static SqliteTestStore GetOrCreateShared(string name, bool sharedCache, Action initializeDatabase = null) =>
-            new SqliteTestStore(name).CreateShared(initializeDatabase, sharedCache);
+            new SqliteTestStore(name).InitializeShared(initializeDatabase, sharedCache);
 
-        public static SqliteTestStore GetOrCreateShared(
-            string name,
-            IServiceProvider serviceProvider,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions,
-            Func<DbContextOptions, DbContext> createContext,
-            Action<DbContext> seed)
-            => new SqliteTestStore(name, serviceProvider, addOptions, createContext).CreateShared(seed);
+        public static SqliteTestStore GetShared(string name)
+            => new SqliteTestStore(name);
+
+        public static SqliteTestStore GetExisting(string name)
+            => new SqliteTestStore(name, seed: false);
 
         public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
             GetOrCreateShared(name, false, initializeDatabase);
-
-        private static string BaseDirectory => AppContext.BaseDirectory;
 
         public static SqliteTestStore CreateScratch(bool sharedCache = false)
         {
@@ -44,33 +42,33 @@ namespace Microsoft.EntityFrameworkCore
             while (File.Exists(name + ".db")
                    || File.Exists(Path.Combine(BaseDirectory, name + ".db")));
 
-            return new SqliteTestStore(name).CreateTransient(sharedCache);
+            return new SqliteTestStore(name).InitializeTransient(sharedCache);
         }
 
-        public const int CommandTimeout = 30;
+        private readonly bool _seed;
         private bool _deleteDatabase;
 
-        private SqliteTestStore(string name,
-            IServiceProvider serviceProvider = null,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions = null,
-            Func<DbContextOptions, DbContext> createContext = null)
-            : base(name,
-                serviceProvider ??
-                SqliteTestStoreFactory.Instance.AddProviderServices(new ServiceCollection()).BuildServiceProvider(),
-                addOptions,
-                createContext)
+        private SqliteTestStore(string name, bool seed = true)
+            : base(name)
         {
+            _seed = seed;
         }
 
-        protected override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder
-                .UseSqlite(Connection, b => b.CommandTimeout(CommandTimeout))
-                .UseInternalServiceProvider(ServiceProvider);
+        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+            => serviceCollection.AddEntityFrameworkSqlite()
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
 
-        private SqliteTestStore CreateShared(Action<DbContext> seed)
-            => CreateShared(() =>
+        public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
+            => builder.UseSqlite(Connection, b => b.CommandTimeout(CommandTimeout));
+
+        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+            => InitializeShared(() =>
                 {
-                    using (var context = CreateContext())
+                    if (!_seed)
+                    {
+                        return;
+                    }
+                    using (var context = createContext())
                     {
                         if (!context.Database.EnsureCreated())
                         {
@@ -78,20 +76,19 @@ namespace Microsoft.EntityFrameworkCore
                         }
                         seed(context);
                     }
-                    ((TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>()).Clear();
                 },
                 sharedCache: false);
 
-        private SqliteTestStore CreateShared(Action initializeDatabase, bool sharedCache)
+        private SqliteTestStore InitializeShared(Action initializeDatabase, bool sharedCache)
         {
             CreateConnection(sharedCache);
 
-            CreateShared(typeof(SqliteTestStore).Name + Name, initializeDatabase);
+            GlobalTestStoreIndex.CreateShared(typeof(SqliteTestStore).Name + Name, initializeDatabase);
 
             return this;
         }
 
-        private SqliteTestStore CreateTransient(bool sharedCache)
+        private SqliteTestStore InitializeTransient(bool sharedCache)
         {
             CreateConnection(sharedCache);
 

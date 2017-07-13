@@ -365,7 +365,7 @@ FROM (
 
 SELECT DISTINCT [t].*
 FROM (
-    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock]
+    SELECT TOP(@__p_0) [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
     FROM [Products] AS [p]
     ORDER BY COALESCE([p].[UnitPrice], 0.0)
 ) AS [t]");
@@ -381,9 +381,9 @@ FROM (
 
 SELECT DISTINCT [t].*
 FROM (
-    SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[UnitPrice], [t0].[UnitsInStock]
+    SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice], [t0].[UnitsInStock]
     FROM (
-        SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock], ROW_NUMBER() OVER(ORDER BY COALESCE([p].[UnitPrice], 0.0)) AS [__RowNumber__]
+        SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock], ROW_NUMBER() OVER(ORDER BY COALESCE([p].[UnitPrice], 0.0)) AS [__RowNumber__]
         FROM [Products] AS [p]
     ) AS [t0]
     WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
@@ -401,9 +401,9 @@ FROM (
 
 SELECT DISTINCT TOP(@__p_2) [t].*
 FROM (
-    SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[UnitPrice], [t0].[UnitsInStock]
+    SELECT [t0].[ProductID], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice], [t0].[UnitsInStock]
     FROM (
-        SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitPrice], [p].[UnitsInStock], ROW_NUMBER() OVER(ORDER BY COALESCE([p].[UnitPrice], 0.0)) AS [__RowNumber__]
+        SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock], ROW_NUMBER() OVER(ORDER BY COALESCE([p].[UnitPrice], 0.0)) AS [__RowNumber__]
         FROM [Products] AS [p]
     ) AS [t0]
     WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))

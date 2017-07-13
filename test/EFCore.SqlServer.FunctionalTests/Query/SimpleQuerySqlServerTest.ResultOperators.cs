@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public partial class SimpleQuerySqlServerTest : SimpleQueryTestBase<NorthwindQuerySqlServerFixture>
+    public partial class SimpleQuerySqlServerTest
     {
         public override void Select_All()
         {

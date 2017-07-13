@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class PropertyEntrySqliteTest : PropertyEntryTestBase<SqliteTestStore, F1SqliteFixture>
+    public class PropertyEntrySqliteTest : PropertyEntryTestBase<F1SqliteFixture>
     {
         public PropertyEntrySqliteTest(F1SqliteFixture fixture)
             : base(fixture)
@@ -21,10 +21,10 @@ FROM ""Engines"" AS ""e""
 ORDER BY ""e"".""Id""
 LIMIT 1",
                 //
-                @"@p1='?'
-@p2='?'
-@p0='?'
-@p3='?'
+                @"@p1='1' (DbType = String)
+@p2='1' (DbType = String)
+@p0='FO 108X'
+@p3='ChangedEngine'
 
 UPDATE ""Engines"" SET ""Name"" = @p0
 WHERE ""Id"" = @p1 AND ""EngineSupplierId"" = @p2 AND ""Name"" = @p3;

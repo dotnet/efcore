@@ -3,14 +3,20 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class DbFunctionsTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
+        protected DbFunctionsTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [ConditionalFact]
         public virtual void String_Like_Literal()
         {
@@ -43,12 +49,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected DbFunctionsTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
     }
 }

@@ -7,14 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class F1RelationalFixture<TTestStore> : F1FixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class F1RelationalFixture : F1FixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-        
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.Entity<Chassis>().ToTable("Chassis");
             modelBuilder.Entity<Team>().ToTable("Teams").Property(e => e.Id).ValueGeneratedNever();

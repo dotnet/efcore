@@ -7,18 +7,26 @@ using System.Data.Common;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+
 // ReSharper disable FormatStringProblem
-
 // ReSharper disable InconsistentNaming
-
 // ReSharper disable ConvertToConstant.Local
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryRelationalFixture, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected FromSqlQueryTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            Fixture.TestSqlLoggerFactory.Clear();
+        }
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Bad_data_error_handling_invalid_cast_key()
         {
@@ -43,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "UnitPrice", typeof(decimal?), typeof(int)),
                     Assert.Throws<InvalidOperationException>(() =>
                         context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""UnitsInStock"", ""Discontinued""
+                            .FromSql(@"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""SupplierID"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
                             .ToList()).Message);
             }
@@ -181,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Set<Customer>()
                             .FromSql(@"SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
                             .ToArray()
-                    ).Message);
+                        ).Message);
             }
         }
 
@@ -259,10 +267,10 @@ SELECT
                 var actual
                     = (from c in context.Set<Customer>()
                        where
-                       c.CustomerID == "ALFKI"
-                       && context.Orders.FromSql(@"SELECT * FROM ""Orders""")
-                           .Select(o => o.CustomerID)
-                           .Contains(c.CustomerID)
+                           c.CustomerID == "ALFKI"
+                           && context.Orders.FromSql(@"SELECT * FROM ""Orders""")
+                               .Select(o => o.CustomerID)
+                               .Contains(c.CustomerID)
                        select c)
                         .ToArray();
 
@@ -338,7 +346,7 @@ SELECT
                            endDate)
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                    .ToArray();
+                        .ToArray();
 
                 Assert.Equal(1, actual.Length);
             }
@@ -464,7 +472,7 @@ FROM ""Customers""")
                        from o in context.Set<Order>().FromSql($@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {startDate} AND {endDate}")
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                    .ToArray();
+                        .ToArray();
 
                 Assert.Equal(25, actual.Length);
 
@@ -477,7 +485,7 @@ FROM ""Customers""")
                        from o in context.Set<Order>().FromSql($@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {startDate} AND {endDate}")
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                    .ToArray();
+                        .ToArray();
 
                 Assert.Equal(1, actual.Length);
             }
@@ -741,12 +749,13 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 var query = context.Customers
                     .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @id", parameter);
 
+                // ReSharper disable PossibleMultipleEnumeration
                 var result1 = query.ToList();
 
                 Assert.Equal(1, result1.Count);
 
-                // This should not throw exception.
                 var result2 = query.ToList();
+                // ReSharper restore PossibleMultipleEnumeration
 
                 Assert.Equal(1, result2.Count);
             }
@@ -758,7 +767,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             using (var context = CreateContext())
             {
                 var query = from c1 in context.Set<Customer>()
-                                .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
                             from c2 in context.Set<Customer>()
                                 .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'")
                                 .Include(c => c.Orders)
@@ -788,7 +797,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             {
                 var query = from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
                             join o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderID"" <> 1").Include(o => o.OrderDetails)
-                            on c.CustomerID equals o.CustomerID
+                                on c.CustomerID equals o.CustomerID
                             select new { c, o };
 
                 var result = query.ToList();
@@ -806,6 +815,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         [Fact]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
+            Fixture.TestStore.Connection.Close();
             using (var context = CreateContext())
             {
                 var connection = context.Database.GetDbConnection();
@@ -822,15 +832,8 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             }
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected FromSqlQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
-
         protected abstract DbParameter CreateDbParameter(string name, object value);
+
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

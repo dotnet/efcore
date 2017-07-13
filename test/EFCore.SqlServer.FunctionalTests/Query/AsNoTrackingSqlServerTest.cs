@@ -1,11 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsNoTrackingSqlServerTest : AsNoTrackingTestBase<NorthwindQuerySqlServerFixture>
+    public class AsNoTrackingSqlServerTest : AsNoTrackingTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public AsNoTrackingSqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public AsNoTrackingSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }

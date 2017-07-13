@@ -3,12 +3,13 @@
 
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteFixture>
+    public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public FromSqlQuerySqliteTest(NorthwindQuerySqliteFixture fixture)
+        public FromSqlQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }

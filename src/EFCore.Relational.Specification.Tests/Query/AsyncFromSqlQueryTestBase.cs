@@ -6,13 +6,25 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class AsyncFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected AsyncFromSqlQueryTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            Fixture.TestStore.Connection.Close();
+            Fixture.TestSqlLoggerFactory.Clear();
+        }
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual async Task From_sql_queryable_simple()
         {
@@ -380,12 +392,5 @@ FROM ""Customers""")
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected AsyncFromSqlQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
     }
 }

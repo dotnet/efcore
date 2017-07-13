@@ -76,8 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             var updatedServices = new ServiceCollection();
                             foreach (var descriptor in services)
                             {
-                                Type replacementType;
-                                if (replacedServices.TryGetValue(descriptor.ServiceType, out replacementType))
+                                if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
                                 {
                                     ((IList<ServiceDescriptor>)updatedServices).Add(
                                         new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));

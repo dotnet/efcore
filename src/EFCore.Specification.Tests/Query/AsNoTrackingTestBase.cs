@@ -3,15 +3,21 @@
 
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class AsNoTrackingTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
+        protected AsNoTrackingTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [ConditionalFact]
         public virtual void Entity_not_added_to_state_manager()
         {
@@ -159,12 +165,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected AsNoTrackingTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
     }
 }

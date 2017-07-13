@@ -12,10 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : class, IQueryFixtureBase, new()
     {
-        protected QueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected QueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 

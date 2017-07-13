@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore
         private const string StoreName = "SharedCrossStore";
 
         private readonly IServiceProvider _serviceProvider;
-        private Guid id = Guid.NewGuid();
 
         public SharedCrossStoreFixture()
             : this(new ServiceCollection()
@@ -49,8 +48,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override CrossStoreContext CreateContext(TestStore testStore)
         {
-            var inMemoryTestStore = testStore as InMemoryTestStore;
-            if (inMemoryTestStore != null)
+            if (testStore is InMemoryTestStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder()
                     .UseInMemoryDatabase(StoreName)
@@ -59,8 +57,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new CrossStoreContext(optionsBuilder.Options);
             }
 
-            var sqliteTestStore = testStore as SqliteTestStore;
-            if (sqliteTestStore != null)
+            if (testStore is SqliteTestStore sqliteTestStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlite(sqliteTestStore.Connection);
@@ -72,8 +69,7 @@ namespace Microsoft.EntityFrameworkCore
                 return context;
             }
 
-            var sqlServerTestStore = testStore as SqlServerTestStore;
-            if (sqlServerTestStore != null)
+            if (testStore is SqlServerTestStore sqlServerTestStore)
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
                 optionsBuilder.UseSqlServer(sqlServerTestStore.Connection, b => b.ApplyConfiguration());

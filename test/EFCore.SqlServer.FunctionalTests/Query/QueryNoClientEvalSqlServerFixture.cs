@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryNoClientEvalSqlServerFixture : NorthwindQuerySqlServerFixture
+    public class QueryNoClientEvalSqlServerFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
     {
-        protected override DbContextOptionsBuilder ConfigureOptions(DbContextOptionsBuilder dbContextOptionsBuilder)
-            => dbContextOptionsBuilder.ConfigureWarnings(c => c.Default(WarningBehavior.Throw));
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(c => c.Throw(RelationalEventId.QueryClientEvaluationWarning));
     }
 }

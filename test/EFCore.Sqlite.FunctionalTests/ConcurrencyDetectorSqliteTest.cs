@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ConcurrencyDetectorSqliteTest : ConcurrencyDetectorRelationalTest<NorthwindQuerySqliteFixture>
+    public class ConcurrencyDetectorSqliteTest : ConcurrencyDetectorRelationalTest<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public ConcurrencyDetectorSqliteTest(NorthwindQuerySqliteFixture fixture)
+        public ConcurrencyDetectorSqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }

@@ -16,23 +16,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DataAnnotationTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : DataAnnotationFixtureBase<TTestStore>, new()
     {
-        protected DataAnnotationContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected virtual void ExecuteWithStrategyInTransaction(Action<DataAnnotationContext> testOperation)
-            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
-
-        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        {
-        }
-
         protected DataAnnotationTestBase(TFixture fixture)
         {
             Fixture = fixture;
@@ -44,6 +35,15 @@ namespace Microsoft.EntityFrameworkCore
         protected TTestStore TestStore { get; }
 
         public virtual void Dispose() => TestStore.Dispose();
+        
+        protected DataAnnotationContext CreateContext() => Fixture.CreateContext(TestStore);
+
+        protected virtual void ExecuteWithStrategyInTransaction(Action<DataAnnotationContext> testOperation)
+            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
+
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        {
+        }
 
         public virtual ModelBuilder CreateModelBuilder()
         {

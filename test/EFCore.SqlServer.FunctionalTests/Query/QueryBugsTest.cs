@@ -20,7 +20,6 @@ using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
-
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Left_outer_join_bug_6091()
         {
-            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest"))
+            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", () => { }))
             {
                 testStore.ExecuteNonQuery(
                     @"
@@ -245,7 +244,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         [Fact]
         public void Query_when_null_key_in_database_should_throw()
         {
-            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest"))
+            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", () => { }))
             {
                 testStore.ExecuteNonQuery(
                     @"CREATE TABLE ZeroKey (Id int);

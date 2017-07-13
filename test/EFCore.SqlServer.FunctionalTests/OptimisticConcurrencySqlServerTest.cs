@@ -4,13 +4,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencyTestBase<SqlServerTestStore, F1SqlServerFixture>
+    public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencyTestBase<F1SqlServerFixture>
     {
         public OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
             : base(fixture)

@@ -6,12 +6,16 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class PropertyEntryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>
-        where TTestStore : TestStore
-        where TFixture : F1FixtureBase<TTestStore>, new()
+    public abstract class PropertyEntryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : F1FixtureBase, new()
     {
+        protected PropertyEntryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Property_entry_original_value_is_set()
         {
@@ -21,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         using (context.Database.BeginTransaction())
                         {
+                            // ReSharper disable once UnusedVariable
                             var engine = context.Engines.OrderBy(e => e.Id).First();
                             var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
                             trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
@@ -33,12 +38,5 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected F1Context CreateF1Context() => Fixture.CreateContext();
-
-        protected PropertyEntryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
     }
 }

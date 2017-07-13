@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
@@ -14,8 +15,12 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class CompiledQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
+        protected CompiledQueryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [ConditionalFact]
         public virtual void DbSet_query()
         {
@@ -95,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("ANATR", query(context, "ANATR").First().CustomerID);
             }
         }
-        
+
         [ConditionalFact]
         public virtual void Query_with_single_parameter_with_include()
         {
@@ -113,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("ANATR", query(context, "ANATR").First().CustomerID);
             }
         }
-        
+
         [ConditionalFact]
         public virtual void First_query_with_single_parameter()
         {
@@ -421,12 +426,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected CompiledQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        protected TFixture Fixture { get; }
     }
 }

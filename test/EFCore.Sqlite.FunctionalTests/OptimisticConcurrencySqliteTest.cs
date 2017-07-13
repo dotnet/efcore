@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class OptimisticConcurrencySqliteTest : OptimisticConcurrencyTestBase<SqliteTestStore, F1SqliteFixture>
+    public class OptimisticConcurrencySqliteTest : OptimisticConcurrencyTestBase<F1SqliteFixture>
     {
         public OptimisticConcurrencySqliteTest(F1SqliteFixture fixture)
             : base(fixture)

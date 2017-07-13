@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+    public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [ConditionalFact]
         public virtual void Join_customers_orders_projection()

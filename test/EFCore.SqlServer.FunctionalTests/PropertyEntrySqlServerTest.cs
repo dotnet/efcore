@@ -1,11 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Utilities;
-
 namespace Microsoft.EntityFrameworkCore
 {
-    public class PropertyEntrySqlServerTest : PropertyEntryTestBase<SqlServerTestStore, F1SqlServerFixture>
+    public class PropertyEntrySqlServerTest : PropertyEntryTestBase<F1SqlServerFixture>
     {
         public PropertyEntrySqlServerTest(F1SqlServerFixture fixture)
             : base(fixture)
@@ -22,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore
 FROM [Engines] AS [e]
 ORDER BY [e].[Id]",
                 //
-                @"@p1='?'
-@p2='?'
-@p0='?' (Size = 4000)
-@p3='?' (Size = 4000)
+                @"@p1='1'
+@p2='1'
+@p0='FO 108X' (Size = 4000)
+@p3='ChangedEngine' (Size = 4000)
 
 SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p0

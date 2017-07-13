@@ -21,12 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     public class SqlServerTestStore : RelationalTestStore<SqlConnection>
     {
         private const string NorthwindName = "Northwind";
-
+        public static readonly string NorthwindConnectionString = CreateConnectionString(NorthwindName);
         public const int CommandTimeout = 600;
 
         private static string BaseDirectory => AppContext.BaseDirectory;
-
-        public static readonly string NorthwindConnectionString = CreateConnectionString(NorthwindName);
 
         public static SqlServerTestStore GetNorthwindStore()
             => GetOrCreateShared(
@@ -34,55 +32,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location),
                     "Northwind.sql"));
 
-        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase = null)
-            => new SqlServerTestStore(name).CreateShared(initializeDatabase);
+        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
+            => new SqlServerTestStore(name).InitializeShared(s => initializeDatabase?.Invoke());
 
         public static SqlServerTestStore GetOrCreateShared(string name, string scriptPath)
-        {
-            var testStore = new SqlServerTestStore(name, cleanDatabase: false);
-            return testStore.CreateShared(() => testStore.ExecuteScript(scriptPath));
-        }
+            => new SqlServerTestStore(name, cleanDatabase: false, scriptPath: scriptPath).InitializeShared(s => s.ExecuteScript(scriptPath));
 
-        public static SqlServerTestStore GetOrCreateShared(
-            string name,
-            IServiceProvider serviceProvider,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions,
-            Func<DbContextOptions, DbContext> createContext,
-            Action<DbContext> seed)
-            => new SqlServerTestStore(name, serviceProvider, addOptions, createContext).CreateShared(seed);
+        public static SqlServerTestStore GetOrCreateShared(string name)
+            => new SqlServerTestStore(name);
+
+        public static SqlServerTestStore GetOrCreateSharedScript(string name, string scriptPath)
+            => new SqlServerTestStore(name, cleanDatabase: false, scriptPath: scriptPath);
 
         public static SqlServerTestStore Create(string name, bool deleteDatabase = false)
             => new SqlServerTestStore(name).CreateTransient(true, deleteDatabase);
 
         public static SqlServerTestStore CreateScratch(bool createDatabase = true, bool useFileName = false)
             => new SqlServerTestStore(GetScratchDbName(), useFileName: useFileName).CreateTransient(createDatabase, true);
-
-        private readonly string _fileName;
-        private readonly bool _cleanDatabase;
-        private bool _deleteDatabase;
-
-        private SqlServerTestStore(
-            string name,
-            IServiceProvider serviceProvider = null,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions = null,
-            Func<DbContextOptions, DbContext> createContext = null,
-            bool useFileName = false,
-            bool cleanDatabase = true)
-            : base(name,
-                serviceProvider ??
-                SqlServerTestStoreFactory.Instance.AddProviderServices(new ServiceCollection()).BuildServiceProvider(),
-                addOptions,
-                createContext)
-        {
-            Name = name;
-
-            if (useFileName)
-            {
-                _fileName = Path.Combine(BaseDirectory, name + ".mdf");
-            }
-
-            _cleanDatabase = cleanDatabase;
-        }
 
         private static string GetScratchDbName()
         {
@@ -97,38 +63,66 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return name;
         }
 
-        protected override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => builder
-                .UseSqlServer(Connection, b => b.ApplyConfiguration().CommandTimeout(CommandTimeout))
-                .UseInternalServiceProvider(ServiceProvider);
+        private readonly string _fileName;
+        private readonly bool _cleanDatabase;
+        private readonly string _scriptPath;
+        private bool _deleteDatabase;
 
-        private SqlServerTestStore CreateShared(Action<DbContext> seed)
-            => CreateShared(() =>
+        private SqlServerTestStore(
+            string name,
+            bool useFileName = false,
+            bool cleanDatabase = true,
+            string scriptPath = null)
+            : base(name)
+        {
+            if (useFileName)
+            {
+                _fileName = Path.Combine(BaseDirectory, name + ".mdf");
+            }
+
+            _cleanDatabase = cleanDatabase;
+            _scriptPath = scriptPath;
+        }
+
+        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+            => InitializeShared(s =>
                 {
-                    using (var context = CreateContext())
+                    if (_scriptPath != null)
                     {
-                        context.Database.EnsureCreated();
-                        seed(context);
+                        s.ExecuteScript(_scriptPath);
                     }
-                    ((TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>()).Clear();
+                    else
+                    {
+                        using (var context = createContext())
+                        {
+                            context.Database.EnsureCreated();
+                            seed(context);
+                        }
+                    }
                 });
 
-        private SqlServerTestStore CreateShared(Action initializeDatabase)
+        private SqlServerTestStore InitializeShared(Action<SqlServerTestStore> initializeDatabase)
         {
             ConnectionString = CreateConnectionString(Name, _fileName);
             Connection = new SqlConnection(ConnectionString);
 
-            CreateShared(typeof(SqlServerTestStore).Name + Name,
-                () =>
+            GlobalTestStoreIndex.CreateShared(typeof(SqlServerTestStore).Name + Name, () =>
+                {
+                    if (CreateDatabase())
                     {
-                        if (CreateDatabase())
-                        {
-                            initializeDatabase?.Invoke();
-                        }
-                    });
+                        initializeDatabase?.Invoke(this);
+                    }
+                });
 
             return this;
         }
+
+        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+            => serviceCollection.AddEntityFrameworkSqlServer()
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
+
+        public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
+            => builder.UseSqlServer(Connection, b => b.ApplyConfiguration().CommandTimeout(CommandTimeout));
 
         private bool CreateDatabase()
         {
@@ -141,7 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                         return false;
                     }
 
-                    Clean();
+                    using (var context = new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options))
+                    {
+                        context.Database.EnsureClean();
+                    }
                 }
                 else
                 {
@@ -151,14 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
 
             return true;
-        }
-
-        private void Clean()
-        {
-            using (var context = new DbContext(Options))
-            {
-                context.Database.EnsureClean();
-            }
         }
 
         public void ExecuteScript(string scriptPath)
@@ -176,28 +165,24 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
 
             var script = File.ReadAllText(scriptPath);
-            using (var connection = new SqlConnection(CreateConnectionString(Name)))
-            {
-                Execute(connection, command =>
+            Execute(Connection, command =>
+                {
+                    foreach (var batch in
+                        new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                            .Split(script).Where(b => !string.IsNullOrEmpty(b)))
                     {
-                        foreach (var batch in
-                            new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                                .Split(script).Where(b => !string.IsNullOrEmpty(b)))
-                        {
-                            command.CommandText = batch;
-                            command.ExecuteNonQuery();
-                        }
-                        return 0;
-                    }, "");
-            }
+                        command.CommandText = batch;
+                        command.ExecuteNonQuery();
+                    }
+                    return 0;
+                }, "");
         }
 
         private static void WaitForExists(SqlConnection connection)
         {
             if (TestEnvironment.IsSqlAzure)
             {
-                new TestSqlServerRetryingExecutionStrategy().Execute(connection,
-                    connectionScoped => WaitForExistsImplementation(connectionScoped));
+                new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);
             }
             else
             {
@@ -500,10 +485,10 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static string CreateConnectionString(string name)
-            => CreateConnectionString(name, null, new Random().Next(0, 2) == 1);
+            => CreateConnectionString(name, null, true); // Force MARS until #9074 is fixed
 
         public static string CreateConnectionString(string name, string fileName)
-            => CreateConnectionString(name, fileName, new Random().Next(0, 2) == 1);
+            => CreateConnectionString(name, fileName, true); // Force MARS until #9074 is fixed
 
         private static string CreateConnectionString(string name, bool multipleActiveResultSets)
             => CreateConnectionString(name, null, multipleActiveResultSets);

@@ -1,13 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class CompiledQuerySqlServerTest : CompiledQueryTestBase<NorthwindQuerySqlServerFixture>
+    public class CompiledQuerySqlServerTest : CompiledQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public CompiledQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public CompiledQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
@@ -39,7 +40,7 @@ ORDER BY [c].[CustomerID]");
         public override void Query_ending_with_include()
         {
             base.Query_ending_with_include();
-            
+
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.Common;
 using System.Threading.Tasks;
 
@@ -18,12 +17,8 @@ namespace Microsoft.EntityFrameworkCore
         // TODO: Remove
         public virtual DbTransaction Transaction { get; }
 
-        protected RelationalTestStore(
-            string name,
-            IServiceProvider serviceProvider,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions,
-            Func<DbContextOptions, DbContext> createContext)
-            : base(name, serviceProvider, addOptions, createContext)
+        protected RelationalTestStore(string name)
+            : base(name)
         {
         }
 

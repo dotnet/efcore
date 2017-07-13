@@ -13,12 +13,22 @@ using Xunit;
 // ReSharper disable ConvertToExpressionBodyWhenPossible
 // ReSharper disable ConvertMethodToExpressionBody
 // ReSharper disable StringStartsWithIsCultureSpecific
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class FiltersTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryFixtureBase<NorthwindFiltersCustomizer>, new()
     {
+        private readonly NorthwindContext _context;
+
+        protected FiltersTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+
+            _context = CreateContext();
+        }
+        
+        protected TFixture Fixture { get; }
+        
         [ConditionalFact]
         public virtual void Count_query()
         {
@@ -36,7 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Null(_context.Find<Customer>("ALFKI"));
         }
-
 
         [ConditionalFact]
         public virtual void Client_eval()
@@ -142,10 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (NorthwindContext context, string customerID)
                     => context.Customers.Where(c => c.CustomerID == customerID));
 
-            using (var context = CreateContext())
-            {
-                Assert.Equal("BERGS", query(context, "BERGS").First().CustomerID);
-            }
+            Assert.Equal("BERGS", query(_context, "BERGS").First().CustomerID);
 
             using (var context = CreateContext())
             {
@@ -153,21 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected TFixture Fixture { get; }
-
-        private readonly NorthwindContext _context;
-
-        protected FiltersTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            _context = CreateContext();
-        }
-
-        private NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext(enableFilters: true);
-        }
+        private NorthwindContext CreateContext() => Fixture.CreateContext();
 
         public void Dispose() => _context.Dispose();
     }

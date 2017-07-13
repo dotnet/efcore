@@ -5,14 +5,16 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 #pragma warning disable 1998
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture>
+    public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public AsyncQuerySqliteTest(NorthwindQuerySqliteFixture fixture)
+        public AsyncQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }

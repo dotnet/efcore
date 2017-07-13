@@ -7,12 +7,16 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable ReplaceWithSingleCallToCount
+// ReSharper disable ReplaceWithSingleCallToFirstOrDefault
+// ReSharper disable ReplaceWithSingleCallToFirst
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+    public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [ConditionalFact]
         public virtual void Select_All()
@@ -111,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int Order { get; set; }
             public string Customer { get; set; }
 
-            protected bool Equals(ProjectedType other) => Equals(Order, other.Order);
+            private bool Equals(ProjectedType other) => Equals(Order, other.Order);
 
             public override bool Equals(object obj)
             {
@@ -664,7 +668,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_FirstOrDefault()
         {
             AssertSingleResult<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.OrderBy(c => c.ContactName).Where(c => c.City == "London").FirstOrDefault(),
                 entryCount: 1);
         }
@@ -673,7 +676,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void FirstOrDefault_inside_subquery_gets_server_evaluated()
         {
             AssertQuery<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").FirstOrDefault().CustomerID == "ALFKI"),
                 entryCount: 1);
         }
@@ -682,7 +684,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void First_inside_subquery_gets_client_evaluated()
         {
             AssertQuery<Customer>(
-                // ReSharper disable once ReplaceWithSingleCallToFirstOrDefault
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Where(o => o.CustomerID == "ALFKI").First().CustomerID == "ALFKI"),
                 entryCount: 1);
         }

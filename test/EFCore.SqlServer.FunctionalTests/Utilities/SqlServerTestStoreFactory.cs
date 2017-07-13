@@ -2,29 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
-    public class SqlServerTestStoreFactory : TestStoreFactory<SqlServerTestStore>
+    public class SqlServerTestStoreFactory : ITestStoreFactory<SqlServerTestStore>
     {
         public static SqlServerTestStoreFactory Instance { get; } = new SqlServerTestStoreFactory();
 
-        private SqlServerTestStoreFactory()
+        protected SqlServerTestStoreFactory()
         {
         }
 
-        public override SqlServerTestStore CreateShared(
-            string storeName,
-            IServiceProvider serviceProvider,
-            Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions,
-            Func<DbContextOptions, DbContext> createContext,
-            Action<DbContext> seed)
-            => SqlServerTestStore.GetOrCreateShared(storeName, serviceProvider, addOptions, createContext, seed);
-
-        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-            => serviceCollection.AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
+        public virtual SqlServerTestStore CreateShared(string storeName)
+            => SqlServerTestStore.GetOrCreateShared(storeName);
     }
 }
