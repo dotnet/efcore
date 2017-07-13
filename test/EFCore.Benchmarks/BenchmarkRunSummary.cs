@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         public string TestMethod { get; set; }
         public string Variation { get; set; }
         public string MachineName { get; set; }
-        public string ProductReportingVersion { get; set; }
+        public string ProductVersion { get; set; }
         public string Framework { get; set; }
         public string Architecture { get; set; }
         public string CustomData { get; set; }

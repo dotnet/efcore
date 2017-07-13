@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             ,[TestMethod]
             ,[Variation]
             ,[MachineName]
-            ,[ProductReportingVersion]
+            ,[ProductVersion]
             ,[Framework]
             ,[Architecture]
             ,[CustomData]
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
            ,@TestMethod
            ,@Variation
            ,@MachineName
-           ,@ProductReportingVersion
+           ,@ProductVersion
            ,@Framework
            ,@Architecture
            ,@CustomData
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
 		[TestMethod] [nvarchar](max) NULL,
 		[Variation] [nvarchar](max) NULL,
 		[MachineName] [nvarchar](max) NULL,
-		[ProductReportingVersion] [nvarchar](max) NULL,
+		[ProductVersion] [nvarchar](max) NULL,
 		[Framework] [nvarchar](max) NULL,
 		[Architecture] [nvarchar](max) NULL,
 		[CustomData] [nvarchar](max) NULL,
@@ -119,7 +119,7 @@ ELSE IF NOT EXISTS (SELECT * FROM syscolumns WHERE name = 'Architecture')
             cmd.Parameters.AddWithValue("@TestMethod", summary.TestMethod);
             cmd.Parameters.AddWithValue("@Variation", summary.Variation);
             cmd.Parameters.AddWithValue("@MachineName", summary.MachineName);
-            cmd.Parameters.AddWithValue("@ProductReportingVersion", summary.ProductReportingVersion);
+            cmd.Parameters.AddWithValue("@ProductVersion", summary.ProductVersion);
             cmd.Parameters.AddWithValue("@Framework", summary.Framework);
             cmd.Parameters.AddWithValue("@Architecture", summary.Architecture);
             cmd.Parameters.Add("@CustomData", SqlDbType.NVarChar).Value = (object)summary.CustomData ?? DBNull.Value;
