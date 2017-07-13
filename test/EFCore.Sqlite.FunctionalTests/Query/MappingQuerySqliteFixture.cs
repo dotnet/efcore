@@ -1,12 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class MappingQuerySqliteFixture : MappingQueryFixtureBase
+    public class MappingQuerySqliteFixture : MappingQueryFixtureBase, IDisposable
     {
         private readonly DbContextOptions _options;
         private readonly SqliteTestStore _testDatabase;
