@@ -220,7 +220,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             Transaction?.Dispose();
-            _db.Dispose();
+            _db.Dispose2();
             _db = null;
             SetState(ConnectionState.Closed);
         }
@@ -236,6 +236,12 @@ namespace Microsoft.Data.Sqlite
             if (disposing)
             {
                 Close();
+            }
+            else if (_db != null
+                && _db.ptr != IntPtr.Zero)
+            {
+                _db.Dispose2();
+                _db = null;
             }
 
             base.Dispose(disposing);

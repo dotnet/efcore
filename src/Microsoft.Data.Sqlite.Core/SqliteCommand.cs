@@ -217,7 +217,7 @@ namespace Microsoft.Data.Sqlite
 
             var hasChanges = false;
             var changes = 0;
-            var stmts = new Queue<(sqlite3_stmt, bool)>();
+            var stmts = new Queue<(sqlite3_stmt stmt, bool)>();
             var tail = CommandText;
 
             do
@@ -240,34 +240,34 @@ namespace Microsoft.Data.Sqlite
                     break;
                 }
 
-                var boundParams = 0;
-
-                if (_parameters.IsValueCreated)
-                {
-                    boundParams = _parameters.Value.Bind(stmt);
-                }
-
-                var expectedParams = raw.sqlite3_bind_parameter_count(stmt);
-                if (expectedParams != boundParams)
-                {
-                    var unboundParams = new List<string>();
-                    for (var i = 1; i <= expectedParams; i++)
-                    {
-                        var name = raw.sqlite3_bind_parameter_name(stmt, i);
-
-                        if (_parameters.IsValueCreated
-                            ||
-                            !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
-                        {
-                            unboundParams.Add(name);
-                        }
-                    }
-
-                    throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
-                }
-
                 try
                 {
+                    var boundParams = 0;
+
+                    if (_parameters.IsValueCreated)
+                    {
+                        boundParams = _parameters.Value.Bind(stmt);
+                    }
+
+                    var expectedParams = raw.sqlite3_bind_parameter_count(stmt);
+                    if (expectedParams != boundParams)
+                    {
+                        var unboundParams = new List<string>();
+                        for (var i = 1; i <= expectedParams; i++)
+                        {
+                            var name = raw.sqlite3_bind_parameter_name(stmt, i);
+
+                            if (_parameters.IsValueCreated
+                                ||
+                                !_parameters.Value.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                            {
+                                unboundParams.Add(name);
+                            }
+                        }
+
+                        throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                    }
+
                     var timer = Stopwatch.StartNew();
                     while (raw.SQLITE_LOCKED == (rc = raw.sqlite3_step(stmt)) || rc == raw.SQLITE_BUSY)
                     {
@@ -287,6 +287,11 @@ namespace Microsoft.Data.Sqlite
                 catch
                 {
                     stmt.Dispose();
+                    while (stmts.Count != 0)
+                    {
+                        stmts.Dequeue().stmt.Dispose();
+                    }
+
                     throw;
                 }
 

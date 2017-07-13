@@ -108,20 +108,23 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_adjusts_relative_path()
         {
-            var connection = new SqliteConnection("Data Source=local.db");
-            connection.Open();
+            using (var connection = new SqliteConnection("Data Source=local.db"))
+            {
+                connection.Open();
 
-            Assert.Equal(Path.Combine(AppContext.BaseDirectory, "local.db"), connection.DataSource);
+                Assert.Equal(Path.Combine(AppContext.BaseDirectory, "local.db"), connection.DataSource);
+            }
         }
 
         [Fact]
         public void Open_throws_when_error()
         {
-            var connection = new SqliteConnection("Data Source=file:data.db?mode=invalidmode");
+            using (var connection = new SqliteConnection("Data Source=file:data.db?mode=invalidmode"))
+            {
+                var ex = Assert.Throws<SqliteException>(() => connection.Open());
 
-            var ex = Assert.Throws<SqliteException>(() => connection.Open());
-
-            Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            }
         }
 
         [Fact]
