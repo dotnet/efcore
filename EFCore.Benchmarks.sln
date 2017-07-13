@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks", "benchmarks\EFCore.Benchmarks\EFCore.Benchmarks.csproj", "{207ECD9E-FCF7-49C6-8A82-C0A55D69113A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.EF6", "benchmarks\EFCore.Benchmarks.EF6\EFCore.Benchmarks.EF6.csproj", "{94496779-DCC2-42D5-AA44-DA18E00B539F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{207ECD9E-FCF7-49C6-8A82-C0A55D69113A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{207ECD9E-FCF7-49C6-8A82-C0A55D69113A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{207ECD9E-FCF7-49C6-8A82-C0A55D69113A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{207ECD9E-FCF7-49C6-8A82-C0A55D69113A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94496779-DCC2-42D5-AA44-DA18E00B539F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94496779-DCC2-42D5-AA44-DA18E00B539F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94496779-DCC2-42D5-AA44-DA18E00B539F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94496779-DCC2-42D5-AA44-DA18E00B539F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
