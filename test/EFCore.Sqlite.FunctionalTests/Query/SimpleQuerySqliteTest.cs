@@ -7,10 +7,10 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QuerySqliteTest : QueryTestBase<NorthwindQuerySqliteFixture>
+    public class SimpleQuerySqliteTest : SimpleQueryTestBase<NorthwindQuerySqliteFixture>
     {
         // ReSharper disable once UnusedParameter.Local
-        public QuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        public SimpleQuerySqliteTest(NorthwindQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();

@@ -1,16 +1,84 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsQueryFixtureBase<TTestStore>
+    public abstract class ComplexNavigationsQueryFixtureBase<TTestStore> : IQueryFixtureBase
         where TTestStore : TestStore
     {
+        protected ComplexNavigationsQueryFixtureBase()
+        {
+            var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+            {
+                { typeof(Level1), e => e.Id },
+                { typeof(Level2), e => e.Id },
+                { typeof(Level3), e => e.Id },
+                { typeof(Level4), e => e.Id }
+            };
+
+            var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+            {
+                {
+                    typeof(Level1),
+                    (e, a) =>
+                    {
+                        Assert.Equal(e.Id, a.Id);
+                        Assert.Equal(e.Name, a.Name);
+                        Assert.Equal(e.Date, a.Date);
+                    }
+                },
+                {
+                    typeof(Level2),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.Date, a.Date);
+                            Assert.Equal(e.Level1_Optional_Id, a.Level1_Optional_Id);
+                            Assert.Equal(e.Level1_Required_Id, a.Level1_Required_Id);
+                        }
+                },
+                {
+                    typeof(Level3),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.Level2_Optional_Id, a.Level2_Optional_Id);
+                            Assert.Equal(e.Level2_Required_Id, a.Level2_Required_Id);
+                        }
+                },
+                {
+                    typeof(Level4),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.Level3_Optional_Id, a.Level3_Optional_Id);
+                            Assert.Equal(e.Level3_Required_Id, a.Level3_Required_Id);
+                        }
+                }
+            };
+
+            QueryAsserter = new QueryAsserter<ComplexNavigationsContext>(
+                () => CreateContext(CreateTestStore()),
+                new ComplexNavigationsDefaultData(),
+                entitySorters,
+                entityAsserters);
+        }
+
         public abstract TTestStore CreateTestStore();
 
         public abstract ComplexNavigationsContext CreateContext(TTestStore testStore);
+
+        public QueryAsserterBase QueryAsserter { get; set; }
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -64,6 +132,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<ComplexNavigationString>().HasMany(m => m.Globalizations);
 
             modelBuilder.Entity<ComplexNavigationGlobalization>().HasOne(g => g.Language);
+        }
+
+        private class ComplexNavigationsDefaultData : ComplexNavigationsData
+        {
+            public override IQueryable<TEntity> Set<TEntity>()
+            {
+                if (typeof(TEntity) == typeof(Level1))
+                {
+                    return (IQueryable<TEntity>)LevelOnes.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(Level2))
+                {
+                    return (IQueryable<TEntity>)LevelTwos.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(Level3))
+                {
+                    return (IQueryable<TEntity>)LevelThrees.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(Level4))
+                {
+                    return (IQueryable<TEntity>)LevelFours.AsQueryable();
+                }
+
+                throw new NotImplementedException();
+            }
         }
     }
 }

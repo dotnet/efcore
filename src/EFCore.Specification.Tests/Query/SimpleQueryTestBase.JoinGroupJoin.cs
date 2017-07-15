@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract partial class QueryTestBase<TFixture>
+    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
@@ -195,14 +195,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new[] { 1, 2 };
 
-            AssertQuery<Employee>(es =>
+            AssertQueryScalar<Employee>(es =>
                 from e in es
                 join id in ids on e.EmployeeID equals id
                 select e.EmployeeID);
 
             ids = new[] { 3 };
 
-            AssertQuery<Employee>(es =>
+            AssertQueryScalar<Employee>(es =>
                 from e in es
                 join id in ids on e.EmployeeID equals id
                 select e.EmployeeID);
@@ -213,14 +213,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = "12";
 
-            AssertQuery<Employee>(es =>
+            AssertQueryScalar<Employee>(es =>
                 from e in es
                 join id in ids on e.EmployeeID equals id
                 select e.EmployeeID);
 
             ids = "3";
 
-            AssertQuery<Employee>(es =>
+            AssertQueryScalar<Employee>(es =>
                 from e in es
                 join id in ids on e.EmployeeID equals id
                 select e.EmployeeID);
@@ -231,14 +231,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new byte[] { 1, 2 };
 
-            AssertQuery<Employee>(es =>
+            AssertQueryScalar<Employee>(es =>
                 from e in es
                 join id in ids on e.EmployeeID equals id
                 select e.EmployeeID);
 
             ids = new byte[] { 3 };
 
-            AssertQuery<Employee>(es =>
+            AssertQueryScalar<Employee>(es =>
                 from e in es
                 join id in ids on e.EmployeeID equals id
                 select e.EmployeeID);
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_order_by_key_descending1()
         {
-            AssertQuery<Customer, Order>(
+            AssertQueryScalar<Customer, Order>(
                 (cs, os) => 
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into grouping
@@ -775,7 +775,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_order_by_key_descending2()
         {
-            AssertQuery<Customer, Order>(
+            AssertQueryScalar<Customer, Order>(
                 (cs, os) => 
                     from c in cs
                     orderby c.CustomerID descending

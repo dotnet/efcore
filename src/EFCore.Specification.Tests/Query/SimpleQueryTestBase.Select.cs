@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract partial class QueryTestBase<TFixture>
+    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_constant_int()
         {
-            AssertQuery<Customer>(cs => cs.Select(c => 0));
+            AssertQueryScalar<Customer>(cs => cs.Select(c => 0));
         }
 
         [ConditionalFact]
@@ -212,20 +212,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             // ReSharper disable once ConvertToConstant.Local
             var x = 10;
 
-            AssertQuery<Customer>(cs => cs.Select(c => x));
+            AssertQueryScalar<Customer>(cs => cs.Select(c => x));
         }
 
         [ConditionalFact]
         public virtual void Select_scalar_primitive()
         {
-            AssertQuery<Employee>(
+            AssertQueryScalar<Employee>(
                 es => es.Select(e => e.EmployeeID));
         }
 
         [ConditionalFact]
         public virtual void Select_scalar_primitive_after_take()
         {
-            AssertQuery<Employee>(
+            AssertQueryScalar<Employee>(
                 es => es.Take(9).Select(e => e.EmployeeID));
         }
 
@@ -439,29 +439,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nested_collection_count_using_DTO()
-        {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Customer>()
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-                    .ToList().OrderBy(e => e.Id).ToList();
-
-                var expected = NorthwindData.Set<Customer>()
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-                    .ToList().OrderBy(e => e.Id).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i], actual[i]);
-                }
-            }
-        }
-
-        [ConditionalFact]
         public virtual void Select_nested_collection_deep()
         {
             AssertQuery<Customer, Order>(
@@ -500,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_int_to_long_introduces_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -511,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_nullable_int_to_long_introduces_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -522,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -533,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_int_to_nullable_int_doesnt_introduce_explicit_cast()
         {
-            AssertQueryNullableScalar<Order, int>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -544,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_binary_expression_introduces_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -555,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_binary_expression_nested_introduces_top_level_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -566,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast1()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -577,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_unary_expression_introduces_explicit_cast2()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -589,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_length_introduces_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
@@ -600,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_method_call_introduces_explicit_cast()
         {
-            AssertQuery<Order>(
+            AssertQueryScalar<Order>(
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)

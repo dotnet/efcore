@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
-using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 #pragma warning disable xUnit1013 // Public method should be marked as test
@@ -373,26 +371,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Include_collection_with_multiple_orderbys_complex_repeated()
         {
         }
-
-        protected override IQueryable<Level1> GetExpectedLevelOne()
-            => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
-
-        protected override IQueryable<Level2> GetExpectedLevelTwo()
-            => GetExpectedLevelOne().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
-
-        protected override IQueryable<Level3> GetExpectedLevelThree()
-            => GetExpectedLevelTwo().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
-
-        protected override IQueryable<Level4> GetExpectedLevelFour()
-            => GetExpectedLevelThree().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
-
-        protected override IQueryable<Level2> GetLevelTwo(ComplexNavigationsContext context)
-            => GetLevelOne(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
-
-        protected override IQueryable<Level3> GetLevelThree(ComplexNavigationsContext context)
-            => GetLevelTwo(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
-
-        protected override IQueryable<Level4> GetLevelFour(ComplexNavigationsContext context)
-            => GetLevelThree(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
     }
 }

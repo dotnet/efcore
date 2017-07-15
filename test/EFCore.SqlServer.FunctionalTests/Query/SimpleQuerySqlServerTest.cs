@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public partial class QuerySqlServerTest : QueryTestBase<NorthwindQuerySqlServerFixture>
+    public partial class SimpleQuerySqlServerTest : SimpleQueryTestBase<NorthwindQuerySqlServerFixture>
     {
-        public QuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public SimpleQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -2181,6 +2181,20 @@ WHERE [o].[OrderID] < 10300");
                 @"SELECT DISTINCT [o].[CustomerID] AS [Id], [o].[OrderID] AS [Count]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] < 10300");
+        }
+
+        public override void Select_nested_collection_count_using_DTO()
+        {
+            base.Select_nested_collection_count_using_DTO();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID] AS [Id], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [Count]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
 
         public override void Select_DTO_with_member_init_distinct_in_subquery_translated_to_server()

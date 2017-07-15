@@ -17,26 +17,19 @@ using Xunit;
 // ReSharper disable ConvertToExpressionBodyWhenPossible
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
+    public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : QueryTestBase<TFixture>, IDisposable
         where TTestStore : TestStore
         where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()
     {
         protected ComplexNavigationsContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected ComplexNavigationsQueryTestBase(TFixture fixture)
+            : base(fixture)
         {
-            Fixture = fixture;
-
             TestStore = Fixture.CreateTestStore();
-
-            ResultAsserter = new ComplexNavigationsQueryResultAsserter();
         }
 
-        protected TFixture Fixture { get; }
-
         protected TTestStore TestStore { get; }
-
-        protected QueryResultAsserter ResultAsserter { get; }
 
         public void Dispose() => TestStore.Dispose();
 
@@ -329,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Navigation_key_access_optional_comparison()
         {
-            AssertQueryScalar<Level2, int>(
+            AssertQueryScalar<Level2>(
                   l2s =>
                       from e2 in l2s
                       where e2.OneToOne_Optional_PK_Inverse.Id > 5
@@ -370,11 +363,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Navigation_key_access_required_comparison()
         {
-            AssertQueryScalar<Level2, int>(
-                  l2s =>
-                      from e2 in l2s
-                      where e2.OneToOne_Required_PK_Inverse.Id > 5
-                      select e2.Id);
+            AssertQueryScalar<Level2>(
+                l2s =>
+                    from e2 in l2s
+                    where e2.OneToOne_Required_PK_Inverse.Id > 5
+                    select e2.Id);
         }
 
         [ConditionalFact]
@@ -751,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Level1>(
                 l1s => l1s.OrderBy(e => e.Id).Select(e => e.OneToMany_Required.Select(i => i.Id)),
-                verifyOrdered: true,
+                assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
                     var expectedList = ((IEnumerable<int>)e).OrderBy(ee => ee).ToList();
@@ -791,7 +784,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_nav_prop_reference_optional2()
         {
-            AssertQueryNullableScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s => l1s.Select(e => (int?)e.OneToOne_Optional_FK.Id),
                   l1s => l1s.Select(e => MaybeScalar<int>(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Id)));
         }
@@ -799,7 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_nav_prop_reference_optional2_via_DefaultIfEmpty()
         {
-            AssertQueryNullableScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                   (l1s, l2s) =>
                       from l1 in l1s
                       join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -823,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_nav_prop_reference_optional1()
         {
-            AssertQueryScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s => l1s
                       .Where(e => e.OneToOne_Optional_FK.Name == "L2 05" || e.OneToOne_Optional_FK.Name == "L2 07")
                       .Select(e => e.Id),
@@ -836,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                   (l1s, l2s) =>
                       from l1 in l1s
                       join l2Left in l2s on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
@@ -850,7 +843,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_nav_prop_reference_optional2()
         {
-            AssertQueryScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s => l1s
                       .Where(e => e.OneToOne_Optional_FK.Name == "L2 05" || e.OneToOne_Optional_FK.Name != "L2 42")
                       .Select(e => e.Id),
@@ -863,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_nav_prop_reference_optional2_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                   (l1s, l2s) =>
                       from l1 in l1s
                       join l2Left in l2s on l1.Id equals l2Left.Level1_Optional_Id into groupJoinLeft
@@ -877,7 +870,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_multiple_nav_prop_reference_optional()
         {
-            AssertQueryNullableScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s => l1s.Select(e => (int?)e.OneToOne_Optional_FK.OneToOne_Optional_FK.Id),
                   l1s => l1s.Select(e => MaybeScalar(
                       e.OneToOne_Optional_FK,
@@ -1013,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_multiple_nav_prop_reference_required()
         {
-            AssertQueryNullableScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s => l1s.Select(e => (int?)e.OneToOne_Required_FK.OneToOne_Required_FK.Id),
                   l1s => l1s.Select(e => MaybeScalar(
                       e.OneToOne_Required_FK,
@@ -1025,14 +1018,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_multiple_nav_prop_reference_required2()
         {
-            AssertQueryScalar<Level3, int>(
+            AssertQueryScalar<Level3>(
                   l3s => l3s.Select(e => e.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse.Id));
         }
 
         [ConditionalFact]
         public virtual void Select_multiple_nav_prop_optional_required()
         {
-            AssertQueryNullableScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s =>
                       from l1 in l1s
                       select (int?)l1.OneToOne_Optional_FK.OneToOne_Required_FK.Id,
@@ -1137,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse2()
         {
-            AssertQueryScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s =>
                       from l1 in l1s
                       where l1.OneToOne_Optional_FK.OneToOne_Required_FK.Name == "L3 05" || l1.OneToOne_Optional_FK.Name != "L2 05"
@@ -1158,7 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse3()
         {
-            AssertQueryScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s =>
                       from l1 in l1s
                       where l1.OneToOne_Optional_FK.Name != "L2 05" || l1.OneToOne_Required_FK.OneToOne_Optional_FK.Name == "L3 05"
@@ -1179,7 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_complex_predicate_with_with_nav_prop_and_OrElse4()
         {
-            AssertQueryScalar<Level3, int>(
+            AssertQueryScalar<Level3>(
                   l3s =>
                       from l3 in l3s
                       where l3.OneToOne_Optional_FK_Inverse.Name != "L2 05" || l3.OneToOne_Required_FK_Inverse.OneToOne_Optional_FK_Inverse.Name == "L1 05"
@@ -1257,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Level1>().Select(e => new MyOuterDto
+                var actual = Fixture.QueryAsserter.SetExtractor.Set<Level1>(context).Select(e => new MyOuterDto
                 {
                     Id = e.Id,
                     Name = e.Name,
@@ -1268,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     } : null
                 }).ToList().OrderBy(e => e.Id + " " + e.Name + " " + e.Inner).ToList();
 
-                var expected = ExpectedSet<Level1>().Select(e => new MyOuterDto
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Level1>().Select(e => new MyOuterDto
                 {
                     Id = e.Id,
                     Name = e.Name,
@@ -1315,31 +1308,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void OrderBy_nav_prop_reference_optional()
         {
-            AssertQueryScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                   l1s =>
                       l1s.OrderBy(e => e.OneToOne_Optional_FK.Name).ThenBy(e => e.Id).Select(e => e.Id),
                   l1s =>
                       l1s.OrderBy(e => Maybe(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Name)).ThenBy(e => e.Id).Select(e => e.Id),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
         public virtual void OrderBy_nav_prop_reference_optional_via_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                   (l1s, l2s) =>
                       from l1 in l1s
                       join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                       from l2 in groupJoin.DefaultIfEmpty()
                       orderby l2 == null ? null : l2.Name, l1.Id
                       select l1.Id,
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional_Sum()
         {
-            AssertSingleResult<Level1, int?>(
+            AssertSingleResult<Level1>(
                 l1s => l1s.Sum(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id),
                 l1s => l1s.Sum(e => MaybeScalar<int>(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Level1_Required_Id)));
         }
@@ -1347,7 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional_Min()
         {
-            AssertSingleResult<Level1, int?>(
+            AssertSingleResult<Level1>(
                 l1s => l1s.Min(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id),
                 l1s => l1s.Min(e => MaybeScalar<int>(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Level1_Required_Id)));
         }
@@ -1355,7 +1348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional_Max()
         {
-            AssertSingleResult<Level1, int?>(
+            AssertSingleResult<Level1>(
                 l1s => l1s.Max(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id),
                 l1s => l1s.Max(e => MaybeScalar<int>(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Level1_Required_Id)));
         }
@@ -1363,7 +1356,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional_Average()
         {
-            AssertSingleResult<Level1, double?>(
+            AssertSingleResult<Level1>(
                 l1s => l1s.Average(e => (int?)e.OneToOne_Optional_FK.Level1_Required_Id),
                 l1s => l1s.Average(e => MaybeScalar<int>(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Level1_Required_Id)));
         }
@@ -1371,7 +1364,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty()
         {
-            AssertSingleResult<Level1, Level2, int>(
+            AssertSingleResult<Level1, Level2>(
                 (l1s, l2s) =>
                     (from l1 in l1s
                      join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -1443,46 +1436,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Join_flattening_bug_4539()
         {
-            using (var context = CreateContext())
-            {
-                var l1s = GetLevelOne(context);
-                var l2s = GetLevelTwo(context);
-
-                var query = from l1 in l1s
-                            join l1_Optional in l2s on (int?)l1.Id equals l1_Optional.Level1_Optional_Id into grouping
-                            from l1_Optional in grouping.DefaultIfEmpty()
-                            from l2 in l2s
-                            join l2_Required_Reverse in l1s on l2.Level1_Required_Id equals l2_Required_Reverse.Id
-                            select new { l1_Optional, l2_Required_Reverse };
-
-                var result = query.ToList();
-            }
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from l1 in l1s
+                    join l1_Optional in l2s on (int?)l1.Id equals l1_Optional.Level1_Optional_Id into grouping
+                    from l1_Optional in grouping.DefaultIfEmpty()
+                    from l2 in l2s
+                    join l2_Required_Reverse in l1s on l2.Level1_Required_Id equals l2_Required_Reverse.Id
+                    select new { l1_Optional, l2_Required_Reverse },
+                elementSorter: e => e.l1_Optional?.Id + " " + e.l2_Required_Reverse.Id);
         }
 
         [ConditionalFact]
         public virtual void Query_source_materialization_bug_4547()
         {
-            AssertQueryScalar<Level1, Level2, Level3, int>(
-                  (l1s, l2s, l3s) =>
-                      from e3 in l3s
-                      join e1 in l1s
-                      on
-                      (int?)e3.Id
-                      equals
-                      (
-                          from subQuery2 in l2s
-                          join subQuery3 in l3s
-                          on
-                          subQuery2 != null ? (int?)subQuery2.Id : null
-                          equals
-                          subQuery3.Level2_Optional_Id
-                          into
-                          grouping
-                          from subQuery3 in grouping.DefaultIfEmpty()
-                          orderby subQuery3 != null ? (int?)subQuery3.Id : null
-                          select subQuery3 != null ? (int?)subQuery3.Id : null
-                      ).FirstOrDefault()
-                      select e1.Id);
+            AssertQueryScalar<Level1, Level2, Level3>(
+                (l1s, l2s, l3s) =>
+                    from e3 in l3s
+                    join e1 in l1s
+                    on
+                    (int?)e3.Id
+                    equals
+                    (
+                        from subQuery2 in l2s
+                        join subQuery3 in l3s
+                        on
+                        subQuery2 != null ? (int?)subQuery2.Id : null
+                        equals
+                        subQuery3.Level2_Optional_Id
+                        into
+                        grouping
+                        from subQuery3 in grouping.DefaultIfEmpty()
+                        orderby subQuery3 != null ? (int?)subQuery3.Id : null
+                        select subQuery3 != null ? (int?)subQuery3.Id : null
+                    ).FirstOrDefault()
+                    select e1.Id);
         }
 
         [ConditionalFact]
@@ -1861,7 +1849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Level3>(
                   l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                   elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
@@ -1871,7 +1859,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                   l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse")),
                   l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                   elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
@@ -1881,7 +1869,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                   l3s => l3s.OrderBy(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse").Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                   l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse),
                   elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
@@ -1892,7 +1880,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          orderby l3.OneToOne_Required_FK_Inverse.Id
                          select l3.OneToOne_Required_FK_Inverse.OneToOne_Required_FK_Inverse,
                   elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
@@ -1904,7 +1892,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       .OrderBy(l2 => l2.Id)
                       .Take(10)
                       .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
@@ -1916,7 +1904,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       .OrderBy(l3 => l3.OneToOne_Required_FK_Inverse.Id)
                       .Take(10)
                       .Select(l2 => l2.OneToOne_Required_FK_Inverse.Name),
-                  verifyOrdered: true);
+                  assertOrder: true);
         }
 
         [ConditionalFact]
@@ -1933,7 +1921,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(l2 => MaybeScalar<int>(l2, () => l2.Id))
                     .Take(10)
                     .Select(l2 => Maybe(l2, () => Maybe(l2.OneToOne_Optional_FK, () => l2.OneToOne_Optional_FK.Name))),
-                verifyOrdered: true);
+                assertOrder: true);
         }
 
         [ConditionalFact]
@@ -2557,7 +2545,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened()
         {
-            AssertQueryNullableScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -2585,7 +2573,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened2()
         {
-            AssertQueryNullableScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -2613,7 +2601,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_with_joins_does_not_get_flattened3()
         {
-            AssertQueryNullableScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -2643,7 +2631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -2661,7 +2649,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping2()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1_outer in l1s
                     join subquery in
@@ -2845,14 +2833,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_reference_to_group_in_OrderBy()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
                     orderby groupJoin.Count()
                     select l1.Id,
-                verifyOrdered: true);
+                assertOrder: true);
         }
 
         [ConditionalFact]
@@ -2871,14 +2859,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_client_method_in_OrderBy()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
                     orderby ClientMethodNullableInt(l1.Id), ClientMethodNullableInt(l2 != null ? l2.Id : (int?)null)
                     select l1.Id,
-                verifyOrdered: true);
+                assertOrder: true);
         }
 
         private static int ClientMethodNullableInt(int? id)
@@ -2889,7 +2877,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_without_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -2900,7 +2888,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_subquery_on_inner()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -2911,7 +2899,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
@@ -2922,7 +2910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Optional_navigation_in_subquery_with_unrelated_projection()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     l1s.Where(l1 => l1.OneToOne_Optional_FK.Name != "Foo")
                        .Take(15)
@@ -2936,7 +2924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -2949,7 +2937,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection2()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -2962,7 +2950,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection3()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -2975,7 +2963,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Explicit_GroupJoin_in_subquery_with_unrelated_projection4()
         {
-            AssertQueryScalar<Level1, Level2, int>(
+            AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
@@ -3116,35 +3104,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                         l2oGrouping?.OrderBy(o => o.Id).Select(o => o.Id),
                         efGrouping?.OrderBy(o => o.Id).Select(o => o.Id));
                 },
-                verifyOrdered: true);
+                assertOrder: true);
         }
 
         [ConditionalFact]
         public virtual void Nested_group_join_with_take()
         {
             AssertQuery<Level1, Level2>(
-                (l1s, l2s) => from l1_outer in
-                              (from l1_inner in l1s
-                               join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
-                               from l2_inner in grouping_inner.DefaultIfEmpty()
-                               select l2_inner).Take(2)
-                              join l2_outer in l2s on l1_outer.Id equals l2_outer.Level1_Optional_Id into grouping_outer
-                              from l2_outer in grouping_outer.DefaultIfEmpty()
-                              select l2_outer.Name,
-                (l1s, l2s) => from l1_outer in
-                              (from l1_inner in l1s
-                               join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
-                               from l2_inner in grouping_inner.DefaultIfEmpty()
-                               select l2_inner).Take(2)
-                              join l2_outer in l2s on MaybeScalar<int>(l1_outer, () => l1_outer.Id) equals l2_outer.Level1_Optional_Id into grouping_outer
-                              from l2_outer in grouping_outer.DefaultIfEmpty()
-                              select Maybe(l2_outer, () => l2_outer.Name));
+                (l1s, l2s) => 
+                    from l1_outer in
+                        (from l1_inner in l1s
+                         join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                         from l2_inner in grouping_inner.DefaultIfEmpty()
+                         select l2_inner).Take(2)
+                    join l2_outer in l2s on l1_outer.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select l2_outer.Name,
+                (l1s, l2s) => 
+                    from l1_outer in
+                        (from l1_inner in l1s
+                         join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
+                         from l2_inner in grouping_inner.DefaultIfEmpty()
+                         select l2_inner).Take(2)
+                    join l2_outer in l2s on MaybeScalar<int>(l1_outer, () => l1_outer.Id) equals l2_outer.Level1_Optional_Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select Maybe(l2_outer, () => l2_outer.Name));
         }
 
         [ConditionalFact]
         public virtual void Navigation_with_same_navigation_compared_to_null()
         {
-            AssertQueryScalar<Level2, int>(
+            AssertQueryScalar<Level2>(
                 l2s => from l2 in l2s
                        where l2.OneToMany_Required_Inverse.Name != "L1 07" && l2.OneToMany_Required_Inverse != null
                        select l2.Id);
@@ -3153,7 +3143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Multi_level_navigation_compared_to_null()
         {
-            AssertQueryScalar<Level3, int>(
+            AssertQueryScalar<Level3>(
                 l3s => from l3 in l3s
                        where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse != null
                        select l3.Id,
@@ -3165,7 +3155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Multi_level_navigation_with_same_navigation_compared_to_null()
         {
-            AssertQueryScalar<Level3, int>(
+            AssertQueryScalar<Level3>(
                 l3s => from l3 in l3s
                        where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse.Name != "L1 07"
                        where l3.OneToMany_Optional_Inverse.OneToOne_Required_FK_Inverse != null
@@ -3261,7 +3251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Comparing_collection_navigation_on_optional_reference_to_null()
         {
-            AssertQueryScalar<Level1, int>(
+            AssertQueryScalar<Level1>(
                 l1s => l1s.Where(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional == null).Select(l1 => l1.Id),
                 l1s => l1s.Where(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.OneToMany_Optional) == null).Select(l1 => l1.Id));
         }
@@ -3276,7 +3266,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_subquery_with_client_eval_and_navigation2()
         {
-            AssertQueryScalar<Level2, bool>(
+            AssertQueryScalar<Level2>(
                 l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse.Name == "L1 02"));
         }
 
@@ -3601,7 +3591,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-                var entity = Set<Level2>(context).First();
+                var entity = Fixture.QueryAsserter.SetExtractor.Set<Level2>(context).First();
                 var entry = context.ChangeTracker.Entries().Single();
                 Assert.Same(entity, entry.Entity);
 
@@ -3629,629 +3619,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return expression();
-        }
-
-        protected IQueryable<T> ExpectedSet<T>()
-        {
-            if (typeof(T) == typeof(Level1))
-            {
-                return (IQueryable<T>)GetExpectedLevelOne();
-            }
-
-            if (typeof(T) == typeof(Level2))
-            {
-                return (IQueryable<T>)GetExpectedLevelTwo();
-            }
-
-            if (typeof(T) == typeof(Level3))
-            {
-                return (IQueryable<T>)GetExpectedLevelThree();
-            }
-
-            if (typeof(T) == typeof(Level4))
-            {
-                return (IQueryable<T>)GetExpectedLevelFour();
-            }
-
-            throw new NotImplementedException();
-        }
-
-        protected virtual IQueryable<Level1> GetExpectedLevelOne()
-        {
-            return ComplexNavigationsData.LevelOnes.AsQueryable();
-        }
-
-        protected virtual IQueryable<Level2> GetExpectedLevelTwo()
-        {
-            return ComplexNavigationsData.LevelTwos.AsQueryable();
-        }
-
-        protected virtual IQueryable<Level3> GetExpectedLevelThree()
-        {
-            return ComplexNavigationsData.LevelThrees.AsQueryable();
-        }
-
-        protected virtual IQueryable<Level4> GetExpectedLevelFour()
-        {
-            return ComplexNavigationsData.LevelFours.AsQueryable();
-        }
-
-        protected IQueryable<T> Set<T>(ComplexNavigationsContext context)
-        {
-            if (typeof(T) == typeof(Level1))
-            {
-                return (IQueryable<T>)GetLevelOne(context);
-            }
-
-            if (typeof(T) == typeof(Level2))
-            {
-                return (IQueryable<T>)GetLevelTwo(context);
-            }
-
-            if (typeof(T) == typeof(Level3))
-            {
-                return (IQueryable<T>)GetLevelThree(context);
-            }
-
-            if (typeof(T) == typeof(Level4))
-            {
-                return (IQueryable<T>)GetLevelFour(context);
-            }
-
-            throw new NotImplementedException();
-        }
-
-        protected virtual IQueryable<Level1> GetLevelOne(ComplexNavigationsContext context)
-        {
-            return context.LevelOne;
-        }
-
-        protected virtual IQueryable<Level2> GetLevelTwo(ComplexNavigationsContext context)
-        {
-            return context.LevelTwo;
-        }
-
-        protected virtual IQueryable<Level3> GetLevelThree(ComplexNavigationsContext context)
-        {
-            return context.LevelThree;
-        }
-
-        protected virtual IQueryable<Level4> GetLevelFour(ComplexNavigationsContext context)
-        {
-            return context.LevelFour;
-        }
-
-        #region AssertSingleResult
-
-        private void AssertSingleResult<TItem1, TResult>(
-            Func<IQueryable<TItem1>, TResult> query)
-            where TItem1 : class
-            => AssertSingleResult(query, query);
-
-        private void AssertSingleResult<TItem1, TResult>(
-            Func<IQueryable<TItem1>, TResult> efQuery,
-            Func<IQueryable<TItem1>, TResult> l2oQuery)
-            where TItem1 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = l2oQuery(ExpectedSet<TItem1>());
-                var expected = efQuery(Set<TItem1>(context));
-
-                Assert.Equal(expected, actual);
-            }
-        }
-
-        private void AssertSingleResult<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> query)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertSingleResult(query, query);
-
-        private void AssertSingleResult<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> l2oQuery)
-            where TItem1 : class
-            where TItem2 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>());
-                var expected = efQuery(Set<TItem1>(context), Set<TItem2>(context));
-
-                Assert.Equal(expected, actual);
-            }
-        }
-
-        #endregion
-
-        #region AssertQuery
-
-        private void AssertQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            => AssertQuery(query, query, elementSorter, elementAsserter, verifyOrdered);
-
-        private void AssertQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> l2oQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool verifyOrdered = false)
-            where TItem1 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    elementSorter ?? (e => e),
-                    elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
-                    verifyOrdered);
-            }
-        }
-
-        private void AssertQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertQuery(query, query, elementSorter, elementAsserter, verifyOrdered);
-
-        private void AssertQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    elementSorter ?? (e => e),
-                    elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
-                    verifyOrdered);
-            }
-        }
-
-        private void AssertQuery<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            => AssertQuery(query, query, elementSorter, elementAsserter, verifyOrdered);
-
-        private void AssertQuery<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> l2oQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context), Set<TItem3>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>(), ExpectedSet<TItem3>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    elementSorter ?? (e => e),
-                    elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
-                    verifyOrdered);
-            }
-        }
-
-        #endregion
-
-        #region AssertIncludeQuery
-
-        private void AssertIncludeQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
-            where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjection);
-
-        private void AssertIncludeQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> l2oQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
-            where TItem1 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context)).ToList();
-                var expected = l2oQuery(ExpectedSet<TItem1>()).ToList();
-
-                if (elementSorter != null)
-                {
-                    actual = actual.OrderBy(elementSorter).ToList();
-                    expected = expected.OrderBy(elementSorter).ToList();
-                }
-
-                if (clientProjection != null)
-                {
-                    actual = actual.Select(clientProjection).ToList();
-                    expected = expected.Select(clientProjection).ToList();
-                }
-
-                ResultAsserter.AssertResult(expected, actual, expectedIncludes);
-            }
-        }
-
-        private void AssertIncludeQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjection);
-
-        private void AssertIncludeQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
-            where TItem1 : class
-            where TItem2 : class
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToList();
-                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToList();
-
-                if (elementSorter != null)
-                {
-                    actual = actual.OrderBy(elementSorter).ToList();
-                    expected = expected.OrderBy(elementSorter).ToList();
-                }
-
-                if (clientProjection != null)
-                {
-                    actual = actual.Select(clientProjection).ToList();
-                    expected = expected.Select(clientProjection).ToList();
-                }
-
-                ResultAsserter.AssertResult(expected, actual, expectedIncludes);
-            }
-        }
-
-        #endregion
-
-        #region AssertQueryScalar
-
-        private void AssertQueryScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult>> query,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TResult : struct
-            => AssertQueryScalar(query, query, verifyOrdered);
-
-        private void AssertQueryScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TResult>> l2oQuery,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TResult : struct
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    verifyOrdered);
-            }
-        }
-
-        private void AssertQueryScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> query,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TResult : struct
-            => AssertQueryScalar(query, query, verifyOrdered);
-
-        private void AssertQueryScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> l2oQuery,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TResult : struct
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    verifyOrdered);
-            }
-        }
-
-        private void AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> query,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            where TResult : struct
-        {
-            using (var context = CreateContext())
-            {
-                var actual = query(Set<TItem1>(context), Set<TItem2>(context), Set<TItem3>(context)).ToArray();
-                var expected = query(ExpectedSet<TItem1>(), ExpectedSet<TItem2>(), ExpectedSet<TItem3>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    verifyOrdered);
-            }
-        }
-
-        private void AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> l2oQuery,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            where TResult : struct
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context), Set<TItem3>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>(), ExpectedSet<TItem3>()).ToArray();
-                TestHelpers.AssertResults(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    verifyOrdered);
-            }
-        }
-
-        #endregion
-
-        #region AssertQueryNullableScalar
-
-        private void AssertQueryNullableScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> query,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TResult : struct
-            => AssertQueryNullableScalar(query, query, verifyOrdered);
-
-        private void AssertQueryNullableScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> l2oQuery,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TResult : struct
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>()).ToArray();
-                TestHelpers.AssertResultsNullable(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    verifyOrdered);
-            }
-        }
-
-        private void AssertQueryNullableScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> query,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TResult : struct
-            => AssertQueryNullableScalar(query, query, verifyOrdered);
-
-        private void AssertQueryNullableScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> efQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> l2oQuery,
-            bool verifyOrdered = false)
-            where TItem1 : class
-            where TItem2 : class
-            where TResult : struct
-        {
-            using (var context = CreateContext())
-            {
-                var actual = efQuery(Set<TItem1>(context), Set<TItem2>(context)).ToArray();
-                var expected = l2oQuery(ExpectedSet<TItem1>(), ExpectedSet<TItem2>()).ToArray();
-                TestHelpers.AssertResultsNullable(
-                    expected,
-                    actual,
-                    e => e,
-                    Assert.Equal,
-                    verifyOrdered);
-            }
-        }
-
-        #endregion
-
-        private class ComplexNavigationsQueryResultAsserter : QueryResultAsserter
-        {
-            protected override void AssertCollection<TElement>(IEnumerable<TElement> expected, IEnumerable<TElement> actual, IEnumerable<IExpectedInclude> expectedIncludes)
-            {
-                if (expected != null && actual != null)
-                {
-                    if ((object)expected is IEnumerable<Level1> expectedLevel1 && (object)actual is IEnumerable<Level1> actualLevel1)
-                    {
-                        var expectedListLevel1 = _path.Any() ? expectedLevel1.OrderBy(l1 => l1.Id).ToList() : expectedLevel1.ToList();
-                        var actualListLevel1 = _path.Any() ? actualLevel1.OrderBy(l1 => l1.Id).ToList() : actualLevel1.ToList();
-
-                        for (int i = 0; i < expectedListLevel1.Count; i++)
-                        {
-                            _fullPath.Push("[" + i + "]");
-                            AssertLevel1(expectedListLevel1[i], actualListLevel1[i], expectedIncludes);
-                            _fullPath.Pop();
-                        }
-
-                        return;
-                    }
-
-                    if ((object)expected is IEnumerable<Level2> expectedLevel2 && (object)actual is IEnumerable<Level2> actualLevel2)
-                    {
-                        var expectedListLevel2 = _path.Any() ? expectedLevel2.OrderBy(l2 => l2.Id).ToList() : expectedLevel2.ToList();
-                        var actualListLevel2 = _path.Any() ? actualLevel2.OrderBy(l2 => l2.Id).ToList() : actualLevel2.ToList();
-
-                        for (int i = 0; i < expectedListLevel2.Count; i++)
-                        {
-                            _fullPath.Push("[" + i + "]");
-                            AssertLevel2(expectedListLevel2[i], actualListLevel2[i], expectedIncludes);
-                            _fullPath.Pop();
-                        }
-
-                        return;
-                    }
-
-                    if ((object)expected is IEnumerable<Level3> expectedLevel3 && (object)actual is IEnumerable<Level3> actualLevel3)
-                    {
-                        var expectedListLevel3 = _path.Any() ? expectedLevel3.OrderBy(l3 => l3.Id).ToList() : expectedLevel3.ToList();
-                        var actualListLevel3 = _path.Any() ? actualLevel3.OrderBy(l3 => l3.Id).ToList() : actualLevel3.ToList();
-
-                        for (int i = 0; i < expectedListLevel3.Count; i++)
-                        {
-                            _fullPath.Push("[" + i + "]");
-                            AssertLevel3(expectedListLevel3[i], actualListLevel3[i], expectedIncludes);
-                            _fullPath.Pop();
-                        }
-
-                        return;
-                    }
-
-                    if ((object)expected is IEnumerable<Level4> expectedLevel4 && (object)actual is IEnumerable<Level4> actualLevel4)
-                    {
-                        List<Level4> expectedListLevel4 = _path.Any() ? expectedLevel4.OrderBy(l4 => l4.Id).ToList() : expectedLevel4.ToList();
-                        List<Level4> actualListLevel4 = _path.Any() ? actualLevel4.OrderBy(l4 => l4.Id).ToList() : actualLevel4.ToList();
-
-                        for (int i = 0; i < expectedListLevel4.Count; i++)
-                        {
-                            _fullPath.Push("[" + i + "]");
-                            AssertLevel4(expectedListLevel4[i], actualListLevel4[i], expectedIncludes);
-                            _fullPath.Pop();
-                        }
-
-                        return;
-                    }
-                }
-
-                base.AssertCollection(expected, actual, expectedIncludes);
-            }
-
-            protected override void AssertElement<TElement>(TElement expected, TElement actual, IEnumerable<IExpectedInclude> expectedIncludes)
-            {
-                if (expected != null && actual != null)
-                {
-                    Assert.Equal(expected.GetType(), actual.GetType());
-
-                    if ((object)expected is Level1 expectedLevel1)
-                    {
-                        AssertLevel1(expectedLevel1, (Level1)(object)actual, expectedIncludes);
-
-                        return;
-                    }
-
-                    if ((object)expected is Level2 expectedLevel2)
-                    {
-                        AssertLevel2(expectedLevel2, (Level2)(object)actual, expectedIncludes);
-
-                        return;
-                    }
-
-                    if ((object)expected is Level3 expectedLevel3)
-                    {
-                        AssertLevel3(expectedLevel3, (Level3)(object)actual, expectedIncludes);
-
-                        return;
-                    }
-
-                    if ((object)expected is Level4 expectedLevel4)
-                    {
-                        AssertLevel4(expectedLevel4, (Level4)(object)actual, expectedIncludes);
-
-                        return;
-                    }
-                }
-
-                base.AssertElement(expected, actual, expectedIncludes);
-            }
-
-            private void AssertLevel1(Level1 expected, Level1 actual, IEnumerable<IExpectedInclude> expectedIncludes)
-            {
-                Assert.Equal(expected.Id, actual.Id);
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Date, actual.Date);
-
-                ProcessIncludes(expected, actual, expectedIncludes);
-            }
-
-            private void AssertLevel2(Level2 expected, Level2 actual, IEnumerable<IExpectedInclude> expectedIncludes)
-            {
-                Assert.Equal(expected.Id, actual.Id);
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Date, actual.Date);
-                Assert.Equal(expected.Level1_Optional_Id, actual.Level1_Optional_Id);
-                Assert.Equal(expected.Level1_Required_Id, actual.Level1_Required_Id);
-
-                ProcessIncludes(expected, actual, expectedIncludes);
-            }
-
-            private void AssertLevel3(Level3 expected, Level3 actual, IEnumerable<IExpectedInclude> expectedIncludes)
-            {
-                Assert.Equal(expected.Id, actual.Id);
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Level2_Optional_Id, actual.Level2_Optional_Id);
-                Assert.Equal(expected.Level2_Required_Id, actual.Level2_Required_Id);
-
-                ProcessIncludes(expected, actual, expectedIncludes);
-            }
-
-            private void AssertLevel4(Level4 expected, Level4 actual, IEnumerable<IExpectedInclude> expectedIncludes)
-            {
-                Assert.Equal(expected.Id, actual.Id);
-                Assert.Equal(expected.Name, actual.Name);
-                Assert.Equal(expected.Level3_Optional_Id, actual.Level3_Optional_Id);
-                Assert.Equal(expected.Level3_Required_Id, actual.Level3_Required_Id);
-
-                ProcessIncludes(expected, actual, expectedIncludes);
-            }
         }
     }
 }

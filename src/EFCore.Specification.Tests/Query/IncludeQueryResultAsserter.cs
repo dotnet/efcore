@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,21 +9,25 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public abstract class QueryResultAsserter
+    public class IncludeQueryResultAsserter
     {
         private readonly MethodInfo _assertElementMethodInfo;
         private readonly MethodInfo _assertCollectionMethodInfo;
+        private readonly Dictionary<Type, Func<dynamic, object>> _entitySorters;
+        private readonly Dictionary<Type, Action<dynamic, dynamic>> _entityAsserters;
 
         protected List<string> _path;
         protected Stack<string> _fullPath;
 
-        protected QueryResultAsserter()
+        public IncludeQueryResultAsserter(
+            Dictionary<Type, Func<dynamic, object>> entitySorters,
+            Dictionary<Type, Action<dynamic, dynamic>> entityAsserters)
         {
-            _assertElementMethodInfo = GetType().GetTypeInfo().GetDeclaredMethod(nameof(AssertElement))
-                                       ?? typeof(QueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertElement));
+            _entitySorters = entitySorters ?? new Dictionary<Type, Func<dynamic, object>>();
+            _entityAsserters = entityAsserters ?? new Dictionary<Type, Action<dynamic, dynamic>>();
 
-            _assertCollectionMethodInfo = GetType().GetTypeInfo().GetDeclaredMethod(nameof(AssertCollection))
-                                          ?? typeof(QueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertCollection));
+            _assertElementMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertElement));
+            _assertCollectionMethodInfo = typeof(IncludeQueryResultAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertCollection));
         }
 
         public virtual void AssertResult(object expected, object actual, IEnumerable<IExpectedInclude> expectedIncludes)
@@ -71,6 +76,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             Assert.Equal(expectedType, actual.GetType());
 
+            if (_entityAsserters.TryGetValue(expectedType, out var asserter))
+            {
+                asserter(expected, actual);
+                ProcessIncludes(expected, actual, expectedIncludes);
+
+                return;
+            }
+
             var expectedTypeInfo = expectedType.GetTypeInfo();
             if (expectedTypeInfo.IsGenericType && expectedTypeInfo.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
             {
@@ -103,6 +116,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var expectedList = expected.ToList();
             var actualList = actual.ToList();
+
+            if (_entitySorters.TryGetValue(typeof(TElement), out var sorter))
+            {
+                expectedList = ((IEnumerable<object>)expectedList).OrderBy(sorter).Cast<TElement>().ToList();
+                actualList = ((IEnumerable<object>)actualList).OrderBy(sorter).Cast<TElement>().ToList();
+            }
+
             Assert.Equal(expectedList.Count, actualList.Count);
 
             for (int i = 0; i < expectedList.Count; i++)

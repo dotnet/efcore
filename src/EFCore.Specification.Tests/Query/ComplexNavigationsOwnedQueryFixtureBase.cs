@@ -1,14 +1,24 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsOwnedQueryFixtureBase<TTestStore> : ComplexNavigationsQueryFixtureBase<TTestStore>
         where TTestStore : TestStore
     {
+        public ComplexNavigationsOwnedQueryFixtureBase()
+        {
+            QueryAsserter.SetExtractor = new ComplexNavigationsOwnedSetExtractor();
+            QueryAsserter.ExpectedData = new ComplexNavigationsOwnedData();
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Level1>().Property(e => e.Id).ValueGeneratedNever();
@@ -150,6 +160,86 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithOne(e => e.OneToOne_Optional_FK)
                 .HasForeignKey<Level4>(e => e.Level3_Optional_Id)
                 .IsRequired(false);
+        }
+
+        private class ComplexNavigationsOwnedSetExtractor : ISetExtractor
+        {
+            public override IQueryable<TEntity> Set<TEntity>(DbContext context)
+            {
+                if (typeof(TEntity) == typeof(Level1))
+                {
+                    return (IQueryable<TEntity>)GetLevelOne(context);
+                }
+
+                if (typeof(TEntity) == typeof(Level2))
+                {
+                    return (IQueryable<TEntity>)GetLevelTwo(context);
+                }
+
+                if (typeof(TEntity) == typeof(Level3))
+                {
+                    return (IQueryable<TEntity>)GetLevelThree(context);
+                }
+
+                if (typeof(TEntity) == typeof(Level4))
+                {
+                    return (IQueryable<TEntity>)GetLevelFour(context);
+                }
+
+                throw new NotImplementedException();
+            }
+
+            private IQueryable<Level1> GetLevelOne(DbContext context)
+                => context.Set<Level1>();
+
+            private IQueryable<Level2> GetLevelTwo(DbContext context)
+                => GetLevelOne(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+
+            private IQueryable<Level3> GetLevelThree(DbContext context)
+                => GetLevelTwo(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+
+            private IQueryable<Level4> GetLevelFour(DbContext context)
+                => GetLevelThree(context).Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+        }
+
+        private class ComplexNavigationsOwnedData : ComplexNavigationsData
+        {
+            public override IQueryable<TEntity> Set<TEntity>()
+            {
+                if (typeof(TEntity) == typeof(Level1))
+                {
+                    return (IQueryable<TEntity>)GetExpectedLevelOne();
+                }
+
+                if (typeof(TEntity) == typeof(Level2))
+                {
+                    return (IQueryable<TEntity>)GetExpectedLevelTwo();
+                }
+
+                if (typeof(TEntity) == typeof(Level3))
+                {
+                    return (IQueryable<TEntity>)GetExpectedLevelThree();
+                }
+
+                if (typeof(TEntity) == typeof(Level4))
+                {
+                    return (IQueryable<TEntity>)GetExpectedLevelFour();
+                }
+
+                throw new NotImplementedException();
+            }
+
+            private IQueryable<Level1> GetExpectedLevelOne()
+                => SplitLevelOnes.AsQueryable();
+
+            private IQueryable<Level2> GetExpectedLevelTwo()
+                => GetExpectedLevelOne().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+
+            private IQueryable<Level3> GetExpectedLevelThree()
+                => GetExpectedLevelTwo().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
+
+            private IQueryable<Level4> GetExpectedLevelFour()
+                => GetExpectedLevelThree().Select(t => t.OneToOne_Required_PK).Where(t => t != null);
         }
     }
 }

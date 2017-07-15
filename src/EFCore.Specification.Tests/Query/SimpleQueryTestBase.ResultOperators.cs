@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract partial class QueryTestBase<TFixture>
+    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]

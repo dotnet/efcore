@@ -3,22 +3,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 {
-    public static class ComplexNavigationsData
+    public abstract class ComplexNavigationsData : IExpectedData
     {
-        public static IReadOnlyList<Level1> LevelOnes { get; }
-        public static IReadOnlyList<Level2> LevelTwos { get; }
-        public static IReadOnlyList<Level3> LevelThrees { get; }
-        public static IReadOnlyList<Level4> LevelFours { get; }
+        public IReadOnlyList<Level1> LevelOnes { get; }
+        public IReadOnlyList<Level2> LevelTwos { get; }
+        public IReadOnlyList<Level3> LevelThrees { get; }
+        public IReadOnlyList<Level4> LevelFours { get; }
 
-        public static IReadOnlyList<Level1> SplitLevelOnes { get; }
-        public static IReadOnlyList<Level2> SplitLevelTwos { get; }
-        public static IReadOnlyList<Level3> SplitLevelThrees { get; }
-        public static IReadOnlyList<Level4> SplitLevelFours { get; }
+        public IReadOnlyList<Level1> SplitLevelOnes { get; }
+        public IReadOnlyList<Level2> SplitLevelTwos { get; }
+        public IReadOnlyList<Level3> SplitLevelThrees { get; }
+        public IReadOnlyList<Level4> SplitLevelFours { get; }
 
-        static ComplexNavigationsData()
+        public abstract IQueryable<TEntity> Set<TEntity>() where TEntity : class;
+
+        public ComplexNavigationsData()
         {
             LevelOnes = CreateLevelOnes(tableSplitting: false);
             LevelTwos = CreateLevelTwos(tableSplitting: false);

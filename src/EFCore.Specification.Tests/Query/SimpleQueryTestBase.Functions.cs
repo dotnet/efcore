@@ -21,7 +21,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     // ReSharper disable once UnusedTypeParameter
-    public abstract partial class QueryTestBase<TFixture>
+    public abstract partial class SimpleQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [ConditionalFact]
