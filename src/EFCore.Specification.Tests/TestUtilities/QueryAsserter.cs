@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -15,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly Func<TContext> _contextCreator;
         private readonly Dictionary<Type, Func<dynamic, object>> _entitySorters;
         private readonly Dictionary<Type, Action<dynamic, dynamic>> _entityAsserters;
-
-        //private IExpectedData _expectedData;
-        //private ISetExtractor _setExtractor;
         private IncludeQueryResultAsserter _includeResultAsserter;
 
         public QueryAsserter(
@@ -35,20 +31,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             SetExtractor = new DefaultSetExtractor();
             _includeResultAsserter = new IncludeQueryResultAsserter(_entitySorters, _entityAsserters);
         }
-
-        //public virtual ISetExtractor SetExtractor => _setExtractor;
-
-        //public virtual IExpectedData ExpectedData => _expectedData;
-
-        //public override void UseSetExtractor(ISetExtractor setExtractor)
-        //{
-        //    _setExtractor = setExtractor;
-        //}
-
-        //public override void UseExpectedData(IExpectedData expectedData)
-        //{
-        //    _expectedData = expectedData;
-        //}
 
         #region AssertSingleResult
 
