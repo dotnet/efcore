@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
             string name,
             IServiceProvider serviceProvider,
             Func<DbContextOptionsBuilder, DbContextOptionsBuilder> addOptions,
-            Func<DbContextOptions, DbContext> createContext, 
+            Func<DbContextOptions, DbContext> createContext,
             Action<DbContext> seed)
             => new SqliteTestStore(name, serviceProvider, addOptions, createContext).CreateShared(seed);
 
@@ -111,9 +111,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Connection.Open();
 
-            var command = Connection.CreateCommand();
-            command.CommandText = "PRAGMA foreign_keys=ON;";
-            command.ExecuteNonQuery();
+            using (var command = Connection.CreateCommand())
+            {
+                command.CommandText = "PRAGMA foreign_keys=ON;";
+                command.ExecuteNonQuery();
+            }
         }
 
         public int ExecuteNonQuery(string sql, params object[] parameters)

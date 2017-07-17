@@ -13,81 +13,99 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_create_simple_parameter()
         {
-            var parameter = new IntTypeMapping("int")
-                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
+            using (var command = CreateTestCommand())
+            {
+                var parameter = new IntTypeMapping("int")
+                    .CreateParameter(command, "Name", 17, nullable: false);
 
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal("Name", parameter.ParameterName);
-            Assert.Equal(17, parameter.Value);
-            Assert.Equal(DefaultParameterType, parameter.DbType);
-            Assert.False(parameter.IsNullable);
+                Assert.Equal(ParameterDirection.Input, parameter.Direction);
+                Assert.Equal("Name", parameter.ParameterName);
+                Assert.Equal(17, parameter.Value);
+                Assert.Equal(DefaultParameterType, parameter.DbType);
+                Assert.False(parameter.IsNullable);
+            }
         }
 
         [Fact]
         public void Can_create_simple_nullable_parameter()
         {
-            var parameter = new IntTypeMapping("int")
-                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
+            using (var command = CreateTestCommand())
+            {
+                var parameter = new IntTypeMapping("int")
+                    .CreateParameter(command, "Name", 17, nullable: true);
 
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal("Name", parameter.ParameterName);
-            Assert.Equal(17, parameter.Value);
-            Assert.Equal(DefaultParameterType, parameter.DbType);
-            Assert.True(parameter.IsNullable);
+                Assert.Equal(ParameterDirection.Input, parameter.Direction);
+                Assert.Equal("Name", parameter.ParameterName);
+                Assert.Equal(17, parameter.Value);
+                Assert.Equal(DefaultParameterType, parameter.DbType);
+                Assert.True(parameter.IsNullable);
+            }
         }
 
         [Fact]
         public void Can_create_simple_parameter_with_DbType()
         {
-            var parameter = new IntTypeMapping("int", DbType.Int32)
-                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
+            using (var command = CreateTestCommand())
+            {
+                var parameter = new IntTypeMapping("int", DbType.Int32)
+                    .CreateParameter(command, "Name", 17, nullable: false);
 
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal("Name", parameter.ParameterName);
-            Assert.Equal(17, parameter.Value);
-            Assert.Equal(DbType.Int32, parameter.DbType);
-            Assert.False(parameter.IsNullable);
+                Assert.Equal(ParameterDirection.Input, parameter.Direction);
+                Assert.Equal("Name", parameter.ParameterName);
+                Assert.Equal(17, parameter.Value);
+                Assert.Equal(DbType.Int32, parameter.DbType);
+                Assert.False(parameter.IsNullable);
+            }
         }
 
         [Fact]
         public void Can_create_simple_nullable_parameter_with_DbType()
         {
-            var parameter = new IntTypeMapping("int", DbType.Int32)
-                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
+            using (var command = CreateTestCommand())
+            {
+                var parameter = new IntTypeMapping("int", DbType.Int32)
+                    .CreateParameter(command, "Name", 17, nullable: true);
 
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal("Name", parameter.ParameterName);
-            Assert.Equal(17, parameter.Value);
-            Assert.Equal(DbType.Int32, parameter.DbType);
-            Assert.True(parameter.IsNullable);
+                Assert.Equal(ParameterDirection.Input, parameter.Direction);
+                Assert.Equal("Name", parameter.ParameterName);
+                Assert.Equal(17, parameter.Value);
+                Assert.Equal(DbType.Int32, parameter.DbType);
+                Assert.True(parameter.IsNullable);
+            }
         }
 
         [Fact]
         public void Can_create_required_string_parameter()
         {
-            var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
-                .CreateParameter(CreateTestCommand(), "Name", "Value", nullable: false);
+            using (var command = CreateTestCommand())
+            {
+                var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
+                    .CreateParameter(command, "Name", "Value", nullable: false);
 
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal("Name", parameter.ParameterName);
-            Assert.Equal("Value", parameter.Value);
-            Assert.Equal(DbType.String, parameter.DbType);
-            Assert.False(parameter.IsNullable);
-            Assert.Equal(23, parameter.Size);
+                Assert.Equal(ParameterDirection.Input, parameter.Direction);
+                Assert.Equal("Name", parameter.ParameterName);
+                Assert.Equal("Value", parameter.Value);
+                Assert.Equal(DbType.String, parameter.DbType);
+                Assert.False(parameter.IsNullable);
+                Assert.Equal(23, parameter.Size);
+            }
         }
 
         [Fact]
         public void Can_create_string_parameter()
         {
-            var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
-                .CreateParameter(CreateTestCommand(), "Name", "Value", nullable: true);
+            using (var command = CreateTestCommand())
+            {
+                var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
+                    .CreateParameter(command, "Name", "Value", nullable: true);
 
-            Assert.Equal(ParameterDirection.Input, parameter.Direction);
-            Assert.Equal("Name", parameter.ParameterName);
-            Assert.Equal("Value", parameter.Value);
-            Assert.Equal(DbType.String, parameter.DbType);
-            Assert.True(parameter.IsNullable);
-            Assert.Equal(23, parameter.Size);
+                Assert.Equal(ParameterDirection.Input, parameter.Direction);
+                Assert.Equal("Name", parameter.ParameterName);
+                Assert.Equal("Value", parameter.Value);
+                Assert.Equal(DbType.String, parameter.DbType);
+                Assert.True(parameter.IsNullable);
+                Assert.Equal(23, parameter.Size);
+            }
         }
 
         [Fact]
