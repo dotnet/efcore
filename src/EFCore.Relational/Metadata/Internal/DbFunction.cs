@@ -20,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class DbFunction : IMutableDbFunction, IMethodCallTranslator
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static DbFunction GetOrAddDbFunction(
             [NotNull] IMutableModel model,
             [NotNull] MethodInfo methodInfo,
@@ -27,6 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => FindDbFunction(model, annotationPrefix, methodInfo)
                ?? new DbFunction(methodInfo, model, annotationPrefix);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static DbFunction FindDbFunction(
             [NotNull] IModel model,
             [NotNull] string annotationPrefix,
@@ -76,6 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             model[BuildAnnotationName(annotationPrefix, methodInfo)] = this;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IEnumerable<IDbFunction> GetDbFunctions([NotNull] IModel model, [NotNull] string annotationPrefix)
         {
             Check.NotNull(model, nameof(model));
@@ -91,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => $@"{annotationPrefix}{methodBase.Name}({string.Join(",", methodBase.GetParameters().Select(p => p.ParameterType.Name))})";
 
         /// <summary>
-        ///     The schema where the function lives in the underlying datastore.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Schema
         {
@@ -99,6 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [param: CanBeNull] set => SetSchema(value, ConfigurationSource.Explicit);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
         {
             _schema = schema;
@@ -109,10 +126,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateSchemaConfigurationSource(ConfigurationSource configurationSource)
             => _schemaConfigurationSource = configurationSource.Max(_schemaConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetSchemaConfigurationSource() => _schemaConfigurationSource;
 
         /// <summary>
-        ///     The name of the function in the underlying datastore.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string FunctionName
         {
@@ -120,6 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [param: NotNull] set => SetFunctionName(value, ConfigurationSource.Explicit);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void SetFunctionName([NotNull] string functionName, ConfigurationSource configurationSource)
         {
             Check.NotNull(functionName, nameof(functionName));
@@ -132,18 +158,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateNameConfigurationSource(ConfigurationSource configurationSource)
             => _nameConfigurationSource = configurationSource.Max(_nameConfigurationSource);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ConfigurationSource? GetNameConfigurationSource() => _nameConfigurationSource;
 
         /// <summary>
-        ///     The method which maps to the function in the underlying datastore
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///     A method for converting a method call into sql.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<IReadOnlyCollection<Expression>, Expression> Translation { get; [param: CanBeNull] set; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         Expression IMethodCallTranslator.Translate(MethodCallExpression methodCallExpression)
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));

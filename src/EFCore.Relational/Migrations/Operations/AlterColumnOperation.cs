@@ -6,12 +6,34 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
+    /// <summary>
+    ///     A <see cref="MigrationOperation" /> to alter an existing column.
+    /// </summary>
     public class AlterColumnOperation : ColumnOperation, IAlterMigrationOperation
     {
+        /// <summary>
+        ///     The name of the column.
+        /// </summary>
         public virtual string Name { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The table which contains the column.
+        /// </summary>
         public virtual string Table { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     An operation representing the column as it was before being altered.
+        /// </summary>
         public virtual ColumnOperation OldColumn { get; [param: NotNull] set; } = new ColumnOperation();
+
+        /// <summary>
+        ///     The <see cref="OldColumn" /> exposed to examine annotations.
+        /// </summary>
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations => OldColumn;
     }
 }

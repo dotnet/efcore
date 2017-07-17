@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalValueGeneratorConvention : ValueGeneratorConvention, IPropertyAnnotationChangedConvention
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Annotation Apply(InternalPropertyBuilder propertyBuilder, string name, Annotation annotation, Annotation oldAnnotation)
         {
             var property = propertyBuilder.Metadata;
@@ -21,6 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return annotation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override ValueGenerated? GetValueGenerated(Property property)
         {
             var valueGenerated = base.GetValueGenerated(property);

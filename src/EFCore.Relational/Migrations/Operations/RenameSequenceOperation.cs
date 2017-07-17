@@ -5,18 +5,28 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
+    /// <summary>
+    ///     A <see cref="MigrationOperation" /> for renaming an existing sequence.
+    /// </summary>
     public class RenameSequenceOperation : MigrationOperation
     {
+        /// <summary>
+        ///     The old name of the sequence.
+        /// </summary>
         public virtual string Name { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The schema that contains the sequence, or <c>null</c> if the default schema should be used.
+        /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The new schema name or null if unchanged.
+        ///     The new sequence name or <c>null</c> if only the schema has changed.
         /// </summary>
         public virtual string NewName { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     The new sequence name or null if unchanged.
+        ///     The new schema name or <c>null</c> if only the name has changed.
         /// </summary>
         public virtual string NewSchema { get; [param: CanBeNull] set; }
     }

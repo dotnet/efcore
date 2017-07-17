@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string DefaultValueSql = Prefix + "DefaultValueSql";
 
         /// <summary>
-        ///     The name for compued value SQL expression annotations.
+        ///     The name for computed value SQL expression annotations.
         /// </summary>
         public const string ComputedColumnSql = Prefix + "ComputedColumnSql";
 
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Name = Prefix + "Name";
 
         /// <summary>
-        ///     The prefix for serialzed sequence annotations.
+        ///     The prefix for serialized sequence annotations.
         /// </summary>
         public const string SequencePrefix = Prefix + "Sequence:";
 

@@ -10,6 +10,10 @@ using JetBrains.Annotations;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     Extension methods for <see cref="IExecutionStrategy" /> that can only be used with a 
+    ///     relational database provider.
+    /// </summary>
     public static class RelationalExecutionStrategyExtensions
     {
         /// <summary>

@@ -3,8 +3,15 @@
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
+    /// <summary>
+    ///     Properties for relational-specific annotations accessed through
+    ///     <see cref="RelationalMetadataExtensions.Relational(IKey)" />.
+    /// </summary>
     public interface IRelationalKeyAnnotations
     {
+        /// <summary>
+        ///     The key constraint name.
+        /// </summary>
         string Name { get; }
     }
 }

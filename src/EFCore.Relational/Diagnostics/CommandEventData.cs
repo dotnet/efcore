@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
         /// </param>
         /// <param name="async">
-        ///     Indicates whether or not the command was executed asyncronously.
+        ///     Indicates whether or not the command was executed asynchronously.
         /// </param>
         /// <param name="logParameterValues">
         ///     Indicates whether or not the application allows logging of parameter values.
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual DbCommandMethod ExecuteMethod { get; }
 
         /// <summary>
-        ///     Indicates whether or not the operation is being executed asyncronously.
+        ///     Indicates whether or not the operation is being executed asynchronously.
         /// </summary>
         public virtual bool IsAsync { get; }
 

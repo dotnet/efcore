@@ -8,6 +8,10 @@ using JetBrains.Annotations;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Storage
 {
+    /// <summary>
+    ///     Extension methods typically used by internal code and database providers to execute
+    ///     commands on the low-level <see cref="IRelationalCommand" /> abstraction.
+    /// </summary>
     public static class RelationalCommandExtensions
     {
         /// <summary>

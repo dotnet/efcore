@@ -3,10 +3,20 @@
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
+    /// <summary>
+    ///     Properties for relational-specific annotations accessed through
+    ///     <see cref="RelationalMetadataExtensions.Relational(IIndex)" />.
+    /// </summary>
     public interface IRelationalIndexAnnotations
     {
+        /// <summary>
+        ///     The index name.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        ///     The index filter expression.
+        /// </summary>
         string Filter { get; }
     }
 }
