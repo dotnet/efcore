@@ -1430,7 +1430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      orderby l1.Id
                      select new { l1, grouping }).Skip(1).Take(5),
                 expectedIncludes,
-                clientProjection: e => new KeyValuePair<Level1, IEnumerable<Level2>>(e.l1, ((IEnumerable<Level2>)e.grouping).ToList()));
+                clientProjections: new List<Func<dynamic, object>> { e => new KeyValuePair<Level1, IEnumerable<Level2>>(e.l1, ((IEnumerable<Level2>)e.grouping).ToList()) });
         }
 
         [ConditionalFact]
@@ -3599,26 +3599,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Empty(context.ChangeTracker.Entries());
             }
-        }
-
-        private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
-        {
-            if (caller == null)
-            {
-                return null;
-            }
-
-            return expression();
-        }
-
-        private static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression) where TResult : struct
-        {
-            if (caller == null)
-            {
-                return null;
-            }
-
-            return expression();
         }
     }
 }

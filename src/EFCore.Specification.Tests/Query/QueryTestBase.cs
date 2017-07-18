@@ -171,6 +171,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
 
+        public virtual void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<bool>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<bool>> expectedQuery,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar<TItem1, bool>(actualQuery, expectedQuery, assertOrder);
+
+        public virtual void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<DateTimeOffset>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(query, query, assertOrder);
+
         public virtual void AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> query,
             bool assertOrder = false)
@@ -200,6 +213,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder);
+
+        public virtual void AssertQueryScalar<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<bool>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+            => AssertQueryScalar<TItem1, TItem2, bool>(query, query, assertOrder);
+
+        public virtual void AssertQueryScalar<TItem1, TItem2>(
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<bool>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<bool>> expectedQuery,
+            bool assertOrder = false)
+            where TItem1 : class
+            where TItem2 : class
+            => AssertQueryScalar<TItem1, TItem2, bool>(actualQuery, expectedQuery, assertOrder);
 
         public virtual void AssertQueryScalar<TItem1, TItem2, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,
@@ -245,6 +273,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder);
 
+        public virtual void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<bool?>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(query, query, assertOrder);
+
+        public virtual void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<bool?>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<bool?>> expectedQuery,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar<TItem1, bool>(actualQuery, expectedQuery, assertOrder);
+
         public virtual void AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
@@ -281,41 +322,46 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertIncludeQuery
 
-        public void AssertIncludeQuery<TItem1>(
+        public void 
+            AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjection);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections);
 
         public void AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjection);
+            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections);
 
         public void AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjection);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections);
 
         public void AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjection);
+            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder);
 
         #endregion
 
@@ -331,16 +377,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Helpers - Asserters
 
-        public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(Func<TElement, object> elementSorter = null)
+        public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
                 Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
-                CollectionAsserter(elementSorter)(e, a);
+                CollectionAsserter(elementSorter, elementAsserter)(e, a);
             };
         }
 
-        public static Action<dynamic, dynamic> CollectionAsserter<TElement>(Func<TElement, object> elementSorter = null)
+        public static Action<dynamic, dynamic> CollectionAsserter<TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
@@ -353,11 +399,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : ((IEnumerable<TElement>)e).ToList();
 
                 Assert.Equal(expected.Count, actual.Count);
+                elementAsserter = elementAsserter ?? Assert.Equal;
+
                 for (var i = 0; i < expected.Count; i++)
                 {
-                    Assert.Equal(expected[i], actual[i]);
+                    elementAsserter(expected[i], actual[i]);
                 }
             };
+        }
+
+        #endregion
+
+        #region Helpers - Maybe
+
+        public static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
+        {
+            if (caller == null)
+            {
+                return null;
+            }
+
+            return expression();
+        }
+
+        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression) where TResult : struct
+        {
+            if (caller == null)
+            {
+                return null;
+            }
+
+            return expression();
         }
 
         #endregion

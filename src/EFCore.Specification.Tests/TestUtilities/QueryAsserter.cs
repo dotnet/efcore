@@ -54,6 +54,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var actual = actualQuery(SetExtractor.Set<TItem1>(context));
                 var expected = expectedQuery(ExpectedData.Set<TItem1>());
 
+                if (asserter == null && expected != null)
+                {
+                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
+                }
+
                 if (asserter != null)
                 {
                     asserter(expected, actual);
@@ -92,6 +97,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>());
+
+                if (asserter == null && expected != null)
+                {
+                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
+                }
 
                 if (asserter != null)
                 {
@@ -134,6 +144,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>(),
                     ExpectedData.Set<TItem3>());
+
+                if (asserter == null && expected != null)
+                {
+                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
+                }
 
                 if (asserter != null)
                 {
@@ -181,11 +196,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                 }
 
+                if (elementAsserter == null && expected.Length > 0 && expected[0] != null)
+                {
+                    _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
+                }
+
                 TestHelpers.AssertResults(
                     expected,
                     actual,
-                    elementSorter ?? (e => e),
-                    elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
+                    elementSorter,
+                    elementAsserter,
                     assertOrder);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
@@ -227,11 +247,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                 }
 
+                if (elementAsserter == null && expected.Length > 0 && expected[0] != null)
+                {
+                    _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
+                }
+
                 TestHelpers.AssertResults(
                     expected,
                     actual,
-                    elementSorter ?? (e => e),
-                    elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
+                    elementSorter,
+                    elementAsserter,
                     assertOrder);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
@@ -275,11 +300,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                 }
 
+                if (elementAsserter == null && expected.Length > 0 && expected[0] != null)
+                {
+                    _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
+                }
+
                 TestHelpers.AssertResults(
                     expected,
                     actual,
-                    elementSorter ?? (e => e),
-                    elementAsserter ?? ((e, a) => Assert.Equal(e, a)),
+                    elementSorter,
+                    elementAsserter,
                     assertOrder);
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
@@ -510,35 +540,52 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjection);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder);
 
         public override void AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> l2oQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
         {
             using (var context = _contextCreator())
             {
                 var actual = efQuery(SetExtractor.Set<TItem1>(context)).ToList();
                 var expected = l2oQuery(ExpectedData.Set<TItem1>()).ToList();
 
-                if (elementSorter != null)
+                if (!assertOrder)
                 {
-                    actual = actual.OrderBy(elementSorter).ToList();
-                    expected = expected.OrderBy(elementSorter).ToList();
+                    if (elementSorter == null && expected[0] != null)
+                    {
+                        _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
+                    }
+
+                    if (elementSorter != null)
+                    {
+                        actual = actual.OrderBy(elementSorter).ToList();
+                        expected = expected.OrderBy(elementSorter).ToList();
+                    }
                 }
 
-                if (clientProjection != null)
+                if (clientProjections != null)
                 {
-                    actual = actual.Select(clientProjection).ToList();
-                    expected = expected.Select(clientProjection).ToList();
-                }
+                    foreach (var clientProjection in clientProjections)
+                    {
+                        var projectedActual = actual.Select(clientProjection).ToList();
+                        var projectedExpected = expected.Select(clientProjection).ToList();
 
-                _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
+                        _includeResultAsserter.AssertResult(projectedExpected, projectedActual, expectedIncludes);
+                    }
+                }
+                else
+                {
+                    _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
+                }
             }
         }
 
@@ -546,17 +593,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjection);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder);
 
         public override void AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
         {
             using (var context = _contextCreator())
             {
@@ -568,19 +617,34 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>()).ToList();
 
-                if (elementSorter != null)
+                if (!assertOrder)
                 {
-                    actual = actual.OrderBy(elementSorter).ToList();
-                    expected = expected.OrderBy(elementSorter).ToList();
+                    if (elementSorter == null && expected[0] != null)
+                    {
+                        _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
+                    }
+
+                    if (elementSorter != null)
+                    {
+                        actual = actual.OrderBy(elementSorter).ToList();
+                        expected = expected.OrderBy(elementSorter).ToList();
+                    }
                 }
 
-                if (clientProjection != null)
+                if (clientProjections != null)
                 {
-                    actual = actual.Select(clientProjection).ToList();
-                    expected = expected.Select(clientProjection).ToList();
-                }
+                    foreach (var clientProjection in clientProjections)
+                    {
+                        var projectedActual = actual.Select(clientProjection).ToList();
+                        var projectedExpected = expected.Select(clientProjection).ToList();
 
-                _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
+                        _includeResultAsserter.AssertResult(projectedExpected, projectedActual, expectedIncludes);
+                    }
+                }
+                else
+                {
+                    _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
+                }
             }
         }
 

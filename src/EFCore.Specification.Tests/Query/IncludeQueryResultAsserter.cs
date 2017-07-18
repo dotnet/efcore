@@ -128,7 +128,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             for (int i = 0; i < expectedList.Count; i++)
             {
                 _fullPath.Push("[" + i + "]");
-                AssertElement(expectedList[i], actualList[i], expectedIncludes);
+
+                var elementType = expectedList[i]?.GetType() ?? typeof(TElement);
+                var assertElementMethodInfo = _assertElementMethodInfo.MakeGenericMethod(elementType);
+                assertElementMethodInfo.Invoke(this, new object[] { expectedList[i], actualList[i], expectedIncludes });
+
                 _fullPath.Pop();
             }
         }

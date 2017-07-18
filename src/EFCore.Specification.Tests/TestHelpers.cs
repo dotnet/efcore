@@ -417,6 +417,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(expected.Count, actual.Count);
 
+            elementSorter = elementSorter ?? (e => e);
             elementAsserter = elementAsserter ?? Assert.Equal;
             if (!verifyOrdered)
             {

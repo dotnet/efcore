@@ -1,16 +1,171 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class GearsOfWarQueryFixtureBase<TTestStore>
+    public abstract class GearsOfWarQueryFixtureBase<TTestStore> : IQueryFixtureBase
         where TTestStore : TestStore
     {
+        protected GearsOfWarQueryFixtureBase()
+        {
+            var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+            {
+                { typeof(City), e => e.Name },
+                { typeof(CogTag), e => e.Id },
+                { typeof(Faction), e => e.Id },
+                { typeof(LocustHorde), e => e.Id },
+                { typeof(Gear), e => e.SquadId + " " + e.Nickname },
+                { typeof(Officer), e => e.SquadId + " " + e.Nickname },
+                { typeof(LocustLeader), e => e.Name },
+                { typeof(LocustCommander), e => e.Name },
+                { typeof(Mission), e => e.Id },
+                { typeof(Squad), e => e.Id },
+                { typeof(SquadMission), e => e.SquadId + " " + e.MissionId },
+                { typeof(Weapon), e => e.Id },
+            };
+
+            var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+            {
+                {
+                    typeof(City),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.Location, a.Location);
+                        }
+                },
+                {
+                    typeof(CogTag),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Note, a.Note);
+                            Assert.Equal(e.GearNickName, a.GearNickName);
+                            Assert.Equal(e.GearSquadId, a.GearSquadId);
+                        }
+                },
+                {
+                    typeof(Faction),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.CapitalName, a.CapitalName);
+                        }
+                },
+                {
+                    typeof(Gear),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Nickname, a.Nickname);
+                            Assert.Equal(e.SquadId, a.SquadId);
+                            Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
+                            Assert.Equal(e.FullName, a.FullName);
+                            Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
+                            Assert.Equal(e.LeaderNickname, a.LeaderNickname);
+                            Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
+                            Assert.Equal(e.Rank, a.Rank);
+                        }
+                },
+                {
+                    typeof(LocustCommander),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+                            Assert.Equal(e.DefeatedByNickname, a.DefeatedByNickname);
+                            Assert.Equal(e.DefeatedBySquadId, a.DefeatedBySquadId);
+                        }
+                },
+                {
+                    typeof(LocustHorde),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.CapitalName, a.CapitalName);
+                            Assert.Equal(e.CommanderName, a.CommanderName);
+                            Assert.Equal(e.Eradicated, a.Eradicated);
+                        }
+                },
+                {
+                    typeof(LocustLeader),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+                        }
+                },
+                {
+                    typeof(Mission),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.CodeName, a.CodeName);
+                            Assert.Equal(e.Timeline, a.Timeline);
+                        }
+                },
+                {
+                    typeof(Officer),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Nickname, a.Nickname);
+                            Assert.Equal(e.SquadId, a.SquadId);
+                            Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
+                            Assert.Equal(e.FullName, a.FullName);
+                            Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
+                            Assert.Equal(e.LeaderNickname, a.LeaderNickname);
+                            Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
+                            Assert.Equal(e.Rank, a.Rank);
+                        }
+                },
+                {
+                    typeof(Squad),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                        }
+                },
+                {
+                    typeof(SquadMission),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.SquadId, a.SquadId);
+                            Assert.Equal(e.MissionId, a.MissionId);
+                        }
+                },
+                {
+                    typeof(Weapon),
+                    (e, a) =>
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.IsAutomatic, a.IsAutomatic);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.OwnerFullName, a.OwnerFullName);
+                            Assert.Equal(e.SynergyWithId, a.SynergyWithId);
+                        }
+                },
+            };
+
+            QueryAsserter = new QueryAsserter<GearsOfWarContext>(
+                () => CreateContext(CreateTestStore()),
+                new GearsOfWarData(),
+                entitySorters,
+                entityAsserters);
+        }
+
         public abstract TTestStore CreateTestStore();
 
         public abstract GearsOfWarContext CreateContext(TTestStore testStore);
+
+        public QueryAsserterBase QueryAsserter { get; set; }
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Squad>(b =>
                 {
                     b.HasKey(s => s.Id);
+                    b.Property(s => s.Id).ValueGeneratedNever();
                     b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
                 });
 
@@ -40,6 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
                 });
 
+            modelBuilder.Entity<Mission>().Property(m => m.Id).ValueGeneratedNever();
+
             modelBuilder.Entity<SquadMission>(b =>
                 {
                     b.HasKey(sm => new { sm.SquadId, sm.MissionId });
@@ -48,6 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
 
             modelBuilder.Entity<Faction>().HasKey(f => f.Id);
+            modelBuilder.Entity<Faction>().Property(f => f.Id).ValueGeneratedNever();
+
             modelBuilder.Entity<LocustHorde>().HasBaseType<Faction>();
             modelBuilder.Entity<LocustHorde>().HasMany(h => h.Leaders).WithOne();
             modelBuilder.Entity<LocustHorde>().HasOne(h => h.Commander).WithOne(c => c.CommandingFaction);

@@ -128,7 +128,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<object>> l2oQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class;
 
         public abstract void AssertIncludeQuery<TItem1, TItem2>(
@@ -136,7 +137,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> l2oQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
-            Func<dynamic, object> clientProjection = null)
+            List<Func<dynamic, object>> clientProjections = null,
+            bool assertOrder = false)
             where TItem1 : class
             where TItem2 : class;
 
