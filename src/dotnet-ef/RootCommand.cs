@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private CommandOption _configuration;
         private CommandOption _runtime;
         private CommandOption _msbuildprojectextensionspath;
+        private CommandOption _noBuild;
         private CommandOption _help;
         private IList<string> _args;
 
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _configuration = options.Configuration;
             _runtime = options.Runtime;
             _msbuildprojectextensionspath = options.MSBuildProjectExtensionsPath;
+            _noBuild = options.NoBuild;
 
             command.VersionOption("--version", GetVersion);
             _help = command.Option("-h|--help", description: null);
@@ -81,7 +83,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 _configuration.Value(),
                 _runtime.Value());
 
-            startupProject.Build();
+            if (!_noBuild.HasValue())
+            {
+                startupProject.Build();
+            }
 
             string executable;
             var args = new List<string>();
