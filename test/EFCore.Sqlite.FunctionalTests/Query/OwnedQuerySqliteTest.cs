@@ -1,17 +1,19 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class OwnedQuerySqliteTest : OwnedQueryTestBase, IClassFixture<OwnedQuerySqliteFixture>
+    public class OwnedQuerySqliteTest : OwnedQueryTestBase<OwnedQuerySqliteTest.OwnedQuerySqliteFixture>
     {
-        private readonly OwnedQuerySqliteFixture _fixture;
-
         public OwnedQuerySqliteTest(OwnedQuerySqliteFixture fixture)
+            : base(fixture)
         {
-            _fixture = fixture;
         }
 
         [Fact(Skip = "#8973")]
@@ -43,7 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Query_for_leaf_type_loads_all_owned_navs();
         }
-
-        protected override DbContext CreateContext() => _fixture.CreateContext();
+        
+        public class OwnedQuerySqliteFixture : OwnedQueryFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        }
     }
 }

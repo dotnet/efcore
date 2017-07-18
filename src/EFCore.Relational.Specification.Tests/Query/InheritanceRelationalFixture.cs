@@ -1,16 +1,20 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationalFixture<TTestStore> : InheritanceFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class InheritanceRelationalFixture : InheritanceFixtureBase
     {
-        public override void OnModelCreating(ModelBuilder modelBuilder)
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.Entity<Plant>().HasDiscriminator(p => p.Genus)
                 .HasValue<Rose>(PlantGenus.Rose)
@@ -28,5 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<Lilt>().Property(e => e.SugarGrams).HasColumnName("SugarGrams");
             modelBuilder.Entity<Tea>().Property(e => e.CaffeineGrams).HasColumnName("CaffeineGrams");
         }
+
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(c => c
+                .Log(RelationalEventId.QueryClientEvaluationWarning));
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
@@ -10,16 +9,17 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsOwnedQueryFixtureBase<TTestStore> : ComplexNavigationsQueryFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class ComplexNavigationsOwnedQueryFixtureBase : ComplexNavigationsQueryFixtureBase
     {
-        public ComplexNavigationsOwnedQueryFixtureBase()
+        protected override string StoreName { get; } = "ComplexNavigationsOwned";
+
+        protected ComplexNavigationsOwnedQueryFixtureBase()
         {
             QueryAsserter.SetExtractor = new ComplexNavigationsOwnedSetExtractor();
             QueryAsserter.ExpectedData = new ComplexNavigationsOwnedData();
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Level1>().Property(e => e.Id).ValueGeneratedNever();
 
@@ -161,6 +161,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasForeignKey<Level4>(e => e.Level3_Optional_Id)
                 .IsRequired(false);
         }
+
+        protected override void Seed(ComplexNavigationsContext context)
+            => ComplexNavigationsData.Seed(context, tableSplitting: true);
 
         private class ComplexNavigationsOwnedSetExtractor : ISetExtractor
         {

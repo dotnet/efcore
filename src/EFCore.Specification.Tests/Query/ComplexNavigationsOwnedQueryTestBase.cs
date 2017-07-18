@@ -7,9 +7,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsOwnedQueryTestBase<TTestStore, TFixture> : ComplexNavigationsQueryTestBase<TTestStore, TFixture>
-        where TTestStore : TestStore
-        where TFixture : ComplexNavigationsOwnedQueryFixtureBase<TTestStore>, new()
+    public abstract class ComplexNavigationsOwnedQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>
+        where TFixture : ComplexNavigationsOwnedQueryFixtureBase, new()
     {
         protected ComplexNavigationsOwnedQueryTestBase(TFixture fixture)
             : base(fixture)

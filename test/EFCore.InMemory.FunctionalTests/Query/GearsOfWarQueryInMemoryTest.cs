@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<InMemoryTestStore, GearsOfWarQueryInMemoryFixture>
+    public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
     {
         public GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

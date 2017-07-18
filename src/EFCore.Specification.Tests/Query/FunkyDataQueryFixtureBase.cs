@@ -5,15 +5,10 @@ using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FunkyDataQueryFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>
     {
-        public abstract TTestStore CreateTestStore();
+        protected override string StoreName { get; } = "FunkyDataQueryTest";
 
-        public abstract FunkyDataContext CreateContext(TTestStore testStore);
-
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
+        protected override void Seed(FunkyDataContext context) => FunkyDataContext.Seed(context);
     }
 }

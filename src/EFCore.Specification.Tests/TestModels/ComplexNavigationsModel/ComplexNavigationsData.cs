@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 {
     public abstract class ComplexNavigationsData : IExpectedData
@@ -844,6 +845,46 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
             l4s[4].OneToMany_Optional_Self_Inverse = l4s[5];
             l4s[6].OneToMany_Optional_Self_Inverse = l4s[7];
             l4s[8].OneToMany_Optional_Self_Inverse = l4s[9];
+        }
+
+        public static void Seed(ComplexNavigationsContext context, bool tableSplitting = false)
+        {
+            var l1s = CreateLevelOnes(tableSplitting);
+            var l2s = CreateLevelTwos(tableSplitting);
+            var l3s = CreateLevelThrees(tableSplitting);
+            var l4s = CreateLevelFours(tableSplitting);
+
+            context.LevelOne.AddRange(l1s);
+
+            WireUpPart1(l1s, l2s, l3s, l4s, tableSplitting);
+
+            context.SaveChanges();
+
+            WireUpPart2(l1s, l2s, l3s, l4s, tableSplitting);
+
+            var globalizations = new List<ComplexNavigationGlobalization>();
+            for (var i = 0; i < 10; i++)
+            {
+                var language = new ComplexNavigationLanguage { Name = "Language" + i, CultureString = "Foo" + i };
+                var globalization = new ComplexNavigationGlobalization { Text = "Globalization" + i, Language = language };
+                globalizations.Add(globalization);
+
+                context.Languages.Add(language);
+                context.Globalizations.Add(globalization);
+            }
+
+            var mls1 = new ComplexNavigationString { DefaultText = "MLS1", Globalizations = globalizations.Take(3).ToList() };
+            var mls2 = new ComplexNavigationString { DefaultText = "MLS2", Globalizations = globalizations.Skip(3).Take(3).ToList() };
+            var mls3 = new ComplexNavigationString { DefaultText = "MLS3", Globalizations = globalizations.Skip(6).Take(3).ToList() };
+            var mls4 = new ComplexNavigationString { DefaultText = "MLS4", Globalizations = globalizations.Skip(9).ToList() };
+
+            context.MultilingualStrings.AddRange(mls1, mls2, mls3, mls4);
+
+            var field1 = new ComplexNavigationField { Name = "Field1", Label = mls1, Placeholder = null };
+            var field2 = new ComplexNavigationField { Name = "Field2", Label = mls3, Placeholder = mls4 };
+
+            context.Fields.AddRange(field1, field2);
+            context.SaveChanges();
         }
     }
 }

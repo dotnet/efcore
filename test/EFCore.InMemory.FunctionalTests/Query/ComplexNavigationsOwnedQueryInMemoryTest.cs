@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsOwnedQueryInMemoryTest :
-        ComplexNavigationsOwnedQueryTestBase<InMemoryTestStore, ComplexNavigationsOwnedQueryInMemoryFixture>
+        ComplexNavigationsOwnedQueryTestBase<ComplexNavigationsOwnedQueryInMemoryFixture>
     {
         public ComplexNavigationsOwnedQueryInMemoryTest(ComplexNavigationsOwnedQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

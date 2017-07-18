@@ -3,12 +3,17 @@
 
 using System.Linq;
 using Xunit;
-// ReSharper disable InconsistentNaming
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class OwnedQueryTestBase
+    public abstract class OwnedQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : OwnedQueryTestBase<TFixture>.OwnedQueryFixtureBase, new()
     {
+        protected OwnedQueryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+
         [Fact]
         public virtual void Query_for_base_type_loads_all_owned_navs()
         {
@@ -72,9 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var people 
+                var people
                     = context.Set<OwnedPerson>()
                         .Distinct()
+                        .OrderBy(p => p.Id)
                         .Take(5)
                         .Select(op => new { op })
                         .ToList();
@@ -86,7 +92,109 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(people.Select(p => p.op).OfType<LeafB>().All(b => b.LeafBAddress != null));
             }
         }
-        
-        protected abstract DbContext CreateContext();
+
+        protected virtual DbContext CreateContext() => Fixture.CreateContext();
+
+        public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = "OwnedQueryTest";
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                modelBuilder.Entity<OwnedPerson>().OwnsOne(p => p.PersonAddress).OwnsOne(a => a.Country);
+                modelBuilder.Entity<Branch>().OwnsOne(p => p.BranchAddress).OwnsOne(a => a.Country);
+                modelBuilder.Entity<LeafA>().OwnsOne(p => p.LeafAAddress).OwnsOne(a => a.Country);
+                modelBuilder.Entity<LeafB>().OwnsOne(p => p.LeafBAddress).OwnsOne(a => a.Country);
+            }
+
+            protected override void Seed(DbContext context)
+            {
+                context.Set<OwnedPerson>().AddRange(
+                    new OwnedPerson
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        }
+                    },
+                    new Branch
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        },
+                        BranchAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Canada" }
+                        }
+                    },
+                    new LeafA
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        },
+                        BranchAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Canada" }
+                        },
+                        LeafAAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Mexico" }
+                        }
+                    },
+                    new LeafB
+                    {
+                        PersonAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "USA" }
+                        },
+                        LeafBAddress = new OwnedAddress
+                        {
+                            Country = new OwnedCountry { Name = "Panama" }
+                        }
+                    });
+
+                context.SaveChanges();
+            }
+
+            public override DbContext CreateContext()
+            {
+                var context = base.CreateContext();
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                return context;
+            }
+        }
+
+        protected class OwnedAddress
+        {
+            public OwnedCountry Country { get; set; }
+        }
+
+        protected class OwnedCountry
+        {
+            public string Name { get; set; }
+        }
+
+        protected class OwnedPerson
+        {
+            public int Id { get; set; }
+            public OwnedAddress PersonAddress { get; set; }
+        }
+
+        protected class Branch : OwnedPerson
+        {
+            public OwnedAddress BranchAddress { get; set; }
+        }
+
+        protected class LeafA : Branch
+        {
+            public OwnedAddress LeafAAddress { get; set; }
+        }
+
+        protected class LeafB : OwnedPerson
+        {
+            public OwnedAddress LeafBAddress { get; set; }
+        }
     }
 }

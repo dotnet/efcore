@@ -6,6 +6,5 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class FiltersInheritanceSqliteFixture : InheritanceSqliteFixture
     {
         protected override bool EnableFilters => true;
-        protected override string DatabaseName => "FiltersInheritanceSqliteTest";
     }
 }

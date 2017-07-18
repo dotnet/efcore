@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FunkyDataQuerySqliteTest : FunkyDataQueryTestBase<FunkyDataQuerySqliteFixture>
+    public class InheritanceRelationshipsQueryInMemoryTest : InheritanceRelationshipsQueryTestBase<InheritanceRelationshipsQueryInMemoryFixture>
     {
-        public FunkyDataQuerySqliteTest(FunkyDataQuerySqliteFixture fixture)
+        public InheritanceRelationshipsQueryInMemoryTest(InheritanceRelationshipsQueryInMemoryFixture fixture)
             : base(fixture)
         {
         }

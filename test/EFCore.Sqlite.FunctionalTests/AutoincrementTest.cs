@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Person>(b =>
+            modelBuilder.Entity<PersonA>(b =>
                 {
                     b.ToTable("People2");
                     b.HasKey(t => t.Name);

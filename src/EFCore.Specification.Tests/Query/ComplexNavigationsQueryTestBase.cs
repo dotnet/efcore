@@ -8,30 +8,31 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
+
+// ReSharper disable ConvertClosureToMethodGroup
+// ReSharper disable PossibleUnintendedReferenceComparison
+// ReSharper disable ArgumentsStyleLiteral
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable UnusedVariable
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
 // ReSharper disable MergeConditionalExpression
 // ReSharper disable ReplaceWithSingleCallToSingle
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
-
-// performance in VS editor is really bad if all the methods get converted to expression bodies
 // ReSharper disable ConvertToExpressionBodyWhenPossible
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsQueryTestBase<TTestStore, TFixture> : QueryTestBase<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : ComplexNavigationsQueryFixtureBase<TTestStore>, new()
+    public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+        where TFixture : ComplexNavigationsQueryFixtureBase, new()
     {
-        protected ComplexNavigationsContext CreateContext() => Fixture.CreateContext(TestStore);
+        protected ComplexNavigationsContext CreateContext() => Fixture.CreateContext();
 
         protected ComplexNavigationsQueryTestBase(TFixture fixture)
             : base(fixture)
         {
-            TestStore = Fixture.CreateTestStore();
         }
-
-        protected TTestStore TestStore { get; }
-
-        public void Dispose() => TestStore.Dispose();
 
         [ConditionalFact]
         public virtual void Entity_equality_empty()
@@ -764,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                   l1s => l1s.Select(e => e.OneToOne_Optional_FK.Name),
                   l1s => l1s.Select(e => Maybe(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Name)));
         }
-
+        
         [ConditionalFact]
         public virtual void Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
@@ -1928,25 +1929,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Projection_select_correct_table_from_subquery_when_materialization_is_not_required()
         {
             AssertQuery<Level2>(
-                  l2s => l2s.Where(l2 => l2.OneToOne_Required_FK_Inverse.Name == "L1 03").Take(3).Select(l2 => l2.Name));
+                  l2s => l2s.Where(l2 => l2.OneToOne_Required_FK_Inverse.Name == "L1 03")
+                      .OrderBy(l => l.Id).Take(3).Select(l2 => l2.Name));
         }
 
         [ConditionalFact]
         public virtual void Projection_select_correct_table_with_anonymous_projection_in_subquery()
         {
             AssertQuery<Level1, Level2, Level3>(
-                  (l1s, l2s, l3s) =>
-                      (from l2 in l2s
-                       join l1 in l1s
-                          on l2.Level1_Required_Id equals l1.Id
-                       join l3 in l3s
-                          on l1.Id equals l3.Level2_Required_Id
-                       where l1.Name == "L1 03"
-                       where l3.Name == "L3 08"
-                       select new { l2, l1 })
-                          .Take(3)
-                          .Select(l => l.l2.Name)
-                  );
+                (l1s, l2s, l3s) =>
+                    (from l2 in l2s
+                     join l1 in l1s
+                         on l2.Level1_Required_Id equals l1.Id
+                     join l3 in l3s
+                         on l1.Id equals l3.Level2_Required_Id
+                     where l1.Name == "L1 03"
+                     where l3.Name == "L3 08"
+                     select new { l2, l1 })
+                        .OrderBy(l => l.l1.Id)
+                        .Take(3)
+                        .Select(l => l.l2.Name)
+                );
         }
 
         [ConditionalFact]
@@ -1961,7 +1964,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           on l1.Id equals l3.Level2_Required_Id
                        where l1.Name == "L1 03"
                        where l3.Name == "L3 08"
-                       select l1).Take(3).Select(l1 => l1.Name)
+                       select l1).OrderBy(l1 => l1.Id).Take(3).Select(l1 => l1.Name)
                   );
         }
 
@@ -1971,10 +1974,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Level1>(
                 l1s => l1s
                     .Where(l1 => l1.OneToOne_Required_FK.Name == "L2 03")
+                    .OrderBy(l1 => l1.Id)
                     .Take(3)
                     .Select(l1 => l1.Name),
                 l1s => l1s
                     .Where(l1 => Maybe(l1.OneToOne_Required_FK, () => l1.OneToOne_Required_FK.Name) == "L2 03")
+                    .OrderBy(l1 => l1.Id)
                     .Take(3)
                     .Select(l1 => l1.Name));
         }
@@ -2303,12 +2308,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty()
         {
             AssertQuery<Level1>(
-                  l1s => from l1 in l1s
-                         from l2 in l1.OneToMany_Required.Where(l => l.Id > 5).Take(3).DefaultIfEmpty()
-                         where l2 != null
-                         select l1,
-                  e => e.Id,
-                  (e, a) => Assert.Equal(e.Id, a.Id));
+                l1s => from l1 in l1s
+                       from l2 in l1.OneToMany_Required.Where(l => l.Id > 5).OrderBy(l => l.Id).Take(3).DefaultIfEmpty()
+                       where l2 != null
+                       select l1,
+                e => e.Id,
+                (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
         [ConditionalFact]
@@ -2730,11 +2735,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => l1s.OrderBy(l1 => l1.OneToOne_Optional_FK.Name)
                     .ThenBy(l1 => l1.Id)
                     .Take(2)
-                    .Select(x => new { Id = x.Id, Brand = x.OneToOne_Optional_FK.Name }),
+                    .Select(x => new { x.Id, Brand = x.OneToOne_Optional_FK.Name }),
                 l1s => l1s.OrderBy(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name))
                     .ThenBy(l1 => l1.Id)
                     .Take(2)
-                    .Select(x => new { Id = x.Id, Brand = Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name) }),
+                    .Select(x => new { x.Id, Brand = Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name) }),
                 e => e.Id);
         }
 
@@ -2746,16 +2751,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l2 in l2s
                     join l1 in l1s.OrderBy(x => x.OneToOne_Optional_FK.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
-                    select new { Id = l2.Id, Name = l1 != null ? l1.Name : null },
+                    select new { l2.Id, Name = l1 != null ? l1.Name : null },
                 (l1s, l2s) =>
                     from l2 in l2s
                     join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2)
                         on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
-                    select new { Id = l2.Id, Name = l1 != null ? l1.Name : null },
+                    select new { l2.Id, Name = l1 != null ? l1.Name : null },
                 e => e.Id);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private bool ClientMethod(int? id)
         {
             return true;
@@ -2802,7 +2808,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                   join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                                   from l2_inner in grouping_inner.DefaultIfEmpty()
                                   select ClientStringMethod(l1_inner.Name)).Count() > 7
-                           select l1_middle).Take(10).Count() > 4
+                           select l1_middle).OrderBy(l1 => l1.Id).Take(10).Count() > 4
                     where l1_outer.Id < 2
                     select l1_outer.Name);
         }
@@ -2892,7 +2898,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                    from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10).DefaultIfEmpty()
+                    from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10).DefaultIfEmpty()
                     select l1.Id);
         }
 
@@ -2903,7 +2909,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                    from l2 in groupJoin.Where(gg => gg.Id > 0).Take(10)
+                    from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10)
                     select l1.Id);
         }
 
@@ -2913,10 +2919,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<Level1, Level2>(
                 (l1s, l2s) =>
                     l1s.Where(l1 => l1.OneToOne_Optional_FK.Name != "Foo")
-                       .Take(15)
-                       .Select(l1 => l1.Id),
+                        .OrderBy(l1 => l1.Id)
+                        .Take(15)
+                        .Select(l1 => l1.Id),
                 (l1s, l2s) =>
                     l1s.Where(l1 => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name) != "Foo")
+                        .OrderBy(l1 => l1.Id)
                         .Take(15)
                         .Select(l1 => l1.Id));
         }
@@ -2930,7 +2938,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                 from l2 in grouping.DefaultIfEmpty()
                                 where (l2 != null ? l2.Name : null) != "Foo"
-                                select l1).Take(15)
+                                select l1).OrderBy(l1 => l1.Id).Take(15)
                     select l1.Id);
         }
 
@@ -2969,7 +2977,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                 from l2 in grouping.DefaultIfEmpty()
                                 where (l2 != null ? l2.Name : null) != "Foo"
-                                select l1.Id).Distinct().Take(20)
+                                select l1.Id).Distinct().OrderBy(id => id).Take(20)
                     select l1);
         }
 
@@ -3113,7 +3121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Level1, Level2>(
                 (l1s, l2s) => 
                     from l1_outer in
-                        (from l1_inner in l1s
+                        (from l1_inner in l1s orderby l1_inner.Id
                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                          from l2_inner in grouping_inner.DefaultIfEmpty()
                          select l2_inner).Take(2)
@@ -3122,7 +3130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l2_outer.Name,
                 (l1s, l2s) => 
                     from l1_outer in
-                        (from l1_inner in l1s
+                        (from l1_inner in l1s orderby l1_inner.Id
                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                          from l2_inner in grouping_inner.DefaultIfEmpty()
                          select l2_inner).Take(2)
@@ -3591,7 +3599,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-                var entity = Fixture.QueryAsserter.SetExtractor.Set<Level2>(context).First();
+                var entity = Fixture.QueryAsserter.SetExtractor.Set<Level2>(context).OrderBy(l2 => l2.Id).First();
                 var entry = context.ChangeTracker.Entries().Single();
                 Assert.Same(entity, entry.Entity);
 

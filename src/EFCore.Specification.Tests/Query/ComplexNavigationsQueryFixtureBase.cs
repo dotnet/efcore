@@ -4,15 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsQueryFixtureBase<TTestStore> : IQueryFixtureBase
-        where TTestStore : TestStore
+    public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBase<ComplexNavigationsContext>, IQueryFixtureBase
     {
+        protected override string StoreName { get; } = "ComplexNavigations";
+
         protected ComplexNavigationsQueryFixtureBase()
         {
             var entitySorters = new Dictionary<Type, Func<dynamic, object>>
@@ -68,19 +70,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
 
             QueryAsserter = new QueryAsserter<ComplexNavigationsContext>(
-                () => CreateContext(CreateTestStore()),
+                CreateContext,
                 new ComplexNavigationsDefaultData(),
                 entitySorters,
                 entityAsserters);
         }
 
-        public abstract TTestStore CreateTestStore();
-
-        public abstract ComplexNavigationsContext CreateContext(TTestStore testStore);
-
         public QueryAsserterBase QueryAsserter { get; set; }
 
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Level1>().Property(e => e.Id).ValueGeneratedNever();
             modelBuilder.Entity<Level2>().Property(e => e.Id).ValueGeneratedNever();
@@ -132,6 +130,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<ComplexNavigationString>().HasMany(m => m.Globalizations);
 
             modelBuilder.Entity<ComplexNavigationGlobalization>().HasOne(g => g.Language);
+        }
+
+        protected override void Seed(ComplexNavigationsContext context) => ComplexNavigationsData.Seed(context);
+
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(c => c
+                .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning));
+        
+        public override ComplexNavigationsContext CreateContext()
+        {
+            var context = base.CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            return context;
         }
 
         private class ComplexNavigationsDefaultData : ComplexNavigationsData

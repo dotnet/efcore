@@ -1,19 +1,21 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Xunit;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeOneToOneInMemoryTest : IncludeOneToOneTestBase, IClassFixture<OneToOneQueryInMemoryFixture>
+    public class IncludeOneToOneInMemoryTest : IncludeOneToOneTestBase<IncludeOneToOneInMemoryTest.OneToOneQueryInMemoryFixture>
     {
-        private readonly OneToOneQueryInMemoryFixture _fixture;
-
         public IncludeOneToOneInMemoryTest(OneToOneQueryInMemoryFixture fixture)
+            : base(fixture)
         {
-            _fixture = fixture;
         }
 
-        protected override DbContext CreateContext() => _fixture.CreateContext();
+        public class OneToOneQueryInMemoryFixture : OneToOneQueryFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        }
     }
 }

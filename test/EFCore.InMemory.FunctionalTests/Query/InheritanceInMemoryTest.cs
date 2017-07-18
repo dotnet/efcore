@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceInMemoryTest : InheritanceTestBase<InMemoryTestStore, InheritanceInMemoryFixture>
+    public class InheritanceInMemoryTest : InheritanceTestBase<InheritanceInMemoryFixture>
     {
         public InheritanceInMemoryTest(InheritanceInMemoryFixture fixture)
             : base(fixture)

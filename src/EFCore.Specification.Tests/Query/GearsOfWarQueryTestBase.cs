@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -8,33 +8,27 @@ using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
+
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable SimplifyConditionalTernaryExpression
+// ReSharper disable ArgumentsStyleAnonymousFunction
+// ReSharper disable ArgumentsStyleOther
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable EqualExpressionComparison
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable ReplaceWithSingleCallToSingle
-
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class GearsOfWarQueryTestBase<TTestStore, TFixture> : QueryTestBase<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : GearsOfWarQueryFixtureBase<TTestStore>, new()
+    public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture>
+        where TFixture : GearsOfWarQueryFixtureBase, new()
     {
         protected GearsOfWarQueryTestBase(TFixture fixture)
             : base(fixture)
         {
-            TestStore = Fixture.CreateTestStore();
         }
-
-        protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected TTestStore TestStore { get; }
-
-        protected virtual void ClearLog()
-        {
-        }
-
-        public void Dispose() => TestStore.Dispose();
 
         [ConditionalFact]
         public virtual void Entity_equality_empty()
@@ -1097,14 +1091,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_subquery_distinct_firstordefault_boolean()
         {
             AssertQuery<Gear>(
-                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().FirstOrDefault().IsAutomatic));
+                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
         public virtual void Where_subquery_distinct_first_boolean()
         {
             AssertQuery<Gear>(
-                gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Distinct().First().IsAutomatic),
+                gs => gs.OrderBy(g => g.Nickname).Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).First().IsAutomatic),
                 assertOrder: true);
         }
 
@@ -1162,14 +1156,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_subquery_union_firstordefault_boolean()
         {
             AssertQuery<Gear>(
-                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Union(g.Weapons).FirstOrDefault().IsAutomatic));
+                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Union(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
         public virtual void Where_subquery_concat_firstordefault_boolean()
         {
             AssertQuery<Gear>(
-                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).FirstOrDefault().IsAutomatic));
+                gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Concat(g.Weapons).OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
         [ConditionalFact]
@@ -1249,7 +1243,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Select_subquery_distinct_firstordefault()
         {
             AssertQuery<Gear>(
-                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Distinct().FirstOrDefault().Name));
+                gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().Name));
         }
 
         [ConditionalFact]
@@ -1648,7 +1642,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Optional_navigation_type_compensation_works_with_conditional_expression()
         {
             AssertQuery<CogTag>(
+                // ReSharper disable once RedundantTernaryExpression
                 ts => ts.Where(t => t.Gear.HasSoulPatch ? true : false),
+                // ReSharper disable once RedundantTernaryExpression
                 ts => ts.Where(t => (MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true) ? true : false));
         }
 
@@ -1671,7 +1667,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Optional_navigation_type_compensation_works_with_projection_into_anonymous_type()
         {
             AssertQuery<CogTag>(
-                ts => ts.Where(t => t.Note != "K.I.A.").Select(t => new { SquadId = t.Gear.SquadId }),
+                ts => ts.Where(t => t.Note != "K.I.A.").Select(t => new { t.Gear.SquadId }),
                 elementSorter: e => e.SquadId);
         }
 
@@ -2914,6 +2910,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(1, result.Count(r => r.Id == 1 && r.Gears.Count == 3));
                 Assert.Equal(1, result.Count(r => r.Id == 2 && r.Gears.Count == 0));
             }
+        }
+
+        protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
+
+        protected virtual void ClearLog()
+        {
         }
     }
 }

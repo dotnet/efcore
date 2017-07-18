@@ -5,14 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationshipsQueryFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class InheritanceRelationshipsQueryFixtureBase : SharedStoreFixtureBase<InheritanceRelationshipsContext>
     {
-        public abstract TTestStore CreateTestStore();
+        protected override string StoreName { get; } = "InheritanceRelationships";
 
-        public abstract InheritanceRelationshipsContext CreateContext(TTestStore testStore);
-
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>().HasBaseType<BaseInheritanceRelationshipEntity>();
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>().HasKey(e => e.Id);
@@ -129,6 +126,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasMany(e => e.Principals)
                 .WithOne()
                 .IsRequired(false);
+        }
+
+        protected override void Seed(InheritanceRelationshipsContext context)
+            => InheritanceRelationshipsContext.Seed(context);
+        
+        public override InheritanceRelationshipsContext CreateContext()
+        {
+            var context = base.CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            return context;
         }
     }
 }

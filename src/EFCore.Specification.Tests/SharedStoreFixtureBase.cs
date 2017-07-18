@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
             TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c));
         }
 
-        public TContext CreateContext() => (TContext)ServiceProvider.GetRequiredService(ContextType);
+        public virtual TContext CreateContext() => (TContext)ServiceProvider.GetRequiredService(ContextType);
 
         protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
             => serviceCollection.AddSingleton(TestModelSource.GetFactory(OnModelCreating));
@@ -50,13 +50,17 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => builder
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw).Log(CoreEventId.SensitiveDataLoggingEnabledWarning));
+                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
         protected virtual void Seed(TContext context)
         {
         }
 
-        protected abstract void OnModelCreating(ModelBuilder modelBuilder, DbContext context);
+        protected virtual void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+        }
 
         public void Dispose() => TestStore.Dispose();
     }

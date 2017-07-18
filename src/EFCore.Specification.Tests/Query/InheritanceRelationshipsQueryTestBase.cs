@@ -1,19 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceRelationshipsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : InheritanceRelationshipsQueryFixtureBase<TTestStore>, new()
+    public abstract class InheritanceRelationshipsQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : InheritanceRelationshipsQueryFixtureBase, new()
     {
+        protected InheritanceRelationshipsQueryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Changes_in_derived_related_entities_are_detected()
         {
@@ -24,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var derivedEntity = context.BaseEntities.Include(e => e.BaseCollectionOnBase)
                     .Single(e => e.Name == "Derived1(4)") as DerivedInheritanceRelationshipEntity;
 
+                Assert.NotNull(derivedEntity);
+                
                 var firstRelatedEntity = derivedEntity.BaseCollectionOnBase.Cast<DerivedCollectionOnBase>().First();
 
                 var originalValue = firstRelatedEntity.DerivedProperty;
@@ -809,23 +814,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected InheritanceRelationshipsContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected InheritanceRelationshipsQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
+        protected InheritanceRelationshipsContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
         }
-
-        public void Dispose() => TestStore.Dispose();
     }
 }

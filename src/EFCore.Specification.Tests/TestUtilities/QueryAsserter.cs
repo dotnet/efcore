@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly Func<TContext> _contextCreator;
         private readonly Dictionary<Type, Func<dynamic, object>> _entitySorters;
         private readonly Dictionary<Type, Action<dynamic, dynamic>> _entityAsserters;
-        private IncludeQueryResultAsserter _includeResultAsserter;
+        private readonly IncludeQueryResultAsserter _includeResultAsserter;
 
         public QueryAsserter(
             Func<TContext> contextCreator,

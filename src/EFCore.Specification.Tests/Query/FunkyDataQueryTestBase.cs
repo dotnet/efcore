@@ -1,26 +1,23 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable StringEndsWithIsCultureSpecific
+// ReSharper disable RedundantTernaryExpression
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FunkyDataQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : FunkyDataQueryFixtureBase<TTestStore>, new()
+    public abstract class FunkyDataQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : FunkyDataQueryFixtureBase, new()
     {
-        protected FunkyDataContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected FunkyDataQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
+        protected FunkyDataQueryTestBase(TFixture fixture) => Fixture = fixture;
+        
+        protected TFixture Fixture { get; }
 
         [ConditionalFact]
         public virtual void String_contains_on_argument_with_wildcard_constant()
@@ -503,14 +500,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
+        protected FunkyDataContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
         }
-
-        public void Dispose() => TestStore.Dispose();
     }
 }

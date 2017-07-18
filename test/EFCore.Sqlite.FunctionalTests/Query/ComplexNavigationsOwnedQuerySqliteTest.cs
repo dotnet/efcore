@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsOwnedQuerySqliteTest : ComplexNavigationsOwnedQueryTestBase<SqliteTestStore, ComplexNavigationsOwnedQuerySqliteFixture>
+    public class ComplexNavigationsOwnedQuerySqliteTest : ComplexNavigationsOwnedQueryTestBase<ComplexNavigationsOwnedQuerySqliteFixture>
     {
         public ComplexNavigationsOwnedQuerySqliteTest(ComplexNavigationsOwnedQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)

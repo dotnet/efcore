@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Xunit;
@@ -12,10 +11,13 @@ using Xunit;
 // ReSharper disable ConvertMethodToExpressionBody
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FiltersInheritanceTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : InheritanceFixtureBase<TTestStore>, new()
+    public abstract class FiltersInheritanceTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : InheritanceFixtureBase, new()
     {
+        protected FiltersInheritanceTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Can_use_of_type_animal()
         {
@@ -161,23 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected InheritanceContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected FiltersInheritanceTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
+        protected InheritanceContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
         }
-
-        public void Dispose() => TestStore.Dispose();
     }
 }

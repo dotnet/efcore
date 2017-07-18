@@ -5,16 +5,12 @@ using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class InheritanceFixtureBase : SharedStoreFixtureBase<InheritanceContext>
     {
-        public abstract TTestStore CreateTestStore();
-
-        public abstract InheritanceContext CreateContext(TTestStore testStore);
-
+        protected override string StoreName { get; } = "InheritanceTest";
         protected virtual bool EnableFilters => false;
 
-        public virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Kiwi>();
             modelBuilder.Entity<Eagle>();
@@ -35,5 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<Animal>().HasQueryFilter(a => a.CountryId == 1);
             }
         }
+
+        protected override void Seed(InheritanceContext context) => InheritanceContext.SeedData(context);
     }
 }

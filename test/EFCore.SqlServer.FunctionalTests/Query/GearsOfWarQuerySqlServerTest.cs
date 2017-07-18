@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<SqlServerTestStore, GearsOfWarQuerySqlServerFixture>
+    public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqlServerFixture>
     {
         // ReSharper disable once UnusedParameter.Local
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -1518,6 +1517,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1)
         FROM [Weapons] AS [w]
         WHERE [g].[FullName] = [w].[OwnerFullName]
     ) AS [t]
+    ORDER BY [t].[Id]
 ) = 1))");
         }
 
@@ -1538,7 +1538,8 @@ FROM (
     SELECT DISTINCT [w0].*
     FROM [Weapons] AS [w0]
     WHERE @_outer_FullName = [w0].[OwnerFullName]
-) AS [t0]",
+) AS [t0]
+ORDER BY [t0].[Id]",
                 //
                 @"@_outer_FullName='Marcus Fenix' (Size = 450)
 
@@ -1547,7 +1548,8 @@ FROM (
     SELECT DISTINCT [w0].*
     FROM [Weapons] AS [w0]
     WHERE @_outer_FullName = [w0].[OwnerFullName]
-) AS [t0]");
+) AS [t0]
+ORDER BY [t0].[Id]");
         }
 
         public override void Where_subquery_distinct_singleordefault_boolean()
@@ -1622,29 +1624,29 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[HasSoulPatch] = 1)
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
                 //
-                @"@_outer_FullName1='Damon Baird' (Size = 450)
+                @"@_outer_FullName6='Damon Baird' (Size = 450)
 
-SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
-FROM [Weapons] AS [w0]
-WHERE @_outer_FullName1 = [w0].[OwnerFullName]",
+SELECT [w6].[Id], [w6].[AmmunitionType], [w6].[IsAutomatic], [w6].[Name], [w6].[OwnerFullName], [w6].[SynergyWithId]
+FROM [Weapons] AS [w6]
+WHERE @_outer_FullName6 = [w6].[OwnerFullName]",
                 //
-                @"@_outer_FullName='Damon Baird' (Size = 450)
+                @"@_outer_FullName5='Damon Baird' (Size = 450)
 
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-FROM [Weapons] AS [w]
-WHERE @_outer_FullName = [w].[OwnerFullName]",
+SELECT [w5].[Id], [w5].[AmmunitionType], [w5].[IsAutomatic], [w5].[Name], [w5].[OwnerFullName], [w5].[SynergyWithId]
+FROM [Weapons] AS [w5]
+WHERE @_outer_FullName5 = [w5].[OwnerFullName]",
                 //
-                @"@_outer_FullName1='Marcus Fenix' (Size = 450)
+                @"@_outer_FullName6='Marcus Fenix' (Size = 450)
 
-SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
-FROM [Weapons] AS [w0]
-WHERE @_outer_FullName1 = [w0].[OwnerFullName]",
+SELECT [w6].[Id], [w6].[AmmunitionType], [w6].[IsAutomatic], [w6].[Name], [w6].[OwnerFullName], [w6].[SynergyWithId]
+FROM [Weapons] AS [w6]
+WHERE @_outer_FullName6 = [w6].[OwnerFullName]",
                 //
-                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+                @"@_outer_FullName5='Marcus Fenix' (Size = 450)
 
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-FROM [Weapons] AS [w]
-WHERE @_outer_FullName = [w].[OwnerFullName]");
+SELECT [w5].[Id], [w5].[AmmunitionType], [w5].[IsAutomatic], [w5].[Name], [w5].[OwnerFullName], [w5].[SynergyWithId]
+FROM [Weapons] AS [w5]
+WHERE @_outer_FullName5 = [w5].[OwnerFullName]");
         }
 
         public override void Where_subquery_concat_firstordefault_boolean()
@@ -1656,29 +1658,29 @@ WHERE @_outer_FullName = [w].[OwnerFullName]");
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)",
                 //
-                @"@_outer_FullName1='Damon Baird' (Size = 450)
+                @"@_outer_FullName6='Damon Baird' (Size = 450)
 
-SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
-FROM [Weapons] AS [w0]
-WHERE @_outer_FullName1 = [w0].[OwnerFullName]",
+SELECT [w6].[Id], [w6].[AmmunitionType], [w6].[IsAutomatic], [w6].[Name], [w6].[OwnerFullName], [w6].[SynergyWithId]
+FROM [Weapons] AS [w6]
+WHERE @_outer_FullName6 = [w6].[OwnerFullName]",
                 //
-                @"@_outer_FullName='Damon Baird' (Size = 450)
+                @"@_outer_FullName5='Damon Baird' (Size = 450)
 
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-FROM [Weapons] AS [w]
-WHERE @_outer_FullName = [w].[OwnerFullName]",
+SELECT [w5].[Id], [w5].[AmmunitionType], [w5].[IsAutomatic], [w5].[Name], [w5].[OwnerFullName], [w5].[SynergyWithId]
+FROM [Weapons] AS [w5]
+WHERE @_outer_FullName5 = [w5].[OwnerFullName]",
                 //
-                @"@_outer_FullName1='Marcus Fenix' (Size = 450)
+                @"@_outer_FullName6='Marcus Fenix' (Size = 450)
 
-SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
-FROM [Weapons] AS [w0]
-WHERE @_outer_FullName1 = [w0].[OwnerFullName]",
+SELECT [w6].[Id], [w6].[AmmunitionType], [w6].[IsAutomatic], [w6].[Name], [w6].[OwnerFullName], [w6].[SynergyWithId]
+FROM [Weapons] AS [w6]
+WHERE @_outer_FullName6 = [w6].[OwnerFullName]",
                 //
-                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+                @"@_outer_FullName5='Marcus Fenix' (Size = 450)
 
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
-FROM [Weapons] AS [w]
-WHERE @_outer_FullName = [w].[OwnerFullName]");
+SELECT [w5].[Id], [w5].[AmmunitionType], [w5].[IsAutomatic], [w5].[Name], [w5].[OwnerFullName], [w5].[SynergyWithId]
+FROM [Weapons] AS [w5]
+WHERE @_outer_FullName5 = [w5].[OwnerFullName]");
         }
 
         public override void Concat_with_count()
@@ -1877,6 +1879,7 @@ WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname1 = [g
         FROM [Weapons] AS [w]
         WHERE [g].[FullName] = [w].[OwnerFullName]
     ) AS [t]
+    ORDER BY [t].[Id]
 )
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g].[HasSoulPatch] = 1)");

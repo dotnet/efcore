@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -10,15 +9,17 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable StringEndsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class InheritanceTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : InheritanceFixtureBase<TTestStore>, new()
+    public abstract class InheritanceTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : InheritanceFixtureBase, new()
     {
+        protected InheritanceTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Can_query_when_shared_column()
         {
@@ -510,23 +511,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected InheritanceContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected InheritanceTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
+        protected InheritanceContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
         }
-
-        public void Dispose() => TestStore.Dispose();
     }
 }

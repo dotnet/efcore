@@ -1,17 +1,20 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class GearsOfWarFromSqlQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TFixture : GearsOfWarQueryRelationalFixture<TTestStore>, new()
-        where TTestStore : TestStore
+    public abstract class GearsOfWarFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : GearsOfWarQueryRelationalFixture, new()
     {
+        protected GearsOfWarFromSqlQueryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void From_sql_queryable_simple_columns_out_of_order()
         {
@@ -30,23 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected GearsOfWarFromSqlQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
+        protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
         }
-
-        public void Dispose() => TestStore.Dispose();
     }
 }

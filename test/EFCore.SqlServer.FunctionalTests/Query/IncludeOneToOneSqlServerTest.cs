@@ -3,12 +3,23 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase, IClassFixture<OneToOneQuerySqlServerFixture>
+    public class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase<IncludeOneToOneSqlServerTest.OneToOneQuerySqlServerFixture>
     {
+        public IncludeOneToOneSqlServerTest(OneToOneQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            : base(fixture)
+        {
+            fixture.TestSqlLoggerFactory.Clear();
+        }
+        
         public override void Include_person()
         {
             base.Include_person();
@@ -53,18 +64,15 @@ LEFT JOIN [Address2] AS [p.Address] ON [p].[Id] = [p.Address].[PersonId]",
                 Sql);
         }
 
-        private readonly OneToOneQuerySqlServerFixture _fixture;
-
-        public IncludeOneToOneSqlServerTest(OneToOneQuerySqlServerFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
-        protected override DbContext CreateContext() => _fixture.CreateContext();
-
         private const string FileLineEnding = @"
 ";
 
-        private string Sql => _fixture.TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
+
+        public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        }
     }
 }

@@ -1,17 +1,19 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class GearsOfWarQueryFixtureBase<TTestStore> : IQueryFixtureBase
-        where TTestStore : TestStore
+    public abstract class GearsOfWarQueryFixtureBase : SharedStoreFixtureBase<GearsOfWarContext>, IQueryFixtureBase
     {
+        protected override string StoreName { get; } = "GearsOfWarQueryTest";
+
         protected GearsOfWarQueryFixtureBase()
         {
             var entitySorters = new Dictionary<Type, Func<dynamic, object>>
@@ -155,19 +157,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
 
             QueryAsserter = new QueryAsserter<GearsOfWarContext>(
-                () => CreateContext(CreateTestStore()),
+                CreateContext,
                 new GearsOfWarData(),
                 entitySorters,
                 entityAsserters);
         }
 
-        public abstract TTestStore CreateTestStore();
-
-        public abstract GearsOfWarContext CreateContext(TTestStore testStore);
 
         public QueryAsserterBase QueryAsserter { get; set; }
 
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<City>().HasKey(c => c.Name);
 
@@ -215,6 +214,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<LocustLeader>().HasKey(l => l.Name);
             modelBuilder.Entity<LocustCommander>().HasBaseType<LocustLeader>();
             modelBuilder.Entity<LocustCommander>().HasOne(c => c.DefeatedBy).WithOne().HasForeignKey<LocustCommander>(c => new { c.DefeatedByNickname, c.DefeatedBySquadId });
+        }
+
+        protected override void Seed(GearsOfWarContext context) => GearsOfWarContext.Seed(context);
+
+        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(c => c
+                .Log(CoreEventId.IncludeIgnoredWarning));
+
+        public override GearsOfWarContext CreateContext()
+        {
+            var context = base.CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            return context;
         }
     }
 }

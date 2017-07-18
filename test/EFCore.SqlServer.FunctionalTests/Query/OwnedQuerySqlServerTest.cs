@@ -1,17 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class OwnedQuerySqlServerTest : OwnedQueryTestBase, IClassFixture<OwnedQuerySqlServerFixture>
+    public class OwnedQuerySqlServerTest : OwnedQueryTestBase<OwnedQuerySqlServerTest.OwnedQuerySqlServerFixture>
     {
-        private readonly OwnedQuerySqlServerFixture _fixture;
-
         public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture)
+            : base(fixture)
         {
-            _fixture = fixture;
             fixture.TestSqlLoggerFactory.Clear();
         }
 
@@ -22,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             AssertSql("");
         }
-
 
         [Fact(Skip = "#8973")]
         public override void Query_for_branch_type_loads_all_owned_navs()
@@ -54,9 +55,13 @@ WHERE [o].[Discriminator] = N'LeafA'");
             base.Query_when_subquery();
         }
 
-        protected override DbContext CreateContext() => _fixture.CreateContext();
-
         private void AssertSql(params string[] expected)
-            => _fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+        
+        public class OwnedQuerySqlServerFixture : OwnedQueryFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        }
     }
 }
