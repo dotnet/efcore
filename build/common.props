@@ -20,8 +20,4 @@
   <ItemGroup>
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(InternalAspNetCoreSdkVersion)" PrivateAssets="All" />
   </ItemGroup>
-  <!-- TODO: Remove when TestDriven supports VS15.3+ -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <PackageReference Include="NETStandard.Library.NETFramework" Version="$(NETFrameworkPackageVersion)" PrivateAssets="All" />
-  </ItemGroup>
 </Project>
