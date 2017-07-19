@@ -7,7 +7,7 @@
     <EF6Version>6.1.3</EF6Version>
     <InternalAspNetCoreSdkVersion>2.0.1-*</InternalAspNetCoreSdkVersion>
     <JsonNetVersion>10.0.1</JsonNetVersion>
-    <NETFrameworkPackageVersion>2.0.0-*</NETFrameworkPackageVersion>
+    <NETStandardLibraryNETFrameworkVersion>2.0.0-*</NETStandardLibraryNETFrameworkVersion>
     <NETStandardImplicitPackageVersion>2.0.0-*</NETStandardImplicitPackageVersion>
     <RelinqVersion>2.1.1</RelinqVersion>
     <RoslynVersion>2.3.0</RoslynVersion>
