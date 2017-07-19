@@ -2078,6 +2078,94 @@ WHERE [c].[Id] IN (
 
         #endregion
 
+        #region Bug9202
+
+        [Fact]
+        public void Include_collection_for_entity_with_owned_type_works()
+        {
+            using (CreateDatabase9202())
+            {
+                using (var context = new MyContext9202(_options))
+                {
+                    var query = context.Movies.Include(m => m.Cast);
+                    var result = query.ToList();
+
+                    Assert.Equal(1, result.Count);
+                    Assert.Equal(3, result[0].Cast.Count);
+                    Assert.NotNull(result[0].Details);
+
+                    AssertSql(
+                        @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
+FROM [Movies] AS [m]
+ORDER BY [m].[Id]",
+                        //
+                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name]
+FROM [Actors] AS [m.Cast]
+INNER JOIN (
+    SELECT DISTINCT [m0].[Id]
+    FROM [Movies] AS [m0]
+) AS [t] ON [m.Cast].[Movie9202Id] = [t].[Id]
+ORDER BY [t].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9202()
+            => CreateTestStore(
+                () => new MyContext9202(_options),
+                context => 
+                {
+                    var av = new Actor9202 { Name = "Alicia Vikander" };
+                    var oi = new Actor9202 { Name = "Oscar Isaac" };
+                    var dg = new Actor9202 { Name = "Domhnall Gleeson" };
+                    var em = new Movie9202 { Title = "Ex Machina", Cast = new List<Actor9202> { av, oi, dg }, Details = new Details9202 { Info = "Best movie ever made" } };
+                    context.Actors.AddRange(av, oi, dg);
+                    context.Movies.Add(em);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext9202 : DbContext
+        {
+            public MyContext9202(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Movie9202> Movies { get; set; }
+            public DbSet<Actor9202> Actors { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Movie9202>().HasMany(m => m.Cast).WithOne();
+                modelBuilder.Entity<Movie9202>().OwnsOne(m => m.Details);
+            }
+        }
+
+        public class Movie9202
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+
+            public List<Actor9202> Cast { get; set; }
+
+            public Details9202 Details { get; set; }
+        }
+
+        public class Actor9202
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class Details9202
+        {
+            public string Info { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
