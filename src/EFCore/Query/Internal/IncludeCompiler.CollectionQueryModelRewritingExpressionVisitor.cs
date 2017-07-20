@@ -112,6 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var querySourceMapping = new QuerySourceMapping();
                 var clonedParentQueryModel = _parentQueryModel.Clone(querySourceMapping);
+                _queryCompilationContext.UpdateMapping(querySourceMapping);
 
                 _queryCompilationContext.CloneAnnotations(querySourceMapping, clonedParentQueryModel);
 
