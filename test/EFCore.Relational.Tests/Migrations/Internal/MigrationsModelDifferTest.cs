@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -26,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("ID");
-                                    x.HasKey("ID");
                                     x.Property<int>("FK");
                                 });
 
@@ -35,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("ID");
-                                    x.HasKey("ID");
                                     x.Property<int>("FK");
                                 });
 
@@ -69,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("FourthId");
                                 });
                         modelBuilder.Entity(
@@ -77,7 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("ThirdId");
                                 });
 
@@ -106,7 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Node", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AltId");
                             x.HasAlternateKey("AltId");
                             x.Property<int?>("ParentAltId");
@@ -153,14 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Rename_table()
         {
             Execute(
-                source => source.Entity(
-                    "Cat",
-                    x =>
-                        {
-                            x.ToTable("Cat", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Cat").ToTable("Cat", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Cat",
                     x =>
@@ -185,21 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Move_table()
         {
             Execute(
-                source => source.Entity(
-                    "Person",
-                    x =>
-                        {
-                            x.ToTable("People", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
-                target => target.Entity("Person",
-                    x =>
-                        {
-                            x.ToTable("People", "public");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Person").ToTable("People", "dbo").Property<int>("Id"),
+                target => target.Entity("Person").ToTable("People", "public").Property<int>("Id"),
                 operations =>
                     {
                         Assert.Equal(2, operations.Count);
@@ -250,7 +224,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("MouseId");
-                                    x.HasKey("Id");
                                     x.ToTable("Animal");
                                 });
                         modelBuilder.Entity(
@@ -259,7 +232,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("BoneId");
-                                    x.HasKey("Id");
                                     x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
                                     x.ToTable("Animal");
                                 });
@@ -289,7 +261,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("MouseId");
-                                    x.HasKey("Id");
                                     x.ToTable("Animal");
                                 });
                         modelBuilder.Entity(
@@ -298,7 +269,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("BoneId");
-                                    x.HasKey("Id");
                                     x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
                                     x.ToTable("Animal");
                                 });
@@ -317,16 +287,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_type_to_shared_table()
         {
             Execute(
-                modelBuilder => {
-                         modelBuilder.Entity(
-                             "Cat",
-                             x =>
-                                 {
-                                     x.Property<int>("Id");
-                                     x.Property<string>("MouseId");
-                                     x.HasKey("Id");
-                                     x.ToTable("Animal");
-                                 });
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<string>("MouseId");
+                                x.ToTable("Animal");
+                            });
                 },
                 _ => { },
                 modelBuilder =>
@@ -337,7 +307,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("BoneId");
-                                    x.HasKey("Id");
                                     x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
                                     x.ToTable("Animal");
                                 });
@@ -355,16 +324,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Remove_type_from_shared_table()
         {
             Execute(
-                modelBuilder => {
-                                    modelBuilder.Entity(
-                                        "Cat",
-                                        x =>
-                                            {
-                                                x.Property<int>("Id");
-                                                x.Property<string>("MouseId");
-                                                x.HasKey("Id");
-                                                x.ToTable("Animal");
-                                            });
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<string>("MouseId");
+                                x.ToTable("Animal");
+                            });
                 },
                 modelBuilder =>
                     {
@@ -374,7 +343,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("BoneId");
-                                    x.HasKey("Id");
                                     x.HasOne("Cat").WithOne().HasForeignKey("Dog", "Id");
                                     x.ToTable("Animal");
                                 });
@@ -401,7 +369,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("MouseId");
-                                    x.HasKey("Id");
                                 });
                         modelBuilder.Entity(
                             "Dog",
@@ -409,7 +376,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("BoneId");
-                                    x.HasKey("Id");
                                 });
                         modelBuilder.Entity(
                             "Animal",
@@ -417,7 +383,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 {
                                     x.Property<int>("Id");
                                     x.Property<string>("HandlerId");
-                                    x.HasKey("Id");
                                 });
                     },
                 modelBuilder =>
@@ -459,21 +424,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_column()
         {
             Execute(
-                source => source.Entity(
-                    "Dragon",
-                    x =>
-                        {
-                            x.ToTable("Dragon", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
                     x =>
                         {
                             x.ToTable("Dragon", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -500,21 +457,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_column_with_computed_value()
         {
             Execute(
-                source => source.Entity(
-                    "Dragon",
-                    x =>
-                        {
-                            x.ToTable("Dragon", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
                     x =>
                         {
                             x.ToTable("Dragon", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -541,21 +490,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_column_ValueGeneratedOnAddOrUpdate_with_default_value_sql()
         {
             Execute(
-                source => source.Entity(
-                    "Dragon",
-                    x =>
-                        {
-                            x.ToTable("Dragon", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
                     x =>
                         {
                             x.ToTable("Dragon", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<DateTime>("LastModified")
                                 .HasDefaultValueSql("GETDATE()")
                                 .ValueGeneratedOnAddOrUpdate();
@@ -578,21 +519,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_column_ValueGeneratedOnUpdate_with_default_value_sql()
         {
             Execute(
-                source => source.Entity(
-                    "Dragon",
-                    x =>
-                        {
-                            x.ToTable("Dragon", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Dragon").ToTable("Dragon", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Dragon",
                     x =>
                         {
                             x.ToTable("Dragon", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<DateTime>("LastModified")
                                 .HasDefaultValueSql("GETDATE()")
                                 .ValueGeneratedOnUpdate();
@@ -621,19 +554,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_column_not_null(Type type, object expectedDefault)
         {
             Execute(
-                source => source.Entity(
-                    "Robin",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Robin").Property<int>("Id"),
                 target => target.Entity(
                     "Robin",
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property(type, "Value").IsRequired();
                         }),
                 operations =>
@@ -662,17 +588,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Firefly", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name").HasColumnType("nvarchar(30)");
                         }),
-                target => target.Entity(
-                    "Firefly",
-                    x =>
-                        {
-                            x.ToTable("Firefly", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                target => target.Entity("Firefly").ToTable("Firefly", "dbo").Property<int>("Id"),
                 operations =>
                     {
                         Assert.Equal(1, operations.Count);
@@ -694,7 +612,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Zebra", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name").HasColumnType("nvarchar(30)");
                         }),
                 target => target.Entity(
@@ -703,7 +620,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Zebra", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name").HasColumnName("ZebraName").HasColumnType("nvarchar(30)");
                         }),
                 operations =>
@@ -728,7 +644,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Buffalo", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("BuffaloName").HasColumnType("nvarchar(30)");
                         }),
                 target => target.Entity(
@@ -737,7 +652,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Buffalo", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name").HasColumnName("BuffaloName").HasColumnType("nvarchar(30)");
                         }),
                 Assert.Empty);
@@ -824,7 +738,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Bison", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired(true)
@@ -837,7 +750,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Bison", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired(false)
@@ -870,7 +782,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Puma", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("varchar(30)")
                                 .IsRequired()
@@ -883,7 +794,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Puma", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("varchar(450)")
                                 .IsRequired()
@@ -978,7 +888,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Cougar", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -991,7 +900,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Cougar", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -1024,7 +932,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("MountainLion", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -1037,7 +944,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("MountainLion", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -1070,7 +976,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("MountainLion", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -1083,7 +988,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("MountainLion", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name")
                                 .HasColumnType("nvarchar(30)")
                                 .IsRequired()
@@ -1116,7 +1020,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Flamingo", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                         }),
                 target => target.Entity(
@@ -1125,7 +1028,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Flamingo", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId");
                         }),
@@ -1151,7 +1053,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Penguin", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId");
                         }),
@@ -1161,7 +1062,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Penguin", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                         }),
                 operations =>
@@ -1185,7 +1085,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Pelican", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId");
                         }),
@@ -1195,7 +1094,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Pelican", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId").HasName("AK_dbo.Pelican_AlternateId");
                         }),
@@ -1226,7 +1124,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Rook", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId");
                             x.Property<int>("AlternateRookId");
@@ -1237,7 +1134,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Rook", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.Property<int>("AlternateRookId");
                             x.HasAlternateKey("AlternateRookId").HasName("AK_Rook_AlternateId");
@@ -1263,14 +1159,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Rename_primary_key()
         {
             Execute(
-                source => source.Entity(
-                    "Puffin",
-                    x =>
-                        {
-                            x.ToTable("Puffin", "dbo");
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Puffin").ToTable("Puffin", "dbo").Property<int>("Id"),
                 target => target.Entity(
                     "Puffin",
                     x =>
@@ -1345,7 +1234,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                         }),
                 target => target.Entity(
@@ -1354,7 +1242,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId");
                         }),
@@ -1391,7 +1278,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                         }),
                 target => target.Entity(
@@ -1400,7 +1286,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId");
                         }),
@@ -1437,7 +1322,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                         }),
                 target => target.Entity(
@@ -1446,7 +1330,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Cascade);
                         }),
@@ -1483,7 +1366,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                         }),
                 target => target.Entity(
@@ -1492,7 +1374,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict);
                         }),
@@ -1529,7 +1410,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                         }),
                 target => target.Entity(
@@ -1538,7 +1418,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.ClientSetNull);
                         }),
@@ -1575,7 +1454,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                         }),
                 target => target.Entity(
@@ -1584,7 +1462,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
                         }),
@@ -1621,7 +1498,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                         }),
                 target => target.Entity(
@@ -1630,7 +1506,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("ParentId");
                             x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict);
                         }),
@@ -1667,7 +1542,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Anemone", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Anemone").WithMany().HasForeignKey("ParentId");
                         }),
@@ -1677,7 +1551,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Anemone", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                         }),
                 operations =>
@@ -1706,7 +1579,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Nematode", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Nematode").WithMany().HasForeignKey("ParentId");
                         }),
@@ -1716,7 +1588,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Nematode", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Nematode").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Nematode_NematodeParent");
                         }),
@@ -1750,7 +1621,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Mushroom", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId1");
                             x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1");
                             x.Property<int>("ParentId2");
@@ -1761,7 +1631,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Mushroom", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId1");
                             x.Property<int>("ParentId2");
                             x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId2").HasConstraintName("FK_Mushroom_Mushroom_ParentId1");
@@ -1807,7 +1676,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Mushroom", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId1");
                             x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").OnDelete(DeleteBehavior.Restrict);
                             x.Property<int>("ParentId2");
@@ -1818,7 +1686,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Mushroom", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId1");
                             x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").OnDelete(DeleteBehavior.Cascade);
                             x.Property<int>("ParentId2");
@@ -1851,58 +1718,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        source.Entity(
-                            "Lion",
-                            x =>
-                                {
-                                    x.ToTable("Lion", "odb");
-                                    x.Property<int>("LionId");
-                                    x.HasKey("LionId");
-                                });
-                        source.Entity(
-                            "Tiger",
-                            x =>
-                                {
-                                    x.ToTable("Tiger", "bod");
-                                    x.Property<int>("TigerId");
-                                    x.HasKey("TigerId");
-                                });
+                        source.Entity("Lion").ToTable("Lion", "odb").Property<int>("LionId");
+                        source.Entity("Tiger").ToTable("Tiger", "bod").Property<int>("TigerId");
                         source.Entity(
                             "Liger",
                             x =>
                                 {
                                     x.ToTable("Liger", "dbo");
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("ParentId");
                                     x.HasOne("Lion").WithMany().HasForeignKey("ParentId");
                                 });
                     },
                 target =>
                     {
-                        target.Entity(
-                            "Lion",
-                            x =>
-                                {
-                                    x.ToTable("Lion", "odb");
-                                    x.Property<int>("LionId");
-                                    x.HasKey("LionId");
-                                });
-                        target.Entity(
-                            "Tiger",
-                            x =>
-                                {
-                                    x.ToTable("Tiger", "bod");
-                                    x.Property<int>("TigerId");
-                                    x.HasKey("TigerId");
-                                });
+                        target.Entity("Lion").ToTable("Lion", "odb").Property<int>("LionId");
+                        target.Entity("Tiger").ToTable("Tiger", "bod").Property<int>("TigerId");
                         target.Entity(
                             "Liger",
                             x =>
                                 {
                                     x.ToTable("Liger", "dbo");
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("ParentId");
                                     x.HasOne("Tiger").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Liger_Lion_ParentId");
                                 });
@@ -1937,7 +1774,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Hippo", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 target => target.Entity(
@@ -1946,7 +1782,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Hippo", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value").IsUnique();
                         }),
@@ -1973,7 +1808,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Horse", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value");
                         }),
@@ -1983,7 +1817,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Horse", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 operations =>
@@ -2007,7 +1840,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Donkey", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value");
                         }),
@@ -2017,7 +1849,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Donkey", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value").HasName("IX_dbo.Donkey_Value");
                         }),
@@ -2043,7 +1874,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Muel", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value");
                             x.Property<int>("MuleValue");
@@ -2054,7 +1884,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Muel", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Property<int>("MuleValue");
                             x.HasIndex("MuleValue").HasName("IX_Muel_Value");
@@ -2086,7 +1915,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Pony", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value").IsUnique(false);
                         }),
@@ -2096,7 +1924,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             x.ToTable("Pony", "dbo");
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value").IsUnique(true);
                         }),
@@ -2415,7 +2242,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("Value");
                         }),
                 target => target.Entity(
@@ -2423,7 +2249,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 operations =>
@@ -2444,7 +2269,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 target => target.Entity(
@@ -2452,7 +2276,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int?>("Value");
                         }),
                 operations =>
@@ -2473,7 +2296,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 target => target.Entity(
@@ -2481,7 +2303,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value").HasColumnType("bigint");
                         }),
                 operations =>
@@ -2497,13 +2318,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Sort_works_with_primary_keys_and_columns()
         {
             Execute(
-                source => source.Entity(
-                    "Jaguar",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Jaguar").Property<int>("Id"),
                 target => target.Entity(
                     "Jaguar",
                     x =>
@@ -2523,19 +2338,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Sort_adds_unique_constraint_after_column()
         {
             Execute(
-                source => source.Entity(
-                    "Panther",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Panther").Property<int>("Id"),
                 target => target.Entity(
                     "Panther",
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId");
                         }),
@@ -2554,17 +2362,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                             x.HasAlternateKey("AlternateId");
                         }),
-                target => target.Entity(
-                    "Bobcat",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                target => target.Entity("Bobcat").Property<int>("Id"),
                 operations => Assert.Collection(
                     operations,
                     o => Assert.IsType<DropUniqueConstraintOperation>(o),
@@ -2575,19 +2376,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Sort_creates_index_after_column()
         {
             Execute(
-                source => source.Entity(
-                    "Coyote",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Coyote").Property<int>("Id"),
                 target => target.Entity(
                     "Coyote",
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value");
                         }),
@@ -2606,17 +2400,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.HasIndex("Value");
                         }),
-                target => target.Entity(
-                    "Wolf",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                target => target.Entity("Wolf").Property<int>("Id"),
                 operations => Assert.Collection(
                     operations,
                     o => Assert.IsType<DropIndexOperation>(o),
@@ -2627,19 +2414,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Sort_adds_foreign_key_after_column()
         {
             Execute(
-                source => source.Entity(
-                    "Algae",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Algae").Property<int>("Id"),
                 target => target.Entity(
                     "Algae",
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Algae").WithMany().HasForeignKey("ParentId");
                         }),
@@ -2659,17 +2439,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Bacteria").WithMany().HasForeignKey("ParentId");
                         }),
-                target => target.Entity(
-                    "Bacteria",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
+                target => target.Entity("Bacteria").Property<int>("Id"),
                 operations => Assert.Collection(
                     operations,
                     o => Assert.IsType<DropForeignKeyOperation>(o),
@@ -2686,24 +2459,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("MakerId");
                         }),
                 target =>
                     {
-                        target.Entity(
-                            "Maker",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        target.Entity("Maker").Property<int>("Id");
                         target.Entity(
                             "Car",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                     x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                                 });
@@ -2721,19 +2486,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        source.Entity(
-                            "Maker",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        source.Entity("Maker").Property<int>("Id");
                         source.Entity(
                             "Boat",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                     x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                                 });
@@ -2743,7 +2501,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("MakerId");
                         }),
                 operations => Assert.Collection(
@@ -2759,19 +2516,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        source.Entity(
-                            "Maker",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        source.Entity("Maker").Property<int>("Id");
                         source.Entity(
                             "Airplane",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                 });
                     },
@@ -2782,7 +2532,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("AlternateId");
                                 });
                         target.Entity(
@@ -2790,7 +2539,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                     x.HasOne("Maker").WithMany().HasForeignKey("MakerId").HasPrincipalKey("AlternateId");
                                 });
@@ -2814,7 +2562,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("AlternateId");
                                 });
                         source.Entity(
@@ -2822,26 +2569,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                     x.HasOne("Maker").WithMany().HasForeignKey("MakerId").HasPrincipalKey("AlternateId");
                                 });
                     },
                 target =>
                     {
-                        target.Entity(
-                            "Maker",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        target.Entity("Maker").Property<int>("Id");
                         target.Entity(
                             "Submarine",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                 });
                     },
@@ -2860,19 +2599,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        modelBuilder.Entity(
-                            "Maker",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        modelBuilder.Entity("Maker").Property<int>("Id");
                         modelBuilder.Entity(
                             "Helicopter",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                     x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                                 });
@@ -2897,19 +2629,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 modelBuilder =>
                     {
-                        modelBuilder.Entity(
-                            "Maker",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        modelBuilder.Entity("Maker").Property<int>("Id");
                         modelBuilder.Entity(
                             "Glider",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("MakerId");
                                     x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                                 });
@@ -2931,20 +2656,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Rename_column_with_primary_key()
         {
             Execute(
-                source => source.Entity(
-                    "Hornet",
-                    x =>
-                        {
-                            x.Property<int>("Id");
-                            x.HasKey("Id");
-                        }),
-                target => target.Entity(
-                    "Hornet",
-                    x =>
-                        {
-                            x.Property<int>("Id").HasColumnName("HornetId");
-                            x.HasKey("Id");
-                        }),
+                source => source.Entity("Hornet").Property<int>("Id"),
+                target => target.Entity("Hornet").Property<int>("Id").HasColumnName("HornetId"),
                 operations =>
                     {
                         Assert.Equal(1, operations.Count);
@@ -2962,7 +2675,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name");
                             x.HasAlternateKey("Name");
                         }),
@@ -2971,7 +2683,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name").HasColumnName("WaspName");
                             x.HasAlternateKey("Name");
                         }),
@@ -2994,7 +2705,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name");
                             x.HasIndex("Name");
                         }),
@@ -3003,7 +2713,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name").HasColumnName("BeeName");
                             x.HasIndex("Name");
                         }),
@@ -3025,7 +2734,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name");
                             x.HasAlternateKey("Name");
                         }),
@@ -3056,7 +2764,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name");
                             x.HasIndex("Name");
                         }),
@@ -3087,7 +2794,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name");
                             x.HasAlternateKey("Name");
                         }),
@@ -3117,7 +2823,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<string>("Name");
                             x.HasIndex("Name");
                         }),
@@ -3147,7 +2852,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Yeast").WithMany().HasForeignKey("ParentId");
                         }),
@@ -3156,7 +2860,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId").HasColumnName("ParentYeastId");
                             x.HasOne("Yeast").WithMany().HasForeignKey("ParentId");
                         }),
@@ -3180,7 +2883,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Mucor").WithMany().HasForeignKey("ParentId");
                         }),
@@ -3189,7 +2891,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id").HasColumnName("MucorId");
-                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                             x.HasOne("Mucor").WithMany().HasForeignKey("ParentId");
                         }),
@@ -3206,32 +2907,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        source.Entity(
-                            "Zebra",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        source.Entity("Zebra").Property<int>("Id");
                         source.Entity(
                             "Zonkey",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("ParentId");
                                     x.HasOne("Zebra").WithMany().HasForeignKey("ParentId");
                                 });
                     },
                 target =>
                     {
-                        target.Entity(
-                            "Zebra",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        target.Entity("Zebra").Property<int>("Id");
                         target.Entity(
                             "Zonkey",
                             x =>
@@ -3257,19 +2945,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        source.Entity(
-                            "Jaguar",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        source.Entity("Jaguar").Property<int>("Id");
                         source.Entity(
                             "Jaglion",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("ParentId");
                                     x.HasOne("Jaguar").WithMany().HasForeignKey("ParentId");
                                 });
@@ -3289,7 +2970,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("ParentId");
                                     x.HasOne("Jaguar").WithMany().HasForeignKey("ParentId")
                                         .HasConstraintName("FK_Jaglion_Jaguar_ParentId");
@@ -3309,27 +2989,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        IMutableEntityType animal = null;
-                        modelBuilder.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        modelBuilder.Entity(
-                            "Fish",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Fish";
-                                });
+                        modelBuilder.Entity("Animal").Property<int>("Id");
+                        modelBuilder.Entity("Fish").HasBaseType("Animal").Property<string>("Name");
                     },
                 operations =>
                     {
@@ -3350,27 +3011,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        IMutableEntityType animal = null;
-                        modelBuilder.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        modelBuilder.Entity(
-                            "Whale",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("Value");
-                                    x.Metadata.Relational().DiscriminatorValue = "Whale";
-                                });
+                        modelBuilder.Entity("Animal").Property<int>("Id");
+                        modelBuilder.Entity("Whale").HasBaseType("Animal").Property<int>("Value");
                     },
                 operations =>
                     {
@@ -3390,52 +3032,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "Shark",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Metadata.Relational().DiscriminatorValue = "Shark";
-                                });
+                        source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        source.Entity("Shark").HasBaseType("Animal");
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "Shark",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Shark";
-                                });
+                        target.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        target.Entity("Shark").HasBaseType("Animal").Property<string>("Name");
                     },
                 operations =>
                     {
@@ -3454,50 +3057,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "Marlin",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Metadata.Relational().DiscriminatorValue = "Marlin";
-                                });
+                        source.Entity("Animal").Property<int>("Id");
+                        source.Entity("Marlin").HasBaseType("Animal");
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "Marlin",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("Value");
-                                    x.Metadata.Relational().DiscriminatorValue = "Marlin";
-                                });
+                        target.Entity("Animal").Property<int>("Id");
+                        target.Entity("Marlin").HasBaseType("Animal").Property<int>("Value");
                     },
                 operations =>
                     {
@@ -3516,52 +3082,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "Blowfish",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Blowfish";
-                                });
+                        source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        source.Entity("Blowfish").HasBaseType("Animal").Property<string>("Name");
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "Blowfish",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Metadata.Relational().DiscriminatorValue = "Blowfish";
-                                });
+                        target.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        target.Entity("Blowfish").HasBaseType("Animal");
                     },
                 operations =>
                     {
@@ -3580,53 +3107,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "Barracuda",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Barracuda";
-                                });
+                        source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        source.Entity("Barracuda").HasBaseType("Animal").Property<string>("Name");
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "Barracuda",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name").HasColumnType("varchar(30)");
-                                    x.Metadata.Relational().DiscriminatorValue = "Barracuda";
-                                });
+                        target.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        target.Entity("Barracuda").HasBaseType("Animal").Property<string>("Name")
+                            .HasColumnType("varchar(30)");
                     },
                 operations =>
                     {
@@ -3646,53 +3134,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "Minnow",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Minnow";
-                                });
+                        source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        source.Entity("Minnow").HasBaseType("Animal").Property<string>("Name");
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        target.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
                         target.Entity(
                             "Minnow",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<string>("Name");
                                     x.HasIndex("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Minnow";
                                 });
                     },
                 operations =>
@@ -3713,54 +3167,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
                         source.Entity(
                             "Pike",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<string>("Name");
                                     x.HasIndex("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Pike";
                                 });
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        target.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
                         target.Entity(
                             "Pike",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<string>("Name");
                                     x.HasIndex("Name").HasName("IX_Animal_Pike_Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Pike";
                                 });
                     },
                 operations =>
@@ -3781,54 +3207,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        source.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
                         source.Entity(
                             "Catfish",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<string>("Name");
                                     x.HasIndex("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Catfish";
                                 });
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.ToTable("Animal", "dbo");
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "Catfish",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<string>("Name");
-                                    x.Metadata.Relational().DiscriminatorValue = "Catfish";
-                                });
+                        target.Entity("Animal").ToTable("Animal", "dbo").Property<int>("Id");
+                        target.Entity("Catfish").HasBaseType("Animal").Property<string>("Name");
                     },
                 operations =>
                     {
@@ -3848,19 +3240,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        modelBuilder.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        modelBuilder.Entity("Person").Property<int>("Id");
                         modelBuilder.Entity(
                             "Animal",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("HandlerId");
                                     x.HasOne("Person").WithMany().HasForeignKey("HandlerId");
                                 });
@@ -3895,34 +3280,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        modelBuilder.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
-                        IMutableEntityType animal = null;
-                        modelBuilder.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        modelBuilder.Entity("Person").Property<int>("Id");
+                        modelBuilder.Entity("Animal").Property<int>("Id");
                         modelBuilder.Entity(
                             "Stag",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<int>("HandlerId");
                                     x.HasOne("Person").WithMany().HasForeignKey("HandlerId");
-                                    x.Metadata.Relational().DiscriminatorValue = "Stag";
                                 });
                     },
                 operations =>
@@ -3955,32 +3321,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        IMutableEntityType animal = null;
-                        modelBuilder.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        modelBuilder.Entity(
-                            "DomesticAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Metadata.Relational().DiscriminatorValue = "DomesticAnimal";
-                                });
+                        modelBuilder.Entity("Animal").Property<int>("Id");
+                        modelBuilder.Entity("DomesticAnimal").HasBaseType("Animal");
                         modelBuilder.Entity(
                             "Person",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("PetId");
                                     x.HasOne("DomesticAnimal").WithMany().HasForeignKey("PetId");
                                 });
@@ -4015,27 +3362,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        IMutableEntityType animal = null;
-                        modelBuilder.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        modelBuilder.Entity("Animal").Property<int>("Id");
                         modelBuilder.Entity(
                             "Predator",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<int>("PreyId");
                                     x.HasOne("Animal").WithMany().HasForeignKey("PreyId");
-                                    x.Metadata.Relational().DiscriminatorValue = "Predator";
                                 });
                     },
                 operations =>
@@ -4084,38 +3418,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 modelBuilder =>
                     {
-                        modelBuilder.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        modelBuilder.Entity("Person").Property<int>("Id");
                         modelBuilder.Entity(
                             "Animal",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("HandlerId");
                                 });
                         modelBuilder.Entity("Drakee").HasBaseType("Animal");
                     },
                 modelBuilder =>
                     {
-                        modelBuilder.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
+                        modelBuilder.Entity("Person").Property<int>("Id");
                         modelBuilder.Entity(
                             "Animal",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("HandlerId");
                                     x.HasOne("Person").WithMany().HasForeignKey("HandlerId");
                                 });
@@ -4145,42 +3465,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 common =>
                     {
-                        common.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
-                        IMutableEntityType animal = null;
-                        common.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        common.Entity(
-                            "GameAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("HunterId");
-                                    x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
-                                });
-                        common.Entity(
-                            "EndangeredAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("HunterId");
-                                    x.Metadata.Relational().DiscriminatorValue = "EndangeredAnimal";
-                                });
+                        common.Entity("Person").Property<int>("Id");
+                        common.Entity("Animal").Property<int>("Id");
+                        common.Entity("GameAnimal").HasBaseType("Animal").Property<int>("HunterId");
+                        common.Entity("EndangeredAnimal").HasBaseType("Animal").Property<int>("HunterId");
                     },
                 source => { },
                 target =>
@@ -4216,63 +3504,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        source.Entity(
-                            "TrophyAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Metadata.Relational().DiscriminatorValue = "TrophyAnimal";
-                                });
+                        source.Entity("Animal").Property<int>("Id");
+                        source.Entity("TrophyAnimal").HasBaseType("Animal");
                         source.Entity(
                             "Person",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("TrophyId");
                                 });
                     },
                 target =>
                     {
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "TrophyAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Metadata.Relational().DiscriminatorValue = "TrophyAnimal";
-                                });
+                        target.Entity("Animal").Property<int>("Id");
+                        target.Entity("TrophyAnimal").HasBaseType("Animal");
                         target.Entity(
                             "Person",
                             x =>
                                 {
                                     x.Property<int>("Id");
-                                    x.HasKey("Id");
                                     x.Property<int>("TrophyId");
                                     x.HasOne("TrophyAnimal").WithMany().HasForeignKey("TrophyId");
                                 });
@@ -4301,66 +3551,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Execute(
                 source =>
                     {
-                        source.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
-                        IMutableEntityType animal = null;
-                        source.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
+                        source.Entity("Person").Property<int>("Id");
+                        source.Entity("Animal").Property<int>("Id");
                         source.Entity(
                             "MountAnimal",
                             x =>
                                 {
-                                    x.Metadata.BaseType = animal;
+                                    x.HasBaseType("Animal");
                                     x.Property<int>("RiderId");
                                     x.HasOne("Person").WithMany().HasForeignKey("RiderId");
-                                    x.Metadata.Relational().DiscriminatorValue = "MountAnimal";
                                 });
                     },
                 target =>
                     {
-                        target.Entity(
-                            "Person",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                });
-                        IMutableEntityType animal = null;
-                        target.Entity(
-                            "Animal",
-                            x =>
-                                {
-                                    x.Property<int>("Id");
-                                    x.HasKey("Id");
-                                    var discriminatorProperty = x.Property<string>("Discriminator").IsRequired().Metadata;
-
-                                    animal = x.Metadata;
-                                    animal.Relational().DiscriminatorProperty = discriminatorProperty;
-                                    animal.Relational().DiscriminatorValue = "Animal";
-                                });
-                        target.Entity(
-                            "MountAnimal",
-                            x =>
-                                {
-                                    x.Metadata.BaseType = animal;
-                                    x.Property<int>("RiderId");
-                                    x.Metadata.Relational().DiscriminatorValue = "MountAnimal";
-                                });
+                        target.Entity("Person").Property<int>("Id");
+                        target.Entity("Animal").Property<int>("Id");
+                        target.Entity("MountAnimal").HasBaseType("Animal").Property<int>("RiderId");
                     },
                 operations =>
                     {
@@ -4383,17 +3589,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        modelBuilder.Entity("Order", eb =>
-                            {
-                                eb.Property<int>("Id");
-                                eb.HasKey("Id");
-                                eb.ToTable("Orders");
-                            });
+                        modelBuilder.Entity("Order").ToTable("Orders").Property<int>("Id");
                         modelBuilder.Entity("OrderDetails", eb =>
                             {
                                 eb.Property<int>("Id");
                                 eb.Property<DateTime>("Time");
-                                eb.HasKey("Id");
                                 eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
                                 eb.ToTable("Orders");
                             });
@@ -4417,22 +3617,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                     {
-                        modelBuilder.Entity("OrderBase", eb =>
-                            {
-                                eb.Property<int>("Id");
-                                eb.HasKey("Id");
-                                eb.ToTable("Orders");
-                            });
-                        modelBuilder.Entity("Order", eb =>
-                            {
-                                eb.HasBaseType("OrderBase");
-                                eb.ToTable("Orders");
-                            });
-                        modelBuilder.Entity("OrderDetails", eb =>
+                        modelBuilder.Entity("OrderBase").ToTable("Orders").Property<int>("Id");
+                        modelBuilder.Entity("Order").HasBaseType("OrderBase").ToTable("Orders");
+                        modelBuilder.Entity(
+                            "OrderDetails",
+                            eb =>
                             {
                                 eb.Property<int>("Id");
                                 eb.Property<DateTime>("Time");
-                                eb.HasKey("Id");
                                 eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
                                 eb.ToTable("Orders");
                             });
@@ -4458,7 +3650,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<bool>("Value").HasDefaultValue(true);
                         }),
                 target => target.Entity(
@@ -4466,7 +3657,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.HasKey("Id");
                             x.Property<bool>("Value").HasDefaultValue(true);
                         }),
                 Assert.Empty);
@@ -4476,14 +3666,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_column_to_renamed_table()
         {
             Execute(
-                source => source
-                    .Entity(
-                        "Table",
-                        x =>
-                            {
-                                x.ToTable("Table", "old");
-                                x.Property<int>("Id");
-                            }),
+                source => source.Entity("Table").ToTable("Table", "old").Property<int>("Id"),
                 target => target
                     .Entity(
                         "Table",
@@ -4595,13 +3778,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 source => source
-                    .Entity(
-                        "ReferencedTable",
-                        x =>
-                            {
-                                x.ToTable("ReferencedTable", "old");
-                                x.Property<int>("Id");
-                            })
+                    .Entity("ReferencedTable", x => x.ToTable("ReferencedTable", "old").Property<int>("Id"))
                     .Entity(
                         "Table",
                         x =>
@@ -4682,13 +3859,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Create_table_with_foreign_key_referencing_renamed_table()
         {
             Execute(
-                source => source.Entity(
-                    "ReferencedTable",
-                    x =>
-                        {
-                            x.ToTable("ReferencedTable", "old");
-                            x.Property<int>("Id");
-                        }),
+                source => source.Entity("ReferencedTable").ToTable("ReferencedTable", "old").Property<int>("Id"),
                 target => target
                     .Entity(
                         "ReferencedTable",
@@ -4730,8 +3901,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Create_table_with_foreign_key_referencing_renamed_column()
         {
             Execute(
-                source => source
-                    .Entity("ReferencedTable", x => x.Property<int>("Id")),
+                source => source.Entity("ReferencedTable").Property<int>("Id"),
                 target => target
                     .Entity("ReferencedTable", x => x.Property<int>("Id").HasColumnName("ReferencedTableId"))
                     .Entity(
@@ -5287,10 +4457,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Add_alternate_key_on_added_column()
         {
             Execute(
-                source => source
-                    .Entity(
-                        "Table",
-                        x => { x.Property<int>("Id"); }),
+                source => source.Entity("Table").Property<int>("Id"),
                 target => target
                     .Entity(
                         "Table",

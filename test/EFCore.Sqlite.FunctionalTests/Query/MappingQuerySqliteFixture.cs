@@ -49,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
-                    // TODO: Use .Sqlite() when available
                     e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "CompanyName";
                     e.Metadata.Relational().TableName = "Customers";
                 });
