@@ -3,7 +3,7 @@
     ModuleToProcess = 'EntityFrameworkCore.PowerShell2.psm1'
 
     # Version number of this module.
-    ModuleVersion = '2.0.0'
+    ModuleVersion = '2.1.0'
 
     # ID used to uniquely identify this module
     GUID = '2de7c7fd-c848-41d7-8634-37fed4d3bb36'

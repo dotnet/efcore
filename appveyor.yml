@@ -1,4 +1,4 @@
-version: 2.0.0-preview3-{build}
+version: 2.1.0-preview1-{build}
 init:
   - git config --global core.autocrlf true
 build_script:

@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var model = modelSource.GetModel(new Context1(), _nullConventionSetBuilder, _coreModelValidator);
 
-            Assert.StartsWith("2.0.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
+            Assert.StartsWith("2.1.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 
         private class Context1 : DbContext
