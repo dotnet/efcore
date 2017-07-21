@@ -29,6 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         {
 #if NET461
             return ".NET Framework";
+#elif NETCOREAPP1_1
+            return ".NET Core 1.1";
 #endif
         }
 
