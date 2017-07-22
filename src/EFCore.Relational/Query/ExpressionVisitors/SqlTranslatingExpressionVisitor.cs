@@ -277,9 +277,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 if (ifTrue.IsComparisonOperation()
                     || ifFalse.IsComparisonOperation())
                 {
-                    return Expression.OrElse(
-                        Expression.AndAlso(test, ifTrue),
-                        Expression.AndAlso(Invert(test), ifFalse));
+                    var invertedTest = Invert(test);
+                    if (invertedTest != null)
+                    {
+                        return Expression.OrElse(
+                            Expression.AndAlso(test, ifTrue),
+                            Expression.AndAlso(invertedTest, ifFalse));
+                    }
                 }
 
                 return expression.Update(test, ifTrue, ifFalse);
@@ -290,7 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private static Expression Invert(Expression test)
         {
-            if (test.IsComparisonOperation())
+            if (test.IsComparisonOperation()
+                || test is IsNullExpression)
             {
                 if (test is BinaryExpression binaryOperation)
                 {

@@ -545,5 +545,18 @@ FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI'
 ORDER BY [Order]");
         }
+
+        public override void Select_conditional_with_null_comparison_in_test()
+        {
+            base.Select_conditional_with_null_comparison_in_test();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [o].[CustomerID] IS NULL OR ([o].[CustomerID] IS NOT NULL AND ([o].[OrderID] < 100))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'ALFKI'");
+        }
     }
 }

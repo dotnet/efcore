@@ -595,5 +595,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(o => new { LongOrder = (long)o.OrderID, ShortOrder = (short)o.OrderID, Order = o.OrderID }),
                 assertOrder: true);
         }
+
+        [ConditionalFact]
+        public virtual void Select_conditional_with_null_comparison_in_test()
+        {
+            AssertQueryScalar<Order>(
+                os => from o in os
+                      where o.CustomerID == "ALFKI"
+                      select o.CustomerID == null ? true : o.OrderID < 100);
+        }
     }
 }
