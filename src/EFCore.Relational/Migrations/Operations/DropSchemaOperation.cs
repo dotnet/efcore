@@ -5,8 +5,14 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
+    /// <summary>
+    ///     A <see cref="MigrationOperation" /> for dropping a schema.
+    /// </summary>
     public class DropSchemaOperation : MigrationOperation
     {
+        /// <summary>
+        ///     The name of the schema.
+        /// </summary>
         public virtual string Name { get; [param: NotNull] set; }
     }
 }

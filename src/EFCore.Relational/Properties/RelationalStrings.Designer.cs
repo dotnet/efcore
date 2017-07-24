@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 table, entityType, otherEntityType, primaryKey, otherPrimaryKey);
 
         /// <summary>
-        ///     Cannot use table '{table}' for entity type '{dependentType}' since it has a relation ship to a derived entity type '{principalType}'. Either point the relationship to the base type '{rootType}' or map '{dependentType}' to a different table.
+        ///     Cannot use table '{table}' for entity type '{dependentType}' since it has a relationship to a derived entity type '{principalType}'. Either point the relationship to the base type '{rootType}' or map '{dependentType}' to a different table.
         /// </summary>
         public static string IncompatibleTableDerivedPrincipal([CanBeNull] object table, [CanBeNull] object dependentType, [CanBeNull] object principalType, [CanBeNull] object rootType)
             => string.Format(
@@ -807,6 +807,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Debug,
                     RelationalEventId.ConnectionError,
                     _resourceManager.GetString("LogRelationalLoggerConnectionErrorAsDebug")));
+
+        /// <summary>
+        ///     Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.
+        /// </summary>
+        public static string TimeoutTooSmall([CanBeNull] object seconds)
+            => string.Format(
+                GetString("TimeoutTooSmall", nameof(seconds)),
+                seconds);
+
+        /// <summary>
+        ///     Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {seconds} seconds.
+        /// </summary>
+        public static string TimeoutTooBig([CanBeNull] object seconds)
+            => string.Format(
+                GetString("TimeoutTooBig", nameof(seconds)),
+                seconds);
 
         /// <summary>
         ///     The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.

@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The exception that was thrown when execution failed.
         /// </param>
         /// <param name="async">
-        ///     Indicates whether or not the command was executed asyncronously.
+        ///     Indicates whether or not the command was executed asynchronously.
         /// </param>
         /// <param name="logParameterValues">
         ///     Indicates whether or not the application allows logging of parameter values.

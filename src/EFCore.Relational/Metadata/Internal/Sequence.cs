@@ -12,19 +12,55 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class Sequence : IMutableSequence
     {
         private readonly IModel _model;
         private readonly string _annotationName;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly Type DefaultClrType = typeof(long);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public const int DefaultIncrementBy = 1;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public const int DefaultStartValue = 1;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly long? DefaultMaxValue = default(long?);
+        
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly long? DefaultMinValue = default(long?);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly bool DefaultIsCyclic = default(bool);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Sequence(
             [NotNull] IMutableModel model,
             [NotNull] string annotationName,
@@ -45,6 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             });
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public Sequence([NotNull] IModel model, [NotNull] string annotationName)
         {
             Check.NotNull(model, nameof(model));
@@ -54,6 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _annotationName = annotationName;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IEnumerable<Sequence> GetSequences([NotNull] IModel model, [NotNull] string annotationPrefix)
         {
             Check.NotNull(model, nameof(model));
@@ -64,12 +108,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Select(a => new Sequence(model, a.Name));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Model Model => (Model)_model;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Name => GetData().Name;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Schema => GetData().Schema ?? Model.Relational().DefaultSchema;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual long StartValue
         {
             get => GetData().StartValue;
@@ -81,6 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int IncrementBy
         {
             get => GetData().IncrementBy;
@@ -92,6 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual long? MinValue
         {
             get => GetData().MinValue;
@@ -103,6 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual long? MaxValue
         {
             get => GetData().MaxValue;
@@ -114,6 +186,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static IReadOnlyCollection<Type> SupportedTypes { get; } = new[]
         {
             typeof(byte),
@@ -122,6 +198,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             typeof(short)
         };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type ClrType
         {
             get => GetData().ClrType;
@@ -139,6 +219,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsCyclic
         {
             get => GetData().IsCyclic;

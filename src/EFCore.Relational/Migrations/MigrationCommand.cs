@@ -10,10 +10,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
+    /// <summary>
+    ///     Represents a command ready to be sent to the database to migrate it.
+    /// </summary>
     public class MigrationCommand
     {
         private readonly IRelationalCommand _relationalCommand;
 
+        /// <summary>
+        ///     Creates a new instance of the command.
+        /// </summary>
+        /// <param name="relationalCommand"> The underlying <see cref="IRelationalCommand" /> that will be used to execute the command. </param>
+        /// <param name="transactionSuppressed"> Indicates whether or not transactions should be suppressed while executing the command. </param>
         public MigrationCommand(
             [NotNull] IRelationalCommand relationalCommand,
             bool transactionSuppressed = false)
@@ -24,10 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             TransactionSuppressed = transactionSuppressed;
         }
 
+        /// <summary>
+        ///     Indicates whether or not transactions should be suppressed while executing the command.
+        /// </summary>
         public virtual bool TransactionSuppressed { get; }
 
+        /// <summary>
+        ///     The SQL command text that will be executed against the database.
+        /// </summary>
         public virtual string CommandText => _relationalCommand.CommandText;
 
+        /// <summary>
+        ///     Executes the command and returns the number of rows affected.
+        /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters, or <c>null</c> if the command has no parameters. </param>
+        /// <returns> The number of rows affected. </returns>
         public virtual int ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
@@ -35,6 +55,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Check.NotNull(connection, nameof(connection)),
                 parameterValues);
 
+        /// <summary>
+        ///     Executes the command and returns the number of rows affected.
+        /// </summary>
+        /// <param name="connection"> The connection to execute against. </param>
+        /// <param name="parameterValues"> The values for the parameters, or <c>null</c> if the command has no parameters. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation. The task result contains the number of rows affected.  </returns>
         public virtual async Task<int> ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,

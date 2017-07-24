@@ -9,8 +9,16 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public static class ConstraintNamer
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string GetDefaultName([NotNull] IForeignKey foreignKey)
         {
             var otherForeignKeyNames = new HashSet<string>(
@@ -43,6 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return name;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string GetDefaultName([NotNull] IIndex index)
         {
             var otherIndexNames = new HashSet<string>(
@@ -73,6 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return name;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string GetDefaultName([NotNull] IKey Key)
         {
             var builder = new StringBuilder();

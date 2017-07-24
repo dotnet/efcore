@@ -5,15 +5,47 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
+    /// <summary>
+    ///     A service representing an assembly containing EF Core Migrations.
+    /// </summary>
     public interface IMigrationsAssembly
     {
+        /// <summary>
+        ///     A dictionary mapping migration identifiers to the <see cref="TypeInfo" /> of the class
+        ///     that represents the migration.
+        /// </summary>
         IReadOnlyDictionary<string, TypeInfo> Migrations { get; }
+
+        /// <summary>
+        ///     The snapshot of the <see cref="IModel" /> contained in the assembly.
+        /// </summary>
         ModelSnapshot ModelSnapshot { get; }
+
+        /// <summary>
+        ///     The assembly that contains the migrations, snapshot, etc.
+        /// </summary>
         Assembly Assembly { get; }
+
+        /// <summary>
+        ///     Finds a migration identifier in the assembly with the given a full migration name or
+        ///     just its identifier.
+        /// </summary>
+        /// <param name="nameOrId"> The name or identifier to lookup. </param>
+        /// <returns> The identifier of the migration, or <c>null</c> if none was found. </returns>
         string FindMigrationId([NotNull] string nameOrId);
+
+        /// <summary>
+        ///     Creates an instance of the migration class.
+        /// </summary>
+        /// <param name="migrationClass">
+        ///     The <see cref="TypeInfo" /> for the migration class, as obtained from the <see cref="Migrations" /> dictionary.
+        /// </param>
+        /// <param name="activeProvider"> The name of the current database provider. </param>
+        /// <returns> The migration instance. </returns>
         Migration CreateMigration([NotNull] TypeInfo migrationClass, [NotNull] string activeProvider);
     }
 }

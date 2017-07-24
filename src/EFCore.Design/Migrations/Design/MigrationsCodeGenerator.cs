@@ -15,8 +15,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
+    /// <summary>
+    ///     Used to generate code for migrations.
+    /// </summary>
     public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator"/> class.
+        /// </summary>
+        /// <param name="dependencies"> The dependencies. </param>
         public MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -24,16 +31,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Dependencies = dependencies;
         }
 
+        /// <summary>
+        ///     Gets the file extension code files should use.
+        /// </summary>
+        /// <value> The file extension. </value>
         public abstract string FileExtension { get; }
 
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
         protected virtual MigrationsCodeGeneratorDependencies Dependencies { get; }
 
+        /// <summary>
+        ///     Generates the migration code.
+        /// </summary>
+        /// <param name="migrationNamespace"> The migration's namespace. </param>
+        /// <param name="migrationName"> The migration's name. </param>
+        /// <param name="upOperations"> The migration's up operations. </param>
+        /// <param name="downOperations"> The migration's down operations. </param>
+        /// <returns> The migration code. </returns>
         public abstract string GenerateMigration(
             string migrationNamespace,
             string migrationName,
             IReadOnlyList<MigrationOperation> upOperations,
             IReadOnlyList<MigrationOperation> downOperations);
 
+        /// <summary>
+        ///     Generates the migration metadata code.
+        /// </summary>
+        /// <param name="migrationNamespace"> The migration's namespace. </param>
+        /// <param name="contextType"> The migration's <see cref="DbContext"/> type. </param>
+        /// <param name="migrationName"> The migration's name. </param>
+        /// <param name="migrationId"> The migration's ID. </param>
+        /// <param name="targetModel"> The migraiton's target model. </param>
+        /// <returns> The migration metadata code. </returns>
         public abstract string GenerateMetadata(
             string migrationNamespace,
             Type contextType,
@@ -41,12 +72,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string migrationId,
             IModel targetModel);
 
+        /// <summary>
+        ///     Generates the model snapshot code.
+        /// </summary>
+        /// <param name="modelSnapshotNamespace"> The model snapshot's namespace. </param>
+        /// <param name="contextType"> The model snapshot's <see cref="DbContext"/> type. </param>
+        /// <param name="modelSnapshotName"> The model snapshot's name. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The model snapshot code. </returns>
         public abstract string GenerateSnapshot(
             string modelSnapshotNamespace,
             Type contextType,
             string modelSnapshotName,
             IModel model);
 
+        /// <summary>
+        ///     Gets the namespaces required for a list of <see cref="MigrationOperation"/> objects.
+        /// </summary>
+        /// <param name="operations"> The operations. </param>
+        /// <returns> The namespaces. </returns>
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IEnumerable<MigrationOperation> operations)
             => operations.OfType<ColumnOperation>().SelectMany(GetColumnNamespaces)
                 .Concat(operations.OfType<CreateTableOperation>().SelectMany(o => o.Columns).SelectMany(GetColumnNamespaces))
@@ -97,6 +141,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
         }
 
+        /// <summary>
+        ///     Gets the namespaces required for an <see cref="IModel"/>.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The namespaces. </returns>
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties().SelectMany(p => p.ClrType.GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));

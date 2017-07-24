@@ -11,16 +11,49 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
-    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-    ///     directly from your code. This API may change or be removed in future releases.
+    ///     <para>
+    ///         Builds the model for a given context. This default implementation builds the model by calling
+    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
+    ///     </para>
+    ///     <para>
+    ///         Also, entity types found as <see cref="DbSet{TEntity}" /> properties on the context are mapped
+    ///         to tables named for the DbSet property names, and public static methods on the context marked with
+    ///         <see cref="DbFunctionAttribute" /> are mapped to database functions.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public class RelationalModelCustomizer : ModelCustomizer
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalModelCustomizer" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalModelCustomizer([NotNull] ModelCustomizerDependencies dependencies)
             : base(dependencies)
         {
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Performs additional configuration of the model in addition to what is discovered by convention. This implementation
+        ///         builds the model for a given context by calling <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />
+        ///         on the context.
+        ///     </para>
+        ///     <para>
+        ///         Also, entity types found as <see cref="DbSet{TEntity}" /> properties on the context are mapped
+        ///         to tables named for the DbSet property names, and public static methods on the context marked with
+        ///         <see cref="DbFunctionAttribute" /> are mapped to database functions.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder">
+        ///     The builder being used to construct the model.
+        /// </param>
+        /// <param name="context">
+        ///     The context instance that the model is being created for.
+        /// </param>
         public override void Customize(ModelBuilder modelBuilder, DbContext context)
         {
             FindDbFunctions(modelBuilder, context);
@@ -29,18 +62,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Adds to the model function mappings found as public static methods on the context marked with
+        ///     the <see cref="DbFunctionAttribute" />.
         /// </summary>
+        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
+        /// <param name="context"> The context to find function methods on. </param>
         protected virtual void FindDbFunctions([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(context, nameof(context));
 
             var functions = context.GetType().GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                                .Where(mi => mi.IsStatic
-                                             && mi.IsPublic
-                                             && mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
+                .Where(
+                    mi => mi.IsStatic
+                          && mi.IsPublic
+                          && mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
 
             foreach (var function in functions)
             {
@@ -49,9 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Adds the entity types found in <see cref="DbSet{TEntity}" /> properties on the context to the model.
         /// </summary>
+        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> being used to build the model. </param>
+        /// <param name="context"> The context to find <see cref="DbSet{TEntity}" /> properties on. </param>
         protected override void FindSets(ModelBuilder modelBuilder, DbContext context)
         {
             base.FindSets(modelBuilder, context);

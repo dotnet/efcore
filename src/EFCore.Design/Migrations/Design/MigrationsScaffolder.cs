@@ -19,11 +19,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
+    /// <summary>
+    ///     Used to scaffold new migrations.
+    /// </summary>
     public class MigrationsScaffolder
     {
         private readonly Type _contextType;
         private readonly string _activeProvider;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MigrationsScaffolder"/> class.
+        /// </summary>
+        /// <param name="dependencies"> The dependencies. </param>
         public MigrationsScaffolder([NotNull] MigrationsScaffolderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -33,8 +40,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Dependencies = dependencies;
         }
 
+        /// <summary>
+        ///     Parameter object containing dependencies for this service.
+        /// </summary>
         protected virtual MigrationsScaffolderDependencies Dependencies { get; }
 
+        /// <summary>
+        ///     Scaffolds a new migration.
+        /// </summary>
+        /// <param name="migrationName"> The migration's name. </param>
+        /// <param name="rootNamespace"> The project's root namespace. </param>
+        /// <param name="subNamespace"> The migration's sub-namespace. </param>
+        /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
             [NotNull] string rootNamespace,
@@ -152,6 +169,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GetSubNamespace(rootNamespace, modelSnapshotNamespace));
         }
 
+        /// <summary>
+        ///     Gets a sub-namespace.
+        /// </summary>
+        /// <param name="rootNamespace"> The root namespace. </param>
+        /// <param name="namespace"> The full namespace. </param>
+        /// <returns> The sub-namespace. </returns>
         protected virtual string GetSubNamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
             @namespace == rootNamespace
                 ? string.Empty
@@ -159,6 +182,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ? @namespace.Substring(rootNamespace.Length + 1)
                     : @namespace;
 
+        /// <summary>
+        ///     Removes the previous migration.
+        /// </summary>
+        /// <param name="projectDir"> The project's root directory. </param>
+        /// <param name="rootNamespace"> The project's root namespace. </param>
+        /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
+        /// <returns> The removed migration files. </returns>
         // TODO: DRY (file names)
         public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace, bool force)
         {
@@ -276,6 +306,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return files;
         }
 
+        /// <summary>
+        ///     Saves a scaffolded migration to files.
+        /// </summary>
+        /// <param name="projectDir"> The project's root directory. </param>
+        /// <param name="migration"> The scaffolded migration. </param>
+        /// <param name="outputDir"> The directory to put files in. Paths are relaive to the project directory. </param>
+        /// <returns> The saved migrations files. </returns>
         public virtual MigrationFiles Save(
             [NotNull] string projectDir,
             [NotNull] ScaffoldedMigration migration,
@@ -309,6 +346,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
         }
 
+        /// <summary>
+        ///     Gets the namespace of a sibling type. If none, the default namespace is used.
+        /// </summary>
+        /// <param name="siblingType"> The sibling type. </param>
+        /// <param name="defaultNamespace"> The default namespace. </param>
+        /// <returns> The namespace. </returns>
         protected virtual string GetNamespace([CanBeNull] Type siblingType, [NotNull] string defaultNamespace)
         {
             if (siblingType != null)
@@ -325,6 +368,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return defaultNamespace;
         }
 
+        /// <summary>
+        ///     Gets the directory of a sibling file. If none, the directory corresponding to the sub-namespace is used.
+        /// </summary>
+        /// <param name="projectDir"> The project's root directory. </param>
+        /// <param name="siblingFileName"> The sibling file's name. </param>
+        /// <param name="subnamespace"> The sub-namespace. </param>
+        /// <returns> The directory path. </returns>
         protected virtual string GetDirectory(
             [NotNull] string projectDir,
             [CanBeNull] string siblingFileName,
@@ -353,6 +403,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             return defaultDirectory;
         }
 
+        /// <summary>
+        ///     Tries to find a file under the project directory.
+        /// </summary>
+        /// <param name="projectDir"> The project directory. </param>
+        /// <param name="fileName"> The filename. </param>
+        /// <returns> The file path or null if none. </returns>
         protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>
             Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 

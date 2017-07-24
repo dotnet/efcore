@@ -410,6 +410,12 @@
     <value>An error occurred using the connection to database '{database}' on server '{server}'.</value>
     <comment>Debug RelationalEventId.ConnectionError string string</comment>
   </data>
+  <data name="TimeoutTooSmall" xml:space="preserve">
+    <value>Timeout must be greater than or equal to zero.  Provided: {seconds} seconds.</value>
+  </data>
+  <data name="TimeoutTooBig" xml:space="preserve">
+    <value>Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {seconds} seconds.</value>
+  </data>
   <data name="DbFunctionInvalidReturnType" xml:space="preserve">
     <value>The DbFunction '{function}' has an invalid return type '{type}'. Ensure that the return type can be mapped by the current provider.</value>
   </data>

@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         An application may have expected an ambient transaction to be used when it was actually ignorred.
+        ///         An application may have expected an ambient transaction to be used when it was actually ignored.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.

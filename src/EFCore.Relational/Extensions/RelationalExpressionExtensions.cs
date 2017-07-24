@@ -9,8 +9,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public static class RelationalExpressionExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool IsSimpleExpression([NotNull] this Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -24,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                    || unwrappedExpression is AliasExpression;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static ColumnReferenceExpression LiftExpressionFromSubquery([NotNull] this Expression expression, [NotNull] TableExpressionBase table)
         {
             Check.NotNull(expression, nameof(expression));

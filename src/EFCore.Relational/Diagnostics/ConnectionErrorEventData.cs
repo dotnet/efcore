@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The exception that was thrown when the connection failed.
         /// </param>
         /// <param name="async">
-        ///     Indicates whether or not the operation is happening asyncronously.
+        ///     Indicates whether or not the operation is happening asynchronously.
         /// </param>
         /// <param name="startTime">
         ///     The start time of this event.

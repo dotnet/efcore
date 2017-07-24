@@ -5,15 +5,30 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
+    /// <summary>
+    ///     A <see cref="MigrationOperation" /> for dropping an existing column.
+    /// </summary>
     public class DropColumnOperation : MigrationOperation
     {
-        public DropColumnOperation()
-        {
-            IsDestructiveChange = true;
-        }
+        /// <summary>
+        ///     Creates a new instance of the <see cref="DropColumnOperation" />.
+        /// </summary>
+        // ReSharper disable once VirtualMemberCallInConstructor
+        public DropColumnOperation() => IsDestructiveChange = true;
 
+        /// <summary>
+        ///     The name of the column.
+        /// </summary>
         public virtual string Name { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
+        /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     The table that contains that column.
+        /// </summary>
         public virtual string Table { get; [param: NotNull] set; }
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
         /// </param>
         /// <param name="async">
-        ///     Indicates whether or not the operation is happening asyncronously.
+        ///     Indicates whether or not the operation is happening asynchronously.
         /// </param>
         /// <param name="startTime">
         ///     The start time of this event.
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual Guid ConnectionId { get; }
 
         /// <summary>
-        ///     Indicates whether or not the operation is happening asyncronously.
+        ///     Indicates whether or not the operation is happening asynchronously.
         /// </summary>
         public virtual bool IsAsync { get; }
 

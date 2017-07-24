@@ -34,11 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             _builder = new InternalDbFunctionBuilder(function);
         }
 
+        /// <summary>
+        ///     Metadata representing the function being configured.
+        /// </summary>
         public virtual IMutableDbFunction Metadata => _builder.Metadata;
 
         /// <summary>
         ///     Sets the name of the database function.
         /// </summary>
+        /// <param name="name"> The name of the function in the database. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilder HasName([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -51,6 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the schema of the database function.
         /// </summary>
+        /// <param name="schema"> The schema of the function in the database. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilder HasSchema([CanBeNull] string schema)
         {
             _builder.HasSchema(schema, ConfigurationSource.Explicit);
@@ -69,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
         ///     </para>
         /// </summary>
+        /// <param name="translation"> The translation to use. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilder HasTranslation([NotNull] Func<IReadOnlyCollection<Expression>, Expression> translation)
         {
             Check.NotNull(translation, nameof(translation));

@@ -19,6 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
 {
+    /// <summary>
+    ///     Extension methods for the <see cref="DatabaseFacade" /> returned from <see cref="DbContext.Database" />
+    ///     that can be used only with relational database providers.
+    /// </summary>
     public static class RelationalDatabaseFacadeExtensions
     {
         /// <summary>
@@ -102,20 +106,73 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <returns> The number of rows affected. </returns>
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
             [NotNull] params object[] parameters)
             => ExecuteSqlCommand(databaseFacade, sql, (IEnumerable<object>)parameters);
-        
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
+        /// <returns> The number of rows affected. </returns>
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql)
             => ExecuteSqlCommand(databaseFacade, sql.Format, sql.GetArguments());
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <returns> The number of rows affected. </returns>
         public static int ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -141,28 +198,109 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteSqlCommandAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteSqlCommandAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
             [NotNull] params object[] parameters)
             => ExecuteSqlCommandAsync(databaseFacade, sql, (IEnumerable<object>)parameters);
 
-        // Note that this method doesn't start a transaction hence it doesn't use ExecutionStrategy
+        /// <summary>
+        ///     <para>
+        ///         Executes the given SQL against the database and returns the number of rows affected.
+        ///     </para>
+        ///     <para>
+        ///         Note that this method does not start a transaction. To use this method with 
+        ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
+        ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
+        ///         can be used explicitly, making sure to also use a transaction if the SQL is not
+        ///         idempotent.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="sql"> The SQL to execute. </param>
+        /// <param name="parameters"> Parameters to use with the SQL. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
+        /// </returns>
         public static async Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
@@ -190,21 +328,50 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        /// <summary>
+        ///     Gets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <returns> The <see cref="DbConnection" /> </returns>
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalConnection>().DbConnection;
 
+        /// <summary>
+        ///     Opens the underlying <see cref="DbConnection" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void OpenConnection([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.CreateExecutionStrategy().Execute(databaseFacade, database => database.GetRelationalService<IRelationalConnection>().Open());
+            => databaseFacade.CreateExecutionStrategy().Execute(
+                databaseFacade, database
+                    => database.GetRelationalService<IRelationalConnection>().Open());
 
+        /// <summary>
+        ///     Opens the underlying <see cref="DbConnection" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns>
+        ///     A task that represents the asynchronous operation.
+        /// </returns>
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(databaseFacade, (database, ct) =>
                 database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
 
+        /// <summary>
+        ///     Closes the underlying <see cref="DbConnection" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void CloseConnection([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalConnection>().Close();
 
+        /// <summary>
+        ///     Starts a new transaction with a given <see cref="IsolationLevel"/>.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="isolationLevel"> The <see cref="IsolationLevel"/> to use. </param>
+        /// <returns> A <see cref="IDbContextTransaction" /> that represents the started transaction. </returns>
         public static IDbContextTransaction BeginTransaction([NotNull] this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
             => databaseFacade.CreateExecutionStrategy().Execute(databaseFacade, database =>
                 {
@@ -217,6 +384,16 @@ namespace Microsoft.EntityFrameworkCore
                         : transactionManager.BeginTransaction();
                 });
 
+        /// <summary>
+        ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel"/>.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="isolationLevel"> The <see cref="IsolationLevel"/> to use. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
+        ///     that represents the started transaction.
+        /// </returns>
         public static Task<IDbContextTransaction> BeginTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
@@ -232,6 +409,12 @@ namespace Microsoft.EntityFrameworkCore
                         : transactionManager.BeginTransactionAsync(ct);
                 }, cancellationToken);
 
+        /// <summary>
+        ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
+        /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
         public static IDbContextTransaction UseTransaction(
             [NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbTransaction transaction)
         {
@@ -247,24 +430,57 @@ namespace Microsoft.EntityFrameworkCore
             return relationalTransactionManager.UseTransaction(transaction);
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Sets the timeout to use for commands executed with this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
+        ///         set on the database connection string.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="timeout"> The timeout to use, in seconds. </param>
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, int? timeout)
             => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout = timeout;
 
+        /// <summary>
+        ///     <para>
+        ///         Sets the timeout to use for commands executed with this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
+        ///         set on the database connection string.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="timeout"> The timeout to use. </param>
         public static void SetCommandTimeout([NotNull] this DatabaseFacade databaseFacade, TimeSpan timeout)
         {
             if (timeout < TimeSpan.Zero)
             {
-                throw new ArgumentException($"Timeout must be greater than or equal to zero.  Provided: {timeout.TotalSeconds} seconds.");
+                throw new ArgumentException(RelationalStrings.TimeoutTooSmall(timeout.TotalSeconds));
             }
 
             if (timeout.TotalSeconds > int.MaxValue)
             {
-                throw new ArgumentException($"Timeout must be less than or equal to Int32.MaxValue (2147483647) seconds.  Provided: {timeout.Seconds} seconds.");
+                throw new ArgumentException(RelationalStrings.TimeoutTooBig(timeout.TotalSeconds));
             }
 
             SetCommandTimeout(databaseFacade, Convert.ToInt32(timeout.TotalSeconds));
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Returns the timeout set for commands executed with this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         Note that the command timeout is distinct from the connection timeout, which is commonly
+        ///         set on the database connection string.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <returns> The timeout, in seconds, or null if no timeout has been set. </returns>
         public static int? GetCommandTimeout([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout;
 
