@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -56,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
                 async: false);
         }
 
-        [Fact]
+        [Fact(Skip = "#9074")]
         public virtual async Task Find_logs_concurrent_access_async()
         {
             await ConcurrencyDetectorTest(c => c.Products.FindAsync(1), async: true);
@@ -74,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
                 async: false);
         }
 
-        [Fact]
+        [Fact(Skip = "#9074")]
         public virtual async Task Count_logs_concurrent_access_async()
         {
             await ConcurrencyDetectorTest(c => c.Products.ToListAsync(), async: true);
