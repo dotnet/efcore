@@ -19,5 +19,6 @@
     <SystemInteractiveAsyncVersion>3.1.1</SystemInteractiveAsyncVersion>
     <TestSdkVersion>15.3.0-*</TestSdkVersion>
     <XunitVersion>2.3.0-*</XunitVersion>
+    <XunitVersionInSpecProjects>2.2.0</XunitVersionInSpecProjects>
   </PropertyGroup>
 </Project>
