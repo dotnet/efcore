@@ -14,12 +14,30 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
+    /// <summary>
+    ///     <para>
+    ///         A base class for <see cref="ModificationCommandBatch" /> implementations that make use
+    ///         of a data reader.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers; it is generally not used in application code.
+    ///     </para>
+    /// </summary>
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
 
+        /// <summary>
+        ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
+        /// </summary>
+        /// <param name="commandBuilderFactory"> The builder to build commands. </param>
+        /// <param name="sqlGenerationHelper"> A helper for SQL generation. </param>
+        /// <param name="updateSqlGenerator"> A SQL generator for insert, update, and delete commands. </param>
+        /// <param name="valueBufferFactoryFactory">
+        ///     A factory for creating factories for creating <see cref="ValueBuffer" />s to be used when reading from the data reader.
+        /// </param>
         protected ReaderModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
@@ -37,13 +55,44 @@ namespace Microsoft.EntityFrameworkCore.Update
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
+        /// <summary>
+        ///     Gets or sets the cached command text for the commands in the batch.
+        /// </summary>
         protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     The ordinal of the last command for which command text was built.
+        /// </summary>
         protected virtual int LastCachedCommandIndex { get; set; }
+
+        /// <summary>
+        ///     A helper for SQL generation.
+        /// </summary>
         protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
+
+        /// <summary>
+        ///     A SQL generator for insert, update, and delete commands.
+        /// </summary>
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
+
+        /// <summary>
+        ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
+        /// </summary>
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
+
+        /// <summary>
+        ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
+        /// </summary>
         protected virtual IList<ResultSetMapping> CommandResultSet { get; } = new List<ResultSetMapping>();
 
+        /// <summary>
+        ///     Adds the given insert/update/delete <see cref="ModificationCommands" /> to the batch.
+        /// </summary>
+        /// <param name="modificationCommand"> The command to add. </param>
+        /// <returns>
+        ///     <c>True</c> if the command was successfully added; <c>false</c> if there was no
+        ///     room in the current batch to add the command and it must instead be added to a new batch.
+        /// </returns>
         public override bool AddCommand(ModificationCommand modificationCommand)
         {
             Check.NotNull(modificationCommand, nameof(modificationCommand));
@@ -72,6 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             return true;
         }
 
+        /// <summary>
+        ///     Resets the builder to start building a new batch.
+        /// </summary>
         protected virtual void ResetCommandText()
         {
             CachedCommandText = new StringBuilder();
@@ -79,10 +131,24 @@ namespace Microsoft.EntityFrameworkCore.Update
             LastCachedCommandIndex = -1;
         }
 
+        /// <summary>
+        ///     Checks whether or not a new command can be added to the batch.
+        /// </summary>
+        /// <param name="modificationCommand"> The command to potentially add. </param>
+        /// <returns> <c>True</c> if the command can be added; <c>false</c> otherwise. </returns>
         protected abstract bool CanAddCommand([NotNull] ModificationCommand modificationCommand);
 
+        /// <summary>
+        ///     Checks whether or not the command text is valid.
+        /// </summary>
+        /// <returns> <c>True</c> if the command text is valid; <c>false</c> otherwise. </returns>
         protected abstract bool IsCommandTextValid();
 
+        /// <summary>
+        ///     Gets the command text for all the commands in the current batch and also caches it
+        ///     on <see cref="CachedCommandText" />.
+        /// </summary>
+        /// <returns> The command text. </returns>
         protected virtual string GetCommandText()
         {
             for (var i = LastCachedCommandIndex + 1; i < ModificationCommands.Count; i++)
@@ -93,6 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             return CachedCommandText.ToString();
         }
 
+        /// <summary>
+        ///     Updates the command text for the command at the given position in the
+        ///     <see cref="ModificationCommands" /> list.
+        /// </summary>
+        /// <param name="commandPosition"> The position of the command to generate command text for. </param>
         protected virtual void UpdateCachedCommandText(int commandPosition)
         {
             var newModificationCommand = ModificationCommands[commandPosition];
@@ -116,9 +187,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             LastCachedCommandIndex = commandPosition;
         }
 
+        /// <summary>
+        ///     Gets the total number of parameters needed for the batch.
+        /// </summary>
+        /// <returns> The total parameter count. </returns>
         protected virtual int GetParameterCount()
             => ModificationCommands.Sum(c => c.ColumnModifications.Count);
 
+        /// <summary>
+        ///     Generates a <see cref="RawSqlCommand" /> for the batch.
+        /// </summary>
+        /// <returns> The command. </returns>
         protected virtual RawSqlCommand CreateStoreCommand()
         {
             var commandBuilder = _commandBuilderFactory
@@ -159,6 +238,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                 parameterValues);
         }
 
+        /// <summary>
+        ///     Executes the command generated by <see cref="CreateStoreCommand" /> against a
+        ///     database using the given connection.
+        /// </summary>
+        /// <param name="connection"> The connection to the database to update. </param>
         public override void Execute(IRelationalConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
@@ -184,6 +268,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
+        /// <summary>
+        ///     Executes the command generated by <see cref="CreateStoreCommand" /> against a
+        ///     database using the given connection.
+        /// </summary>
+        /// <param name="connection"> The connection to the database to update. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         public override async Task ExecuteAsync(
             IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -212,12 +303,31 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
+        /// <summary>
+        ///     Consumes the data reader created by <see cref="Execute" />.
+        /// </summary>
+        /// <param name="reader"> The data reader. </param>
         protected abstract void Consume([NotNull] RelationalDataReader reader);
 
+        /// <summary>
+        ///     Consumes the data reader created by <see cref="ExecuteAsync" />.
+        /// </summary>
+        /// <param name="reader"> The data reader. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
         protected abstract Task ConsumeAsync(
             [NotNull] RelationalDataReader reader,
             CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>
+        ///     Creates the <see cref="IRelationalValueBufferFactory" /> that will be used for creating a
+        ///     <see cref="ValueBuffer" /> to consume the data reader.
+        /// </summary>
+        /// <param name="columnModifications">
+        ///     The list of <see cref="ColumnModification" />s for all the columns
+        ///     being modified such that a ValueBuffer with appropriate slots can be created.
+        /// </param>
+        /// <returns> The factory. </returns>
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory([NotNull] IReadOnlyList<ColumnModification> columnModifications)
             => _valueBufferFactoryFactory
                 .Create(

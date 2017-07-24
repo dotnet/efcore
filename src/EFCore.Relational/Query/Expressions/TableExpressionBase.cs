@@ -4,9 +4,9 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Expressions
 {
@@ -92,6 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _querySource == PreProcessQuerySource(querySource);
         }
 
+        /// <summary>
+        ///     Pre-processes the given <see cref="IQuerySource" />.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns> The query source after pre-processing. </returns>
         protected virtual IQuerySource PreProcessQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));

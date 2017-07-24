@@ -9,16 +9,38 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
+    /// <summary>
+    ///     <para>
+    ///         Selects value generators to be used to generate values for properties of entities.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly TemporaryNumberValueGeneratorFactory _numberFactory
             = new TemporaryNumberValueGeneratorFactory();
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalValueGeneratorSelector([NotNull] ValueGeneratorSelectorDependencies dependencies)
             : base(dependencies)
         {
         }
 
+        /// <summary>
+        ///     Creates a new value generator for the given property.
+        /// </summary>
+        /// <param name="property"> The property to get the value generator for. </param>
+        /// <param name="entityType">
+        ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
+        ///     this entity type may be different from the declared entity type on <paramref name="property" />
+        /// </param>
+        /// <returns> The newly created value generator. </returns>
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));

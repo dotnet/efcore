@@ -14,6 +14,14 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
+    /// <summary>
+    ///     <para>
+    ///         Represents a conceptual command to the database to insert/update/delete a row.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers; it is generally not used in application code.
+    ///     </para>
+    /// </summary>
     public class ModificationCommand
     {
         private readonly Func<string> _generateParameterName;
@@ -25,9 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Update
         private bool _requiresResultPropagation;
 
         /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
+        /// <param name="name"> The name of the table containing the data to be modified. </param>
+        /// <param name="schema"> The schema containing the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         public ModificationCommand(
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -45,17 +57,40 @@ namespace Microsoft.EntityFrameworkCore.Update
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
 
+        /// <summary>
+        ///     The name of the table containing the data to be modified.
+        /// </summary>
         public virtual string TableName { get; }
 
+        /// <summary>
+        ///     The schema containing the table, or <c>null</c> to use the default schema.
+        /// </summary>
         public virtual string Schema { get; }
 
+        /// <summary>
+        ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
+        ///     to update.
+        /// </summary>
         public virtual IReadOnlyList<IUpdateEntry> Entries => _entries;
 
+        /// <summary>
+        ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
+        ///     inserted (<see cref="EntityFrameworkCore.EntityState.Added" />),
+        ///     updated (<see cref="EntityFrameworkCore.EntityState.Modified" />),
+        ///     or deleted ((<see cref="EntityFrameworkCore.EntityState.Deleted" />).
+        /// </summary>
         public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
 
+        /// <summary>
+        ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
+        /// </summary>
         public virtual IReadOnlyList<ColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(ref _columnModifications, this, command => command.GenerateColumnModifications());
 
+        /// <summary>
+        ///     Indicates whether or not the database will return values for some mapped properties
+        ///     that will then need to be propagated back to the tracked entities.
+        /// </summary>
         public virtual bool RequiresResultPropagation
         {
             get
@@ -67,6 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
+        /// <summary>
+        ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
+        /// </summary>
+        /// <param name="entry"> The entry representing the entity to add. </param>
         public virtual void AddEntry([NotNull] IUpdateEntry entry)
         {
             Check.NotNull(entry, nameof(entry));
@@ -284,6 +323,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             return conflictingColumnValues;
         }
 
+        /// <summary>
+        ///     Reads values returned from the database in the given <see cref="ValueBuffer" /> and
+        ///     propagates them back to into the appropriate <see cref="ColumnModification" />
+        ///     from which the values can be propagated on to tracked entities.
+        /// </summary>
+        /// <param name="valueBuffer"> The buffer containing the values read from the database. </param>
         public virtual void PropagateResults(ValueBuffer valueBuffer)
         {
             Check.NotNull(valueBuffer, nameof(valueBuffer));

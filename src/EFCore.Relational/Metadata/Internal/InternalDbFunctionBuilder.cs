@@ -17,11 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private readonly DbFunction _function;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public InternalDbFunctionBuilder([NotNull] DbFunction function)
         {
             _function = function;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IMutableDbFunction Metadata => _function;
 
         /// <summary>

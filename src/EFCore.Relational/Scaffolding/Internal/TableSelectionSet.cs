@@ -8,20 +8,40 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class TableSelectionSet
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static readonly TableSelectionSet All = new TableSelectionSet();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public TableSelectionSet()
             : this(Enumerable.Empty<string>(), Enumerable.Empty<string>())
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public TableSelectionSet([NotNull] IEnumerable<string> tables)
             : this(tables, Enumerable.Empty<string>())
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public TableSelectionSet([NotNull] IEnumerable<string> tables, [NotNull] IEnumerable<string> schemas)
         {
             Check.NotNull(tables, nameof(tables));
@@ -31,11 +51,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Tables = tables.Select(table => new Selection(table)).ToList();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Selection> Schemas { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IReadOnlyList<Selection> Tables { get; }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public class Selection
         {
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public Selection([NotNull] string selectionText)
             {
                 Check.NotEmpty(selectionText, nameof(selectionText));
@@ -43,7 +80,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 Text = selectionText;
             }
 
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual string Text { get; }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
             public virtual bool IsMatched { get; [param: NotNull] set; }
         }
     }

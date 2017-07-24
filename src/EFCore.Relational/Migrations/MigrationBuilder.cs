@@ -670,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="DropColumnOperation" /> to drop an existing column.
         /// </summary>
         /// <param name="name"> The name of the column to drop. </param>
-        /// <param name="table"> Th table that contains the column. </param>
+        /// <param name="table"> The table that contains the column. </param>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropColumnOperation> DropColumn(
