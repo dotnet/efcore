@@ -32,13 +32,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Add(customer);
 
-                // TODO: Better API for shadow state access
-                var customerEntry = context.Entry(customer).GetInfrastructure();
-                customerEntry[customerType.FindProperty("Name")] = "Daenerys";
+                context.Entry(customer).Property("Name").CurrentValue = "Daenerys";
 
                 await context.SaveChangesAsync();
 
-                customerEntry[customerType.FindProperty("Name")] = "Changed!";
+                context.Entry(customer).Property("Name").CurrentValue = "Changed!";
             }
 
             using (var context = new DbContext(optionsBuilder.Options))

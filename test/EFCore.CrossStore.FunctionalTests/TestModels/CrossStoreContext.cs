@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 .Entity<SimpleEntity>(eb =>
                     {
                         eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);
-                        eb.ToTable("RelationalSimpleEntity"); // TODO: specify schema when #948 is fixed
+                        eb.ToTable("RelationalSimpleEntity");
                         eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
                         eb.HasKey(e => e.Id);
                     });

@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, context.SaveChanges());
 
                 var second = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 2" }).Entity;
-                // TODO: Replace with
-                // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
-                var property = context.Model.FindEntityType(typeof(SimpleEntity)).FindProperty(SimpleEntity.ShadowPropertyName);
-                context.Entry(second).GetInfrastructure()[property] = "shadow";
+                context.Entry(second).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
                 SetPartitionId(second, context);
 
                 Assert.Equal(1, context.SaveChanges());

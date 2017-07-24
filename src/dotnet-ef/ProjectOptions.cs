@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         private CommandOption _configuration;
         private CommandOption _runtime;
         private CommandOption _msbuildprojectextensionspath;
+        private CommandOption _noBuild;
 
         public CommandOption Project
             => _project;
@@ -33,6 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public CommandOption MSBuildProjectExtensionsPath
             => _msbuildprojectextensionspath;
 
+        public CommandOption NoBuild
+            => _noBuild;
+
         public void Configure(CommandLineApplication command)
         {
             _project = command.Option("-p|--project <PROJECT>", Resources.ProjectDescription);
@@ -41,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             _configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
             _runtime = command.Option("--runtime <RUNTIME_IDENTIFIER>", Resources.RuntimeDescription);
             _msbuildprojectextensionspath = command.Option("--msbuildprojectextensionspath <PATH>", Resources.ProjectExtensionsDescription);
+            _noBuild = command.Option("--no-build", Resources.NoBuildDescription);
         }
     }
 }

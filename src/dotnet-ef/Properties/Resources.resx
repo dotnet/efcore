@@ -288,4 +288,7 @@
   <data name="WritingFile" xml:space="preserve">
     <value>Writing '{file}'...</value>
   </data>
+  <data name="NoBuildDescription" xml:space="preserve">
+    <value>Don't build the project. Only use this when the build is up-to-date.</value>
+  </data>
 </root>

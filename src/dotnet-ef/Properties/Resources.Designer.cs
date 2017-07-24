@@ -371,6 +371,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("WritingFile", nameof(file)),
                 file);
 
+        /// <summary>
+        ///     Don't build the project. Only use this when the build is up-to-date.
+        /// </summary>
+        public static string NoBuildDescription
+            => GetString("NoBuildDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
