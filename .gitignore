@@ -295,3 +295,5 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+global.json
+korebuild-lock.txt
