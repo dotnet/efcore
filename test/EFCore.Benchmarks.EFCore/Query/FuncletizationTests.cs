@@ -2,76 +2,64 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
 using Xunit;
 
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
-    [SqlServerRequired]
-    public class FuncletizationTests : IClassFixture<FuncletizationTests.FuncletizationFixture>
+    public class FuncletizationTests
     {
-        private const int FuncletizationIterationCount = 100;
+        private static readonly FuncletizationFixture _fixture = new FuncletizationFixture();
+        private static readonly int _funcletizationIterationCount = 100;
+        private OrdersContext _context;
 
-        private readonly FuncletizationFixture _fixture;
-
-        public FuncletizationTests(FuncletizationFixture fixture)
+        [GlobalSetup]
+        public virtual void InitializeContext()
         {
-            _fixture = fixture;
+            _context = _fixture.CreateContext();
+
+            Assert.Equal(100, _context.Products.Count());
+        }
+
+        [GlobalCleanup]
+        public virtual void CleanupContext()
+        {
+            _context.Dispose();
         }
 
         [Benchmark]
-        public void NewQueryInstance(IMetricCollector collector)
+        public virtual void NewQueryInstance()
         {
-            using (var context = _fixture.CreateContext())
+            var val = 11;
+            for (var i = 0; i < _funcletizationIterationCount; i++)
             {
-                using (collector.StartCollection())
-                {
-                    var val = 11;
-                    for (var i = 0; i < FuncletizationIterationCount; i++)
-                    {
-                        var result = context.Products.Where(p => p.ProductId < val).ToList();
-
-                        Assert.Equal(10, result.Count);
-                    }
-                }
+                _context.Products.Where(p => p.ProductId < val).ToList();
             }
         }
 
         [Benchmark]
-        public void SameQueryInstance(IMetricCollector collector)
+        public virtual void SameQueryInstance()
         {
-            using (var context = _fixture.CreateContext())
+            var val = 11;
+            var query = _context.Products.Where(p => p.ProductId < val);
+
+            for (var i = 0; i < _funcletizationIterationCount; i++)
             {
-                using (collector.StartCollection())
-                {
-                    var val = 11;
-                    var query = context.Products.Where(p => p.ProductId < val);
-
-                    for (var i = 0; i < FuncletizationIterationCount; i++)
-                    {
-                        var result = query.ToList();
-
-                        Assert.Equal(10, result.Count);
-                    }
-                }
+                // ReSharper disable once PossibleMultipleEnumeration
+                query.ToList();
             }
         }
 
         [Benchmark]
-        public void ValueFromObject(IMetricCollector collector)
+        public virtual void ValueFromObject()
         {
-            using (var context = _fixture.CreateContext())
+            var valueHolder = new ValueHolder();
+            for (var i = 0; i < _funcletizationIterationCount; i++)
             {
-                using (collector.StartCollection())
-                {
-                    var valueHolder = new ValueHolder();
-                    for (var i = 0; i < FuncletizationIterationCount; i++)
-                    {
-                        var result = context.Products.Where(p => p.ProductId < valueHolder.SecondLevelProperty).ToList();
-
-                        Assert.Equal(10, result.Count);
-                    }
-                }
+                _context.Products.Where(p => p.ProductId < valueHolder.SecondLevelProperty).ToList();
             }
         }
 

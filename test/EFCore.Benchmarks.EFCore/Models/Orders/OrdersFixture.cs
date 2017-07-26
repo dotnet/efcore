@@ -3,10 +3,12 @@
 
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
+
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders
 {

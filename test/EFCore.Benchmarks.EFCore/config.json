@@ -5,6 +5,6 @@
       "local": "Server=(localdb)\\mssqllocaldb;Database=Benchmarks;Trusted_Connection=True;"
     },
     "benchmarkDatabase": "Server=(localdb)\\mssqllocaldb;Trusted_Connection=True;MultipleActiveResultSets=true;",
-    "productReportingVersion": "EF Core"
+    "productVersion": "EF Core dev"
   }
 }
