@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
                 TestClass = TestCase.TestMethod.TestClass.Class.Name.Split('.').Last(),
                 TestMethod = TestCase.TestMethodName,
                 Variation = TestCase.Variation,
-                ProductReportingVersion = BenchmarkConfig.Instance.ProductReportingVersion,
+                ProductVersion = BenchmarkConfig.Instance.ProductVersion,
                 RunStarted = DateTime.UtcNow,
                 MachineName = _machineName,
                 Framework = GetFramework(),
