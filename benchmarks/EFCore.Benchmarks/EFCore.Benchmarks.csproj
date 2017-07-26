@@ -3,19 +3,23 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
+    <!-- New Framework must be added and not replaced. -->
+    <!-- Old frameworks are here for benchmark runs of older versions. -->
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="$(BenchmarkDotNetVersion)" />
+    <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="xunit" Version="$(XunitVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="System.Data.SqlClient" Version="$(CoreFxVersion)" />
+    
   </ItemGroup>
 
 </Project>

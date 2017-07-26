@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
                 activationAttributes: null);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -65,7 +65,4 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         }
     }
 }
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
 #endif

@@ -1,178 +1,116 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
-using Xunit;
+using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
 {
-    [SqlServerRequired]
-    public class DbSetOperationTests : IClassFixture<DbSetOperationTests.DbSetOperationFixture>
+    public class DbSetOperationTests
     {
-        private readonly DbSetOperationFixture _fixture;
-
-        public DbSetOperationTests(DbSetOperationFixture fixture)
+        public abstract class Base
         {
-            _fixture = fixture;
-        }
+            protected readonly DbSetOperationFixture Fixture = new DbSetOperationFixture();
+            protected List<Customer> CustomersWithoutPk;
+            protected List<Customer> CustomersWithPk;
+            protected OrdersContext Context;
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Add(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
+            [Params(true, false)]
+            public bool AutoDetectChanges { get; set; }
+
+            [GlobalSetup]
+            public virtual void CreateCustomers()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+                CustomersWithoutPk = Fixture.CreateCustomers(20000, setPrimaryKeys: false);
+                CustomersWithPk = Fixture.CreateCustomers(20000, setPrimaryKeys: true);
+            }
 
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
+            [IterationSetup]
+            public virtual void InitializeContext()
+            {
+                Context = Fixture.CreateContext();
+                Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
+            }
 
-                using (collector.StartCollection())
-                {
-                    foreach (var customer in customers)
-                    {
-                        context.Customers.Add(customer);
-                    }
-                }
+            [IterationCleanup]
+            public virtual void CleanupContext()
+            {
+                Context.Dispose();
             }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AddRange(IMetricCollector collector, bool autoDetectChanges)
+        public class AddDataVariations : Base
         {
-            using (var context = _fixture.CreateContext())
+            [Benchmark]
+            public virtual void Add()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
-
-                using (collector.StartCollection())
+                foreach (var customer in CustomersWithoutPk)
                 {
-                    context.Customers.AddRange(customers);
+                    Context.Customers.Add(customer);
                 }
+            }
+
+            [Benchmark]
+            public virtual void AddRange()
+            {
+                Context.Customers.AddRange(CustomersWithoutPk);
+            }
+
+            [Benchmark]
+            public virtual void Attach()
+            {
+                foreach (var customer in CustomersWithPk)
+                {
+                    Context.Customers.Attach(customer);
+                }
+            }
+
+            [Benchmark]
+            public virtual void AttachRange()
+            {
+                Context.Customers.AttachRange(CustomersWithPk);
             }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Attach(IMetricCollector collector, bool autoDetectChanges)
+        public class ExistingDataVariations : Base
         {
-            using (var context = _fixture.CreateContext())
+            [IterationSetup]
+            public override void InitializeContext()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+                base.InitializeContext();
+                Context.Customers.AttachRange(CustomersWithPk);
+            }
 
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
-
-                using (collector.StartCollection())
+            [Benchmark]
+            public virtual void Remove()
+            {
+                foreach (var customer in CustomersWithPk)
                 {
-                    foreach (var customer in customers)
-                    {
-                        context.Customers.Attach(customer);
-                    }
+                    Context.Customers.Remove(customer);
                 }
             }
-        }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AttachRange(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
+            [Benchmark]
+            public virtual void RemoveRange()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+                Context.Customers.RemoveRange(CustomersWithPk);
+            }
 
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
-
-                using (collector.StartCollection())
+            [Benchmark]
+            public virtual void Update()
+            {
+                foreach (var customer in CustomersWithPk)
                 {
-                    context.Customers.AttachRange(customers);
+                    Context.Customers.Update(customer);
                 }
             }
-        }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Remove(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
+            [Benchmark]
+            public virtual void UpdateRange()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
-
-                using (collector.StartCollection())
-                {
-                    foreach (var customer in customers)
-                    {
-                        context.Customers.Remove(customer);
-                    }
-                }
-            }
-        }
-
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void RemoveRange(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
-            {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
-
-                using (collector.StartCollection())
-                {
-                    context.Customers.RemoveRange(customers);
-                }
-            }
-        }
-
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Update(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
-            {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
-
-                using (collector.StartCollection())
-                {
-                    foreach (var customer in customers)
-                    {
-                        context.Customers.Update(customer);
-                    }
-                }
-            }
-        }
-
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void UpdateRange(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
-            {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                var customers = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
-
-                using (collector.StartCollection())
-                {
-                    context.Customers.UpdateRange(customers);
-                }
+                Context.Customers.UpdateRange(CustomersWithPk);
             }
         }
 

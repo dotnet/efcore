@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.AdventureWorks
     public class AdventureWorksFixture : AdventureWorksFixtureBase
     {
         // This method is called from timed code, be careful when changing it
-        public static AdventureWorksContext CreateContext() 
+        public static AdventureWorksContext CreateContext()
             => new AdventureWorksContext(ConnectionString);
     }
 }

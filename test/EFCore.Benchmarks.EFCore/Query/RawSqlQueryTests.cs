@@ -3,152 +3,110 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
 using Xunit;
 
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable FormatStringProblem
+
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
-    [SqlServerRequired]
-    public class RawSqlQueryTests : IClassFixture<RawSqlQueryTests.RawSqlQueryFixture>
+    public class RawSqlQueryTests
     {
-        private readonly RawSqlQueryFixture _fixture;
+        private static readonly RawSqlQueryFixture _fixture = new RawSqlQueryFixture();
+        private OrdersContext _context;
 
-        public RawSqlQueryTests(RawSqlQueryFixture fixture)
+        [Params(true, false)]
+        public bool Async;
+
+        [Params(true, false)]
+        public bool Tracking;
+
+        [GlobalSetup]
+        public virtual void CreateContext()
         {
-            _fixture = fixture;
+            _context = _fixture.CreateContext();
+
+            Assert.Equal(1000, _context.Products.Count());
+            Assert.Equal(1000, _context.Customers.Count());
+            Assert.Equal(2000, _context.Orders.Count());
+            Assert.Equal(4000, _context.OrderLines.Count());
+        }
+
+        [GlobalCleanup]
+        public virtual void CleanupContext()
+        {
+            _context.Dispose();
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
-        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
-        public async Task SelectAll(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
+        public async Task SelectAll()
         {
-            using (var context = _fixture.CreateContext())
+            var query = _context.Products
+                .FromSql("SELECT * FROM dbo.Products")
+                .ApplyTracking(Tracking);
+
+            if (Async)
             {
-                var query = context.Products
-                    .FromSql("SELECT * FROM dbo.Products")
-                    .ApplyTracking(tracking);
-
-                using (collector.StartCollection())
-                {
-                    for (var i = 0; i < queriesPerIteration; i++)
-                    {
-                        if (async)
-                        {
-                            await query.ToListAsync();
-                        }
-                        else
-                        {
-                            query.ToList();
-                        }
-                    }
-                }
-
-                Assert.Equal(1000, query.Count());
-                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+                await query.ToListAsync();
+            }
+            else
+            {
+                query.ToList();
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
-        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
-        public async Task SelectParameterized(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
+        public async Task SelectParameterized()
         {
-            using (var context = _fixture.CreateContext())
+            var query = _context.Products
+                .FromSql("SELECT * FROM dbo.Products WHERE CurrentPrice >= @p0 AND CurrentPrice <= @p1", 10, 14)
+                .ApplyTracking(Tracking);
+
+            if (Async)
             {
-                var query = context.Products
-                    .FromSql("SELECT * FROM dbo.Products WHERE CurrentPrice >= @p0 AND CurrentPrice <= @p1", 10, 14)
-                    .ApplyTracking(tracking);
-
-                using (collector.StartCollection())
-                {
-                    for (var i = 0; i < queriesPerIteration; i++)
-                    {
-                        if (async)
-                        {
-                            await query.ToListAsync();
-                        }
-                        else
-                        {
-                            query.ToList();
-                        }
-                    }
-                }
-
-                Assert.Equal(500, query.Count());
-                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+                await query.ToListAsync();
+            }
+            else
+            {
+                query.ToList();
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
-        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
-        public async Task SelectComposed(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
+        public async Task SelectComposed()
         {
-            using (var context = _fixture.CreateContext())
+            var query = _context.Products
+                .FromSql("SELECT * FROM dbo.Products")
+                .ApplyTracking(Tracking)
+                .Where(p => p.CurrentPrice >= 10 && p.CurrentPrice <= 14)
+                .OrderBy(p => p.Name);
+
+            if (Async)
             {
-                var query = context.Products
-                    .FromSql("SELECT * FROM dbo.Products")
-                    .ApplyTracking(tracking)
-                    .Where(p => p.CurrentPrice >= 10 && p.CurrentPrice <= 14)
-                    .OrderBy(p => p.Name);
-
-                using (collector.StartCollection())
-                {
-                    for (var i = 0; i < queriesPerIteration; i++)
-                    {
-                        if (async)
-                        {
-                            await query.ToListAsync();
-                        }
-                        else
-                        {
-                            query.ToList();
-                        }
-                    }
-                }
-
-                Assert.Equal(500, query.Count());
-                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+                await query.ToListAsync();
+            }
+            else
+            {
+                query.ToList();
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On - Sync (1 query)", true, false, 1)]
-        [BenchmarkVariation("Tracking Off - Sync (10 queries)", false, false, 10)]
-        [BenchmarkVariation("Tracking On - Async (1 query)", true, true, 1)]
-        [BenchmarkVariation("Tracking Off - Async (10 queries)", false, true, 10)]
-        public async Task StoredProcedure(IMetricCollector collector, bool tracking, bool async, int queriesPerIteration)
+        public async Task StoredProcedure()
         {
-            using (var context = _fixture.CreateContext())
+            var query = _context.Products
+                .FromSql("EXECUTE dbo.SearchProducts @p0, @p1", 10, 14)
+                .ApplyTracking(Tracking);
+
+            if (Async)
             {
-                var query = context.Products
-                    .FromSql("EXECUTE dbo.SearchProducts @p0, @p1", 10, 14)
-                    .ApplyTracking(tracking);
-
-                using (collector.StartCollection())
-                {
-                    for (var i = 0; i < queriesPerIteration; i++)
-                    {
-                        if (async)
-                        {
-                            await query.ToListAsync();
-                        }
-                        else
-                        {
-                            query.ToList();
-                        }
-                    }
-                }
-
-                Assert.Equal(500, query.Count());
-                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
+                await query.ToListAsync();
+            }
+            else
+            {
+                query.ToList();
             }
         }
 
