@@ -446,9 +446,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Weapon>(
                 ws => ws
                     .Include(w => w.Owner)
+                    .Where(w => w.Owner.Nickname != "Paduk")
                     .OrderBy(e => e.Owner.CityOfBirth.Name),
                 ws => ws
                     .Include(w => w.Owner)
+                    .Where(w => Maybe(w.Owner, () => w.Owner.Nickname) != "Paduk")
                     .OrderBy(e => Maybe(e.Owner, () => Maybe(e.Owner.CityOfBirth, () => e.Owner.CityOfBirth.Name))),
                 expectedIncludes,
                 assertOrder: true);

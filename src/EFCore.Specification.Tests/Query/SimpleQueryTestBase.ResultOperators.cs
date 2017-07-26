@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Customer = o.CustomerID
                 }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
 
-                var expected = NorthwindData.Set<Order>().Select(o => new ProjectedType
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(o => new ProjectedType
                 {
                     Order = o.OrderID,
                     Customer = o.CustomerID
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .GroupBy(o => o.Order)
                     .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
 
-                var expected = NorthwindData.Set<Order>().Select(o => new ProjectedType
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(o => new ProjectedType
                     {
                         Order = o.OrderID,
                         Customer = o.CustomerID

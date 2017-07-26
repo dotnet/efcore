@@ -129,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            int entryCount = 0)
             where TItem1 : class;
 
         public abstract void AssertIncludeQuery<TItem1, TItem2>(
@@ -138,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            int entryCount = 0)
             where TItem1 : class
             where TItem2 : class;
 

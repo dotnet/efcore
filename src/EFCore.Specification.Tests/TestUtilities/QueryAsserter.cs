@@ -541,9 +541,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            int entryCount = 0)
             where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
         public override void AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> efQuery,
@@ -551,7 +552,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            int entryCount = 0)
         {
             using (var context = _contextCreator())
             {
@@ -586,6 +588,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
                 }
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -594,10 +598,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
         public override void AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> efQuery,
@@ -605,7 +610,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false)
+            bool assertOrder = false,
+            int entryCount = 0)
         {
             using (var context = _contextCreator())
             {
@@ -645,6 +651,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     _includeResultAsserter.AssertResult(expected, actual, expectedIncludes);
                 }
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
 

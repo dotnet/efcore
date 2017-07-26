@@ -170,13 +170,15 @@ ORDER BY [c].[CustomerID]",
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]",
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
                 //
                 @"@_outer_CustomerID='ANATR' (Size = 5)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]");
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]");
         }
 
         public override void Select_collection_FirstOrDefault_project_single_column1()
@@ -190,6 +192,7 @@ SELECT TOP(@__p_0) (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
 )
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -206,6 +209,7 @@ SELECT TOP(@__p_0) (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]
 )
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
@@ -226,13 +230,15 @@ ORDER BY [c].[CustomerID]",
 
 SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]",
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
                 //
                 @"@_outer_CustomerID='ANATR' (Size = 5)
 
 SELECT TOP(1) [o].[CustomerID], [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]");
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]");
         }
 
         public override void Select_collection_FirstOrDefault_project_entity()
@@ -250,13 +256,15 @@ ORDER BY [c].[CustomerID]",
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]",
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]",
                 //
                 @"@_outer_CustomerID='ANATR' (Size = 5)
 
 SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE @_outer_CustomerID = [o].[CustomerID]");
+WHERE @_outer_CustomerID = [o].[CustomerID]
+ORDER BY [o].[OrderID]");
         }
 
         public override void Skip_Select_Navigation()
@@ -437,7 +445,7 @@ WHERE (([o].[OrderID] < 10300) AND ([o0].[OrderID] < 10400)) AND (([o.Customer].
                 @"SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o1]
 CROSS JOIN [Orders] AS [o2]
-WHERE ([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)");
+WHERE (([o1].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o1].[CustomerID], LEN(N'A')) = N'A')) AND ([o2].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o2].[CustomerID], LEN(N'A')) = N'A'))) AND (([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))");
         }
 
         public override void Select_Where_Navigation_Null()
@@ -1214,7 +1222,11 @@ WHERE (
             base.Client_groupjoin_with_orderby_key_descending();
 
             AssertSql(
-                @"");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY [c].[CustomerID] DESC");
         }
 
         public override void Navigation_projection_on_groupjoin_qsre()
