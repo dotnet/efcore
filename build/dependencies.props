@@ -23,5 +23,7 @@
 <!-- Following package versions must match with what is available on NuGet -->
   <PropertyGroup>
     <BenchmarkDotNetVersion>0.10.8.*</BenchmarkDotNetVersion>
+    <EFCore2Version>2.0.0-preview2-final</EFCore2Version>
+    <EFCore2SqlClientVersion>4.4.0-preview2-25405-01</EFCore2SqlClientVersion>
   </PropertyGroup>
 </Project>
