@@ -20,4 +20,8 @@
     <XunitVersion>2.3.0-*</XunitVersion>
     <XunitVersionInSpecProjects>2.2.0</XunitVersionInSpecProjects>
   </PropertyGroup>
+<!-- Following package versions must match with what is available on NuGet -->
+  <PropertyGroup>
+    <BenchmarkDotNetVersion>0.10.8.*</BenchmarkDotNetVersion>
+  </PropertyGroup>
 </Project>

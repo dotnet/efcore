@@ -1,162 +1,124 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
+using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 using Xunit;
+
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
 {
-    [SqlServerRequired]
-    public class FixupTests : IClassFixture<FixupTests.FixupFixture>
+    public class FixupTests
     {
-        private readonly FixupFixture _fixture;
-
-        public FixupTests(FixupFixture fixture)
+        public abstract class Base
         {
-            _fixture = fixture;
-        }
+            protected static readonly FixupFixture Fixture = new FixupFixture();
+            protected List<Customer> Customers;
+            protected List<Order> OrdersWithoutPk;
+            protected List<Order> OrdersWithPk;
+            protected OrdersContext Context;
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AddChildren(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
+            [Params(true, false)]
+            public bool AutoDetectChanges { get; set; }
+
+            [GlobalSetup]
+            public virtual void CreateData()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+                Customers = Fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                OrdersWithoutPk = Fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
+                OrdersWithPk = Fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
 
-                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                context.Customers.AttachRange(customers);
-
-                Assert.All(orders, o => Assert.Null(o.Customer));
-
-                using (collector.StartCollection())
+                using (var context = Fixture.CreateContext())
                 {
-                    foreach (var order in orders)
-                    {
-                        context.Orders.Add(order);
-                    }
+                    Assert.Equal(5000, context.Customers.Count());
+                    Assert.Equal(10000, context.Orders.Count());
                 }
+            }
 
-                Assert.All(orders, o => Assert.NotNull(o.Customer));
+            [IterationSetup]
+            public virtual void InitializeContext()
+            {
+                Context = Fixture.CreateContext();
+                Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
+            }
+
+            [IterationCleanup]
+            public virtual void CleanupContext()
+            {
+                Context.Dispose();
             }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AddParents(IMetricCollector collector, bool autoDetectChanges)
+        public class ChildVariation : Base
         {
-            using (var context = _fixture.CreateContext())
+            [IterationSetup]
+            public override void InitializeContext()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+                base.InitializeContext();
+                Context.Customers.AttachRange(Customers);
+            }
 
-                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                context.Orders.AddRange(orders);
-
-                Assert.All(customers, c => Assert.Null(c.Orders));
-
-                using (collector.StartCollection())
+            [Benchmark]
+            public virtual void AddChildren()
+            {
+                foreach (var order in OrdersWithoutPk)
                 {
-                    foreach (var customer in customers)
-                    {
-                        context.Customers.Add(customer);
-                    }
+                    Context.Orders.Add(order);
                 }
-
-                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
-        }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AttachChildren(IMetricCollector collector, bool autoDetectChanges)
-        {
-            using (var context = _fixture.CreateContext())
+            [Benchmark]
+            public virtual void AttachChildren()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
-
-                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
-                context.Customers.AttachRange(customers);
-
-                Assert.All(orders, o => Assert.Null(o.Customer));
-
-                using (collector.StartCollection())
+                foreach (var order in OrdersWithPk)
                 {
-                    foreach (var order in orders)
-                    {
-                        context.Orders.Attach(order);
-                    }
+                    Context.Orders.Attach(order);
                 }
+            }
 
-                Assert.All(orders, o => Assert.NotNull(o.Customer));
+            [Benchmark]
+            public virtual void QueryChildren()
+            {
+                Context.Orders.ToList();
             }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges On", true)]
-        [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AttachParents(IMetricCollector collector, bool autoDetectChanges)
+        public class ParentVariation : Base
         {
-            using (var context = _fixture.CreateContext())
+
+            [IterationSetup]
+            public override void InitializeContext()
             {
-                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+                base.InitializeContext();
+                Context.Orders.AttachRange(OrdersWithPk);
+            }
 
-                var customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 2, setPrimaryKeys: true);
-                context.Orders.AttachRange(orders);
-
-                Assert.All(customers, c => Assert.Null(c.Orders));
-
-                using (collector.StartCollection())
+            [Benchmark]
+            public virtual void AddParents()
+            {
+                foreach (var customer in Customers)
                 {
-                    foreach (var customer in customers)
-                    {
-                        context.Customers.Attach(customer);
-                    }
+                    Context.Customers.Add(customer);
                 }
-
-                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
             }
-        }
 
-        [Benchmark]
-        public void QueryChildren(IMetricCollector collector)
-        {
-            using (var context = _fixture.CreateContext())
+            [Benchmark]
+            public virtual void AttachParents()
             {
-                context.Customers.ToList();
-
-                collector.StartCollection();
-                var orders = context.Orders.ToList();
-                collector.StopCollection();
-
-                Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
-                Assert.All(orders, o => Assert.NotNull(o.Customer));
+                foreach (var customer in Customers)
+                {
+                    Context.Customers.Attach(customer);
+                }
             }
-        }
 
-        [Benchmark]
-        public void QueryParents(IMetricCollector collector)
-        {
-            using (var context = _fixture.CreateContext())
+            [Benchmark]
+            public virtual void QueryParents()
             {
-                context.Orders.ToList();
-
-                collector.StartCollection();
-                var customers = context.Customers.ToList();
-                collector.StopCollection();
-
-                Assert.Equal(5000, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(10000, context.ChangeTracker.Entries<Order>().Count());
-                Assert.All(customers, c => Assert.Equal(2, c.Orders.Count));
+                Context.Customers.ToList();
             }
         }
 

@@ -3,130 +3,112 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
+using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.UpdatePipeline
 {
-    [SqlServerRequired]
-    public class SimpleUpdatePipelineTests : IClassFixture<SimpleUpdatePipelineTests.SimpleUpdatePipelineFixture>
+    public class SimpleUpdatePipelineTests
     {
-        private readonly SimpleUpdatePipelineFixture _fixture;
-
-        public SimpleUpdatePipelineTests(SimpleUpdatePipelineFixture fixture)
+        public abstract class Base
         {
-            _fixture = fixture;
+            protected static readonly SimpleUpdatePipelineFixture Fixture = new SimpleUpdatePipelineFixture();
+            protected OrdersContext Context;
+            protected IDbContextTransaction Transaction;
+            private int _recordsAffected = -1;
+
+            [Params(true, false)]
+            public bool Async;
+
+            [Params(true, false)]
+            public bool Batching;
+
+            [IterationSetup]
+            public virtual void InitializeContext()
+            {
+                Context = Fixture.CreateContext(Batching);
+                Transaction = Context.Database.BeginTransaction();
+            }
+
+            [IterationCleanup]
+            public virtual void CleanupContext()
+            {
+                if (_recordsAffected != -1)
+                {
+                    Assert.Equal(1000, _recordsAffected);
+                }
+
+                Transaction.Dispose();
+                Context.Dispose();
+            }
+
+            [Benchmark]
+            public async Task UpdatePipeline()
+            {
+                _recordsAffected = Async
+                    ? await Context.SaveChangesAsync()
+                    : Context.SaveChanges();
+            }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("Sync - Batching Off", true, false)]
-        [BenchmarkVariation("Sync", false, false)]
-        [BenchmarkVariation("Async - Batching Off", true, true)]
-        [BenchmarkVariation("Async", false, true)]
-        public async Task Insert(IMetricCollector collector, bool disableBatching, bool async)
+        public class Insert : Base
         {
-            using (var context = _fixture.CreateContext(disableBatching))
+            [IterationSetup]
+            public override void InitializeContext()
             {
-                using (context.Database.BeginTransaction())
+                base.InitializeContext();
+
+                var customers = Fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                Context.Customers.AddRange(customers);
+            }
+        }
+
+        public class Update : Base
+        {
+            [IterationSetup]
+            public override void InitializeContext()
+            {
+                base.InitializeContext();
+
+                foreach (var customer in Context.Customers)
                 {
-                    var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
-                    context.Customers.AddRange(customers);
-
-                    collector.StartCollection();
-                    var records = async 
-                        ? await context.SaveChangesAsync() 
-                        : context.SaveChanges();
-                    collector.StopCollection();
-
-                    Assert.Equal(1000, records);
+                    customer.FirstName += " Modified";
                 }
             }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("Sync - Batching Off", true, false)]
-        [BenchmarkVariation("Sync", false, false)]
-        [BenchmarkVariation("Async - Batching Off", true, true)]
-        [BenchmarkVariation("Async", false, true)]
-        public async Task Update(IMetricCollector collector, bool disableBatching, bool async)
+        public class Delete : Base
         {
-            using (var context = _fixture.CreateContext(disableBatching))
+            [IterationSetup]
+            public override void InitializeContext()
             {
-                using (context.Database.BeginTransaction())
-                {
-                    foreach (var customer in context.Customers)
-                    {
-                        customer.FirstName += " Modified";
-                    }
+                base.InitializeContext();
 
-                    collector.StartCollection();
-                    var records = async
-                        ? await context.SaveChangesAsync()
-                        : context.SaveChanges();
-                    collector.StopCollection();
-
-                    Assert.Equal(1000, records);
-                }
+                Context.Customers.RemoveRange(Context.Customers.ToList());
             }
         }
 
-        [Benchmark]
-        [BenchmarkVariation("Sync - Batching Off", true, false)]
-        [BenchmarkVariation("Sync", false, false)]
-        [BenchmarkVariation("Async - Batching Off", true, true)]
-        [BenchmarkVariation("Async", false, true)]
-        public async Task Delete(IMetricCollector collector, bool disableBatching, bool async)
+        public class Mixed : Base
         {
-            using (var context = _fixture.CreateContext(disableBatching))
+            [IterationSetup]
+            public override void InitializeContext()
             {
-                using (context.Database.BeginTransaction())
+                base.InitializeContext();
+
+                var existingCustomers = Context.Customers.ToArray();
+                var newCustomers = Fixture.CreateCustomers(333, setPrimaryKeys: false);
+                Context.Customers.AddRange(newCustomers);
+
+                for (var i = 0; i < 1000; i += 3)
                 {
-                    context.Customers.RemoveRange(context.Customers.ToList());
-
-                    collector.StartCollection();
-                    var records = async
-                        ? await context.SaveChangesAsync()
-                        : context.SaveChanges();
-                    collector.StopCollection();
-
-                    Assert.Equal(1000, records);
+                    Context.Customers.Remove(existingCustomers[i]);
                 }
-            }
-        }
 
-        [Benchmark]
-        [BenchmarkVariation("Sync - Batching Off", true, false)]
-        [BenchmarkVariation("Sync", false, false)]
-        [BenchmarkVariation("Async - Batching Off", true, true)]
-        [BenchmarkVariation("Async", false, true)]
-        public async Task Mixed(IMetricCollector collector, bool disableBatching, bool async)
-        {
-            using (var context = _fixture.CreateContext(disableBatching))
-            {
-                using (context.Database.BeginTransaction())
+                for (var i = 1; i < 1000; i += 3)
                 {
-                    var existingCustomers = context.Customers.ToArray();
-
-                    var newCustomers = _fixture.CreateCustomers(333, setPrimaryKeys: false);
-                    context.Customers.AddRange(newCustomers);
-
-                    for (var i = 0; i < 1000; i += 3)
-                    {
-                        context.Customers.Remove(existingCustomers[i]);
-                    }
-
-                    for (var i = 1; i < 1000; i += 3)
-                    {
-                        existingCustomers[i].FirstName += " Modified";
-                    }
-
-                    collector.StartCollection();
-                    var records = async
-                        ? await context.SaveChangesAsync()
-                        : context.SaveChanges();
-                    collector.StopCollection();
-
-                    Assert.Equal(1000, records);
+                    existingCustomers[i].FirstName += " Modified";
                 }
             }
         }
@@ -138,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.UpdatePipeline
             {
             }
 
-            public OrdersContext CreateContext(bool disableBatching) => new OrdersContext(ConnectionString, disableBatching);
+            public OrdersContext CreateContext(bool batching) => new OrdersContext(ConnectionString, disableBatching: !batching);
         }
     }
 }

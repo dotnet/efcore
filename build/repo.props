@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EF6\*.csproj" Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'" />
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks\*.csproj" />
+    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EFCore\*.csproj" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.Design.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
   </ItemGroup>

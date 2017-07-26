@@ -3,76 +3,57 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.AdventureWorks;
-using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHelpers;
+using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 using Xunit;
+
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
-    public class NavigationsQueryTests : IClassFixture<AdventureWorksFixture>
+    public class NavigationsQueryTests
     {
-        private readonly AdventureWorksFixture _fixture;
+        private AdventureWorksContext _context;
+        private IQueryable<Store> _query;
+        private static readonly int _queriesPerIteration = 10;
 
-        public NavigationsQueryTests(AdventureWorksFixture fixture)
+        [Params(true, false)]
+        public bool Async { get; set; }
+
+        [Params(true, false)]
+        public bool Filter { get; set; }
+
+        [GlobalSetup]
+        public virtual void InitializeContext()
         {
-            _fixture = fixture;
+            _context = AdventureWorksFixture.CreateContext();
+            _query = Filter
+                ? _context.Store.Where(s => s.SalesPerson.Bonus > 3000)
+                : _context.Store.Where(s => s.SalesPerson.Bonus >= 0);
+        }
+
+        [GlobalCleanup]
+        public virtual void CleanupContext()
+        {
+            Assert.Equal(Filter ? 466 : 701, _query.Count());
+
+            _context.Dispose();
         }
 
         [Benchmark]
-        [AdventureWorksDatabaseRequired]
-        [BenchmarkVariation("Sync (10 queries)", false, 10)]
-        [BenchmarkVariation("Async (10 queries)", true, 10)]
-        public async Task PredicateAcrossOptionalNavigationAllResults(IMetricCollector collector, bool async, int queriesPerIteration)
+        public async Task PredicateAcrossOptionalNavigation()
         {
-            using (var context = AdventureWorksFixture.CreateContext())
+            for (var i = 0; i < _queriesPerIteration; i++)
             {
-                var query = context.Store.Where(s => s.SalesPerson.Bonus >= 0);
-
-                using (collector.StartCollection())
+                if (Async)
                 {
-                    for (var i = 0; i < queriesPerIteration; i++)
-                    {
-                        if (async)
-                        {
-                            await query.ToListAsync();
-                        }
-                        else
-                        {
-                            query.ToList();
-                        }
-                    }
+                    await _query.ToListAsync();
                 }
-
-                Assert.Equal(701, query.Count());
-            }
-        }
-
-        [Benchmark]
-        [AdventureWorksDatabaseRequired]
-        [BenchmarkVariation("Sync (10 queries)", false, 10)]
-        [BenchmarkVariation("Async (10 queries)", true, 10)]
-        public async Task PredicateAcrossOptionalNavigationFilteredResults(IMetricCollector collector, bool async, int queriesPerIteration)
-        {
-            using (var context = AdventureWorksFixture.CreateContext())
-            {
-                var query = context.Store.Where(s => s.SalesPerson.Bonus > 3000);
-
-                using (collector.StartCollection())
+                else
                 {
-                    for (var i = 0; i < queriesPerIteration; i++)
-                    {
-                        if (async)
-                        {
-                            await query.ToListAsync();
-                        }
-                        else
-                        {
-                            query.ToList();
-                        }
-                    }
+                    _query.ToList();
                 }
-
-                Assert.Equal(466, query.Count());
             }
         }
     }

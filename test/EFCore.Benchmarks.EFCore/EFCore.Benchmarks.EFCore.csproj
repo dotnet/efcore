@@ -5,32 +5,20 @@
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'">netcoreapp2.0</TargetFrameworks>
-    <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks.EFCore</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EFCore</RootNamespace>
-    <NoWarn>$(NoWarn);xUnit1005</NoWarn>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="xunit.runner.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Remove="BenchmarkDotNet.Artifacts\**" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\benchmarks\EFCore.Benchmarks\EFCore.Benchmarks.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
-    <ProjectReference Include="..\EFCore.Benchmarks\EFCore.Benchmarks.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
 
 </Project>

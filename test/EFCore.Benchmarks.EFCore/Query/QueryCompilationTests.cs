@@ -4,77 +4,82 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.Orders;
+using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Xunit;
+
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 {
-    [SqlServerRequired]
-    public class QueryCompilationTests : IClassFixture<QueryCompilationTests.QueryCompilationFixture>
+    public class QueryCompilationTests
     {
-        private readonly QueryCompilationFixture _fixture;
+        private static readonly QueryCompilationFixture _fixture = new QueryCompilationFixture();
+        private OrdersContext _context;
+        private IQueryable<Product> _simpleQuery;
+        private IQueryable<DTO> _complexQuery;
 
-        public QueryCompilationTests(QueryCompilationFixture fixture)
+        [GlobalSetup]
+        public virtual void InitializeContext()
         {
-            _fixture = fixture;
+            _context = _fixture.CreateContext();
+            _simpleQuery = _context.Products
+                .AsNoTracking();
+            _complexQuery = _context.Products
+                .AsNoTracking()
+                .Where(p => p.Retail < 1000)
+                .OrderBy(p => p.Name).ThenBy(p => p.Retail)
+                .Select(
+                    p => new DTO
+                    {
+                        ProductId = p.ProductId,
+                        Name = p.Name,
+                        Description = p.Description,
+                        ActualStockLevel = p.ActualStockLevel,
+                        SKU = p.SKU,
+                        Savings = p.Retail - p.CurrentPrice,
+                        Surplus = p.ActualStockLevel - p.TargetStockLevel
+                    });
+        }
+
+        [GlobalCleanup]
+        public virtual void CleanupContext()
+        {
+            _context.Dispose();
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default (10 queries)")]
-        public void ToList(IMetricCollector collector)
+        public virtual void ToList()
         {
-            using (var context = _fixture.CreateContext())
+            for (var i = 0; i < 10; i++)
             {
-                var query = context.Products
-                    .AsNoTracking();
-
-                using (collector.StartCollection())
-                {
-                    for (var i = 0; i < 10; i++)
-                    {
-                        query.ToList();
-                    }
-                }
-
-                Assert.Equal(0, query.Count());
+                _simpleQuery.ToList();
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default (10 queries)")]
-        public void FilterOrderProject(IMetricCollector collector)
+        public virtual void FilterOrderProject()
         {
-            using (var context = _fixture.CreateContext())
+            for (var i = 0; i < 10; i++)
             {
-                var query = context.Products
-                    .AsNoTracking()
-                    .Where(p => p.Retail < 1000)
-                    .OrderBy(p => p.Name).ThenBy(p => p.Retail)
-                    .Select(
-                        p => new
-                        {
-                            p.ProductId,
-                            p.Name,
-                            p.Description,
-                            p.ActualStockLevel,
-                            p.SKU,
-                            Savings = p.Retail - p.CurrentPrice,
-                            Surplus = p.ActualStockLevel - p.TargetStockLevel
-                        });
-
-                using (collector.StartCollection())
-                {
-                    for (var i = 0; i < 10; i++)
-                    {
-                        query.ToList();
-                    }
-                }
-
-                Assert.Equal(0, query.Count());
+                _complexQuery.ToList();
             }
+        }
+
+        public class DTO
+        {
+            public int ProductId { get; set; }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public int ActualStockLevel { get; set; }
+            public string SKU { get; set; }
+            public decimal Savings { get; set; }
+            public int Surplus { get; set; }
         }
 
         public class QueryCompilationFixture : OrdersFixture
@@ -106,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
 
                 private class FakeEntry : ICacheEntry
                 {
-                    public void Dispose()
+                    public virtual void Dispose()
                     {
                     }
 
@@ -121,11 +126,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     public long? Size { get; set; }
                 }
 
-                public void Remove(object key)
+                public virtual void Remove(object key)
                 {
                 }
 
-                public void Dispose()
+                public virtual void Dispose()
                 {
                 }
             }

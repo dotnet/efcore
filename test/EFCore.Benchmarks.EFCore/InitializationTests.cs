@@ -3,145 +3,124 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
-using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHelpers;
+using BenchmarkDotNet.Attributes;
 using Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Models.AdventureWorks;
-using Xunit;
+using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
 {
-    public class InitializationTests : IClassFixture<AdventureWorksFixture>
+    public class InitializationTests
     {
-        [Benchmark]
-        [BenchmarkVariation("Warm (10000 instances)", false, 10000)]
 #if NET461
-        [BenchmarkVariation("Cold (1 instance)", true, 1)]
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
+        private ColdStartSandbox _sandbox;
 #endif
-        public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
-        {
-            RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
-        }
+        private ColdStartEnabledTests _testClass;
 
-        [Benchmark]
-        [AdventureWorksDatabaseRequired]
-        [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
 #if NET461
-        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [Params(true, false)]
 #elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
+        [Params(false)]
 #endif
-        public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
+        public bool Cold { get; set; }
+
+        [GlobalSetup]
+        public virtual void Initialize()
         {
-            RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
-        }
-
-        [Benchmark]
-        [AdventureWorksDatabaseRequired]
-        [BenchmarkVariation("Warm (100 instances)", false, 100)]
-#if NET461
-        [BenchmarkVariation("Cold (1 instance)", true, 1)]
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
-        public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
-        {
-            RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));
-        }
-
-        [Benchmark]
-        public void BuildModel_AdventureWorks(IMetricCollector collector)
-        {
-            collector.StartCollection();
-
-            var builder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
-            AdventureWorksContext.ConfigureModel(builder);
-
-            var model = builder.Model;
-
-            collector.StopCollection();
-
-            Assert.Equal(67, model.GetEntityTypes().Count());
-        }
-
-        private void RunColdStartEnabledTest(bool cold, Action<ColdStartEnabledTests> test)
-        {
-            if (cold)
+            if (Cold)
             {
 #if NET461
-                using (var sandbox = new ColdStartSandbox())
-                {
-                    var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
-                    test(testClass);
-                }
-#elif NETCOREAPP2_0
-                throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
-#else
-#error target frameworks need to be updated.
+                _sandbox = new ColdStartSandbox();
+                _testClass = _sandbox.CreateInstance<ColdStartEnabledTests>();
 #endif
             }
             else
             {
-                test(new ColdStartEnabledTests());
+                _testClass = new ColdStartEnabledTests();
             }
+        }
+
+#if NET461
+        [GlobalCleanup]
+        public virtual void CleanupContext()
+        {
+            _sandbox?.Dispose();
+        }
+#endif
+
+        [Benchmark]
+        public virtual void CreateAndDisposeUnusedContext()
+        {
+            _testClass.CreateAndDisposeUnusedContext(Cold ? 1 : 10000);
+        }
+
+        [Benchmark]
+        public virtual void InitializeAndQuery_AdventureWorks()
+        {
+            _testClass.InitializeAndQuery_AdventureWorks(Cold ? 1 : 1000);
+        }
+
+        [Benchmark]
+        public virtual void InitializeAndSaveChanges_AdventureWorks()
+        {
+            _testClass.InitializeAndSaveChanges_AdventureWorks(Cold ? 1 : 100);
+        }
+
+        [Benchmark]
+        public virtual void BuildModel_AdventureWorks()
+        {
+            var builder = new ModelBuilder(SqlServerConventionSetBuilder.Build());
+            AdventureWorksContext.ConfigureModel(builder);
+
+            // ReSharper disable once UnusedVariable
+            var model = builder.Model;
         }
 
         private class ColdStartEnabledTests : MarshalByRefObject
         {
-            public void CreateAndDisposeUnusedContext(IMetricCollector collector, int count)
+            public void CreateAndDisposeUnusedContext(int count)
             {
-                using (collector.StartCollection())
+                for (var i = 0; i < count; i++)
                 {
-                    for (var i = 0; i < count; i++)
+                    // ReSharper disable once UnusedVariable
+                    using (var context = AdventureWorksFixture.CreateContext())
                     {
-                        using (var context = AdventureWorksFixture.CreateContext())
-                        {
-                        }
                     }
                 }
             }
 
-            public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, int count)
+            public void InitializeAndQuery_AdventureWorks(int count)
             {
-                using (collector.StartCollection())
+                for (var i = 0; i < count; i++)
                 {
-                    for (var i = 0; i < count; i++)
+                    using (var context = AdventureWorksFixture.CreateContext())
                     {
-                        using (var context = AdventureWorksFixture.CreateContext())
-                        {
-                            context.Department.First();
-                        }
+                        // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                        context.Department.First();
                     }
                 }
             }
 
-            public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, int count)
+            public void InitializeAndSaveChanges_AdventureWorks(int count)
             {
-                using (collector.StartCollection())
+                for (var i = 0; i < count; i++)
                 {
-                    for (var i = 0; i < count; i++)
+                    using (var context = AdventureWorksFixture.CreateContext())
                     {
-                        using (var context = AdventureWorksFixture.CreateContext())
-                        {
-                            context.Currency.Add(new Currency
+                        context.Currency.Add(
+                            new Currency
                             {
                                 CurrencyCode = "TMP",
                                 Name = "Temporary"
                             });
 
-                            using (context.Database.BeginTransaction())
-                            {
-                                context.SaveChanges();
+                        using (context.Database.BeginTransaction())
+                        {
+                            context.SaveChanges();
 
-                                // Don't mesure transaction rollback
-                                collector.StopCollection();
-                            }
-                            collector.StartCollection();
+                            // TODO: Don't mesure transaction rollback
                         }
                     }
                 }
