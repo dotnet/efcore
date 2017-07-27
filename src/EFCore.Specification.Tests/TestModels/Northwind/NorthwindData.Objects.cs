@@ -5,11 +5,9 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public static partial class NorthwindData
+    public partial class NorthwindData
     {
         #region Customers
-
-        private static readonly Customer[] _customers;
 
         public static Customer[] CreateCustomers()
             => new[]
@@ -1294,8 +1292,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         #region Employees
 
-        private static readonly Employee[] _employees;
-
         public static Employee[] CreateEmployees()
             => new[]
             {
@@ -1522,8 +1518,6 @@ Winchester Way",
         #endregion
 
         #region Products
-
-        private static readonly Product[] _products;
 
         public static Product[] CreateProducts()
             => new[]
@@ -2534,8 +2528,6 @@ Winchester Way",
         #endregion
 
         #region Orders
-
-        private static readonly Order[] _orders;
 
         public static Order[] CreateOrders()
             => new[]
@@ -16655,8 +16647,6 @@ Winchester Way",
         #endregion
 
         #region OrderDetails
-
-        private static readonly OrderDetail[] _orderDetails;
 
         public static OrderDetail[] CreateOrderDetails()
             => new[]

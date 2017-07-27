@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,27 +12,11 @@ using Xunit;
 #pragma warning disable 1998
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsyncQuerySqliteTest : AsyncQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class AsyncSimpleQuerySqliteTest : AsyncSimpleQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public AsyncQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
+        public AsyncSimpleQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
-        }
-
-        // TODO: Complex projection translation.
-        public override async Task Projection_when_arithmetic_expressions()
-        {
-            //base.Projection_when_arithmetic_expressions();
-        }
-
-        public override async Task Projection_when_arithmetic_mixed()
-        {
-            //base.Projection_when_arithmetic_mixed();
-        }
-
-        public override async Task Projection_when_arithmetic_mixed_subqueries()
-        {
-            //base.Projection_when_arithmetic_mixed_subqueries();
         }
 
         public async Task Skip_when_no_order_by()

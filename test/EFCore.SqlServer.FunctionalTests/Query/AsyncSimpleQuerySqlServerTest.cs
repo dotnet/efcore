@@ -15,13 +15,11 @@ using Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable InconsistentNaming
-// ReSharper disable AccessToDisposedClosure
-#pragma warning disable 1998
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsyncQuerySqlServerTest : AsyncQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class AsyncSimpleQuerySqlServerTest : AsyncSimpleQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public AsyncSimpleQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             //#9074
@@ -107,23 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             await Assert.ThrowsAsync<ObjectDisposedException>(() => task.SingleAsync(c => c.CustomerID == "ALFKI"));
-        }
-
-        // TODO: Complex projection translation.
-
-        public override async Task Projection_when_arithmetic_expressions()
-        {
-            //base.Projection_when_arithmetic_expressions();
-        }
-
-        public override async Task Projection_when_arithmetic_mixed()
-        {
-            //base.Projection_when_arithmetic_mixed();
-        }
-
-        public override async Task Projection_when_arithmetic_mixed_subqueries()
-        {
-            //base.Projection_when_arithmetic_mixed_subqueries();
         }
 
         public override async Task String_Contains_Literal()
@@ -261,7 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public async Task Cancelation_token_properly_passed_to_GetResult_method_for_queries_with_result_operators_and_outer_parameter_injection()
         {
             await AssertQuery<Order>(
-                os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }));
+                os => os.Select(o => new { o.Customer.City, Count = o.OrderDetails.Count() }),
+                elementSorter: e => e.City + " " + e.Count);
         }
     }
 }

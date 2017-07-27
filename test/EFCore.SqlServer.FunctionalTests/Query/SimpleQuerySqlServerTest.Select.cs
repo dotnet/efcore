@@ -14,27 +14,61 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM [Orders] AS [o]");
         }
 
-        // TODO: Complex projection translation.
+        public override void Projection_when_arithmetic_expressions()
+        {
+            base.Projection_when_arithmetic_expressions();
 
-        //        public override void Projection_when_arithmetic_expressions()
-        //        {
-        //            base.Projection_when_arithmetic_expressions();
-        //
-        //            AssertSql(
-        //                @"SELECT [o].[OrderID], [o].[OrderID] * 2, [o].[OrderID] + 23, 100000 - [o].[OrderID], [o].[OrderID] / ([o].[OrderID] / 2)
-        //FROM [Orders] AS [o]",
-        //                Sql);
-        //        }
-        //
-        //        public override void Projection_when_arithmetic_mixed()
-        //        {
-        //            //base.Projection_when_arithmetic_mixed();
-        //        }
-        //
-        //        public override void Projection_when_arithmetic_mixed_subqueries()
-        //        {
-        //            //base.Projection_when_arithmetic_mixed_subqueries();
-        //        }
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]");
+        }
+
+        public override void Projection_when_arithmetic_mixed()
+        {
+            base.Projection_when_arithmetic_mixed();
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]
+CROSS JOIN (
+    SELECT TOP(5) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+) AS [t0]");
+        }
+
+        public override void Projection_when_arithmetic_mixed_subqueries()
+        {
+            base.Projection_when_arithmetic_mixed_subqueries();
+
+            AssertSql(
+                @"@__p_0='3'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]",
+                //
+                @"SELECT TOP(2) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
+ORDER BY [e0].[EmployeeID]",
+                //
+                @"SELECT TOP(2) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
+ORDER BY [e0].[EmployeeID]",
+                //
+                @"SELECT TOP(2) [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e0]
+ORDER BY [e0].[EmployeeID]");
+        }
 
         public override void Projection_when_null_value()
         {

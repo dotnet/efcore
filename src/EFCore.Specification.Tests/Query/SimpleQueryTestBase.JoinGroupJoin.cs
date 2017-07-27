@@ -413,13 +413,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     select new { c, orders },
-                e => e.c.CustomerID,
-                entryCount: 921,
+                elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.c.CustomerID, a.c.CustomerID);
                     CollectionAsserter<Order>(o => o.OrderID)(e.orders, a.orders);
-                });
+                },
+                entryCount: 921);
         }
 
         [ConditionalFact]

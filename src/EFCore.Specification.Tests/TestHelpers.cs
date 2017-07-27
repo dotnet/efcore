@@ -439,7 +439,6 @@ namespace Microsoft.EntityFrameworkCore
             Func<T, T> elementSorter,
             Action<T, T> elementAsserter,
             bool verifyOrdered)
-            where T : struct
         {
             Assert.Equal(expected.Count, actual.Count);
 

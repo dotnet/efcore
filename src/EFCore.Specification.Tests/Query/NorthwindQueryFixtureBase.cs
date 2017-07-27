@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             QueryAsserter = new QueryAsserter<NorthwindContext>(
                 CreateContext,
-                new NorthwindData2(),
+                new NorthwindData(),
                 entitySorters,
                 entityAsserters);
         }

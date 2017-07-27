@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class AsyncQueryInMemoryTest : AsyncQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public class AsyncSimpleQueryInMemoryTest : AsyncSimpleQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
     {
-        public AsyncQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
+        public AsyncSimpleQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }
