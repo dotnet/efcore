@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.EFCore2",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.EFCore1", "benchmarks\EFCore.Benchmarks.EFCore1\EFCore.Benchmarks.EFCore1.csproj", "{F7DDD935-693A-44DD-B4F5-43C9ED721410}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.EF6", "benchmarks\EFCore.Benchmarks.EF6\EFCore.Benchmarks.EF6.csproj", "{B4A5F452-58BB-4E9A-B0F0-3ADBE72B45CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{F7DDD935-693A-44DD-B4F5-43C9ED721410}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7DDD935-693A-44DD-B4F5-43C9ED721410}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7DDD935-693A-44DD-B4F5-43C9ED721410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4A5F452-58BB-4E9A-B0F0-3ADBE72B45CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4A5F452-58BB-4E9A-B0F0-3ADBE72B45CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4A5F452-58BB-4E9A-B0F0-3ADBE72B45CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4A5F452-58BB-4E9A-B0F0-3ADBE72B45CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
