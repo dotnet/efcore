@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHel
 {
     public class AdventureWorksFixtureBase
     {
-        public static string ConnectionString { get; } = $@"{BenchmarkConfig.Instance.BenchmarkDatabase}Database=AdventureWorks2014;";
+        public static string ConnectionString { get; } = $"{BenchmarkConfig.Instance.BenchmarkDatabase}Database=AdventureWorks2014;";
     }
 }

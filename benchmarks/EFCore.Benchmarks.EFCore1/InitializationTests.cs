@@ -79,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1
         }
 
         private class ColdStartEnabledTests
-#if NET461          
+#if NET461
             : MarshalByRefObject
-#endif        
+#endif
         {
             public void CreateAndDisposeUnusedContext(int count)
             {

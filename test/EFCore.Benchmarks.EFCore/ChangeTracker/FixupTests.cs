@@ -89,7 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
 
         public class ParentVariation : Base
         {
-
             [IterationSetup]
             public override void InitializeContext()
             {

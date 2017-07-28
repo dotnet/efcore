@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.Models.Orders
 
         public OrdersFixture(string databaseName, int productCount, int customerCount, int ordersPerCustomer, int linesPerOrder)
         {
-            ConnectionString = $@"{BenchmarkConfig.Instance.BenchmarkDatabase}Database={databaseName};";
+            ConnectionString = $"{BenchmarkConfig.Instance.BenchmarkDatabase}Database={databaseName};";
             _productCount = productCount;
             _customerCount = customerCount;
             _ordersPerCustomer = ordersPerCustomer;

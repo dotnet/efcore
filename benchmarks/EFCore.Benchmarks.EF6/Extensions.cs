@@ -7,6 +7,8 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Reflection;
 
+// ReSharper disable PossibleNullReferenceException
+
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6
 {
     public static class Extensions
