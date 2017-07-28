@@ -1,17 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class GraphUpdatesSqliteTest
     {
-        public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBase<SqliteTestStore, TFixture>
+        public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBase<TFixture>
             where TFixture : GraphUpdatesSqliteTestBase<TFixture>.GraphUpdatesSqliteFixtureBase, new()
         {
             protected GraphUpdatesSqliteTestBase(TFixture fixture)
@@ -24,45 +26,13 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class GraphUpdatesSqliteFixtureBase : GraphUpdatesFixtureBase
             {
-                protected abstract string DatabaseName { get; }
+                public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+                protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+                protected virtual bool AutoDetectChanges => false;
 
-                protected abstract bool AutoDetectChanges { get; }
-
-                private readonly IServiceProvider _serviceProvider;
-
-                protected GraphUpdatesSqliteFixtureBase()
+                public override DbContext CreateContext()
                 {
-                    _serviceProvider = new ServiceCollection()
-                        .AddEntityFrameworkSqlite()
-                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .BuildServiceProvider(validateScopes: true);
-                }
-
-                public override SqliteTestStore CreateTestStore()
-                {
-                    return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                        {
-                            var optionsBuilder = new DbContextOptionsBuilder()
-                                .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                                .UseInternalServiceProvider(_serviceProvider);
-
-                            using (var context = new GraphUpdatesContext(optionsBuilder.Options))
-                            {
-                                context.Database.EnsureClean();
-                                Seed(context);
-                            }
-                        });
-                }
-
-                public override DbContext CreateContext(SqliteTestStore testStore)
-                {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlite(testStore.Connection)
-                        .UseInternalServiceProvider(_serviceProvider);
-
-                    var context = new GraphUpdatesContext(optionsBuilder.Options);
-                    context.Database.UseTransaction(testStore.Transaction);
-
+                    var context = base.CreateContext();
                     context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
 
                     return context;
@@ -73,22 +43,22 @@ namespace Microsoft.EntityFrameworkCore
         public class SnapshotNotificationsTest
             : GraphUpdatesSqliteTestBase<SnapshotNotificationsTest.SnapshotNotificationsFixture>
         {
-            public SnapshotNotificationsTest(SnapshotNotificationsFixture fixture)
+            public SnapshotNotificationsTest(SnapshotNotificationsFixture fixture, ITestOutputHelper testOutputHelper)
                 : base(fixture)
             {
+                //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
             }
 
             public class SnapshotNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
-                protected override string DatabaseName => "GraphUpdatesSnapshotTest";
-
+                protected override string StoreName { get; } = "GraphUpdatesSnapshotTest";
                 protected override bool AutoDetectChanges => true;
 
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
 
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }
@@ -103,15 +73,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public class ChangedNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
-                protected override string DatabaseName => "GraphUpdatesChangedTest";
-
-                protected override bool AutoDetectChanges => false;
-
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override string StoreName { get; } = "GraphUpdatesChangedTest";
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }
@@ -126,15 +93,13 @@ namespace Microsoft.EntityFrameworkCore
 
             public class ChangedChangingNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
-                protected override string DatabaseName => "GraphUpdatesFullTest";
-
-                protected override bool AutoDetectChanges => false;
-
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override string StoreName { get; } = "GraphUpdatesFullTest";
+                
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
 
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }
@@ -149,15 +114,13 @@ namespace Microsoft.EntityFrameworkCore
 
             public class FullWithOriginalsNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
-                protected override string DatabaseName => "GraphUpdatesOriginalsTest";
+                protected override string StoreName { get; } = "GraphUpdatesOriginalsTest";
 
-                protected override bool AutoDetectChanges => false;
-
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
 
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }

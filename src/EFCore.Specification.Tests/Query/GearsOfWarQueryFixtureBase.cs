@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e.OwnerFullName, a.OwnerFullName);
                             Assert.Equal(e.SynergyWithId, a.SynergyWithId);
                         }
-                },
+                }
             };
 
             QueryAsserter = new QueryAsserter<GearsOfWarContext>(

@@ -3,18 +3,18 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class GraphUpdatesInMemoryTest
-        : GraphUpdatesTestBase<InMemoryTestStore, GraphUpdatesInMemoryTest.GraphUpdatesInMemoryFixture>
+        : GraphUpdatesTestBase<GraphUpdatesInMemoryTest.GraphUpdatesInMemoryFixture>
     {
         public GraphUpdatesInMemoryTest(GraphUpdatesInMemoryFixture fixture)
             : base(fixture)
         {
         }
-
 
         public override void Optional_One_to_one_relationships_are_one_to_one()
         {
@@ -151,35 +151,22 @@ namespace Microsoft.EntityFrameworkCore
             // Cascade nulls not supported by in-memory database
         }
 
+        protected override void ExecuteWithStrategyInTransaction(
+            Action<DbContext> testOperation,
+            Action<DbContext> nestedTestOperation1 = null,
+            Action<DbContext> nestedTestOperation2 = null,
+            Action<DbContext> nestedTestOperation3 = null)
+        {
+            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            Fixture.Reseed();
+        }
+        
         public class GraphUpdatesInMemoryFixture : GraphUpdatesFixtureBase
         {
-            private readonly IServiceProvider _serviceProvider;
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
-            public GraphUpdatesInMemoryFixture()
-            {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider(validateScopes: true);
-            }
-
-            public override InMemoryTestStore CreateTestStore()
-                => InMemoryTestStore.CreateScratch(
-                    _serviceProvider,
-                    nameof(GraphUpdatesInMemoryFixture),
-                    () =>
-                        {
-                            using (var context = CreateContext(null))
-                            {
-                                Seed(context);
-                            }
-                        });
-
-            public override DbContext CreateContext(InMemoryTestStore testStore)
-                => new GraphUpdatesContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase(nameof(GraphUpdatesInMemoryFixture))
-                    .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                    .UseInternalServiceProvider(_serviceProvider).Options);
+            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));
         }
     }
 }

@@ -5,11 +5,15 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DataAnnotationSqliteTest : DataAnnotationTestBase<SqliteTestStore, DataAnnotationSqliteFixture>
+    public class DataAnnotationSqliteTest : DataAnnotationTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
     {
         public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture)
             : base(fixture)
@@ -157,7 +161,7 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Contains(@"@p1='Book1' (Nullable = false)
+            Assert.Contains(@"@p1='1' (DbType = String)
 ",
                 Sql);
 
@@ -215,5 +219,11 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
 ";
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+
+        public class DataAnnotationSqliteFixture : DataAnnotationFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        }
     }
 }

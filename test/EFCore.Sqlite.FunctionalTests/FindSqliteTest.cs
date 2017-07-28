@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class FindSqliteTest
-        : FindTestBase<SqliteTestStore, FindSqliteTest.FindSqliteFixture>
+    public abstract class FindSqliteTest : FindTestBase<FindSqliteTest.FindSqliteFixture>
     {
         protected FindSqliteTest(FindSqliteFixture fixture)
             : base(fixture)
@@ -58,36 +58,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FindSqliteFixture : FindFixtureBase
         {
-            private readonly DbContextOptions _options;
-            private readonly string DatabaseName = "FindTest";
-
-            public FindSqliteFixture()
-            {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlite()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider(validateScopes: true);
-
-                _options = new DbContextOptionsBuilder()
-                    .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                    .UseInternalServiceProvider(serviceProvider)
-                    .Options;
-            }
-
-            public override SqliteTestStore CreateTestStore()
-            {
-                return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        using (var context = new FindContext(_options))
-                        {
-                            context.Database.EnsureClean();
-                            Seed(context);
-                        }
-                    });
-            }
-
-            public override DbContext CreateContext(SqliteTestStore testStore)
-                => new FindContext(_options);
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
         }
     }
 }

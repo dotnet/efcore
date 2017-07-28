@@ -1,12 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<SqlServerTestStore, NullSemanticsQuerySqlServerFixture>
+    public class NullSemanticsQuerySqlServerTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqlServerFixture>
     {
         // ReSharper disable once UnusedParameter.Local
         public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -1153,5 +1154,20 @@ FROM [Entities1] AS [e]");
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
+
+        protected override NullSemanticsContext CreateContext(bool useRelationalNulls = false)
+        {
+            var options = new DbContextOptionsBuilder(Fixture.CreateOptions());
+            if (useRelationalNulls)
+            {
+                new SqlServerDbContextOptionsBuilder(options).UseRelationalNulls();
+            }
+
+            var context = new NullSemanticsContext(options.Options);
+
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+            return context;
+        }
     }
 }

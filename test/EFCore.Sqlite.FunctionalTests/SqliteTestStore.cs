@@ -72,12 +72,17 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if (!context.Database.EnsureCreated())
                         {
-                            context.Database.EnsureClean();
+                            Clean(context);
                         }
                         seed(context);
                     }
                 },
                 sharedCache: false);
+
+        public override void Clean(DbContext context)
+        {
+            context.Database.EnsureClean();
+        }
 
         private SqliteTestStore InitializeShared(Action initializeDatabase, bool sharedCache)
         {
@@ -85,12 +90,16 @@ namespace Microsoft.EntityFrameworkCore
 
             GlobalTestStoreIndex.CreateShared(typeof(SqliteTestStore).Name + Name, initializeDatabase);
 
+            // Open the connection after initializing to ensure FK enforcement is on
+            OpenConnection();
+
             return this;
         }
 
         private SqliteTestStore InitializeTransient(bool sharedCache)
         {
             CreateConnection(sharedCache);
+            OpenConnection();
 
             _deleteDatabase = true;
             return this;
@@ -100,8 +109,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             ConnectionString = CreateConnectionString(Name, sharedCache);
             Connection = new SqliteConnection(ConnectionString);
-
-            OpenConnection();
         }
 
         public override void OpenConnection()

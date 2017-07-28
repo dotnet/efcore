@@ -1,15 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedSqliteTest
-        : StoreGeneratedTestBase<SqliteTestStore, StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>
+    public class StoreGeneratedSqliteTest : StoreGeneratedTestBase<StoreGeneratedSqliteTest.StoreGeneratedSqliteFixture>
     {
         public StoreGeneratedSqliteTest(StoreGeneratedSqliteFixture fixture)
             : base(fixture)
@@ -21,47 +20,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public class StoreGeneratedSqliteFixture : StoreGeneratedFixtureBase
         {
-            private const string DatabaseName = "StoreGeneratedTest";
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
 
-            private readonly IServiceProvider _serviceProvider;
-
-            public StoreGeneratedSqliteFixture()
-            {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlite()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
-            }
-
-            public override SqliteTestStore CreateTestStore()
-            {
-                return SqliteTestStore.GetOrCreateShared(
-                    DatabaseName, () =>
-                        {
-                            var optionsBuilder = new DbContextOptionsBuilder()
-                                .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                                .UseInternalServiceProvider(_serviceProvider);
-
-                            using (var context = new StoreGeneratedContext(optionsBuilder.Options))
-                            {
-                                context.Database.EnsureClean();
-                            }
-                        });
-            }
-
-            public override DbContext CreateContext(SqliteTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlite(testStore.Connection)
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                var context = new StoreGeneratedContext(optionsBuilder.Options);
-                context.Database.UseTransaction(testStore.Transaction);
-
-                return context;
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<Gumball>(
                     b =>
@@ -117,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
                             b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
                         });
 
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(modelBuilder, context);
             }
         }
     }

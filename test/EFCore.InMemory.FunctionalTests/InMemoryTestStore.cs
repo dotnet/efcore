@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,11 @@ namespace Microsoft.EntityFrameworkCore
 
         public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action<InMemoryTestStore> deleteDatabase)
             => new InMemoryTestStore().InitializeTransient(initializeDatabase, deleteDatabase);
+
+        public override void Clean(DbContext context)
+        {
+            context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
+        }
 
         public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
             => InitializeShared(serviceProvider, () =>

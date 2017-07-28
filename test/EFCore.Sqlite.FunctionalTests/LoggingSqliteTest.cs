@@ -4,9 +4,9 @@
 using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class LoggingSqliteTest : LoggingRelationalTest<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>

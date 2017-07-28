@@ -3,6 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,8 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class LoadSqlServerTest
-        : LoadTestBase<SqlServerTestStore, LoadSqlServerTest.LoadSqlServerFixture>
+    public class LoadSqlServerTest : LoadTestBase<LoadSqlServerTest.LoadSqlServerFixture>
     {
         public LoadSqlServerTest(LoadSqlServerFixture fixture)
             : base(fixture)
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -45,7 +46,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -61,7 +62,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -77,7 +78,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -93,7 +94,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -109,7 +110,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id]
-FROM [SinglePkToPks] AS [e]
+FROM [SinglePkToPk] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -125,7 +126,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -141,7 +142,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -157,7 +158,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -173,7 +174,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -189,7 +190,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -205,7 +206,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id]
-FROM [SinglePkToPks] AS [e]
+FROM [SinglePkToPk] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -239,7 +240,7 @@ WHERE [e].[Id] = @__get_Item_0",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -253,7 +254,7 @@ WHERE 0 = 1",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -269,7 +270,7 @@ WHERE 0 = 1",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -285,7 +286,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -301,7 +302,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -317,7 +318,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -333,7 +334,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -349,7 +350,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -365,7 +366,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -381,7 +382,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -457,7 +458,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -473,7 +474,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -489,7 +490,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -505,7 +506,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -521,7 +522,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -537,7 +538,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id]
-FROM [SinglePkToPks] AS [e]
+FROM [SinglePkToPk] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -553,7 +554,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -569,7 +570,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -585,7 +586,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -601,7 +602,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -617,7 +618,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -633,7 +634,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -649,7 +650,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -665,7 +666,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -681,7 +682,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -697,7 +698,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -713,7 +714,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -729,7 +730,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -745,7 +746,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -761,7 +762,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -777,7 +778,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='787'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -793,7 +794,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='767' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -849,7 +850,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Children] AS [e]
+FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -865,7 +866,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -881,7 +882,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -897,7 +898,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [Singles] AS [e]
+FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -913,7 +914,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [ChildrenAks] AS [e]
+FROM [ChildAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -929,7 +930,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
                     Sql);
             }
@@ -945,7 +946,7 @@ WHERE [e].[AlternateId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
                     Sql);
             }
@@ -961,7 +962,7 @@ WHERE [e].[AlternateId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [SingleAks] AS [e]
+FROM [SingleAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -977,7 +978,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [ChildrenAks] AS [e]
+FROM [ChildAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -993,7 +994,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
                     Sql);
             }
@@ -1009,7 +1010,7 @@ WHERE [e].[AlternateId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
                     Sql);
             }
@@ -1025,7 +1026,7 @@ WHERE [e].[AlternateId] = @__get_Item_0",
                     @"@__get_Item_0='Root' (Size = 450)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
-FROM [SingleAks] AS [e]
+FROM [SingleAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -1059,7 +1060,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -1073,7 +1074,7 @@ WHERE 0 = 1",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -1089,7 +1090,7 @@ WHERE 0 = 1",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [ChildrenShadowFks] AS [e]
+FROM [ChildShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -1105,7 +1106,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -1121,7 +1122,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -1137,7 +1138,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [SingleShadowFks] AS [e]
+FROM [SingleShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -1153,7 +1154,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentId]
-FROM [ChildrenShadowFks] AS [e]
+FROM [ChildShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -1169,7 +1170,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -1185,7 +1186,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
                     Sql);
             }
@@ -1201,7 +1202,7 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"@__get_Item_0='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentId]
-FROM [SingleShadowFks] AS [e]
+FROM [SingleShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
                     Sql);
             }
@@ -1235,7 +1236,7 @@ WHERE [e].[ParentId] = @__get_Item_0",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -1249,7 +1250,7 @@ WHERE 0 = 1",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -1266,7 +1267,7 @@ WHERE 0 = 1",
 @__get_Item_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
-FROM [ChildrenCompositeKeys] AS [e]
+FROM [ChildCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
                     Sql);
             }
@@ -1283,7 +1284,7 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 @__get_Item_1='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
                     Sql);
             }
@@ -1300,7 +1301,7 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 @__get_Item_1='707'
 
 SELECT [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
                     Sql);
             }
@@ -1317,7 +1318,7 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 @__get_Item_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
-FROM [SingleCompositeKeys] AS [e]
+FROM [SingleCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
                     Sql);
             }
@@ -1334,7 +1335,7 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 @__get_Item_1='707' (Nullable = true)
 
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
-FROM [ChildrenCompositeKeys] AS [e]
+FROM [ChildCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
                     Sql);
             }
@@ -1351,7 +1352,7 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 @__get_Item_1='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
                     Sql);
             }
@@ -1368,7 +1369,7 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 @__get_Item_1='707'
 
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
                     Sql);
             }
@@ -1385,7 +1386,7 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 @__get_Item_1='707' (Nullable = true)
 
 SELECT TOP(2) [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
-FROM [SingleCompositeKeys] AS [e]
+FROM [SingleCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
                     Sql);
             }
@@ -1419,7 +1420,7 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -1433,7 +1434,7 @@ WHERE 0 = 1",
             {
                 Assert.Equal(
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
-FROM [Parents] AS [e]
+FROM [Parent] AS [e]
 WHERE 0 = 1",
                     Sql);
             }
@@ -1450,40 +1451,12 @@ WHERE 0 = 1",
 
         public class LoadSqlServerFixture : LoadFixtureBase
         {
-            private const string DatabaseName = "LoadTest";
-            private readonly DbContextOptions _options;
-
-            public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
-
-            public LoadSqlServerFixture()
-            {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                    .BuildServiceProvider(validateScopes: true);
-
-                _options = new DbContextOptionsBuilder()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(serviceProvider)
-                    .EnableSensitiveDataLogging()
-                    .Options;
-            }
-
-            public override SqlServerTestStore CreateTestStore()
-            {
-                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        using (var context = new LoadContext(_options))
-                        {
-                            context.Database.EnsureCreated();
-                            Seed(context);
-                        }
-                    });
-            }
-
-            public override DbContext CreateContext(SqlServerTestStore testStore)
-                => new LoadContext(_options);
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            
+            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(c => c
+                    .Log(RelationalEventId.QueryClientEvaluationWarning));
         }
     }
 }

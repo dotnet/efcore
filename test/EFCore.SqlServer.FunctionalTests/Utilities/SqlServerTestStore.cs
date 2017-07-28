@@ -114,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     }
                 });
 
+            Connection.Open();
             return this;
         }
 
@@ -137,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
                     using (var context = new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options))
                     {
-                        context.Database.EnsureClean();
+                        Clean(context);
                     }
                 }
                 else
@@ -148,6 +149,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
 
             return true;
+        }
+
+        public override void Clean(DbContext context)
+        {
+            context.Database.EnsureClean();
         }
 
         public void ExecuteScript(string scriptPath)

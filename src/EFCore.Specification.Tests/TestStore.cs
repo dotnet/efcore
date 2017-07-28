@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         public abstract TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed);
         public abstract IServiceCollection AddProviderServices(IServiceCollection serviceCollection);
         public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
+        public abstract void Clean(DbContext context);
 
         public virtual void Dispose()
         {

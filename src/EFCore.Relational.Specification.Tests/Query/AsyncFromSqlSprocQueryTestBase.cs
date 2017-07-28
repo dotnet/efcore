@@ -15,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class AsyncFromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected AsyncFromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual async Task From_sql_queryable_stored_procedure()
         {
@@ -139,10 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected AsyncFromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
 
         protected abstract string TenMostExpensiveProductsSproc { get; }
 

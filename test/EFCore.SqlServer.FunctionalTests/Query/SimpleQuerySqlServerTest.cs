@@ -91,16 +91,15 @@ FROM [Orders] AS [c1_Orders]");
                     {
                         var orderDetails = context.OrderDetails;
 
-                        Func<NorthwindContext, Customer> query
-                            = param
-                                => (from c in context.Customers
-                                    from o in context.Set<Order>()
-                                    from od in orderDetails
-                                    from e1 in param.Employees
-                                    from e2 in param.Set<Order>()
-                                    select c).First();
+                        Customer Query(NorthwindContext param) =>
+                            (from c in context.Customers
+                             from o in context.Set<Order>()
+                             from od in orderDetails
+                             from e1 in param.Employees
+                             from e2 in param.Set<Order>()
+                             select c).First();
 
-                        query(context);
+                        Assert.NotNull(Query(context));
 
                         Assert.True(wr.IsAlive);
 

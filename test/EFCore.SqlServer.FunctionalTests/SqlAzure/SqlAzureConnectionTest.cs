@@ -8,11 +8,16 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.SqlAzure
 {
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureConnectionTest : IClassFixture<SqlAzureFixture>
     {
+        public SqlAzureConnectionTest(SqlAzureFixture fixture)
+        {
+        }
+        
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
@@ -30,10 +35,6 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
                 context.Database.OpenConnection();
                 Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
             }
-        }
-
-        public SqlAzureConnectionTest(SqlAzureFixture fixture)
-        {
         }
     }
 }

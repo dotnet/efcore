@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class TableSplittingTestBase<TTestStore>

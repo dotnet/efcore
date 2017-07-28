@@ -1,20 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedSqlServerTest
-        : StoreGeneratedTestBase<SqlServerTestStore, StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>
+    public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>
     {
         public StoreGeneratedSqlServerTest(StoreGeneratedSqlServerFixture fixture)
             : base(fixture)
@@ -68,46 +67,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public class StoreGeneratedSqlServerFixture : StoreGeneratedFixtureBase
         {
-            private const string DatabaseName = "StoreGeneratedTest";
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
-            private readonly IServiceProvider _serviceProvider;
-
-            public StoreGeneratedSqlServerFixture()
-            {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
-            }
-
-            public override SqlServerTestStore CreateTestStore()
-            {
-                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => { b.ApplyConfiguration(); })
-                            .UseInternalServiceProvider(_serviceProvider);
-
-                        using (var context = new StoreGeneratedContext(optionsBuilder.Options))
-                        {
-                            context.Database.EnsureCreated();
-                        }
-                    });
-            }
-
-            public override DbContext CreateContext(SqlServerTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                var context = new StoreGeneratedContext(optionsBuilder.Options);
-                context.Database.UseTransaction(testStore.Transaction);
-
-                return context;
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<Gumball>(b =>
                     {
@@ -162,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
                     });
 
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(modelBuilder, context);
             }
         }
     }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class BatchingTest
@@ -141,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Inserts_when_database_type_is_different()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName + "_TypeMismatch"))
+            using (var testStore = SqlServerTestStore.Create(DatabaseName))
             {
                 var options = new DbContextOptionsBuilder()
                     .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())

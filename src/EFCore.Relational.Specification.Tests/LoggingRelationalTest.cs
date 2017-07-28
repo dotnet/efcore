@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class LoggingRelationalTest<TBuilder, TExtension> : LoggingTestBase

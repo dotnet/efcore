@@ -5,17 +5,21 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class UpdatesTestBase<TFixture, TTestStore> : IClassFixture<TFixture>, IDisposable
-        where TFixture : UpdatesFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : UpdatesFixtureBase
     {
+        protected UpdatesTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+
         [Fact]
         public virtual void Save_partial_update()
         {
@@ -77,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var entry = context.Products.Remove(
+                        context.Products.Remove(
                             new Product
                             {
                                 Id = productId
@@ -98,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(context =>
                 {
-                    var entry = context.Products.Remove(
+                    context.Products.Remove(
                         new Product
                         {
                             Id = new Guid("3d1302c5-4cf8-4043-9758-de9398f6fe10")
@@ -269,19 +273,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected UpdatesContext CreateContext() => Fixture.CreateContext(TestStore);
-
-        protected UpdatesTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = fixture.CreateTestStore();
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public void Dispose()
-            => TestStore.Dispose();
+        protected UpdatesContext CreateContext() => Fixture.CreateContext();
     }
 }

@@ -7,9 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class UpdatesRelationalTestBase<TFixture, TTestStore> : UpdatesTestBase<TFixture, TTestStore>
-        where TFixture : UpdatesFixtureBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFixture>
+        where TFixture : UpdatesFixtureBase
     {
         protected UpdatesRelationalTestBase(TFixture fixture)
             : base(fixture)

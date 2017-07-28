@@ -2,22 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
+
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable InconsistentNaming
-
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : BuiltInDataTypesFixtureBase, new()
+        where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
     {
-        protected BuiltInDataTypesTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected BuiltInDataTypesTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -805,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        // ReSharper disable once UnusedParameter.Local
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void AssertEqualIfMapped<T>(IEntityType entityType, T expected, Expression<Func<T>> actual)
         {
             if (entityType.FindProperty(((MemberExpression)actual.Body).Member.Name) != null)
@@ -923,6 +922,183 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, 'a', () => dt.TestNullableCharacter);
                 AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.TestNullableSignedByte);
             }
+        }
+
+        public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = "BuiltInDataTypes";
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                modelBuilder.Entity<BuiltInDataTypes>();
+                modelBuilder.Entity<BuiltInNullableDataTypes>();
+                modelBuilder.Entity<BinaryKeyDataType>();
+                modelBuilder.Entity<BinaryForeignKeyDataType>();
+                modelBuilder.Entity<StringKeyDataType>();
+                modelBuilder.Entity<StringForeignKeyDataType>();
+                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<BuiltInNullableDataTypes>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<BinaryForeignKeyDataType>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<StringForeignKeyDataType>().Property(e => e.Id).ValueGeneratedNever();
+                MakeRequired<BuiltInDataTypes>(modelBuilder);
+
+                modelBuilder.Entity<MaxLengthDataTypes>(b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.ByteArray5).HasMaxLength(5);
+                        b.Property(e => e.String3).HasMaxLength(3);
+                        b.Property(e => e.ByteArray9000).HasMaxLength(9000);
+                        b.Property(e => e.String9000).HasMaxLength(9000);
+                    });
+
+                modelBuilder.Entity<UnicodeDataTypes>(b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.StringAnsi).IsUnicode(false);
+                        b.Property(e => e.StringAnsi3).HasMaxLength(3).IsUnicode(false);
+                        b.Property(e => e.StringAnsi9000).IsUnicode(false).HasMaxLength(9000);
+                        b.Property(e => e.StringUnicode).IsUnicode();
+                    });
+            }
+
+            protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+            {
+                var entityType = modelBuilder.Entity<TEntity>().Metadata;
+
+                foreach (var propertyInfo in entityType.ClrType.GetTypeInfo().DeclaredProperties)
+                {
+                    entityType.GetOrAddProperty(propertyInfo).IsNullable = false;
+                }
+            }
+
+            public abstract bool SupportsBinaryKeys { get; }
+
+            public abstract DateTime DefaultDateTime { get; }
+        }
+
+        protected class BuiltInDataTypes
+        {
+            public int Id { get; set; }
+            public int PartitionId { get; set; }
+            public short TestInt16 { get; set; }
+            public int TestInt32 { get; set; }
+            public long TestInt64 { get; set; }
+            public double TestDouble { get; set; }
+            public decimal TestDecimal { get; set; }
+            public DateTime TestDateTime { get; set; }
+            public DateTimeOffset TestDateTimeOffset { get; set; }
+            public TimeSpan TestTimeSpan { get; set; }
+            public float TestSingle { get; set; }
+            public bool TestBoolean { get; set; }
+            public byte TestByte { get; set; }
+            public ushort TestUnsignedInt16 { get; set; }
+            public uint TestUnsignedInt32 { get; set; }
+            public ulong TestUnsignedInt64 { get; set; }
+            public char TestCharacter { get; set; }
+            public sbyte TestSignedByte { get; set; }
+            public Enum64 Enum64 { get; set; }
+            public Enum32 Enum32 { get; set; }
+            public Enum16 Enum16 { get; set; }
+            public Enum8 Enum8 { get; set; }
+        }
+
+        protected enum Enum64 : long
+        {
+            SomeValue = 1
+        }
+
+        protected enum Enum32
+        {
+            SomeValue = 1
+        }
+
+        protected enum Enum16 : short
+        {
+            SomeValue = 1
+        }
+
+        protected enum Enum8 : byte
+        {
+            SomeValue = 1
+        }
+
+        protected class MaxLengthDataTypes
+        {
+            public int Id { get; set; }
+            public string String3 { get; set; }
+            public byte[] ByteArray5 { get; set; }
+            public string String9000 { get; set; }
+            public byte[] ByteArray9000 { get; set; }
+        }
+
+        protected class UnicodeDataTypes
+        {
+            public int Id { get; set; }
+            public string StringDefault { get; set; }
+            public string StringAnsi { get; set; }
+            public string StringAnsi3 { get; set; }
+            public string StringAnsi9000 { get; set; }
+            public string StringUnicode { get; set; }
+        }
+
+        protected class BinaryKeyDataType
+        {
+            public byte[] Id { get; set; }
+
+            public ICollection<BinaryForeignKeyDataType> Dependents { get; set; }
+        }
+
+        protected class BinaryForeignKeyDataType
+        {
+            public int Id { get; set; }
+            public byte[] BinaryKeyDataTypeId { get; set; }
+
+            public BinaryKeyDataType Principal { get; set; }
+        }
+
+        protected class StringKeyDataType
+        {
+            public string Id { get; set; }
+
+            public ICollection<StringForeignKeyDataType> Dependents { get; set; }
+        }
+
+        protected class StringForeignKeyDataType
+        {
+            public int Id { get; set; }
+            public string StringKeyDataTypeId { get; set; }
+
+            public StringKeyDataType Principal { get; set; }
+        }
+
+        protected class BuiltInNullableDataTypes
+        {
+            public int Id { get; set; }
+            public int PartitionId { get; set; }
+            public string TestString { get; set; }
+            public byte[] TestByteArray { get; set; }
+            public short? TestNullableInt16 { get; set; }
+            public int? TestNullableInt32 { get; set; }
+            public long? TestNullableInt64 { get; set; }
+            public double? TestNullableDouble { get; set; }
+            public decimal? TestNullableDecimal { get; set; }
+            public DateTime? TestNullableDateTime { get; set; }
+            public DateTimeOffset? TestNullableDateTimeOffset { get; set; }
+            public TimeSpan? TestNullableTimeSpan { get; set; }
+            public float? TestNullableSingle { get; set; }
+            public bool? TestNullableBoolean { get; set; }
+            public byte? TestNullableByte { get; set; }
+            public ushort? TestNullableUnsignedInt16 { get; set; }
+            public uint? TestNullableUnsignedInt32 { get; set; }
+            public ulong? TestNullableUnsignedInt64 { get; set; }
+            public char? TestNullableCharacter { get; set; }
+            public sbyte? TestNullableSignedByte { get; set; }
+            // ReSharper disable MemberHidesStaticFromOuterClass
+            public Enum64? Enum64 { get; set; }
+            public Enum32? Enum32 { get; set; }
+            public Enum16? Enum16 { get; set; }
+            public Enum8? Enum8 { get; set; }
+            // ReSharper restore MemberHidesStaticFromOuterClass
         }
     }
 }

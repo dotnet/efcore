@@ -54,6 +54,15 @@ namespace Microsoft.EntityFrameworkCore
                     .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
                     .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
+        public void Reseed()
+        {
+            using (var context = CreateContext())
+            {
+                TestStore.Clean(context);
+                Seed(context);
+            }
+        }
+
         protected virtual void Seed(TContext context)
         {
         }

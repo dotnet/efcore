@@ -13,10 +13,13 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureFundamentalsTest : IClassFixture<SqlAzureFixture>
     {
+        public SqlAzureFundamentalsTest(SqlAzureFixture fixture) => Fixture = fixture;
+        public SqlAzureFixture Fixture { get; }
+        
         [ConditionalFact]
         public void CanExecuteQuery()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = Fixture.CreateContext())
             {
                 Assert.NotEqual(0, context.Addresses.Count());
             }
@@ -25,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [ConditionalFact]
         public void CanAdd()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = Fixture.CreateContext())
             {
                 context.Database.CreateExecutionStrategy().Execute(context, contextScoped =>
                     {
@@ -47,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [ConditionalFact]
         public void CanUpdate()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = Fixture.CreateContext())
             {
                 context.Database.CreateExecutionStrategy().Execute(context, contextScoped =>
                     {
@@ -68,21 +71,15 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [ConditionalFact]
         public void IncludeQuery()
         {
-            using (var context = _fixture.CreateContext())
+            using (var context = Fixture.CreateContext())
             {
                 var order = context.SalesOrders
+                    .OrderBy(s => s.SalesOrderID)
                     .Include(s => s.Customer)
                     .First();
 
                 Assert.NotNull(order.Customer);
             }
-        }
-
-        private readonly SqlAzureFixture _fixture;
-
-        public SqlAzureFundamentalsTest(SqlAzureFixture fixture)
-        {
-            _fixture = fixture;
         }
     }
 }

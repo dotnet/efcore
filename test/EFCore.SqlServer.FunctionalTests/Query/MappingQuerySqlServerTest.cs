@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class MappingQuerySqlServerTest : MappingQueryTestBase, IClassFixture<MappingQuerySqlServerFixture>
+    public class MappingQuerySqlServerTest : MappingQueryTestBase<MappingQuerySqlServerTest.MappingQuerySqlServerFixture>
     {
         public override void All_customers()
         {
@@ -48,19 +50,34 @@ FROM [dbo].[Orders] AS [o]",
                 Sql);
         }
 
-        private readonly MappingQuerySqlServerFixture _fixture;
-
         public MappingQuerySqlServerTest(MappingQuerySqlServerFixture fixture)
+            : base(fixture)
         {
-            _fixture = fixture;
-            _fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
-
-        protected override DbContext CreateContext() => _fixture.CreateContext();
 
         private const string FileLineEnding = @"
 ";
 
-        private string Sql => _fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+
+        public class MappingQuerySqlServerFixture : MappingQueryFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
+
+            protected override string DatabaseSchema { get; } = "dbo";
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<MappedCustomer>(e =>
+                    {
+                        e.Property(c => c.CompanyName2).Metadata.SqlServer().ColumnName = "CompanyName";
+                        e.Metadata.SqlServer().TableName = "Customers";
+                        e.Metadata.SqlServer().Schema = "dbo";
+                    });
+            }
+        }
     }
 }

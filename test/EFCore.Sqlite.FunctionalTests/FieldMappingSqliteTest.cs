@@ -1,17 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class FieldMappingSqliteTest
     {
-        public abstract class FieldMappingSqliteTestBase<TFixture> : FieldMappingTestBase<SqliteTestStore, TFixture>
+        public abstract class FieldMappingSqliteTestBase<TFixture> : FieldMappingTestBase<TFixture>
             where TFixture : FieldMappingSqliteTestBase<TFixture>.FieldMappingSqliteFixtureBase, new()
         {
             protected FieldMappingSqliteTestBase(TFixture fixture)
@@ -24,45 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract class FieldMappingSqliteFixtureBase : FieldMappingFixtureBase
             {
-                protected abstract string DatabaseName { get; }
-
-                private readonly IServiceProvider _serviceProvider;
-
-                protected FieldMappingSqliteFixtureBase()
-                {
-                    _serviceProvider = new ServiceCollection()
-                        .AddEntityFrameworkSqlite()
-                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .BuildServiceProvider();
-                }
-
-                public override SqliteTestStore CreateTestStore()
-                {
-                    return SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                        {
-                            var optionsBuilder = new DbContextOptionsBuilder()
-                                .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
-                                .UseInternalServiceProvider(_serviceProvider);
-
-                            using (var context = new FieldMappingContext(optionsBuilder.Options))
-                            {
-                                context.Database.EnsureClean();
-                                Seed(context);
-                            }
-                        });
-                }
-
-                public override DbContext CreateContext(SqliteTestStore testStore)
-                {
-                    var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlite(testStore.Connection)
-                        .UseInternalServiceProvider(_serviceProvider);
-
-                    var context = new FieldMappingContext(optionsBuilder.Options);
-                    context.Database.UseTransaction(testStore.Transaction);
-
-                    return context;
-                }
+                protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
             }
         }
 
@@ -76,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
 
             public class DefaultMappingFixture : FieldMappingSqliteFixtureBase
             {
-                protected override string DatabaseName => "FieldMappingTest";
             }
         }
 
@@ -90,12 +50,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public class EnforceFieldFixture : FieldMappingSqliteFixtureBase
             {
-                protected override string DatabaseName => "FieldMappingEnforceFieldTest";
+                protected override string StoreName { get; } = "FieldMappingEnforceFieldTest";
 
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Field);
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }
@@ -110,12 +70,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public class EnforceFieldForQueryFixture : FieldMappingSqliteFixtureBase
             {
-                protected override string DatabaseName => "FieldMappingFieldQueryTest";
+                protected override string StoreName { get; } = "FieldMappingFieldQueryTest";
 
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }
@@ -291,12 +251,12 @@ namespace Microsoft.EntityFrameworkCore
 
             public class EnforcePropertyFixture : FieldMappingSqliteFixtureBase
             {
-                protected override string DatabaseName => "FieldMappingEnforcePropertyTest";
+                protected override string StoreName { get; } = "FieldMappingEnforcePropertyTest";
 
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
+                protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.UsePropertyAccessMode(PropertyAccessMode.Property);
-                    base.OnModelCreating(modelBuilder);
+                    base.OnModelCreating(modelBuilder, context);
                 }
             }
         }

@@ -7,15 +7,16 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DatabindingTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : F1FixtureBase, new()
     {
-        protected DatabindingTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-        }
+        protected DatabindingTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
 
         protected const int TotalCount = 40;
 
@@ -931,7 +932,5 @@ namespace Microsoft.EntityFrameworkCore
             context.ChangeTracker.AutoDetectChangesEnabled = false;
             return context;
         }
-
-        protected TFixture Fixture { get; }
     }
 }

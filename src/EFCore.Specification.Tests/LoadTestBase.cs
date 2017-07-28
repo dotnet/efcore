@@ -9,12 +9,16 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class LoadTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : LoadTestBase<TTestStore, TFixture>.LoadFixtureBase
+    public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : LoadTestBase<TFixture>.LoadFixtureBase
     {
+        protected LoadTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Theory]
         [InlineData(EntityState.Unchanged, true)]
         [InlineData(EntityState.Unchanged, false)]
@@ -26,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -67,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -110,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Single();
+                var single = context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -153,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -196,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SinglePkToPks.Single();
+                var single = context.Set<SinglePkToPk>().Single();
 
                 ClearLog();
 
@@ -239,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -282,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -320,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -357,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Single();
+                var single = context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -394,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -431,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SinglePkToPks.Single();
+                var single = context.Set<SinglePkToPk>().Single();
 
                 ClearLog();
 
@@ -468,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -958,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Children).Single();
+                var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
 
@@ -999,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Include(e => e.Parent).Single(e => e.Id == 12);
+                var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -1042,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Include(e => e.Parent).Single();
+                var single = context.Set<Single>().Include(e => e.Parent).Single();
 
                 ClearLog();
 
@@ -1085,7 +1089,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Single).Single();
+                var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
 
@@ -1128,7 +1132,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SinglePkToPks.Include(e => e.Parent).Single();
+                var single = context.Set<SinglePkToPk>().Include(e => e.Parent).Single();
 
                 ClearLog();
 
@@ -1171,7 +1175,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.SinglePkToPk).Single();
+                var parent = context.Set<Parent>().Include(e => e.SinglePkToPk).Single();
 
                 ClearLog();
 
@@ -1214,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Children).Single();
+                var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
 
@@ -1252,7 +1256,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Include(e => e.Parent).Single(e => e.Id == 12);
+                var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -1289,7 +1293,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Include(e => e.Parent).Single();
+                var single = context.Set<Single>().Include(e => e.Parent).Single();
 
                 ClearLog();
 
@@ -1326,7 +1330,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Single).Single();
+                var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
 
@@ -1363,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SinglePkToPks.Include(e => e.Parent).Single();
+                var single = context.Set<SinglePkToPk>().Include(e => e.Parent).Single();
 
                 ClearLog();
 
@@ -1400,7 +1404,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.SinglePkToPk).Single();
+                var parent = context.Set<Parent>().Include(e => e.SinglePkToPk).Single();
 
                 ClearLog();
 
@@ -1437,7 +1441,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -1478,7 +1482,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -1521,7 +1525,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Single();
+                var single = context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -1564,7 +1568,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -1607,7 +1611,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -1645,7 +1649,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -1682,7 +1686,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Single();
+                var single = context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -1719,7 +1723,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -2058,7 +2062,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Children).Single();
+                var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
 
@@ -2099,7 +2103,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Include(e => e.Parent).Single(e => e.Id == 12);
+                var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -2142,7 +2146,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Include(e => e.Parent).Single();
+                var single = context.Set<Single>().Include(e => e.Parent).Single();
 
                 ClearLog();
 
@@ -2185,7 +2189,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Single).Single();
+                var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
 
@@ -2228,7 +2232,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Children).Single();
+                var parent = context.Set<Parent>().Include(e => e.Children).Single();
 
                 ClearLog();
 
@@ -2266,7 +2270,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Include(e => e.Parent).Single(e => e.Id == 12);
+                var child = context.Set<Child>().Include(e => e.Parent).Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -2303,7 +2307,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.Singles.Include(e => e.Parent).Single();
+                var single = context.Set<Single>().Include(e => e.Parent).Single();
 
                 ClearLog();
 
@@ -2340,7 +2344,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Include(e => e.Single).Single();
+                var parent = context.Set<Parent>().Include(e => e.Single).Single();
 
                 ClearLog();
 
@@ -2377,7 +2381,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -2418,7 +2422,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.ChildrenAks.Single(e => e.Id == 32);
+                var child = context.Set<ChildAk>().Single(e => e.Id == 32);
 
                 ClearLog();
 
@@ -2461,7 +2465,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SingleAks.Single();
+                var single = context.Set<SingleAk>().Single();
 
                 ClearLog();
 
@@ -2504,7 +2508,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -2547,7 +2551,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -2585,7 +2589,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.ChildrenAks.Single(e => e.Id == 32);
+                var child = context.Set<ChildAk>().Single(e => e.Id == 32);
 
                 ClearLog();
 
@@ -2622,7 +2626,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SingleAks.Single();
+                var single = context.Set<SingleAk>().Single();
 
                 ClearLog();
 
@@ -2659,7 +2663,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -2847,7 +2851,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -2888,7 +2892,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.ChildrenShadowFks.Single(e => e.Id == 52);
+                var child = context.Set<ChildShadowFk>().Single(e => e.Id == 52);
 
                 ClearLog();
 
@@ -2931,7 +2935,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SingleShadowFks.Single();
+                var single = context.Set<SingleShadowFk>().Single();
 
                 ClearLog();
 
@@ -2974,7 +2978,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3017,7 +3021,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3055,7 +3059,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.ChildrenShadowFks.Single(e => e.Id == 52);
+                var child = context.Set<ChildShadowFk>().Single(e => e.Id == 52);
 
                 ClearLog();
 
@@ -3092,7 +3096,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SingleShadowFks.Single();
+                var single = context.Set<SingleShadowFk>().Single();
 
                 ClearLog();
 
@@ -3129,7 +3133,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3317,7 +3321,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3358,7 +3362,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.ChildrenCompositeKeys.Single(e => e.Id == 52);
+                var child = context.Set<ChildCompositeKey>().Single(e => e.Id == 52);
 
                 ClearLog();
 
@@ -3401,7 +3405,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SingleCompositeKeys.Single();
+                var single = context.Set<SingleCompositeKey>().Single();
 
                 ClearLog();
 
@@ -3444,7 +3448,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3487,7 +3491,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3525,7 +3529,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.ChildrenCompositeKeys.Single(e => e.Id == 52);
+                var child = context.Set<ChildCompositeKey>().Single(e => e.Id == 52);
 
                 ClearLog();
 
@@ -3562,7 +3566,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var single = context.SingleCompositeKeys.Single();
+                var single = context.Set<SingleCompositeKey>().Single();
 
                 ClearLog();
 
@@ -3599,7 +3603,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -3781,7 +3785,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
@@ -3817,7 +3821,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
@@ -3856,7 +3860,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
@@ -3885,7 +3889,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(nameof(Parent.Children));
 
@@ -3914,7 +3918,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Navigation(nameof(Parent.Children));
 
@@ -3943,7 +3947,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
@@ -3972,7 +3976,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Navigation(nameof(Child.Parent));
 
@@ -4001,7 +4005,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(nameof(Child.Parent));
 
@@ -4030,7 +4034,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
@@ -4059,7 +4063,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Navigation(nameof(Parent.Single));
 
@@ -4088,7 +4092,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
 
@@ -4115,7 +4119,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
@@ -4132,7 +4136,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(nameof(Parent.Children));
 
@@ -4149,7 +4153,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Navigation(nameof(Parent.Children));
 
@@ -4166,7 +4170,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
@@ -4183,7 +4187,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Navigation(nameof(Child.Parent));
 
@@ -4200,7 +4204,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var child = context.Children.Single(e => e.Id == 12);
+                var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(nameof(Child.Parent));
 
@@ -4217,7 +4221,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
@@ -4234,7 +4238,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Navigation(nameof(Parent.Single));
 
@@ -4251,7 +4255,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var parent = context.Parents.Single();
+                var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
 
@@ -4364,38 +4368,7 @@ namespace Microsoft.EntityFrameworkCore
             public Parent Parent { get; set; }
         }
 
-        protected class LoadContext : DbContext
-        {
-            public LoadContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<Parent> Parents { get; set; }
-            public DbSet<SinglePkToPk> SinglePkToPks { get; set; }
-            public DbSet<Single> Singles { get; set; }
-            public DbSet<Child> Children { get; set; }
-            public DbSet<SingleAk> SingleAks { get; set; }
-            public DbSet<ChildAk> ChildrenAks { get; set; }
-            public DbSet<SingleShadowFk> SingleShadowFks { get; set; }
-            public DbSet<ChildShadowFk> ChildrenShadowFks { get; set; }
-            public DbSet<SingleCompositeKey> SingleCompositeKeys { get; set; }
-            public DbSet<ChildCompositeKey> ChildrenCompositeKeys { get; set; }
-        }
-
-        protected LoadTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected LoadContext CreateContext() => (LoadContext)Fixture.CreateContext(TestStore);
-
-        protected TFixture Fixture { get; }
-        protected TTestStore TestStore { get; }
-
-        public virtual void Dispose() => TestStore.Dispose();
+        protected DbContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {
@@ -4405,13 +4378,11 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public abstract class LoadFixtureBase
+        public abstract class LoadFixtureBase : SharedStoreFixtureBase<DbContext>
         {
-            public abstract TTestStore CreateTestStore();
+            protected override string StoreName { get; } = "LoadTest";
 
-            public abstract DbContext CreateContext(TTestStore testStore);
-
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<SingleShadowFk>()
                     .Property<int?>("ParentId");
@@ -4465,8 +4436,9 @@ namespace Microsoft.EntityFrameworkCore
                     });
             }
 
-            protected virtual object CreateFullGraph()
-                => new Parent
+            protected override void Seed(DbContext context)
+            {
+                context.Add((object)new Parent
                 {
                     Id = 707,
                     AlternateId = "Root",
@@ -4495,11 +4467,7 @@ namespace Microsoft.EntityFrameworkCore
                         new ChildCompositeKey { Id = 52 }
                     },
                     SingleCompositeKey = new SingleCompositeKey { Id = 62 }
-                };
-
-            protected virtual void Seed(DbContext context)
-            {
-                context.Add(CreateFullGraph());
+                });
                 context.SaveChanges();
             }
         }

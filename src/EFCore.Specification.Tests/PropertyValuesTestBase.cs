@@ -10,40 +10,42 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class PropertyValuesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : PropertyValuesTestBase<TTestStore, TFixture>.PropertyValuesFixtureBase, new()
+    public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : PropertyValuesTestBase<TFixture>.PropertyValuesFixtureBase, new()
     {
         protected PropertyValuesTestBase(TFixture fixture)
         {
             Fixture = fixture;
-            TestStore = Fixture.CreateTestStore();
+        }
+
+        protected TFixture Fixture { get; }
+
+        [Fact]
+        public virtual Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()
+        {
+            return TestPropertyValuesScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Scalar_current_values_can_be_accessed_as_a_property_dictionary()
+        public virtual Task Scalar_original_values_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_original_values_can_be_accessed_as_a_property_dictionary()
+        public virtual Task Scalar_store_values_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_as_a_property_dictionary()
+        public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary()
         {
-            await TestPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
-        }
-
-        [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary()
-        {
-            await TestPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesScalars(
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 building.Name = "Building One Prime";
                 building.Value = 1500001m;
@@ -79,27 +81,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Scalar_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
+        public virtual Task Scalar_current_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Scalar_original_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
+        public virtual Task Scalar_original_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
+        public virtual Task Scalar_store_values_can_be_accessed_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty()
+        public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_property_dictionary_using_IProperty()
         {
-            await TestPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesScalarsIProperty(
@@ -108,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 building.Name = "Building One Prime";
                 building.Value = 1500001m;
@@ -136,27 +138,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
+        public virtual Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
+        public virtual Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
+        public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_property_dictionary()
+        public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_property_dictionary()
         {
-            await TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesDerivedScalars(
@@ -165,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
 
                 employee.LastName = "Milner";
                 employee.LeaveBalance = 55m;
@@ -195,27 +197,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Scalar_current_values_can_be_accessed_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_current_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Scalar_original_values_can_be_accessed_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_original_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestNonGenericPropertyValuesScalars(
@@ -224,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                object building = context.Buildings.Single(b => b.Name == "Building One");
+                object building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
                 context.Entry(building).Property("Value").CurrentValue = 1500001m;
@@ -261,27 +263,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Scalar_current_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
+        public virtual Task Scalar_current_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Scalar_original_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
+        public virtual Task Scalar_original_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
+        public virtual Task Scalar_store_values_can_be_accessed_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesScalarsIProperty(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary_using_IProperty()
+        public virtual Task Scalar_store_values_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary_using_IProperty()
         {
-            await TestNonGenericPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesScalarsIProperty(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestNonGenericPropertyValuesScalarsIProperty(
@@ -290,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                object building = context.Buildings.Single(b => b.Name == "Building One");
+                object building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
                 context.Entry(building).Property("Value").CurrentValue = 1500001m;
@@ -324,27 +326,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_current_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_original_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesDerivedScalars(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
+        public virtual Task Scalar_store_values_of_a_derived_object_can_be_accessed_asynchronously_as_a_non_generic_property_dictionary()
         {
-            await TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesDerivedScalars(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestNonGenericPropertyValuesDerivedScalars(
@@ -353,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                object employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+                object employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
 
                 ((CurrentEmployee)employee).LastName = "Milner";
                 ((CurrentEmployee)employee).LeaveBalance = 55m;
@@ -400,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 values["Name"] = "Building 18";
@@ -439,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
                 var values = getPropertyValues(entry);
 
@@ -478,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 values["Name"] = "Building 18";
@@ -500,27 +502,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_copied_into_an_object()
+        public virtual Task Current_values_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_copied_into_an_object()
+        public virtual Task Original_values_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_into_an_object()
+        public virtual Task Store_values_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_into_an_object_asynchronously()
+        public virtual Task Store_values_can_be_copied_into_an_object_asynchronously()
         {
-            await TestPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesClone(
@@ -529,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 building.Name = "Building One Prime";
                 building.Value = 1500001m;
@@ -552,27 +554,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Current_values_for_derived_object_can_be_copied_into_an_object()
+        public virtual Task Current_values_for_derived_object_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestPropertyValuesDerivedClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_for_derived_object_can_be_copied_into_an_object()
+        public virtual Task Original_values_for_derived_object_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestPropertyValuesDerivedClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_for_derived_object_can_be_copied_into_an_object()
+        public virtual Task Store_values_for_derived_object_can_be_copied_into_an_object()
         {
-            await TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestPropertyValuesDerivedClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_for_derived_object_can_be_copied_into_an_object_asynchronously()
+        public virtual Task Store_values_for_derived_object_can_be_copied_into_an_object_asynchronously()
         {
-            await TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestPropertyValuesDerivedClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesDerivedClone(
@@ -581,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
 
                 employee.LastName = "Milner";
                 employee.LeaveBalance = 55m;
@@ -607,27 +609,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_copied_from_a_non_generic_property_dictionary_into_an_object()
+        public virtual Task Current_values_can_be_copied_from_a_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestNonGenericPropertyValuesClone(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_copied_non_generic_property_dictionary_into_an_object()
+        public virtual Task Original_values_can_be_copied_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesClone(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_non_generic_property_dictionary_into_an_object()
+        public virtual Task Store_values_can_be_copied_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesClone(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_asynchronously_non_generic_property_dictionary_into_an_object()
+        public virtual Task Store_values_can_be_copied_asynchronously_non_generic_property_dictionary_into_an_object()
         {
-            await TestNonGenericPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesClone(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestNonGenericPropertyValuesClone(
@@ -636,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                object building = context.Buildings.Single(b => b.Name == "Building One");
+                object building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 ((Building)building).Name = "Building One Prime";
                 ((Building)building).Value = 1500001m;
@@ -659,27 +661,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_copied_into_a_cloned_dictionary()
+        public virtual Task Current_values_can_be_copied_into_a_cloned_dictionary()
         {
-            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_copied_into_a_cloned_dictionary()
+        public virtual Task Original_values_can_be_copied_into_a_cloned_dictionary()
         {
-            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_into_a_cloned_dictionary()
+        public virtual Task Store_values_can_be_copied_into_a_cloned_dictionary()
         {
-            await TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_into_a_cloned_dictionary_asynchronously()
+        public virtual Task Store_values_can_be_copied_into_a_cloned_dictionary_asynchronously()
         {
-            await TestPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesCloneToValues(
@@ -688,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 building.Name = "Building One Prime";
                 building.Value = 1500001m;
@@ -751,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
 
                 var buildingValues = entry.CurrentValues;
@@ -786,7 +788,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
 
                 var buildingValues = entry.CurrentValues;
@@ -819,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
 
                 var buildingValues = entry.CurrentValues;
@@ -854,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
                 var entry = context.Entry(employee);
 
                 var values = entry.CurrentValues;
@@ -907,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var employee = context.Employees.OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
                 var entry = context.Entry(employee);
 
                 var values = entry.CurrentValues;
@@ -959,27 +961,27 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_copied_into_a_non_generic_cloned_dictionary()
+        public virtual Task Current_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
+            return TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.CurrentValues), expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_copied_into_a_non_generic_cloned_dictionary()
+        public virtual Task Original_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.OriginalValues), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_into_a_non_generic_cloned_dictionary()
+        public virtual Task Store_values_can_be_copied_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesCloneToValues(e => Task.FromResult(e.GetDatabaseValues()), expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_copied_asynchronously_into_a_non_generic_cloned_dictionary()
+        public virtual Task Store_values_can_be_copied_asynchronously_into_a_non_generic_cloned_dictionary()
         {
-            await TestNonGenericPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
+            return TestNonGenericPropertyValuesCloneToValues(e => e.GetDatabaseValuesAsync(), expectOriginalValues: true);
         }
 
         private async Task TestNonGenericPropertyValuesCloneToValues(
@@ -988,7 +990,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 building.Name = "Building One Prime";
                 building.Value = 1500001m;
@@ -1013,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(12, clonedBuildingValues["Shadow1"]);
                     Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
                 }
-                
+
                 // Test modification of cloned dictionaries does not impact original property values
 
                 var newKey = new Guid();
@@ -1048,133 +1050,133 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_read_or_set_for_an_object_in_the_Deleted_state()
+        public virtual Task Current_values_can_be_read_or_set_for_an_object_in_the_Deleted_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Deleted, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Deleted, expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
+        public virtual Task Original_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Deleted, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
+        public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state_asynchronously()
+        public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Deleted_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Deleted, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Deleted, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
+        public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Unchanged, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Unchanged, expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
+        public virtual Task Original_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Unchanged, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
+        public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state_asynchronously()
+        public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Unchanged_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Unchanged, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Unchanged, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
+        public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Modified, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Modified, expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
+        public virtual Task Original_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Modified, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
+        public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state_asynchronously()
+        public virtual Task Store_values_can_be_read_and_set_for_an_object_in_the_Modified_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Modified, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Modified, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_read_and_set_for_an_object_in_the_Added_state()
+        public virtual Task Current_values_can_be_read_and_set_for_an_object_in_the_Added_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Added, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Added, expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_read_or_set_for_an_object_in_the_Added_state()
+        public virtual Task Original_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Added, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Added, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state()
+        public virtual Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state_asynchronously()
+        public virtual Task Store_values_can_be_read_or_set_for_an_object_in_the_Added_state_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Current_values_can_be_read_or_set_for_a_Detached_object()
+        public virtual Task Current_values_can_be_read_or_set_for_a_Detached_object()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Detached, expectOriginalValues: false);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.CurrentValues), EntityState.Detached, expectOriginalValues: false);
         }
 
         [Fact]
-        public virtual async Task Original_values_can_be_read_or_set_for_a_Detached_object()
+        public virtual Task Original_values_can_be_read_or_set_for_a_Detached_object()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.OriginalValues), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_or_set_for_a_Detached_object()
+        public virtual Task Store_values_can_be_read_or_set_for_a_Detached_object()
         {
-            await TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => Task.FromResult(e.GetDatabaseValues()), EntityState.Detached, expectOriginalValues: true);
         }
 
         [Fact]
-        public virtual async Task Store_values_can_be_read_or_set_for_a_Detached_object_asynchronously()
+        public virtual Task Store_values_can_be_read_or_set_for_a_Detached_object_asynchronously()
         {
-            await TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
+            return TestPropertyValuesPositiveForState(e => e.GetDatabaseValuesAsync(), EntityState.Detached, expectOriginalValues: true);
         }
 
         private async Task TestPropertyValuesPositiveForState(
-            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues, 
+            Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
             EntityState state,
             bool expectOriginalValues)
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
                 entry.State = state;
 
@@ -1182,14 +1184,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var values = await getPropertyValues(entry);
 
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", values["Name"]);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", values["Name"]);
-                }
+                Assert.Equal(expectOriginalValues ? "Building One" : "Building One Prime", values["Name"]);
 
                 values["Name"] = "Building One Optimal";
 
@@ -1212,7 +1207,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
 
                 entry.Property(e => e.Name).OriginalValue = "Original Building";
@@ -1292,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var newBuilding = Building.Create(
@@ -1349,7 +1344,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var newBuilding = Building.Create(
@@ -1388,7 +1383,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var newBuilding = new BuildingDto
@@ -1430,7 +1425,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var newBuilding = new BuildingDtoNoKey
@@ -1470,7 +1465,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var dictionary = new Dictionary<string, object>
@@ -1514,7 +1509,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var dictionary = new Dictionary<string, object>
@@ -1556,7 +1551,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var clonedBuildingValues = buildingValues.Clone();
@@ -1598,7 +1593,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = getPropertyValues(context.Entry(building));
 
                 var clonedBuildingValues = buildingValues.Clone();
@@ -1638,7 +1633,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 Assert.Equal(
@@ -1652,7 +1647,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
                 var values = entry.CurrentValues;
 
@@ -1672,7 +1667,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var entry = context.Entry(building);
                 var values = entry.CurrentValues;
 
@@ -1691,7 +1686,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = context.Entry(building).OriginalValues;
 
                 Assert.Equal(
@@ -1707,7 +1702,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = context.Entry(building).OriginalValues;
 
                 Assert.Equal(
@@ -1723,7 +1718,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = context.Entry(building).CurrentValues.Clone();
 
                 Assert.Equal(
@@ -1748,7 +1743,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 Assert.Throws<InvalidCastException>(() => values["Name"] = 1);
@@ -1774,7 +1769,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 Assert.Throws<InvalidCastException>(() => values["Shadow1"] = "foo");
@@ -1788,7 +1783,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = context.Entry(building).CurrentValues.Clone();
 
                 Assert.Equal(
@@ -1816,7 +1811,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 var newBuilding = (Building)values.ToObject();
@@ -1844,8 +1839,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
-                var key = building.BuildingId;
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var values = getPropertyValues(context.Entry(building));
 
                 var clone = values.Clone();
@@ -1858,40 +1852,40 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task Properties_for_current_values_returns_properties()
+        public virtual Task Properties_for_current_values_returns_properties()
         {
-            await TestProperties(e => Task.FromResult(e.CurrentValues));
+            return TestProperties(e => Task.FromResult(e.CurrentValues));
         }
 
         [Fact]
-        public virtual async Task Properties_for_original_values_returns_properties()
+        public virtual Task Properties_for_original_values_returns_properties()
         {
-            await TestProperties(e => Task.FromResult(e.OriginalValues));
+            return TestProperties(e => Task.FromResult(e.OriginalValues));
         }
 
         [Fact]
-        public virtual async Task Properties_for_store_values_returns_properties()
+        public virtual Task Properties_for_store_values_returns_properties()
         {
-            await TestProperties(e => Task.FromResult(e.GetDatabaseValues()));
+            return TestProperties(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task Properties_for_store_values_returns_properties_asynchronously()
+        public virtual Task Properties_for_store_values_returns_properties_asynchronously()
         {
-            await TestProperties(e => e.GetDatabaseValuesAsync());
+            return TestProperties(e => e.GetDatabaseValuesAsync());
         }
 
         [Fact]
-        public virtual async Task Properties_for_cloned_dictionary_returns_properties()
+        public virtual Task Properties_for_cloned_dictionary_returns_properties()
         {
-            await TestProperties(e => Task.FromResult(e.CurrentValues.Clone()));
+            return TestProperties(e => Task.FromResult(e.CurrentValues.Clone()));
         }
 
         private async Task TestProperties(Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues)
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 var buildingValues = await getPropertyValues(context.Entry(building));
 
                 Assert.Equal(
@@ -1901,15 +1895,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValues_for_entity_not_in_the_store_returns_null()
+        public virtual Task GetDatabaseValues_for_entity_not_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
+        public virtual Task GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+            return GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
@@ -1918,26 +1912,26 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var building = (Building)context.Entry(
-                    context.Buildings.Single(b => b.Name == "Building One")).CurrentValues.ToObject();
+                    context.Set<Building>().Single(b => b.Name == "Building One")).CurrentValues.ToObject();
 
                 building.BuildingId = new Guid();
 
-                context.Buildings.Attach(building);
+                context.Set<Building>().Attach(building);
 
                 Assert.Null(await getPropertyValues(context.Entry(building)));
             }
         }
 
         [Fact]
-        public virtual async Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
+        public virtual Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null()
         {
-            await NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task NonGeneric_GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
+        public virtual Task NonGeneric_GetDatabaseValuesAsync_for_entity_not_in_the_store_returns_null()
         {
-            await NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+            return NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
@@ -1947,10 +1941,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var building =
                     (Building)
-                    context.Entry(context.Buildings.Single(b => b.Name == "Building One")).CurrentValues.ToObject();
+                        context.Entry(context.Set<Building>().Single(b => b.Name == "Building One")).CurrentValues.ToObject();
                 building.BuildingId = new Guid();
 
-                context.Buildings.Attach(building);
+                context.Set<Building>().Attach(building);
 
                 Assert.Null(await getPropertyValues(context.Entry((object)building)));
             }
@@ -1974,29 +1968,29 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var employee = (CurrentEmployee)context.Entry(
-                        context.Employees
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = -77;
 
-                context.Employees.Attach(employee);
+                context.Set<Employee>().Attach(employee);
 
                 Assert.Null(await getPropertyValues(context.Entry(employee)));
             }
         }
 
         [Fact]
-        public virtual async Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
+        public virtual Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null()
         {
-            await NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task NonGeneric_GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
+        public virtual Task NonGeneric_GetDatabaseValuesAsync_for_derived_entity_not_in_the_store_returns_null()
         {
-            await NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
+            return NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
                 e => e.GetDatabaseValuesAsync());
         }
 
@@ -2006,29 +2000,29 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var employee = (CurrentEmployee)context.Entry(
-                        context.Employees
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = -77;
 
-                context.Employees.Attach(employee);
+                context.Set<Employee>().Attach(employee);
 
                 Assert.Null(await getPropertyValues(context.Entry((object)employee)));
             }
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
+        public virtual Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_returns_null()
+        public virtual Task GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_returns_null()
         {
-            await GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
+            return GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
@@ -2036,36 +2030,37 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var pastEmployeeId = context.Employees
+                var pastEmployeeId = context.Set<Employee>()
                     .OfType<PastEmployee>()
                     .AsNoTracking()
+                    .OrderBy(e => e.EmployeeId)
                     .FirstOrDefault()
                     .EmployeeId;
 
                 var employee = (CurrentEmployee)context.Entry(
-                        context.Employees
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = pastEmployeeId;
 
-                context.Employees.Attach(employee);
+                context.Set<Employee>().Attach(employee);
 
                 Assert.Null(await getPropertyValues(context.Entry(employee)));
             }
         }
 
         [Fact]
-        public virtual async Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
+        public virtual Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws()
         {
-            await NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task NonGeneric_GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_throws()
+        public virtual Task NonGeneric_GetDatabaseValuesAsync_for_the_wrong_type_in_the_store_throws()
         {
-            await NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => e.GetDatabaseValuesAsync());
+            return NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
@@ -2073,36 +2068,37 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var pastEmployeeId = context.Employees
+                var pastEmployeeId = context.Set<Employee>()
                     .OfType<PastEmployee>()
                     .AsNoTracking()
+                    .OrderBy(e => e.EmployeeId)
                     .FirstOrDefault()
                     .EmployeeId;
 
                 var employee = (CurrentEmployee)context.Entry(
-                        context.Employees
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
                     .CurrentValues
                     .ToObject();
                 employee.EmployeeId = pastEmployeeId;
 
-                context.Employees.Attach(employee);
+                context.Set<Employee>().Attach(employee);
 
                 Assert.Null(await getPropertyValues(context.Entry((object)employee)));
             }
         }
 
         [Fact]
-        public virtual async Task Store_values_really_are_store_values_not_current_or_original_values()
+        public Task Store_values_really_are_store_values_not_current_or_original_values()
         {
-            await Store_values_really_are_store_values_not_current_or_original_values_implementation(e => Task.FromResult(e.GetDatabaseValues()));
+            return Store_values_really_are_store_values_not_current_or_original_values_implementation(e => Task.FromResult(e.GetDatabaseValues()));
         }
 
         [Fact]
-        public virtual async Task Store_values_really_are_store_values_not_current_or_original_values_async()
+        public Task Store_values_really_are_store_values_not_current_or_original_values_async()
         {
-            await Store_values_really_are_store_values_not_current_or_original_values_implementation(e => e.GetDatabaseValuesAsync());
+            return Store_values_really_are_store_values_not_current_or_original_values_implementation(e => e.GetDatabaseValuesAsync());
         }
 
         private async Task Store_values_really_are_store_values_not_current_or_original_values_implementation(
@@ -2110,7 +2106,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
                 building.Name = "Values End";
 
                 context.Entry(building).State = EntityState.Unchanged;
@@ -2126,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var building = context.Buildings.Single(b => b.Name == "Building One");
+                var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
                 var storeValues = context.Entry(building).GetDatabaseValues();
                 storeValues["Name"] = "Bag End";
@@ -2173,7 +2169,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public string NoGetter
             {
-                set { _noGetter = value; }
+                set => _noGetter = value;
             }
 
             public string GetNoGetterValue() => _noGetter;
@@ -2195,7 +2191,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public string NoGetter
             {
-                set { _noGetter = value; }
+                set => _noGetter = value;
             }
 
             public string GetNoGetterValue() => _noGetter;
@@ -2276,38 +2272,18 @@ namespace Microsoft.EntityFrameworkCore
             public DateTime TerminationDate { get; set; }
         }
 
-        protected class AdvancedPatternsMasterContext : DbContext
+        protected DbContext CreateContext()
         {
-            public AdvancedPatternsMasterContext(DbContextOptions options)
-                : base(options)
-            {
-                ChangeTracker.AutoDetectChangesEnabled = false;
-            }
-
-            public DbSet<Employee> Employees { get; set; }
-            public DbSet<Office> Offices { get; set; }
-            public DbSet<Building> Buildings { get; set; }
-            public DbSet<BuildingDetail> BuildingDetails { get; set; }
-            public DbSet<WorkOrder> WorkOrders { get; set; }
-            public DbSet<Whiteboard> Whiteboards { get; set; }
+            var context = Fixture.CreateContext();
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            return context;
         }
 
-        protected AdvancedPatternsMasterContext CreateContext()
-            => (AdvancedPatternsMasterContext)Fixture.CreateContext(TestStore);
-
-        public virtual void Dispose() => TestStore.Dispose();
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public abstract class PropertyValuesFixtureBase
+        public abstract class PropertyValuesFixtureBase : SharedStoreFixtureBase<DbContext>
         {
-            public abstract TTestStore CreateTestStore();
+            protected override string StoreName { get; } = "PropertyValues";
 
-            public abstract DbContext CreateContext(TTestStore testStore);
-
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<Employee>(b =>
                     {
@@ -2348,7 +2324,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
             }
 
-            protected virtual void Seed(DbContext context)
+            protected override void Seed(DbContext context)
             {
                 var buildings = new List<Building>
                 {

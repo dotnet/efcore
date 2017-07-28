@@ -8,31 +8,23 @@ using Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable SimplifyConditionalTernaryExpression
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable InconsistentNaming
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable NegativeEqualityExpression
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class NullSemanticsQueryTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : NullSemanticsQueryRelationalFixture<TTestStore>, new()
+    public abstract class NullSemanticsQueryTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : NullSemanticsQueryRelationalFixture, new()
     {
         private readonly NullSemanticsData _oracleData = new NullSemanticsData();
 
-        protected NullSemanticsContext CreateContext(bool useRelationalNulls = false)
-            => Fixture.CreateContext(TestStore, useRelationalNulls);
-
-        protected NullSemanticsQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
+        protected NullSemanticsQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public void Dispose() => TestStore.Dispose();
 
         [Fact]
         public virtual void Compare_bool_with_bool_equal()
@@ -399,8 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(
                 e => (e.NullableStringA == e.NullableStringB
-                         ? e.NullableStringA
-                         : e.NullableStringB) == e.NullableStringC));
+                    ? e.NullableStringA
+                    : e.NullableStringB) == e.NullableStringC));
         }
 
         [Fact]
@@ -408,8 +400,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(
                 e => e.NullableStringC != (e.NullableStringA == e.NullableStringB
-                         ? e.NullableStringA
-                         : e.NullableStringB)));
+                    ? e.NullableStringA
+                    : e.NullableStringB)));
         }
 
         [Fact]
@@ -417,8 +409,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(es => es.Where(
                 e => e.NullableStringC != (e.NullableStringA == e.NullableStringB
-                         ? e.StringA
-                         : e.StringB)));
+                    ? e.StringA
+                    : e.StringB)));
         }
 
         [Fact]
@@ -457,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.Contains(e.NullableStringB) && e.BoolA),
                 es => es.Where(e =>
-                        e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah") && e.BoolA),
+                    e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah") && e.BoolA),
                 useRelationalNulls: false);
         }
 
@@ -465,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Func<IQueryable<TItem>, IQueryable<TItem>> query,
             bool useDatabaseNullSemantics = false)
             where TItem : NullSemanticsEntityBase
-        => AssertQuery(query, query, useDatabaseNullSemantics);
+            => AssertQuery(query, query, useDatabaseNullSemantics);
 
         [Fact]
         public virtual void Where_equal_using_relational_null_semantics()
@@ -704,6 +696,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
         }
+
+        protected abstract NullSemanticsContext CreateContext(bool useRelationalNulls = false);
 
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<TItem>> l2eQuery,

@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly Dictionary<Type, Func<dynamic, object>> _entitySorters;
         private readonly Dictionary<Type, Action<dynamic, dynamic>> _entityAsserters;
 
-        protected List<string> _path;
-        protected Stack<string> _fullPath;
+        private List<string> _path;
+        private Stack<string> _fullPath;
 
         public IncludeQueryResultAsserter(
             Dictionary<Type, Func<dynamic, object>> entitySorters,

@@ -1,28 +1,25 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class FieldMappingTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : FieldMappingTestBase<TTestStore, TFixture>.FieldMappingFixtureBase, new()
+    public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : FieldMappingTestBase<TFixture>.FieldMappingFixtureBase, new()
     {
-        protected FieldMappingTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = Fixture.CreateTestStore();
-        }
+        protected FieldMappingTestBase(TFixture fixture) => Fixture = fixture;
+        
+        protected TFixture Fixture { get; }
 
         [Fact]
         public virtual void Include_collection_auto_props()
@@ -212,27 +209,39 @@ namespace Microsoft.EntityFrameworkCore
 
         [Fact]
         public virtual void Load_collection_read_only_props_with_named_fields()
-            => Load_collection<BlogReadOnlyExplicit>("Posts");
+        {
+            Load_collection<BlogReadOnlyExplicit>("Posts");
+        }
 
         [Fact]
         public virtual void Load_reference_read_only_props_with_named_fields()
-            => Load_reference<PostReadOnlyExplicit>("Blog");
+        {
+            Load_reference<PostReadOnlyExplicit>("Blog");
+        }
 
         [Fact]
         public virtual void Query_with_conditional_constant_read_only_props_with_named_fields()
-            => Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId");
+        {
+            Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId");
+        }
 
         [Fact]
         public virtual void Query_with_conditional_param_read_only_props_with_named_fields()
-            => Query_with_conditional_param<PostReadOnlyExplicit>("Title");
+        {
+            Query_with_conditional_param<PostReadOnlyExplicit>("Title");
+        }
 
         [Fact]
         public virtual void Projection_read_only_props_with_named_fields()
-            => Projection<PostReadOnlyExplicit>("Id", "Title");
+        {
+            Projection<PostReadOnlyExplicit>("Id", "Title");
+        }
 
         [Fact]
         public virtual void Update_read_only_props_with_named_fields()
-            => Update<BlogReadOnlyExplicit>("Posts");
+        {
+            Update<BlogReadOnlyExplicit>("Posts");
+        }
 
         [Fact]
         public virtual void Include_collection_write_only_props()
@@ -1202,28 +1211,28 @@ namespace Microsoft.EntityFrameworkCore
 
             int IPostAccesor.AccessId
             {
-                get { return _id; }
-                set { _id = value; }
+                get => _id;
+                set => _id = value;
             }
 
             // ReSharper disable once ConvertToAutoProperty
             string IPostAccesor.AccessTitle
             {
-                get { return _title; }
-                set { _title = value; }
+                get => _title;
+                set => _title = value;
             }
 
             // ReSharper disable once ConvertToAutoProperty
             int IPostAccesor.AccessBlogId
             {
-                get { return _blogId; }
-                set { _blogId = value; }
+                get => _blogId;
+                set => _blogId = value;
             }
 
             IBlogAccesor IPostAccesor.AccessBlog
             {
-                get { return Blog; }
-                set { Blog = (BlogFields)value; }
+                get => Blog;
+                set => Blog = (BlogFields)value;
             }
         }
 
@@ -1273,30 +1282,13 @@ namespace Microsoft.EntityFrameworkCore
             };
         }
 
-        protected class FieldMappingContext : DbContext
+        protected DbContext CreateContext() => Fixture.CreateContext();
+        
+        public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<DbContext>
         {
-            public FieldMappingContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-        }
+            protected override string StoreName { get; } = "FieldMapping";
 
-        protected FieldMappingContext CreateContext()
-            => (FieldMappingContext)Fixture.CreateContext(TestStore);
-
-        public void Dispose() => TestStore.Dispose();
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public abstract class FieldMappingFixtureBase
-        {
-            public abstract TTestStore CreateTestStore();
-
-            public abstract DbContext CreateContext(TTestStore testStore);
-
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<PostAuto>();
                 modelBuilder.Entity<BlogAuto>();
@@ -1309,7 +1301,6 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id).HasField("_myid");
                         b.Property(e => e.Title).HasField("_mytitle");
                         b.Property(e => e.BlogId).HasField("_myblogId");
-                        ;
                     });
 
                 modelBuilder.Entity<BlogFullExplicit>(b =>
@@ -1344,7 +1335,6 @@ namespace Microsoft.EntityFrameworkCore
                             b.Property(e => e.Id).HasField("_myid");
                             b.Property(e => e.Title).HasField("_mytitle");
                             b.Property(e => e.BlogId).HasField("_myblogId");
-                            ;
                         });
 
                     modelBuilder.Entity<BlogReadOnlyExplicit>(b =>
@@ -1409,7 +1399,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            protected virtual void Seed(DbContext context)
+            protected override void Seed(DbContext context)
             {
                 context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>());
                 context.AddRange(CreatePostsAndBlog<BlogAuto, PostAuto>());

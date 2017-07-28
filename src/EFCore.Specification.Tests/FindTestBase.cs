@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class FindTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : FindTestBase<TTestStore, TFixture>.FindFixtureBase
+    public abstract class FindTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : FindTestBase<TFixture>.FindFixtureBase
     {
+        protected FindTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+
         protected abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues) where TEntity : class;
 
         protected abstract Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues) where TEntity : class;
@@ -733,52 +737,26 @@ namespace Microsoft.EntityFrameworkCore
             public string Foo { get; set; }
         }
 
-        protected class FindContext : DbContext
+        protected DbContext CreateContext() => Fixture.CreateContext();
+
+        public abstract class FindFixtureBase : SharedStoreFixtureBase<DbContext>
         {
-            public FindContext(DbContextOptions options)
-                : base(options)
+            protected override string StoreName { get; } = "FindTest";
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-            }
-
-            public DbSet<IntKey> IntKeys { get; set; }
-            public DbSet<NullableIntKey> NullableIntKeys { get; set; }
-            public DbSet<StringKey> StringKeys { get; set; }
-            public DbSet<CompositeKey> CompositeKeys { get; set; }
-            public DbSet<BaseType> BaseTypes { get; set; }
-            public DbSet<DerivedType> DerivedTypes { get; set; }
-            public DbSet<ShadowKey> ShadowKeys { get; set; }
-        }
-
-        protected FindTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected FindContext CreateContext() => (FindContext)Fixture.CreateContext(TestStore);
-
-        protected TFixture Fixture { get; }
-        protected TTestStore TestStore { get; }
-
-        public virtual void Dispose() => TestStore.Dispose();
-
-        public abstract class FindFixtureBase
-        {
-            public abstract TTestStore CreateTestStore();
-
-            public abstract DbContext CreateContext(TTestStore testStore);
-
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-            {
+                modelBuilder.Entity<IntKey>();
+                modelBuilder.Entity<NullableIntKey>();
+                modelBuilder.Entity<StringKey>();
                 modelBuilder.Entity<CompositeKey>().HasKey(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<BaseType>();
+                modelBuilder.Entity<DerivedType>();
                 modelBuilder.Entity<ShadowKey>().Property(typeof(int), "Id").ValueGeneratedNever();
             }
 
-            protected virtual void Seed(DbContext context)
+            protected override void Seed(DbContext context)
             {
-                var findContext = (FindContext)context;
-                findContext.AddRange(
+                context.AddRange(
                     new IntKey { Id = 77, Foo = "Smokey" },
                     new NullableIntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },
@@ -786,11 +764,11 @@ namespace Microsoft.EntityFrameworkCore
                     new BaseType { Id = 77, Foo = "Baxter" },
                     new DerivedType { Id = 78, Foo = "Strawberry", Boo = "Cheesecake" });
 
-                var entry = findContext.Entry(new ShadowKey { Foo = "Clippy" });
+                var entry = context.Entry(new ShadowKey { Foo = "Clippy" });
                 entry.Property("Id").CurrentValue = 77;
                 entry.State = EntityState.Added;
 
-                findContext.SaveChanges();
+                context.SaveChanges();
             }
         }
     }

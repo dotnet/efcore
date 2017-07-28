@@ -13,12 +13,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
     public class SqlAzureBatchingTest : IClassFixture<BatchingSqlAzureFixture>
     {
-        private readonly BatchingSqlAzureFixture _fixture;
-
         public SqlAzureBatchingTest(BatchingSqlAzureFixture fixture, ITestOutputHelper output)
         {
-            _fixture = fixture;
+            Fixture = fixture;
         }
+        
+        public BatchingSqlAzureFixture Fixture { get; }
 
         [ConditionalTheory]
         [InlineData(1)]
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [InlineData(1000)]
         public void AddWithBatchSize(int batchSize)
         {
-            using (var context = _fixture.CreateContext(batchSize))
+            using (var context = Fixture.CreateContext(batchSize))
             {
                 context.Database.CreateExecutionStrategy().Execute(context, contextScoped =>
                     {

@@ -16,18 +16,14 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 #pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
-
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class GraphUpdatesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : GraphUpdatesTestBase<TTestStore, TFixture>.GraphUpdatesFixtureBase, new()
+    public abstract class GraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
-        protected GraphUpdatesTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = Fixture.CreateTestStore();
-        }
+        protected GraphUpdatesTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
 
         [ConditionalFact]
         public virtual void Optional_One_to_one_relationships_are_one_to_one()
@@ -35,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var root = context.Roots.Single(IsTheRoot);
+                        var root = context.Set<Root>().Single(IsTheRoot);
 
                         root.OptionalSingle = new OptionalSingle1();
 
@@ -49,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var root = context.Roots.Single(IsTheRoot);
+                        var root = context.Set<Root>().Single(IsTheRoot);
 
                         root.RequiredSingle = new RequiredSingle1();
 
@@ -63,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var root = context.Roots.Single(IsTheRoot);
+                        var root = context.Set<Root>().Single(IsTheRoot);
 
                         root.OptionalSingleAk = new OptionalSingleAk1();
 
@@ -77,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var root = context.Roots.Single(IsTheRoot);
+                        var root = context.Set<Root>().Single(IsTheRoot);
 
                         root.RequiredSingleAk = new RequiredSingleAk1();
 
@@ -99,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Entry(existing).State = EntityState.Deleted;
 
-                var queried = context.Optional1s.ToList();
+                var queried = context.Set<Optional1>().ToList();
 
                 Assert.Null(existing.Parent);
                 Assert.Null(existing.ParentId);
@@ -154,13 +150,13 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.Optional1s.Single(e => e.Id == new1.Id);
-                            new1d = (Optional1Derived)context.Optional1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (Optional1MoreDerived)context.Optional1s.Single(e => e.Id == new1dd.Id);
-                            new2a = context.Optional2s.Single(e => e.Id == new2a.Id);
-                            new2b = context.Optional2s.Single(e => e.Id == new2b.Id);
-                            new2d = (Optional2Derived)context.Optional2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (Optional2MoreDerived)context.Optional2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<Optional1>().Single(e => e.Id == new1.Id);
+                            new1d = (Optional1Derived)context.Set<Optional1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (Optional1MoreDerived)context.Set<Optional1>().Single(e => e.Id == new1dd.Id);
+                            new2a = context.Set<Optional2>().Single(e => e.Id == new2a.Id);
+                            new2b = context.Set<Optional2>().Single(e => e.Id == new2b.Id);
+                            new2d = (Optional2Derived)context.Set<Optional2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (Optional2MoreDerived)context.Set<Optional2>().Single(e => e.Id == new2dd.Id);
                         }
                         else
                         {
@@ -286,13 +282,13 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.Required1s.Single(e => e.Id == new1.Id);
-                            new1d = (Required1Derived)context.Required1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (Required1MoreDerived)context.Required1s.Single(e => e.Id == new1dd.Id);
-                            new2a = context.Required2s.Single(e => e.Id == new2a.Id);
-                            new2b = context.Required2s.Single(e => e.Id == new2b.Id);
-                            new2d = (Required2Derived)context.Required2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (Required2MoreDerived)context.Required2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<Required1>().Single(e => e.Id == new1.Id);
+                            new1d = (Required1Derived)context.Set<Required1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (Required1MoreDerived)context.Set<Required1>().Single(e => e.Id == new1dd.Id);
+                            new2a = context.Set<Required2>().Single(e => e.Id == new2a.Id);
+                            new2b = context.Set<Required2>().Single(e => e.Id == new2b.Id);
+                            new2d = (Required2Derived)context.Set<Required2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (Required2MoreDerived)context.Set<Required2>().Single(e => e.Id == new2dd.Id);
                         }
                         else
                         {
@@ -524,9 +520,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removed1Id, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removed1Id));
-                            Assert.Empty(context.Required2s.Where(e => e.Id == removed2Id));
-                            Assert.Empty(context.Required2s.Where(e => removed1ChildrenIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removed1Id));
+                            Assert.Empty(context.Set<Required2>().Where(e => e.Id == removed2Id));
+                            Assert.Empty(context.Set<Required2>().Where(e => removed1ChildrenIds.Contains(e.Id)));
                         }
                     });
         }
@@ -585,12 +581,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.OptionalSingle1s.Single(e => e.Id == new1.Id);
-                            new1d = (OptionalSingle1Derived)context.OptionalSingle1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (OptionalSingle1MoreDerived)context.OptionalSingle1s.Single(e => e.Id == new1dd.Id);
-                            new2 = context.OptionalSingle2s.Single(e => e.Id == new2.Id);
-                            new2d = (OptionalSingle2Derived)context.OptionalSingle2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (OptionalSingle2MoreDerived)context.OptionalSingle2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<OptionalSingle1>().Single(e => e.Id == new1.Id);
+                            new1d = (OptionalSingle1Derived)context.Set<OptionalSingle1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (OptionalSingle1MoreDerived)context.Set<OptionalSingle1>().Single(e => e.Id == new1dd.Id);
+                            new2 = context.Set<OptionalSingle2>().Single(e => e.Id == new2.Id);
+                            new2d = (OptionalSingle2Derived)context.Set<OptionalSingle2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (OptionalSingle2MoreDerived)context.Set<OptionalSingle2>().Single(e => e.Id == new2dd.Id);
                         }
                         else
                         {
@@ -670,12 +666,12 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            var loaded1 = context.OptionalSingle1s.Single(e => e.Id == old1.Id);
-                            var loaded1d = context.OptionalSingle1s.Single(e => e.Id == old1d.Id);
-                            var loaded1dd = context.OptionalSingle1s.Single(e => e.Id == old1dd.Id);
-                            var loaded2 = context.OptionalSingle2s.Single(e => e.Id == old2.Id);
-                            var loaded2d = context.OptionalSingle2s.Single(e => e.Id == old2d.Id);
-                            var loaded2dd = context.OptionalSingle2s.Single(e => e.Id == old2dd.Id);
+                            var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
+                            var loaded1d = context.Set<OptionalSingle1>().Single(e => e.Id == old1d.Id);
+                            var loaded1dd = context.Set<OptionalSingle1>().Single(e => e.Id == old1dd.Id);
+                            var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
+                            var loaded2d = context.Set<OptionalSingle2>().Single(e => e.Id == old2d.Id);
+                            var loaded2dd = context.Set<OptionalSingle2>().Single(e => e.Id == old2dd.Id);
 
                             AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
@@ -852,17 +848,17 @@ namespace Microsoft.EntityFrameworkCore
                         old2d = (RequiredNonPkSingle2Derived)root.RequiredNonPkSingleDerived.Single;
                         old2dd = (RequiredNonPkSingle2MoreDerived)root.RequiredNonPkSingleMoreDerived.Single;
 
-                        context.RequiredNonPkSingle1s.Remove(old1d);
-                        context.RequiredNonPkSingle1s.Remove(old1dd);
+                        context.Set<RequiredNonPkSingle1>().Remove(old1d);
+                        context.Set<RequiredNonPkSingle1>().Remove(old1dd);
 
                         if (useExistingEntities)
                         {
-                            new1 = context.RequiredNonPkSingle1s.Single(e => e.Id == new1.Id);
-                            new1d = (RequiredNonPkSingle1Derived)context.RequiredNonPkSingle1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (RequiredNonPkSingle1MoreDerived)context.RequiredNonPkSingle1s.Single(e => e.Id == new1dd.Id);
-                            new2 = context.RequiredNonPkSingle2s.Single(e => e.Id == new2.Id);
-                            new2d = (RequiredNonPkSingle2Derived)context.RequiredNonPkSingle2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (RequiredNonPkSingle2MoreDerived)context.RequiredNonPkSingle2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1.Id);
+                            new1d = (RequiredNonPkSingle1Derived)context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (RequiredNonPkSingle1MoreDerived)context.Set<RequiredNonPkSingle1>().Single(e => e.Id == new1dd.Id);
+                            new2 = context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2.Id);
+                            new2d = (RequiredNonPkSingle2Derived)context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (RequiredNonPkSingle2MoreDerived)context.Set<RequiredNonPkSingle2>().Single(e => e.Id == new2dd.Id);
 
                             new1d.RootId = old1d.RootId;
                             new1dd.RootId = old1dd.RootId;
@@ -947,12 +943,12 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredNonPkSingle1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredNonPkSingle1s.Any(e => e.Id == old1d.Id));
-                            Assert.False(context.RequiredNonPkSingle1s.Any(e => e.Id == old1dd.Id));
-                            Assert.False(context.RequiredNonPkSingle2s.Any(e => e.Id == old2.Id));
-                            Assert.False(context.RequiredNonPkSingle2s.Any(e => e.Id == old2d.Id));
-                            Assert.False(context.RequiredNonPkSingle2s.Any(e => e.Id == old2dd.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1d.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1dd.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2d.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2dd.Id));
                         }
                     });
         }
@@ -1026,8 +1022,8 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertPossiblyNullNavigations(loadedRoot);
 
-                            var loaded1 = context.OptionalSingle1s.Single(e => e.Id == old1.Id);
-                            var loaded2 = context.OptionalSingle2s.Single(e => e.Id == old2.Id);
+                            var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
+                            var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
 
                             Assert.Null(loaded1.Root);
                             Assert.Same(loaded1, loaded2.Back);
@@ -1099,8 +1095,8 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertPossiblyNullNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredSingle1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredSingle2s.Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredSingle1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredSingle2>().Any(e => e.Id == old2.Id));
                         }
                     });
         }
@@ -1167,8 +1163,8 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertPossiblyNullNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredNonPkSingle1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredNonPkSingle2s.Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredNonPkSingle2>().Any(e => e.Id == old2.Id));
                         }
                     });
         }
@@ -1248,9 +1244,9 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        newRoot = context.Roots.Single(e => e.Id == newRoot.Id);
-                        var loaded1 = context.OptionalSingle1s.Single(e => e.Id == old1.Id);
-                        var loaded2 = context.OptionalSingle2s.Single(e => e.Id == old2.Id);
+                        newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
+                        var loaded1 = context.Set<OptionalSingle1>().Single(e => e.Id == old1.Id);
+                        var loaded2 = context.Set<OptionalSingle2>().Single(e => e.Id == old2.Id);
 
                         Assert.Same(newRoot, loaded1.Root);
                         Assert.Same(loaded1, loaded2.Back);
@@ -1395,9 +1391,9 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        newRoot = context.Roots.Single(e => e.Id == newRoot.Id);
-                        var loaded1 = context.RequiredNonPkSingle1s.Single(e => e.Id == old1.Id);
-                        var loaded2 = context.RequiredNonPkSingle2s.Single(e => e.Id == old2.Id);
+                        newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
+                        var loaded1 = context.Set<RequiredNonPkSingle1>().Single(e => e.Id == old1.Id);
+                        var loaded2 = context.Set<RequiredNonPkSingle2>().Single(e => e.Id == old2.Id);
 
                         Assert.Same(newRoot, loaded1.Root);
                         Assert.Same(loaded1, loaded2.Back);
@@ -1441,7 +1437,7 @@ namespace Microsoft.EntityFrameworkCore
                                 CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                             };
 
-                            context.Optional1s.Add(newParent);
+                            context.Set<Optional1>().Add(newParent);
                             context.SaveChanges();
                         }
                     },
@@ -1449,7 +1445,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadOptionalOneToManyGraph(context);
 
-                        compositeCount = context.OptionalComposite2s.Count();
+                        compositeCount = context.Set<OptionalComposite2>().Count();
 
                         oldParent = root.OptionalChildrenAk.OrderBy(e => e.Id).First();
 
@@ -1462,7 +1458,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
                         else
                         {
-                            newParent = context.Optional1s.Single(e => e.Id == newParent.Id);
+                            newParent = context.Set<Optional1>().Single(e => e.Id == newParent.Id);
                             newParent.Parent = root;
                         }
 
@@ -1513,7 +1509,7 @@ namespace Microsoft.EntityFrameworkCore
 
                             entries = context.ChangeTracker.Entries().ToList();
 
-                            Assert.Equal(compositeCount, context.OptionalComposite2s.Count());
+                            Assert.Equal(compositeCount, context.Set<OptionalComposite2>().Count());
                         }
                     },
                 context =>
@@ -1526,11 +1522,11 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            oldParent = context.OptionalAk1s.Single(e => e.Id == oldParent.Id);
-                            newParent = context.Optional1s.Single(e => e.Id == newParent.Id);
+                            oldParent = context.Set<OptionalAk1>().Single(e => e.Id == oldParent.Id);
+                            newParent = context.Set<Optional1>().Single(e => e.Id == newParent.Id);
 
-                            oldComposite1 = context.OptionalComposite2s.Single(e => e.Id == oldComposite1.Id);
-                            oldComposite2 = context.OptionalComposite2s.Single(e => e.Id == oldComposite2.Id);
+                            oldComposite1 = context.Set<OptionalComposite2>().Single(e => e.Id == oldComposite1.Id);
+                            oldComposite2 = context.Set<OptionalComposite2>().Single(e => e.Id == oldComposite2.Id);
 
                             Assert.Same(oldComposite2, oldParent.CompositeChildren.Single());
                             Assert.Same(oldParent, oldComposite2.Parent);
@@ -1546,7 +1542,7 @@ namespace Microsoft.EntityFrameworkCore
 
                             AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                            Assert.Equal(compositeCount, context.OptionalComposite2s.Count());
+                            Assert.Equal(compositeCount, context.Set<OptionalComposite2>().Count());
                         }
                     });
         }
@@ -1584,7 +1580,7 @@ namespace Microsoft.EntityFrameworkCore
                             newParent = new RequiredComposite1
                             {
                                 Id = 3,
-                                Parent = context.Roots.Single(IsTheRoot),
+                                Parent = context.Set<Root>().Single(IsTheRoot),
                                 CompositeChildren = new ObservableHashSet<OptionalOverlaping2>(ReferenceEqualityComparer.Instance)
                                 {
                                     new OptionalOverlaping2 { Id = 5 },
@@ -1592,7 +1588,7 @@ namespace Microsoft.EntityFrameworkCore
                                 }
                             };
 
-                            context.RequiredComposite1s.Add(newParent);
+                            context.Set<RequiredComposite1>().Add(newParent);
                             context.SaveChanges();
                         }
                     },
@@ -1600,7 +1596,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRequiredCompositeGraph(context);
 
-                        childCount = context.OptionalOverlaping2s.Count();
+                        childCount = context.Set<OptionalOverlaping2>().Count();
 
                         oldParent = root.RequiredCompositeChildren.OrderBy(e => e.Id).First();
 
@@ -1615,7 +1611,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
                         else
                         {
-                            newParent = context.RequiredComposite1s.Single(e => e.Id == newParent.Id);
+                            newParent = context.Set<RequiredComposite1>().Single(e => e.Id == newParent.Id);
                             newParent.Parent = root;
                         }
 
@@ -1658,7 +1654,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         entries = context.ChangeTracker.Entries().ToList();
 
-                        Assert.Equal(childCount, context.OptionalOverlaping2s.Count());
+                        Assert.Equal(childCount, context.Set<OptionalOverlaping2>().Count());
                     },
                 context =>
                     {
@@ -1667,11 +1663,11 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertNavigations(loadedRoot);
 
-                        oldParent = context.RequiredComposite1s.Single(e => e.Id == oldParent.Id);
-                        newParent = context.RequiredComposite1s.Single(e => e.Id == newParent.Id);
+                        oldParent = context.Set<RequiredComposite1>().Single(e => e.Id == oldParent.Id);
+                        newParent = context.Set<RequiredComposite1>().Single(e => e.Id == newParent.Id);
 
-                        oldChild1 = context.OptionalOverlaping2s.Single(e => e.Id == oldChild1.Id);
-                        oldChild2 = context.OptionalOverlaping2s.Single(e => e.Id == oldChild2.Id);
+                        oldChild1 = context.Set<OptionalOverlaping2>().Single(e => e.Id == oldChild1.Id);
+                        oldChild2 = context.Set<OptionalOverlaping2>().Single(e => e.Id == oldChild2.Id);
 
                         Assert.Same(oldChild2, oldParent.CompositeChildren.Single());
                         Assert.Same(oldParent, oldChild2.Parent);
@@ -1687,7 +1683,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
-                        Assert.Equal(childCount, context.OptionalOverlaping2s.Count());
+                        Assert.Equal(childCount, context.Set<OptionalOverlaping2>().Count());
                     });
         }
 
@@ -1736,15 +1732,15 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.OptionalAk1s.Single(e => e.Id == new1.Id);
-                            new1d = (OptionalAk1Derived)context.OptionalAk1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (OptionalAk1MoreDerived)context.OptionalAk1s.Single(e => e.Id == new1dd.Id);
-                            new2a = context.OptionalAk2s.Single(e => e.Id == new2a.Id);
-                            new2b = context.OptionalAk2s.Single(e => e.Id == new2b.Id);
-                            new2ca = context.OptionalComposite2s.Single(e => e.Id == new2ca.Id);
-                            new2cb = context.OptionalComposite2s.Single(e => e.Id == new2cb.Id);
-                            new2d = (OptionalAk2Derived)context.OptionalAk2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (OptionalAk2MoreDerived)context.OptionalAk2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<OptionalAk1>().Single(e => e.Id == new1.Id);
+                            new1d = (OptionalAk1Derived)context.Set<OptionalAk1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (OptionalAk1MoreDerived)context.Set<OptionalAk1>().Single(e => e.Id == new1dd.Id);
+                            new2a = context.Set<OptionalAk2>().Single(e => e.Id == new2a.Id);
+                            new2b = context.Set<OptionalAk2>().Single(e => e.Id == new2b.Id);
+                            new2ca = context.Set<OptionalComposite2>().Single(e => e.Id == new2ca.Id);
+                            new2cb = context.Set<OptionalComposite2>().Single(e => e.Id == new2cb.Id);
+                            new2d = (OptionalAk2Derived)context.Set<OptionalAk2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (OptionalAk2MoreDerived)context.Set<OptionalAk2>().Single(e => e.Id == new2dd.Id);
                         }
                         else
                         {
@@ -1888,15 +1884,15 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.RequiredAk1s.Single(e => e.Id == new1.Id);
-                            new1d = (RequiredAk1Derived)context.RequiredAk1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (RequiredAk1MoreDerived)context.RequiredAk1s.Single(e => e.Id == new1dd.Id);
-                            new2a = context.RequiredAk2s.Single(e => e.Id == new2a.Id);
-                            new2b = context.RequiredAk2s.Single(e => e.Id == new2b.Id);
-                            new2ca = context.RequiredComposite2s.Single(e => e.Id == new2ca.Id);
-                            new2cb = context.RequiredComposite2s.Single(e => e.Id == new2cb.Id);
-                            new2d = (RequiredAk2Derived)context.RequiredAk2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (RequiredAk2MoreDerived)context.RequiredAk2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<RequiredAk1>().Single(e => e.Id == new1.Id);
+                            new1d = (RequiredAk1Derived)context.Set<RequiredAk1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (RequiredAk1MoreDerived)context.Set<RequiredAk1>().Single(e => e.Id == new1dd.Id);
+                            new2a = context.Set<RequiredAk2>().Single(e => e.Id == new2a.Id);
+                            new2b = context.Set<RequiredAk2>().Single(e => e.Id == new2b.Id);
+                            new2ca = context.Set<RequiredComposite2>().Single(e => e.Id == new2ca.Id);
+                            new2cb = context.Set<RequiredComposite2>().Single(e => e.Id == new2cb.Id);
+                            new2d = (RequiredAk2Derived)context.Set<RequiredAk2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (RequiredAk2MoreDerived)context.Set<RequiredAk2>().Single(e => e.Id == new2dd.Id);
                         }
                         else
                         {
@@ -2155,9 +2151,9 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredAk1s.Any(e => e.Id == removed1.Id));
-                            Assert.False(context.RequiredAk2s.Any(e => e.Id == removed2.Id));
-                            Assert.False(context.RequiredComposite2s.Any(e => e.Id == removed2c.Id));
+                            Assert.False(context.Set<RequiredAk1>().Any(e => e.Id == removed1.Id));
+                            Assert.False(context.Set<RequiredAk2>().Any(e => e.Id == removed2.Id));
+                            Assert.False(context.Set<RequiredComposite2>().Any(e => e.Id == removed2c.Id));
 
                             Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count());
                             Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().Children.Count());
@@ -2223,13 +2219,13 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.OptionalSingleAk1s.Single(e => e.Id == new1.Id);
-                            new1d = (OptionalSingleAk1Derived)context.OptionalSingleAk1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (OptionalSingleAk1MoreDerived)context.OptionalSingleAk1s.Single(e => e.Id == new1dd.Id);
-                            new2 = context.OptionalSingleAk2s.Single(e => e.Id == new2.Id);
-                            new2c = context.OptionalSingleComposite2s.Single(e => e.Id == new2c.Id);
-                            new2d = (OptionalSingleAk2Derived)context.OptionalSingleAk2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (OptionalSingleAk2MoreDerived)context.OptionalSingleAk2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == new1.Id);
+                            new1d = (OptionalSingleAk1Derived)context.Set<OptionalSingleAk1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (OptionalSingleAk1MoreDerived)context.Set<OptionalSingleAk1>().Single(e => e.Id == new1dd.Id);
+                            new2 = context.Set<OptionalSingleAk2>().Single(e => e.Id == new2.Id);
+                            new2c = context.Set<OptionalSingleComposite2>().Single(e => e.Id == new2c.Id);
+                            new2d = (OptionalSingleAk2Derived)context.Set<OptionalSingleAk2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (OptionalSingleAk2MoreDerived)context.Set<OptionalSingleAk2>().Single(e => e.Id == new2dd.Id);
                         }
                         else
                         {
@@ -2315,13 +2311,13 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            var loaded1 = context.OptionalSingleAk1s.Single(e => e.Id == old1.Id);
-                            var loaded1d = context.OptionalSingleAk1s.Single(e => e.Id == old1d.Id);
-                            var loaded1dd = context.OptionalSingleAk1s.Single(e => e.Id == old1dd.Id);
-                            var loaded2 = context.OptionalSingleAk2s.Single(e => e.Id == old2.Id);
-                            var loaded2d = context.OptionalSingleAk2s.Single(e => e.Id == old2d.Id);
-                            var loaded2dd = context.OptionalSingleAk2s.Single(e => e.Id == old2dd.Id);
-                            var loaded2c = context.OptionalSingleComposite2s.Single(e => e.Id == old2c.Id);
+                            var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);
+                            var loaded1d = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1d.Id);
+                            var loaded1dd = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1dd.Id);
+                            var loaded2 = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2.Id);
+                            var loaded2d = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2d.Id);
+                            var loaded2dd = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2dd.Id);
+                            var loaded2c = context.Set<OptionalSingleComposite2>().Single(e => e.Id == old2c.Id);
 
                             AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
@@ -2401,13 +2397,13 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (!Fixture.ForceRestrict)
                         {
-                            new1 = context.OptionalSingleAk1s.Single(e => e.Id == new1.Id);
-                            new1d = (OptionalSingleAk1Derived)context.OptionalSingleAk1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (OptionalSingleAk1MoreDerived)context.OptionalSingleAk1s.Single(e => e.Id == new1dd.Id);
-                            new2 = context.OptionalSingleAk2s.Single(e => e.Id == new2.Id);
-                            new2c = context.OptionalSingleComposite2s.Single(e => e.Id == new2c.Id);
-                            new2d = (OptionalSingleAk2Derived)context.OptionalSingleAk2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (OptionalSingleAk2MoreDerived)context.OptionalSingleAk2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == new1.Id);
+                            new1d = (OptionalSingleAk1Derived)context.Set<OptionalSingleAk1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (OptionalSingleAk1MoreDerived)context.Set<OptionalSingleAk1>().Single(e => e.Id == new1dd.Id);
+                            new2 = context.Set<OptionalSingleAk2>().Single(e => e.Id == new2.Id);
+                            new2c = context.Set<OptionalSingleComposite2>().Single(e => e.Id == new2c.Id);
+                            new2d = (OptionalSingleAk2Derived)context.Set<OptionalSingleAk2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (OptionalSingleAk2MoreDerived)context.Set<OptionalSingleAk2>().Single(e => e.Id == new2dd.Id);
 
                             Assert.Equal(root.AlternateId, new1.RootId);
                             Assert.Equal(root.AlternateId, new1d.DerivedRootId);
@@ -2487,13 +2483,13 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            var loaded1 = context.OptionalSingleAk1s.Single(e => e.Id == old1.Id);
-                            var loaded1d = context.OptionalSingleAk1s.Single(e => e.Id == old1d.Id);
-                            var loaded1dd = context.OptionalSingleAk1s.Single(e => e.Id == old1dd.Id);
-                            var loaded2 = context.OptionalSingleAk2s.Single(e => e.Id == old2.Id);
-                            var loaded2d = context.OptionalSingleAk2s.Single(e => e.Id == old2d.Id);
-                            var loaded2dd = context.OptionalSingleAk2s.Single(e => e.Id == old2dd.Id);
-                            var loaded2c = context.OptionalSingleComposite2s.Single(e => e.Id == old2c.Id);
+                            var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);
+                            var loaded1d = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1d.Id);
+                            var loaded1dd = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1dd.Id);
+                            var loaded2 = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2.Id);
+                            var loaded2d = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2d.Id);
+                            var loaded2dd = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2dd.Id);
+                            var loaded2c = context.Set<OptionalSingleComposite2>().Single(e => e.Id == old2c.Id);
 
                             AssertEntries(entries, context.ChangeTracker.Entries().ToList());
 
@@ -2555,9 +2551,9 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (useExistingEntities)
                         {
-                            new1 = context.RequiredSingleAk1s.Single(e => e.Id == new1.Id);
-                            new2 = context.RequiredSingleAk2s.Single(e => e.Id == new2.Id);
-                            new2c = context.RequiredSingleComposite2s.Single(e => e.Id == new2c.Id);
+                            new1 = context.Set<RequiredSingleAk1>().Single(e => e.Id == new1.Id);
+                            new2 = context.Set<RequiredSingleAk2>().Single(e => e.Id == new2.Id);
+                            new2c = context.Set<RequiredSingleComposite2>().Single(e => e.Id == new2c.Id);
                         }
                         else
                         {
@@ -2621,9 +2617,9 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredSingleAk1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredSingleAk2s.Any(e => e.Id == old2.Id));
-                            Assert.False(context.RequiredSingleComposite2s.Any(e => e.Id == old2c.Id));
+                            Assert.False(context.Set<RequiredSingleAk1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredSingleAk2>().Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredSingleComposite2>().Any(e => e.Id == old2c.Id));
                         }
                     });
         }
@@ -2682,17 +2678,17 @@ namespace Microsoft.EntityFrameworkCore
                         old2d = (RequiredNonPkSingleAk2Derived)root.RequiredNonPkSingleAkDerived.Single;
                         old2dd = (RequiredNonPkSingleAk2MoreDerived)root.RequiredNonPkSingleAkMoreDerived.Single;
 
-                        context.RequiredNonPkSingleAk1s.Remove(old1d);
-                        context.RequiredNonPkSingleAk1s.Remove(old1dd);
+                        context.Set<RequiredNonPkSingleAk1>().Remove(old1d);
+                        context.Set<RequiredNonPkSingleAk1>().Remove(old1dd);
 
                         if (useExistingEntities)
                         {
-                            new1 = context.RequiredNonPkSingleAk1s.Single(e => e.Id == new1.Id);
-                            new1d = (RequiredNonPkSingleAk1Derived)context.RequiredNonPkSingleAk1s.Single(e => e.Id == new1d.Id);
-                            new1dd = (RequiredNonPkSingleAk1MoreDerived)context.RequiredNonPkSingleAk1s.Single(e => e.Id == new1dd.Id);
-                            new2 = context.RequiredNonPkSingleAk2s.Single(e => e.Id == new2.Id);
-                            new2d = (RequiredNonPkSingleAk2Derived)context.RequiredNonPkSingleAk2s.Single(e => e.Id == new2d.Id);
-                            new2dd = (RequiredNonPkSingleAk2MoreDerived)context.RequiredNonPkSingleAk2s.Single(e => e.Id == new2dd.Id);
+                            new1 = context.Set<RequiredNonPkSingleAk1>().Single(e => e.Id == new1.Id);
+                            new1d = (RequiredNonPkSingleAk1Derived)context.Set<RequiredNonPkSingleAk1>().Single(e => e.Id == new1d.Id);
+                            new1dd = (RequiredNonPkSingleAk1MoreDerived)context.Set<RequiredNonPkSingleAk1>().Single(e => e.Id == new1dd.Id);
+                            new2 = context.Set<RequiredNonPkSingleAk2>().Single(e => e.Id == new2.Id);
+                            new2d = (RequiredNonPkSingleAk2Derived)context.Set<RequiredNonPkSingleAk2>().Single(e => e.Id == new2d.Id);
+                            new2dd = (RequiredNonPkSingleAk2MoreDerived)context.Set<RequiredNonPkSingleAk2>().Single(e => e.Id == new2dd.Id);
 
                             new1d.RootId = old1d.RootId;
                             new1dd.RootId = old1dd.RootId;
@@ -2777,12 +2773,12 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredNonPkSingleAk1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredNonPkSingleAk1s.Any(e => e.Id == old1d.Id));
-                            Assert.False(context.RequiredNonPkSingleAk1s.Any(e => e.Id == old1dd.Id));
-                            Assert.False(context.RequiredNonPkSingleAk2s.Any(e => e.Id == old2.Id));
-                            Assert.False(context.RequiredNonPkSingleAk2s.Any(e => e.Id == old2d.Id));
-                            Assert.False(context.RequiredNonPkSingleAk2s.Any(e => e.Id == old2dd.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1d.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1dd.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2d.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2dd.Id));
                         }
                     });
         }
@@ -2861,9 +2857,9 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertPossiblyNullNavigations(loadedRoot);
 
-                            var loaded1 = context.OptionalSingleAk1s.Single(e => e.Id == old1.Id);
-                            var loaded2 = context.OptionalSingleAk2s.Single(e => e.Id == old2.Id);
-                            var loaded2c = context.OptionalSingleComposite2s.Single(e => e.Id == old2c.Id);
+                            var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);
+                            var loaded2 = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2.Id);
+                            var loaded2c = context.Set<OptionalSingleComposite2>().Single(e => e.Id == old2c.Id);
 
                             Assert.Null(loaded1.Root);
                             Assert.Same(loaded1, loaded2.Back);
@@ -2943,9 +2939,9 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertPossiblyNullNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredSingleAk1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredSingleAk2s.Any(e => e.Id == old2.Id));
-                            Assert.False(context.RequiredSingleComposite2s.Any(e => e.Id == old2c.Id));
+                            Assert.False(context.Set<RequiredSingleAk1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredSingleAk2>().Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredSingleComposite2>().Any(e => e.Id == old2c.Id));
                         }
                     });
         }
@@ -3014,8 +3010,8 @@ namespace Microsoft.EntityFrameworkCore
                             AssertKeys(root, loadedRoot);
                             AssertPossiblyNullNavigations(loadedRoot);
 
-                            Assert.False(context.RequiredNonPkSingleAk1s.Any(e => e.Id == old1.Id));
-                            Assert.False(context.RequiredNonPkSingleAk2s.Any(e => e.Id == old2.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk1>().Any(e => e.Id == old1.Id));
+                            Assert.False(context.Set<RequiredNonPkSingleAk2>().Any(e => e.Id == old2.Id));
                         }
                     });
         }
@@ -3100,10 +3096,10 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        newRoot = context.Roots.Single(e => e.Id == newRoot.Id);
-                        var loaded1 = context.OptionalSingleAk1s.Single(e => e.Id == old1.Id);
-                        var loaded2 = context.OptionalSingleAk2s.Single(e => e.Id == old2.Id);
-                        var loaded2c = context.OptionalSingleComposite2s.Single(e => e.Id == old2c.Id);
+                        newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
+                        var loaded1 = context.Set<OptionalSingleAk1>().Single(e => e.Id == old1.Id);
+                        var loaded2 = context.Set<OptionalSingleAk2>().Single(e => e.Id == old2.Id);
+                        var loaded2c = context.Set<OptionalSingleComposite2>().Single(e => e.Id == old2c.Id);
 
                         Assert.Same(newRoot, loaded1.Root);
                         Assert.Same(loaded1, loaded2.Back);
@@ -3195,10 +3191,10 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        newRoot = context.Roots.Single(e => e.Id == newRoot.Id);
-                        var loaded1 = context.RequiredSingleAk1s.Single(e => e.Id == old1.Id);
-                        var loaded2 = context.RequiredSingleAk2s.Single(e => e.Id == old2.Id);
-                        var loaded2c = context.RequiredSingleComposite2s.Single(e => e.Id == old2c.Id);
+                        newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
+                        var loaded1 = context.Set<RequiredSingleAk1>().Single(e => e.Id == old1.Id);
+                        var loaded2 = context.Set<RequiredSingleAk2>().Single(e => e.Id == old2.Id);
+                        var loaded2c = context.Set<RequiredSingleComposite2>().Single(e => e.Id == old2c.Id);
 
                         Assert.Same(newRoot, loaded1.Root);
                         Assert.Same(loaded1, loaded2.Back);
@@ -3285,9 +3281,9 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        newRoot = context.Roots.Single(e => e.Id == newRoot.Id);
-                        var loaded1 = context.RequiredNonPkSingleAk1s.Single(e => e.Id == old1.Id);
-                        var loaded2 = context.RequiredNonPkSingleAk2s.Single(e => e.Id == old2.Id);
+                        newRoot = context.Set<Root>().Single(e => e.Id == newRoot.Id);
+                        var loaded1 = context.Set<RequiredNonPkSingleAk1>().Single(e => e.Id == old1.Id);
+                        var loaded2 = context.Set<RequiredNonPkSingleAk2>().Single(e => e.Id == old2.Id);
 
                         Assert.Same(newRoot, loaded1.Root);
                         Assert.Same(loaded1, loaded2.Back);
@@ -3339,8 +3335,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
 
                             Assert.Same(root, removed.Parent);
                             Assert.Equal(2, removed.Children.Count());
@@ -3355,8 +3351,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -3404,8 +3400,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildren.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
-                            Assert.Equal(orphanedIds.Count, context.Optional2s.Count(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
+                            Assert.Equal(orphanedIds.Count, context.Set<Optional2>().Count(e => orphanedIds.Contains(e.Id)));
 
                             Assert.Same(root, removed.Parent);
                             Assert.Equal(2, removed.Children.Count());
@@ -3420,8 +3416,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildren.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
-                            Assert.Equal(orphanedIds.Count, context.Optional2s.Count(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
+                            Assert.Equal(orphanedIds.Count, context.Set<Optional2>().Count(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -3464,8 +3460,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingle);
 
-                            Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
-                            Assert.Equal(1, context.OptionalSingle2s.Count(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<OptionalSingle1>().Where(e => e.Id == removedId));
+                            Assert.Equal(1, context.Set<OptionalSingle2>().Count(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -3479,8 +3475,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingle);
 
-                            Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
-                            Assert.Equal(1, context.OptionalSingle2s.Count(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<OptionalSingle1>().Where(e => e.Id == removedId));
+                            Assert.Equal(1, context.Set<OptionalSingle2>().Count(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -3523,8 +3519,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingle);
 
-                            Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -3538,8 +3534,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingle);
 
-                            Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -3582,8 +3578,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingle);
 
-                            Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -3597,8 +3593,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingle);
 
-                            Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -3646,8 +3642,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
-                            Assert.Equal(orphanedIds.Count, context.OptionalAk2s.Count(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
+                            Assert.Equal(orphanedIds.Count, context.Set<OptionalAk2>().Count(e => orphanedIds.Contains(e.Id)));
 
                             Assert.Same(root, removed.Parent);
                             Assert.Equal(2, removed.Children.Count());
@@ -3662,8 +3658,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
-                            Assert.Equal(orphanedIds.Count, context.OptionalAk2s.Count(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
+                            Assert.Equal(orphanedIds.Count, context.Set<OptionalAk2>().Count(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -3716,8 +3712,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
 
                             Assert.Same(root, removed.Parent);
                             Assert.Equal(2, removed.Children.Count());
@@ -3732,9 +3728,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.RequiredComposite2s.Where(e => orphanedIdCs.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                         }
                     });
         }
@@ -3781,9 +3777,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingleAk);
 
-                            Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Equal(1, context.OptionalSingleAk2s.Count(e => e.Id == orphanedId));
-                            Assert.Equal(1, context.OptionalSingleComposite2s.Count(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<OptionalSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Equal(1, context.Set<OptionalSingleAk2>().Count(e => e.Id == orphanedId));
+                            Assert.Equal(1, context.Set<OptionalSingleComposite2>().Count(e => e.Id == orphanedIdC));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -3797,9 +3793,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingleAk);
 
-                            Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Equal(1, context.OptionalSingleAk2s.Count(e => e.Id == orphanedId));
-                            Assert.Equal(1, context.OptionalSingleComposite2s.Count(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<OptionalSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Equal(1, context.Set<OptionalSingleAk2>().Count(e => e.Id == orphanedId));
+                            Assert.Equal(1, context.Set<OptionalSingleComposite2>().Count(e => e.Id == orphanedIdC));
                         }
                     });
         }
@@ -3846,9 +3842,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingleAk);
 
-                            Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -3862,9 +3858,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingleAk);
 
-                            Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                         }
                     });
         }
@@ -3907,8 +3903,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingleAk);
 
-                            Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -3922,8 +3918,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingleAk);
 
-                            Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -3946,7 +3942,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.RequiredChildren).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredChildren).Single(IsTheRoot);
 
                         var removed = root.RequiredChildren.Single(e => e.Id == removedId);
 
@@ -3971,8 +3967,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
 
                             Assert.Same(root, removed.Parent);
                             Assert.Equal(0, removed.Children.Count());
@@ -3987,8 +3983,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -3998,7 +3994,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var removedId = 0;
             var orphanedId = 0;
-
+            
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
@@ -4006,12 +4002,10 @@ namespace Microsoft.EntityFrameworkCore
 
                         removedId = removed.Id;
                         orphanedId = removed.Single.Id;
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.RequiredSingle).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredSingle).Single(IsTheRoot);
 
                         var removed = root.RequiredSingle;
                         var orphaned = removed.Single;
@@ -4034,8 +4028,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingle);
 
-                            Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -4049,8 +4043,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingle);
 
-                            Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -4060,7 +4054,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var removedId = 0;
             var orphanedId = 0;
-
+            
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
@@ -4068,12 +4062,10 @@ namespace Microsoft.EntityFrameworkCore
 
                         removedId = removed.Id;
                         orphanedId = removed.Single.Id;
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.RequiredNonPkSingle).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredNonPkSingle).Single(IsTheRoot);
 
                         var removed = root.RequiredNonPkSingle;
                         var orphaned = removed.Single;
@@ -4096,8 +4088,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingle);
 
-                            Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -4111,8 +4103,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingle);
 
-                            Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -4135,12 +4127,10 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(2, orphanedIds.Count);
                         Assert.Equal(2, orphanedIdCs.Count);
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.RequiredChildrenAk).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredChildrenAk).Single(IsTheRoot);
 
                         var removed = root.RequiredChildrenAk.Single(e => e.Id == removedId);
 
@@ -4163,9 +4153,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.RequiredComposite2s.Where(e => orphanedIdCs.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
 
                             Assert.Same(root, removed.Parent);
                             Assert.Equal(0, removed.Children.Count()); // Never loaded
@@ -4180,9 +4170,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.RequiredComposite2s.Where(e => orphanedIdCs.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                         }
                     });
         }
@@ -4202,12 +4192,10 @@ namespace Microsoft.EntityFrameworkCore
                         removedId = removed.Id;
                         orphanedId = removed.Single.Id;
                         orphanedIdC = removed.SingleComposite.Id;
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.RequiredSingleAk).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredSingleAk).Single(IsTheRoot);
 
                         var removed = root.RequiredSingleAk;
                         var orphaned = removed.Single;
@@ -4230,9 +4218,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingleAk);
 
-                            Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -4246,9 +4234,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingleAk);
 
-                            Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                         }
                     });
         }
@@ -4266,12 +4254,10 @@ namespace Microsoft.EntityFrameworkCore
 
                         removedId = removed.Id;
                         orphanedId = removed.Single.Id;
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.RequiredNonPkSingleAk).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.RequiredNonPkSingleAk).Single(IsTheRoot);
 
                         var removed = root.RequiredNonPkSingleAk;
                         var orphaned = removed.Single;
@@ -4294,8 +4280,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingleAk);
 
-                            Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -4309,8 +4295,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingleAk);
 
-                            Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -4330,12 +4316,10 @@ namespace Microsoft.EntityFrameworkCore
                         orphanedIds = removed.Children.Select(e => e.Id).ToList();
 
                         Assert.Equal(2, orphanedIds.Count);
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.OptionalChildren).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.OptionalChildren).Single(IsTheRoot);
 
                         var removed = root.OptionalChildren.First(e => e.Id == removedId);
 
@@ -4360,9 +4344,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildren.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
 
-                            var orphaned = context.Optional2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                            var orphaned = context.Set<Optional2>().Where(e => orphanedIds.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIds.Count, orphaned.Count);
                             Assert.True(orphaned.All(e => e.ParentId == null));
 
@@ -4379,9 +4363,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildren.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
 
-                            var orphaned = context.Optional2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                            var orphaned = context.Set<Optional2>().Where(e => orphanedIds.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIds.Count, orphaned.Count);
                             Assert.True(orphaned.All(e => e.ParentId == null));
                         }
@@ -4393,7 +4377,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var removedId = 0;
             var orphanedId = 0;
-
+            
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
@@ -4401,12 +4385,10 @@ namespace Microsoft.EntityFrameworkCore
 
                         removedId = removed.Id;
                         orphanedId = removed.Single.Id;
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.OptionalSingle).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.OptionalSingle).Single(IsTheRoot);
 
                         var removed = root.OptionalSingle;
                         var orphaned = removed.Single;
@@ -4429,8 +4411,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingle);
 
-                            Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
-                            Assert.Null(context.OptionalSingle2s.Single(e => e.Id == orphanedId).BackId);
+                            Assert.Empty(context.Set<OptionalSingle1>().Where(e => e.Id == removedId));
+                            Assert.Null(context.Set<OptionalSingle2>().Single(e => e.Id == orphanedId).BackId);
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -4444,8 +4426,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingle);
 
-                            Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
-                            Assert.Null(context.OptionalSingle2s.Single(e => e.Id == orphanedId).BackId);
+                            Assert.Empty(context.Set<OptionalSingle1>().Where(e => e.Id == removedId));
+                            Assert.Null(context.Set<OptionalSingle2>().Single(e => e.Id == orphanedId).BackId);
                         }
                     });
         }
@@ -4456,7 +4438,7 @@ namespace Microsoft.EntityFrameworkCore
             var removedId = 0;
             List<int> orphanedIds = null;
             List<int> orphanedIdCs = null;
-
+            
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
@@ -4468,18 +4450,16 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(2, orphanedIds.Count);
                         Assert.Equal(2, orphanedIdCs.Count);
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.OptionalChildrenAk).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.OptionalChildrenAk).Single(IsTheRoot);
 
                         var removed = root.OptionalChildrenAk.First(e => e.Id == removedId);
 
                         context.Remove(removed);
 
-                        foreach (var toOrphan in context.OptionalComposite2s.Where(e => orphanedIdCs.Contains(e.Id)).ToList())
+                        foreach (var toOrphan in context.Set<OptionalComposite2>().Where(e => orphanedIdCs.Contains(e.Id)).ToList())
                         {
                             toOrphan.ParentId = null;
                         }
@@ -4503,13 +4483,13 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
 
-                            var orphaned = context.OptionalAk2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                            var orphaned = context.Set<OptionalAk2>().Where(e => orphanedIds.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIds.Count, orphaned.Count);
                             Assert.True(orphaned.All(e => e.ParentId == null));
 
-                            var orphanedC = context.OptionalComposite2s.Where(e => orphanedIdCs.Contains(e.Id)).ToList();
+                            var orphanedC = context.Set<OptionalComposite2>().Where(e => orphanedIdCs.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIdCs.Count, orphanedC.Count);
                             Assert.True(orphanedC.All(e => e.ParentId == null));
 
@@ -4526,13 +4506,13 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
 
-                            var orphaned = context.OptionalAk2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                            var orphaned = context.Set<OptionalAk2>().Where(e => orphanedIds.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIds.Count, orphaned.Count);
                             Assert.True(orphaned.All(e => e.ParentId == null));
 
-                            var orphanedC = context.OptionalComposite2s.Where(e => orphanedIdCs.Contains(e.Id)).ToList();
+                            var orphanedC = context.Set<OptionalComposite2>().Where(e => orphanedIdCs.Contains(e.Id)).ToList();
                             Assert.Equal(orphanedIdCs.Count, orphanedC.Count);
                             Assert.True(orphanedC.All(e => e.ParentId == null));
                         }
@@ -4554,12 +4534,10 @@ namespace Microsoft.EntityFrameworkCore
                         removedId = removed.Id;
                         orphanedId = removed.Single.Id;
                         orphanedIdC = removed.SingleComposite.Id;
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
-                        var root = context.Roots.Include(e => e.OptionalSingleAk).Single(IsTheRoot);
+                        var root = context.Set<Root>().Include(e => e.OptionalSingleAk).Single(IsTheRoot);
 
                         var removed = root.OptionalSingleAk;
                         var orphaned = removed.Single;
@@ -4568,7 +4546,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         // Cannot have SET NULL action in the store because one of the FK columns
                         // is not nullable, so need to do this on the EF side.
-                        context.OptionalSingleComposite2s.Single(e => e.Id == orphanedIdC).BackId = null;
+                        context.Set<OptionalSingleComposite2>().Single(e => e.Id == orphanedIdC).BackId = null;
 
                         Assert.True(context.ChangeTracker.HasChanges());
 
@@ -4588,9 +4566,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingleAk);
 
-                            Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Null(context.OptionalSingleAk2s.Single(e => e.Id == orphanedId).BackId);
-                            Assert.Null(context.OptionalSingleComposite2s.Single(e => e.Id == orphanedIdC).BackId);
+                            Assert.Empty(context.Set<OptionalSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Null(context.Set<OptionalSingleAk2>().Single(e => e.Id == orphanedId).BackId);
+                            Assert.Null(context.Set<OptionalSingleComposite2>().Single(e => e.Id == orphanedIdC).BackId);
 
                             Assert.Same(root, removed.Root);
                             Assert.Same(orphaned, removed.Single);
@@ -4604,9 +4582,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingleAk);
 
-                            Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Null(context.OptionalSingleAk2s.Single(e => e.Id == orphanedId).BackId);
-                            Assert.Null(context.OptionalSingleComposite2s.Single(e => e.Id == orphanedIdC).BackId);
+                            Assert.Empty(context.Set<OptionalSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Null(context.Set<OptionalSingleAk2>().Single(e => e.Id == orphanedId).BackId);
+                            Assert.Null(context.Set<OptionalSingleComposite2>().Single(e => e.Id == orphanedIdC).BackId);
                         }
                     });
         }
@@ -4617,16 +4595,14 @@ namespace Microsoft.EntityFrameworkCore
             var removedId = 0;
             List<int> orphanedIds = null;
             Root root = null;
-
+            
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
                         root = LoadRequiredGraph(context);
 
                         Assert.Equal(2, root.RequiredChildren.Count());
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
                         var removed = root.RequiredChildren.First();
@@ -4672,8 +4648,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -4691,9 +4667,7 @@ namespace Microsoft.EntityFrameworkCore
                         root = LoadOptionalGraph(context);
 
                         Assert.Equal(2, root.OptionalChildren.Count());
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
                         var removed = root.OptionalChildren.First();
@@ -4739,8 +4713,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildren.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
-                            Assert.Equal(orphanedIds.Count, context.Optional2s.Count(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
+                            Assert.Equal(orphanedIds.Count, context.Set<Optional2>().Count(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -4751,10 +4725,9 @@ namespace Microsoft.EntityFrameworkCore
             var removedId = 0;
             var orphanedId = 0;
             Root root = null;
-
-            ExecuteWithStrategyInTransaction(context => { root = LoadOptionalGraph(context); });
-
+            
             ExecuteWithStrategyInTransaction(
+                context => { root = LoadOptionalGraph(context); },
                 context =>
                     {
                         var removed = root.OptionalSingle;
@@ -4797,8 +4770,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingle);
 
-                            Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
-                            Assert.Equal(1, context.OptionalSingle2s.Count(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<OptionalSingle1>().Where(e => e.Id == removedId));
+                            Assert.Equal(1, context.Set<OptionalSingle2>().Count(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -4810,9 +4783,8 @@ namespace Microsoft.EntityFrameworkCore
             var orphanedId = 0;
             Root root = null;
 
-            ExecuteWithStrategyInTransaction(context => { root = LoadRequiredGraph(context); });
-
             ExecuteWithStrategyInTransaction(
+                context => { root = LoadRequiredGraph(context); },
                 context =>
                     {
                         var removed = root.RequiredSingle;
@@ -4854,8 +4826,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Assert.Null(root.RequiredSingle);
 
-                            Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -4867,9 +4839,8 @@ namespace Microsoft.EntityFrameworkCore
             var orphanedId = 0;
             Root root = null;
 
-            ExecuteWithStrategyInTransaction(context => { root = LoadRequiredNonPkGraph(context); });
-
             ExecuteWithStrategyInTransaction(
+                context => { root = LoadRequiredNonPkGraph(context); },
                 context =>
                     {
                         var removed = root.RequiredNonPkSingle;
@@ -4912,8 +4883,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingle);
 
-                            Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -4932,9 +4903,7 @@ namespace Microsoft.EntityFrameworkCore
                         root = LoadOptionalAkGraph(context);
 
                         Assert.Equal(2, root.OptionalChildrenAk.Count());
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
                         var removed = root.OptionalChildrenAk.First();
@@ -4985,9 +4954,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.OptionalChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
-                            Assert.Equal(orphanedIds.Count, context.OptionalAk2s.Count(e => orphanedIds.Contains(e.Id)));
-                            Assert.Equal(orphanedIdCs.Count, context.OptionalComposite2s.Count(e => orphanedIdCs.Contains(e.Id)));
+                            Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
+                            Assert.Equal(orphanedIds.Count, context.Set<OptionalAk2>().Count(e => orphanedIds.Contains(e.Id)));
+                            Assert.Equal(orphanedIdCs.Count, context.Set<OptionalComposite2>().Count(e => orphanedIdCs.Contains(e.Id)));
                         }
                     });
         }
@@ -5006,9 +4975,7 @@ namespace Microsoft.EntityFrameworkCore
                         root = LoadRequiredAkGraph(context);
 
                         Assert.Equal(2, root.RequiredChildrenAk.Count());
-                    });
-
-            ExecuteWithStrategyInTransaction(
+                    },
                 context =>
                     {
                         var removed = root.RequiredChildrenAk.First();
@@ -5058,9 +5025,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.RequiredComposite2s.Where(e => orphanedIdCs.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                         }
                     });
         }
@@ -5072,10 +5039,9 @@ namespace Microsoft.EntityFrameworkCore
             var orphanedId = 0;
             var orphanedIdC = 0;
             Root root = null;
-
-            ExecuteWithStrategyInTransaction(context => { root = LoadOptionalAkGraph(context); });
-
+            
             ExecuteWithStrategyInTransaction(
+                context => { root = LoadOptionalAkGraph(context); },
                 context =>
                     {
                         var removed = root.OptionalSingleAk;
@@ -5122,9 +5088,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.OptionalSingleAk);
 
-                            Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Equal(1, context.OptionalSingleAk2s.Count(e => e.Id == orphanedId));
-                            Assert.Equal(1, context.OptionalSingleComposite2s.Count(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<OptionalSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Equal(1, context.Set<OptionalSingleAk2>().Count(e => e.Id == orphanedId));
+                            Assert.Equal(1, context.Set<OptionalSingleComposite2>().Count(e => e.Id == orphanedIdC));
                         }
                     });
         }
@@ -5136,10 +5102,9 @@ namespace Microsoft.EntityFrameworkCore
             var orphanedId = 0;
             var orphanedIdC = 0;
             Root root = null;
-
-            ExecuteWithStrategyInTransaction(context => { root = LoadRequiredAkGraph(context); });
-
+            
             ExecuteWithStrategyInTransaction(
+                context => { root = LoadRequiredAkGraph(context); },
                 context =>
                     {
                         var removed = root.RequiredSingleAk;
@@ -5186,9 +5151,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingleAk);
 
-                            Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                         }
                     });
         }
@@ -5199,10 +5164,9 @@ namespace Microsoft.EntityFrameworkCore
             var removedId = 0;
             var orphanedId = 0;
             Root root = null;
-
-            ExecuteWithStrategyInTransaction(context => { root = LoadRequiredNonPkAkGraph(context); });
-
+            
             ExecuteWithStrategyInTransaction(
+                context => { root = LoadRequiredNonPkAkGraph(context); },
                 context =>
                     {
                         var removed = root.RequiredNonPkSingleAk;
@@ -5245,8 +5209,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingleAk);
 
-                            Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -5321,8 +5285,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildren.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                            Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
                         }
                     });
         }
@@ -5383,8 +5347,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingle);
 
-                            Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -5445,8 +5409,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingle);
 
-                            Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -5533,9 +5497,9 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(1, root.RequiredChildrenAk.Count());
                             Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
-                            Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.RequiredComposite2s.Where(e => orphanedIdCs.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
                         }
                     });
         }
@@ -5603,9 +5567,9 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredSingleAk);
 
-                            Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.RequiredSingleComposite2s.Where(e => e.Id == orphanedIdC));
+                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
                         }
                     });
         }
@@ -5666,8 +5630,8 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.Null(root.RequiredNonPkSingleAk);
 
-                            Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
-                            Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
                         }
                     });
         }
@@ -5678,11 +5642,11 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var dependent = context.BadOrders.Single();
+                        var dependent = context.Set<BadOrder>().Single();
 
                         dependent.BadCustomerId = null;
 
-                        var principal = context.BadCustomers.Single();
+                        var principal = context.Set<BadCustomer>().Single();
 
                         principal.Status++;
 
@@ -5698,8 +5662,8 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var dependent = context.BadOrders.Single();
-                        var principal = context.BadCustomers.Single();
+                        var dependent = context.Set<BadOrder>().Single();
+                        var principal = context.Set<BadCustomer>().Single();
 
                         Assert.Null(dependent.BadCustomerId);
                         Assert.Null(dependent.BadCustomer);
@@ -5721,14 +5685,14 @@ namespace Microsoft.EntityFrameworkCore
 
         protected Expression<Func<Root, bool>> IsTheRoot => r => r.AlternateId == Fixture.RootAK;
 
-        protected Root LoadRequiredGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadRequiredGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
                 .Single(IsTheRoot);
 
-        protected Root LoadOptionalGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadOptionalGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
@@ -5736,8 +5700,8 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalSingleMoreDerived).ThenInclude(e => e.Single)
                 .Single(IsTheRoot);
 
-        protected Root LoadRequiredNonPkGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadRequiredNonPkGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.RequiredNonPkSingle).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleDerived).ThenInclude(e => e.Root)
@@ -5746,16 +5710,16 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredNonPkSingleMoreDerived).ThenInclude(e => e.DerivedRoot)
                 .Single(IsTheRoot);
 
-        protected Root LoadRequiredAkGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadRequiredAkGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredSingleAk).ThenInclude(e => e.SingleComposite)
                 .Single(IsTheRoot);
 
-        protected Root LoadOptionalAkGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadOptionalAkGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single)
@@ -5764,8 +5728,8 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.OptionalSingleAkMoreDerived).ThenInclude(e => e.Single)
                 .Single(IsTheRoot);
 
-        protected Root LoadRequiredNonPkAkGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadRequiredNonPkAkGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.RequiredNonPkSingleAk).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Single)
                 .Include(e => e.RequiredNonPkSingleAkDerived).ThenInclude(e => e.Root)
@@ -5774,16 +5738,16 @@ namespace Microsoft.EntityFrameworkCore
                 .Include(e => e.RequiredNonPkSingleAkMoreDerived).ThenInclude(e => e.DerivedRoot)
                 .Single(IsTheRoot);
 
-        protected Root LoadOptionalOneToManyGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadOptionalOneToManyGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildren).ThenInclude(e => e.CompositeChildren)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
                 .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.CompositeChildren)
                 .Single(IsTheRoot);
 
-        protected Root LoadRequiredCompositeGraph(GraphUpdatesContext context)
-            => context.Roots
+        protected Root LoadRequiredCompositeGraph(DbContext context)
+            => context.Set<Root>()
                 .Include(e => e.RequiredCompositeChildren).ThenInclude(e => e.CompositeChildren)
                 .Single(IsTheRoot);
 
@@ -7722,55 +7686,13 @@ namespace Microsoft.EntityFrameworkCore
                 => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
-        protected class GraphUpdatesContext : DbContext
-        {
-            public GraphUpdatesContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public DbSet<Root> Roots { get; set; }
-            public DbSet<RequiredSingle1> RequiredSingle1s { get; set; }
-            public DbSet<RequiredSingle2> RequiredSingle2s { get; set; }
-            public DbSet<RequiredNonPkSingle1> RequiredNonPkSingle1s { get; set; }
-            public DbSet<RequiredNonPkSingle2> RequiredNonPkSingle2s { get; set; }
-            public DbSet<OptionalSingle1> OptionalSingle1s { get; set; }
-            public DbSet<OptionalSingle2> OptionalSingle2s { get; set; }
-            public DbSet<Required1> Required1s { get; set; }
-            public DbSet<Optional1> Optional1s { get; set; }
-            public DbSet<Required2> Required2s { get; set; }
-            public DbSet<Optional2> Optional2s { get; set; }
-
-            public DbSet<RequiredSingleAk1> RequiredSingleAk1s { get; set; }
-            public DbSet<RequiredSingleAk2> RequiredSingleAk2s { get; set; }
-            public DbSet<RequiredSingleComposite2> RequiredSingleComposite2s { get; set; }
-            public DbSet<RequiredNonPkSingleAk1> RequiredNonPkSingleAk1s { get; set; }
-            public DbSet<RequiredNonPkSingleAk2> RequiredNonPkSingleAk2s { get; set; }
-            public DbSet<OptionalSingleAk1> OptionalSingleAk1s { get; set; }
-            public DbSet<OptionalSingleAk2> OptionalSingleAk2s { get; set; }
-            public DbSet<OptionalSingleComposite2> OptionalSingleComposite2s { get; set; }
-            public DbSet<RequiredAk1> RequiredAk1s { get; set; }
-            public DbSet<OptionalAk1> OptionalAk1s { get; set; }
-            public DbSet<RequiredAk2> RequiredAk2s { get; set; }
-            public DbSet<RequiredComposite2> RequiredComposite2s { get; set; }
-            public DbSet<OptionalAk2> OptionalAk2s { get; set; }
-            public DbSet<OptionalComposite2> OptionalComposite2s { get; set; }
-
-            public DbSet<RequiredComposite1> RequiredComposite1s { get; set; }
-            public DbSet<OptionalOverlaping2> OptionalOverlaping2s { get; set; }
-
-            public DbSet<BadCustomer> BadCustomers { get; set; }
-            public DbSet<BadOrder> BadOrders { get; set; }
-        }
-
-        protected GraphUpdatesContext CreateContext()
-            => (GraphUpdatesContext)Fixture.CreateContext(TestStore);
+        protected DbContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ExecuteWithStrategyInTransaction(
-            Action<GraphUpdatesContext> testOperation,
-            Action<GraphUpdatesContext> nestedTestOperation1 = null,
-            Action<GraphUpdatesContext> nestedTestOperation2 = null,
-            Action<GraphUpdatesContext> nestedTestOperation3 = null)
+            Action<DbContext> testOperation,
+            Action<DbContext> nestedTestOperation1 = null,
+            Action<DbContext> nestedTestOperation2 = null,
+            Action<DbContext> nestedTestOperation3 = null)
             => DbContextHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
@@ -7778,25 +7700,14 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {
         }
-
-        public void Dispose()
-            => TestStore.Dispose();
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public abstract class GraphUpdatesFixtureBase
+        
+        public abstract class GraphUpdatesFixtureBase : SharedStoreFixtureBase<DbContext>
         {
+            protected override string StoreName { get; } = "GraphUpdatesChangedTest";
             public readonly Guid RootAK = Guid.NewGuid();
-
             public virtual bool ForceRestrict => false;
 
-            public abstract TTestStore CreateTestStore();
-
-            public abstract DbContext CreateContext(TTestStore testStore);
-
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<Root>(
                     b =>
@@ -8093,6 +8004,9 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasPrincipalKey(e => e.AlternateId)
                                 .HasForeignKey(e => e.ParentAlternateId);
                         });
+
+                modelBuilder.Entity<BadCustomer>();
+                modelBuilder.Entity<BadOrder>();
             }
 
             protected virtual object CreateFullGraph()
@@ -8295,7 +8209,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 };
 
-            protected virtual void Seed(DbContext context)
+            protected override void Seed(DbContext context)
             {
                 var tracker = new KeyValueEntityTracker();
 

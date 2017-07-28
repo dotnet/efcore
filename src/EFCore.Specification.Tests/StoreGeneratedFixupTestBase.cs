@@ -4,23 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable StaticMemberInGenericType
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class StoreGeneratedFixupTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : StoreGeneratedFixupTestBase<TTestStore, TFixture>.StoreGeneratedFixupFixtureBase, new()
+    public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : StoreGeneratedFixupTestBase<TFixture>.StoreGeneratedFixupFixtureBase, new()
     {
         protected static readonly Guid Guid77 = new Guid("{DE390D36-DAAC-4C8B-91F7-E9F5DAA7EF01}");
         protected static readonly Guid Guid78 = new Guid("{4C80406F-49AF-4D85-AFFB-75C146A98A70}");
 
-        protected StoreGeneratedFixupTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = Fixture.CreateTestStore();
-        }
+        protected StoreGeneratedFixupTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
 
         [Fact]
         public virtual void Add_dependent_then_principal_one_to_many_FK_set_both_navs_set()
@@ -268,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, Category principal, Product dependent)
+        private void AssertFixupAndSave(DbContext context, Category principal, Product dependent)
         {
             AssertFixup(
                 context,
@@ -403,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, CategoryPN principal, ProductPN dependent)
+        private void AssertFixupAndSave(DbContext context, CategoryPN principal, ProductPN dependent)
         {
             AssertFixup(
                 context,
@@ -532,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, CategoryDN principal, ProductDN dependent)
+        private void AssertFixupAndSave(DbContext context, CategoryDN principal, ProductDN dependent)
         {
             AssertFixup(
                 context,
@@ -593,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, CategoryNN principal, ProductNN dependent)
+        private void AssertFixupAndSave(DbContext context, CategoryNN principal, ProductNN dependent)
         {
             AssertFixup(
                 context,
@@ -864,7 +865,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, Parent principal, Child dependent)
+        private void AssertFixupAndSave(DbContext context, Parent principal, Child dependent)
         {
             AssertFixup(
                 context,
@@ -999,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, ParentPN principal, ChildPN dependent)
+        private void AssertFixupAndSave(DbContext context, ParentPN principal, ChildPN dependent)
         {
             AssertFixup(
                 context,
@@ -1128,7 +1129,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, ParentDN principal, ChildDN dependent)
+        private void AssertFixupAndSave(DbContext context, ParentDN principal, ChildDN dependent)
         {
             AssertFixup(
                 context,
@@ -1189,7 +1190,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, ParentNN principal, ChildNN dependent)
+        private void AssertFixupAndSave(DbContext context, ParentNN principal, ChildNN dependent)
         {
             AssertFixup(
                 context,
@@ -3806,7 +3807,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        private void AssertFixupAndSave(StoreGeneratedFixupContext context, Game game, Level level, Item item)
+        private void AssertFixupAndSave(DbContext context, Game game, Level level, Item item)
         {
             AssertFixup(
                 context,
@@ -3877,6 +3878,7 @@ namespace Microsoft.EntityFrameworkCore
             public int Id1 { get; set; }
             public Guid Id2 { get; set; }
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public ChildPN Child { get; set; }
         }
 
@@ -3902,6 +3904,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int ParentId1 { get; set; }
             public Guid ParentId2 { get; set; }
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public ParentDN Parent { get; set; }
         }
 
@@ -3933,6 +3936,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public int CategoryId1 { get; set; }
             public Guid CategoryId2 { get; set; }
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public CategoryDN Category { get; set; }
         }
 
@@ -4044,46 +4048,28 @@ namespace Microsoft.EntityFrameworkCore
 
         protected abstract bool EnforcesFKs { get; }
 
-        protected virtual void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
+        protected virtual void MarkIdsTemporary(DbContext context, object dependent, object principal)
         {
         }
 
-        protected virtual void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item)
+        protected virtual void MarkIdsTemporary(DbContext context, object game, object level, object item)
         {
         }
 
-        protected class StoreGeneratedFixupContext : DbContext
+        protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {
-            public StoreGeneratedFixupContext(DbContextOptions options)
-                : base(options)
-            {
-                ChangeTracker.AutoDetectChangesEnabled = false;
-            }
-
-            public DbSet<Game> Games { get; set; }
-            public DbSet<Level> Levels { get; set; }
-            public DbSet<Item> Items { get; set; }
         }
 
-        protected virtual void ExecuteWithStrategyInTransaction(Action<StoreGeneratedFixupContext> testOperation)
-            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, null, testOperation);
+        protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
+            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
 
-        protected StoreGeneratedFixupContext CreateContext()
-            => (StoreGeneratedFixupContext)Fixture.CreateContext(TestStore);
+        protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public virtual void Dispose() => TestStore.Dispose();
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public abstract class StoreGeneratedFixupFixtureBase
+        public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<DbContext>
         {
-            public abstract TTestStore CreateTestStore();
+            protected override string StoreName { get; } = "StoreGeneratedFixup";
 
-            public abstract DbContext CreateContext(TTestStore testStore);
-
-            protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<TestTemp>();
 
@@ -4176,10 +4162,6 @@ namespace Microsoft.EntityFrameworkCore
                             .HasForeignKey(i => new { i.GameId, i.LevelId })
                             .OnDelete(DeleteBehavior.Restrict);
                     });
-            }
-
-            protected virtual void Seed(DbContext context)
-            {
             }
         }
     }

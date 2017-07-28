@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class FindSqlServerTest : FindTestBase<SqlServerTestStore, FindSqlServerTest.FindSqlServerFixture>
+    public abstract class FindSqlServerTest : FindTestBase<FindSqlServerTest.FindSqlServerFixture>
     {
         protected FindSqlServerTest(FindSqlServerFixture fixture)
             : base(fixture)
@@ -77,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"@__get_Item_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKeys] AS [e]
+FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -90,7 +91,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                 @"@__get_Item_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKeys] AS [e]
+FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -111,7 +112,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                 @"@__get_Item_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKeys] AS [e]
+FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -124,7 +125,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                 @"@__get_Item_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [IntKeys] AS [e]
+FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -145,7 +146,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                 @"@__get_Item_0='Cat' (Size = 450)
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [StringKeys] AS [e]
+FROM [StringKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -158,7 +159,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                 @"@__get_Item_0='Fox' (Size = 450)
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [StringKeys] AS [e]
+FROM [StringKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -180,7 +181,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 @__get_Item_1='Dog' (Size = 450)
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
-FROM [CompositeKeys] AS [e]
+FROM [CompositeKey] AS [e]
 WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
         }
 
@@ -194,7 +195,7 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
 @__get_Item_1='Fox' (Size = 450)
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
-FROM [CompositeKeys] AS [e]
+FROM [CompositeKey] AS [e]
 WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
         }
 
@@ -215,7 +216,7 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
                 @"@__get_Item_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -228,7 +229,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
                 @"@__get_Item_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -249,7 +250,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
                 @"@__get_Item_0='78'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -262,7 +263,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
                 @"@__get_Item_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -275,7 +276,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
                 @"@__get_Item_0='88'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -288,7 +289,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
                 @"@__get_Item_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -309,7 +310,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
                 @"@__get_Item_0='78'
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
-FROM [BaseTypes] AS [e]
+FROM [BaseType] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql);
         }
 
@@ -330,7 +331,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
                 @"@__get_Item_0='77'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [ShadowKeys] AS [e]
+FROM [ShadowKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -343,7 +344,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
                 @"@__get_Item_0='99'
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
-FROM [ShadowKeys] AS [e]
+FROM [ShadowKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql);
         }
 
@@ -354,40 +355,8 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
         public class FindSqlServerFixture : FindFixtureBase
         {
-            private const string DatabaseName = "FindTest";
-            private readonly DbContextOptions _options;
-
-            public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
-
-            public FindSqlServerFixture()
-            {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                    .BuildServiceProvider(validateScopes: true);
-
-                _options = new DbContextOptionsBuilder()
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(serviceProvider)
-                    .EnableSensitiveDataLogging()
-                    .Options;
-            }
-
-            public override SqlServerTestStore CreateTestStore()
-            {
-                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        using (var context = new FindContext(_options))
-                        {
-                            context.Database.EnsureCreated();
-                            Seed(context);
-                        }
-                    });
-            }
-
-            public override DbContext CreateContext(SqlServerTestStore testStore)
-                => new FindContext(_options);
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
         }
     }
 }

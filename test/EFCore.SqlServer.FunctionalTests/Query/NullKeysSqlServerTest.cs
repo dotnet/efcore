@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
-using System;
+// Licensed under t
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -14,31 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        public class NullKeysSqlServerFixture : NullKeysFixtureBase, IDisposable
+        public class NullKeysSqlServerFixture : NullKeysFixtureBase
         {
-            private readonly DbContextOptions _options;
-            private readonly SqlServerTestStore _testStore;
-
-            public NullKeysSqlServerFixture()
-            {
-                var name = "StringsContext";
-                var connectionString = SqlServerTestStore.CreateConnectionString(name);
-
-                _options = new DbContextOptionsBuilder()
-                    .UseSqlServer(connectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(new ServiceCollection()
-                        .AddEntityFrameworkSqlServer()
-                        .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                        .BuildServiceProvider(validateScopes: true))
-                    .Options;
-
-                _testStore = SqlServerTestStore.GetOrCreateShared(name, EnsureCreated);
-            }
-
-            public override DbContext CreateContext()
-                => new DbContext(_options);
-
-            public void Dispose() => _testStore.Dispose();
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
         }
     }
 }

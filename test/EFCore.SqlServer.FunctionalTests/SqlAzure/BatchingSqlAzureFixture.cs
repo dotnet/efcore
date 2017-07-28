@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
     {
         public AdventureWorksContext CreateContext(int maxBatchSize)
         {
-            var optionsBuilder = new DbContextOptionsBuilder(Options).UseInternalServiceProvider(Services);
+            var optionsBuilder = new DbContextOptionsBuilder(CreateOptions());
 
             new SqlServerDbContextOptionsBuilder(optionsBuilder).MaxBatchSize(maxBatchSize);
 

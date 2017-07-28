@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
-            await OpenAsync(cancellationToken: cancellationToken);
+            await OpenAsync(cancellationToken);
 
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }

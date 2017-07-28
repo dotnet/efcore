@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,25 +8,15 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class NotificationEntitiesTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
-        where TTestStore : TestStore
-        where TFixture : NotificationEntitiesTestBase<TTestStore, TFixture>.NotificationEntitiesFixtureBase, new()
+    public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
+        where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
     {
-        protected NotificationEntitiesTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = Fixture.CreateTestStore();
-        }
+        protected NotificationEntitiesTestBase(TFixture fixture) => Fixture = fixture;
 
         protected virtual TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        protected DbContext CreateContext() => Fixture.CreateContext();
-
-        public void Dispose() => TestStore.Dispose();
 
         [Fact] // Issue #4020
         public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
@@ -45,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact] // Issue #4020
-        public virtual void Include_brings_colelctions_referenced_from_already_tracked_notification_entities_as_Unchanged()
+        public virtual void Include_brings_collections_referenced_from_already_tracked_notification_entities_as_Unchanged()
         {
             using (var context = CreateContext())
             {
@@ -67,14 +56,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public ICollection<Post> Posts
             {
-                get { return _posts; }
-                set { SetWithNotify(value, ref _posts); }
+                get => _posts;
+                set => SetWithNotify(value, ref _posts);
             }
         }
 
@@ -86,20 +75,20 @@ namespace Microsoft.EntityFrameworkCore
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public int PostId
             {
-                get { return _postId; }
-                set { SetWithNotify(value, ref _postId); }
+                get => _postId;
+                set => SetWithNotify(value, ref _postId);
             }
 
             public Blog Blog
             {
-                get { return _blog; }
-                set { SetWithNotify(value, ref _blog); }
+                get => _blog;
+                set => SetWithNotify(value, ref _blog);
             }
         }
 
@@ -120,31 +109,27 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public abstract class NotificationEntitiesFixtureBase
-        {
-            public abstract DbContext CreateContext();
-            public abstract TTestStore CreateTestStore();
+        protected DbContext CreateContext() => Fixture.CreateContext();
 
-            public virtual void OnModelCreating(ModelBuilder modelBuilder)
+        public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = "NotificationEntities";
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<Blog>().Property(e => e.Id).ValueGeneratedNever();
                 modelBuilder.Entity<Post>().Property(e => e.Id).ValueGeneratedNever();
             }
 
-            protected virtual void EnsureCreated()
+            protected override void Seed(DbContext context)
             {
-                using (var context = CreateContext())
+                context.Add(new Blog
                 {
-                    context.Database.EnsureCreated();
+                    Id = 1,
+                    Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
+                });
 
-                    context.Add(new Blog
-                    {
-                        Id = 1,
-                        Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
-                    });
-
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
             }
         }
     }

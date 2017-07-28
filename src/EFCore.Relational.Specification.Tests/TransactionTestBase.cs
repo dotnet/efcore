@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class TransactionTestBase<TTestStore, TFixture> : IClassFixture<TFixture>, IDisposable
@@ -537,8 +538,6 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                TestDatabase.OpenConnection();
-
                 using (var transaction = TestDatabase.Connection.BeginTransaction())
                 {
                     using (var context = CreateContext(TestDatabase.Connection))
@@ -569,8 +568,6 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                TestDatabase.OpenConnection();
-
                 using (var transaction = TestDatabase.Connection.BeginTransaction())
                 {
                     using (var context = CreateContext())
@@ -598,8 +595,6 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                TestDatabase.OpenConnection();
-
                 using (var transaction = TestDatabase.Connection.BeginTransaction())
                 {
                     using (var context = CreateContext())
@@ -630,8 +625,6 @@ namespace Microsoft.EntityFrameworkCore
 
             try
             {
-                TestDatabase.OpenConnection();
-
                 using (var transaction = TestDatabase.Connection.BeginTransaction())
                 {
                     using (var context = CreateContext(TestDatabase.Connection))

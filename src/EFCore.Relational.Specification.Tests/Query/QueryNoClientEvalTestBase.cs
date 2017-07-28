@@ -16,6 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        protected QueryNoClientEvalTestBase(TFixture fixture) => Fixture = fixture;
+
+        protected TFixture Fixture { get; }
+        
         [Fact]
         public virtual void Throws_when_where()
         {
@@ -261,9 +265,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
-
-        protected QueryNoClientEvalTestBase(TFixture fixture) => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class ExistingConnectionTest
@@ -34,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var store = SqlServerTestStore.GetNorthwindStore())
             {
-                Assert.Equal(ConnectionState.Closed, store.Connection.State);
+                store.Connection.Close();
 
                 var openCount = 0;
                 var closeCount = 0;

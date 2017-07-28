@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MigrationSqlGeneratorTestBase
@@ -209,16 +211,19 @@ namespace Microsoft.EntityFrameworkCore
 
         private class Base
         {
+            // ReSharper disable once UnusedMember.Local
             public int Id { get; set; }
         }
 
         private class Derived1 : Base
         {
+            // ReSharper disable once UnusedMember.Local
             public string Foo { get; set; }
         }
 
         private class Derived2 : Base
         {
+            // ReSharper disable once UnusedMember.Local
             public string Foo { get; set; }
         }
 

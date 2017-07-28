@@ -6,15 +6,18 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DataAnnotationSqlServerTest : DataAnnotationTestBase<SqlServerTestStore, DataAnnotationSqlServerFixture>
+    public class DataAnnotationSqlServerTest : DataAnnotationTestBase<DataAnnotationSqlServerTest.DataAnnotationSqlServerFixture>
     {
         public DataAnnotationSqlServerTest(DataAnnotationSqlServerFixture fixture)
             : base(fixture)
@@ -226,11 +229,11 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Contains(@"@p1='Book1' (Nullable = false) (Size = 450)
+            Assert.Contains(@"@p1='1'
 ",
                 Sql);
 
-            Assert.Contains(@"@p1='' (Nullable = false) (Size = 450) (DbType = String)
+            Assert.Contains(@"@p1='' (Nullable = false) (DbType = Int32)
 ",
                 Sql);
         }
@@ -270,19 +273,19 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             Assert.Equal(@"@p0='ValidString' (Size = 16)
 
 SET NOCOUNT ON;
-INSERT INTO [Twos] ([Data])
+INSERT INTO [Two] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
-FROM [Twos]
+FROM [Two]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
 
 @p0='ValidButLongString' (Size = -1)
 
 SET NOCOUNT ON;
-INSERT INTO [Twos] ([Data])
+INSERT INTO [Two] ([Data])
 VALUES (@p0);
 SELECT [Id], [Timestamp]
-FROM [Twos]
+FROM [Two]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
                 Sql);
         }
@@ -299,5 +302,11 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
 ";
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+
+        public class DataAnnotationSqlServerFixture : DataAnnotationFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        }
     }
 }

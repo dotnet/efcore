@@ -5,13 +5,11 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class UpdatesFixtureBase<TTestStore>
+    public abstract class UpdatesFixtureBase : SharedStoreFixtureBase<UpdatesContext>
     {
-        public abstract TTestStore CreateTestStore();
+        protected override string StoreName { get; } = "UpdateTest";
 
-        public abstract UpdatesContext CreateContext(TTestStore testStore);
-
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Product>().HasOne<Category>().WithOne()
                 .HasForeignKey<Product>(e => e.DependentId)
@@ -24,6 +22,16 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Category>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
+        }
+
+        protected override void Seed(UpdatesContext context)
+            => UpdatesContext.Seed(context);
+
+        public override UpdatesContext CreateContext()
+        {
+            var context = base.CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            return context;
         }
     }
 }

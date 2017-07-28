@@ -3,14 +3,14 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedFixupInMemoryTest
-        : StoreGeneratedFixupTestBase<InMemoryTestStore, StoreGeneratedFixupInMemoryTest.StoreGeneratedFixupInMemoryFixture>
+    public class StoreGeneratedFixupInMemoryTest : StoreGeneratedFixupTestBase<StoreGeneratedFixupInMemoryTest.StoreGeneratedFixupInMemoryFixture>
     {
         public StoreGeneratedFixupInMemoryTest(StoreGeneratedFixupInMemoryFixture fixture)
             : base(fixture)
@@ -36,61 +36,24 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected override void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
+        {
+            base.ExecuteWithStrategyInTransaction(testOperation);
+            Fixture.Reseed();
+        }
+
         protected override bool EnforcesFKs => false;
 
         public class StoreGeneratedFixupInMemoryFixture : StoreGeneratedFixupFixtureBase
         {
-            private const string DatabaseName = "StoreGeneratedFixup";
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
-            private readonly IServiceProvider _serviceProvider;
+            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));
 
-            public StoreGeneratedFixupInMemoryFixture()
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
-            }
-
-            public override InMemoryTestStore CreateTestStore()
-            {
-                var store = new InMemoryStoreGeneratedFixupTestStore(_serviceProvider);
-
-                using (var context = CreateContext(store))
-                {
-                    Seed(context);
-                }
-
-                return store;
-            }
-
-            public override DbContext CreateContext(InMemoryTestStore testStore)
-                => new StoreGeneratedFixupContext(new DbContextOptionsBuilder()
-                    .UseInMemoryDatabase(DatabaseName)
-                    .UseInternalServiceProvider(_serviceProvider)
-                    .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                    .Options);
-
-            public class InMemoryStoreGeneratedFixupTestStore : InMemoryTestStore
-            {
-                private readonly IServiceProvider _serviceProvider;
-
-                public InMemoryStoreGeneratedFixupTestStore(IServiceProvider serviceProvider)
-                {
-                    _serviceProvider = serviceProvider;
-                }
-
-                public override void Dispose()
-                {
-                    _serviceProvider.GetRequiredService<IInMemoryStoreCache>().GetStore(DatabaseName).Clear();
-
-                    base.Dispose();
-                }
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(modelBuilder, context);
 
                 modelBuilder.Entity<Parent>(b =>
                     {

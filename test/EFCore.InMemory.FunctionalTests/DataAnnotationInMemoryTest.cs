@@ -1,11 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DataAnnotationInMemoryTest : DataAnnotationTestBase<InMemoryTestStore, DataAnnotationInMemoryFixture>
+    public class DataAnnotationInMemoryTest : DataAnnotationTestBase<DataAnnotationInMemoryTest.DataAnnotationInMemoryFixture>
     {
         public DataAnnotationInMemoryTest(DataAnnotationInMemoryFixture fixture)
             : base(fixture)
@@ -32,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.True(context.Model.FindEntityType(typeof(BookDetail)).FindNavigation("Book").ForeignKey.IsRequired);
+                Assert.True(context.Model.FindEntityType(typeof(BookDetails)).FindNavigation(nameof(BookDetails.AnotherBook)).ForeignKey.IsRequired);
             }
         }
 
@@ -58,6 +61,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
             }
+        }
+
+        public class DataAnnotationInMemoryFixture : DataAnnotationFixtureBase
+        {
+            public static readonly string DatabaseName = "DataAnnotations";
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
+
+            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }
     }
 }

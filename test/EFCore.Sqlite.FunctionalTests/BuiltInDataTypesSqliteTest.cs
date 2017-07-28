@@ -3,16 +3,23 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 namespace Microsoft.EntityFrameworkCore
 {
-    public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqliteFixture>
+    public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqliteTest.BuiltInDataTypesSqliteFixture>
     {
         public BuiltInDataTypesSqliteTest(BuiltInDataTypesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -853,6 +860,198 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
             }
+        }
+
+        public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
+        {
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<MappedDataTypes>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Integer).HasColumnType("Integer");
+                    b.Property(e => e.Real).HasColumnType("Real");
+                    b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                    b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                    b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
+                    b.Property(e => e.Int).HasColumnType("Int");
+                });
+
+                modelBuilder.Entity<MappedNullableDataTypes>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Integer).HasColumnType("Integer");
+                    b.Property(e => e.Real).HasColumnType("Real");
+                    b.Property(e => e.Text).HasColumnType("Text");
+                    b.Property(e => e.Blob).HasColumnType("Blob");
+                    b.Property(e => e.SomeString).HasColumnType("SomeString");
+                    b.Property(e => e.Int).HasColumnType("Int");
+                });
+
+                modelBuilder.Entity<MappedSizedDataTypes>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                    b.Property(e => e.Binary).HasColumnType("varbinary(3)");
+                });
+
+                modelBuilder.Entity<MappedScaledDataTypes>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Float).HasColumnType("real(3)");
+                    b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                    b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                    b.Property(e => e.Decimal).HasColumnType("decimal(3)");
+                });
+
+                modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)");
+                });
+
+                modelBuilder.Entity<MappedDataTypesWithIdentity>(b =>
+                {
+                    b.Property(e => e.Integer).HasColumnType("Integer");
+                    b.Property(e => e.Real).HasColumnType("Real");
+                    b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                    b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                    b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
+                    b.Property(e => e.Int).HasColumnType("Int");
+                });
+
+                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(b =>
+                {
+                    b.Property(e => e.Integer).HasColumnType("Integer");
+                    b.Property(e => e.Real).HasColumnType("Real");
+                    b.Property(e => e.Text).HasColumnType("Text");
+                    b.Property(e => e.Blob).HasColumnType("Blob");
+                    b.Property(e => e.SomeString).HasColumnType("SomeString");
+                    b.Property(e => e.Int).HasColumnType("Int");
+                });
+
+                modelBuilder.Entity<MappedSizedDataTypesWithIdentity>(b =>
+                {
+                    b.Property(e => e.Nvarchar).HasColumnType("nvarchar(3)");
+                    b.Property(e => e.Binary).HasColumnType("varbinary(3)");
+                });
+
+                modelBuilder.Entity<MappedScaledDataTypesWithIdentity>(b =>
+                {
+                    b.Property(e => e.Float).HasColumnType("real(3)");
+                    b.Property(e => e.Datetimeoffset).HasColumnType("datetimeoffset(3)");
+                    b.Property(e => e.Datetime2).HasColumnType("datetime2(3)");
+                    b.Property(e => e.Decimal).HasColumnType("decimal(3)");
+                });
+
+                modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b => { b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"); });
+            }
+
+            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(c => c
+                    .Log(RelationalEventId.QueryClientEvaluationWarning));
+
+            public override bool SupportsBinaryKeys => true;
+
+            public override DateTime DefaultDateTime => new DateTime();
+        }
+
+        protected class MappedDataTypes
+        {
+            public int Id { get; set; }
+            public long Integer { get; set; }
+            public double Real { get; set; }
+            public string Text { get; set; }
+            public byte[] Blob { get; set; }
+            public string SomeString { get; set; }
+            public int Int { get; set; }
+        }
+
+        protected class MappedSizedDataTypes
+        {
+            public int Id { get; set; }
+            public string Nvarchar { get; set; }
+            public byte[] Binary { get; set; }
+        }
+
+        protected class MappedScaledDataTypes
+        {
+            public int Id { get; set; }
+            public float Float { get; set; }
+            public DateTimeOffset Datetimeoffset { get; set; }
+            public DateTime Datetime2 { get; set; }
+            public decimal Decimal { get; set; }
+        }
+
+        protected class MappedPrecisionAndScaledDataTypes
+        {
+            public int Id { get; set; }
+            public decimal Decimal { get; set; }
+        }
+
+        protected class MappedNullableDataTypes
+        {
+            public int Id { get; set; }
+            public long? Integer { get; set; }
+            public double? Real { get; set; }
+            public string Text { get; set; }
+            public byte[] Blob { get; set; }
+            public string SomeString { get; set; }
+            public int? Int { get; set; }
+        }
+
+        protected class MappedDataTypesWithIdentity
+        {
+            public int Id { get; set; }
+            public int AltId { get; set; }
+            public long Integer { get; set; }
+            public double Real { get; set; }
+            public string Text { get; set; }
+            public byte[] Blob { get; set; }
+            public string SomeString { get; set; }
+            public int Int { get; set; }
+        }
+
+        protected class MappedSizedDataTypesWithIdentity
+        {
+            public int Id { get; set; }
+            public int AltId { get; set; }
+            public string Nvarchar { get; set; }
+            public byte[] Binary { get; set; }
+        }
+
+        protected class MappedScaledDataTypesWithIdentity
+        {
+            public int Id { get; set; }
+            public int AltId { get; set; }
+            public float Float { get; set; }
+            public DateTimeOffset Datetimeoffset { get; set; }
+            public DateTime Datetime2 { get; set; }
+            public decimal Decimal { get; set; }
+        }
+
+        protected class MappedPrecisionAndScaledDataTypesWithIdentity
+        {
+            public int Id { get; set; }
+            public int AltId { get; set; }
+            public decimal Decimal { get; set; }
+        }
+
+        protected class MappedNullableDataTypesWithIdentity
+        {
+            public int Id { get; set; }
+            public int AltId { get; set; }
+            public long? Integer { get; set; }
+            public double? Real { get; set; }
+            public string Text { get; set; }
+            public byte[] Blob { get; set; }
+            public string SomeString { get; set; }
+            public int? Int { get; set; }
         }
     }
 }

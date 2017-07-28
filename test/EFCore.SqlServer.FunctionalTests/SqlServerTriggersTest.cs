@@ -6,7 +6,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
@@ -249,7 +251,7 @@ END");
             return testStore;
         }
 
-        public class TriggersContext : DbContext
+        protected class TriggersContext : DbContext
         {
             public TriggersContext(DbContextOptions options)
                 : base(options)
@@ -273,7 +275,7 @@ END");
             }
         }
 
-        public class QueryTriggersContext : DbContext
+        protected class QueryTriggersContext : DbContext
         {
             public QueryTriggersContext(DbContextOptions options)
                 : base(options)
@@ -294,7 +296,7 @@ END");
             }
         }
 
-        public class Product
+        protected class Product
         {
             public virtual int Id { get; set; }
             public virtual byte[] Version { get; set; }
@@ -302,7 +304,7 @@ END");
             public virtual int StoreUpdated { get; set; }
         }
 
-        public class ProductBackup
+        protected class ProductBackup
         {
             public virtual int Id { get; set; }
             public virtual byte[] Version { get; set; }

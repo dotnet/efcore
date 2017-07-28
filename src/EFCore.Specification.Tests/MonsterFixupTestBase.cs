@@ -6,11 +6,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MonsterFixupTestBase
@@ -727,6 +728,7 @@ namespace Microsoft.EntityFrameworkCore
                 var productWebFeature1 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("Waffle"));
                 var productWebFeature2 = context.ProductWebFeatures.Single(e => e.Heading.StartsWith("What"));
 
+                Assert.NotNull(product2);
                 AssertPhotosConsistent(productPhoto1, productWebFeature1);
                 AssertPhotosConsistent(productPhoto2);
                 AssertPhotosConsistent(productPhoto3);
@@ -1646,7 +1648,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => e.Features.NullChecked().OrderBy(f => f.Heading),
                 e => e.Photo,
                 e => Tuple.Create(e.PhotoId, e.ProductId),
-                e => e.ProductId == null || e.PhotoId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
+                e => e.ProductId == null || e.PhotoId == null ? null : Tuple.Create(e.PhotoId.Value, e.ProductId.Value));
 
         private static void AssertReviewsConsistent(IProductReview expectedPrincipal, params IProductWebFeature[] expectedDependents)
             => AssertConsistent(
@@ -1655,7 +1657,7 @@ namespace Microsoft.EntityFrameworkCore
                 e => e.Features.NullChecked().OrderBy(f => f.Heading),
                 e => e.Review,
                 e => Tuple.Create(e.ReviewId, e.ProductId),
-                e => e.ProductId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
+                e => e.ProductId == null ? null : Tuple.Create(e.ReviewId, e.ProductId.Value));
 
         private static void AssertReceivedMessagesConsistent(ILogin expectedPrincipal, params IMessage[] expectedDependents)
             => AssertConsistent(
@@ -1714,8 +1716,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Same(expectedPrincipal, getPrincipal(expectedDependents[i]));
                     }
-
-                    StructuralComparisons.StructuralEqualityComparer.Equals(principalKey, getForeignKey(expectedDependents[i]));
+                    
+                    Assert.Equal(principalKey, getForeignKey(expectedDependents[i]));
                 }
             }
         }

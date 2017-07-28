@@ -1,15 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedFixupSqlServerTest
-        : StoreGeneratedFixupTestBase<SqlServerTestStore, StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>
+    public class StoreGeneratedFixupSqlServerTest : StoreGeneratedFixupTestBase<StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>
     {
         public StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerFixture fixture)
             : base(fixture)
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object dependent, object principal)
+        protected override void MarkIdsTemporary(DbContext context, object dependent, object principal)
         {
             var entry = context.Entry(dependent);
             entry.Property("Id1").IsTemporary = true;
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
             entry.Property("Id2").IsTemporary = true;
         }
 
-        protected override void MarkIdsTemporary(StoreGeneratedFixupContext context, object game, object level, object item)
+        protected override void MarkIdsTemporary(DbContext context, object game, object level, object item)
         {
             var entry = context.Entry(game);
             entry.Property("Id").IsTemporary = true;
@@ -56,52 +57,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override bool EnforcesFKs => true;
+        
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
 
         public class StoreGeneratedFixupSqlServerFixture : StoreGeneratedFixupFixtureBase
         {
-            private const string DatabaseName = "StoreGeneratedFixup";
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
-            private readonly IServiceProvider _serviceProvider;
-
-            public StoreGeneratedFixupSqlServerFixture()
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-                _serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                    .BuildServiceProvider();
-            }
-
-            public override SqlServerTestStore CreateTestStore()
-            {
-                return SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), b => b.ApplyConfiguration())
-                            .UseInternalServiceProvider(_serviceProvider);
-
-                        using (var context = new StoreGeneratedFixupContext(optionsBuilder.Options))
-                        {
-                            context.Database.EnsureCreated();
-                            Seed(context);
-                        }
-                    });
-            }
-
-            public override DbContext CreateContext(SqlServerTestStore testStore)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testStore.Connection, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_serviceProvider);
-
-                var context = new StoreGeneratedFixupContext(optionsBuilder.Options);
-                context.Database.UseTransaction(testStore.Transaction);
-
-                return context;
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
+                base.OnModelCreating(modelBuilder, context);
 
                 modelBuilder.Entity<Parent>(b =>
                     {
