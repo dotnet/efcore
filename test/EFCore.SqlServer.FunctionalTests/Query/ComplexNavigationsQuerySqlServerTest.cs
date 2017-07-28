@@ -3262,6 +3262,198 @@ INNER JOIN (
 ORDER BY [t].[c], [t].[Name], [t].[Id]");
         }
 
+        public override void String_include_multiple_derived_navigation_with_same_name_and_same_type()
+        {
+            base.String_include_multiple_derived_navigation_with_same_name_and_same_type();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name], [i.ReferenceSameType].[Id], [i.ReferenceSameType].[DifferentTypeReference_InheritanceDerived1Id], [i.ReferenceSameType].[InheritanceDerived1Id], [i.ReferenceSameType].[InheritanceDerived1Id1], [i.ReferenceSameType].[InheritanceDerived2Id], [i.ReferenceSameType].[Name], [i.ReferenceSameType].[SameTypeReference_InheritanceDerived1Id], [i.ReferenceSameType].[SameTypeReference_InheritanceDerived2Id], [i.ReferenceSameType0].[Id], [i.ReferenceSameType0].[DifferentTypeReference_InheritanceDerived1Id], [i.ReferenceSameType0].[InheritanceDerived1Id], [i.ReferenceSameType0].[InheritanceDerived1Id1], [i.ReferenceSameType0].[InheritanceDerived2Id], [i.ReferenceSameType0].[Name], [i.ReferenceSameType0].[SameTypeReference_InheritanceDerived1Id], [i.ReferenceSameType0].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceOne] AS [i]
+LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceSameType] ON [i].[Id] = [i.ReferenceSameType].[SameTypeReference_InheritanceDerived2Id]
+LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceSameType0] ON [i].[Id] = [i.ReferenceSameType0].[SameTypeReference_InheritanceDerived1Id]
+WHERE [i].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')");
+        }
+
+        public override void String_include_multiple_derived_navigation_with_same_name_and_different_type()
+        {
+            base.String_include_multiple_derived_navigation_with_same_name_and_different_type();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name], [i.ReferenceDifferentType].[Id], [i.ReferenceDifferentType].[DifferentTypeReference_InheritanceDerived2Id], [i.ReferenceDifferentType].[InheritanceDerived2Id], [i.ReferenceDifferentType].[Name], [i.ReferenceDifferentType0].[Id], [i.ReferenceDifferentType0].[DifferentTypeReference_InheritanceDerived1Id], [i.ReferenceDifferentType0].[InheritanceDerived1Id], [i.ReferenceDifferentType0].[InheritanceDerived1Id1], [i.ReferenceDifferentType0].[InheritanceDerived2Id], [i.ReferenceDifferentType0].[Name], [i.ReferenceDifferentType0].[SameTypeReference_InheritanceDerived1Id], [i.ReferenceDifferentType0].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceOne] AS [i]
+LEFT JOIN [InheritanceLeafTwo] AS [i.ReferenceDifferentType] ON [i].[Id] = [i.ReferenceDifferentType].[DifferentTypeReference_InheritanceDerived2Id]
+LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceDifferentType0] ON [i].[Id] = [i.ReferenceDifferentType0].[DifferentTypeReference_InheritanceDerived1Id]
+WHERE [i].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')");
+        }
+
+        public override void String_include_multiple_derived_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
+        {
+            base.String_include_multiple_derived_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name], [i.ReferenceDifferentType].[Id], [i.ReferenceDifferentType].[DifferentTypeReference_InheritanceDerived2Id], [i.ReferenceDifferentType].[InheritanceDerived2Id], [i.ReferenceDifferentType].[Name], [i.ReferenceDifferentType0].[Id], [i.ReferenceDifferentType0].[DifferentTypeReference_InheritanceDerived1Id], [i.ReferenceDifferentType0].[InheritanceDerived1Id], [i.ReferenceDifferentType0].[InheritanceDerived1Id1], [i.ReferenceDifferentType0].[InheritanceDerived2Id], [i.ReferenceDifferentType0].[Name], [i.ReferenceDifferentType0].[SameTypeReference_InheritanceDerived1Id], [i.ReferenceDifferentType0].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceOne] AS [i]
+LEFT JOIN [InheritanceLeafTwo] AS [i.ReferenceDifferentType] ON [i].[Id] = [i.ReferenceDifferentType].[DifferentTypeReference_InheritanceDerived2Id]
+LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceDifferentType0] ON [i].[Id] = [i.ReferenceDifferentType0].[DifferentTypeReference_InheritanceDerived1Id]
+WHERE [i].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+ORDER BY [i.ReferenceDifferentType].[Id]",
+                //
+                @"SELECT [i.ReferenceDifferentType.BaseCollection].[Id], [i.ReferenceDifferentType.BaseCollection].[InheritanceLeaf2Id], [i.ReferenceDifferentType.BaseCollection].[Name]
+FROM [InheritanceTwo] AS [i.ReferenceDifferentType.BaseCollection]
+INNER JOIN (
+    SELECT DISTINCT [i.ReferenceDifferentType1].[Id]
+    FROM [InheritanceOne] AS [i0]
+    LEFT JOIN [InheritanceLeafTwo] AS [i.ReferenceDifferentType1] ON [i0].[Id] = [i.ReferenceDifferentType1].[DifferentTypeReference_InheritanceDerived2Id]
+    LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceDifferentType2] ON [i0].[Id] = [i.ReferenceDifferentType2].[DifferentTypeReference_InheritanceDerived1Id]
+    WHERE [i0].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t] ON [i.ReferenceDifferentType.BaseCollection].[InheritanceLeaf2Id] = [t].[Id]
+ORDER BY [t].[Id]");
+        }
+
+        public override void String_include_multiple_derived_collection_navigation_with_same_name_and_same_type()
+        {
+            base.String_include_multiple_derived_collection_navigation_with_same_name_and_same_type();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name]
+FROM [InheritanceOne] AS [i]
+WHERE [i].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+ORDER BY [i].[Id]",
+                //
+                @"SELECT [i.CollectionSameType].[Id], [i.CollectionSameType].[DifferentTypeReference_InheritanceDerived1Id], [i.CollectionSameType].[InheritanceDerived1Id], [i.CollectionSameType].[InheritanceDerived1Id1], [i.CollectionSameType].[InheritanceDerived2Id], [i.CollectionSameType].[Name], [i.CollectionSameType].[SameTypeReference_InheritanceDerived1Id], [i.CollectionSameType].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceLeafOne] AS [i.CollectionSameType]
+INNER JOIN (
+    SELECT [i0].[Id]
+    FROM [InheritanceOne] AS [i0]
+    WHERE [i0].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t] ON [i.CollectionSameType].[InheritanceDerived1Id1] = [t].[Id]
+ORDER BY [t].[Id]",
+                //
+                @"SELECT [i.CollectionSameType0].[Id], [i.CollectionSameType0].[DifferentTypeReference_InheritanceDerived1Id], [i.CollectionSameType0].[InheritanceDerived1Id], [i.CollectionSameType0].[InheritanceDerived1Id1], [i.CollectionSameType0].[InheritanceDerived2Id], [i.CollectionSameType0].[Name], [i.CollectionSameType0].[SameTypeReference_InheritanceDerived1Id], [i.CollectionSameType0].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceLeafOne] AS [i.CollectionSameType0]
+INNER JOIN (
+    SELECT [i1].[Id]
+    FROM [InheritanceOne] AS [i1]
+    WHERE [i1].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t0] ON [i.CollectionSameType0].[InheritanceDerived2Id] = [t0].[Id]
+ORDER BY [t0].[Id]");
+        }
+
+        public override void String_include_multiple_derived_collection_navigation_with_same_name_and_different_type()
+        {
+            base.String_include_multiple_derived_collection_navigation_with_same_name_and_different_type();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name]
+FROM [InheritanceOne] AS [i]
+WHERE [i].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+ORDER BY [i].[Id]",
+                //
+                @"SELECT [i.CollectionDifferentType].[Id], [i.CollectionDifferentType].[DifferentTypeReference_InheritanceDerived1Id], [i.CollectionDifferentType].[InheritanceDerived1Id], [i.CollectionDifferentType].[InheritanceDerived1Id1], [i.CollectionDifferentType].[InheritanceDerived2Id], [i.CollectionDifferentType].[Name], [i.CollectionDifferentType].[SameTypeReference_InheritanceDerived1Id], [i.CollectionDifferentType].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceLeafOne] AS [i.CollectionDifferentType]
+INNER JOIN (
+    SELECT [i0].[Id]
+    FROM [InheritanceOne] AS [i0]
+    WHERE [i0].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t] ON [i.CollectionDifferentType].[InheritanceDerived1Id] = [t].[Id]
+ORDER BY [t].[Id]",
+                //
+                @"SELECT [i.CollectionDifferentType0].[Id], [i.CollectionDifferentType0].[DifferentTypeReference_InheritanceDerived2Id], [i.CollectionDifferentType0].[InheritanceDerived2Id], [i.CollectionDifferentType0].[Name]
+FROM [InheritanceLeafTwo] AS [i.CollectionDifferentType0]
+INNER JOIN (
+    SELECT [i1].[Id]
+    FROM [InheritanceOne] AS [i1]
+    WHERE [i1].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t0] ON [i.CollectionDifferentType0].[InheritanceDerived2Id] = [t0].[Id]
+ORDER BY [t0].[Id]");
+        }
+
+        public override void String_include_multiple_derived_collection_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
+        {
+            base.String_include_multiple_derived_collection_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[Discriminator], [i].[InheritanceBase2Id], [i].[InheritanceBase2Id1], [i].[Name]
+FROM [InheritanceOne] AS [i]
+WHERE [i].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+ORDER BY [i].[Id]",
+                //
+                @"SELECT [i.CollectionDifferentType].[Id], [i.CollectionDifferentType].[DifferentTypeReference_InheritanceDerived1Id], [i.CollectionDifferentType].[InheritanceDerived1Id], [i.CollectionDifferentType].[InheritanceDerived1Id1], [i.CollectionDifferentType].[InheritanceDerived2Id], [i.CollectionDifferentType].[Name], [i.CollectionDifferentType].[SameTypeReference_InheritanceDerived1Id], [i.CollectionDifferentType].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceLeafOne] AS [i.CollectionDifferentType]
+INNER JOIN (
+    SELECT [i0].[Id]
+    FROM [InheritanceOne] AS [i0]
+    WHERE [i0].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t] ON [i.CollectionDifferentType].[InheritanceDerived1Id] = [t].[Id]
+ORDER BY [t].[Id]",
+                //
+                @"SELECT [i.CollectionDifferentType0].[Id], [i.CollectionDifferentType0].[DifferentTypeReference_InheritanceDerived2Id], [i.CollectionDifferentType0].[InheritanceDerived2Id], [i.CollectionDifferentType0].[Name]
+FROM [InheritanceLeafTwo] AS [i.CollectionDifferentType0]
+INNER JOIN (
+    SELECT [i1].[Id]
+    FROM [InheritanceOne] AS [i1]
+    WHERE [i1].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t0] ON [i.CollectionDifferentType0].[InheritanceDerived2Id] = [t0].[Id]
+ORDER BY [t0].[Id], [i.CollectionDifferentType0].[Id]",
+                //
+                @"SELECT [i.CollectionDifferentType.BaseCollection].[Id], [i.CollectionDifferentType.BaseCollection].[InheritanceLeaf2Id], [i.CollectionDifferentType.BaseCollection].[Name]
+FROM [InheritanceTwo] AS [i.CollectionDifferentType.BaseCollection]
+INNER JOIN (
+    SELECT DISTINCT [i.CollectionDifferentType1].[Id], [t1].[Id] AS [Id0]
+    FROM [InheritanceLeafTwo] AS [i.CollectionDifferentType1]
+    INNER JOIN (
+        SELECT [i2].[Id]
+        FROM [InheritanceOne] AS [i2]
+        WHERE [i2].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+    ) AS [t1] ON [i.CollectionDifferentType1].[InheritanceDerived2Id] = [t1].[Id]
+) AS [t2] ON [i.CollectionDifferentType.BaseCollection].[InheritanceLeaf2Id] = [t2].[Id]
+ORDER BY [t2].[Id0], [t2].[Id]");
+        }
+
+        public override void String_include_multiple_derived_navigations_complex()
+        {
+            base.String_include_multiple_derived_navigations_complex();
+
+            AssertSql(
+                @"SELECT [i].[Id], [i].[InheritanceLeaf2Id], [i].[Name], [t].[Id], [t].[Discriminator], [t].[InheritanceBase2Id], [t].[InheritanceBase2Id1], [t].[Name]
+FROM [InheritanceTwo] AS [i]
+LEFT JOIN (
+    SELECT [i.Reference].*
+    FROM [InheritanceOne] AS [i.Reference]
+    WHERE [i.Reference].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+) AS [t] ON [i].[Id] = [t].[InheritanceBase2Id]
+ORDER BY [t].[Id], [i].[Id]",
+                //
+                @"SELECT [i.Reference.CollectionDifferentType].[Id], [i.Reference.CollectionDifferentType].[DifferentTypeReference_InheritanceDerived1Id], [i.Reference.CollectionDifferentType].[InheritanceDerived1Id], [i.Reference.CollectionDifferentType].[InheritanceDerived1Id1], [i.Reference.CollectionDifferentType].[InheritanceDerived2Id], [i.Reference.CollectionDifferentType].[Name], [i.Reference.CollectionDifferentType].[SameTypeReference_InheritanceDerived1Id], [i.Reference.CollectionDifferentType].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceLeafOne] AS [i.Reference.CollectionDifferentType]
+INNER JOIN (
+    SELECT DISTINCT [t0].[Id]
+    FROM [InheritanceTwo] AS [i0]
+    LEFT JOIN (
+        SELECT [i.Reference0].*
+        FROM [InheritanceOne] AS [i.Reference0]
+        WHERE [i.Reference0].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+    ) AS [t0] ON [i0].[Id] = [t0].[InheritanceBase2Id]
+) AS [t1] ON [i.Reference.CollectionDifferentType].[InheritanceDerived1Id] = [t1].[Id]
+ORDER BY [t1].[Id]",
+                //
+                @"SELECT [i.Collection].[Id], [i.Collection].[Discriminator], [i.Collection].[InheritanceBase2Id], [i.Collection].[InheritanceBase2Id1], [i.Collection].[Name], [i.ReferenceSameType].[Id], [i.ReferenceSameType].[DifferentTypeReference_InheritanceDerived1Id], [i.ReferenceSameType].[InheritanceDerived1Id], [i.ReferenceSameType].[InheritanceDerived1Id1], [i.ReferenceSameType].[InheritanceDerived2Id], [i.ReferenceSameType].[Name], [i.ReferenceSameType].[SameTypeReference_InheritanceDerived1Id], [i.ReferenceSameType].[SameTypeReference_InheritanceDerived2Id], [i.ReferenceSameType0].[Id], [i.ReferenceSameType0].[DifferentTypeReference_InheritanceDerived1Id], [i.ReferenceSameType0].[InheritanceDerived1Id], [i.ReferenceSameType0].[InheritanceDerived1Id1], [i.ReferenceSameType0].[InheritanceDerived2Id], [i.ReferenceSameType0].[Name], [i.ReferenceSameType0].[SameTypeReference_InheritanceDerived1Id], [i.ReferenceSameType0].[SameTypeReference_InheritanceDerived2Id]
+FROM [InheritanceOne] AS [i.Collection]
+LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceSameType] ON [i.Collection].[Id] = [i.ReferenceSameType].[SameTypeReference_InheritanceDerived2Id]
+LEFT JOIN [InheritanceLeafOne] AS [i.ReferenceSameType0] ON [i.Collection].[Id] = [i.ReferenceSameType0].[SameTypeReference_InheritanceDerived1Id]
+INNER JOIN (
+    SELECT DISTINCT [i2].[Id], [t4].[Id] AS [Id0]
+    FROM [InheritanceTwo] AS [i2]
+    LEFT JOIN (
+        SELECT [i.Reference2].*
+        FROM [InheritanceOne] AS [i.Reference2]
+        WHERE [i.Reference2].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+    ) AS [t4] ON [i2].[Id] = [t4].[InheritanceBase2Id]
+) AS [t5] ON [i.Collection].[InheritanceBase2Id1] = [t5].[Id]
+WHERE [i.Collection].[Discriminator] IN (N'InheritanceDerived2', N'InheritanceDerived1', N'InheritanceBase1')
+ORDER BY [t5].[Id0], [t5].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -140,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 new CogTag { Id = Guid.Parse("DF36F493-463F-4123-83F9-6B135DEEB7BA"), Note = "Dom's Tag" },
                 new CogTag { Id = Guid.Parse("A8AD98F9-E023-4E2A-9A70-C2728455BD34"), Note = "Cole's Tag" },
                 new CogTag { Id = Guid.Parse("A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69"), Note = "Paduk's Tag" },
-                new CogTag { Id = Guid.Parse("70534E05-782C-4052-8720-C2C54481CE5F"), Note = "Bairds's Tag" },
-                new CogTag { Id = Guid.Parse("34C8D86E-A4AC-4BE5-827F-584DDA348A07"), Note = "Marcus's Tag" },
+                new CogTag { Id = Guid.Parse("70534E05-782C-4052-8720-C2C54481CE5F"), Note = "Baird's Tag" },
+                new CogTag { Id = Guid.Parse("34C8D86E-A4AC-4BE5-827F-584DDA348A07"), Note = "Marcus' Tag" },
                 new CogTag { Id = Guid.Parse("B39A6FBA-9026-4D69-828E-FD7068673E57"), Note = "K.I.A." }
             };
 
@@ -237,11 +237,17 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             IReadOnlyList<Faction> factions)
         {
             squadMissions[0].Mission = missions[0];
+            squadMissions[0].MissionId = missions[0].Id;
             squadMissions[0].Squad = squads[0];
+            squadMissions[0].SquadId = squads[0].Id;
             squadMissions[1].Mission = missions[1];
+            squadMissions[1].MissionId = missions[1].Id;
             squadMissions[1].Squad = squads[0];
+            squadMissions[1].SquadId = squads[0].Id;
             squadMissions[2].Mission = missions[2];
+            squadMissions[2].MissionId = missions[2].Id;
             squadMissions[2].Squad = squads[1];
+            squadMissions[2].SquadId = squads[1].Id;
 
             missions[0].ParticipatingSquads = new List<SquadMission> { squadMissions[0] };
             missions[1].ParticipatingSquads = new List<SquadMission> { squadMissions[1] };

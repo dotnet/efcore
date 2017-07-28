@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
-                CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
+                CoreStrings.InvalidIncludeLambdaExpression(lambdaExpression.ToString()),
                 Assert.Throws<ArgumentException>(
                     () =>
                         {

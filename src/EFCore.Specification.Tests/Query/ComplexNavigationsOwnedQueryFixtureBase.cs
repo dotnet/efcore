@@ -33,6 +33,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Ignore(e => e.OneToMany_Optional)
                 .OwnsOne(e => e.OneToOne_Required_PK, Configure);
 
+            modelBuilder.Entity<InheritanceBase1>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<InheritanceBase2>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<InheritanceLeaf1>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<InheritanceLeaf2>().Property(e => e.Id).ValueGeneratedNever();
+
+            // FK name needs to be explicitly provided because issue #9310
+            modelBuilder.Entity<InheritanceBase2>().HasOne(e => e.Reference).WithOne().HasForeignKey<InheritanceBase1>("InheritanceBase2Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceBase2>().HasMany(e => e.Collection).WithOne();
+
+            modelBuilder.Entity<InheritanceDerived1>().HasBaseType<InheritanceBase1>();
+            modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceSameType).WithOne().HasForeignKey<InheritanceLeaf1>("SameTypeReference_InheritanceDerived1Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceDifferentType).WithOne().HasForeignKey<InheritanceLeaf1>("DifferentTypeReference_InheritanceDerived1Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasMany(e => e.CollectionSameType).WithOne().IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived1>().HasMany(e => e.CollectionDifferentType).WithOne().IsRequired(false);
+
+            modelBuilder.Entity<InheritanceDerived2>().HasBaseType<InheritanceBase1>();
+            modelBuilder.Entity<InheritanceDerived2>().HasOne(e => e.ReferenceSameType).WithOne().HasForeignKey<InheritanceLeaf1>("SameTypeReference_InheritanceDerived2Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived2>().HasOne(e => e.ReferenceDifferentType).WithOne().HasForeignKey<InheritanceLeaf2>("DifferentTypeReference_InheritanceDerived2Id").IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived2>().HasMany(e => e.CollectionSameType).WithOne().IsRequired(false);
+            modelBuilder.Entity<InheritanceDerived2>().HasMany(e => e.CollectionDifferentType).WithOne().IsRequired(false);
+
+            modelBuilder.Entity<InheritanceLeaf2>().HasMany(e => e.BaseCollection).WithOne().IsRequired(false);
+
             modelBuilder.Entity<ComplexNavigationField>().HasKey(e => e.Name);
             modelBuilder.Entity<ComplexNavigationString>().HasKey(e => e.DefaultText);
             modelBuilder.Entity<ComplexNavigationGlobalization>().HasKey(e => e.Text);
@@ -189,6 +212,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return (IQueryable<TEntity>)GetLevelFour(context);
                 }
 
+                if (typeof(TEntity) == typeof(InheritanceBase1))
+                {
+                    return context.Set<TEntity>();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceBase2))
+                {
+                    return context.Set<TEntity>();
+                }
+
                 throw new NotImplementedException();
             }
 
@@ -227,6 +260,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (typeof(TEntity) == typeof(Level4))
                 {
                     return (IQueryable<TEntity>)GetExpectedLevelFour();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceBase1))
+                {
+                    return (IQueryable<TEntity>)InheritanceBaseOnes.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceBase2))
+                {
+                    return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
                 }
 
                 throw new NotImplementedException();

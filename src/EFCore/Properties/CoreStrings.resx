@@ -637,6 +637,9 @@
   <data name="InvalidComplexPropertyExpression" xml:space="preserve">
     <value>The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
   </data>
+  <data name="InvalidIncludeLambdaExpression" xml:space="preserve">
+    <value>Lambda expression '{includeLambdaExpression}' is not valid for Include/ThenInclude result operator. The expression should represent a property access: 't =&gt; t.MyProperty'. Specify lambda parameter explicitly to access navigations on derived types: '(Derived t) =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.</value>
+  </data>
   <data name="AbstractLeafEntityType" xml:space="preserve">
     <value>The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.</value>
   </data>

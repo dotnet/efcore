@@ -3604,5 +3604,110 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_navigation_with_same_name_and_same_type()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceSameType, "ReferenceSameType"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "ReferenceSameType")
+            };
+
+            AssertIncludeQuery<InheritanceBase1>(
+                i1s => i1s.Include("ReferenceSameType"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_navigation_with_same_name_and_different_type()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceDifferentType, "ReferenceDifferentType"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType, "ReferenceDifferentType")
+            };
+
+            AssertIncludeQuery<InheritanceBase1>(
+                i1s => i1s.Include("ReferenceDifferentType"),
+                expectedIncludes);
+       }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceDifferentType, "ReferenceDifferentType"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceDifferentType, "ReferenceDifferentType"),
+                new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "BaseCollection", "ReferenceDifferentType")
+            };
+
+            AssertIncludeQuery<InheritanceBase1>(
+                i1s => i1s.Include("ReferenceDifferentType.BaseCollection"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_collection_navigation_with_same_name_and_same_type()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionSameType, "CollectionSameType"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionSameType, "CollectionSameType")
+            };
+
+            AssertIncludeQuery<InheritanceBase1>(
+                i1s => i1s.Include("CollectionSameType"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_collection_navigation_with_same_name_and_different_type()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "CollectionDifferentType"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType")
+            };
+
+            AssertIncludeQuery<InheritanceBase1>(
+                i1s => i1s.Include("CollectionDifferentType"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_collection_navigation_with_same_name_and_different_type_nested_also_includes_partially_matching_navigation_chains()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "CollectionDifferentType"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType"),
+                new ExpectedInclude<InheritanceLeaf2>(e => e.BaseCollection, "BaseCollection", "ReferenceDifferentType")
+            };
+
+            AssertIncludeQuery<InheritanceBase1>(
+                i1s => i1s.Include("CollectionDifferentType.BaseCollection"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void String_include_multiple_derived_navigations_complex()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<InheritanceBase2>(e => e.Reference, "Reference"),
+                new ExpectedInclude<InheritanceDerived1>(e => e.CollectionDifferentType, "CollectionDifferentType", "Reference"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.CollectionDifferentType, "CollectionDifferentType", "Reference"),
+
+                new ExpectedInclude<InheritanceBase2>(e => e.Collection, "Collection"),
+                new ExpectedInclude<InheritanceDerived1>(e => e.ReferenceSameType, "ReferenceSameType", "Collection"),
+                new ExpectedInclude<InheritanceDerived2>(e => e.ReferenceSameType, "ReferenceSameType", "Collection"),
+            };
+
+            AssertIncludeQuery<InheritanceBase2>(
+                i2s => i2s.Include("Reference.CollectionDifferentType").Include("Collection.ReferenceSameType"),
+                expectedIncludes);
+        }
     }
 }

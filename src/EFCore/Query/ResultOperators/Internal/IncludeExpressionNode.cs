@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class IncludeExpressionNode : ResultOperatorExpressionNodeBase
+    public class IncludeExpressionNode : IncludeExpressionNodeBase
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -25,10 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
         {
-            EntityFrameworkQueryableExtensions.IncludeMethodInfo
+            EntityFrameworkQueryableExtensions.IncludeMethodInfo,
+            EntityFrameworkQueryableExtensions.IncludeOnDerivedMethodInfo
         };
-
-        private readonly LambdaExpression _navigationPropertyPathLambda;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -37,9 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         public IncludeExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
             [NotNull] LambdaExpression navigationPropertyPathLambda)
-            : base(parseInfo, null, null)
+            : base(parseInfo, navigationPropertyPathLambda)
         {
-            _navigationPropertyPathLambda = navigationPropertyPathLambda;
         }
 
         /// <summary>
@@ -50,34 +48,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         {
             var prm = Expression.Parameter(typeof(object));
             var pathFromQuerySource = Resolve(prm, prm, clauseGenerationContext);
-            var navigationPropertyPath = _navigationPropertyPathLambda.Body as MemberExpression;
+            var navigationPropertyPath = NavigationPropertyPathLambda.Body as MemberExpression;
 
             if (navigationPropertyPath == null)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.InvalidComplexPropertyExpression(_navigationPropertyPathLambda));
+                    CoreStrings.InvalidComplexPropertyExpression(NavigationPropertyPathLambda));
             }
 
             var includeResultOperator = new IncludeResultOperator(
-                _navigationPropertyPathLambda.GetComplexPropertyAccess().Select(p => p.Name),
+                MatchIncludeLambdaPropertyAccess(NavigationPropertyPathLambda).Select(p => p.Name),
                 pathFromQuerySource);
 
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
 
             return includeResultOperator;
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override Expression Resolve(
-            ParameterExpression inputParameter,
-            Expression expressionToBeResolved,
-            ClauseGenerationContext clauseGenerationContext)
-            => Source.Resolve(
-                inputParameter,
-                expressionToBeResolved,
-                clauseGenerationContext);
     }
 }
