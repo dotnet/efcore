@@ -1149,12 +1149,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var typeIsExpressionTranslatingVisitor
-                = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model);
-
-            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
-
             base.OptimizeQueryModel(queryModel, asyncQuery);
+
+            var typeIsExpressionTranslatingVisitor = new TypeIsExpressionTranslatingVisitor(QueryCompilationContext.Model);
+            queryModel.TransformExpressions(typeIsExpressionTranslatingVisitor.Visit);
         }
 
         /// <summary>

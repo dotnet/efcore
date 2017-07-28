@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -2058,7 +2059,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Client_side_equality_with_parameter_works_with_optional_navigations()
         {
-            var prm = "Marcus's Tag";
+            var prm = "Marcus' Tag";
 
             AssertQuery<Gear>(
                 gs => gs.Where(g => ClientEquals(g.Tag.Note, prm)),
@@ -2817,7 +2818,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.Equal(1, result.Count);
-                Assert.Equal("Marcus's Tag", result[0].Note);
+                Assert.Equal("Marcus' Tag", result[0].Note);
             }
         }
 
@@ -2912,6 +2913,139 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(1, result.Count(r => r.Id == 1 && r.Gears.Count == 3));
                 Assert.Equal(1, result.Count(r => r.Id == 2 && r.Gears.Count == 0));
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_string()
+        {
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include("DefeatedBy"),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_string_nested1()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "DefeatedBy"),
+            };
+
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include("DefeatedBy.Squad"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_string_nested2()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
+                new ExpectedInclude<Officer>(o => o.Reports, "Reports", "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth", "DefeatedBy.Reports"),
+            };
+
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include("DefeatedBy.Reports.CityOfBirth"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_lambda()
+        {
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include((LocustCommander ll) => ll.DefeatedBy),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_lambda_with_tracking()
+        {
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.AsTracking().Include((LocustCommander ll) => ll.DefeatedBy),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") },
+                entryCount: 7);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_on_derived_type_using_string()
+        {
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include("Reports"),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_on_derived_type_using_lambda()
+        {
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include((Officer g) => g.Reports),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_base_navigation_on_derived_entity()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(e => e.Tag, "Tag"),
+                new ExpectedInclude<Officer>(e => e.Weapons, "Weapons")
+            };
+
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include((Officer g) => g.Tag).Include((Officer g) => g.Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_multi_level()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
+                new ExpectedInclude<Gear>(e => e.Squad, "Squad", "Reports"),
+                new ExpectedInclude<Squad>(e => e.Missions, "Missions", "Reports.Squad")
+            };
+
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include((Officer g) => g.Reports).ThenInclude(g => g.Squad.Missions),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_on_derived_using_as_operator_throws()
+        {
+            Assert.Equal(
+                CoreStrings.InvalidIncludeLambdaExpression("Include", "g => (g As Officer).Reports"),
+                Assert.Throws<ArgumentException>(
+                    () =>
+                        {
+                            using (var context = CreateContext())
+                            {
+                                var query = context.Gears
+                                    .Include(g => (g as Officer).Reports)
+                                    .ToList();
+                            }
+                        }).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_and_invalid_navigation_using_string_throws()
+        {
+            Assert.Equal(
+                CoreStrings.IncludeBadNavigation("Foo", "Gear"),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        {
+                            using (var context = CreateContext())
+                            {
+                                var query = context.Gears
+                                    .Include("Reports.Foo")
+                                    .ToList();
+                            }
+                        }).Message);
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

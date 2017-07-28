@@ -1385,12 +1385,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 firstDependentToPrincipalNavigationSpecification, firstPrincipalToDependentNavigationSpecification, secondDependentToPrincipalNavigationSpecification, secondPrincipalToDependentNavigationSpecification, foreignKeyProperties);
 
         /// <summary>
-        ///     The property expression '{propertyAccessExpression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
+        ///     The {methodName} property lambda expression '{includeLambdaExpression}' is invalid.The expression should represent a property access: 't =&gt; t.MyProperty'. To target navigations declared on derived types, specify an explicitly typed lambda parameter of the target type, E.g. '(Derived d) =&gt; d.MyProperty'. For more information on including related data, see http://go.microsoft.com/fwlink/?LinkID=746393.
         /// </summary>
-        public static string InvalidComplexPropertyExpression([CanBeNull] object propertyAccessExpression)
+        public static string InvalidIncludeLambdaExpression([CanBeNull] object methodName, [CanBeNull] object includeLambdaExpression)
             => string.Format(
-                GetString("InvalidComplexPropertyExpression", nameof(propertyAccessExpression)),
-                propertyAccessExpression);
+                GetString("InvalidIncludeLambdaExpression", nameof(methodName), nameof(includeLambdaExpression)),
+                methodName,
+                includeLambdaExpression);
 
         /// <summary>
         ///     The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.

@@ -12,10 +12,12 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -120,16 +122,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var includeResultOperator in _includeResultOperators.ToArray())
             {
-                var navigationPath = includeResultOperator.GetNavigationPath(_queryCompilationContext);
-
                 var querySourceReferenceExpression
                     = querySourceTracingExpressionVisitor
                         .FindResultQuerySourceReferenceExpression(
                             queryModel.GetOutputExpression(),
                             includeResultOperator.QuerySource);
 
-                if (querySourceReferenceExpression == null
-                    || navigationPath == null)
+                if (querySourceReferenceExpression == null)
                 {
                     continue;
                 }
@@ -145,14 +144,107 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     includeLoadTrees.Add(includeLoadTree = new IncludeLoadTree(querySourceReferenceExpression));
                 }
 
-                includeLoadTree.AddLoadPath(navigationPath);
+                PopulateIncludeLoadTree(includeResultOperator, includeLoadTree);
 
                 _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator);
-
                 _includeResultOperators.Remove(includeResultOperator);
             }
 
             return includeLoadTrees;
+        }
+
+        private void PopulateIncludeLoadTree(IncludeResultOperator includeResultOperator, IncludeLoadTree includeLoadTree)
+        {
+            if (includeResultOperator.NavigationPaths != null)
+            {
+                foreach (var navigationPath in includeResultOperator.NavigationPaths)
+                {
+                    includeLoadTree.AddLoadPath(navigationPath);
+                }
+
+                return;
+            }
+
+            IEntityType entityType = null;
+            if (includeResultOperator.PathFromQuerySource is QuerySourceReferenceExpression qsre)
+            {
+                entityType = _queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+            }
+
+            if (entityType == null)
+            {
+                entityType = _queryCompilationContext.Model.FindEntityType(includeResultOperator.PathFromQuerySource.Type);
+
+                if (entityType == null)
+                {
+                    var pathFromSource = MemberAccessBindingExpressionVisitor.GetPropertyPath(
+                        includeResultOperator.PathFromQuerySource, _queryCompilationContext, out qsre);
+
+                    if (pathFromSource.Count > 0
+                        && pathFromSource[pathFromSource.Count - 1] is INavigation navigation)
+                    {
+                        entityType = navigation.GetTargetType();
+                    }
+                }
+            }
+
+            if (entityType == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(
+                        includeResultOperator.ToString(),
+                        includeResultOperator.NavigationPropertyPaths.FirstOrDefault()));
+            }
+
+            WalkNavigations(entityType, includeResultOperator.NavigationPropertyPaths, includeLoadTree);
+        }
+
+        private static void WalkNavigations(IEntityType entityType, IReadOnlyList<string> navigationPropertyPaths, IncludeLoadTree includeLoadTree)
+        {
+            var longestMatchFound = WalkNavigationsInternal(entityType, navigationPropertyPaths, includeLoadTree, new Stack<INavigation>(), new KeyValuePair<int, IEntityType>(0, null));
+
+            if (longestMatchFound.Key < navigationPropertyPaths.Count)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IncludeBadNavigation(navigationPropertyPaths[longestMatchFound.Key], longestMatchFound.Value.DisplayName()));
+            }
+        }
+
+        private static KeyValuePair<int, IEntityType> WalkNavigationsInternal(
+            IEntityType entityType, 
+            IReadOnlyList<string> navigationPropertyPaths, 
+            IncludeLoadTree includeLoadTree, 
+            Stack<INavigation> stack, 
+            KeyValuePair<int, IEntityType> longestMatchFound)
+        {
+            var outboundNavigations
+                = entityType.GetNavigations()
+                    .Concat(entityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations()))
+                    .Where(n => navigationPropertyPaths.Count > stack.Count && n.Name == navigationPropertyPaths[stack.Count])
+                    .ToList();
+
+            if (outboundNavigations.Count == 0
+                && stack.Count > 0)
+            {
+                includeLoadTree.AddLoadPath(stack.Reverse().ToArray());
+                if (stack.Count > longestMatchFound.Key)
+                {
+                    longestMatchFound = new KeyValuePair<int, IEntityType>(stack.Count, entityType);
+                }
+            }
+            else
+            {
+                foreach (var navigation in outboundNavigations)
+                {
+                    stack.Push(navigation);
+
+                    longestMatchFound = WalkNavigationsInternal(navigation.GetTargetType(), navigationPropertyPaths, includeLoadTree, stack, longestMatchFound);
+
+                    stack.Pop();
+                }
+            }
+
+            return longestMatchFound;
         }
 
         private static void ApplyParentOrderings(
