@@ -42,37 +42,52 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             {
                 foreach (var benchmarkReport in summary.Reports)
                 {
-                    var benchmarkResult = new BenchmarkResult
+                    if (benchmarkReport.ResultStatistics != null)
                     {
-                        MachineName = _machineName,
-                        Framework = _framework,
-                        Architecture = summary.HostEnvironmentInfo.Architecture,
-                        EfVersion = _benchmarkConfig.ProductVersion,
-                        CustomData = _benchmarkConfig.CustomData,
-                        ReportingTime = DateTime.UtcNow,
-                        Variation = string.Join(
+                        var benchmarkResult = new BenchmarkResult
+                        {
+                            MachineName = _machineName,
+                            Framework = _framework,
+                            Architecture = summary.HostEnvironmentInfo.Architecture,
+                            EfVersion = _benchmarkConfig.ProductVersion,
+                            CustomData = _benchmarkConfig.CustomData,
+                            ReportingTime = DateTime.UtcNow,
+                            Variation = string.Join(
+                                ", ",
+                                benchmarkReport.Benchmark.Parameters.Items
+                                    .OrderBy(pi => pi.Name)
+                                    .Select(pi => $"{pi.Name}={pi.Value}")),
+                            // ReSharper disable once PossibleNullReferenceException
+                            TimeElapsedMean = benchmarkReport.ResultStatistics.Mean / 1E6,
+                            TimeElapsedPercentile90 = benchmarkReport.ResultStatistics.Percentiles.P90 / 1E6,
+                            TimeElapsedPercentile95 = benchmarkReport.ResultStatistics.Percentiles.P95 / 1E6,
+                            TimeElapsedStandardDeviation = benchmarkReport.ResultStatistics.StandardDeviation / 1E6,
+                            TimeElapsedStandardError = benchmarkReport.ResultStatistics.StandardError / 1E6,
+                            MemoryAllocated = benchmarkReport.GcStats.BytesAllocatedPerOperation * 1.0 / 1024,
+                            // ReSharper disable once PossibleNullReferenceException
+                            TestClassFullName = benchmarkReport.Benchmark.Target.Method.DeclaringType.FullName,
+                            TestClass = benchmarkReport.Benchmark.Target.Method.DeclaringType.Name,
+                            TestMethodName = benchmarkReport.Benchmark.Target.Method.Name,
+                            WarmupIterations = benchmarkReport.AllMeasurements.Count(m => m.IterationMode == IterationMode.MainWarmup),
+                            MainIterations = benchmarkReport.AllMeasurements.Count(m => m.IterationMode == IterationMode.MainTarget)
+                        };
+
+                        foreach (var database in _benchmarkConfig.ResultDatabases)
+                        {
+                            _resultProcessor.SaveSummary(database, benchmarkResult);
+                        }
+                    }
+                    else
+                    {
+                        // ReSharper disable once PossibleNullReferenceException
+                        var testName = $"{benchmarkReport.Benchmark.Target.Method.DeclaringType.FullName}.{benchmarkReport.Benchmark.Target.Method.Name}";
+                        var variation = string.Join(
                             ", ",
                             benchmarkReport.Benchmark.Parameters.Items
                                 .OrderBy(pi => pi.Name)
-                                .Select(pi => $"{pi.Name}={pi.Value}")),
-                        // ReSharper disable once PossibleNullReferenceException
-                        TimeElapsedMean = benchmarkReport.ResultStatistics.Mean / 1E6,
-                        TimeElapsedPercentile90 = benchmarkReport.ResultStatistics.Percentiles.P90 / 1E6,
-                        TimeElapsedPercentile95 = benchmarkReport.ResultStatistics.Percentiles.P95 / 1E6,
-                        TimeElapsedStandardDeviation = benchmarkReport.ResultStatistics.StandardDeviation / 1E6,
-                        TimeElapsedStandardError = benchmarkReport.ResultStatistics.StandardError / 1E6,
-                        MemoryAllocated = benchmarkReport.GcStats.BytesAllocatedPerOperation * 1.0 / 1024,
-                        // ReSharper disable once PossibleNullReferenceException
-                        TestClassFullName = benchmarkReport.Benchmark.Target.Method.DeclaringType.FullName,
-                        TestClass = benchmarkReport.Benchmark.Target.Method.DeclaringType.Name,
-                        TestMethodName = benchmarkReport.Benchmark.Target.Method.Name,
-                        WarmupIterations = benchmarkReport.AllMeasurements.Count(m => m.IterationMode == IterationMode.MainWarmup),
-                        MainIterations = benchmarkReport.AllMeasurements.Count(m => m.IterationMode == IterationMode.MainTarget)
-                    };
+                                .Select(pi => $"{pi.Name}={pi.Value}"));
 
-                    foreach (var database in _benchmarkConfig.ResultDatabases)
-                    {
-                        _resultProcessor.SaveSummary(database, benchmarkResult);
+                        Console.WriteLine($"##teamcity[testIgnored name='{testName}[{variation}]' message='Benchmark did not run correctly so no results are found.']");
                     }
                 }
             }
