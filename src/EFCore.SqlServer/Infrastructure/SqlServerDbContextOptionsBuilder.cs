@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
             int maxRetryCount,
             TimeSpan maxRetryDelay,
-            [NotNull] ICollection<int> errorNumbersToAdd)
+            [CanBeNull] ICollection<int> errorNumbersToAdd)
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount, maxRetryDelay, errorNumbersToAdd));
     }
 }
