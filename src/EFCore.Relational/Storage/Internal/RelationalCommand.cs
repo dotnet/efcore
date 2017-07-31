@@ -225,10 +225,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
-                dbCommand.Parameters.Clear();
-
                 if (!readerOpen)
                 {
+                    dbCommand.Parameters.Clear();
                     dbCommand.Dispose();
                     connection.Close();
                 }
@@ -328,10 +327,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
-                dbCommand.Parameters.Clear();
-
                 if (!readerOpen)
                 {
+                    dbCommand.Parameters.Clear();
                     dbCommand.Dispose();
                     connection.Close();
                 }

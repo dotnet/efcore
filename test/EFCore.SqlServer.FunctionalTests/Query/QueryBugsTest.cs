@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -80,7 +82,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     var customers
                         = from customer in context.Customers
                           join postcode in context.Postcodes
-                          on customer.PostcodeID equals postcode.PostcodeID into custPCTmp
+                              on customer.PostcodeID equals postcode.PostcodeID into custPCTmp
                           from custPC in custPCTmp.DefaultIfEmpty()
                           select new
                           {
@@ -1096,8 +1098,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -1116,8 +1118,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -1136,8 +1138,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -1156,8 +1158,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = 1, Coalesce = eRootJoined ?? eVersion };
 
@@ -1176,8 +1178,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
 
@@ -1196,8 +1198,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
@@ -1217,8 +1219,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
@@ -1238,8 +1240,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 // ReSharper disable once MergeConditionalExpression
                                 select eRootJoined != null ? eRootJoined : eVersion;
@@ -1259,8 +1261,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
 
@@ -2112,18 +2114,18 @@ ORDER BY [t].[Id]");
         private SqlServerTestStore CreateDatabase9202()
             => CreateTestStore(
                 () => new MyContext9202(_options),
-                context => 
-                {
-                    var av = new Actor9202 { Name = "Alicia Vikander" };
-                    var oi = new Actor9202 { Name = "Oscar Isaac" };
-                    var dg = new Actor9202 { Name = "Domhnall Gleeson" };
-                    var em = new Movie9202 { Title = "Ex Machina", Cast = new List<Actor9202> { av, oi, dg }, Details = new Details9202 { Info = "Best movie ever made" } };
-                    context.Actors.AddRange(av, oi, dg);
-                    context.Movies.Add(em);
-                    context.SaveChanges();
+                context =>
+                    {
+                        var av = new Actor9202 { Name = "Alicia Vikander" };
+                        var oi = new Actor9202 { Name = "Oscar Isaac" };
+                        var dg = new Actor9202 { Name = "Domhnall Gleeson" };
+                        var em = new Movie9202 { Title = "Ex Machina", Cast = new List<Actor9202> { av, oi, dg }, Details = new Details9202 { Info = "Best movie ever made" } };
+                        context.Actors.AddRange(av, oi, dg);
+                        context.Movies.Add(em);
+                        context.SaveChanges();
 
-                    ClearLog();
-                });
+                        ClearLog();
+                    });
 
         public class MyContext9202 : DbContext
         {
@@ -2161,6 +2163,87 @@ ORDER BY [t].[Id]");
         public class Details9202
         {
             public string Info { get; set; }
+        }
+
+        #endregion
+
+        #region Bug9277
+
+        [Fact]
+        public virtual void From_sql_gets_value_of_out_parameter_in_stored_procedure()
+        {
+            using (CreateDatabase9277())
+            {
+                using (var context = new MyContext9277(_options))
+                {
+                    var valueParam = new SqlParameter
+                    {
+                        ParameterName = "Value",
+                        Value = 0,
+                        Direction = ParameterDirection.Output,
+                        SqlDbType = SqlDbType.Int
+                    };
+
+                    Assert.Equal(0, valueParam.Value);
+
+                    var blogs = context.Blogs.FromSql(
+                            @"[dbo].[GetPersonAndVoteCount]  @id, @Value out",
+                            new SqlParameter { ParameterName = "id", Value = 1 },
+                            valueParam)
+                        .ToList();
+
+                    Assert.Equal(1, blogs.Count);
+                    Assert.Equal(1, valueParam.Value);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9277()
+            => CreateTestStore(
+                () => new MyContext9277(_options),
+                context =>
+                    {
+                        context.Database.ExecuteSqlCommand(
+                            @"CREATE PROCEDURE [dbo].[GetPersonAndVoteCount]
+ (
+    @id int,
+    @Value int OUTPUT
+)
+AS
+BEGIN
+    SELECT @Value = SomeValue
+    FROM dbo.Blogs
+    WHERE Id = @id;
+    SELECT *
+    FROM dbo.Blogs
+    WHERE Id = @id;
+    END");
+
+                        context.AddRange(
+                            new Blog9277 { SomeValue = 1 },
+                            new Blog9277 { SomeValue = 2 },
+                            new Blog9277 { SomeValue = 3 }
+                        );
+
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        public class MyContext9277 : DbContext
+        {
+            public MyContext9277(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Blog9277> Blogs { get; set; }
+        }
+
+        public class Blog9277
+        {
+            public int Id { get; set; }
+            public int SomeValue { get; set; }
         }
 
         #endregion
