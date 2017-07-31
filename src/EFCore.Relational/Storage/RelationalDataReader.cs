@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly Stopwatch _stopwatch;
 
         private int _readCount;
-        
+
         private bool _disposed;
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             _readCount++;
-            
+
             return _reader.ReadAsync(cancellationToken);
         }
 
@@ -122,6 +122,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _stopwatch.Elapsed);
 
                 _reader.Dispose();
+                if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9277", out var isEnabled)
+                    || !isEnabled)
+                {
+                    _command.Parameters.Clear();
+                }
                 _command.Dispose();
                 _connection?.Close();
 

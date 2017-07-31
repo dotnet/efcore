@@ -225,7 +225,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
-                dbCommand.Parameters.Clear();
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9277", out var isEnabled)
+                    && isEnabled
+                    || !readerOpen)
+                {
+                    dbCommand.Parameters.Clear();
+                }
 
                 if (!readerOpen)
                 {
@@ -328,7 +333,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             finally
             {
-                dbCommand.Parameters.Clear();
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9277", out var isEnabled)
+                    && isEnabled
+                    || !readerOpen)
+                {
+                    dbCommand.Parameters.Clear();
+                }
 
                 if (!readerOpen)
                 {
