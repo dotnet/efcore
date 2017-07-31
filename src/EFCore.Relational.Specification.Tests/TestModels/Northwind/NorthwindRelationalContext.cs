@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.HasDbFunction(methodInfo)
                 .HasTranslation(args => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
 
-            modelBuilder.HasDbFunction(
-                typeof(NorthwindRelationalContext)
-                    .GetRuntimeMethod(nameof(IsDate), new[] { typeof(string) }));
+            modelBuilder.HasDbFunction(typeof(NorthwindRelationalContext)
+                .GetRuntimeMethod(nameof(IsDate), new[] { typeof(string) }))
+                .HasSchema("");
         }
 
         public enum ReportingPeriod
@@ -56,13 +56,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             throw new Exception();
         }
 
-        [DbFunction(Schema = "dbo", FunctionName = "EmployeeOrderCount")]
+        [DbFunction(FunctionName = "EmployeeOrderCount")]
         public static int EmployeeOrderCount(int employeeId)
         {
             throw new NotImplementedException();
         }
 
-        [DbFunction(Schema = "dbo", FunctionName = "EmployeeOrderCount")]
+        [DbFunction(FunctionName = "EmployeeOrderCount")]
         public static int EmployeeOrderCountWithClient(int employeeId)
         {
             switch (employeeId)
@@ -74,13 +74,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             }
         }
 
-        [DbFunction(Schema = "dbo")]
+        [DbFunction]
         public static bool IsTopEmployee(int employeeId)
         {
             throw new NotImplementedException();
         }
 
-        [DbFunction(Schema = "dbo")]
+        [DbFunction]
         public static int GetEmployeeWithMostOrdersAfterDate(DateTime? startDate)
         {
             throw new NotImplementedException();

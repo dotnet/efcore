@@ -277,6 +277,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Changing_default_schema_is_detected_by_dbfunction()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            modelBuilder.HasDefaultSchema("abc");
+
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodAmi);
+
+            Assert.Equal("abc", dbFuncBuilder.Metadata.Schema);
+
+            modelBuilder.HasDefaultSchema("xyz");
+
+            Assert.Equal("xyz", dbFuncBuilder.Metadata.Schema);
+        }
+
+        [Fact]
         public void Add_method_generic_not_supported_throws()
         {
             var modelBuilder = GetModelBuilder();

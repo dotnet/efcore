@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,19 +26,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(name, nameof(name));
 
-            if (name.StartsWith(RelationalAnnotationNames.DbFunction, StringComparison.OrdinalIgnoreCase)
+            if (name.StartsWith(RelationalAnnotationNames.DbFunction, StringComparison.Ordinal)
                 && annotation != null
                 && oldAnnotation == null)
             {
-                var dbFunctionBuilder = new InternalDbFunctionBuilder((DbFunction)annotation.Value);
-                var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
-                var dbFunctionAttribute = methodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
-
-                dbFunctionBuilder.HasName(dbFunctionAttribute?.FunctionName ?? methodInfo.Name, ConfigurationSource.Convention);
-                dbFunctionBuilder.HasSchema(dbFunctionAttribute?.Schema ?? modelBuilder.Metadata.Relational().DefaultSchema, ConfigurationSource.Convention);
+                ApplyCustomizations(modelBuilder, name, annotation);
             }
 
             return annotation;
+        }
+
+        protected virtual void ApplyCustomizations([NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [NotNull] Annotation annotation)
+        {
+            var dbFunctionBuilder = new InternalDbFunctionBuilder((DbFunction)annotation.Value);
+            var methodInfo = dbFunctionBuilder.Metadata.MethodInfo;
+            var dbFunctionAttribute = methodInfo.GetCustomAttributes<DbFunctionAttribute>().SingleOrDefault();
+
+            dbFunctionBuilder.HasName(dbFunctionAttribute?.FunctionName ?? methodInfo.Name, ConfigurationSource.Convention);
+            dbFunctionBuilder.HasSchema(dbFunctionAttribute?.Schema, ConfigurationSource.Convention);
         }
     }
 }
