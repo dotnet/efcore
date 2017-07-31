@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
 
 // ReSharper disable RedundantOverridenMember
@@ -15,18 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
-
-        [ConditionalFact(Skip = "Incorrect query model from Re-Linq. See Issue#4311")]
-        public override void GroupJoin_customers_orders_count_preserves_ordering()
-        {
-            base.GroupJoin_customers_orders_count_preserves_ordering();
-        }
-
-        [ConditionalFact(Skip = "Incorrect query model from Re-Linq. See Issue#4311")]
-        public override void GroupJoin_DefaultIfEmpty3()
-        {
-            base.GroupJoin_DefaultIfEmpty3();
         }
     }
 }

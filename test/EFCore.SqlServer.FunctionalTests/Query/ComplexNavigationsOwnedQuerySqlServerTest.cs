@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void Simple_owned_level1()
         {
             base.Simple_owned_level1();
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM [Level1] AS [l1]");
         }
         
-        [Fact]
+        [ConditionalFact]
         public override void Simple_owned_level1_convention()
         {
             base.Simple_owned_level1_convention();
@@ -37,7 +37,7 @@ FROM [Level1] AS [l1]");
 FROM [Level1] AS [l]");
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void Simple_owned_level1_level2()
         {
             base.Simple_owned_level1_level2();
@@ -47,7 +47,7 @@ FROM [Level1] AS [l]");
 FROM [Level1] AS [l1]");
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void Simple_owned_level1_level2_level3()
         {
             base.Simple_owned_level1_level2_level3();
@@ -57,7 +57,7 @@ FROM [Level1] AS [l1]");
 FROM [Level1] AS [l1]");
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void Level4_Include()
         {
             base.Level4_Include();
@@ -71,10 +71,32 @@ LEFT JOIN [Level1] AS [OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Requir
 WHERE ([l1].[Id] IS NOT NULL AND [l1].[Id] IS NOT NULL) AND [l1].[Id] IS NOT NULL");
         }
 
-        [ConditionalFact(Skip = "issue #4311")]
+        [ConditionalFact]
         public override void Nested_group_join_with_take()
         {
             base.Nested_group_join_with_take();
+
+            AssertContainsSql(
+                @"SELECT [t3].[Level1_Optional_Id], [t3].[Level2_Name]
+FROM (
+    SELECT [t2].*
+    FROM [Level1] AS [t2]
+    WHERE [t2].[Id] IS NOT NULL
+) AS [t3]",
+                //
+                @"@__p_0='2'
+
+SELECT [t1].[Id], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Optional_Id], [t1].[Level1_Required_Id], [t1].[Level2_Name], [t1].[OneToOne_Optional_PK_InverseId]
+FROM (
+    SELECT TOP(@__p_0) [t0].[Id], [t0].[OneToOne_Required_PK_Date], [t0].[Level1_Optional_Id], [t0].[Level1_Required_Id], [t0].[Level2_Name], [t0].[OneToOne_Optional_PK_InverseId]
+    FROM [Level1] AS [l1_inner]
+    LEFT JOIN (
+        SELECT [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToOne_Optional_PK_InverseId]
+        FROM [Level1] AS [t]
+        WHERE [t].[Id] IS NOT NULL
+    ) AS [t0] ON [l1_inner].[Id] = [t0].[Level1_Optional_Id]
+    ORDER BY [l1_inner].[Id]
+) AS [t1]");
         }
 
         [ConditionalFact]
@@ -116,5 +138,8 @@ LEFT JOIN (
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+        private void AssertContainsSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
     }
 }

@@ -8,7 +8,7 @@
     <JsonNetVersion>10.0.1</JsonNetVersion>
     <NETStandardImplicitPackageVersion>2.0.0-*</NETStandardImplicitPackageVersion>
     <NETStandardLibraryNETFrameworkVersion>2.0.0-*</NETStandardLibraryNETFrameworkVersion>
-    <RelinqVersion>2.1.1</RelinqVersion>
+    <RelinqVersion>2.2.0-alpha-002</RelinqVersion>
     <RoslynVersion>2.3.1</RoslynVersion>
     <RuntimeFrameworkVersion Condition="'$(TargetFramework)'=='netcoreapp2.0'">2.0.0-*</RuntimeFrameworkVersion>
     <SQLitePCLRawVersion>1.1.7</SQLitePCLRawVersion>

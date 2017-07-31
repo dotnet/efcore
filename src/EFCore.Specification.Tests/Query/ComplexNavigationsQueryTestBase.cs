@@ -765,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                   l1s => l1s.Select(e => e.OneToOne_Optional_FK.Name),
                   l1s => l1s.Select(e => Maybe(e.OneToOne_Optional_FK, () => e.OneToOne_Optional_FK.Name)));
         }
-        
+
         [ConditionalFact]
         public virtual void Select_nav_prop_reference_optional1_via_DefaultIfEmpty()
         {
@@ -2669,40 +2669,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select subquery.Id);
         }
 
-        [ConditionalFact(Skip = "issue #4311")]
+        [ConditionalFact]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from x in
-                                (from l1 in ctx.LevelOne
-                                 join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
-                                 from l2 in grouping.DefaultIfEmpty()
-                                 select l1).Take(2)
-                            join l2_outer in ctx.LevelTwo on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
-                            from l2_outer in grouping_outer.DefaultIfEmpty()
-                            select l2_outer.Name;
-
-                var result = query.ToList();
-            }
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from x in
+                        (from l1 in l1s
+                         join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                         from l2 in grouping.DefaultIfEmpty()
+                         orderby l1.Id
+                         select l1).Take(2)
+                    join l2_outer in l2s on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select l2_outer.Name);
         }
 
-        [ConditionalFact(Skip = "issue #4311")]
+        [ConditionalFact]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from x in
-                                (from l1 in ctx.LevelOne
-                                 join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
-                                 from l2 in grouping.DefaultIfEmpty()
-                                 select ClientLevel1(l1)).Take(2)
-                            join l2_outer in ctx.LevelTwo on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
-                            from l2_outer in grouping_outer.DefaultIfEmpty()
-                            select l2_outer.Name;
-
-                var result = query.ToList();
-            }
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from x in
+                        (from l1 in l1s
+                         join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                         from l2 in grouping.DefaultIfEmpty()
+                         orderby l1.Id
+                         select ClientLevel1(l1)).Take(2)
+                    join l2_outer in l2s on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select l2_outer.Name);
         }
 
         private Level1 ClientLevel1(Level1 arg)
@@ -2710,22 +2706,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return arg;
         }
 
-        [ConditionalFact(Skip = "issue #4311")]
+        [ConditionalFact]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from x in
-                                (from l1 in ctx.LevelOne
-                                 join l2 in ctx.LevelTwo on l1.Id equals l2.Level1_Optional_Id into grouping
-                                 from l2 in grouping.DefaultIfEmpty()
-                                 select l2).Take(2)
-                            join l1_outer in ctx.LevelOne on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
-                            from l1_outer in grouping_outer.DefaultIfEmpty()
-                            select l1_outer.Name;
-
-                var result = query.ToList();
-            }
+            AssertQuery<Level1, Level2>(
+                (l1s, l2s) =>
+                    from x in
+                        (from l1 in l1s
+                         join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                         from l2 in grouping.DefaultIfEmpty()
+                         orderby l1.Id
+                         select l2).Take(2)
+                    join l1_outer in l1s on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
+                    from l1_outer in grouping_outer.DefaultIfEmpty()
+                    select l1_outer.Name);
         }
 
         [ConditionalFact]
@@ -3119,18 +3113,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Nested_group_join_with_take()
         {
             AssertQuery<Level1, Level2>(
-                (l1s, l2s) => 
+                (l1s, l2s) =>
                     from l1_outer in
-                        (from l1_inner in l1s orderby l1_inner.Id
+                        (from l1_inner in l1s
+                         orderby l1_inner.Id
                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                          from l2_inner in grouping_inner.DefaultIfEmpty()
                          select l2_inner).Take(2)
                     join l2_outer in l2s on l1_outer.Id equals l2_outer.Level1_Optional_Id into grouping_outer
                     from l2_outer in grouping_outer.DefaultIfEmpty()
                     select l2_outer.Name,
-                (l1s, l2s) => 
+                (l1s, l2s) =>
                     from l1_outer in
-                        (from l1_inner in l1s orderby l1_inner.Id
+                        (from l1_inner in l1s
+                         orderby l1_inner.Id
                          join l2_inner in l2s on l1_inner.Id equals l2_inner.Level1_Optional_Id into grouping_inner
                          from l2_inner in grouping_inner.DefaultIfEmpty()
                          select l2_inner).Take(2)
@@ -3565,7 +3561,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertIncludeQuery<Level2>(
                 l2s => l2s
                     .Include(l2 => l2.OneToMany_Optional)
-                    .OrderBy(l2 =>  Math.Abs(l2.Level1_Required_Id))
+                    .OrderBy(l2 => Math.Abs(l2.Level1_Required_Id))
                     .ThenBy(l2 => l2.Name),
                 new List<IExpectedInclude> { new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional") });
         }
@@ -3594,7 +3590,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public void Entries_for_detached_entities_are_removed()
+        public virtual void Entries_for_detached_entities_are_removed()
         {
             using (var context = CreateContext())
             {

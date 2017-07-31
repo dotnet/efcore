@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit.Abstractions;
+
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -12,12 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
-
-        [ConditionalFact(Skip = "issue #4311")]
-        public override void Nested_group_join_with_take()
-        {
-            base.Nested_group_join_with_take();
         }
     }
 }

@@ -2414,15 +2414,32 @@ ORDER BY [l1_outer].[Id]");
             base.GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer();
 
             AssertSql(
-                @"");
+                @"@__p_0='2'
+
+SELECT [l2_outer].[Name]
+FROM (
+    SELECT TOP(@__p_0) [l1].*
+    FROM [LevelOne] AS [l1]
+    LEFT JOIN [LevelTwo] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+    ORDER BY [l1].[Id]
+) AS [t]
+LEFT JOIN [LevelTwo] AS [l2_outer] ON [t].[Id] = [l2_outer].[Level1_Optional_Id]");
         }
 
         public override void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
         {
             base.GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method();
 
-            AssertSql(
-                @"");
+            AssertContainsSql(
+                @"SELECT [l2_outer].[Level1_Optional_Id], [l2_outer].[Name]
+FROM [LevelTwo] AS [l2_outer]",
+                //
+                @"@__p_0='2'
+
+SELECT TOP(@__p_0) [l10].[Id], [l10].[Date], [l10].[Name], [l10].[OneToMany_Optional_Self_InverseId], [l10].[OneToMany_Required_Self_InverseId], [l10].[OneToOne_Optional_SelfId]
+FROM [LevelOne] AS [l10]
+LEFT JOIN [LevelTwo] AS [l20] ON [l10].[Id] = [l20].[Level1_Optional_Id]
+ORDER BY [l10].[Id]");
         }
 
         public override void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
@@ -2430,7 +2447,16 @@ ORDER BY [l1_outer].[Id]");
             base.GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner();
 
             AssertSql(
-                @"");
+                @"@__p_0='2'
+
+SELECT [l1_outer].[Name]
+FROM (
+    SELECT TOP(@__p_0) [l2].*
+    FROM [LevelOne] AS [l1]
+    LEFT JOIN [LevelTwo] AS [l2] ON [l1].[Id] = [l2].[Level1_Optional_Id]
+    ORDER BY [l1].[Id]
+) AS [t]
+LEFT JOIN [LevelOne] AS [l1_outer] ON [t].[Level1_Optional_Id] = [l1_outer].[Id]");
         }
 
         public override void GroupJoin_on_left_side_being_a_subquery()
