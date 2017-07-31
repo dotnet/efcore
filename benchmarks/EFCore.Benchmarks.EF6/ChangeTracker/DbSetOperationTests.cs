@@ -13,25 +13,25 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
     {
         public abstract class Base
         {
-            protected readonly DbSetOperationFixture Fixture = new DbSetOperationFixture();
+            private readonly DbSetOperationFixture _fixture = new DbSetOperationFixture();
+
             protected List<Customer> CustomersWithoutPk;
             protected List<Customer> CustomersWithPk;
             protected OrdersContext Context;
 
-            [Params(true, false)]
-            public bool AutoDetectChanges { get; set; }
+            protected abstract bool AutoDetectChanges { get; }
 
             [GlobalSetup]
             public virtual void CreateCustomers()
             {
-                CustomersWithoutPk = Fixture.CreateCustomers(20000, setPrimaryKeys: false);
-                CustomersWithPk = Fixture.CreateCustomers(20000, setPrimaryKeys: true);
+                CustomersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
+                CustomersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
             }
 
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = Fixture.CreateContext();
+                Context = _fixture.CreateContext();
                 Context.Configuration.AutoDetectChangesEnabled = AutoDetectChanges;
             }
 
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             }
         }
 
-        public class AddDataVariations : Base
+        public abstract class AddDataVariations : Base
         {
             [Benchmark]
             public virtual void Add()
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             //       API for bulk attach in EF6.x
         }
 
-        public class ExistingDataVariations : Base
+        public abstract class ExistingDataVariations : Base
         {
             [IterationSetup]
             public override void InitializeContext()
@@ -107,6 +107,32 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
 
             // Note: UpdateRange() not implemented because there is no
             //       API for bulk update in EF6.x
+        }
+
+        [SingleRunBenchmarkJob]
+        public class AddDataVariationsWithAutoDetectChangesOn : AddDataVariations
+        {
+            protected override bool AutoDetectChanges => true;
+        }
+
+        [SingleRunBenchmarkJob]
+        public class ExistingDataVariationsWithAutoDetectChangesOn : ExistingDataVariations
+        {
+            protected override bool AutoDetectChanges => true;
+        }
+
+        [BenchmarkJob]
+        [MemoryDiagnoser]
+        public class AddDataVariationsWithAutoDetectChangesOff : AddDataVariations
+        {
+            protected override bool AutoDetectChanges => false;
+        }
+
+        [BenchmarkJob]
+        [MemoryDiagnoser]
+        public class ExistingDataVariationsWithAutoDetectChangesOff : ExistingDataVariations
+        {
+            protected override bool AutoDetectChanges => false;
         }
 
         public class DbSetOperationFixture : OrdersFixture

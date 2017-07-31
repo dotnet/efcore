@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
+    [BenchmarkJob]
+    [MemoryDiagnoser]
     public class QueryCompilationTests
     {
         private static readonly QueryCompilationFixture _fixture = new QueryCompilationFixture();

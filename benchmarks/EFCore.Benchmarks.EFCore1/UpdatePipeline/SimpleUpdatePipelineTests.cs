@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
         {
             protected static readonly SimpleUpdatePipelineFixture Fixture = new SimpleUpdatePipelineFixture();
             protected OrdersContext Context;
-            protected IDbContextTransaction Transaction;
+            private IDbContextTransaction _transaction;
             private int _recordsAffected = -1;
 
             [Params(true, false)]
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             public virtual void InitializeContext()
             {
                 Context = Fixture.CreateContext(Batching);
-                Transaction = Context.Database.BeginTransaction();
+                _transaction = Context.Database.BeginTransaction();
             }
 
             [IterationCleanup]
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
                     Assert.Equal(1000, _recordsAffected);
                 }
 
-                Transaction.Dispose();
+                _transaction.Dispose();
                 Context.Dispose();
             }
 

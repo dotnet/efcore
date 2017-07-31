@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
         {
             protected static readonly SimpleUpdatePipelineFixture Fixture = new SimpleUpdatePipelineFixture();
             protected OrdersContext Context;
-            protected DbContextTransaction Transaction;
+            private DbContextTransaction _transaction;
             private int _recordsAffected = -1;
 
             [Params(true, false)]
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
             public virtual void InitializeContext()
             {
                 Context = Fixture.CreateContext();
-                Transaction = Context.Database.BeginTransaction();
+                _transaction = Context.Database.BeginTransaction();
             }
 
             [IterationCleanup]
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
                     Assert.Equal(1000, _recordsAffected);
                 }
 
-                Transaction.Dispose();
+                _transaction.Dispose();
                 Context.Dispose();
             }
 
@@ -50,6 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
             }
         }
 
+        [BenchmarkJob]
+        [MemoryDiagnoser]
         public class Insert : Base
         {
             [IterationSetup]
@@ -62,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
             }
         }
 
+        [BenchmarkJob]
+        [MemoryDiagnoser]
         public class Update : Base
         {
             [IterationSetup]
@@ -76,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
             }
         }
 
+        [BenchmarkJob]
+        [MemoryDiagnoser]
         public class Delete : Base
         {
             [IterationSetup]
@@ -87,6 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.UpdatePipeline
             }
         }
 
+        [BenchmarkJob]
+        [MemoryDiagnoser]
         public class Mixed : Base
         {
             [IterationSetup]

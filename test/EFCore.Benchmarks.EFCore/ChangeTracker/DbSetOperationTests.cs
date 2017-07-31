@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
     {
         public abstract class Base
         {
-            protected readonly DbSetOperationFixture Fixture = new DbSetOperationFixture();
+            private readonly DbSetOperationFixture _fixture = new DbSetOperationFixture();
             protected List<Customer> CustomersWithoutPk;
             protected List<Customer> CustomersWithPk;
             protected OrdersContext Context;
@@ -23,14 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
             [GlobalSetup]
             public virtual void CreateCustomers()
             {
-                CustomersWithoutPk = Fixture.CreateCustomers(20000, setPrimaryKeys: false);
-                CustomersWithPk = Fixture.CreateCustomers(20000, setPrimaryKeys: true);
+                CustomersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
+                CustomersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
             }
 
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = Fixture.CreateContext();
+                Context = _fixture.CreateContext();
                 Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
             }
 

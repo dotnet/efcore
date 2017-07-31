@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
     {
         public abstract class Base
         {
-            protected static readonly FixupFixture Fixture = new FixupFixture();
+            private static readonly FixupFixture _fixture = new FixupFixture();
             protected List<Customer> Customers;
             protected List<Order> OrdersWithoutPk;
             protected List<Order> OrdersWithPk;
@@ -28,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             [GlobalSetup]
             public virtual void CreateData()
             {
-                Customers = Fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                OrdersWithoutPk = Fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                OrdersWithPk = Fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
+                Customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                OrdersWithoutPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
+                OrdersWithPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
 
-                using (var context = Fixture.CreateContext())
+                using (var context = _fixture.CreateContext())
                 {
                     Assert.Equal(5000, context.Customers.Count());
                     Assert.Equal(10000, context.Orders.Count());
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = Fixture.CreateContext();
+                Context = _fixture.CreateContext();
                 Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
             }
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             }
         }
 
-        public class ChildVariation : Base
+        public class ChildVariations : Base
         {
             [IterationSetup]
             public override void InitializeContext()
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             }
         }
 
-        public class ParentVariation : Base
+        public class ParentVariations : Base
         {
             [IterationSetup]
             public override void InitializeContext()

@@ -12,6 +12,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
+    [BenchmarkJob]
+    [MemoryDiagnoser]
     public class SimpleQueryTests
     {
         private static readonly SimpleQueryFixture _fixture = new SimpleQueryFixture();

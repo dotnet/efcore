@@ -16,23 +16,23 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
     {
         public abstract class Base
         {
-            protected static readonly FixupFixture Fixture = new FixupFixture();
+            private static readonly FixupFixture _fixture = new FixupFixture();
+
             protected List<Customer> Customers;
             protected List<Order> OrdersWithoutPk;
             protected List<Order> OrdersWithPk;
             protected OrdersContext Context;
 
-            [Params(true, false)]
-            public bool AutoDetectChanges { get; set; }
+            protected abstract bool AutoDetectChanges { get; }
 
             [GlobalSetup]
             public virtual void CreateData()
             {
-                Customers = Fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                OrdersWithoutPk = Fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                OrdersWithPk = Fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
+                Customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                OrdersWithoutPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
+                OrdersWithPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
 
-                using (var context = Fixture.CreateContext())
+                using (var context = _fixture.CreateContext())
                 {
                     Assert.Equal(5000, context.Customers.Count());
                     Assert.Equal(10000, context.Orders.Count());
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = Fixture.CreateContext();
+                Context = _fixture.CreateContext();
                 Context.Configuration.AutoDetectChangesEnabled = AutoDetectChanges;
             }
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             }
         }
 
-        public class ChildVariation : Base
+        public abstract class ChildVariations : Base
         {
             [IterationSetup]
             public override void InitializeContext()
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             }
         }
 
-        public class ParentVariation : Base
+        public abstract class ParentVariations : Base
         {
             [IterationSetup]
             public override void InitializeContext()
@@ -115,6 +115,32 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             {
                 Context.Customers.ToList();
             }
+        }
+
+        [SingleRunBenchmarkJob]
+        public class ChildVariationsWithAutoDetectChangesOn : ChildVariations
+        {
+            protected override bool AutoDetectChanges => true;
+        }
+
+        [SingleRunBenchmarkJob]
+        public class ParentVariationsWithAutoDetectChangesOn : ParentVariations
+        {
+            protected override bool AutoDetectChanges => true;
+        }
+
+        [BenchmarkJob]
+        [MemoryDiagnoser]
+        public class ChildVariationsWithAutoDetectChangesOff : ChildVariations
+        {
+            protected override bool AutoDetectChanges => false;
+        }
+
+        [BenchmarkJob]
+        [MemoryDiagnoser]
+        public class ParentVariationsWithAutoDetectChangesOff : ParentVariations
+        {
+            protected override bool AutoDetectChanges => false;
         }
 
         public class FixupFixture : OrdersFixture

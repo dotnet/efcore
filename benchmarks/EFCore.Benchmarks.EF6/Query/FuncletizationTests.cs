@@ -10,6 +10,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
+    [BenchmarkJob]
+    [MemoryDiagnoser]
     public class FuncletizationTests
     {
         private static readonly FuncletizationFixture _fixture = new FuncletizationFixture();

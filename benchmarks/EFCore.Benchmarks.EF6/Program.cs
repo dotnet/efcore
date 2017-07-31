@@ -18,10 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6
             benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<InitializationTests>());
 
             // ChangeTracker
-            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.AddDataVariations>());
-            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.ExistingDataVariations>());
-            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ChildVariation>());
-            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ParentVariation>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.AddDataVariationsWithAutoDetectChangesOn>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.AddDataVariationsWithAutoDetectChangesOff>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.ExistingDataVariationsWithAutoDetectChangesOn>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.ExistingDataVariationsWithAutoDetectChangesOff>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ChildVariationsWithAutoDetectChangesOn>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ChildVariationsWithAutoDetectChangesOff>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ParentVariationsWithAutoDetectChangesOn>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ParentVariationsWithAutoDetectChangesOff>());
 
             // Query
             benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FuncletizationTests>());

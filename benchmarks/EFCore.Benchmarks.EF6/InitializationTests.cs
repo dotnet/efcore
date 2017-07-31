@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks.TestHelpers
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6
 {
+    [BenchmarkJob]
+    [MemoryDiagnoser]
     public class InitializationTests
     {
         private ColdStartSandbox _sandbox;

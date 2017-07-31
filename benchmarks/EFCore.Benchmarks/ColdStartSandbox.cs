@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
         public T CreateInstance<T>(params object[] args)
             => (T)CreateInstance(typeof(T), args);
 
-        public object CreateInstance(Type type, params object[] args)
+        private object CreateInstance(Type type, params object[] args)
         {
             HandleDisposed();
 

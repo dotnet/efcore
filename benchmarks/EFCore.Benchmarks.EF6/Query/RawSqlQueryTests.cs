@@ -11,6 +11,8 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
+    [BenchmarkJob]
+    [MemoryDiagnoser]
     public class RawSqlQueryTests
     {
         private static readonly RawSqlQueryFixture _fixture = new RawSqlQueryFixture();

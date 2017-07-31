@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore
             // ChangeTracker
             benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.AddDataVariations>());
             benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<DbSetOperationTests.ExistingDataVariations>());
-            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ChildVariation>());
-            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ParentVariation>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ChildVariations>());
+            benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FixupTests.ParentVariations>());
 
             // Query
             benchmarkSummaryProcessor.Process(BenchmarkRunner.Run<FuncletizationTests>());

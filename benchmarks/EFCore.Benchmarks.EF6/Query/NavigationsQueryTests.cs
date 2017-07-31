@@ -9,8 +9,12 @@ using Microsoft.EntityFrameworkCore.Benchmarks.EF6.Models.AdventureWorks;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 using Xunit;
 
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+
 namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Query
 {
+    [BenchmarkJob]
+    [MemoryDiagnoser]
     public class NavigationsQueryTests
     {
         private AdventureWorksContext _context;
