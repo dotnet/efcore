@@ -57,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.PropertyAnnotationChangedConventions.Add(sqlServerIndexConvention);
             conventionSet.PropertyAnnotationChangedConventions.Add((SqlServerValueGeneratorConvention)valueGeneratorConvention);
 
+            ReplaceConvention(conventionSet.ModelAnnotationChangedConventions, (RelationalDbFunctionConvention)new SqlServerDbFunctionConvention());
+
             return conventionSet;
         }
 

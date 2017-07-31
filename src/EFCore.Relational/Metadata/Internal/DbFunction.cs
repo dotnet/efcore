@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return model[BuildAnnotationName(annotationPrefix, methodInfo)] as DbFunction;
         }
 
+        private readonly IMutableModel _model;
         private string _schema;
         private string _functionName;
 
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             MethodInfo = methodInfo;
 
-            model[BuildAnnotationName(annotationPrefix, methodInfo)] = this;
+            _model = model;
+            _model[BuildAnnotationName(annotationPrefix, methodInfo)] = this;
         }
 
         /// <summary>
@@ -106,9 +108,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual string DefaultSchema { get; [param: CanBeNull] set;}
+      
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Schema
         {
-            get => _schema;
+            get => _schema ?? _model.Relational().DefaultSchema ?? DefaultSchema;
             set => SetSchema(value, ConfigurationSource.Explicit);
         }
 

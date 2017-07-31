@@ -2143,6 +2143,118 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Bug9214
+
+        [Fact]
+        public void Default_schema_applied_when_no_function_schema()
+        {
+            using (CreateDatabase9214())
+            {
+                using (var context = new MyContext9214(_options))
+                {
+                    var result = context.Widgets.Where(w => w.Val == 1).Select(w => MyContext9214.AddOne(w.Val)).Single();
+
+                    Assert.Equal(2, result);
+
+                    AssertSql(
+                        @"SELECT TOP(2) [foo].AddOne([w].[Val])
+FROM [foo].[Widgets] AS [w]
+WHERE [w].[Val] = 1");
+                }
+            }
+        }
+
+        [Fact]
+        public void Default_schema_function_schema_overrides()
+        {
+            using (CreateDatabase9214())
+            {
+                using (var context = new MyContext9214(_options))
+                {
+                    var result = context.Widgets.Where(w => w.Val == 1).Select(w => MyContext9214.AddTwo(w.Val)).Single();
+
+                    Assert.Equal(3, result);
+
+                    AssertSql(
+                        @"SELECT TOP(2) [dbo].AddTwo([w].[Val])
+FROM [foo].[Widgets] AS [w]
+WHERE [w].[Val] = 1");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9214()
+            => CreateTestStore(
+                () => new MyContext9214(_options),
+                context =>
+                    {
+                        var w1 = new Widget9214 { Val = 1 };
+                        var w2 = new Widget9214 { Val = 2 };
+                        var w3 = new Widget9214 { Val = 3 };
+                        context.Widgets.AddRange(w1, w2, w3);
+                        context.SaveChanges();
+
+                        context.Database.ExecuteSqlCommand(@"CREATE FUNCTION foo.AddOne (@num int)  
+                                                            RETURNS int
+                                                                AS
+                                                            BEGIN  
+                                                                return @num + 1 ;
+                                                            END");
+
+                        context.Database.ExecuteSqlCommand(@"CREATE FUNCTION dbo.AddTwo (@num int)  
+                                                            RETURNS int
+                                                                AS
+                                                            BEGIN  
+                                                                return @num + 2 ;
+                                                            END");
+
+                        ClearLog();
+                    });
+
+        public class MyContext9214 : DbContext
+        {
+            public DbSet<Widget9214> Widgets { get; set; }
+
+            public static int AddOne(int num)
+            {
+                throw new Exception();
+            }
+
+            public static int AddTwo(int num)
+            {
+                throw new Exception();
+            }
+
+            public static int AddThree(int num)
+            {
+                throw new Exception();
+            }
+
+            public MyContext9214(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.HasDefaultSchema("foo");
+
+                modelBuilder.Entity<Widget9214>().ToTable("Widgets", "foo");
+
+                modelBuilder.HasDbFunction(typeof(MyContext9214).GetMethod(nameof(AddOne)));
+                modelBuilder.HasDbFunction(typeof(MyContext9214).GetMethod(nameof(AddTwo))).HasSchema("dbo");
+            }
+        }
+
+        public class Widget9214
+        {
+            public int Id { get; set; }
+            public int Val { get; set; }
+        }
+
+
+        #endregion
+
         #region Bug9277
 
         [Fact]
