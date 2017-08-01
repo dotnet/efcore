@@ -403,33 +403,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_nested_collection_with_groupby()
-        {
-            using (var context = CreateContext())
-            {
-                var expected = context.Customers
-                    .Include(c => c.Orders)
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .ToList()
-                    .Select(c => c.Orders.Any()
-                        ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                        : new int[0]).ToList();
-
-                ClearLog();
-
-                var query = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => c.Orders.Any()
-                        ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                        : new int[0]);
-
-                var result = query.ToList();
-
-                Assert.Equal(expected.Count, result.Count);
-            }
-        }
-
-        [ConditionalFact]
         public virtual void Select_nested_collection_count_using_anonymous_type()
         {
             AssertQuery<Customer>(

@@ -389,52 +389,6 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')");
         }
 
-        public override void Select_nested_collection_with_groupby()
-        {
-            base.Select_nested_collection_with_groupby();
-
-            AssertSql(
-                @"SELECT (
-    SELECT CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM [Orders] AS [o0]
-            WHERE [c].[CustomerID] = [o0].[CustomerID])
-        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-    END
-), [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
-                //
-                @"@_outer_CustomerID1='ALFKI' (Size = 5)
-
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
-                //
-                @"@_outer_CustomerID1='ANATR' (Size = 5)
-
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
-                //
-                @"@_outer_CustomerID1='ANTON' (Size = 5)
-
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
-                //
-                @"@_outer_CustomerID1='AROUT' (Size = 5)
-
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]");
-        }
-
         public override void Select_nested_collection_count_using_anonymous_type()
         {
             base.Select_nested_collection_count_using_anonymous_type();

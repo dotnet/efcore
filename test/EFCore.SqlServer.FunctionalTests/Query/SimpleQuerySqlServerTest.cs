@@ -731,48 +731,6 @@ SELECT CASE
 END");
         }
 
-        public override void GroupBy_anonymous()
-        {
-            base.GroupBy_anonymous();
-
-            AssertSql(
-                @"SELECT [c].[City], [c].[CustomerID]
-FROM [Customers] AS [c]
-ORDER BY [c].[City]");
-        }
-
-        public override void GroupBy_anonymous_with_where()
-        {
-            base.GroupBy_anonymous_with_where();
-
-            AssertSql(
-                @"SELECT [c].[City], [c].[CustomerID]
-FROM [Customers] AS [c]
-WHERE [c].[Country] IN (N'Argentina', N'Austria', N'Brazil', N'France', N'Germany', N'USA')
-ORDER BY [c].[City]");
-        }
-
-        public override void GroupBy_nested_order_by_enumerable()
-        {
-            base.GroupBy_nested_order_by_enumerable();
-
-            AssertSql(
-                @"SELECT [c0].[Country], [c0].[CustomerID]
-FROM [Customers] AS [c0]
-ORDER BY [c0].[Country]");
-        }
-
-        public override void GroupBy_join_default_if_empty_anonymous()
-        {
-            base.GroupBy_join_default_if_empty_anonymous();
-
-            AssertSql(
-                @"SELECT [order0].[OrderID], [order0].[CustomerID], [order0].[EmployeeID], [order0].[OrderDate], [orderDetail0].[OrderID], [orderDetail0].[ProductID], [orderDetail0].[Discount], [orderDetail0].[Quantity], [orderDetail0].[UnitPrice]
-FROM [Orders] AS [order0]
-LEFT JOIN [Order Details] AS [orderDetail0] ON [order0].[OrderID] = [orderDetail0].[OrderID]
-ORDER BY [order0].[OrderID]");
-        }
-
         public override void OrderBy_arithmetic()
         {
             base.OrderBy_arithmetic();
@@ -1687,77 +1645,6 @@ FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
 WHERE [c].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID]");
-        }
-
-        public override void GroupBy_simple()
-        {
-            base.GroupBy_simple();
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
-        }
-
-        public override void GroupBy_Count()
-        {
-            base.GroupBy_Count();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
-        }
-
-        public override void GroupBy_LongCount()
-        {
-            base.GroupBy_LongCount();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
-        }
-
-        public override void GroupBy_DateTimeOffset_Property()
-        {
-            base.GroupBy_DateTimeOffset_Property();
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL
-ORDER BY DATEPART(month, [o].[OrderDate])");
-        }
-
-        public override void GroupBy_with_orderby()
-        {
-            base.GroupBy_with_orderby();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID], [o0].[OrderID]");
-        }
-
-        public override void GroupBy_with_orderby_and_anonymous_projection()
-        {
-            base.GroupBy_with_orderby_and_anonymous_projection();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
-        }
-
-        public override void GroupBy_with_orderby_take_skip_distinct()
-        {
-            base.GroupBy_with_orderby_take_skip_distinct();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
         }
 
         public override void SelectMany_cartesian_product_with_ordering()
@@ -3701,17 +3588,6 @@ INNER JOIN (
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
 ORDER BY [t].[City], [t].[CustomerID]");
-        }
-
-        public override void GroupBy_join_anonymous()
-        {
-            base.GroupBy_join_anonymous();
-
-            AssertSql(
-                @"SELECT [order0].[OrderID], [order0].[CustomerID], [order0].[EmployeeID], [order0].[OrderDate], [orderDetail0].[OrderID], [orderDetail0].[ProductID], [orderDetail0].[Discount], [orderDetail0].[Quantity], [orderDetail0].[UnitPrice]
-FROM [Orders] AS [order0]
-LEFT JOIN [Order Details] AS [orderDetail0] ON [order0].[OrderID] = [orderDetail0].[OrderID]
-ORDER BY [order0].[OrderID]");
         }
 
         public override void Int16_parameter_can_be_used_for_int_column()

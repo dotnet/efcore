@@ -36,80 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Select_GroupBy_All()
-        {
-            using (var context = CreateContext())
-            {
-                Assert.False(
-                    context
-                        .Set<Order>()
-                        .Select(o => new ProjectedType
-                        {
-                            Order = o.OrderID,
-                            Customer = o.CustomerID
-                        })
-                        .GroupBy(a => a.Customer)
-                        .All(a => a.Key == "ALFKI")
-                );
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Select_GroupBy()
-        {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Order>().Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    Assert.Equal(expected[i].Count(), actual[i].Count());
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Select_GroupBy_SelectMany()
-        {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Order>().Select(o => new ProjectedType
-                    {
-                        Order = o.OrderID,
-                        Customer = o.CustomerID
-                    })
-                    .GroupBy(o => o.Order)
-                    .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(o => new ProjectedType
-                    {
-                        Order = o.OrderID,
-                        Customer = o.CustomerID
-                    })
-                    .GroupBy(o => o.Order)
-                    .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i], actual[i]);
-                }
-            }
-        }
-
         private class ProjectedType
         {
             public int Order { get; set; }
@@ -540,24 +466,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID),
                 cs => cs.Select(c => new { c.CustomerID }).Distinct().OrderBy(a => a.CustomerID, StringComparer.Ordinal),
                 assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void Distinct_GroupBy()
-        {
-            AssertQuery<Order>(os =>
-                    os.Distinct()
-                        .GroupBy(o => o.CustomerID)
-                        .OrderBy(g => g.Key)
-                        .Select(g => new { g.Key, c = g.Count() }),
-                assertOrder: true);
-        }
-
-        [ConditionalFact]
-        public virtual void GroupBy_Distinct()
-        {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [ConditionalFact]
@@ -1120,21 +1028,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Customer>(
                 cs => cs.Where(s => s.ContactTitle == "Owner")
                     .Union(cs.Where(c => c.City == "México D.F.")),
-                entryCount: 19);
-        }
-
-        [ConditionalFact(Skip = "Unable to bind group by. See Issue#6658")]
-        public virtual void Union_simple_groupby()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Where(s => s.ContactTitle == "Owner")
-                    .Union(cs.Where(c => c.City == "México D.F."))
-                    .GroupBy(c => c.City)
-                    .Select(g => new
-                    {
-                        g.Key,
-                        Total = g.Count()
-                    }),
                 entryCount: 19);
         }
 
