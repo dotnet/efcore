@@ -26,12 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
             public bool AutoDetectChanges { get; set; }
 
             [GlobalSetup]
-            public virtual void CreateData()
+            public virtual void CheckData()
             {
-                Customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                OrdersWithoutPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                OrdersWithPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
-
                 using (var context = _fixture.CreateContext())
                 {
                     Assert.Equal(5000, context.Customers.Count());
@@ -44,6 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
             {
                 Context = _fixture.CreateContext();
                 Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
+
+                Customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                OrdersWithoutPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
+                OrdersWithPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
             }
 
             [IterationCleanup]
