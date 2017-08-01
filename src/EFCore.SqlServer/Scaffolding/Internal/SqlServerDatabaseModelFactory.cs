@@ -28,7 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private DbConnection _connection;
         private Version _serverVersion;
-        private TableSelectionSet _tableSelectionSet;
+        private HashSet<string> _tablesToInclude;
+        private HashSet<string> _schemasToInclude;
+        private HashSet<string> _selectedSchemas;
+        private HashSet<string> _selectedTables;
         private DatabaseModel _databaseModel;
         private Dictionary<string, DatabaseTable> _tables;
         private Dictionary<string, DatabaseColumn> _tableColumns;
@@ -55,6 +58,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             { "numeric", new[] { -999999999999999999L, 999999999999999999L } }
         };
 
+        private static readonly List<string> _schemaPatterns = new List<string>
+        {
+            "{schema}",
+            "[{schema}]"
+        };
+
+        private static readonly List<string> _tablePatterns = new List<string>
+        {
+            "{schema}.{table}",
+            "[{schema}].[{table}]",
+            "{schema}.[{table}]",
+            "[{schema}].{table}",
+            "{table}",
+            "[{table}]"
+        };
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -76,7 +95,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             _connection = null;
             _serverVersion = null;
-            _tableSelectionSet = null;
+            _selectedTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            _selectedSchemas = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            _tablesToInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            _schemasToInclude = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             _databaseModel = new DatabaseModel();
             _tables = new Dictionary<string, DatabaseTable>();
             _tableColumns = new Dictionary<string, DatabaseColumn>(StringComparer.OrdinalIgnoreCase);
@@ -119,7 +141,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
             try
             {
-                _tableSelectionSet = new TableSelectionSet(tables, schemas);
+                foreach (var schema in schemas)
+                {
+                    _schemasToInclude.Add(schema);
+                }
+
+                foreach (var table in tables)
+                {
+                    _tablesToInclude.Add(table);
+                }
 
                 _databaseModel.DatabaseName = _connection.Database;
 
@@ -137,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetIndexes();
                 GetForeignKeys();
 
-                CheckSelectionsMatched(_tableSelectionSet);
+                CheckSelectionsMatched();
 
                 return _databaseModel;
             }
@@ -150,16 +180,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void CheckSelectionsMatched(TableSelectionSet tableSelectionSet)
+        private void CheckSelectionsMatched()
         {
-            foreach (var schemaSelection in tableSelectionSet.Schemas.Where(s => !s.IsMatched))
+            foreach (var schema in _schemasToInclude.Except(_selectedSchemas, StringComparer.OrdinalIgnoreCase))
             {
-                Logger.MissingSchemaWarning(schemaSelection.Text);
+                Logger.MissingSchemaWarning(schema);
             }
 
-            foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
+            foreach (var table in _tablesToInclude.Except(_selectedTables, StringComparer.OrdinalIgnoreCase))
             {
-                Logger.MissingTableWarning(tableSelection.Text);
+                Logger.MissingTableWarning(table);
             }
         }
 
@@ -324,10 +354,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         }
                     }
 
-                    Logger.TableFound(DisplayName(table.Schema, table.Name));
-
-                    if (_tableSelectionSet.Allows(table.Schema, table.Name))
+                    if (AllowsTable(table.Schema, table.Name))
                     {
+                        Logger.TableFound(DisplayName(table.Schema, table.Name));
                         _databaseModel.Tables.Add(table);
                         _tables[TableKey(table)] = table;
                     }
@@ -337,6 +366,37 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 }
             }
+        }
+
+        private bool AllowsTable(string schema, string table)
+        {
+            if (_schemasToInclude.Count == 0
+                && _tablesToInclude.Count == 0)
+            {
+                return true;
+            }
+
+            foreach (var schemaPattern in _schemaPatterns)
+            {
+                var key = schemaPattern.Replace("{schema}", schema);
+                if (_schemasToInclude.Contains(key))
+                {
+                    _selectedSchemas.Add(schema);
+                    return true;
+                }
+            }
+
+            foreach (var tablePattern in _tablePatterns)
+            {
+                var key = tablePattern.Replace("{schema}", schema).Replace("{table}", table);
+                if (_tablesToInclude.Contains(key))
+                {
+                    _selectedTables.Add(key);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void GetColumns()
@@ -404,7 +464,7 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                         DisplayName(schemaName, tableName), columnName, DisplayName(dataTypeSchemaName, dataTypeName), ordinal, nullable,
                         primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
 
-                    if (!_tableSelectionSet.Allows(schemaName, tableName))
+                    if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
                     {
                         Logger.ColumnSkipped(DisplayName(schemaName, tableName), columnName);
                         continue;
@@ -413,12 +473,6 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                     if (string.IsNullOrEmpty(columnName))
                     {
                         Logger.ColumnNotNamedWarning(DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
-                    if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
-                    {
-                        Logger.MissingTableWarning(DisplayName(schemaName, tableName));
                         continue;
                     }
 
@@ -545,12 +599,6 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Logger.IndexColumnFound(
                         DisplayName(schemaName, tableName), indexName, true, columnName, indexOrdinal);
 
-                    if (!_tableSelectionSet.Allows(schemaName, tableName))
-                    {
-                        Logger.IndexColumnSkipped(columnName, indexName, DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     if (string.IsNullOrEmpty(indexName))
                     {
                         Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
@@ -564,8 +612,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         || primaryKey.Table.Name != tableName
                         || primaryKey.Table.Schema != schemaName)
                     {
-                        DatabaseTable table;
-                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
+                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
                         {
                             Logger.IndexTableMissingWarning(indexName, DisplayName(schemaName, tableName));
                             continue;
@@ -586,12 +633,11 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         table.PrimaryKey = primaryKey;
                     }
 
-                    DatabaseColumn column;
                     if (string.IsNullOrEmpty(columnName))
                     {
                         Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
                     }
-                    else if (!_tableColumns.TryGetValue(ColumnKey(primaryKey.Table, columnName), out column))
+                    else if (!_tableColumns.TryGetValue(ColumnKey(primaryKey.Table, columnName), out var column))
                     {
                         Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
                     }
@@ -639,12 +685,6 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Logger.IndexColumnFound(
                         DisplayName(schemaName, tableName), indexName, true, columnName, indexOrdinal);
 
-                    if (!_tableSelectionSet.Allows(schemaName, tableName))
-                    {
-                        Logger.IndexColumnSkipped(columnName, indexName, DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     if (string.IsNullOrEmpty(indexName))
                     {
                         Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
@@ -658,8 +698,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         || uniqueConstraint.Table.Name != tableName
                         || uniqueConstraint.Table.Schema != schemaName)
                     {
-                        DatabaseTable table;
-                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
+                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
                         {
                             Logger.IndexTableMissingWarning(indexName, DisplayName(schemaName, tableName));
                             continue;
@@ -740,12 +779,6 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Logger.IndexColumnFound(
                         DisplayName(schemaName, tableName), indexName, isUnique, columnName, indexOrdinal);
 
-                    if (!_tableSelectionSet.Allows(schemaName, tableName))
-                    {
-                        Logger.IndexColumnSkipped(columnName, indexName, DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     if (string.IsNullOrEmpty(indexName))
                     {
                         Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
@@ -759,8 +792,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         || index.Table.Name != tableName
                         || index.Table.Schema != schemaName)
                     {
-                        DatabaseTable table;
-                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out table))
+                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
                         {
                             Logger.IndexTableMissingWarning(indexName, DisplayName(schemaName, tableName));
                             continue;
@@ -846,12 +878,6 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         continue;
                     }
 
-                    if (!_tableSelectionSet.Allows(schemaName, tableName))
-                    {
-                        Logger.ForeignKeyColumnMissingWarning(fromColumnName, fkName, DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     if (foreignKey == null
                         || lastFkSchemaName != schemaName
                         || lastFkTableName != tableName
@@ -860,7 +886,12 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         lastFkName = fkName;
                         lastFkSchemaName = schemaName;
                         lastFkTableName = tableName;
-                        var table = _tables[SchemaQualifiedKey(tableName, schemaName)];
+
+                        if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
+                        {
+                            Logger.ForeignKeyTableMissingWarning(fkName, DisplayName(schemaName, tableName));
+                            continue;
+                        }
 
                         DatabaseTable principalTable = null;
                         if (!string.IsNullOrEmpty(principalTableSchemaName)

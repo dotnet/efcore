@@ -50,7 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             SequenceNotNamedWarning,
             TableFound,
             TableSkipped,
-            TypeAliasFound
+            TypeAliasFound,
+            ForeignKeyTableMissingWarning
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -222,5 +223,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId SequenceFound = MakeScaffoldingId(Id.SequenceFound);
+
+        /// <summary>
+        ///     A foreign key table was not found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyTableMissingWarning = MakeScaffoldingId(Id.ForeignKeyTableMissingWarning);
     }
 }

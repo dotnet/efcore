@@ -131,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private IEnumerable<DatabaseTable> GetTables(DbConnection connection, IEnumerable<string> tables)
         {
-            var tableSelectionSet = new TableSelectionSet(tables);
+            var tablesToSelect = new HashSet<string>(tables.ToList(), StringComparer.OrdinalIgnoreCase);
+            var selectedTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             using (var command = connection.CreateCommand())
             {
@@ -148,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     while (reader.Read())
                     {
                         var name = reader.GetString(0);
-                        if (!tableSelectionSet.Allows(name))
+                        if (!AllowsTable(tablesToSelect, selectedTables, name))
                         {
                             continue;
                         }
@@ -187,10 +188,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            foreach (var tableSelection in tableSelectionSet.Tables.Where(t => !t.IsMatched))
+            foreach (var table in tablesToSelect.Except(selectedTables, StringComparer.OrdinalIgnoreCase))
             {
-                _logger.MissingTableWarning(tableSelection.Text);
+                _logger.MissingTableWarning(table);
             }
+        }
+
+        private bool AllowsTable(HashSet<string> tables, HashSet<string> selectedTables, string name)
+        {
+            if (tables.Count == 0)
+            {
+                return true;
+            }
+
+            if (tables.Contains(name))
+            {
+                selectedTables.Add(name);
+                return true;
+            }
+
+            return false;
         }
 
         private IEnumerable<DatabaseColumn> GetColumns(DbConnection connection, string table)

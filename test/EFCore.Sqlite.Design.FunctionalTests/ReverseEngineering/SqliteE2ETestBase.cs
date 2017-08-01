@@ -364,7 +364,7 @@ CREATE TABLE IF NOT EXISTS Comment (
 
                 var results = Generator.Generate(
                     testStore.ConnectionString,
-                    Enumerable.Empty<string>(),
+                    new[] { "User", "Comment" },
                     Enumerable.Empty<string>(),
                     TestProjectPath,
                     outputPath: null,

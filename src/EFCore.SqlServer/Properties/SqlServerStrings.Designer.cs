@@ -387,6 +387,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string NoInitialCatalog
             => GetString("NoInitialCatalog");
 
+        /// <summary>
+        ///     Foreign key {fkName} is defined on table {tableName} which is not included in the selection set. Skipping.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogForeignKeyTableNotInSelectionSet
+            = new EventDefinition<string, string>(
+                SqlServerEventId.ForeignKeyTableMissingWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    SqlServerEventId.ForeignKeyTableMissingWarning,
+                    _resourceManager.GetString("LogForeignKeyTableNotInSelectionSet")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

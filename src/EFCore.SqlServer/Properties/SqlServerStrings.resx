@@ -250,4 +250,8 @@
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.</value>
   </data>
+  <data name="LogForeignKeyTableNotInSelectionSet" xml:space="preserve">
+    <value>Foreign key {fkName} is defined on table {tableName} which is not included in the selection set. Skipping.</value>
+    <comment>Warning SqlServerEventId.ForeignKeyTableMissingWarning string string</comment>
+  </data>
 </root>

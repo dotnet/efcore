@@ -239,6 +239,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void ForeignKeyTableMissingWarning(
+                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+                [CanBeNull] string foreignKeyName,
+                [CanBeNull] string tableName)
+            // No DiagnosticsSource events because these are purely design-time messages
+            => SqlServerStrings.LogForeignKeyTableNotInSelectionSet.Log(diagnostics, foreignKeyName, tableName);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ForeignKeyNotNamedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
