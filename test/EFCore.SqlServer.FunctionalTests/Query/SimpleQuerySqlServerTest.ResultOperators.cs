@@ -22,26 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 END");
         }
 
-        public override void Select_GroupBy()
-        {
-            base.Select_GroupBy();
-
-            AssertSql(
-                @"SELECT [o].[OrderID] AS [Order], [o].[CustomerID] AS [Customer]
-FROM [Orders] AS [o]
-ORDER BY [o].[CustomerID]");
-        }
-
-        public override void Select_GroupBy_SelectMany()
-        {
-            base.Select_GroupBy_SelectMany();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID] AS [Order], [o0].[CustomerID] AS [Customer]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[OrderID]");
-        }
-
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();
@@ -547,16 +527,6 @@ FROM (
     FROM [Customers] AS [c]
 ) AS [t]
 ORDER BY [t].[CustomerID]");
-        }
-
-        public override void GroupBy_Distinct()
-        {
-            base.GroupBy_Distinct();
-
-            AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
         }
 
         public override void Distinct_Count()
