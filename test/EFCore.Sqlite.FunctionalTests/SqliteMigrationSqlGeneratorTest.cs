@@ -13,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        private const string FileLineEnding = @"
-";
-
         [Fact]
         public virtual void It_lifts_foreign_key_additions()
         {
@@ -46,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
 );
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -73,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
 );
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         [Theory]

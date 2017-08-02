@@ -31,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
     public class RelationalCommandTest
     {
-        private const string FileLineEnding = @"
-";
+        private static readonly string EOL = Environment.NewLine;
 
         [Fact]
         public void Configures_DbCommand()
@@ -933,9 +932,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             foreach (var item in log)
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
-Logged Command",
-                    item.Message.Replace(Environment.NewLine, FileLineEnding));
+                    @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']" + EOL +
+                    @"Logged Command",
+                    item.Message);
             }
         }
 
@@ -989,9 +988,9 @@ Logged Command",
             foreach (var item in log.Skip(1))
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
-Logged Command",
-                    item.Message.Replace(Environment.NewLine, FileLineEnding));
+                    @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + EOL +
+                    @"Logged Command",
+                    item.Message);
             }
         }
 

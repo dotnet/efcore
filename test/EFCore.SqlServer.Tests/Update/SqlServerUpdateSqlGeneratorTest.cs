@@ -194,12 +194,9 @@ DEFAULT VALUES;
 
         protected override string CloseDelimeter => "]";
 
-        private const string FileLineEnding = @"
-";
-
         private void AssertBaseline(string expected, string actual)
         {
-            Assert.Equal(expected.Replace(FileLineEnding, Environment.NewLine), actual);
+            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
     }
 }

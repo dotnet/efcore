@@ -13,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class MigrationsSqliteTest : MigrationsTestBase<MigrationsSqliteFixture>
     {
-        private const string FileLineEnding = @"
-";
-
         public MigrationsSqliteTest(MigrationsSqliteFixture fixture)
             : base(fixture)
         {
@@ -32,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore
 );
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_no_migration_script()
@@ -46,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore
 );
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_up_scripts()
@@ -75,7 +74,8 @@ INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_one_up_script()
@@ -89,7 +89,8 @@ INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_up_script_using_names()
@@ -103,7 +104,8 @@ INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
 VALUES ('00000000000002_Migration2', '7.0.0-test');
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_idempotent_up_scripts()
@@ -127,7 +129,8 @@ DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000001_Migration1';
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_one_down_script()
@@ -141,7 +144,8 @@ DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_down_script_using_names()
@@ -155,7 +159,8 @@ DELETE FROM ""__EFMigrationsHistory""
 WHERE ""MigrationId"" = '00000000000002_Migration2';
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_idempotent_down_scripts()
@@ -180,7 +185,8 @@ CreatedTable
     ColumnWithDefaultToDrop INTEGER NULL DEFAULT 0
     ColumnWithDefaultToAlter INTEGER NULL DEFAULT 1
 ",
-                sql.Replace(Environment.NewLine, FileLineEnding));
+                sql,
+                ignoreLineEndingDifferences: true);
         }
 
         protected override void BuildSecondMigration(MigrationBuilder migrationBuilder)
@@ -208,7 +214,8 @@ CreatedTable
     ColumnWithDefaultToDrop INTEGER NULL DEFAULT 0
     ColumnWithDefaultToAlter INTEGER NULL DEFAULT 1
 ",
-                sql.Replace(Environment.NewLine, FileLineEnding));
+                sql,
+                ignoreLineEndingDifferences: true);
         }
 
         private string GetDatabaseSchemaAsync(DbConnection connection)

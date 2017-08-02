@@ -101,35 +101,35 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             Assert.Contains(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
-FROM ""Sample"" AS ""r""
-WHERE ""r"".""UniqueNo"" = 1
-LIMIT 1",
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""" + EOL +
+                @"FROM ""Sample"" AS ""r""" + EOL +
+                @"WHERE ""r"".""UniqueNo"" = 1" + EOL +
+                @"LIMIT 1",
                 Sql);
 
             Assert.Contains(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
-FROM ""Sample"" AS ""r""
-WHERE ""r"".""UniqueNo"" = 1
-LIMIT 1
-
-@p2='1' (DbType = String)
-@p0='ModifiedData' (Nullable = false)
-@p1='00000000-0000-0000-0003-000000000001' (DbType = String)
-@p3='00000001-0000-0000-0000-000000000001' (DbType = String)
-
-UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();
-
-@p2='1' (DbType = String)
-@p0='ChangedData' (Nullable = false)
-@p1='00000000-0000-0000-0002-000000000001' (DbType = String)
-@p3='00000001-0000-0000-0000-000000000001' (DbType = String)
-
-UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1
-WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;
-SELECT changes();",
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""" + EOL +
+                @"FROM ""Sample"" AS ""r""" + EOL +
+                @"WHERE ""r"".""UniqueNo"" = 1" + EOL +
+                @"LIMIT 1" + EOL +
+                EOL +
+                @"@p2='1' (DbType = String)" + EOL +
+                @"@p0='ModifiedData' (Nullable = false)" + EOL +
+                @"@p1='00000000-0000-0000-0003-000000000001' (DbType = String)" + EOL +
+                @"@p3='00000001-0000-0000-0000-000000000001' (DbType = String)" + EOL +
+                EOL +
+                @"UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1" + EOL +
+                @"WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;" + EOL +
+                @"SELECT changes();" + EOL +
+                EOL +
+                @"@p2='1' (DbType = String)" + EOL +
+                @"@p0='ChangedData' (Nullable = false)" + EOL +
+                @"@p1='00000000-0000-0000-0002-000000000001' (DbType = String)" + EOL +
+                @"@p3='00000001-0000-0000-0000-000000000001' (DbType = String)" + EOL +
+                EOL +
+                @"UPDATE ""Sample"" SET ""Name"" = @p0, ""RowVersion"" = @p1" + EOL +
+                @"WHERE ""UniqueNo"" = @p2 AND ""RowVersion"" = @p3;" + EOL +
+                @"SELECT changes();",
                 Sql);
         }
 
@@ -138,15 +138,15 @@ SELECT changes();",
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
             Assert.Contains(
-                @"@p0='' (DbType = String)
-@p1='Third' (Nullable = false)
-@p2='00000000-0000-0000-0000-000000000003' (DbType = String)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (@p0, @p1, @p2);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
+                @"@p0='' (DbType = String)" + EOL +
+                @"@p1='Third' (Nullable = false)" + EOL +
+                @"@p2='00000000-0000-0000-0000-000000000003' (DbType = String)" + EOL +
+                EOL +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
+                @"VALUES (@p0, @p1, @p2);" + EOL +
+                @"SELECT ""UniqueNo""" + EOL +
+                @"FROM ""Sample""" + EOL +
+                @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
         }
 
@@ -164,13 +164,11 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p1='1' (DbType = String)
-",
+                @"@p1='1' (DbType = String)" + EOL,
                 Sql);
 
             Assert.Contains(
-                @"@p1='' (Nullable = false) (DbType = String)
-",
+                @"@p1='' (Nullable = false) (DbType = String)" + EOL,
                 Sql);
         }
 
@@ -179,27 +177,27 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p0='' (DbType = String)
-@p1='ValidString' (Nullable = false)
-@p2='00000000-0000-0000-0000-000000000001' (DbType = String)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (@p0, @p1, @p2);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
+                @"@p0='' (DbType = String)" + EOL +
+                @"@p1='ValidString' (Nullable = false)" + EOL +
+                @"@p2='00000000-0000-0000-0000-000000000001' (DbType = String)" + EOL +
+                EOL +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
+                @"VALUES (@p0, @p1, @p2);" + EOL +
+                @"SELECT ""UniqueNo""" + EOL +
+                @"FROM ""Sample""" + EOL +
+                @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
 
             Assert.Contains(
-                @"@p0='' (DbType = String)
-@p1='' (Nullable = false) (DbType = String)
-@p2='00000000-0000-0000-0000-000000000002' (DbType = String)
-
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (@p0, @p1, @p2);
-SELECT ""UniqueNo""
-FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
+                @"@p0='' (DbType = String)" + EOL +
+                @"@p1='' (Nullable = false) (DbType = String)" + EOL +
+                @"@p2='00000000-0000-0000-0000-000000000002' (DbType = String)" + EOL +
+                EOL +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
+                @"VALUES (@p0, @p1, @p2);" + EOL +
+                @"SELECT ""UniqueNo""" + EOL +
+                @"FROM ""Sample""" + EOL +
+                @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
         }
 
@@ -221,10 +219,9 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
             }
         }
 
-        private const string FileLineEnding = @"
-";
+        private static readonly string EOL = Environment.NewLine;
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class DataAnnotationSqliteFixture : DataAnnotationFixtureBase
         {

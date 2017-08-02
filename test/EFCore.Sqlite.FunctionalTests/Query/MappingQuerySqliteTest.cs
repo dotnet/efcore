@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.All_customers();
 
             Assert.Contains(
-                @"SELECT ""c"".""CustomerID"", ""c"".""CompanyName""
-FROM ""Customers"" AS ""c""",
+                @"SELECT ""c"".""CustomerID"", ""c"".""CompanyName""" + EOL +
+                @"FROM ""Customers"" AS ""c""",
                 Sql);
         }
 
@@ -29,8 +29,8 @@ FROM ""Customers"" AS ""c""",
             base.All_employees();
 
             Assert.Contains(
-                @"SELECT ""e"".""EmployeeID"", ""e"".""City""
-FROM ""Employees"" AS ""e""",
+                @"SELECT ""e"".""EmployeeID"", ""e"".""City""" + EOL +
+                @"FROM ""Employees"" AS ""e""",
                 Sql);
         }
 
@@ -39,8 +39,8 @@ FROM ""Employees"" AS ""e""",
             base.All_orders();
 
             Assert.Contains(
-                @"SELECT ""o"".""OrderID"", ""o"".""ShipVia""
-FROM ""Orders"" AS ""o""",
+                @"SELECT ""o"".""OrderID"", ""o"".""ShipVia""" + EOL +
+                @"FROM ""Orders"" AS ""o""",
                 Sql);
         }
 
@@ -49,15 +49,14 @@ FROM ""Orders"" AS ""o""",
             base.Project_nullable_enum();
 
             Assert.Contains(
-                @"SELECT ""o"".""ShipVia""
-FROM ""Orders"" AS ""o""",
+                @"SELECT ""o"".""ShipVia""" + EOL +
+                @"FROM ""Orders"" AS ""o""",
                 Sql);
         }
 
-        private const string FileLineEnding = @"
-";
+        private static readonly string EOL = Environment.NewLine;
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class MappingQuerySqliteFixture : MappingQueryFixtureBase
         {

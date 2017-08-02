@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -78,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -91,7 +90,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -112,7 +111,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -125,7 +124,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [IntKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -146,7 +145,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -159,7 +158,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [StringKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -181,7 +180,7 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
+WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -195,7 +194,7 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
 
 SELECT TOP(1) [e].[Id1], [e].[Id2], [e].[Foo]
 FROM [CompositeKey] AS [e]
-WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
+WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -216,7 +215,7 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -229,7 +228,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -250,7 +249,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -263,7 +262,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -276,7 +275,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -289,7 +288,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -310,7 +309,7 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
 
 SELECT TOP(1) [e].[Id], [e].[Discriminator], [e].[Foo], [e].[Boo]
 FROM [BaseType] AS [e]
-WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql);
+WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -331,7 +330,7 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
         [Fact]
@@ -344,13 +343,10 @@ WHERE [e].[Id] = @__get_Item_0", Sql);
 
 SELECT TOP(1) [e].[Id], [e].[Foo]
 FROM [ShadowKey] AS [e]
-WHERE [e].[Id] = @__get_Item_0", Sql);
+WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class FindSqlServerFixture : FindFixtureBase
         {

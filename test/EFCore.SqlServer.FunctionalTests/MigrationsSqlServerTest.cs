@@ -18,9 +18,6 @@ namespace Microsoft.EntityFrameworkCore
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
     public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerFixture>
     {
-        private const string FileLineEnding = @"
-";
-
         public MigrationsSqlServerTest(MigrationsSqlServerFixture fixture)
             : base(fixture)
         {
@@ -43,7 +40,8 @@ END;
 GO
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_no_migration_script()
@@ -63,7 +61,8 @@ END;
 GO
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_up_scripts()
@@ -117,7 +116,8 @@ VALUES (N'00000000000003_Migration3', N'7.0.0-test');
 GO
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_one_up_script()
@@ -135,7 +135,8 @@ VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 GO
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_up_script_using_names()
@@ -153,7 +154,8 @@ VALUES (N'00000000000002_Migration2', N'7.0.0-test');
 GO
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_idempotent_up_scripts()
@@ -228,7 +230,8 @@ END;
 GO
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_down_scripts()
@@ -255,7 +258,8 @@ WHERE [MigrationId] = N'00000000000001_Migration1';
 GO
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_idempotent_down_scripts()
@@ -294,7 +298,8 @@ END;
 GO
 
 ",
-                Sql.Replace(Environment.NewLine, FileLineEnding));
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_one_down_script()
@@ -312,7 +317,8 @@ WHERE [MigrationId] = N'00000000000002_Migration2';
 GO
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_generate_down_script_using_names()
@@ -330,7 +336,8 @@ WHERE [MigrationId] = N'00000000000002_Migration2';
 GO
 
 ",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Can_get_active_provider()
@@ -350,7 +357,8 @@ CreatedTable
     ColumnWithDefaultToDrop int NULL DEFAULT ((0))
     ColumnWithDefaultToAlter int NULL DEFAULT ((1))
 ",
-                sql.Replace(Environment.NewLine, FileLineEnding));
+                sql,
+                ignoreLineEndingDifferences: true);
         }
 
         protected override async Task AssertSecondMigrationAsync(DbConnection connection)
@@ -362,7 +370,8 @@ CreatedTable
     Id int NOT NULL
     ColumnWithDefaultToAlter int NULL
 ",
-                sql.Replace(Environment.NewLine, FileLineEnding));
+                sql,
+                ignoreLineEndingDifferences: true);
         }
 
         private async Task<string> GetDatabaseSchemaAsync(DbConnection connection)

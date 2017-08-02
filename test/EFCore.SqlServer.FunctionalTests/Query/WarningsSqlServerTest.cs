@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
@@ -23,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT TOP(2) [x].[OrderID], [x].[CustomerID], [x].[EmployeeID], [x].[OrderDate]
 FROM [Orders] AS [x]
 WHERE [x].[OrderID] = 10248",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Paging_operation_without_orderby_issues_warning()
@@ -76,9 +76,6 @@ WHERE [x].[OrderID] = 10248",
             Assert.Contains(CoreStrings.LogPossibleUnintendedReferenceComparison.GenerateMessage("[c].Orders", "[c].Orders"), Fixture.TestSqlLoggerFactory.Log);
         }
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

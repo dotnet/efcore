@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -16,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[CompanyName]
 FROM [dbo].[Customers] AS [c]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void All_employees()
@@ -26,7 +26,8 @@ FROM [dbo].[Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City]
 FROM [dbo].[Employees] AS [e]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void All_orders()
@@ -36,7 +37,8 @@ FROM [dbo].[Employees] AS [e]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[ShipVia]
 FROM [dbo].[Orders] AS [o]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Project_nullable_enum()
@@ -46,7 +48,8 @@ FROM [dbo].[Orders] AS [o]",
             Assert.Equal(
                 @"SELECT [o].[ShipVia]
 FROM [dbo].[Orders] AS [o]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public MappingQuerySqlServerTest(MappingQuerySqlServerFixture fixture)
@@ -55,10 +58,7 @@ FROM [dbo].[Orders] AS [o]",
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class MappingQuerySqlServerFixture : MappingQueryFixtureBase
         {

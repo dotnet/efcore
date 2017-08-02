@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT [a].[Id], [a].[City], [a].[Street], [a.Resident].[Id], [a.Resident].[Name]
 FROM [Address] AS [a]
 INNER JOIN [Person] AS [a.Resident] ON [a].[Id] = [a.Resident].[Id]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Include_person_shadow()
@@ -38,7 +38,8 @@ INNER JOIN [Person] AS [a.Resident] ON [a].[Id] = [a.Resident].[Id]",
                 @"SELECT [a].[Id], [a].[City], [a].[PersonId], [a].[Street], [a.Resident].[Id], [a.Resident].[Name]
 FROM [Address2] AS [a]
 INNER JOIN [Person2] AS [a.Resident] ON [a].[PersonId] = [a.Resident].[Id]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Include_address()
@@ -49,7 +50,8 @@ INNER JOIN [Person2] AS [a.Resident] ON [a].[PersonId] = [a.Resident].[Id]",
                 @"SELECT [p].[Id], [p].[Name], [p.Address].[Id], [p.Address].[City], [p.Address].[Street]
 FROM [Person] AS [p]
 LEFT JOIN [Address] AS [p.Address] ON [p].[Id] = [p.Address].[Id]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void Include_address_shadow()
@@ -60,13 +62,11 @@ LEFT JOIN [Address] AS [p.Address] ON [p].[Id] = [p.Address].[Id]",
                 @"SELECT [p].[Id], [p].[Name], [p.Address].[Id], [p.Address].[City], [p.Address].[PersonId], [p.Address].[Street]
 FROM [Person2] AS [p]
 LEFT JOIN [Address2] AS [p.Address] ON [p].[Id] = [p.Address].[PersonId]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.SqlStatements.Last().Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.SqlStatements.Last();
 
         public class OneToOneQuerySqlServerFixture : OneToOneQueryFixtureBase
         {

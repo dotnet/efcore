@@ -177,7 +177,8 @@ SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 WHERE [UniqueNo] = @p2 AND [RowVersion] = @p3;
 SELECT @@ROWCOUNT;",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
@@ -195,7 +196,8 @@ VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -224,7 +226,8 @@ VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
@@ -232,13 +235,11 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p1='1'
-",
+                @"@p1='1'" + EOL,
                 Sql);
 
             Assert.Contains(
-                @"@p1='' (Nullable = false) (DbType = Int32)
-",
+                @"@p1='' (Nullable = false) (DbType = Int32)" + EOL,
                 Sql);
         }
 
@@ -268,7 +269,8 @@ VALUES (@p0, @p1, @p2);
 SELECT [UniqueNo]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -293,7 +295,8 @@ VALUES (@p0);
 SELECT [Id], [Timestamp]
 FROM [Two]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void TimestampAttribute_throws_if_value_in_database_changed()
@@ -304,10 +307,9 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
             // row version value is not stable.
         }
 
-        private const string FileLineEnding = @"
-";
+        private static readonly string EOL = Environment.NewLine;
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class DataAnnotationSqlServerFixture : DataAnnotationFixtureBase
         {

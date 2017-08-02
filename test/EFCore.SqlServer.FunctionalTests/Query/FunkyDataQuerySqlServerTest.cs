@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,7 +26,8 @@ WHERE CASE
     WHEN (RIGHT([c].[FirstName], LEN([c2].[LastName])) = [c2].[LastName]) OR ([c2].[LastName] = N'')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END = [c].[NullableBool]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void String_ends_with_not_equals_nullable_column()
@@ -42,15 +42,13 @@ WHERE (CASE
     WHEN (RIGHT([c].[FirstName], LEN([c2].[LastName])) = [c2].[LastName]) OR ([c2].[LastName] = N'')
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END <> [c].[NullableBool]) OR [c].[NullableBool] IS NULL",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

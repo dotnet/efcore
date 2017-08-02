@@ -12,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
     {
-        private const string FileLineEnding = @"
-";
+        private static readonly string EOL = Environment.NewLine;
 
         public QueryLoggingSqlServerTest(IncludeSqlServerFixture fixture)
         {
@@ -34,12 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: 
-'from Customer <generated>_0 in DbSet<Customer>
-select [<generated>_0]'
-    Optimized query model: 
-'from Customer <generated>_0 in DbSet<Customer>",
-                    Fixture.TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
+                    @"    Compiling query model: " + EOL +
+                    @"'from Customer <generated>_0 in DbSet<Customer>" + EOL +
+                    @"select [<generated>_0]'" + EOL +
+                    @"    Optimized query model: " + EOL +
+                    @"'from Customer <generated>_0 in DbSet<Customer>",
+                    Fixture.TestSqlLoggerFactory.Log);
             }
         }
 
@@ -89,14 +88,14 @@ select [<generated>_0]'
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: 
-'(from Customer c in DbSet<Customer>
-select [c]).Include(""Orders"")'
-    Including navigation: '[c].Orders'
-    Optimized query model: 
-'from Customer c in DbSet<Customer>"
+                    @"    Compiling query model: " + EOL +
+                    @"'(from Customer c in DbSet<Customer>" + EOL +
+                    @"select [c]).Include(""Orders"")'" + EOL +
+                    @"    Including navigation: '[c].Orders'" + EOL +
+                    @"    Optimized query model: " + EOL +
+                    @"'from Customer c in DbSet<Customer>"
                     ,
-                    Fixture.TestSqlLoggerFactory.Log.Replace(Environment.NewLine, FileLineEnding));
+                    Fixture.TestSqlLoggerFactory.Log);
             }
         }
 

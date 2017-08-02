@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,7 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'%M%'",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void String_Like_Identity()
@@ -35,7 +35,8 @@ WHERE [c].[ContactName] LIKE N'%M%'",
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE [c].[ContactName]",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void String_Like_Literal_With_Escape()
@@ -46,12 +47,10 @@ WHERE [c].[ContactName] LIKE [c].[ContactName]",
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'",
-                Sql);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        private const string FileLineEnding = @"
-";
-
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

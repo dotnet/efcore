@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
+        private static readonly string EOL = Environment.NewLine;
+
         protected FromSqlQueryTestBase(TFixture fixture)
         {
             Fixture = fixture;
@@ -228,12 +230,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context.Set<Customer>()
                     .FromSql(
-                        @"
-    
-
-
-SELECT
-* FROM ""Customers""")
+                        EOL +
+                        @"    " + EOL +
+                        EOL +
+                        EOL +
+                        @"SELECT" + EOL +
+                        @"* FROM ""Customers""")
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArray();
 

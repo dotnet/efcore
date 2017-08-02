@@ -2033,7 +2033,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
             generator.Generate("builder", model, builder);
             var code = builder.ToString();
 
-            Assert.Equal(expectedCode, code);
+            Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
 
             var build = new BuildSource
             {

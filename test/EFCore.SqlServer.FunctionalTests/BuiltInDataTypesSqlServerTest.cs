@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore
                     @"SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
 WHERE [e].[Time] = '00:01:02'",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -83,7 +84,8 @@ WHERE [e].[Time] = '00:01:02'",
 SELECT [e].[Int]
 FROM [MappedNullableDataTypes] AS [e]
 WHERE [e].[Time] = @__timeSpan_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -371,7 +373,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p27='80' (Size = 1)
 @p28='0x595A5B5C' (Nullable = false) (Size = 8000)
 @p29='" + entity.VarcharMax + "' (Nullable = false) (Size = -1) (DbType = AnsiString)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -380,7 +383,7 @@ WHERE [e].[Time] = @__timeSpan_0",
         }
 
         private string DumpParameters()
-            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", FileLineEnding);
+            => Fixture.TestSqlLoggerFactory.Parameters.Single().Replace(", ", EOL);
 
         private static void AssertMappedDataTypes(MappedDataTypes entity, int id)
         {
@@ -494,7 +497,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p27='80' (Nullable = true) (Size = 1)
 @p28='0x595A5B5C' (Size = 8000)
 @p29='C' (Size = 8000) (DbType = AnsiString)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -613,7 +617,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p27='' (DbType = Byte)
 @p28='' (Size = 8000) (DbType = Binary)
 @p29='' (Size = 8000)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -681,7 +686,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p11='Int' (Size = 3)
 @p12='0x0B0C0D' (Size = 3)
 @p13='Tha' (Size = 3) (DbType = AnsiString)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -752,7 +758,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p11='' (Size = 3) (DbType = String)
 @p12='' (Size = 3) (DbType = Binary)
 @p13='' (Size = 3)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -798,7 +805,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p5='85.5'
 @p6='83.3'
 @p7='103.3'",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -847,7 +855,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p1='102.2'
 @p2='101.1'
 @p3='103.3'",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -914,7 +923,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p27='80' (Size = 1)
 @p28='0x595A5B5C' (Size = 8000)
 @p29='C' (Size = 8000) (DbType = AnsiString)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1033,7 +1043,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p27='80' (Nullable = true) (Size = 1)
 @p28='0x595A5B5C' (Size = 8000)
 @p29='C' (Size = 8000) (DbType = AnsiString)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1152,7 +1163,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p27='' (DbType = Byte)
 @p28='' (Size = 8000) (DbType = Binary)
 @p29='' (Size = 8000)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1221,7 +1233,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p11='Int' (Size = 3)
 @p12='0x0B0C0D' (Size = 3)
 @p13='Tha' (Size = 3) (DbType = AnsiString)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1292,7 +1305,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p11='' (Size = 3) (DbType = String)
 @p12='' (Size = 3) (DbType = Binary)
 @p13='' (Size = 3)",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1338,7 +1352,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p5='83.3'
 @p6='77'
 @p7='103.3'",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1388,7 +1403,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p1='101.1'
 @p2='77'
 @p3='103.3'",
-                parameters);
+                parameters,
+                ignoreLineEndingDifferences: true);
 
             using (var context = CreateContext())
             {
@@ -1794,7 +1810,7 @@ WHERE [e].[Time] = @__timeSpan_0",
                 builder.AppendLine();
             }
 
-            var actual = builder.ToString().Replace(Environment.NewLine, FileLineEnding);
+            var actual = builder.ToString();
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
@@ -2028,11 +2044,10 @@ UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
-            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
         }
 
-        private const string FileLineEnding = @"
-";
+        private static readonly string EOL = Environment.NewLine;    
 
         [Fact]
         public void Can_get_column_types_from_built_model()
@@ -2056,7 +2071,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             }
         }
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
         {

@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class AsyncSimpleQuerySqlServerTest : AsyncSimpleQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
+        private static readonly string EOL = Environment.NewLine;
+
         public AsyncSimpleQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
@@ -35,32 +37,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.ToList_on_nav_in_projection_is_async();
 
             Assert.Contains(
-                @"_SelectAsync(
-            source: IAsyncEnumerable<Customer> _ShapedQuery(
-                queryContext: queryContext, 
-                shaperCommandContext: SelectExpression: 
-                    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-                    FROM [Customers] AS [c]
-                    WHERE [c].[CustomerID] = N'ALFKI', 
-                shaper: BufferedEntityShaper<Customer>), 
-            selector: (Customer c | CancellationToken ct) => Task<<>f__AnonymousType17<Customer, List<Order>>> _ExecuteAsync(
-                taskFactories: new Func<Task<object>>[]{ () => Task<object> _ToObjectTask(Task<List<Order>> ToList((IAsyncEnumerable<Order>)EnumerableAdapter<Order> _ToEnumerable(IAsyncEnumerable<Order> _InjectParameters(
-                                    queryContext: queryContext, 
-                                    source: IAsyncEnumerable<Order> _ShapedQuery(
-                                        queryContext: queryContext, 
-                                        shaperCommandContext: SelectExpression: 
-                                            SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-                                            FROM [Orders] AS [o]
-                                            WHERE @_outer_CustomerID = [o].[CustomerID], 
-                                        shaper: BufferedEntityShaper<Order>), 
-                                    parameterNames: new string[]{ ""_outer_CustomerID"" }, 
-                                    parameterValues: new object[]{ string GetValueFromEntity(
-                                            clrPropertyGetter: ClrPropertyGetter<Customer, string>, 
-                                            entity: c) })))) }, 
-                selector: (Object[] results) => new <>f__AnonymousType17<Customer, List<Order>>(
-                    c, 
-                    (List<Order>)results[0]
-                )))",
+                @"_SelectAsync(" + EOL +
+                @"            source: IAsyncEnumerable<Customer> _ShapedQuery(" + EOL +
+                @"                queryContext: queryContext, " + EOL +
+                @"                shaperCommandContext: SelectExpression: " + EOL +
+                @"                    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]" + EOL +
+                @"                    FROM [Customers] AS [c]" + EOL +
+                @"                    WHERE [c].[CustomerID] = N'ALFKI', " + EOL +
+                @"                shaper: BufferedEntityShaper<Customer>), " + EOL +
+                @"            selector: (Customer c | CancellationToken ct) => Task<<>f__AnonymousType17<Customer, List<Order>>> _ExecuteAsync(" + EOL +
+                @"                taskFactories: new Func<Task<object>>[]{ () => Task<object> _ToObjectTask(Task<List<Order>> ToList((IAsyncEnumerable<Order>)EnumerableAdapter<Order> _ToEnumerable(IAsyncEnumerable<Order> _InjectParameters(" + EOL +
+                @"                                    queryContext: queryContext, " + EOL +
+                @"                                    source: IAsyncEnumerable<Order> _ShapedQuery(" + EOL +
+                @"                                        queryContext: queryContext, " + EOL +
+                @"                                        shaperCommandContext: SelectExpression: " + EOL +
+                @"                                            SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]" + EOL +
+                @"                                            FROM [Orders] AS [o]" + EOL +
+                @"                                            WHERE @_outer_CustomerID = [o].[CustomerID], " + EOL +
+                @"                                        shaper: BufferedEntityShaper<Order>), " + EOL +
+                @"                                    parameterNames: new string[]{ ""_outer_CustomerID"" }, " + EOL +
+                @"                                    parameterValues: new object[]{ string GetValueFromEntity(" + EOL +
+                @"                                            clrPropertyGetter: ClrPropertyGetter<Customer, string>, " + EOL +
+                @"                                            entity: c) })))) }, " + EOL +
+                @"                selector: (Object[] results) => new <>f__AnonymousType17<Customer, List<Order>>(" + EOL +
+                @"                    c, " + EOL +
+                @"                    (List<Order>)results[0]" + EOL +
+                @"                )))",
                 Fixture.TestSqlLoggerFactory.Log);
         }
 

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -31,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -47,7 +47,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -63,7 +64,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -79,7 +81,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -95,7 +98,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -111,7 +115,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id]
 FROM [SinglePkToPk] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -127,7 +132,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -143,7 +149,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -159,7 +166,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -175,7 +183,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -191,7 +200,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -207,7 +217,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id]
 FROM [SinglePkToPk] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -241,7 +252,8 @@ WHERE [e].[Id] = @__get_Item_0",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -255,7 +267,8 @@ WHERE 0 = 1",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -271,7 +284,8 @@ WHERE 0 = 1",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -287,7 +301,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -303,7 +318,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -319,7 +335,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -335,7 +352,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -351,7 +369,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -367,7 +386,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -383,7 +403,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -459,7 +480,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -475,7 +497,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -491,7 +514,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -507,7 +531,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -523,7 +548,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -539,7 +565,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id]
 FROM [SinglePkToPk] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -555,7 +582,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -571,7 +599,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -587,7 +616,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -603,7 +633,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -619,7 +650,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -635,7 +667,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -651,7 +684,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -667,7 +701,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -683,7 +718,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -699,7 +735,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -715,7 +752,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -731,7 +769,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -747,7 +786,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -763,7 +803,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -779,7 +820,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -795,7 +837,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -851,7 +894,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Child] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -867,7 +911,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -883,7 +928,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -899,7 +945,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [Single] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -915,7 +962,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -931,7 +979,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -947,7 +996,8 @@ WHERE [e].[AlternateId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -963,7 +1013,8 @@ WHERE [e].[AlternateId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [SingleAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -979,7 +1030,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -995,7 +1047,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1011,7 +1064,8 @@ WHERE [e].[AlternateId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[AlternateId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1027,7 +1081,8 @@ WHERE [e].[AlternateId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [SingleAk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1061,7 +1116,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1075,7 +1131,8 @@ WHERE 0 = 1",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1091,7 +1148,8 @@ WHERE 0 = 1",
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1107,7 +1165,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1123,7 +1182,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1139,7 +1199,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [SingleShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1155,7 +1216,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT [e].[Id], [e].[ParentId]
 FROM [ChildShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1171,7 +1233,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1187,7 +1250,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE [e].[Id] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1203,7 +1267,8 @@ WHERE [e].[Id] = @__get_Item_0",
 SELECT TOP(2) [e].[Id], [e].[ParentId]
 FROM [SingleShadowFk] AS [e]
 WHERE [e].[ParentId] = @__get_Item_0",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1237,7 +1302,8 @@ WHERE [e].[ParentId] = @__get_Item_0",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1251,7 +1317,8 @@ WHERE 0 = 1",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1268,7 +1335,8 @@ WHERE 0 = 1",
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [ChildCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1285,7 +1353,8 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1302,7 +1371,8 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 SELECT [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1319,7 +1389,8 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [SingleCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1336,7 +1407,8 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 SELECT [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [ChildCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1353,7 +1425,8 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1370,7 +1443,8 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1387,7 +1461,8 @@ WHERE ([e].[AlternateId] = @__get_Item_0) AND ([e].[Id] = @__get_Item_1)",
 SELECT TOP(2) [e].[Id], [e].[ParentAlternateId], [e].[ParentId]
 FROM [SingleCompositeKey] AS [e]
 WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Item_1)",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1421,7 +1496,8 @@ WHERE ([e].[ParentAlternateId] = @__get_Item_0) AND ([e].[ParentId] = @__get_Ite
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -1435,16 +1511,14 @@ WHERE 0 = 1",
                     @"SELECT TOP(2) [e].[Id], [e].[AlternateId]
 FROM [Parent] AS [e]
 WHERE 0 = 1",
-                    Sql);
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
         protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();
 
-        protected override void RecordLog() => Sql = Fixture.TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
-
-        private const string FileLineEnding = @"
-";
+        protected override void RecordLog() => Sql = Fixture.TestSqlLoggerFactory.Sql;
 
         private string Sql { get; set; }
 

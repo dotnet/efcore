@@ -98,7 +98,8 @@ namespace MyNamespace
     }
 }
 ",
-                migrationCode);
+                migrationCode,
+                ignoreLineEndingDifferences: true);
 
             var migrationMetadataCode = generator.GenerateMetadata(
                 "MyNamespace",
@@ -132,7 +133,8 @@ namespace MyNamespace
     }
 }
 ",
-                migrationMetadataCode);
+                migrationMetadataCode,
+                ignoreLineEndingDifferences: true);
 
             var build = new BuildSource
             {
@@ -215,7 +217,7 @@ namespace MyNamespace
         }
     }
 }
-", modelSnapshotCode);
+", modelSnapshotCode, ignoreLineEndingDifferences: true);
 
             var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
             Assert.Equal(1, snapshot.Model.GetEntityTypes().Count());

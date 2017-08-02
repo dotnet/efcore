@@ -16,17 +16,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {
-        private const string FileLineEnding = @"
+        private const string FileNewLine = @"
 ";
 
-        private static readonly string _newLine = Environment.NewLine;
+        private static readonly string EOL = Environment.NewLine;
 
         public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
             var sqlStatements
-                = _logger.SqlStatements
-                    .Select(sql => sql.Replace(Environment.NewLine, FileLineEnding))
-                    .ToList();
+                = _logger.SqlStatements;
 
             try
             {
@@ -34,21 +32,23 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     for (var i = 0; i < expected.Length; i++)
                     {
-                        Assert.Equal(expected[i], sqlStatements[i]);
+                        Assert.Equal(expected[i], sqlStatements[i], ignoreLineEndingDifferences: true);
                     }
                 }
                 else
                 {
                     foreach (var expectedFragment in expected)
                     {
-                        Assert.Contains(expectedFragment, sqlStatements);
+                        Assert.Contains(
+                            expectedFragment.Replace("\r", string.Empty).Replace("\n", EOL),
+                            sqlStatements);
                     }
                 }
             }
             catch
             {
                 var methodCallLine = Environment.StackTrace.Split(
-                        new[] { Environment.NewLine },
+                        new[] { EOL },
                         StringSplitOptions.RemoveEmptyEntries)[4]
                     .Substring(6);
 
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
                 var lineNumber = lineIndex > 0 ? methodCallLine.Substring(lineIndex) : "";
 
-                const string indent = FileLineEnding + "                ";
+                const string indent = FileNewLine + "                ";
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                                   currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
                               + "QueryBaseline.cs";
 
-                var testInfo = $"{testName + " : " + lineNumber}" + FileLineEnding;
+                var testInfo = $"{testName + " : " + lineNumber}" + FileNewLine;
 
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, sqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
                 _logger.TestOutputHelper?.WriteLine(newBaseLine);
 
-                var contents = testInfo + newBaseLine + FileLineEnding + FileLineEnding;
+                var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
 
                 File.AppendAllText(logFile, contents);
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public IReadOnlyList<string> Parameters => _logger.Parameters;
 
-        public string Sql => string.Join(_newLine + _newLine, SqlStatements);
+        public string Sql => string.Join(EOL + EOL, SqlStatements);
 
         public CancellationToken CancelQuery()
         {
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                             if (!string.IsNullOrWhiteSpace(parameters))
                             {
                                 Parameters.Add(parameters);
-                                parameters = parameters.Replace(", ", _newLine) + _newLine + _newLine;
+                                parameters = parameters.Replace(", ", EOL) + EOL + EOL;
                             }
 
                             SqlStatements.Add(parameters + commandText);
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                         if (eventId.Id != RelationalEventId.CommandExecuted.Id)
                         {
-                            TestOutputHelper?.WriteLine(format + Environment.NewLine);
+                            TestOutputHelper?.WriteLine(format + EOL);
                         }
                     }
                 }
