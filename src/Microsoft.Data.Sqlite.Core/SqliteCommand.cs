@@ -197,7 +197,10 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            DisposePreparedStatements(disposing);
+            if (disposing)
+            {
+                DisposePreparedStatements();
+            }
 
             base.Dispose(disposing);
         }
@@ -543,9 +546,9 @@ namespace Microsoft.Data.Sqlite
             while (!string.IsNullOrEmpty(tail));
         }
 
-        private void DisposePreparedStatements(bool disposing = true)
+        private void DisposePreparedStatements()
         {
-            if (disposing && DataReader != null)
+            if (DataReader != null)
             {
                 DataReader.Dispose();
                 DataReader = null;

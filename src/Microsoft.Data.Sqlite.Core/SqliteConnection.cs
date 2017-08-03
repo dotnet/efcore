@@ -251,12 +251,6 @@ namespace Microsoft.Data.Sqlite
             {
                 Close();
             }
-            else if (_db != null
-                && _db.ptr != IntPtr.Zero)
-            {
-                _db.Dispose2();
-                _db = null;
-            }
 
             base.Dispose(disposing);
         }
