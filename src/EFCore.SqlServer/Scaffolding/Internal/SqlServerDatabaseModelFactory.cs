@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static string SchemaQualifiedKey([NotNull] string name, [CanBeNull] string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
+        private static string SchemaQualifiedKey([NotNull] string name, [CanBeNull] string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
 
         private static string TableKey(DatabaseTable table) => SchemaQualifiedKey(table.Name, table.Schema);
         private static string ColumnKey(DatabaseTable table, string columnName) => TableKey(table) + ".[" + columnName + "]";
@@ -495,11 +495,6 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                         defaultValue = null;
                     }
 
-                    if (computedValue == "(NULL)")
-                    {
-                        computedValue = null;
-                    }
-
                     var column = new DatabaseColumn
                     {
                         Table = table,
@@ -713,18 +708,16 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         if (typeDesc == "CLUSTERED")
                         {
                             uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
-                            table.PrimaryKey?.RemoveAnnotation(SqlServerAnnotationNames.Clustered);
                         }
 
                         table.UniqueConstraints.Add(uniqueConstraint);
                     }
 
-                    DatabaseColumn column;
                     if (string.IsNullOrEmpty(columnName))
                     {
                         Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
                     }
-                    else if (!_tableColumns.TryGetValue(ColumnKey(uniqueConstraint.Table, columnName), out column))
+                    else if (!_tableColumns.TryGetValue(ColumnKey(uniqueConstraint.Table, columnName), out var column))
                     {
                         Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
                     }
@@ -814,12 +807,11 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         table.Indexes.Add(index);
                     }
 
-                    DatabaseColumn column;
                     if (string.IsNullOrEmpty(columnName))
                     {
                         Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
                     }
-                    else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out column))
+                    else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out var column))
                     {
                         Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
                     }
@@ -941,7 +933,6 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
         private DatabaseColumn FindColumnForForeignKey(
             string columnName, DatabaseTable table, string fkName)
         {
-            DatabaseColumn column;
             if (string.IsNullOrEmpty(columnName))
             {
                 Logger.ForeignKeyColumnNotNamedWarning(fkName, DisplayName(table.Schema, table.Name));
@@ -949,7 +940,7 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
             }
 
             if (!_tableColumns.TryGetValue(
-                ColumnKey(table, columnName), out column))
+                ColumnKey(table, columnName), out var column))
             {
                 Logger.ForeignKeyColumnsNotMappedWarning(fkName, new[] { columnName });
                 return null;
