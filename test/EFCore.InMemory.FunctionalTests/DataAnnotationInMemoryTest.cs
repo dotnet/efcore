@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             public static readonly string DatabaseName = "DataAnnotations";
             protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
-            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
         }
     }

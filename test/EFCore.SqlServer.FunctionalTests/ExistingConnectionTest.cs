@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var store = SqlServerTestStore.GetNorthwindStore())
             {
-                store.Connection.Close();
+                store.CloseConnection();
 
                 var openCount = 0;
                 var closeCount = 0;
@@ -50,13 +50,14 @@ namespace Microsoft.EntityFrameworkCore
 
                     connection.StateChange += (_, a) =>
                         {
-                            if (a.CurrentState == ConnectionState.Open)
+                            switch (a.CurrentState)
                             {
-                                openCount++;
-                            }
-                            else if (a.CurrentState == ConnectionState.Closed)
-                            {
-                                closeCount++;
+                                case ConnectionState.Open:
+                                    openCount++;
+                                    break;
+                                case ConnectionState.Closed:
+                                    closeCount++;
+                                    break;
                             }
                         };
                     connection.Disposed += (_, __) => disposeCount++;
@@ -95,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore
                 _connection = connection;
             }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -110,9 +112,12 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Customer
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string CustomerID { get; set; }
+            // ReSharper disable UnusedMember.Local
             public string CompanyName { get; set; }
             public string Fax { get; set; }
         }

@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
-            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

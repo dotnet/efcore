@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         protected MigrationsTestBase(TFixture fixture)
         {
             Fixture = fixture;
+            Fixture.TestStore.CloseConnection();
         }
 
         protected string Sql { get; private set; }
@@ -265,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore
                 await db.Database.EnsureDeletedAsync();
                 await db.Database.EnsureCreatedAsync();
 
-                var services = db.GetInfrastructure<IServiceProvider>();
+                var services = db.GetInfrastructure();
                 var connection = db.Database.GetDbConnection();
 
                 await db.Database.OpenConnectionAsync();
@@ -288,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore
             buildMigration(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            var commandList = generator.Generate(operations, model: null);
+            var commandList = generator.Generate(operations);
 
             await executor.ExecuteNonQueryAsync(commandList, connection);
         }
@@ -299,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore
                 name: "CreatedTable",
                 columns: x => new
                 {
-                    Id = x.Column<int>(nullable: false),
+                    Id = x.Column<int>(),
                     ColumnWithDefaultToDrop = x.Column<int>(nullable: true, defaultValue: 0),
                     ColumnWithDefaultToAlter = x.Column<int>(nullable: true, defaultValue: 1)
                 },

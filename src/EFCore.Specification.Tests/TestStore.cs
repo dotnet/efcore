@@ -3,25 +3,31 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class TestStore : IDisposable
     {
         protected static readonly TestStoreIndex GlobalTestStoreIndex = new TestStoreIndex();
+        public IServiceProvider ServiceProvider { get; protected set; }
 
         protected TestStore(string name)
         {
             Name = name;
         }
-        
+
         public string Name { get; protected set; }
 
         public abstract TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed);
-        public abstract IServiceCollection AddProviderServices(IServiceCollection serviceCollection);
+
+        public TestStore Initialize(IServiceProvider serviceProvider, Func<TestStore, DbContext> createContext, Action<DbContext> seed)
+            => Initialize(serviceProvider, () => createContext(this), seed);
+
         public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
         public abstract void Clean(DbContext context);
+
+        protected virtual DbContext CreateDefaultContext()
+            => new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
         public virtual void Dispose()
         {

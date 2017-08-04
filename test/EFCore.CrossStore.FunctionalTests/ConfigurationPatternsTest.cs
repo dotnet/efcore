@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+// ReSharper disable UnusedMember.Local
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerConfiguredCondition]
@@ -67,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -178,6 +180,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -190,8 +193,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Customer
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string CustomerID { get; set; }
             public string CompanyName { get; set; }
             public string Fax { get; set; }
@@ -199,13 +204,14 @@ namespace Microsoft.EntityFrameworkCore
 
         private class MultipleProvidersContext : NorthwindContextBase
         {
+            // ReSharper disable once MemberCanBePrivate.Local
             public bool UseSqlServer { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 if (UseSqlServer)
                 {
-                    optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
                 }
                 else
                 {
@@ -214,6 +220,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class SomeService
         {
             public SomeService(MultipleProvidersContext context)
@@ -328,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                     => optionsBuilder
-                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(_serviceProvider);
             }
         }

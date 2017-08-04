@@ -3,22 +3,33 @@
 
 using System;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable MethodSupportsCancellation
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.ExecutionStrategyFixture>, IDisposable
+    public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.ExecutionStrategyFixture>
     {
+        public ExecutionStrategyTest(ExecutionStrategyFixture fixture)
+        {
+            Fixture = fixture;
+            Fixture.TestStore.CloseConnection();
+        }
+
+        protected ExecutionStrategyFixture Fixture { get; }
+
         [Fact]
         public void Does_not_throw_or_retry_on_false_commit_failure()
         {
@@ -34,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         private void Test_commit_failure(bool realFailure)
         {
             Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
-                () => { db.SaveChanges(acceptAllChangesOnSuccess: false); },
+                () => db.SaveChanges(acceptAllChangesOnSuccess: false),
                 () => db.Products.AsNoTracking().Any()));
 
             Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
@@ -43,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
                 db,
-                c => { c.SaveChanges(acceptAllChangesOnSuccess: false); },
+                c => c.SaveChanges(acceptAllChangesOnSuccess: false),
                 c => c.Products.AsNoTracking().Any()));
 
             Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
@@ -52,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
                 c => c.Products.AsNoTracking().Any()));
 
             Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
-                () => { db.SaveChanges(acceptAllChangesOnSuccess: false); },
+                () => db.SaveChanges(acceptAllChangesOnSuccess: false),
                 () => db.Products.AsNoTracking().Any(),
                 IsolationLevel.Serializable));
 
@@ -63,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Test_commit_failure(realFailure, (e, db) => e.ExecuteInTransaction(
                 db,
-                c => { c.SaveChanges(acceptAllChangesOnSuccess: false); },
+                c => c.SaveChanges(acceptAllChangesOnSuccess: false),
                 c => c.Products.AsNoTracking().Any(),
                 IsolationLevel.Serializable));
 
@@ -157,20 +168,14 @@ namespace Microsoft.EntityFrameworkCore
 
             await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
                 db,
-                async (c, ct) =>
-                    {
-                        await c.SaveChangesAsync(acceptAllChangesOnSuccess: false);
-                    },
+                async (c, ct) => { await c.SaveChangesAsync(acceptAllChangesOnSuccess: false); },
                 (c, ct) => c.Products.AsNoTracking().AnyAsync(),
                 IsolationLevel.Serializable,
                 cancellationToken));
 
             await Test_commit_failure_async(realFailure, (e, db) => e.ExecuteInTransactionAsync(
                 db,
-                (c, ct) =>
-                    {
-                        return c.SaveChangesAsync(acceptAllChangesOnSuccess: false);
-                    },
+                (c, ct) => c.SaveChangesAsync(acceptAllChangesOnSuccess: false),
                 (c, ct) => c.Products.AsNoTracking().AnyAsync(),
                 IsolationLevel.Serializable,
                 cancellationToken));
@@ -219,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var connection = (TestSqlServerConnection)context1.GetService<ISqlServerConnection>();
 
-                using (var context2 = CreateContext(connection.DbConnection))
+                using (var context2 = CreateContext())
                 {
                     connection.CommitFailures.Enqueue(new bool?[] { realFailure });
 
@@ -342,72 +347,8 @@ namespace Microsoft.EntityFrameworkCore
             public string Name { get; set; }
         }
 
-        private const string DatabaseName = nameof(ExecutionStrategyTest);
-
-        public ExecutionStrategyTest(ExecutionStrategyFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = SqlServerTestStore.GetOrCreateShared(DatabaseName, () =>
-                {
-                    using (var context = CreateContext())
-                    {
-                        context.Database.EnsureCreated();
-                    }
-                });
-        }
-
-        protected ExecutionStrategyFixture Fixture { get; }
-        protected SqlServerTestStore TestStore { get; }
-
-        public virtual void Dispose() => TestStore.Dispose();
-
         protected virtual ExecutionStrategyContext CreateContext()
             => (ExecutionStrategyContext)Fixture.CreateContext();
-
-        protected virtual ExecutionStrategyContext CreateContext(DbConnection connection)
-            => (ExecutionStrategyContext)Fixture.CreateContext(connection);
-
-        public class ExecutionStrategyFixture
-        {
-            private readonly DbContextOptions _baseOptions;
-            private readonly DbContextOptions _options;
-
-            public TestSqlLoggerFactory TestSqlLoggerFactory { get; } = new TestSqlLoggerFactory();
-
-            public ExecutionStrategyFixture()
-            {
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
-                    .AddScoped<ISqlServerConnection, TestSqlServerConnection>()
-                    .AddScoped<IRelationalCommandBuilderFactory, TestRelationalCommandBuilderFactory>()
-                    .BuildServiceProvider();
-
-                _baseOptions = new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider(serviceProvider)
-                    .EnableSensitiveDataLogging()
-                    .Options;
-
-                _options = new DbContextOptionsBuilder(_baseOptions)
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString(DatabaseName), ApplySqlServerOptions)
-                    .Options;
-            }
-
-            private static void ApplySqlServerOptions(SqlServerDbContextOptionsBuilder b)
-            {
-                b.ApplyConfiguration();
-                b.MaxBatchSize(1);
-            }
-
-            public virtual DbContext CreateContext()
-                => new ExecutionStrategyContext(_options);
-
-            public virtual DbContext CreateContext(DbConnection connection)
-                => new ExecutionStrategyContext(
-                    new DbContextOptionsBuilder(_baseOptions)
-                        .UseSqlServer(connection, ApplySqlServerOptions)
-                        .Options);
-        }
 
         private void CleanContext()
         {
@@ -418,6 +359,29 @@ namespace Microsoft.EntityFrameworkCore
                     context.Remove(product);
                     context.SaveChanges();
                 }
+            }
+        }
+
+        public class ExecutionStrategyFixture : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
+            public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override Type ContextType { get; } = typeof(ExecutionStrategyContext);
+
+            protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+            {
+                return base.AddServices(serviceCollection)
+                    .AddScoped<ISqlServerConnection, TestSqlServerConnection>()
+                    .AddScoped<IRelationalCommandBuilderFactory, TestRelationalCommandBuilderFactory>();
+            }
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            {
+                var options = base.AddOptions(builder);
+                new SqlServerDbContextOptionsBuilder(options).MaxBatchSize(1);
+                return options;
             }
         }
     }

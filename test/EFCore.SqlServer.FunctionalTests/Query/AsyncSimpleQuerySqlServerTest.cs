@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
+// ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             //#9074
-            Fixture.TestStore.Connection.Close();
+            Fixture.TestStore.CloseConnection();
             fixture.TestSqlLoggerFactory.Clear();
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
@@ -75,18 +76,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         using (var context = CreateContext())
                         {
-                            var enumerator = (from c in context.Customers
-                                              where c.City == "London"
-                                              orderby c.CustomerID
-                                              select (from o1 in context.Orders
-                                                      where o1.CustomerID == c.CustomerID
-                                                            && o1.OrderDate.Value.Year == 1997
-                                                      orderby o1.OrderID
-                                                      select (from o2 in context.Orders
-                                                              where o1.CustomerID == c.CustomerID
-                                                              orderby o2.OrderID
-                                                              select o1.OrderID)))
-                                .GetEnumerator();
+                            using ((from c in context.Customers
+                                    where c.City == "London"
+                                    orderby c.CustomerID
+                                    select (from o1 in context.Orders
+                                            where o1.CustomerID == c.CustomerID
+                                                  && o1.OrderDate.Value.Year == 1997
+                                            orderby o1.OrderID
+                                            select (from o2 in context.Orders
+                                                    where o1.CustomerID == c.CustomerID
+                                                    orderby o2.OrderID
+                                                    select o1.OrderID)))
+                                .GetEnumerator())
+                            {
+                            }
                         }
                     });
             }

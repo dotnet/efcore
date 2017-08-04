@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected AsyncFromSqlQueryTestBase(TFixture fixture)
         {
             Fixture = fixture;
-            Fixture.TestStore.Connection.Close();
+            // #9074
+            Fixture.TestStore.CloseConnection();
             Fixture.TestSqlLoggerFactory.Clear();
         }
 

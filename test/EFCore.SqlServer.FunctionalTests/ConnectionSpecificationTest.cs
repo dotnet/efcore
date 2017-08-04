@@ -11,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore
 {
     public class ConnectionSpecificationTest
@@ -47,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         private class StringInOnConfiguringContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
         }
 
         [Fact]
@@ -55,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddScoped(p => new SqlConnection(SqlServerTestStore.NorthwindConnectionString))
+                    .AddScoped(p => new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
                     .AddDbContext<ConnectionInOnConfiguringContext>().BuildServiceProvider();
 
             using (SqlServerTestStore.GetNorthwindStore())
@@ -72,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerTestStore.NorthwindConnectionString)))
+                using (var context = new ConnectionInOnConfiguringContext(new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -98,6 +101,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        // ReSharper disable once UnusedMember.Local
         private class StringInConfigContext : NorthwindContextBase
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -143,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider
                 = new ServiceCollection()
-                    .AddScoped(p => new SqlConnection(SqlServerTestStore.NorthwindConnectionString))
+                    .AddScoped(p => new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
                     .AddDbContext<OptionsContext>()
                     .BuildServiceProvider();
 
@@ -163,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = new OptionsContext(
                     new DbContextOptions<OptionsContext>(),
-                    new SqlConnection(SqlServerTestStore.NorthwindConnectionString)))
+                    new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)))
                 {
                     Assert.True(context.Customers.Any());
                 }
@@ -241,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Same(_options, optionsBuilder.Options);
 
-                optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 Assert.NotSame(_options, optionsBuilder.Options);
             }
@@ -256,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore
             var configBuilder = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    { key, SqlServerTestStore.NorthwindConnectionString },
+                    { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString },
                 });
 
             var serviceProvider
@@ -312,8 +316,10 @@ namespace Microsoft.EntityFrameworkCore
         private class Customer
         {
             public string CustomerID { get; set; }
+            // ReSharper disable UnusedMember.Local
             public string CompanyName { get; set; }
             public string Fax { get; set; }
+            // ReSharper restore UnusedMember.Local
         }
     }
 }

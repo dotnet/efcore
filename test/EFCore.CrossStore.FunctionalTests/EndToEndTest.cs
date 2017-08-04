@@ -3,33 +3,40 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class EndToEndTest<TTestStore, TFixture> : IDisposable
-        where TTestStore : TestStore
-        where TFixture : CrossStoreFixture, new()
+    public abstract class EndToEndTest : IDisposable
     {
+        protected EndToEndTest(CrossStoreFixture fixture)
+        {
+            Fixture = fixture;
+            TestStore = Fixture.CreateTestStore(TestStoreFactory);
+        }
+
+        protected CrossStoreFixture Fixture { get; }
+        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
+        protected TestStore TestStore { get; }
+        public void Dispose() => TestStore.Dispose();
+
         [ConditionalFact]
         public virtual void Can_save_changes_and_query()
         {
             int secondId;
             using (var context = CreateContext())
             {
-                context.Database.EnsureCreated();
-                var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
-                SetPartitionId(first, context);
+                context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" });
 
                 Assert.Equal(1, context.SaveChanges());
 
                 var second = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 2" }).Entity;
                 context.Entry(second).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
-                SetPartitionId(second, context);
 
                 Assert.Equal(1, context.SaveChanges());
                 secondId = second.Id;
@@ -57,75 +64,66 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal("first", context.SimpleEntities.Single().StringProperty);
 
-                context.SimpleEntities.RemoveRange(context.SimpleEntities);
+                CrossStoreContext.RemoveAllEntities(context);
                 context.SaveChanges();
             }
         }
 
-        // TODO: Use a value generator to handle this automatically
-        private void SetPartitionId(SimpleEntity entity, CrossStoreContext context)
-        {
-            var property = context.Model.FindEntityType(entity.GetType()).FindProperty(SimpleEntity.ShadowPartitionIdName);
-            context.Entry(entity).GetInfrastructure()[property] = "Partition";
-        }
-
-        protected EndToEndTest(TFixture fixture)
-        {
-            Fixture = fixture;
-            TestStore = (TTestStore)Fixture.CreateTestStore(typeof(TTestStore));
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        public void Dispose() => TestStore.Dispose();
-
         protected CrossStoreContext CreateContext() => Fixture.CreateContext(TestStore);
     }
 
-    public class InMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, InMemoryCrossStoreFixture>, IClassFixture<InMemoryCrossStoreFixture>
+    public class InMemoryEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
     {
-        public InMemoryEndToEndTest(InMemoryCrossStoreFixture fixture)
+        public InMemoryEndToEndTest(CrossStoreFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
     }
 
     [SqlServerConfiguredCondition]
-    public class SqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SqlServerCrossStoreFixture>, IClassFixture<SqlServerCrossStoreFixture>
+    public class SqlServerEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
     {
-        public SqlServerEndToEndTest(SqlServerCrossStoreFixture fixture)
+        public SqlServerEndToEndTest(CrossStoreFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
-    public class SqliteEndToEndTest : EndToEndTest<SqliteTestStore, SqliteCrossStoreFixture>, IClassFixture<SqliteCrossStoreFixture>
+    public class SqliteEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
     {
-        public SqliteEndToEndTest(SqliteCrossStoreFixture fixture)
+        public SqliteEndToEndTest(CrossStoreFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
 
     [Collection("SharedEndToEndCollection")]
-    public class SharedInMemoryEndToEndTest : EndToEndTest<InMemoryTestStore, SharedCrossStoreFixture>
+    public class SharedInMemoryEndToEndTest : EndToEndTest
     {
         public SharedInMemoryEndToEndTest(SharedCrossStoreFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
     }
 
     [Collection("SharedEndToEndCollection")]
     [SqlServerConfiguredCondition]
-    public class SharedSqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SharedCrossStoreFixture>
+    public class SharedSqlServerEndToEndTest : EndToEndTest
     {
         public SharedSqlServerEndToEndTest(SharedCrossStoreFixture fixture)
             : base(fixture)
         {
         }
+
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
     [CollectionDefinition("SharedEndToEndCollection")]

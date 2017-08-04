@@ -6,43 +6,42 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryTestStore : TestStore
     {
-        private Action<InMemoryTestStore> _deleteDatabase;
-
         public InMemoryTestStore(string name = null)
             : base(name)
         {
         }
 
-        public static InMemoryTestStore GetOrCreateShared(string name, Action initializeDatabase)
-            => new InMemoryTestStore(name).InitializeShared(null, initializeDatabase);
-
-        public static InMemoryTestStore GetOrCreateShared(string name)
+        public static InMemoryTestStore GetOrCreate(string name)
             => new InMemoryTestStore(name);
 
-        public static InMemoryTestStore CreateScratch(
-            IServiceProvider serviceProvider,
-            string databaseName,
-            Action initializeDatabase)
-            => CreateScratch(
-                initializeDatabase,
-                s => serviceProvider.GetRequiredService<IInMemoryStoreCache>().GetStore(databaseName).Clear());
-
-        public static InMemoryTestStore CreateScratch(Action initializeDatabase, Action<InMemoryTestStore> deleteDatabase)
-            => new InMemoryTestStore().InitializeTransient(initializeDatabase, deleteDatabase);
+        public static InMemoryTestStore GetOrCreateInitialized(string name)
+            => new InMemoryTestStore(name).InitializeInMemory(null, null, null);
 
         public override void Clean(DbContext context)
-        {
-            context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
-        }
+            => context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
 
         public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => InitializeShared(serviceProvider, () =>
+            => InitializeInMemory(serviceProvider, createContext, seed);
+
+        public InMemoryTestStore InitializeInMemory(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+        {
+            ServiceProvider = serviceProvider;
+            if (createContext == null)
+            {
+                createContext = CreateDefaultContext;
+            }
+            if (seed == null)
+            {
+                seed = c => { };
+            }
+
+            var testStoreIndex = serviceProvider == null ? GlobalTestStoreIndex : serviceProvider.GetRequiredService<TestStoreIndex>();
+            testStoreIndex.CreateShared(typeof(InMemoryTestStore).Name + Name, () =>
                 {
                     using (var context = createContext())
                     {
@@ -51,35 +50,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
 
-        private InMemoryTestStore InitializeShared(IServiceProvider serviceProvider, Action initializeDatabase)
-        {
-            var testStoreIndex = serviceProvider == null ? GlobalTestStoreIndex : serviceProvider.GetRequiredService<TestStoreIndex>();
-            testStoreIndex.CreateShared(typeof(InMemoryTestStore).Name + Name, initializeDatabase);
-
             return this;
         }
-
-        private InMemoryTestStore InitializeTransient(Action initializeDatabase, Action<InMemoryTestStore> deleteDatabase)
-        {
-            initializeDatabase?.Invoke();
-
-            _deleteDatabase = deleteDatabase;
-            return this;
-        }
-
-        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-            => serviceCollection.AddEntityFrameworkInMemoryDatabase()
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
-                .AddSingleton<TestStoreIndex>();
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseInMemoryDatabase(Name);
-
-        public override void Dispose()
-        {
-            _deleteDatabase?.Invoke(this);
-
-            base.Dispose();
-        }
     }
 }

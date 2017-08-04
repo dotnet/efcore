@@ -3,21 +3,24 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class TableSplittingTestBase<TTestStore>
-        where TTestStore : TestStore
+    public abstract class TableSplittingTestBase
     {
         [Fact(Skip = "#8973")]
         public void Can_query_shared()
         {
-            using (var store = CreateTestStore(OnModelCreating))
+            using (CreateTestStore(OnModelCreating))
             {
-                using (var context = CreateContext(store, OnModelCreating))
+                using (var context = CreateContext())
                 {
                     Assert.Equal(4, context.Set<Operator>().ToList().Count);
                 }
@@ -27,9 +30,9 @@ namespace Microsoft.EntityFrameworkCore
         [Fact(Skip = "#8973")]
         public void Can_query_shared_derived()
         {
-            using (var store = CreateTestStore(OnModelCreating))
+            using (CreateTestStore(OnModelCreating))
             {
-                using (var context = CreateContext(store, OnModelCreating))
+                using (var context = CreateContext())
                 {
                     Assert.Equal(1, context.Set<FuelTank>().ToList().Count);
                 }
@@ -48,10 +51,7 @@ namespace Microsoft.EntityFrameworkCore
             Test_roundtrip(modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb =>
-                        {
-                            eb.Ignore(e => e.Vehicle);
-                        });
+                    modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
                 });
         }
 
@@ -61,21 +61,30 @@ namespace Microsoft.EntityFrameworkCore
             Test_roundtrip(modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb =>
-                        {
-                            eb.Ignore(e => e.Engine);
-                        });
-                    modelBuilder.Entity<CombustionEngine>(eb =>
-                        {
-                            eb.Ignore(e => e.FuelTank);
-                        });
+                    modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Engine); });
+                    modelBuilder.Entity<CombustionEngine>(eb => { eb.Ignore(e => e.FuelTank); });
                 });
         }
 
+        protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
+        {
+            using (CreateTestStore(onModelCreating))
+            {
+                using (var context = CreateContext())
+                {
+                    context.AssertSeeded();
+                }
+            }
+        }
+
+        protected readonly string DatabaseName = "TableSplittingTest";
+        protected TestStore TestStore { get; set; }
+        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
+        protected IServiceProvider ServiceProvider { get; set; }
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            TransportationContext.OnModelCreatingBase(modelBuilder);
-
             modelBuilder.Entity<Vehicle>(eb =>
                 {
                     eb.HasDiscriminator<string>("Discriminator");
@@ -88,19 +97,34 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<FuelTank>().ToTable("Vehicles");
         }
 
-        protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
+        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
         {
-            using (var store = CreateTestStore(onModelCreating))
-            {
-                using (var context = CreateContext(store, onModelCreating))
-                {
-                    context.AssertSeeded();
-                }
-            }
+            TestStore = TestStoreFactory.CreateShared(DatabaseName);
+
+            ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
+                .AddSingleton(TestModelSource.GetFactory(onModelCreating))
+                .BuildServiceProvider(validateScopes: true);
+
+            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
+
+            return TestStore;
         }
 
-        protected static readonly string DatabaseName = "TableSplittingTest";
-        public abstract TTestStore CreateTestStore(Action<ModelBuilder> onModelCreating);
-        public abstract TransportationContext CreateContext(TTestStore testStore, Action<ModelBuilder> onModelCreating);
+        protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
+            => serviceCollection.AddSingleton<ILoggerFactory>(TestSqlLoggerFactory);
+
+        protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => builder
+                .EnableSensitiveDataLogging()
+                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
+                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+
+        protected virtual TransportationContext CreateContext()
+        {
+            var options = AddOptions(TestStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .UseInternalServiceProvider(ServiceProvider).Options;
+            return new TransportationContext(options);
+        }
     }
 }

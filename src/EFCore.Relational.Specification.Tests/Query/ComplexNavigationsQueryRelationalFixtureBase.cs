@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c
                 .Log(RelationalEventId.QueryClientEvaluationWarning));
     }

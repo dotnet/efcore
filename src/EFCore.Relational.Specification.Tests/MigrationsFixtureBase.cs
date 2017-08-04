@@ -6,13 +6,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class MigrationsFixtureBase
+    public abstract class MigrationsFixtureBase : SharedStoreFixtureBase<MigrationsFixtureBase.MigrationsContext>
     {
         public static string ActiveProvider { get; set; }
+        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+        protected override string StoreName { get; } = "MigrationsTest";
 
-        public abstract MigrationsContext CreateContext();
+        public EmptyMigrationsContext CreateEmptyContext()
+            => new EmptyMigrationsContext(TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options);
 
-        public abstract EmptyMigrationsContext CreateEmptyContext();
+        public new virtual MigrationsContext CreateContext() => base.CreateContext();
 
         public class EmptyMigrationsContext : DbContext
         {

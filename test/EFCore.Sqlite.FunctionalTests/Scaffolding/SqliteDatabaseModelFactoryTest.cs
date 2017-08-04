@@ -10,29 +10,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public class SqliteDatabaseModelFactoryTest : IDisposable
+    public class SqliteDatabaseModelFactoryTest : IClassFixture<SqliteDatabaseModelFactoryTest.SqliteDatabaseModelFixture>
     {
-        private readonly SqliteTestStore _testStore;
+        protected SqliteDatabaseModelFixture Fixture { get; }
 
-        public SqliteDatabaseModelFactoryTest()
-        {
-            _testStore = SqliteTestStore.CreateScratch();
-        }
-
-        public void Dispose() => _testStore.Dispose();
+        public SqliteDatabaseModelFactoryTest(SqliteDatabaseModelFixture fixture) => Fixture = fixture;
 
         private readonly List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
 
         private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter)
         {
-            _testStore.ExecuteNonQuery(createSql);
+            // TODO: Replace this with a faster cleanup
+            Fixture.Reseed();
+
+            Fixture.TestStore.ExecuteNonQuery(createSql);
 
             var databaseModelFactory = new SqliteDatabaseModelFactory(
                 new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
@@ -40,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     new LoggingOptions(),
                     new DiagnosticListener("Fake")));
 
-            var databaseModel = databaseModelFactory.Create(_testStore.ConnectionString, tables, schemas);
+            var databaseModel = databaseModelFactory.Create(Fixture.TestStore.ConnectionString, tables, schemas);
             Assert.NotNull(databaseModel);
             asserter(databaseModel);
         }
@@ -63,7 +61,7 @@ CREATE TABLE Denali ( id int );",
                         // ReSharper disable once PossibleNullReferenceException
                         Assert.Equal("Everest", table.Name);
                     }
-            );
+                );
         }
 
         [Fact]
@@ -82,7 +80,7 @@ CREATE TABLE Denali ( id int );",
                         // ReSharper disable once PossibleNullReferenceException
                         Assert.Equal("Everest", table.Name);
                     }
-            );
+                );
         }
 
         #endregion
@@ -105,7 +103,7 @@ CREATE TABLE Denali ( id int );",
                             d => Assert.Equal("Denali", d.Name),
                             e => Assert.Equal("Everest", e.Name));
                     }
-            );
+                );
         }
 
         [Fact]
@@ -130,7 +128,7 @@ CREATE TABLE MountainsColumns (
                         Assert.Single(table.Columns.Where(c => c.Name == "Id"));
                         Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                     }
-            );
+                );
         }
 
         [Fact]
@@ -147,7 +145,7 @@ CREATE TABLE MountainsColumns (
                         Assert.Equal("Place", pk.Table.Name);
                         Assert.Equal(new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         [Fact]
@@ -172,7 +170,7 @@ CREATE INDEX IX_Location_Name ON Place (Location, Name);",
                         Assert.Equal("Place", uniqueConstraint.Table.Name);
                         Assert.Equal(new List<string> { "Name" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         [Fact]
@@ -201,7 +199,7 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
                         Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
                         Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
                     }
-            );
+                );
         }
 
         [Fact]
@@ -245,7 +243,7 @@ CREATE TABLE SecondDependent (
                         Assert.Equal(new List<string> { "Id" }, secondFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                         Assert.Equal(ReferentialAction.NoAction, secondFk.OnDelete);
                     }
-            );
+                );
         }
 
         #endregion
@@ -276,7 +274,7 @@ CREATE TABLE StoreType (
                         Assert.Equal("blob", columns.Single(c => c.Name == "BlobProperty").StoreType);
                         Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
                     }
-            );
+                );
         }
 
         [Fact]
@@ -298,7 +296,7 @@ CREATE TABLE Nullable (
                         Assert.True(columns.Single(c => c.Name == "NullableInt").IsNullable);
                         Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
                     }
-            );
+                );
         }
 
         [Fact]
@@ -322,7 +320,7 @@ CREATE TABLE DefaultValue (
                         Assert.Equal("0.0", columns.Single(c => c.Name == "RealColumn").DefaultValueSql);
                         Assert.Equal("'October 20, 2015 11am'", columns.Single(c => c.Name == "Created").DefaultValueSql);
                     }
-            );
+                );
         }
 
         #endregion
@@ -348,7 +346,7 @@ CREATE TABLE CompositePrimaryKey (
                         Assert.Equal("CompositePrimaryKey", pk.Table.Name);
                         Assert.Equal(new List<string> { "Id2", "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         [Fact]
@@ -368,7 +366,7 @@ CREATE TABLE RowidPrimaryKey (
                         Assert.Equal("RowidPrimaryKey", pk.Table.Name);
                         Assert.Equal(new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         [Fact(Skip = "See issue#8802")]
@@ -390,7 +388,7 @@ CREATE TABLE PrimaryKeyName (
                         Assert.Equal("PK", pk.Name);
                         Assert.Equal(new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         #endregion
@@ -417,7 +415,7 @@ CREATE TABLE CompositeUniqueConstraint (
                         Assert.Equal("CompositeUniqueConstraint", constraint.Table.Name);
                         Assert.Equal(new List<string> { "Id2", "Id1" }, constraint.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         [Fact(Skip = "See issue#8802")]
@@ -440,7 +438,7 @@ CREATE TABLE UniqueConstraintName (
                         Assert.Equal("UK", constraint.Name);
                         Assert.Equal(new List<string> { "Id" }, constraint.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         #endregion
@@ -469,7 +467,7 @@ CREATE INDEX IX_COMPOSITE on CompositeIndex (Id2, Id1);",
                         Assert.Equal("IX_COMPOSITE", index.Name);
                         Assert.Equal(new List<string> { "Id2", "Id1" }, index.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         [Fact]
@@ -495,7 +493,7 @@ CREATE UNIQUE INDEX IX_UNIQUE on UniqueIndex (Id2);",
                         Assert.True(index.IsUnique);
                         Assert.Equal(new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
                     }
-            );
+                );
         }
 
         #endregion
@@ -689,7 +687,7 @@ CREATE TABLE DependentTable (
                         Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, warning.Id);
                         Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), warning.Message);
                     }
-            );
+                );
         }
 
         [Fact]
@@ -764,5 +762,12 @@ CREATE TABLE DependentTable (
         }
 
         #endregion
+
+        public class SqliteDatabaseModelFixture : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = nameof(SqliteDatabaseModelFactoryTest);
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            public new SqliteTestStore TestStore => (SqliteTestStore)base.TestStore;
+        }
     }
 }

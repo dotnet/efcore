@@ -4,53 +4,45 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqliteForeignKeyTest : IDisposable
+    public class SqliteForeignKeyTest
     {
-        private readonly SqliteTestStore _testStore;
-
-        public SqliteForeignKeyTest()
-        {
-            _testStore = SqliteTestStore.CreateScratch();
-        }
-
-        public void Dispose() => _testStore.Dispose();
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void It_enforces_foreign_key(bool suppress)
         {
-            var options = new DbContextOptionsBuilder()
-                .UseSqlite(_testStore.ConnectionString,
-                    b =>
-                        {
-                            if (suppress)
-                            {
-                                b.SuppressForeignKeyEnforcement();
-                            }
-                        }).Options;
-
-            using (var context = new MyContext(options))
+            using (var testStore = (SqliteTestStore)SqliteTestStore.GetOrCreate("ForeignKeyTest")
+                .Initialize(null, t => new MyContext(t.AddProviderOptions(new DbContextOptionsBuilder()).Options), null))
             {
-                context.Database.EnsureClean();
-                context.Add(new Child { ParentId = 4 });
-                if (suppress)
+                testStore.CloseConnection();
+
+                var builder = testStore.AddProviderOptions(new DbContextOptionsBuilder());
+                new SqliteDbContextOptionsBuilder(builder).SuppressForeignKeyEnforcement(suppress);
+
+                using (var context = new MyContext(builder.Options))
                 {
-                    context.SaveChanges();
-                }
-                else
-                {
-                    var ex = Assert.Throws<DbUpdateException>(() => { context.SaveChanges(); });
-                    Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message, StringComparison.OrdinalIgnoreCase);
+                    context.Add(new Child { ParentId = 4 });
+                    if (suppress)
+                    {
+                        context.SaveChanges();
+                    }
+                    else
+                    {
+                        var ex = Assert.Throws<DbUpdateException>(() => { context.SaveChanges(); });
+                        // ReSharper disable once PossibleNullReferenceException
+                        Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message, StringComparison.OrdinalIgnoreCase);
+                    }
                 }
             }
         }
 
-        public class MyContext : DbContext
+        protected class MyContext : DbContext
         {
             public MyContext(DbContextOptions options)
                 : base(options)
@@ -69,14 +61,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class Child
+        protected class Child
         {
             public int Id { get; set; }
             public int ParentId { get; set; }
             public Parent MyParent { get; set; }
         }
 
-        public class Parent
+        protected class Parent
         {
             public int Id { get; set; }
             public ICollection<Child> Children { get; set; }
@@ -85,10 +77,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void It_allows_foreign_key_to_unique_index()
         {
-            var builder = new DbContextOptionsBuilder();
-            var sqliteBuilder = builder.UseSqlite(_testStore.ConnectionString);
-            var options = builder.Options;
-            _testStore.ExecuteNonQuery(@"
+            using (var testStore = SqliteTestStore.GetOrCreateInitialized("ForeignKeyIndexTest"))
+            {
+                var options = testStore.AddProviderOptions(new DbContextOptionsBuilder()).Options;
+
+                testStore.ExecuteNonQuery(@"
 CREATE TABLE User (
     Id INTEGER PRIMARY KEY,
     AltId INTEGER NOT NULL UNIQUE
@@ -100,65 +93,65 @@ CREATE TABLE Comment (
     FOREIGN KEY (UserAltId) REFERENCES User (AltId)
 );");
 
-            long id;
-
-            using (var context = new BloggingContext(options))
-            {
-                var entry = context.User.Add(new User { AltId = 1356524 });
-                context.Comments.Add(new Comment { User = entry.Entity });
-                context.SaveChanges();
-                id = entry.Entity.Id;
-            }
-
-            using (var context = new BloggingContext(options))
-            {
-                var comment = context.Comments.Include(u => u.User).Single();
-                Assert.Equal(id, comment.User.Id);
-            }
-        }
-    }
-
-    internal class BloggingContext : DbContext
-    {
-        public BloggingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Comment>(entity =>
+                long id;
+                using (var context = new BloggingContext(options))
                 {
-                    entity.ToTable("Comment");
+                    var entry = context.User.Add(new User { AltId = 1356524 });
+                    context.Comments.Add(new Comment { User = entry.Entity });
+                    context.SaveChanges();
+                    id = entry.Entity.Id;
+                }
 
-                    entity.HasOne(d => d.User)
-                        .WithMany(p => p.Comments)
-                        .HasPrincipalKey(p => p.AltId)
-                        .HasForeignKey(d => d.UserAltId);
-                });
-
-            modelBuilder.Entity<User>(entity => { entity.HasAlternateKey(e => e.AltId); });
+                using (var context = new BloggingContext(options))
+                {
+                    var comment = context.Comments.Include(u => u.User).Single();
+                    Assert.Equal(id, comment.User.Id);
+                }
+            }
         }
 
-        public virtual DbSet<Comment> Comments { get; set; }
-        public virtual DbSet<User> User { get; set; }
-    }
+        protected class BloggingContext : DbContext
+        {
+            public BloggingContext(DbContextOptions options)
+                : base(options)
+            {
+            }
 
-    internal class Comment
-    {
-        public long Id { get; set; }
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Comment>(entity =>
+                    {
+                        entity.ToTable("Comment");
 
-        public int UserAltId { get; set; }
+                        entity.HasOne(d => d.User)
+                            .WithMany(p => p.Comments)
+                            .HasPrincipalKey(p => p.AltId)
+                            .HasForeignKey(d => d.UserAltId);
+                    });
 
-        public virtual User User { get; set; }
-    }
+                modelBuilder.Entity<User>(entity => { entity.HasAlternateKey(e => e.AltId); });
+            }
 
-    internal class User
-    {
-        public long Id { get; set; }
+            public virtual DbSet<Comment> Comments { get; set; }
+            public virtual DbSet<User> User { get; set; }
+        }
 
-        public int AltId { get; set; }
+        protected class Comment
+        {
+            public long Id { get; set; }
 
-        public virtual ICollection<Comment> Comments { get; set; }
+            public int UserAltId { get; set; }
+
+            public virtual User User { get; set; }
+        }
+
+        protected class User
+        {
+            public long Id { get; set; }
+
+            public int AltId { get; set; }
+
+            public virtual ICollection<Comment> Comments { get; set; }
+        }
     }
 }

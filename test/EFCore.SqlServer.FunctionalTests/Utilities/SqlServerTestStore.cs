@@ -12,67 +12,43 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable SuggestBaseTypeForParameter
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
-    public class SqlServerTestStore : RelationalTestStore<SqlConnection>
+    public class SqlServerTestStore : RelationalTestStore
     {
-        private const string NorthwindName = "Northwind";
-        public static readonly string NorthwindConnectionString = CreateConnectionString(NorthwindName);
         public const int CommandTimeout = 600;
-
         private static string BaseDirectory => AppContext.BaseDirectory;
-
         public static SqlServerTestStore GetNorthwindStore()
-            => GetOrCreateShared(
-                NorthwindName,
-                Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location),
-                    "Northwind.sql"));
+            => SqlServerNorthwindTestStoreFactory.Instance.CreateShared(
+                SqlServerNorthwindTestStoreFactory.Name);
 
-        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
-            => new SqlServerTestStore(name).InitializeShared(s => initializeDatabase?.Invoke());
+        public static SqlServerTestStore GetOrCreate(string name, bool useFileName = false)
+            => new SqlServerTestStore(name, useFileName);
 
-        public static SqlServerTestStore GetOrCreateShared(string name, string scriptPath)
-            => new SqlServerTestStore(name, cleanDatabase: false, scriptPath: scriptPath).InitializeShared(s => s.ExecuteScript(scriptPath));
+        public static SqlServerTestStore GetOrCreateInitialized(string name, bool useFileName = false)
+            => new SqlServerTestStore(name, useFileName).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
-        public static SqlServerTestStore GetOrCreateShared(string name)
-            => new SqlServerTestStore(name);
+        public static SqlServerTestStore GetOrCreateInitialized(string name, string scriptPath)
+            => (SqlServerTestStore)new SqlServerTestStore(name, scriptPath: scriptPath)
+            .Initialize(null, (Func<DbContext>)null, null);
 
-        public static SqlServerTestStore GetOrCreateSharedScript(string name, string scriptPath)
-            => new SqlServerTestStore(name, cleanDatabase: false, scriptPath: scriptPath);
+        public static SqlServerTestStore Create(string name, bool useFileName = false)
+            => new SqlServerTestStore(name, useFileName, shared: false);
 
-        public static SqlServerTestStore Create(string name, bool deleteDatabase = false)
-            => new SqlServerTestStore(name).CreateTransient(true, deleteDatabase);
-
-        public static SqlServerTestStore CreateScratch(bool createDatabase = true, bool useFileName = false)
-            => new SqlServerTestStore(GetScratchDbName(), useFileName: useFileName).CreateTransient(createDatabase, true);
-
-        private static string GetScratchDbName()
-        {
-            string name;
-            do
-            {
-                name = "Scratch_" + Guid.NewGuid();
-            }
-            while (DatabaseExists(name)
-                   || DatabaseFilesExist(name));
-
-            return name;
-        }
+        public static SqlServerTestStore CreateInitialized(string name, bool useFileName = false)
+            => new SqlServerTestStore(name, useFileName, shared: false).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
         private readonly string _fileName;
-        private readonly bool _cleanDatabase;
         private readonly string _scriptPath;
-        private bool _deleteDatabase;
+        private readonly bool _shared;
 
         private SqlServerTestStore(
             string name,
             bool useFileName = false,
-            bool cleanDatabase = true,
-            string scriptPath = null)
+            string scriptPath = null,
+            bool shared = true)
             : base(name)
         {
             if (useFileName)
@@ -80,47 +56,71 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 _fileName = Path.Combine(BaseDirectory, name + ".mdf");
             }
 
-            _cleanDatabase = cleanDatabase;
-            _scriptPath = scriptPath;
+            if (scriptPath != null)
+            {
+                _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location), scriptPath);
+            }
+            _shared = shared;
+
+            ConnectionString = CreateConnectionString(Name, _fileName);
+            Connection = new SqlConnection(ConnectionString);
         }
 
         public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => InitializeShared(s =>
-                {
-                    if (_scriptPath != null)
-                    {
-                        s.ExecuteScript(_scriptPath);
-                    }
-                    else
-                    {
-                        using (var context = createContext())
-                        {
-                            context.Database.EnsureCreated();
-                            seed(context);
-                        }
-                    }
-                });
+            => InitializeSqlServer(serviceProvider, createContext, seed);
 
-        private SqlServerTestStore InitializeShared(Action<SqlServerTestStore> initializeDatabase)
+        public SqlServerTestStore InitializeSqlServer(
+            IServiceProvider serviceProvider, Func<SqlServerTestStore, DbContext> createContext, Action<DbContext> seed)
+            => InitializeSqlServer(serviceProvider, () => createContext(this), seed);
+
+        public SqlServerTestStore InitializeSqlServer(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
         {
-            ConnectionString = CreateConnectionString(Name, _fileName);
-            Connection = new SqlConnection(ConnectionString);
+            ServiceProvider = serviceProvider;
+            if (createContext == null)
+            {
+                createContext = CreateDefaultContext;
+            }
+            if (seed == null)
+            {
+                seed = c => { };
+            }
 
-            GlobalTestStoreIndex.CreateShared(typeof(SqlServerTestStore).Name + Name, () =>
-                {
-                    if (CreateDatabase())
-                    {
-                        initializeDatabase?.Invoke(this);
-                    }
-                });
+            if (_shared)
+            {
+                GlobalTestStoreIndex.CreateShared(typeof(SqlServerTestStore).Name + Name,
+                    () => Inititialize(createContext, seed));
+            }
+            else
+            {
+                Inititialize(createContext, seed);
+            }
 
-            Connection.Open();
+            if (ConnectionState != ConnectionState.Open)
+            {
+                OpenConnection();
+            }
+
             return this;
         }
 
-        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-            => serviceCollection.AddEntityFrameworkSqlServer()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
+        private void Inititialize(Func<DbContext> createContext, Action<DbContext> seed)
+        {
+            if (CreateDatabase())
+            {
+                if (_scriptPath != null)
+                {
+                    ExecuteScript(_scriptPath);
+                }
+                else
+                {
+                    using (var context = createContext())
+                    {
+                        context.Database.EnsureCreated();
+                        seed(context);
+                    }
+                }
+            }
+        }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseSqlServer(Connection, b => b.ApplyConfiguration().CommandTimeout(CommandTimeout));
@@ -129,23 +129,28 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             using (var master = new SqlConnection(CreateConnectionString("master", false)))
             {
-                if (DatabaseExists(Name))
+                if (ExecuteScalar<int>(master, $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
                 {
-                    if (!_cleanDatabase)
+                    if (_scriptPath != null)
                     {
                         return false;
                     }
 
-                    using (var context = new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options))
+                    if (_fileName == null)
                     {
-                        Clean(context);
+                        using (var context = new DbContext(AddProviderOptions(new DbContextOptionsBuilder()).Options))
+                        {
+                            Clean(context);
+                            return true;
+                        }
                     }
+
+                    // Delete the database to ensure it's recreated with the correct file path
+                    DeleteDatabase();
                 }
-                else
-                {
-                    ExecuteNonQuery(master, GetCreateDatabaseStatement(Name, _fileName));
-                    WaitForExists(Connection);
-                }
+
+                ExecuteNonQuery(master, GetCreateDatabaseStatement(Name, _fileName));
+                WaitForExists((SqlConnection)Connection);
             }
 
             return true;
@@ -227,26 +232,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
         }
 
-        private SqlServerTestStore CreateTransient(bool createDatabase, bool deleteDatabase)
-        {
-            ConnectionString = CreateConnectionString(Name, _fileName);
-            Connection = new SqlConnection(ConnectionString);
-
-            if (createDatabase)
-            {
-                CreateDatabase();
-
-                OpenConnection();
-            }
-            else if (DatabaseExists(Name))
-            {
-                DeleteDatabase(Name);
-            }
-
-            _deleteDatabase = deleteDatabase;
-            return this;
-        }
-
         private static string GetCreateDatabaseStatement(string name, string fileName)
         {
             var result = $"CREATE DATABASE [{name}]";
@@ -272,39 +257,19 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return result;
         }
 
-        private static bool DatabaseExists(string name)
+        public void DeleteDatabase()
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
-                return ExecuteScalar<int>(master, $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{name}'") > 0;
-            }
-        }
-
-        private static bool DatabaseFilesExist(string name)
-        {
-            var userFolder = Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME");
-            return userFolder != null
-                   && (File.Exists(Path.Combine(userFolder, name + ".mdf"))
-                       || File.Exists(Path.Combine(userFolder, name + "_log.ldf")));
-        }
-
-        private static void DeleteDatabase(string name)
-        {
-            using (var master = new SqlConnection(CreateConnectionString("master")))
-            {
-                ExecuteNonQuery(master, GetDeleteDatabaseSql(name));
+                ExecuteNonQuery(master, string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+                                          BEGIN
+                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                                              DROP DATABASE [{0}];
+                                          END", Name));
 
                 SqlConnection.ClearAllPools();
             }
         }
-
-        private static string GetDeleteDatabaseSql(string name)
-            // SET SINGLE_USER will close any open connections that would prevent the drop
-            => string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
-                                          BEGIN
-                                              ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-                                              DROP DATABASE [{0}];
-                                          END", name);
 
         public override void OpenConnection()
         {
@@ -326,31 +291,31 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public T ExecuteScalar<T>(string sql, params object[] parameters)
             => ExecuteScalar<T>(Connection, sql, parameters);
 
-        private static T ExecuteScalar<T>(SqlConnection connection, string sql, params object[] parameters)
+        private static T ExecuteScalar<T>(DbConnection connection, string sql, params object[] parameters)
             => Execute(connection, command => (T)command.ExecuteScalar(), sql, false, parameters);
 
         public Task<T> ExecuteScalarAsync<T>(string sql, params object[] parameters)
             => ExecuteScalarAsync<T>(Connection, sql, parameters);
 
-        private static Task<T> ExecuteScalarAsync<T>(SqlConnection connection, string sql, IReadOnlyList<object> parameters = null)
+        private static Task<T> ExecuteScalarAsync<T>(DbConnection connection, string sql, IReadOnlyList<object> parameters = null)
             => ExecuteAsync(connection, async command => (T)await command.ExecuteScalarAsync(), sql, false, parameters);
 
         public int ExecuteNonQuery(string sql, params object[] parameters)
             => ExecuteNonQuery(Connection, sql, parameters);
 
-        private static int ExecuteNonQuery(SqlConnection connection, string sql, object[] parameters = null)
+        private static int ExecuteNonQuery(DbConnection connection, string sql, object[] parameters = null)
             => Execute(connection, command => command.ExecuteNonQuery(), sql, false, parameters);
 
         public Task<int> ExecuteNonQueryAsync(string sql, params object[] parameters)
             => ExecuteNonQueryAsync(Connection, sql, parameters);
 
-        private static Task<int> ExecuteNonQueryAsync(SqlConnection connection, string sql, IReadOnlyList<object> parameters = null)
+        private static Task<int> ExecuteNonQueryAsync(DbConnection connection, string sql, IReadOnlyList<object> parameters = null)
             => ExecuteAsync(connection, command => command.ExecuteNonQueryAsync(), sql, false, parameters);
 
         public IEnumerable<T> Query<T>(string sql, params object[] parameters)
             => Query<T>(Connection, sql, parameters);
 
-        private static IEnumerable<T> Query<T>(SqlConnection connection, string sql, object[] parameters = null)
+        private static IEnumerable<T> Query<T>(DbConnection connection, string sql, object[] parameters = null)
             => Execute(connection, command =>
                 {
                     using (var dataReader = command.ExecuteReader())
@@ -367,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
             => QueryAsync<T>(Connection, sql, parameters);
 
-        private static Task<IEnumerable<T>> QueryAsync<T>(SqlConnection connection, string sql, object[] parameters = null)
+        private static Task<IEnumerable<T>> QueryAsync<T>(DbConnection connection, string sql, object[] parameters = null)
             => ExecuteAsync(connection, async command =>
                 {
                     using (var dataReader = await command.ExecuteReaderAsync())
@@ -382,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 }, sql, false, parameters);
 
         private static T Execute<T>(
-            SqlConnection connection, Func<DbCommand, T> execute, string sql,
+            DbConnection connection, Func<DbCommand, T> execute, string sql,
             bool useTransaction = false, object[] parameters = null)
             => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().Execute(new { connection, execute, sql, useTransaction, parameters },
@@ -390,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 : ExecuteCommand(connection, execute, sql, useTransaction, parameters);
 
         private static T ExecuteCommand<T>(
-            SqlConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)
+            DbConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)
         {
             if (connection.State != ConnectionState.Closed)
             {
@@ -422,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         private static Task<T> ExecuteAsync<T>(
-            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
+            DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
             bool useTransaction = false, IReadOnlyList<object> parameters = null)
             => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
@@ -431,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 : ExecuteCommandAsync(connection, executeAsync, sql, useTransaction, parameters);
 
         private static async Task<T> ExecuteCommandAsync<T>(
-            SqlConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, IReadOnlyList<object> parameters)
+            DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction, IReadOnlyList<object> parameters)
         {
             if (connection.State != ConnectionState.Closed)
             {
@@ -462,9 +427,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         private static DbCommand CreateCommand(
-            SqlConnection connection, string commandText, IReadOnlyList<object> parameters = null)
+            DbConnection connection, string commandText, IReadOnlyList<object> parameters = null)
         {
-            var command = connection.CreateCommand();
+            var command = (SqlCommand)connection.CreateCommand();
 
             command.CommandText = commandText;
             command.CommandTimeout = CommandTimeout;
@@ -478,16 +443,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
 
             return command;
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            if (_deleteDatabase)
-            {
-                DeleteDatabase(Name);
-            }
         }
 
         public static string CreateConnectionString(string name)

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             // #9182
-            Fixture.TestStore.Connection.Close();
+            Fixture.TestStore.CloseConnection();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 

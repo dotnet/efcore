@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         {
             builder = base.AddOptions(builder);
             new SqliteDbContextOptionsBuilder(builder).SuppressForeignKeyEnforcement();

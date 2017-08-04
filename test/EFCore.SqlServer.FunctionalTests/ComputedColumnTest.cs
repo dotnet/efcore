@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public ComputedColumnTest()
         {
-            TestStore = SqlServerTestStore.Create("ComputedColumnTest");
+            TestStore = SqlServerTestStore.CreateInitialized("ComputedColumnTest");
         }
 
         protected SqlServerTestStore TestStore { get; }

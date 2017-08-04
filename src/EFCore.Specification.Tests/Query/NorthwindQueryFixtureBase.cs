@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void Seed(NorthwindContext context) => NorthwindData.Seed(context);
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c
                 .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
                 .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)

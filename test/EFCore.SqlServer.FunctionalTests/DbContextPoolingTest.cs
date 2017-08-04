@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ClassNeverInstantiated.Local
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
         => new ServiceCollection()
             .AddEntityFrameworkSqlServer()
             .AddDbContextPool<TContext>(
-                ob => ob.UseSqlServer(SqlServerTestStore.NorthwindConnectionString),
+                ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
                 poolSize)
             .BuildServiceProvider();
 

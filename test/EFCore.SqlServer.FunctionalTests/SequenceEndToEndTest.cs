@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public SequenceEndToEndTest()
         {
-            TestStore = SqlServerTestStore.Create("SequenceEndToEndTest");
+            TestStore = SqlServerTestStore.CreateInitialized("SequenceEndToEndTest");
         }
 
         protected SqlServerTestStore TestStore { get; }

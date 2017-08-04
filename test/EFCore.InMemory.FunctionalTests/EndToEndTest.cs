@@ -7,10 +7,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class EndToEndTest : IClassFixture<InMemoryFixture>
+    public class EndToEndInMemoryTest : IClassFixture<InMemoryFixture>
     {
+        public EndToEndInMemoryTest(InMemoryFixture fixture) => Fixture = fixture;
+
+        protected InMemoryFixture Fixture { get; }
+
         [Fact]
         public void Can_use_different_entity_types_end_to_end()
         {
@@ -37,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model)
-                .UseInMemoryDatabase(nameof(EndToEndTest))
-                .UseInternalServiceProvider(_fixture.ServiceProvider);
+                .UseInMemoryDatabase(nameof(EndToEndInMemoryTest))
+                .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             T entity;
             using (var context = new DbContext(optionsBuilder.Options))
@@ -86,13 +91,6 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(0, context.Set<T>().Count());
             }
-        }
-
-        private readonly InMemoryFixture _fixture;
-
-        public EndToEndTest(InMemoryFixture fixture)
-        {
-            _fixture = fixture;
         }
     }
 }

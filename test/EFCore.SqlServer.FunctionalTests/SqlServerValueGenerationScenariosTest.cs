@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_with_Identity_column()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextIdentity(testStore.Name))
                 {
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Insert_with_sequence_HiLo()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextHiLo(testStore.Name))
                 {
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_default_value_from_sequence()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextDefaultValue(testStore.Name))
                 {
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_default_string_value_from_sequence()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextStringDefaultValue(testStore.Name))
                 {
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_with_key_default_value_from_sequence()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextKeyColumnWithDefaultValue(testStore.Name))
                 {
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_with_explicit_non_default_keys()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextNoKeyGeneration(testStore.Name))
                 {
@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_with_explicit_with_default_keys()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextNoKeyGenerationNullableKey(testStore.Name))
                 {
@@ -362,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_with_non_key_default_value()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextNonKeyDefaultValue(testStore.Name))
                 {
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_with_non_key_default_value_readonly()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_and_update_with_computed_column()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Insert_and_update_with_computed_column_with_function()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
@@ -600,7 +600,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
         [Fact]
         public void Insert_and_update_with_computed_column_with_querying_function()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
@@ -668,7 +668,7 @@ END");
         [Fact]
         public void Insert_with_client_generated_GUID_key()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 Guid afterSave;
                 using (var context = new BlogContextClientGuidKey(testStore.Name))
@@ -717,7 +717,7 @@ END");
         [Fact]
         public void Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextClientGuidNonKey(testStore.Name))
                 {
@@ -747,7 +747,7 @@ END");
         [Fact]
         public void Insert_with_server_generated_GUID_key()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 Guid afterSave;
                 using (var context = new BlogContextServerGuidKey(testStore.Name))
@@ -804,7 +804,7 @@ END");
         [Fact]
         public void Insert_with_explicit_non_default_keys_by_default()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContext(testStore.Name))
                 {
@@ -825,7 +825,7 @@ END");
         [Fact]
         public void Insert_with_explicit_default_keys()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContext(testStore.Name))
                 {
@@ -853,7 +853,7 @@ END");
         [Fact]
         public void Insert_with_implicit_default_keys()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextSpecifyKeysUsingDefault(testStore.Name))
                 {
@@ -894,7 +894,7 @@ END");
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Insert_explicit_value_throws_when_readonly_sequence_before_save()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextReadOnlySequenceKeyColumnWithDefaultValue(testStore.Name))
                 {
@@ -933,7 +933,7 @@ END");
         [Fact]
         public void Insert_explicit_value_throws_when_readonly_before_save()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextNonKeyReadOnlyDefaultValue(testStore.Name))
                 {
@@ -955,7 +955,7 @@ END");
         [Fact]
         public void Insert_explicit_value_into_computed_column()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
@@ -975,7 +975,7 @@ END");
         [Fact]
         public void Update_explicit_value_in_computed_column()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextComputedColumn(testStore.Name))
                 {
@@ -1005,7 +1005,7 @@ END");
         [Fact]
         public void Resolve_concurreny()
         {
-            using (var testStore = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
                 using (var context = new BlogContextConcurrencyWithRowversion(testStore.Name))
                 {

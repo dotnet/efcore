@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void Seed(ComplexNavigationsContext context) => ComplexNavigationsData.Seed(context);
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c
                 .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning));
         

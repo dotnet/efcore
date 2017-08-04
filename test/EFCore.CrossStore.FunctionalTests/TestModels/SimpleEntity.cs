@@ -6,7 +6,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels
     public class SimpleEntity
     {
         public static string ShadowPropertyName = "ShadowStringProperty";
-        public static string ShadowPartitionIdName = "ShadowPartitionIdProperty";
 
         public virtual int Id { get; set; }
 

@@ -15,9 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public override SqlServerTestStore CreateShared(string storeName)
-            => SqlServerTestStore.GetOrCreateShared("adventureworks",
-                Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location),
-                    "SqlAzure",
-                    "adventureworks.sql"));
+            => SqlServerTestStore.GetOrCreateInitialized("adventureworks",
+                Path.Combine("SqlAzure","adventureworks.sql"));
     }
 }

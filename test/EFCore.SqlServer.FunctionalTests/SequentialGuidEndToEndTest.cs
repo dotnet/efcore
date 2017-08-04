@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public SequentialGuidEndToEndTest()
         {
-            TestStore = SqlServerTestStore.Create("SequentialGuidEndToEndTest");
+            TestStore = SqlServerTestStore.CreateInitialized("SequentialGuidEndToEndTest");
         }
 
         protected SqlServerTestStore TestStore { get; }

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindRowNumberPagingQuerySqlServerFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
     {
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         {
             var optionsBuilder = base.AddOptions(builder);
             new SqlServerDbContextOptionsBuilder(optionsBuilder).UseRowNumberForPaging();

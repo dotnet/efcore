@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
             
-            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(c => c
                     .Log(RelationalEventId.QueryClientEvaluationWarning));
         }

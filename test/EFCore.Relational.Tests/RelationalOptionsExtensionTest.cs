@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalOptionsExtensionTest
@@ -26,12 +27,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Throws_when_setting_Connection_to_null()
-        {
-            Assert.Throws<ArgumentNullException>(() => new FakeRelationalOptionsExtension().WithConnection(null));
-        }
-
-        [Fact]
         public void Can_set_ConnectionString()
         {
             var optionsExtension = new FakeRelationalOptionsExtension();
@@ -41,12 +36,6 @@ namespace Microsoft.EntityFrameworkCore
             optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithConnectionString(ConnectionString);
 
             Assert.Equal(ConnectionString, optionsExtension.ConnectionString);
-        }
-
-        [Fact]
-        public void Throws_when_setting_ConnectionString_to_null()
-        {
-            Assert.Throws<ArgumentNullException>(() => new FakeRelationalOptionsExtension().WithConnectionString(null));
         }
 
         [Fact]

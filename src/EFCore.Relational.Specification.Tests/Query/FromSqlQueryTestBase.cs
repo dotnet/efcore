@@ -815,7 +815,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         [Fact]
         public virtual void Include_closed_connection_opened_by_it_when_buffering()
         {
-            Fixture.TestStore.Connection.Close();
+            Fixture.TestStore.CloseConnection();
             using (var context = CreateContext())
             {
                 var connection = context.Database.GetDbConnection();

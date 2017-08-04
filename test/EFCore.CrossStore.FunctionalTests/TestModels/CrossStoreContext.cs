@@ -12,20 +12,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public virtual DbSet<SimpleEntity> SimpleEntities { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder
-                .Entity<SimpleEntity>(eb =>
-                    {
-                        eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);
-                        eb.ToTable("RelationalSimpleEntity");
-                        eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
-                        eb.HasKey(e => e.Id);
-                    });
-        }
-
         public static void RemoveAllEntities(CrossStoreContext context)
             => context.SimpleEntities.RemoveRange(context.SimpleEntities);
     }

@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public DefaultValuesTest()
         {
-            TestStore = SqlServerTestStore.Create("DefaultValuesTest");
+            TestStore = SqlServerTestStore.CreateInitialized("DefaultValuesTest");
         }
 
         protected SqlServerTestStore TestStore { get; }

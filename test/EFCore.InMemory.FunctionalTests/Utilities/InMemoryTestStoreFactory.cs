@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
@@ -14,6 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public virtual InMemoryTestStore CreateShared(string storeName)
-            => InMemoryTestStore.GetOrCreateShared(storeName);
+            => InMemoryTestStore.GetOrCreate(storeName);
+
+        public IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+            => serviceCollection.AddEntityFrameworkInMemoryDatabase()
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
+                .AddSingleton<TestStoreIndex>();
     }
 }

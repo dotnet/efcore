@@ -40,10 +40,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class SnapshotNotificationsTest
-            : GraphUpdatesSqliteTestBase<SnapshotNotificationsTest.SnapshotNotificationsFixture>
+        public class SnapshotNotifications
+            : GraphUpdatesSqliteTestBase<SnapshotNotifications.SnapshotNotificationsFixture>
         {
-            public SnapshotNotificationsTest(SnapshotNotificationsFixture fixture, ITestOutputHelper testOutputHelper)
+            public SnapshotNotifications(SnapshotNotificationsFixture fixture, ITestOutputHelper testOutputHelper)
                 : base(fixture)
             {
                 //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -63,10 +63,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class ChangedNotificationsTest
-            : GraphUpdatesSqliteTestBase<ChangedNotificationsTest.ChangedNotificationsFixture>
+        public class ChangedNotifications
+            : GraphUpdatesSqliteTestBase<ChangedNotifications.ChangedNotificationsFixture>
         {
-            public ChangedNotificationsTest(ChangedNotificationsFixture fixture)
+            public ChangedNotifications(ChangedNotificationsFixture fixture)
                 : base(fixture)
             {
             }
@@ -83,10 +83,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class ChangedChangingNotificationsTest
-            : GraphUpdatesSqliteTestBase<ChangedChangingNotificationsTest.ChangedChangingNotificationsFixture>
+        public class ChangedChangingNotifications
+            : GraphUpdatesSqliteTestBase<ChangedChangingNotifications.ChangedChangingNotificationsFixture>
         {
-            public ChangedChangingNotificationsTest(ChangedChangingNotificationsFixture fixture)
+            public ChangedChangingNotifications(ChangedChangingNotificationsFixture fixture)
                 : base(fixture)
             {
             }
@@ -104,10 +104,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class FullWithOriginalsNotificationsTest
-            : GraphUpdatesSqliteTestBase<FullWithOriginalsNotificationsTest.FullWithOriginalsNotificationsFixture>
+        public class FullWithOriginalsNotifications
+            : GraphUpdatesSqliteTestBase<FullWithOriginalsNotifications.FullWithOriginalsNotificationsFixture>
         {
-            public FullWithOriginalsNotificationsTest(FullWithOriginalsNotificationsFixture fixture)
+            public FullWithOriginalsNotifications(FullWithOriginalsNotificationsFixture fixture)
                 : base(fixture)
             {
             }

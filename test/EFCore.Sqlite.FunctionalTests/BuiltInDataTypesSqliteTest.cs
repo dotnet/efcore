@@ -952,7 +952,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(b => { b.Property(e => e.Decimal).HasColumnType("decimal(5, 2)"); });
             }
 
-            protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(c => c
                     .Log(RelationalEventId.QueryClientEvaluationWarning));
 

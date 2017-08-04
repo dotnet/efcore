@@ -12,6 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public IReadOnlyList<string> Messages => _messages;
 
+        public void Clear() => _messages.Clear();
+
         public void WriteInformation(string message)
             => _messages.Add("info: " + message);
 

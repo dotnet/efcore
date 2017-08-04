@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.All(c => c.CustomerID != "Foo" || c.IsLondon));
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9341")]
         public virtual void Projection_when_arithmetic_expressions()
         {
             AssertQuery<Order>(
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9341")]
         public virtual void Projection_when_arithmetic_mixed()
         {
             AssertQuery<Order, Employee>(
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9341")]
         public virtual void Projection_when_arithmetic_mixed_subqueries()
         {
             AssertQuery<Order, Employee>(

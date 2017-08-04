@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             l4.ToTable(nameof(Level1));
         }
         
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c
                 .Log(RelationalEventId.QueryClientEvaluationWarning));
     }

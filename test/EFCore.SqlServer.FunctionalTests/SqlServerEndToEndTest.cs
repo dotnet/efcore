@@ -5,31 +5,38 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable VirtualMemberCallInConstructor
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
+        private const string DatabaseName = "SqlServerEndToEndTest";
+
+        protected SqlServerFixture Fixture { get; }
+
+        public SqlServerEndToEndTest(SqlServerFixture fixture)
+        {
+            Fixture = fixture;
+            Fixture.TestSqlLoggerFactory.Clear();
+        }
+
         [Fact]
         public void Can_use_decimal_and_byte_as_identity_columns()
         {
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
-
                 var nownNum1 = new NownNum { Id = 77.0m, TheWalrus = "Crying" };
                 var nownNum2 = new NownNum { Id = 78.0m, TheWalrus = "Walrus" };
 
@@ -57,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore
                 decimal[] preSaveValues;
                 byte[] preSaveByteValues;
 
-                using (var context = new NumNumContext(optionsBuilder.Options))
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var context = new NumNumContext(options))
                 {
                     context.Database.EnsureCreated();
 
@@ -78,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
                 }
 
-                using (var context = new NumNumContext(optionsBuilder.Options))
+                using (var context = new NumNumContext(options))
                 {
                     Assert.Equal(nownNum1.Id, context.NownNums.Single(e => e.TheWalrus == "Crying").Id);
                     Assert.Equal(nownNum2.Id, context.NownNums.Single(e => e.TheWalrus == "Walrus").Id);
@@ -219,34 +227,11 @@ namespace Microsoft.EntityFrameworkCore
             public string Lucy { get; set; }
         }
 
-        private class VariableDataTypes
-        {
-            public int Id { get; set; }
-            public string String { get; set; }
-            public byte[] ByteArray { get; set; }
-            public double Double { get; set; }
-            public decimal Decimal { get; set; }
-        }
-
-        private void AssertEqual(VariableDataTypes expected, VariableDataTypes actual)
-        {
-            Assert.Equal(expected.Id, actual.Id);
-
-            Assert.Equal(expected.String, actual.String);
-            Assert.Equal(expected.ByteArray, actual.ByteArray);
-            Assert.Equal(expected.Double, actual.Double);
-            Assert.Equal(expected.Decimal, actual.Decimal);
-        }
-
         [Fact]
         public void Can_use_string_enum_or_byte_array_as_key()
         {
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
-
                 var sNum1 = new SNum { TheWalrus = "I" };
                 var sNum2 = new SNum { TheWalrus = "Am" };
 
@@ -256,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore
                 var bNum1 = new BNum { TheWalrus = "Eggman" };
                 var bNum2 = new BNum { TheWalrus = "Eggmen" };
 
-                using (var context = new ENumContext(optionsBuilder.Options))
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var context = new ENumContext(options))
                 {
                     context.Database.EnsureCreated();
 
@@ -265,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
                 }
 
-                using (var context = new ENumContext(optionsBuilder.Options))
+                using (var context = new ENumContext(options))
                 {
                     Assert.Equal(sNum1.Id, context.SNums.Single(e => e.TheWalrus == "I").Id);
                     Assert.Equal(sNum2.Id, context.SNums.Single(e => e.TheWalrus == "Am").Id);
@@ -306,6 +292,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private enum ENum
         {
+            // ReSharper disable once UnusedMember.Local
             ANum,
             BNum,
             CNum
@@ -320,9 +307,9 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_run_linq_query_on_entity_set()
         {
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var testStore = SqlServerTestStore.GetNorthwindStore())
             {
-                using (var db = new NorthwindContext(_fixture.ServiceProvider))
+                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
                 {
                     var results = db.Customers
                         .Where(c => c.CompanyName.StartsWith("A"))
@@ -346,16 +333,9 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var testStore = SqlServerTestStore.GetNorthwindStore())
             {
-                var serviceCollection = new ServiceCollection();
-                serviceCollection
-                    .AddEntityFrameworkSqlServer();
-
-                serviceCollection.AddSingleton<IRelationalValueBufferFactoryFactory, TestTypedValueBufferFactoryFactory>();
-                var serviceProvider = serviceCollection.BuildServiceProvider();
-
-                using (var db = new NorthwindContext(serviceProvider))
+                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
                 {
                     var results = db.Customers
                         .Where(c => c.CompanyName.StartsWith("A"))
@@ -376,20 +356,12 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class TestTypedValueBufferFactoryFactory : TypedRelationalValueBufferFactoryFactory
-        {
-            public TestTypedValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-        }
-
         [Fact]
         public void Can_enumerate_entity_set()
         {
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var testStore = SqlServerTestStore.GetNorthwindStore())
             {
-                using (var db = new NorthwindContext(_fixture.ServiceProvider))
+                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
                 {
                     var results = new List<Customer>();
                     foreach (var item in db.Customers)
@@ -407,27 +379,17 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Can_save_changes()
         {
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var loggingFactory = new TestSqlLoggerFactory();
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton<ILoggerFactory>(loggingFactory)
-                    .BuildServiceProvider();
-
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .EnableSensitiveDataLogging()
-                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(serviceProvider);
-
-                using (var db = new BloggingContext(optionsBuilder.Options))
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var db = new BloggingContext(options))
                 {
                     await CreateBlogDatabaseAsync<Blog>(db);
                 }
 
-                loggingFactory.Clear();
+                Fixture.TestSqlLoggerFactory.Clear();
 
-                using (var db = new BloggingContext(optionsBuilder.Options))
+                using (var db = new BloggingContext(options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
                     toUpdate.Name = "Blog is Updated";
@@ -462,13 +424,13 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(3, loggingFactory.SqlStatements.Count);
-                    Assert.Contains("SELECT", loggingFactory.SqlStatements[0]);
-                    Assert.Contains("SELECT", loggingFactory.SqlStatements[1]);
-                    Assert.Contains("@p0='" + deletedId, loggingFactory.SqlStatements[2]);
-                    Assert.Contains("DELETE", loggingFactory.SqlStatements[2]);
-                    Assert.Contains("UPDATE", loggingFactory.SqlStatements[2]);
-                    Assert.Contains("INSERT", loggingFactory.SqlStatements[2]);
+                    Assert.Equal(3, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[0]);
+                    Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[1]);
+                    Assert.Contains("@p0='" + deletedId, Fixture.TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("DELETE", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("UPDATE", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'");
@@ -491,16 +453,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Can_save_changes_in_tracked_entities()
         {
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
-
                 int updatedId;
                 int deletedId;
                 int addedId;
-                using (var db = new BloggingContext(optionsBuilder.Options))
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var db = new BloggingContext(options))
                 {
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
@@ -539,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
                 }
 
-                using (var db = new BloggingContext(optionsBuilder.Options))
+                using (var db = new BloggingContext(options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Id == updatedId);
                     Assert.Equal("Blog is Updated", toUpdate.Name);
@@ -552,13 +511,10 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Can_track_an_entity_with_more_than_10_properties()
         {
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
-
-                using (var context = new GameDbContext(optionsBuilder.Options))
+                var options = Fixture.CreateOptions(testDatabase);
+                using (var context = new GameDbContext(options))
                 {
                     context.Database.EnsureCreated();
 
@@ -567,10 +523,11 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
                 }
 
-                using (var context = new GameDbContext(optionsBuilder.Options))
+                using (var context = new GameDbContext(options))
                 {
                     var character = context.Characters
                         .Include(c => c.Level.Game)
+                        .OrderBy(c => c.Id)
                         .First();
 
                     Assert.NotNull(character.Game);
@@ -683,11 +640,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
-            using (SqlServerTestStore.GetNorthwindStore())
+            using (var testStore = SqlServerTestStore.GetNorthwindStore())
             {
-                using (var db = new NorthwindContext(_fixture.ServiceProvider))
+                using (var db = new NorthwindContext(Fixture.CreateOptions(testStore)))
                 {
-                    var customer = await db.Customers.FirstOrDefaultAsync();
+                    var customer = await db.Customers.OrderBy(c => c.CustomerID).FirstOrDefaultAsync();
 
                     var trackedCustomerEntry = db.ChangeTracker.Entries().Single();
                     Assert.Same(trackedCustomerEntry.Entity, customer);
@@ -701,30 +658,23 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #931
         public async Task Can_save_and_query_with_schema()
         {
-            var serviceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .BuildServiceProvider();
-
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                await testDatabase.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
-                await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
-                await testDatabase.ExecuteNonQueryAsync("CREATE TABLE Apple.Black (MyKey int)");
+                var options = Fixture.CreateOptions(testStore);
 
-                using (var context = new SchemaContext(serviceProvider))
+                await testStore.ExecuteNonQueryAsync("CREATE SCHEMA Apple");
+                await testStore.ExecuteNonQueryAsync("CREATE TABLE Apple.Jack (MyKey int)");
+                await testStore.ExecuteNonQueryAsync("CREATE TABLE Apple.Black (MyKey int)");
+
+                using (var context = new SchemaContext(options))
                 {
-                    context.Connection = testDatabase.Connection;
-
                     context.Add(new Jack { MyKey = 1 });
                     context.Add(new Black { MyKey = 2 });
                     context.SaveChanges();
                 }
 
-                using (var context = new SchemaContext(serviceProvider))
+                using (var context = new SchemaContext(options))
                 {
-                    context.Connection = testDatabase.Connection;
-
                     Assert.Equal(1, context.Jacks.Count());
                     Assert.Equal(1, context.Blacks.Count());
                 }
@@ -733,20 +683,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private class SchemaContext : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public SchemaContext(IServiceProvider serviceProvider)
+            public SchemaContext(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
-
-            public DbConnection Connection { get; set; }
 
             public DbSet<Jack> Jacks { get; set; }
             public DbSet<Black> Blacks { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(Connection, b => b.ApplyConfiguration()).UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -792,17 +735,15 @@ namespace Microsoft.EntityFrameworkCore
 
         private async Task RoundTripChanges<TBlog>() where TBlog : class, IBlog, new()
         {
-            using (var testDatabase = SqlServerTestStore.Create(DatabaseName))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
-                var optionsBuilder = new DbContextOptionsBuilder()
-                    .UseSqlServer(testDatabase.ConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_fixture.ServiceProvider);
+                var options = Fixture.CreateOptions(testDatabase);
 
                 int blog1Id;
                 int blog2Id;
                 int blog3Id;
 
-                using (var context = new BloggingContext<TBlog>(optionsBuilder.Options))
+                using (var context = new BloggingContext<TBlog>(options))
                 {
                     var blogs = await CreateBlogDatabaseAsync<TBlog>(context);
                     blog1Id = blogs[0].Id;
@@ -813,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(blog1Id, blog2Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(optionsBuilder.Options))
+                using (var context = new BloggingContext<TBlog>(options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(2, blogs.Count);
@@ -849,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.NotEqual(0, blog3Id);
                 }
 
-                using (var context = new BloggingContext<TBlog>(optionsBuilder.Options))
+                using (var context = new BloggingContext<TBlog>(options))
                 {
                     var blogs = context.Blogs.ToList();
                     Assert.Equal(3, blogs.Count);
@@ -914,31 +855,14 @@ namespace Microsoft.EntityFrameworkCore
             return new[] { blog1, blog2 };
         }
 
-        private const string DatabaseName = "SqlServerEndToEndTest";
-
-        private readonly SqlServerFixture _fixture;
-
-        public SqlServerEndToEndTest(SqlServerFixture fixture)
-        {
-            _fixture = fixture;
-            _fixture.TestSqlLoggerFactory.Clear();
-        }
-
         private class NorthwindContext : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public NorthwindContext(IServiceProvider serviceProvider)
+            public NorthwindContext(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
             }
 
             public DbSet<Customer> Customers { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration())
-                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

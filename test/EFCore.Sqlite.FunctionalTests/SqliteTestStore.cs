@@ -3,66 +3,58 @@
 
 using System;
 using System.Data.Common;
-using System.IO;
-using System.Threading;
 using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqliteTestStore : RelationalTestStore<SqliteConnection>
+    public class SqliteTestStore : RelationalTestStore
     {
         public const int CommandTimeout = 30;
-        private static int _scratchCount;
 
-        private static string BaseDirectory => AppContext.BaseDirectory;
-
-        public static SqliteTestStore GetNorthwindStore() => GetOrCreateShared("northwind", () => { });
-
-        public static SqliteTestStore GetOrCreateShared(string name, bool sharedCache, Action initializeDatabase = null) =>
-            new SqliteTestStore(name).InitializeShared(initializeDatabase, sharedCache);
-
-        public static SqliteTestStore GetShared(string name)
+        public static SqliteTestStore GetOrCreate(string name)
             => new SqliteTestStore(name);
+
+        public static SqliteTestStore GetOrCreateInitialized(string name)
+            => new SqliteTestStore(name).InitializeSqlite(null, null, null);
 
         public static SqliteTestStore GetExisting(string name)
             => new SqliteTestStore(name, seed: false);
 
-        public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
-            GetOrCreateShared(name, false, initializeDatabase);
-
-        public static SqliteTestStore CreateScratch(bool sharedCache = false)
-        {
-            string name;
-            do
-            {
-                name = "scratch-" + Interlocked.Increment(ref _scratchCount);
-            }
-            while (File.Exists(name + ".db")
-                   || File.Exists(Path.Combine(BaseDirectory, name + ".db")));
-
-            return new SqliteTestStore(name).InitializeTransient(sharedCache);
-        }
-
         private readonly bool _seed;
-        private bool _deleteDatabase;
 
         private SqliteTestStore(string name, bool seed = true)
             : base(name)
         {
             _seed = seed;
-        }
 
-        public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
-            => serviceCollection.AddEntityFrameworkSqlite()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
+            ConnectionString = new SqliteConnectionStringBuilder
+            {
+                DataSource = Name + ".db",
+                Cache = SqliteCacheMode.Shared
+            }.ToString();
+
+            Connection = new SqliteConnection(ConnectionString);
+        }
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseSqlite(Connection, b => b.CommandTimeout(CommandTimeout));
 
         public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => InitializeShared(() =>
+            => InitializeSqlite(serviceProvider, createContext, seed);
+
+        public SqliteTestStore InitializeSqlite(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+        {
+            ServiceProvider = serviceProvider;
+            if (createContext == null)
+            {
+                createContext = CreateDefaultContext;
+            }
+            if (seed == null)
+            {
+                seed = c => { };
+            }
+
+            GlobalTestStoreIndex.CreateShared(typeof(SqliteTestStore).Name + Name, () =>
                 {
                     if (!_seed)
                     {
@@ -76,19 +68,7 @@ namespace Microsoft.EntityFrameworkCore
                         }
                         seed(context);
                     }
-                },
-                sharedCache: false);
-
-        public override void Clean(DbContext context)
-        {
-            context.Database.EnsureClean();
-        }
-
-        private SqliteTestStore InitializeShared(Action initializeDatabase, bool sharedCache)
-        {
-            CreateConnection(sharedCache);
-
-            GlobalTestStoreIndex.CreateShared(typeof(SqliteTestStore).Name + Name, initializeDatabase);
+                });
 
             // Open the connection after initializing to ensure FK enforcement is on
             OpenConnection();
@@ -96,20 +76,8 @@ namespace Microsoft.EntityFrameworkCore
             return this;
         }
 
-        private SqliteTestStore InitializeTransient(bool sharedCache)
-        {
-            CreateConnection(sharedCache);
-            OpenConnection();
-
-            _deleteDatabase = true;
-            return this;
-        }
-
-        private void CreateConnection(bool sharedCache = false)
-        {
-            ConnectionString = CreateConnectionString(Name, sharedCache);
-            Connection = new SqliteConnection(ConnectionString);
-        }
+        public override void Clean(DbContext context)
+            => context.Database.EnsureClean();
 
         public override void OpenConnection()
         {
@@ -132,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private DbCommand CreateCommand(string commandText, object[] parameters)
         {
-            var command = Connection.CreateCommand();
+            var command = (SqliteCommand)Connection.CreateCommand();
 
             command.CommandText = commandText;
             command.CommandTimeout = CommandTimeout;
@@ -144,22 +112,5 @@ namespace Microsoft.EntityFrameworkCore
 
             return command;
         }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-
-            if (_deleteDatabase)
-            {
-                File.Delete(Name + ".db");
-            }
-        }
-
-        public static string CreateConnectionString(string name, bool sharedCache = false) =>
-            new SqliteConnectionStringBuilder
-            {
-                DataSource = name + ".db",
-                Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
-            }.ToString();
     }
 }

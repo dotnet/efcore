@@ -2669,7 +2669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select subquery.Id);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9340")]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer()
         {
             AssertQuery<Level1, Level2>(
@@ -2685,7 +2685,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l2_outer.Name);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9340")]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
         {
             AssertQuery<Level1, Level2>(
@@ -2706,7 +2706,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return arg;
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#9340")]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
         {
             AssertQuery<Level1, Level2>(

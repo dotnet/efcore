@@ -1,39 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class MigrationsSqlServerFixture : MigrationsFixtureBase, IDisposable
+    public class MigrationsSqlServerFixture : MigrationsFixtureBase
     {
-        private readonly DbContextOptions _options;
-        private readonly SqlServerTestStore _testStore;
-
-        public MigrationsSqlServerFixture()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
-
-            _testStore = SqlServerTestStore.CreateScratch();
-
-            _options = new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(serviceProvider)
-                .UseSqlServer(_testStore.ConnectionString, b => b.ApplyConfiguration()).Options;
-        }
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
         public override MigrationsContext CreateContext()
         {
-            var context = new MigrationsContext(_options);
-            context.Database.EnsureCreated();
-            return context;
+            var options = AddOptions(new DbContextOptionsBuilder()
+                .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+                .UseInternalServiceProvider(ServiceProvider)
+                .Options;
+            return new MigrationsContext(options);
         }
-
-        public override EmptyMigrationsContext CreateEmptyContext() => new EmptyMigrationsContext(_options);
-
-        public void Dispose() => _testStore.Dispose();
     }
 }

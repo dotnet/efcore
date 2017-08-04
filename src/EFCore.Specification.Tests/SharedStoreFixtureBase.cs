@@ -2,21 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class SharedStoreFixtureBase<TContext> : IDisposable
+    public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposable
         where TContext : DbContext
     {
-        public IServiceProvider ServiceProvider { get; }
-        public TestStore TestStore { get; }
-        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
-        protected abstract string StoreName { get; }
         protected virtual Type ContextType => typeof(TContext);
+        public IServiceProvider ServiceProvider { get; }
+        protected abstract string StoreName { get; }
+        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
+        public TestStore TestStore { get; }
 
         protected SharedStoreFixtureBase()
         {
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
 
             ServiceProvider =
                 AddServices(
-                    TestStore.AddProviderServices(new ServiceCollection()))
+                    TestStoreFactory.AddProviderServices(new ServiceCollection()))
                     .AddDbContext(
                         ContextType,
                         (s, b) => ConfigureOptions(s, b),
@@ -37,9 +36,6 @@ namespace Microsoft.EntityFrameworkCore
 
         public virtual TContext CreateContext() => (TContext)ServiceProvider.GetRequiredService(ContextType);
 
-        protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton(TestModelSource.GetFactory(OnModelCreating));
-
         public DbContextOptions CreateOptions()
             => ConfigureOptions(ServiceProvider, new DbContextOptionsBuilder()).Options;
 
@@ -47,14 +43,7 @@ namespace Microsoft.EntityFrameworkCore
             => AddOptions(TestStore.AddProviderOptions(optionsBuilder))
                 .UseInternalServiceProvider(serviceProvider);
 
-        protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => builder
-                .EnableSensitiveDataLogging()
-                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
-                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
-
-        public void Reseed()
+        public virtual void Reseed()
         {
             using (var context = CreateContext())
             {
@@ -64,10 +53,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual void Seed(TContext context)
-        {
-        }
-
-        protected virtual void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
         }
 

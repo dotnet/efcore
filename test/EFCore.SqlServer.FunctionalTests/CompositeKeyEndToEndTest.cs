@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public CompositeKeyEndToEndTest()
         {
-            TestStore = SqlServerTestStore.Create("CompositeKeyEndToEndTest");
+            TestStore = SqlServerTestStore.CreateInitialized("CompositeKeyEndToEndTest");
         }
 
         protected SqlServerTestStore TestStore { get; }

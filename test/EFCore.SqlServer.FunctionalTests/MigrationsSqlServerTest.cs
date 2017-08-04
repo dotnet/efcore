@@ -4,10 +4,15 @@
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
@@ -423,6 +428,49 @@ CreatedTable
             }
 
             return builder.ToString();
+        }
+
+        [Fact]
+        public async Task Empty_Migration_Creates_Database()
+        {
+            using (var context = new BloggingContext(Fixture.TestStore.AddProviderOptions(new DbContextOptionsBuilder()).Options))
+            {
+                var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+                creator.RetryTimeout = TimeSpan.FromMinutes(10);
+
+                await context.Database.MigrateAsync();
+
+                Assert.True(creator.Exists());
+            }
+        }
+
+        private class BloggingContext : DbContext
+        {
+            public BloggingContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            // ReSharper disable once UnusedMember.Local
+            public DbSet<Blog> Blogs { get; set; }
+
+            // ReSharper disable once ClassNeverInstantiated.Local
+            public class Blog
+            {
+                // ReSharper disable UnusedMember.Local
+                public int Id { get; set; }
+                public string Name { get; set; }
+                // ReSharper restore UnusedMember.Local
+            }
+        }
+
+        [DbContext(typeof(BloggingContext))]
+        [Migration("00000000000000_Empty")]
+        public class EmptyMigration : Migration
+        {
+            protected override void Up(MigrationBuilder migrationBuilder)
+            {
+            }
         }
     }
 }

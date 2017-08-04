@@ -16,8 +16,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -31,22 +29,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
-        private readonly SqlServerFixture _fixture;
-
         // ReSharper disable once UnusedParameter.Local
         public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         {
-            _fixture = fixture;
-            _fixture.TestSqlLoggerFactory.Clear();
-            //_fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture = fixture;
+            fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
+
+        protected SqlServerFixture Fixture { get; }
 
         #region Bug6901
 
         [Fact]
         public void Left_outer_join_bug_6091()
         {
-            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", () => { }))
+            using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
             {
                 testStore.ExecuteNonQuery(
                     @"
@@ -71,13 +69,8 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (3, 
 INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (4, N'3000', N'Town 3');
 INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, N'4000', N'Town 4');
 ");
-                var loggingFactory = new TestSqlLoggerFactory();
-                var serviceProvider = new ServiceCollection()
-                    .AddEntityFrameworkSqlServer()
-                    .AddSingleton<ILoggerFactory>(loggingFactory)
-                    .BuildServiceProvider(validateScopes: true);
 
-                using (var context = new Bug6091Context(serviceProvider, testStore.ConnectionString))
+                using (var context = new Bug6091Context(Fixture.CreateOptions(testStore)))
                 {
                     var customers
                         = from customer in context.Customers
@@ -102,17 +95,10 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         private class Bug6091Context : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-            private readonly string _connectionString;
-
-            public Bug6091Context(IServiceProvider serviceProvider, string connectionString)
+            public Bug6091Context(DbContextOptions options)
+                :base(options)
             {
-                _serviceProvider = serviceProvider;
-                _connectionString = connectionString;
             }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInternalServiceProvider(_serviceProvider).UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Customer>().ToTable("Customers");
@@ -143,9 +129,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         [Fact]
         public async Task Multiple_optional_navs_should_not_deadlock_bug_5481()
         {
-            using (var testStore = SqlServerTestStore.Create("QueryBugsTest"))
+            using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
             {
-                using (var context = new DeadlockContext(testStore.ConnectionString))
+                using (var context = new DeadlockContext(Fixture.CreateOptions(testStore)))
                 {
                     context.Database.EnsureCreated();
                     context.EnsureSeeded();
@@ -164,15 +150,10 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         private class DeadlockContext : DbContext
         {
-            private readonly string _connectionString;
-
-            public DeadlockContext(string connectionString)
+            public DeadlockContext(DbContextOptions options)
+                :base(options)
             {
-                _connectionString = connectionString;
             }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             public DbSet<Person> Persons { get; set; }
             public DbSet<Address> Addresses { get; set; }
@@ -246,13 +227,13 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         [Fact]
         public void Query_when_null_key_in_database_should_throw()
         {
-            using (var testStore = SqlServerTestStore.GetOrCreateShared("QueryBugsTest", () => { }))
+            using (var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest"))
             {
                 testStore.ExecuteNonQuery(
                     @"CREATE TABLE ZeroKey (Id int);
                       INSERT ZeroKey VALUES (NULL)");
 
-                using (var context = new NullKeyContext(testStore.ConnectionString))
+                using (var context = new NullKeyContext(Fixture.CreateOptions(testStore)))
                 {
                     Assert.Equal(
                         CoreStrings.InvalidKeyValue("ZeroKey", "Id"),
@@ -263,15 +244,10 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
         private class NullKeyContext : DbContext
         {
-            private readonly string _connectionString;
-
-            public NullKeyContext(string connectionString)
+            public NullKeyContext(DbContextOptions options)
+                :base(options)
             {
-                _connectionString = connectionString;
             }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseSqlServer(_connectionString, b => b.ApplyConfiguration());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<ZeroKey>().ToTable("ZeroKey");
@@ -299,7 +275,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
                 using (var ctx = new MyContext603(_options))
                 {
-                    var product = await ctx.Products.FirstAsync();
+                    var product = await ctx.Products.OrderBy(p => p.Id).FirstAsync();
 
                     ctx.Products.Remove(product);
 
@@ -317,7 +293,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
 
                 using (var ctx = new MyContext603(_options))
                 {
-                    var product = await ctx.Products.FirstOrDefaultAsync();
+                    var product = await ctx.Products.OrderBy(p => p.Id).FirstOrDefaultAsync();
 
                     ctx.Products.Remove(product);
 
@@ -493,7 +469,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                                           }
                                 };
 
-                    var target = context.ProjectUsers.First();
+                    var target = context.ProjectUsers.OrderBy(u => u.Id).First();
 
                     query.SingleOrDefault(item => item.Id == target.ProjectId);
                 }
@@ -1402,17 +1378,17 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                             new ServiceOperatorContact6986
                             {
                                 UserName = "service.operator@esoterix.co.uk",
-                                ServiceOperator6986 = context.ServiceOperators.First()
+                                ServiceOperator6986 = context.ServiceOperators.OrderBy(o => o.Id).First()
                             },
                             new EmployerContact6986
                             {
                                 UserName = "uwe@esoterix.co.uk",
-                                Employer6986 = context.Employers.First(e => e.Name == "UWE")
+                                Employer6986 = context.Employers.OrderBy(e => e.Id).First(e => e.Name == "UWE")
                             },
                             new EmployerContact6986
                             {
                                 UserName = "hp@esoterix.co.uk",
-                                Employer6986 = context.Employers.First(e => e.Name == "Hewlett Packard")
+                                Employer6986 = context.Employers.OrderBy(e => e.Id).First(e => e.Name == "Hewlett Packard")
                             },
                             new Contact6986
                             {
@@ -2255,13 +2231,9 @@ BEGIN
             Action<TContext> contextInitializer)
             where TContext : DbContext, IDisposable
         {
-            var testStore = SqlServerTestStore.Create("QueryBugsTest");
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
 
-            _options = new DbContextOptionsBuilder()
-                .EnableSensitiveDataLogging()
-                .UseSqlServer(testStore.ConnectionString, b => b.ApplyConfiguration())
-                .UseInternalServiceProvider(_fixture.ServiceProvider)
-                .Options;
+            _options = Fixture.CreateOptions(testStore);
 
             using (var context = contextCreator())
             {
@@ -2272,9 +2244,9 @@ BEGIN
         }
 
         protected void ClearLog()
-            => _fixture.TestSqlLoggerFactory.Clear();
+            => Fixture.TestSqlLoggerFactory.Clear();
 
         private void AssertSql(params string[] expected)
-            => _fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

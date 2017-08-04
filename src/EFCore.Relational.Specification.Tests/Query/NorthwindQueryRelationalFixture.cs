@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -15,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TModelCustomizer : IModelCustomizer, new()
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-        public new IRelationalTestStore<DbConnection> TestStore => (IRelationalTestStore<DbConnection>)base.TestStore;
+        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
 
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c
                 .Log(RelationalEventId.QueryClientEvaluationWarning)
                 .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class IncludeSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>
     {
-        protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CoreEventId.IncludeIgnoredWarning));
     }
 }

@@ -45,14 +45,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext, Action<MonsterContext> seed)
         {
-            _testStore = SqlServerTestStore.GetOrCreateShared(databaseName, () =>
-                {
-                    using (var context = createContext())
-                    {
-                        context.Database.EnsureCreated();
-                        seed(context);
-                    }
-                });
+            _testStore = SqlServerTestStore.GetOrCreate(databaseName)
+                .InitializeSqlServer(null, createContext, c => seed((MonsterContext)c));
         }
 
         public virtual void Dispose() => _testStore?.Dispose();

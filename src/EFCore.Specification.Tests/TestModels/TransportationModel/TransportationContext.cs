@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         public DbSet<Vehicle> Vehicles { get; set; }
         public DbSet<Operator> Operators { get; set; }
 
-        public static void OnModelCreatingBase(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Vehicle>(eb =>
                 {

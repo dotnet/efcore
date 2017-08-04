@@ -20,8 +20,6 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     // Tests are split into classes to enable parralel execution
-    // These tests are disabled in TeamCity as they are flaky, see #8615
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorExistsTest
     {
         [ConditionalFact]
@@ -52,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting", file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -93,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_true_when_database_exists_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging" + (file ? "File" : ""), file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -107,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorEnsureDeletedTest
     {
         [ConditionalFact]
@@ -164,11 +161,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Delete_database_test(bool async, bool open, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: true, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized("EnsureDeleteBlogging" + (file ? "File" : ""), file))
             {
                 if (!open)
                 {
-                    testDatabase.Connection.Close();
+                    testDatabase.CloseConnection();
                 }
 
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
@@ -223,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Noop_when_database_does_not_exist_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting", file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -250,7 +247,6 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorEnsureCreatedTest
     {
         [ConditionalFact]
@@ -323,10 +319,19 @@ namespace Microsoft.EntityFrameworkCore
             (bool CreateDatabase, bool Async, bool File) options)
         {
             (bool createDatabase, bool async, bool file) = options;
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase, file))
+            using (var testDatabase = SqlServerTestStore.Create("EnsureCreatedTest" + (file ? "File" : ""), file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
+                    if (createDatabase)
+                    {
+                        testDatabase.Initialize(null, (Func<DbContext>)null, null);
+                    }
+                    else
+                    {
+                        testDatabase.DeleteDatabase();
+                    }
+
                     var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
@@ -342,9 +347,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
-                    if (testDatabase.Connection.State != ConnectionState.Open)
+                    if (testDatabase.ConnectionState != ConnectionState.Open)
                     {
-                        await testDatabase.Connection.OpenAsync();
+                        await testDatabase.OpenConnectionAsync();
                     }
 
                     var tables = testDatabase.Query<string>(
@@ -407,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Noop_when_database_exists_and_has_schema_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false, useFileName: file))
+            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("InitializedBlogging" + (file ? "File" : ""), file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -428,7 +433,6 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorHasTablesTest
     {
         [ConditionalFact]
@@ -445,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Throws_when_database_does_not_exist_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting"))
             {
                 var databaseCreator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
                 await databaseCreator.ExecutionStrategyFactory.Create().ExecuteAsync(
@@ -480,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_false_when_database_exists_but_has_no_tables_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch())
+            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("Empty"))
             {
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
                 Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
@@ -501,17 +505,15 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_true_when_database_exists_and_has_any_tables_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch())
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("ExistingTables")
+                .InitializeSqlServer(null, t => new SqlServerDatabaseCreatorTest.BloggingContext(t), null))
             {
-                await testDatabase.ExecuteNonQueryAsync("CREATE TABLE SomeTable (Id uniqueidentifier)");
-
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
                 Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
             }
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorDeleteTest
     {
         [ConditionalFact]
@@ -528,9 +530,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Deletes_database_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch())
+            using (var testDatabase = SqlServerTestStore.CreateInitialized("DeleteBlogging"))
             {
-                testDatabase.Connection.Close();
+                testDatabase.CloseConnection();
 
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
@@ -563,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Throws_when_database_does_not_exist_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExistingBlogging"))
             {
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
@@ -592,7 +594,6 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorCreateTablesTest
     {
         [ConditionalFact]
@@ -609,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Creates_schema_in_existing_database_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch())
+            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging" + (async ? "Async" : "")))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -624,9 +625,9 @@ namespace Microsoft.EntityFrameworkCore
                         creator.CreateTables();
                     }
 
-                    if (testDatabase.Connection.State != ConnectionState.Open)
+                    if (testDatabase.ConnectionState != ConnectionState.Open)
                     {
-                        await testDatabase.Connection.OpenAsync();
+                        await testDatabase.OpenConnectionAsync();
                     }
 
                     var tables = (await testDatabase.QueryAsync<string>(
@@ -669,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Throws_if_database_does_not_exist_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting"))
             {
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
@@ -688,7 +689,6 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    [SqlServerCondition(SqlServerCondition.IsNotTeamCity)]
     public class SqlServerDatabaseCreatorCreateTest
     {
         [ConditionalFact]
@@ -705,11 +705,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Creates_physical_database_but_not_tables_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch(createDatabase: false))
+            using (var testDatabase = SqlServerTestStore.GetOrCreate("CreateTest"))
             {
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
-                Assert.False(creator.Exists());
+                creator.EnsureDeleted();
 
                 if (async)
                 {
@@ -722,9 +722,9 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(creator.Exists());
 
-                if (testDatabase.Connection.State != ConnectionState.Open)
+                if (testDatabase.ConnectionState != ConnectionState.Open)
                 {
-                    await testDatabase.Connection.OpenAsync();
+                    await testDatabase.OpenConnectionAsync();
                 }
 
                 Assert.Equal(0, (await testDatabase.QueryAsync<string>(
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore
                     await testDatabase.ExecuteScalarAsync<bool>(
                         string.Concat(
                             "SELECT is_read_committed_snapshot_on FROM sys.databases WHERE name='",
-                            testDatabase.Connection.Database,
+                            testDatabase.Name,
                             "'")));
             }
         }
@@ -753,7 +753,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Throws_if_database_already_exists_test(bool async)
         {
-            using (var testDatabase = SqlServerTestStore.CreateScratch())
+            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging"))
             {
                 var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
 
@@ -813,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(_connectionString, b => b.ApplyConfiguration().CommandTimeout(600))
+                    .UseSqlServer(_connectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout))
                     .UseInternalServiceProvider(CreateServiceProvider());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerConfigPatternsTest
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -49,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     using (var context = new NorthwindContext(
                         new DbContextOptionsBuilder()
-                            .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
+                            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -98,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -113,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext(new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration())
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration())
                         .UseInternalServiceProvider(new ServiceCollection()
                             .AddEntityFrameworkSqlServer()
                             .BuildServiceProvider()).Options))
@@ -236,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-                    optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -287,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore
                 public DbSet<Customer> Customers { get; set; }
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                    => optionsBuilder.UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    => optionsBuilder.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
 
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                     => ConfigureModel(modelBuilder);
@@ -303,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore
                     .AddTransient<MyController>()
                     .AddTransient<NorthwindContext>()
                     .AddSingleton(new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration()).Options).BuildServiceProvider();
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options).BuildServiceProvider();
 
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
@@ -349,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
                     using (var context = new NorthwindContext(new DbContextOptionsBuilder()
-                        .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
+                        .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration()).Options))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -377,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (SqlServerTestStore.GetNorthwindStore())
                 {
-                    using (var context = new NorthwindContext(SqlServerTestStore.NorthwindConnectionString))
+                    using (var context = new NorthwindContext(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
                     {
                         Assert.Equal(91, await context.Customers.CountAsync());
                     }
@@ -451,15 +453,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
-                    .UseSqlServer(SqlServerTestStore.NorthwindConnectionString, b => b.ApplyConfiguration());
+                    .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
             }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Customer
         {
             public string CustomerID { get; set; }
+            // ReSharper disable UnusedMember.Local
             public string CompanyName { get; set; }
             public string Fax { get; set; }
+            // ReSharper restore UnusedMember.Local
         }
 
         private static void ConfigureModel(ModelBuilder builder)

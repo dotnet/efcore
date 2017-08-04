@@ -3,24 +3,20 @@
 
 using System;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class DefaultValuesTest
+    public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
     {
-        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-            .AddEntityFrameworkSqlite()
-            .BuildServiceProvider();
-
         [Fact]
         public void Can_use_SQLite_default_values()
         {
-            using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
+            using (var context = CreateChipsContext())
             {
-                context.Database.EnsureClean();
-
                 var honeyDijon = context.Add(new KettleChips { Name = "Honey Dijon" }).Entity;
                 var buffaloBleu = context.Add(new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
 
@@ -30,30 +26,28 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(new DateTime(2111, 1, 11), buffaloBleu.BestBuyDate);
             }
 
-            using (var context = new ChipsContext(_serviceProvider, "DefaultKettleChips"))
+            using (var context = CreateChipsContext())
             {
                 Assert.Equal(new DateTime(2035, 9, 25), context.Chips.Single(c => c.Name == "Honey Dijon").BestBuyDate);
                 Assert.Equal(new DateTime(2111, 1, 11), context.Chips.Single(c => c.Name == "Buffalo Bleu").BestBuyDate);
             }
         }
 
+        protected override string StoreName { get; } = "DefaultKettleChips";
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override Type ContextType { get; } = typeof(ChipsContext);
+
+        private ChipsContext CreateChipsContext() => (ChipsContext)CreateContext();
+
         private class ChipsContext : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-            private readonly string _databaseName;
-
-            public ChipsContext(IServiceProvider serviceProvider, string databaseName)
+            public ChipsContext(DbContextOptions options)
+                : base(options)
             {
-                _serviceProvider = serviceProvider;
-                _databaseName = databaseName;
             }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<KettleChips> Chips { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlite(SqliteTestStore.CreateConnectionString(_databaseName))
-                    .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -65,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class KettleChips
         {
+            // ReSharper disable once UnusedMember.Local
             public int Id { get; set; }
             public string Name { get; set; }
             public DateTime BestBuyDate { get; set; }

@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class GraphUpdatesWithIdentitySqlServerTest : GraphUpdatesSqlServerTestBase<GraphUpdatesWithIdentitySqlServerTest.GraphUpdatesWithIdentitySqlServerFixture>
+        public class Identity : GraphUpdatesSqlServerTestBase<Identity.GraphUpdatesWithIdentitySqlServerFixture>
         {
-            public GraphUpdatesWithIdentitySqlServerTest(GraphUpdatesWithIdentitySqlServerFixture fixture)
+            public Identity(GraphUpdatesWithIdentitySqlServerFixture fixture)
                 : base(fixture)
             {
             }
@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class GraphUpdatesWithRestrictSqlServerTest : GraphUpdatesSqlServerTestBase<GraphUpdatesWithRestrictSqlServerTest.GraphUpdatesWithRestrictSqlServerFixture>
+        public class Restrict : GraphUpdatesSqlServerTestBase<Restrict.GraphUpdatesWithRestrictSqlServerFixture>
         {
-            public GraphUpdatesWithRestrictSqlServerTest(GraphUpdatesWithRestrictSqlServerFixture fixture)
+            public Restrict(GraphUpdatesWithRestrictSqlServerFixture fixture)
                 : base(fixture)
             {
             }
@@ -79,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
-        public class GraphUpdatesWithSequenceSqlServerTest : GraphUpdatesSqlServerTestBase<GraphUpdatesWithSequenceSqlServerTest.GraphUpdatesWithSequenceSqlServerFixture>
+        public class Sequence : GraphUpdatesSqlServerTestBase<Sequence.GraphUpdatesWithSequenceSqlServerFixture>
         {
-            public GraphUpdatesWithSequenceSqlServerTest(GraphUpdatesWithSequenceSqlServerFixture fixture)
+            public Sequence(GraphUpdatesWithSequenceSqlServerFixture fixture)
                 : base(fixture)
             {
             }

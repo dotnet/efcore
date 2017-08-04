@@ -22,41 +22,11 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
-    public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFixture>
+    public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFactoryTest.SqlServerDatabaseModelFixture>
     {
-        private readonly SqlServerDatabaseModelFixture _fixture;
+        protected SqlServerDatabaseModelFixture Fixture { get; }
 
-        public SqlServerDatabaseModelFactoryTest(SqlServerDatabaseModelFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
-        private readonly List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
-
-        private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
-        {
-            _fixture.TestStore.ExecuteNonQuery(createSql);
-
-            try
-            {
-                var databaseModelFactory = new SqlServerDatabaseModelFactory(
-                    new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
-                        new ListLoggerFactory(Log),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake")));
-
-                var databaseModel = databaseModelFactory.Create(_fixture.TestStore.ConnectionString, tables, schemas);
-                Assert.NotNull(databaseModel);
-                asserter(databaseModel);
-            }
-            finally
-            {
-                if (!string.IsNullOrEmpty(cleanupSql))
-                {
-                    _fixture.TestStore.ExecuteNonQuery(cleanupSql);
-                }
-            }
-        }
+        public SqlServerDatabaseModelFactoryTest(SqlServerDatabaseModelFixture fixture) => Fixture = fixture;
 
         #region Sequences
 
@@ -162,7 +132,7 @@ DROP SEQUENCE [NumericSequence];");
                 Enumerable.Empty<string>(),
                 dbModel =>
                     {
-                        var defaultSchema = _fixture.TestStore.ExecuteScalar<string>("SELECT SCHEMA_NAME()");
+                        var defaultSchema = Fixture.TestStore.ExecuteScalar<string>("SELECT SCHEMA_NAME()");
                         Assert.Equal(defaultSchema, dbModel.DefaultSchema);
                     },
                 null);
@@ -650,7 +620,7 @@ DROP TABLE PrincipalTable;");
         [Fact]
         public void Column_with_type_alias_assigns_underlying_store_type()
         {
-            _fixture.TestStore.ExecuteNonQuery(
+            Fixture.TestStore.ExecuteNonQuery(
                 @"
 CREATE TYPE dbo.TestTypeAlias FROM nvarchar(max);
 CREATE TYPE db2.TestTypeAlias FROM int;");
@@ -1669,5 +1639,45 @@ DROP TABLE PrincipalTable;");
         }
 
         #endregion
+        
+        private readonly List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
+
+        private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+        {
+            Fixture.TestStore.ExecuteNonQuery(createSql);
+
+            try
+            {
+                var databaseModelFactory = new SqlServerDatabaseModelFactory(
+                    new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                        new ListLoggerFactory(Log),
+                        new LoggingOptions(),
+                        new DiagnosticListener("Fake")));
+
+                var databaseModel = databaseModelFactory.Create(Fixture.TestStore.ConnectionString, tables, schemas);
+                Assert.NotNull(databaseModel);
+                asserter(databaseModel);
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(cleanupSql))
+                {
+                    Fixture.TestStore.ExecuteNonQuery(cleanupSql);
+                }
+            }
+        }
+
+        public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = nameof(SqlServerDatabaseModelFactoryTest);
+            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public new SqlServerTestStore TestStore => (SqlServerTestStore)base.TestStore;
+
+            public SqlServerDatabaseModelFixture()
+            {
+                TestStore.ExecuteNonQuery("CREATE SCHEMA db2");
+                TestStore.ExecuteNonQuery("CREATE SCHEMA [db.2]");
+            }
+        }
     }
 }

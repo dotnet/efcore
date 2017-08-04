@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Xunit;
+// ReSharper disable MergeConditionalExpression
 
+// ReSharper disable ConstantNullCoalescingCondition
+
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
@@ -19,13 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void GroupBy_with_uninitialized_datetime_projection_3595()
         {
-            using (CreateScratch<Context3595>(Seed3595))
+            using (CreateScratch<Context3595>(Seed3595, "3595"))
             {
                 using (var context = new Context3595())
                 {
                     var q0 = from instance in context.Exams
                              join question in context.ExamQuestions
-                             on instance.Id equals question.ExamId
+                                 on instance.Id equals question.ExamId
                              where instance.Id != 3
                              group question by question.QuestionId
                              into gQuestions
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<ExamQuestion3595> ExamQuestions { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
+                => optionsBuilder.UseInMemoryDatabase("3595");
         }
 
         #endregion
@@ -101,18 +103,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_simple_coalesce1()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children).AsNoTracking()
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
-                    var result = query.ToList();
+                    Assert.Equal(3, query.ToList().Count);
                 }
             }
         }
@@ -120,14 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_simple_coalesce2()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -140,14 +142,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_simple_coalesce3()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined ?? eVersion;
 
@@ -161,14 +163,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_complex_coalesce1()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = 1, Coalesce = eRootJoined ?? eVersion };
 
@@ -181,14 +183,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_complex_coalesce2()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
 
@@ -201,14 +203,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_nested_coalesce1()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities.Include(e => e.Children)
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
@@ -221,14 +223,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_nested_coalesce2()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
@@ -241,14 +243,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_conditional()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities.Include(e => e.Children)
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
@@ -261,18 +263,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro3101_coalesce_tracking()
         {
-            using (CreateScratch<MyContext3101>(Seed3101))
+            using (CreateScratch<MyContext3101>(Seed3101, "3101"))
             {
                 using (var ctx = new MyContext3101())
                 {
                     var query = from eVersion in ctx.Entities
                                 join eRoot in ctx.Entities
-                                on eVersion.RootEntityId equals (int?)eRoot.Id
-                                into RootEntities
+                                    on eVersion.RootEntityId equals (int?)eRoot.Id
+                                    into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                 select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
 
-                    var result = query.ToList();
+                    Assert.Equal(3, query.ToList().Count);
 
                     Assert.True(ctx.ChangeTracker.Entries().Any());
                 }
@@ -308,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<Child3101> Children { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
+                => optionsBuilder.UseInMemoryDatabase("3101");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -345,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context()
         {
-            using (CreateScratch<MyContext5456>(Seed5456))
+            using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, i =>
@@ -363,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro5456_include_group_join_is_per_query_context_async()
         {
-            using (CreateScratch<MyContext5456>(Seed5456))
+            using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, async i =>
@@ -381,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context()
         {
-            using (CreateScratch<MyContext5456>(Seed5456))
+            using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, i =>
@@ -399,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro5456_multiple_include_group_join_is_per_query_context_async()
         {
-            using (CreateScratch<MyContext5456>(Seed5456))
+            using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, async i =>
@@ -417,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context()
         {
-            using (CreateScratch<MyContext5456>(Seed5456))
+            using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, i =>
@@ -435,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Repro5456_multi_level_include_group_join_is_per_query_context_async()
         {
-            using (CreateScratch<MyContext5456>(Seed5456))
+            using (CreateScratch<MyContext5456>(Seed5456, "5456"))
             {
                 Parallel.For(
                     0, 10, async i =>
@@ -484,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<Author5456> Authors { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
+                => optionsBuilder.UseInMemoryDatabase("5456");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -525,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Entity_passed_to_DTO_constructor_works()
         {
-            using (CreateScratch<MyContext8282>(e => { }))
+            using (CreateScratch<MyContext8282>(e => { }, "8282"))
             {
                 using (var context = new MyContext8282())
                 {
@@ -538,10 +540,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class MyContext8282 : DbContext
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Entity8282> Entity { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(DatabaseName);
+                => optionsBuilder.UseInMemoryDatabase("8282");
         }
 
         public class Entity8282
@@ -563,25 +566,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region SharedHelper
 
-        private const string DatabaseName = "QueryBugs";
-
-        private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed)
+        private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)
             where TContext : DbContext, new()
-            => InMemoryTestStore.CreateScratch(
-                () =>
-                    {
-                        using (var context = new TContext())
-                        {
-                            seed(context);
-                        }
-                    },
-                s =>
-                    {
-                        using (var context = new TContext())
-                        {
-                            context.GetService<IInMemoryStoreCache>().GetStore(DatabaseName).Clear();
-                        }
-                    });
+            => InMemoryTestStore.GetOrCreate(databaseName).InitializeInMemory(null, () => new TContext(), c => seed((TContext)c));
 
         #endregion
     }

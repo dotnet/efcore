@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -12,10 +13,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public InMemoryFixture()
         {
-            ServiceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+            ServiceProvider = InMemoryTestStoreFactory.Instance.AddProviderServices(new ServiceCollection())
+                .BuildServiceProvider();
         }
     }
 }

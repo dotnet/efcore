@@ -1,15 +1,40 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.TestModels;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class CrossStoreFixture
+    public class CrossStoreFixture : FixtureBase
     {
-        public abstract TestStore CreateTestStore(Type testStoreType);
+        protected virtual string StoreName { get; } = "CrossStoreTest";
 
-        public abstract CrossStoreContext CreateContext(TestStore testStore);
+        public DbContextOptions CreateOptions(TestStore testStore)
+            => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
+                .UseInternalServiceProvider(testStore.ServiceProvider)
+                .Options;
+
+        public CrossStoreContext CreateContext(TestStore testStore)
+            => new CrossStoreContext(CreateOptions(testStore));
+
+        public TestStore CreateTestStore(ITestStoreFactory<TestStore> testStoreFactory)
+        {
+            return testStoreFactory.CreateShared(StoreName)
+                .Initialize(AddServices(testStoreFactory.AddProviderServices(new ServiceCollection()))
+                    .BuildServiceProvider(validateScopes: true), CreateContext, c => { });
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            modelBuilder.Entity<SimpleEntity>(eb =>
+                {
+                    eb.ToTable("RelationalSimpleEntity");
+                    eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
+                    eb.HasKey(e => e.Id);
+                    eb.Property(e => e.Id).UseSqlServerIdentityColumn();
+                });
+        }
     }
 }
