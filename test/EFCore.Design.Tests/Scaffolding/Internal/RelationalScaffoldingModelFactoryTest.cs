@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly FakeScaffoldingModelFactory _factory;
         private readonly TestOperationReporter _reporter;
-        private static DatabaseColumn IdColumn => new DatabaseColumn { Name = "Id", StoreType = "long" };
+        private static DatabaseColumn IdColumn => new DatabaseColumn { Name = "Id", StoreType = "int" };
         private static DatabasePrimaryKey IdPrimaryKey = new DatabasePrimaryKey { Columns = { IdColumn } };
 
         public RelationalDatabaseModelFactoryTest()
@@ -95,32 +96,32 @@ namespace Microsoft.EntityFrameworkCore
                             new DatabaseColumn
                             {
                                 Name = "occupation",
-                                StoreType = "string",
+                                StoreType = "nvarchar(max)",
                                 DefaultValueSql = "\"dev\""
                             },
                             new DatabaseColumn
                             {
                                 Name = "salary",
-                                StoreType = "long",
+                                StoreType = "int",
                                 IsNullable = true
                             },
                             new DatabaseColumn
                             {
                                 Name = "modified",
-                                StoreType = "string",
+                                StoreType = "nvarchar(max)",
                                 IsNullable = false,
                                 ValueGenerated = ValueGenerated.OnAddOrUpdate
                             },
                             new DatabaseColumn
                             {
                                 Name = "created",
-                                StoreType = "string",
+                                StoreType = "nvarchar(max)",
                                 ValueGenerated = ValueGenerated.OnAdd
                             },
                             new DatabaseColumn
                             {
                                 Name = "current",
-                                StoreType = "string",
+                                StoreType = "nvarchar(max)",
                                 ComputedColumnSql = "compute_this()"
                             }
                         },
@@ -136,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
                 pk =>
                     {
                         Assert.Equal("Id", pk.Name);
-                        Assert.Equal(typeof(long), pk.ClrType);
+                        Assert.Equal(typeof(int), pk.ClrType);
                     },
                 col1 =>
                     {
@@ -165,22 +166,25 @@ namespace Microsoft.EntityFrameworkCore
                 col5 =>
                     {
                         Assert.Equal("Salary", col5.Name);
-                        Assert.Equal(typeof(long?), col5.ClrType);
+                        Assert.Equal(typeof(int?), col5.ClrType);
                         Assert.True(col5.IsColumnNullable());
                         Assert.Null(col5.Relational().DefaultValue);
                     });
         }
 
         [Theory]
-        [InlineData("string", null)]
-        [InlineData("alias for string", "alias for string")]
-        public void Column_type_annotation(string StoreType, string expectedColumnType)
+        [InlineData("nvarchar(450)", null, null)]
+        [InlineData("alias for string", "nvarchar(450)", "alias for string")]
+        public void Column_type_annotation(string StoreType, string underlyingType, string expectedColumnType)
         {
             var column = new DatabaseColumn
             {
                 Name = "Col",
                 StoreType = StoreType
             };
+
+            column.SetUnderlyingStoreType(underlyingType);
+
             var info = new DatabaseModel
             {
                 Tables =
@@ -208,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
             var col1 = new DatabaseColumn
             {
                 Name = "Col1",
-                StoreType = "string"
+                StoreType = "nvarchar(max)"
             };
             var info = new DatabaseModel
             {
@@ -223,12 +227,12 @@ namespace Microsoft.EntityFrameworkCore
                             new DatabaseColumn
                             {
                                 Name = "Col2",
-                                StoreType = "string"
+                                StoreType = "nvarchar(max)"
                             },
                             new DatabaseColumn
                             {
                                 Name = "Col3",
-                                StoreType = "string"
+                                StoreType = "nvarchar(max)"
                             }
                         },
                         PrimaryKey = new DatabasePrimaryKey
@@ -297,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
             };
-            foreach (var column in keyProps.Select(k => new DatabaseColumn { Name = k, StoreType = "long" }))
+            foreach (var column in keyProps.Select(k => new DatabaseColumn { Name = k, StoreType = "int" }))
             {
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
@@ -310,15 +314,15 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Indexes_and_alternate_keys()
         {
-            var c1 = new DatabaseColumn { Name = "C1", StoreType = "long" };
+            var c1 = new DatabaseColumn { Name = "C1", StoreType = "int" };
             var table = new DatabaseTable
             {
                 Name = "T",
                 Columns =
                 {
                     c1,
-                    new DatabaseColumn { Name = "C2", StoreType = "long" },
-                    new DatabaseColumn { Name = "C3", StoreType = "long" }
+                    new DatabaseColumn { Name = "C2", StoreType = "int" },
+                    new DatabaseColumn { Name = "C3", StoreType = "int" }
                 },
                 PrimaryKey = new DatabasePrimaryKey
                 {
@@ -406,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "ParentId", StoreType = "long", IsNullable = true }
+                    new DatabaseColumn { Name = "ParentId", StoreType = "int", IsNullable = true }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -466,8 +470,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Composite_foreign_key()
 
         {
-            var ida = new DatabaseColumn { Name = "Id_A", StoreType = "long" };
-            var idb = new DatabaseColumn { Name = "Id_B", StoreType = "long" };
+            var ida = new DatabaseColumn { Name = "Id_A", StoreType = "int" };
+            var idb = new DatabaseColumn { Name = "Id_B", StoreType = "int" };
             var parentTable = new DatabaseTable
             {
                 Name = "Parent",
@@ -487,8 +491,8 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "ParentId_A", StoreType = "long" },
-                    new DatabaseColumn { Name = "ParentId_B", StoreType = "long" }
+                    new DatabaseColumn { Name = "ParentId_A", StoreType = "int" },
+                    new DatabaseColumn { Name = "ParentId_B", StoreType = "int" }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -539,7 +543,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "ParentId", StoreType = "long", IsNullable = false }
+                    new DatabaseColumn { Name = "ParentId", StoreType = "int", IsNullable = false }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -572,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "NotPkId", StoreType = "long" }
+                    new DatabaseColumn { Name = "NotPkId", StoreType = "int" }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -582,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "ParentId", StoreType = "long" }
+                    new DatabaseColumn { Name = "ParentId", StoreType = "int" }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -613,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "BuddyId", StoreType = "long", IsNullable = true }
+                    new DatabaseColumn { Name = "BuddyId", StoreType = "int", IsNullable = true }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -654,7 +658,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "BuddyId", StoreType = "long", IsNullable = true }
+                    new DatabaseColumn { Name = "BuddyId", StoreType = "int", IsNullable = true }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -696,8 +700,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Unique_index_composite_foreign_key()
         {
-            var ida = new DatabaseColumn { Name = "Id_A", StoreType = "long" };
-            var idb = new DatabaseColumn { Name = "Id_B", StoreType = "long" };
+            var ida = new DatabaseColumn { Name = "Id_A", StoreType = "int" };
+            var idb = new DatabaseColumn { Name = "Id_B", StoreType = "int" };
             var parentTable = new DatabaseTable
             {
                 Name = "Parent",
@@ -717,8 +721,8 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "ParentId_A", StoreType = "long" },
-                    new DatabaseColumn { Name = "ParentId_B", StoreType = "long" }
+                    new DatabaseColumn { Name = "ParentId_A", StoreType = "int" },
+                    new DatabaseColumn { Name = "ParentId_B", StoreType = "int" }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -772,8 +776,8 @@ namespace Microsoft.EntityFrameworkCore
                         Columns =
                         {
                             IdColumn,
-                            new DatabaseColumn { Name = "San itized", StoreType = "long" },
-                            new DatabaseColumn { Name = "San+itized", StoreType = "long" }
+                            new DatabaseColumn { Name = "San itized", StoreType = "int" },
+                            new DatabaseColumn { Name = "San+itized", StoreType = "int" }
                         },
                         PrimaryKey = IdPrimaryKey
                     },
@@ -937,7 +941,7 @@ namespace Microsoft.EntityFrameworkCore
                 Columns =
                 {
                     IdColumn,
-                    new DatabaseColumn { Name = "BlogId", StoreType = "long", IsNullable = true }
+                    new DatabaseColumn { Name = "BlogId", StoreType = "int", IsNullable = true }
                 },
                 PrimaryKey = IdPrimaryKey
             };
@@ -976,6 +980,114 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Blog", entity.GetNavigations().Single().Name);
                     }
             );
+        }
+
+        [Fact]
+        public void Not_null_bool_column_with_default_value_is_made_nullable()
+        {
+            var dbModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Table",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Name = "NonNullBoolWithDefault",
+                                StoreType = "bit",
+                                DefaultValueSql = "Default",
+                                IsNullable = false
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "NonNullBoolWithoutDefault",
+                                StoreType = "bit",
+                                IsNullable = false
+                            }
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var model = _factory.Create(dbModel);
+
+            var columns = model.FindEntityType("Table").GetProperties().ToList();
+
+            Assert.Equal(typeof(bool), columns.First(c => c.Name == "NonNullBoolWithoutDefault").ClrType);
+            Assert.Equal(typeof(bool?), columns.First(c => c.Name == "NonNullBoolWithDefault").ClrType);
+            Assert.Equal("Default", columns.First(c => c.Name == "NonNullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
+        }
+
+        [Fact]
+        public void Correct_arguments_to_scaffolding_typemapper()
+        {
+            var principalPkColumn = new DatabaseColumn { Name = "PrimaryKey", StoreType = "nvarchar(450)" };
+            var principalAkColumn = new DatabaseColumn { Name = "AlternateKey", StoreType = "nvarchar(450)" };
+            var principalIndexColumn = new DatabaseColumn { Name = "Index", StoreType = "nvarchar(450)" };
+            var rowversionColumn = new DatabaseColumn
+            {
+                Name = "Rowversion",
+                StoreType = "rowversion",
+                ValueGenerated = ValueGenerated.OnAddOrUpdate,
+                [Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames.ConcurrencyToken] = true
+            };
+
+            var principalTable = new DatabaseTable
+            {
+                Name = "Principal",
+                Columns =
+                {
+                    principalPkColumn,
+                    principalAkColumn,
+                    principalIndexColumn,
+                    rowversionColumn
+                },
+                PrimaryKey = new DatabasePrimaryKey { Columns = { principalPkColumn } },
+                UniqueConstraints = { new DatabaseUniqueConstraint { Columns = { principalAkColumn } } },
+                Indexes = { new DatabaseIndex { Columns = { principalIndexColumn } } }
+            };
+
+            var dependentIdColumn = new DatabaseColumn { Name = "Id", StoreType = "int" };
+            var dependentFkColumn = new DatabaseColumn { Name = "BlogAlternateKey", StoreType = "nvarchar(450)" };
+
+            var dependentTable = new DatabaseTable
+            {
+                Name = "Dependent",
+                Columns =
+                {
+                    dependentIdColumn,
+                    dependentFkColumn
+                },
+                PrimaryKey = new DatabasePrimaryKey { Columns = { dependentIdColumn } },
+                Indexes = { new DatabaseIndex { Columns = { dependentFkColumn } } },
+                ForeignKeys =
+                {
+                    new DatabaseForeignKey
+                    {
+                        Columns = { dependentFkColumn },
+                        PrincipalTable = principalTable,
+                        PrincipalColumns = { principalAkColumn }
+                    }
+                }
+            };
+
+            var dbModel = new DatabaseModel
+            {
+                Tables = { principalTable, dependentTable }
+            };
+
+            var model = _factory.Create(dbModel);
+
+            Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").Relational().ColumnType);
+            Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").Relational().ColumnType);
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Index").Relational().ColumnType);
+            Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").Relational().ColumnType);
+            Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").Relational().ColumnType);
         }
     }
 
@@ -1032,12 +1144,12 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] IPluralizer pluralizer)
             : base(
                 reporter,
-                new TestTypeMapper(new RelationalTypeMapperDependencies()),
+                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
                 new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer,
                 new CSharpUtilities(),
-                new ScaffoldingTypeMapper(new TestTypeMapper(new RelationalTypeMapperDependencies())))
+                new ScaffoldingTypeMapper(new SqlServerTypeMapper(new RelationalTypeMapperDependencies())))
         {
         }
     }
@@ -1053,40 +1165,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             throw new NotImplementedException();
         }
-    }
-
-    public class TestTypeMapper : RelationalTypeMapper
-    {
-        private static readonly StringTypeMapping _string = new StringTypeMapping("string");
-        private static readonly LongTypeMapping _long = new LongTypeMapping("long");
-
-        public TestTypeMapper(RelationalTypeMapperDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
-        private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
-            = new Dictionary<Type, RelationalTypeMapping>
-            {
-                { typeof(string), _string },
-                { typeof(long), _long }
-            };
-
-        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-            = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "string", _string },
-                { "alias for string", _string },
-                { "long", _long }
-            };
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
-            => _simpleNameMappings;
-
-        protected override string GetColumnType(IProperty property) => ((Property)property).Relational().ColumnType;
     }
 
     public class FakePluralizer : IPluralizer

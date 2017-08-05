@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore", "src\EFCore\EFCore.csproj", "{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4}"
 EndProject
@@ -228,5 +228,8 @@ Global
 		{935B51B9-A9B9-4DA2-93A2-663D3BCEAA83} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{E4F44442-7AD2-480D-AD6B-AAC4424F5FA7} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{8B289879-9CF1-4EFD-AD4B-781AEA94BDBE} = {258D5057-81B9-40EC-A872-D21E27452749}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}
 	EndGlobalSection
 EndGlobal
