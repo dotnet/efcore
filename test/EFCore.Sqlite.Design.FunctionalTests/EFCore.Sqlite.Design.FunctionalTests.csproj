@@ -13,13 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ReverseEngineering\Expected\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="ReverseEngineering\Expected\**\*.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

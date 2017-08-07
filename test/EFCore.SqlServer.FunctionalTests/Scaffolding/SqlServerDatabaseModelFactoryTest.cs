@@ -421,7 +421,7 @@ DROP TABLE [db.2].[K2];");
 
         #endregion
 
-        #region  Table
+        #region Table
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
@@ -549,7 +549,6 @@ CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
                     {
                         var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
-                        // ReSharper disable once PossibleNullReferenceException
                         // ReSharper disable once PossibleNullReferenceException
                         Assert.Equal("dbo", uniqueConstraint.Table.Schema);
                         Assert.Equal("UniqueConstraint", uniqueConstraint.Table.Name);

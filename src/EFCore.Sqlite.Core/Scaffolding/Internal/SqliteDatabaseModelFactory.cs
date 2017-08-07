@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     return GetRowidPrimaryKey(connection, table, columns);
                 }
-                else if (!name.StartsWith("sqlite_"))
+                if (!name.StartsWith("sqlite_"))
                 {
                     primaryKey.Name = name;
                 }
