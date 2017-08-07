@@ -1348,10 +1348,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerShaper = ExtractShaper(innerShapedQuery, previousProjectionCount);
 
             var materializerLambda = (LambdaExpression)selectManyMethodCallExpression.Arguments.Last();
-            var materializer = materializerLambda.Compile();
 
             var compositeShaper
-                = CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializer);
+                = CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializerLambda);
 
             compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
@@ -1456,10 +1455,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 var materializerLambda = (LambdaExpression)joinMethodCallExpression.Arguments.Last();
-                var materializer = materializerLambda.Compile();
 
                 var compositeShaper
-                    = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializer);
+                    = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
 
                 compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
@@ -1710,18 +1708,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     previousParameter.Type,
                     innerShaper.Type);
 
-            var materializer
-                = Expression.Lambda(
-                        CallCreateTransparentIdentifier(
-                            transparentIdentifierType,
-                            previousParameter,
-                            innerItemParameter),
-                        previousParameter,
-                        innerItemParameter)
-                    .Compile();
+            var materializerLambda = Expression.Lambda(
+                CallCreateTransparentIdentifier(
+                    transparentIdentifierType,
+                    previousParameter,
+                    innerItemParameter),
+                previousParameter,
+                innerItemParameter);
 
             var compositeShaper
-                = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializer);
+                = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
 
             IntroduceTransparentScope(joinClause, queryModel, index, transparentIdentifierType);
 
