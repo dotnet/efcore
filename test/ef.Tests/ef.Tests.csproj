@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\EFCore.Relational.Design.Specification.Tests\TestUtilities\BuildFileResult.cs" />
-    <Compile Include="..\..\src\EFCore.Relational.Design.Specification.Tests\TestUtilities\BuildReference.cs" />
-    <Compile Include="..\..\src\EFCore.Relational.Design.Specification.Tests\TestUtilities\BuildSource.cs" />
+    <Compile Include="..\EFCore.Design.Tests\TestUtilities\BuildFileResult.cs" />
+    <Compile Include="..\EFCore.Design.Tests\TestUtilities\BuildReference.cs" />
+    <Compile Include="..\EFCore.Design.Tests\TestUtilities\BuildSource.cs" />
   </ItemGroup>
 
   <ItemGroup>

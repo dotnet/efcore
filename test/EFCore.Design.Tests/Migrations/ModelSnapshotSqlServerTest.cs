@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -25,7 +26,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
-    public abstract class ModelSnapshotTest
+    public class ModelSnapshotSqlServerTest
     {
         private class EntityWithOneProperty
         {
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public int Id { get; set; }
             public int AlternateId { get; set; }
             public EntityWithOneProperty EntityWithOneProperty { get; set; }
+
             [NotMapped]
             public EntityWithStringProperty EntityWithStringProperty { get; set; }
         }
@@ -124,12 +126,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Test(
                 builder => { builder.HasAnnotation("AnnotationName", "AnnotationValue"); },
-                GetHeading() + @"builder
-    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+                @"builder
+    .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
+    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.GetAnnotations().Count());
+                        Assert.Equal(2, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     });
         }
@@ -143,13 +146,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         builder.HasDefaultSchema("DefaultSchema");
                         builder.HasAnnotation("AnnotationName", "AnnotationValue");
                     },
-                GetHeading() + @"builder
+                @"builder
     .HasDefaultSchema(""DefaultSchema"")
-    .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+    .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
+    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.GetAnnotations().Count());
+                        Assert.Equal(3, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
                         Assert.Equal("DefaultSchema", o[RelationalAnnotationNames.DefaultSchema]);
                     });
@@ -165,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         builder.Entity<EntityWithTwoProperties>().Ignore(e => e.EntityWithOneProperty);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -175,7 +179,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -192,8 +196,8 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         Assert.Equal(2, o.GetEntityTypes().Count());
                         Assert.Collection(
                             o.GetEntityTypes(),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty", t.Name),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties", t.Name));
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", t.Name),
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", t.Name));
                     });
         }
 
@@ -211,7 +215,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithTwoProperties>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -240,7 +244,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Entity<AnotherDerivedEntity>().HasBaseType<BaseEntity>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -255,9 +259,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Base
         b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
 
         b.Property<string>(""Title"");
 
@@ -266,9 +270,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Anot
         b.HasDiscriminator().HasValue(""AnotherDerivedEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
 
         b.Property<string>(""Name"");
 
@@ -282,10 +286,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Deri
                         Assert.Equal(3, o.GetEntityTypes().Count());
                         Assert.Collection(
                             o.GetEntityTypes(),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
-                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
-                            );
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity", t.Name),
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity", t.Name),
+                            t => Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity", t.Name)
+                        );
                     });
         }
 
@@ -304,7 +308,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Deri
                             .HasValue(typeof(AnotherDerivedEntity), typeof(AnotherDerivedEntity).Name);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -319,9 +323,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Base
         b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AnotherDerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
 
         b.Property<string>(""Title"");
 
@@ -330,9 +334,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Anot
         b.HasDiscriminator().HasValue(""AnotherDerivedEntity"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseEntity"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"");
 
         b.Property<string>(""Name"");
 
@@ -360,7 +364,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Deri
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -379,7 +383,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             o.GetEntityTypes().First().GetProperties(),
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -393,7 +397,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -411,7 +415,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             o.GetEntityTypes().First().FindPrimaryKey().Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -425,7 +429,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -445,7 +449,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             o.GetEntityTypes().First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
-                            );
+                        );
                     });
         }
 
@@ -459,7 +463,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -490,7 +494,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -527,7 +531,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -537,7 +541,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -552,11 +556,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -577,18 +581,19 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                     {
                         builder
                             .Entity<EntityWithOneProperty>()
-                            .OwnsOne(eo => eo.EntityWithTwoProperties, eb =>
-                                {
-                                    eb.HasForeignKey(e => e.AlternateId);
-                                    eb.HasOne(e => e.EntityWithOneProperty)
-                                        .WithOne(e => e.EntityWithTwoProperties);
-                                    eb.HasIndex(e => e.Id);
+                            .OwnsOne(
+                                eo => eo.EntityWithTwoProperties, eb =>
+                                    {
+                                        eb.HasForeignKey(e => e.AlternateId);
+                                        eb.HasOne(e => e.EntityWithOneProperty)
+                                            .WithOne(e => e.EntityWithTwoProperties);
+                                        eb.HasIndex(e => e.Id);
 
-                                    eb.OwnsOne(e => e.EntityWithStringProperty);
-                                });
+                                        eb.OwnsOne(e => e.EntityWithStringProperty);
+                                    });
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -598,9 +603,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
-        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
+        b.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"", b1 =>
             {
                 b1.Property<int>(""AlternateId"");
 
@@ -610,12 +615,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
 
                 b1.ToTable(""EntityWithOneProperty"");
 
-                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+                b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                     .WithOne(""EntityWithTwoProperties"")
-                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+                    .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
                     .OnDelete(DeleteBehavior.Cascade);
 
-                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
+                b1.OwnsOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithStringProperty"", b2 =>
                     {
                         b2.Property<int>(""EntityWithTwoPropertiesAlternateId"");
 
@@ -625,9 +630,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
 
                         b2.ToTable(""EntityWithOneProperty"");
 
-                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"")
+                        b2.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"")
                             .WithOne(""EntityWithStringProperty"")
-                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""EntityWithTwoPropertiesAlternateId"")
+                            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""EntityWithTwoPropertiesAlternateId"")
                             .OnDelete(DeleteBehavior.Cascade);
                     });
             });
@@ -668,7 +673,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         originalModel = builder.Model;
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", b =>
     {
         b.Property<Guid>(""Id"")
             .ValueGeneratedOnAdd();
@@ -701,7 +706,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         originalModel = builder.Model;
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", b =>
     {
         b.Property<Guid>(""Id"")
             .ValueGeneratedOnAdd();
@@ -737,7 +742,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         originalModel = builder.Model;
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -782,7 +787,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithTwoProperties>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd()
@@ -794,7 +799,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
     });
 ",
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"]); }
-                );
+            );
         }
 
         [Fact]
@@ -807,7 +812,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithTwoProperties>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -818,7 +823,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
     });
 ",
                 o => { Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactoryAnnotation]); }
-                );
+            );
         }
 
         [Fact]
@@ -827,7 +832,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
             Test(
                 builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsRequired(); },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -853,7 +858,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -875,7 +880,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
             Test(
                 builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(100); },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -897,7 +902,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
             Test(
                 builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false); },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -926,7 +931,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasAnnotation("AnnotationName", "AnnotationValue");
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -960,7 +965,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -986,7 +991,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1012,7 +1017,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1038,7 +1043,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1065,7 +1070,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1092,7 +1097,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1115,7 +1120,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
             Test(
                 builder => { builder.Entity<EntityWithEnumType>().Property(e => e.Day).HasDefaultValue(Days.Wed); },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithEnumType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1142,7 +1147,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1179,7 +1184,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1207,7 +1212,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1235,7 +1240,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1274,7 +1279,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1302,7 +1307,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1330,7 +1335,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1359,7 +1364,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1389,7 +1394,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Ignore<EntityWithOneProperty>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1431,7 +1436,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasAnnotation("AnnotationName", "AnnotationValue");
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1441,7 +1446,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1456,11 +1461,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
             .OnDelete(DeleteBehavior.Cascade);
     });
@@ -1482,7 +1487,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .IsRequired();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
     {
         b.Property<string>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1492,7 +1497,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithStringKey"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1508,11 +1513,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithStringProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringKey"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"")
             .WithOne()
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", ""Name"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -1531,7 +1536,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasForeignKey(e => e.Name);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringKey"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
     {
         b.Property<string>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1541,7 +1546,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithStringKey"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1555,9 +1560,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithStringProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithStringKey"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"")
             .WithMany(""Properties"")
             .HasForeignKey(""Name"");
     });
@@ -1578,7 +1583,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Entity<EntityWithTwoProperties>().Ignore(e => e.EntityWithOneProperty);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -1587,7 +1592,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1599,9 +1604,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithMany()
             .HasForeignKey(""Id"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1622,7 +1627,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasForeignKey<EntityWithOneProperty>(e => e.Id);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -1631,7 +1636,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1643,11 +1648,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Id"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -1668,7 +1673,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         originalModel = builder.Model;
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", b =>
     {
         b.Property<Guid>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1678,7 +1683,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithGenericKey<Guid>"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1692,9 +1697,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithGenericProperty<Guid>"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"")
             .WithMany()
             .HasForeignKey(""Property"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1741,7 +1746,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasConstraintName("Constraint");
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1751,7 +1756,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1766,11 +1771,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasConstraintName(""Constraint"")
             .OnDelete(DeleteBehavior.Cascade);
     });
@@ -1792,7 +1797,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                             .HasConstraintName("Constraint");
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1802,7 +1807,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1817,11 +1822,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
             .WithOne(""EntityWithTwoProperties"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
             .HasConstraintName(""Constraint"")
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
             .OnDelete(DeleteBehavior.Cascade);
@@ -1847,7 +1852,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Entity<DerivedType>();
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseType"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1866,7 +1871,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Base
         b.HasDiscriminator<string>(""Discriminator"").HasValue(""BaseType"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1876,9 +1881,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+DerivedType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedType"", b =>
     {
-        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseType"");
+        b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseType"");
 
 
         b.ToTable(""DerivedType"");
@@ -1886,9 +1891,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Deri
         b.HasDiscriminator().HasValue(""DerivedType"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+BaseType"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseType"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Navigation"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Navigation"")
             .WithMany()
             .HasForeignKey(""NavigationId"");
     });
@@ -1909,7 +1914,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Base
                             .HasPrincipalKey<EntityWithTwoProperties>(e => e.AlternateId);
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -1918,7 +1923,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1930,12 +1935,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
-            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Id"")
+            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -1961,7 +1966,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
                         builder.Entity<EntityWithTwoProperties>().HasAlternateKey(e => e.AlternateId).HasAnnotation("Name", "Value");
                     },
                 GetHeading() + @"
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"");
 
@@ -1970,7 +1975,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithOneProperty"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
@@ -1985,12 +1990,12 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
         b.ToTable(""EntityWithTwoProperties"");
     });
 
-builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
-        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
+        b.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""EntityWithTwoProperties"")
             .WithOne(""EntityWithOneProperty"")
-            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithOneProperty"", ""Id"")
-            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", ""AlternateId"")
+            .HasForeignKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""Id"")
+            .HasPrincipalKey(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", ""AlternateId"")
             .OnDelete(DeleteBehavior.Cascade);
     });
 ",
@@ -2005,12 +2010,15 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
 
         #endregion
 
-        protected virtual string GetHeading() => "";
+        protected virtual string GetHeading() => @"builder
+    .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+";
 
         protected virtual ICollection<BuildReference> GetReferences() => new List<BuildReference>
         {
             BuildReference.ByName("Microsoft.EntityFrameworkCore"),
-            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
+            BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer")
         };
 
         protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
@@ -2068,6 +2076,6 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotTest+Enti
             assert(value);
         }
 
-        protected abstract ModelBuilder CreateConventionalModelBuilder();
+        protected ModelBuilder CreateConventionalModelBuilder() => new ModelBuilder(SqlServerConventionSetBuilder.Build());
     }
 }
