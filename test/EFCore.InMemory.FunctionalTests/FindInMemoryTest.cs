@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FindInMemoryFixture : FindFixtureBase
         {
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
         }
     }
 }

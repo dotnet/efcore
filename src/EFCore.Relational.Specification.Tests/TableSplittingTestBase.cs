@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected readonly string DatabaseName = "TableSplittingTest";
         protected TestStore TestStore { get; set; }
-        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
+        protected abstract ITestStoreFactory TestStoreFactory { get; }
         protected IServiceProvider ServiceProvider { get; set; }
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
         {
-            TestStore = TestStoreFactory.CreateShared(DatabaseName);
+            TestStore = TestStoreFactory.GetOrCreate(DatabaseName);
 
             ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
                 .AddSingleton(TestModelSource.GetFactory(onModelCreating))

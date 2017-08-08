@@ -3,27 +3,16 @@
 
 using System;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.TestModels;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class MonsterFixupSqlServerTest : MonsterFixupTestBase, IDisposable
     {
-        protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
-        {
-            var serviceCollection = new ServiceCollection()
-                .AddEntityFrameworkSqlServer();
-
-            if (throwingStateManager)
-            {
-                serviceCollection.AddScoped<IStateManager, ThrowingMonsterStateManager>();
-            }
-
-            return serviceCollection.BuildServiceProvider();
-        }
+        protected override IServiceProvider CreateServiceProvider()
+            => new ServiceCollection().AddEntityFrameworkSqlServer().BuildServiceProvider(validateScopes: true);
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {

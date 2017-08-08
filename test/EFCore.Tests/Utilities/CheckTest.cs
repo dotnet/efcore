@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class CheckTest

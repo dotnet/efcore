@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class ServiceProviderFixtureBase : FixtureBase
     {
         public IServiceProvider ServiceProvider { get; }
-        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
+        protected abstract ITestStoreFactory TestStoreFactory { get; }
 
         protected ServiceProviderFixtureBase()
         {

@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -802,7 +801,7 @@ DROP TABLE PrincipalTable;");
         public class SqliteDatabaseModelFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = nameof(SqliteDatabaseModelFactoryTest);
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             public new SqliteTestStore TestStore => (SqliteTestStore)base.TestStore;
         }
     }

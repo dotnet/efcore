@@ -8,10 +8,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerValueGenerationScenariosTest
@@ -423,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore
                                     .HasDefaultValueSql("getdate()");
 
                                 b.Property(e => e.OtherId)
-                                    .HasDefaultValue(null);
+                                    .HasDefaultValue(value: null);
                             });
             }
         }
@@ -714,7 +715,8 @@ END");
                     });
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
         public void Insert_with_ValueGeneratedOnAdd_GUID_nonkey_property_throws()
         {
             using (var testStore = SqlServerTestStore.CreateInitialized(DatabaseName))

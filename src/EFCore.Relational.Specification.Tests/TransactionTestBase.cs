@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -600,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore
         public abstract class TransactionFixtureBase : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "TransactionTest";
+            protected override bool UsePooling => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

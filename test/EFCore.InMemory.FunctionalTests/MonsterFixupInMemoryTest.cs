@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,17 +9,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class MonsterFixupInMemoryTest : MonsterFixupTestBase
     {
-        protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
-        {
-            var serviceCollection = new ServiceCollection().AddEntityFrameworkInMemoryDatabase();
-
-            if (throwingStateManager)
-            {
-                serviceCollection.AddScoped<IStateManager, ThrowingMonsterStateManager>();
-            }
-
-            return serviceCollection.BuildServiceProvider();
-        }
+        protected override IServiceProvider CreateServiceProvider()
+            => new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {

@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -62,7 +61,7 @@ FROM ""Orders"" AS ""o""",
 
         public class MappingQuerySqliteFixture : MappingQueryFixtureBase
         {
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
 
             protected override string DatabaseSchema { get; } = null;
 

@@ -27,13 +27,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
             context.SaveChanges();
         }
 
-        public static Task SeedAsync(F1Context context)
-        {
-            AddEntities(context);
-
-            return context.SaveChangesAsync();
-        }
-
         private static void AddEntities(F1Context context)
         {
             foreach (var engineSupplier in new List<EngineSupplier>
@@ -905,31 +898,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 
             teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(vodafone);
             teams.Single(t => t.Id == Team.Ferrari).Sponsors.Add(shell);
-        }
-
-        public static void Cleanup(F1Context context)
-        {
-            RemoveAllEntities(context);
-
-            context.SaveChanges();
-        }
-
-        public static Task CleanupAsync(F1Context context)
-        {
-            RemoveAllEntities(context);
-
-            return context.SaveChangesAsync();
-        }
-
-        private static void RemoveAllEntities(F1Context context)
-        {
-            context.Sponsors.RemoveRange(context.Sponsors);
-            context.Set<TitleSponsor>().RemoveRange(context.Set<TitleSponsor>());
-            context.Drivers.RemoveRange(context.Drivers);
-            context.Set<TestDriver>().RemoveRange(context.Set<TestDriver>());
-            context.Teams.RemoveRange(context.Teams);
-            context.Engines.RemoveRange(context.Engines);
-            context.EngineSuppliers.RemoveRange(context.EngineSuppliers);
         }
     }
 }

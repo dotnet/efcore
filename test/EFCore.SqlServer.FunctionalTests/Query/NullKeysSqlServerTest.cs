@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under t
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class NullKeysSqlServerFixture : NullKeysFixtureBase
         {
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
         }
     }
 }

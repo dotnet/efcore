@@ -5,10 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels;
-using Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
@@ -153,46 +152,6 @@ namespace Microsoft.EntityFrameworkCore
             SimpleVerification(() => createContext(serviceProvider, databaseName));
             FkVerification(() => createContext(serviceProvider, databaseName));
             NavigationVerification(() => createContext(serviceProvider, databaseName));
-        }
-
-        [Fact]
-        public virtual void Store_generated_values_are_discarded_if_saving_changes_fails()
-            => Store_generated_values_are_discarded_if_saving_changes_fails_test(
-                CreateSnapshotMonsterContext, SnapshotDatabaseName + "_Bad");
-
-        [Fact]
-        public virtual void Store_generated_values_are_discarded_if_saving_changes_fails_with_full_notification_entities()
-            => Store_generated_values_are_discarded_if_saving_changes_fails_test(
-                CreateChangedChangingMonsterContext, FullNotifyDatabaseName + "_Bad");
-
-        [Fact]
-        public virtual void Store_generated_values_are_discarded_if_saving_changes_fails_with_changed_only_notification_entities()
-            => Store_generated_values_are_discarded_if_saving_changes_fails_test(
-                CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName + "_Bad");
-
-        private void Store_generated_values_are_discarded_if_saving_changes_fails_test(Func<IServiceProvider, string, MonsterContext> createContext, string databaseName)
-        {
-            CreateAndSeedDatabase(databaseName,
-                () => createContext(CreateServiceProvider(true), databaseName),
-                context =>
-                    {
-                        context.SeedUsingFKs(false);
-
-                        var stateManager = context.ChangeTracker.GetInfrastructure();
-
-                        var beforeSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => (e[p], p))).ToList();
-
-                        Assert.Equal(
-                            "Aborting.",
-                            Assert.Throws<Exception>(() => context.SaveChanges()).Message);
-
-                        var afterSnapshot = stateManager.Entries.SelectMany(e => e.EntityType.GetProperties().Select(p => (e[p], p))).ToList();
-
-                        for (var i = 0; i < beforeSnapshot.Count; i++)
-                        {
-                            Assert.Equal(beforeSnapshot[i], afterSnapshot[i]);
-                        }
-                    });
         }
 
         [Fact]
@@ -1586,7 +1545,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected abstract IServiceProvider CreateServiceProvider(bool throwingStateManager = false);
+        protected abstract IServiceProvider CreateServiceProvider();
 
         protected abstract DbContextOptions CreateOptions(string databaseName);
 

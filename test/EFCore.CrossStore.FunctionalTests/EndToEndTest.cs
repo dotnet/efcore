@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected CrossStoreFixture Fixture { get; }
-        protected abstract ITestStoreFactory<TestStore> TestStoreFactory { get; }
+        protected abstract ITestStoreFactory TestStoreFactory { get; }
         protected TestStore TestStore { get; }
         public void Dispose() => TestStore.Dispose();
 
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
     }
 
     [SqlServerConfiguredCondition]
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
     public class SqliteEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
@@ -100,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
 
     [Collection("SharedEndToEndCollection")]
@@ -111,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
     }
 
     [Collection("SharedEndToEndCollection")]
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
     }
 
     [CollectionDefinition("SharedEndToEndCollection")]

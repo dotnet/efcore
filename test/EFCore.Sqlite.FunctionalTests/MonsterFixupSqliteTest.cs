@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,18 +17,8 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly ConcurrentDictionary<string, object> _creationLocks
             = new ConcurrentDictionary<string, object>();
 
-        protected override IServiceProvider CreateServiceProvider(bool throwingStateManager = false)
-        {
-            var serviceCollection = new ServiceCollection()
-                .AddEntityFrameworkSqlite();
-
-            if (throwingStateManager)
-            {
-                serviceCollection.AddScoped<IStateManager, ThrowingMonsterStateManager>();
-            }
-
-            return serviceCollection.BuildServiceProvider();
-        }
+        protected override IServiceProvider CreateServiceProvider()
+            => new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider(validateScopes: true);
 
         protected override DbContextOptions CreateOptions(string databaseName)
         {

@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         
         public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
         {
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
             public override bool SupportsBinaryKeys => false;
 

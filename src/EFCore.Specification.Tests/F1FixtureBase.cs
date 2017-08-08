@@ -8,7 +8,9 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class F1FixtureBase : SharedStoreFixtureBase<F1Context>
     {
         protected override string StoreName { get; } = "F1Test";
-        
+
+        protected override bool UsePooling => false;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Chassis>(b => { b.HasKey(c => c.TeamId); });

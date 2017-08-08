@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -63,7 +62,7 @@ FROM [dbo].[Orders] AS [o]",
 
         public class MappingQuerySqlServerFixture : MappingQueryFixtureBase
         {
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerNorthwindTestStoreFactory.Instance;
 
             protected override string DatabaseSchema { get; } = "dbo";
 

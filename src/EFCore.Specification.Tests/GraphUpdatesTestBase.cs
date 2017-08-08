@@ -7706,6 +7706,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override string StoreName { get; } = "GraphUpdatesChangedTest";
             public readonly Guid RootAK = Guid.NewGuid();
             public virtual bool ForceRestrict => false;
+            protected override bool UsePooling => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -111,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         public class CompositeKeyEndToEndFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "CompositeKeyEndToEndTest";
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(BronieContext);
         }
 

@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -1670,7 +1669,7 @@ DROP TABLE PrincipalTable;");
         public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = nameof(SqlServerDatabaseModelFactoryTest);
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             public new SqlServerTestStore TestStore => (SqlServerTestStore)base.TestStore;
 
             public SqlServerDatabaseModelFixture()

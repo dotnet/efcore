@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class TypeExtensionsTest
@@ -154,12 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Same(typeof(TindersticksIICd), typeof(TindersticksIICd).GetAnyProperty("VertrauenIII").DeclaringType);
             Assert.Throws<AmbiguousMatchException>(() => typeof(TindersticksIICd).GetAnyProperty("SleepySong"));
         }
-
-        // ReSharper disable InconsistentNaming
+        
         public class TindersticksII
         {
             public virtual int ElDiabloEnElOjo { get; set; }
             internal virtual int ANightIn { get; set; }
+            // ReSharper disable once UnusedMember.Local
             private int MySister { get; set; }
             protected virtual int TinyTears { get; set; }
             public virtual int SnowyInFSharpMinor { get; private set; }

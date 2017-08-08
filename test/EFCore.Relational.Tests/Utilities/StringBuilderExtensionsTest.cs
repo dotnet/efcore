@@ -4,6 +4,7 @@
 using System.Text;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     public class StringBuilderExtensionsTest

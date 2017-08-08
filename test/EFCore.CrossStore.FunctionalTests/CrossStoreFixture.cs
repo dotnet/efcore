@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore
         public CrossStoreContext CreateContext(TestStore testStore)
             => new CrossStoreContext(CreateOptions(testStore));
 
-        public TestStore CreateTestStore(ITestStoreFactory<TestStore> testStoreFactory)
+        public TestStore CreateTestStore(ITestStoreFactory testStoreFactory)
         {
-            return testStoreFactory.CreateShared(StoreName)
+            return testStoreFactory.GetOrCreate(StoreName)
                 .Initialize(AddServices(testStoreFactory.AddProviderServices(new ServiceCollection()))
                     .BuildServiceProvider(validateScopes: true), CreateContext, c => { });
         }

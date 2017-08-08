@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -365,9 +364,10 @@ namespace Microsoft.EntityFrameworkCore
         public class ExecutionStrategyFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
+            protected override bool UsePooling => false;
             public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(ExecutionStrategyContext);
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override string StoreName { get; } = "DefaultKettleChips";
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
         protected override Type ContextType { get; } = typeof(ChipsContext);
 
         private ChipsContext CreateChipsContext() => (ChipsContext)CreateContext();

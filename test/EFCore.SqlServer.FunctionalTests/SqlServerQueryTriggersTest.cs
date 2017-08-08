@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -118,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "SqlServerQueryTriggers";
             protected override Type ContextType { get; } = typeof(QueryTriggersContext);
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
             protected override void Seed(DbContext context)
             {

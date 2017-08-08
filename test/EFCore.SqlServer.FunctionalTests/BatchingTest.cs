@@ -7,7 +7,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -213,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
         public class BatchingTestFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "BatchingTest";
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             
             protected override Type ContextType { get; } = typeof(BloggingContext);
 

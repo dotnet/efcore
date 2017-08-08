@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             public abstract class GraphUpdatesSqliteFixtureBase : GraphUpdatesFixtureBase
             {
                 public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-                protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+                protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
                 protected virtual bool AutoDetectChanges => false;
 
                 public override DbContext CreateContext()

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class MemoryOptimizedTablesFixture : ServiceProviderFixtureBase
         {
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
         }
 
         private class MemoryOptimizedContext : DbContext

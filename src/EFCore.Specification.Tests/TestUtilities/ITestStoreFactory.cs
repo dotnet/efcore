@@ -5,10 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public interface ITestStoreFactory<out TTestStore>
-        where TTestStore : TestStore
+    public interface ITestStoreFactory
     {
-        TTestStore CreateShared(string storeName);
+        TestStore GetOrCreate(string storeName);
         IServiceCollection AddProviderServices(IServiceCollection serviceCollection);
     }
 }

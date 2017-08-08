@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         public class CommandConfigurationTestFixture : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "Empty";
-            protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
         }
     }
 }
