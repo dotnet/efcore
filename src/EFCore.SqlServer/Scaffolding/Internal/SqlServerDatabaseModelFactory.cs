@@ -294,12 +294,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         DisplayName(sequence.Schema, sequence.Name), sequence.StoreType, sequence.IsCyclic,
                         sequence.IncrementBy, sequence.StartValue, sequence.MinValue, sequence.MaxValue);
 
-                    if (string.IsNullOrEmpty(sequence.Name))
-                    {
-                        Logger.SequenceNotNamedWarning();
-                        continue;
-                    }
-
                     if (_defaultSequenceMinMax.ContainsKey(sequence.StoreType))
                     {
                         var defaultMin = _defaultSequenceMinMax[sequence.StoreType][0];
@@ -426,8 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             THEN c.max_length
             ELSE null
         END AS int) AS [max_length],
-    c.is_identity,
-    c.is_computed
+    c.is_identity
 FROM sys.index_columns ic
     RIGHT JOIN (SELECT * FROM sys.indexes WHERE is_primary_key = 1) AS i ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     RIGHT JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
@@ -458,21 +451,14 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                     var scale = reader.GetValueOrDefault<int?>("scale");
                     var maxLength = reader.GetValueOrDefault<int?>("max_length");
                     var isIdentity = reader.GetValueOrDefault<bool>("is_identity");
-                    var isComputed = reader.GetValueOrDefault<bool>("is_computed");
 
                     Logger.ColumnFound(
                         DisplayName(schemaName, tableName), columnName, DisplayName(dataTypeSchemaName, dataTypeName), ordinal, nullable,
-                        primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity, isComputed);
+                        primaryKeyOrdinal, defaultValue, computedValue, precision, scale, maxLength, isIdentity);
 
                     if (!_tables.TryGetValue(SchemaQualifiedKey(tableName, schemaName), out var table))
                     {
                         Logger.ColumnSkipped(DisplayName(schemaName, tableName), columnName);
-                        continue;
-                    }
-
-                    if (string.IsNullOrEmpty(columnName))
-                    {
-                        Logger.ColumnNotNamedWarning(DisplayName(schemaName, tableName));
                         continue;
                     }
 
@@ -505,7 +491,7 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                         ComputedColumnSql = computedValue,
                         ValueGenerated = isIdentity
                             ? ValueGenerated.OnAdd
-                            : isComputed || (underlyingStoreType ?? storeType) == "rowversion"
+                            : (underlyingStoreType ?? storeType) == "rowversion"
                                 ? ValueGenerated.OnAddOrUpdate
                                 : default(ValueGenerated?)
                     };
@@ -594,12 +580,6 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Logger.IndexColumnFound(
                         DisplayName(schemaName, tableName), indexName, true, columnName, indexOrdinal);
 
-                    if (string.IsNullOrEmpty(indexName))
-                    {
-                        Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     Debug.Assert(primaryKey == null || primaryKey.Table != null);
                     if (primaryKey == null
                         || primaryKey.Name != indexName
@@ -628,15 +608,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         table.PrimaryKey = primaryKey;
                     }
 
-                    if (string.IsNullOrEmpty(columnName))
-                    {
-                        Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
-                    }
-                    else if (!_tableColumns.TryGetValue(ColumnKey(primaryKey.Table, columnName), out var column))
-                    {
-                        Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
-                    }
-                    else
+                    if (_tableColumns.TryGetValue(ColumnKey(primaryKey.Table, columnName), out var column))
                     {
                         primaryKey.Columns.Add(column);
                     }
@@ -680,12 +652,6 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Logger.IndexColumnFound(
                         DisplayName(schemaName, tableName), indexName, true, columnName, indexOrdinal);
 
-                    if (string.IsNullOrEmpty(indexName))
-                    {
-                        Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     Debug.Assert(uniqueConstraint == null || uniqueConstraint.Table != null);
                     if (uniqueConstraint == null
                         || uniqueConstraint.Name != indexName
@@ -713,15 +679,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         table.UniqueConstraints.Add(uniqueConstraint);
                     }
 
-                    if (string.IsNullOrEmpty(columnName))
-                    {
-                        Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
-                    }
-                    else if (!_tableColumns.TryGetValue(ColumnKey(uniqueConstraint.Table, columnName), out var column))
-                    {
-                        Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
-                    }
-                    else
+                    if (_tableColumns.TryGetValue(ColumnKey(uniqueConstraint.Table, columnName), out var column))
                     {
                         uniqueConstraint.Columns.Add(column);
                     }
@@ -772,12 +730,6 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                     Logger.IndexColumnFound(
                         DisplayName(schemaName, tableName), indexName, isUnique, columnName, indexOrdinal);
 
-                    if (string.IsNullOrEmpty(indexName))
-                    {
-                        Logger.IndexNotNamedWarning(DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     Debug.Assert(index == null || index.Table != null);
                     if (index == null
                         || index.Name != indexName
@@ -807,15 +759,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         table.Indexes.Add(index);
                     }
 
-                    if (string.IsNullOrEmpty(columnName))
-                    {
-                        Logger.IndexColumnNotNamedWarning(indexName, DisplayName(schemaName, tableName));
-                    }
-                    else if (!_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out var column))
-                    {
-                        Logger.IndexColumnsNotMappedWarning(indexName, new[] { columnName });
-                    }
-                    else
+                    if (_tableColumns.TryGetValue(ColumnKey(index.Table, columnName), out var column))
                     {
                         index.Columns.Add(column);
                     }
@@ -864,12 +808,6 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         DisplayName(schemaName, tableName), fkName, DisplayName(principalTableSchemaName, principalTableName),
                         fromColumnName, toColumnName, updateAction, deleteAction, ordinal);
 
-                    if (string.IsNullOrEmpty(fkName))
-                    {
-                        Logger.ForeignKeyNotNamedWarning(DisplayName(schemaName, tableName));
-                        continue;
-                    }
-
                     if (foreignKey == null
                         || lastFkSchemaName != schemaName
                         || lastFkTableName != tableName
@@ -909,16 +847,16 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
                         table.ForeignKeys.Add(foreignKey);
                     }
 
-                    DatabaseColumn fromColumn;
-                    if ((fromColumn = FindColumnForForeignKey(fromColumnName, foreignKey.Table, fkName)) != null)
+                    if (_tableColumns.TryGetValue(
+                        ColumnKey(foreignKey.Table, fromColumnName), out var fromColumn))
                     {
                         foreignKey.Columns.Add(fromColumn);
                     }
 
                     if (foreignKey.PrincipalTable != null)
                     {
-                        DatabaseColumn toColumn;
-                        if ((toColumn = FindColumnForForeignKey(toColumnName, foreignKey.PrincipalTable, fkName)) != null)
+                        if (_tableColumns.TryGetValue(
+                            ColumnKey(foreignKey.PrincipalTable, toColumnName), out var toColumn))
                         {
                             foreignKey.PrincipalColumns.Add(toColumn);
                         }
@@ -929,25 +867,6 @@ ORDER BY schema_name(f.schema_id), object_name(f.parent_object_id), f.name, fc.c
 
         private static string DisplayName(string schema, string name)
             => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
-
-        private DatabaseColumn FindColumnForForeignKey(
-            string columnName, DatabaseTable table, string fkName)
-        {
-            if (string.IsNullOrEmpty(columnName))
-            {
-                Logger.ForeignKeyColumnNotNamedWarning(fkName, DisplayName(table.Schema, table.Name));
-                return null;
-            }
-
-            if (!_tableColumns.TryGetValue(
-                ColumnKey(table, columnName), out var column))
-            {
-                Logger.ForeignKeyColumnsNotMappedWarning(fkName, new[] { columnName });
-                return null;
-            }
-
-            return column;
-        }
 
         private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
         {

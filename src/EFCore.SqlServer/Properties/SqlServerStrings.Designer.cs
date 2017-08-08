@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogFoundTypeAlias")));
 
         /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.
+        ///     Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}
         /// </summary>
         public static readonly FallbackEventDefinition LogFoundColumn
             = new FallbackEventDefinition(
@@ -282,9 +282,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogUnableToFindTableForIndex
             = new EventDefinition<string, string>(
                 SqlServerEventId.IndexTableMissingWarning,
-                LogLevel.Warning,
+                LogLevel.Debug,
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
+                    LogLevel.Debug,
                     SqlServerEventId.IndexTableMissingWarning,
                     _resourceManager.GetString("LogUnableToFindTableForIndex")));
 
@@ -393,9 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static readonly EventDefinition<string, string> LogForeignKeyTableNotInSelectionSet
             = new EventDefinition<string, string>(
                 SqlServerEventId.ForeignKeyTableMissingWarning,
-                LogLevel.Warning,
+                LogLevel.Debug,
                 LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
+                    LogLevel.Debug,
                     SqlServerEventId.ForeignKeyTableMissingWarning,
                     _resourceManager.GetString("LogForeignKeyTableNotInSelectionSet")));
 

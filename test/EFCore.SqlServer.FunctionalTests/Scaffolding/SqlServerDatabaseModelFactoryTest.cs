@@ -953,7 +953,7 @@ CREATE TABLE ValueGeneratedProperties (
                         Assert.Equal(ValueGenerated.OnAdd, columns.Single(c => c.Name == "Id").ValueGenerated);
                         Assert.Null(columns.Single(c => c.Name == "NoValueGenerationColumn").ValueGenerated);
                         Assert.Null(columns.Single(c => c.Name == "FixedDefaultValue").ValueGenerated);
-                        Assert.Equal(ValueGenerated.OnAddOrUpdate, columns.Single(c => c.Name == "ComputedValue").ValueGenerated);
+                        Assert.Null(columns.Single(c => c.Name == "ComputedValue").ValueGenerated);
                         Assert.Equal(ValueGenerated.OnAddOrUpdate, columns.Single(c => c.Name == "rowversionColumn").ValueGenerated);
                     },
                 @"DROP TABLE ValueGeneratedProperties;");
@@ -1620,16 +1620,9 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                     {
-                        // TODO: Use commented code after issue #9334 is fixed
-                        //var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        //Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId, warning.Id);
-
-                        var warning = Assert.Single(
-                            Log.Where(
-                                t => t.Level == LogLevel.Warning
-                                     && t.Id.Equals(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId)));
-
+                        Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId, warning.Id);
                         Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.GenerateMessage("MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), warning.Message);
                     },
                 @"

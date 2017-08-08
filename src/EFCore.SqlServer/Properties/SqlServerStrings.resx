@@ -164,8 +164,8 @@
     <comment>Debug SqlServerEventId.TypeAliasFound string string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}, computed: {isComputed}.</value>
-    <comment>Debug SqlServerEventId.ColumnFound string string string int? bool? int? string string int? int? int? bool? bool?</comment>
+    <value>Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}</value>
+    <comment>Debug SqlServerEventId.ColumnFound string string string int? bool? int? string string int? int? int? bool?</comment>
   </data>
   <data name="LogFoundForeignKeyColumn" xml:space="preserve">
     <value>Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
@@ -213,7 +213,7 @@
   </data>
   <data name="LogUnableToFindTableForIndex" xml:space="preserve">
     <value>For index {indexName}. Unable to find parent table {tableName}. Skipping index.</value>
-    <comment>Warning SqlServerEventId.IndexTableMissingWarning string string</comment>
+    <comment>Debug SqlServerEventId.IndexTableMissingWarning string string</comment>
   </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
@@ -252,6 +252,6 @@
   </data>
   <data name="LogForeignKeyTableNotInSelectionSet" xml:space="preserve">
     <value>Foreign key {fkName} is defined on table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Warning SqlServerEventId.ForeignKeyTableMissingWarning string string</comment>
+    <comment>Debug SqlServerEventId.ForeignKeyTableMissingWarning string string</comment>
   </data>
 </root>
