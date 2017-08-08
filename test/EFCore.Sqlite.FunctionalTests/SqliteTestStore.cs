@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore
     {
         public const int CommandTimeout = 30;
 
-        public static SqliteTestStore GetOrCreate(string name)
-            => new SqliteTestStore(name);
+        public static SqliteTestStore GetOrCreate(string name, bool sharedCache = true)
+            => new SqliteTestStore(name, sharedCache: sharedCache);
 
         public static SqliteTestStore GetOrCreateInitialized(string name)
             => new SqliteTestStore(name).InitializeSqlite(null, null, null);
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private readonly bool _seed;
 
-        private SqliteTestStore(string name, bool seed = true)
+        private SqliteTestStore(string name, bool seed = true, bool sharedCache = true)
             : base(name)
         {
             _seed = seed;
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             ConnectionString = new SqliteConnectionStringBuilder
             {
                 DataSource = Name + ".db",
-                Cache = SqliteCacheMode.Shared
+                Cache = sharedCache ? SqliteCacheMode.Shared : SqliteCacheMode.Private
             }.ToString();
 
             Connection = new SqliteConnection(ConnectionString);

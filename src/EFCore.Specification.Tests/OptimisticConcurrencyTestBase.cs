@@ -628,7 +628,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     SaveChanges such that storeChange will succeed and the store will reflect this change, and
         ///     then clientChange will result in a concurrency exception.
         ///     After the exception is caught the resolver action is called, after which SaveChanges is called
-        ///     again.  Finally, a new context is created and the validator is called so that the state of
+        ///     again. Finally, a new context is created and the validator is called so that the state of
         ///     the database at the end of the process can be validated.
         /// </summary>
         protected virtual async Task ConcurrencyTestAsync(

@@ -8,6 +8,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class F1SqliteFixture : F1RelationalFixture
     {
-        protected override ITestStoreFactory<TestStore> TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory<TestStore> TestStoreFactory => PrivateCacheSqliteTestStoreFactory.Instance;
     }
 }

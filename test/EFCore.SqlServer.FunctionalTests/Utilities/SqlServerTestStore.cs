@@ -24,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             => SqlServerNorthwindTestStoreFactory.Instance.CreateShared(
                 SqlServerNorthwindTestStoreFactory.Name);
 
-        public static SqlServerTestStore GetOrCreate(string name, bool useFileName = false)
-            => new SqlServerTestStore(name, useFileName);
+        public static SqlServerTestStore GetOrCreate(string name)
+            => new SqlServerTestStore(name);
 
-        public static SqlServerTestStore GetOrCreateInitialized(string name, bool useFileName = false)
-            => new SqlServerTestStore(name, useFileName).InitializeSqlServer(null, (Func<DbContext>)null, null);
+        public static SqlServerTestStore GetOrCreateInitialized(string name)
+            => new SqlServerTestStore(name).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
         public static SqlServerTestStore GetOrCreateInitialized(string name, string scriptPath)
             => (SqlServerTestStore)new SqlServerTestStore(name, scriptPath: scriptPath)
@@ -443,6 +443,17 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
 
             return command;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            if (_fileName != null)
+            {
+                // Clean up the database using a local file, as it might get deleted later
+                DeleteDatabase();
+            }
         }
 
         public static string CreateConnectionString(string name)

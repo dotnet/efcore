@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting", file))
+            using (var testDatabase = SqlServerTestStore.Create("NonExisting", file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -91,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_true_when_database_exists_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging" + (file ? "File" : ""), file))
+            using (var testDatabase = file ? SqlServerTestStore.CreateInitialized("ExistingBloggingFile", useFileName: true)
+                : SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging"))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -220,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Noop_when_database_does_not_exist_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting", file))
+            using (var testDatabase = SqlServerTestStore.Create("NonExisting", file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
@@ -412,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Noop_when_database_exists_and_has_schema_test(bool async, bool file)
         {
-            using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("InitializedBlogging" + (file ? "File" : ""), file))
+            using (var testDatabase = SqlServerTestStore.CreateInitialized("InitializedBlogging" + (file ? "File" : ""), file))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
                 {
