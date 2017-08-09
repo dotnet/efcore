@@ -20,6 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 
         public virtual string Name { get; [param: CanBeNull] set; }
 
-        public virtual ReferentialAction? OnDelete { get; [param: NotNull] set; }
+        public virtual ReferentialAction? OnDelete { get; set; }
     }
 }

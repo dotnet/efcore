@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 
         public virtual string Name { get; [param: NotNull] set; }
         public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
-        public virtual bool IsUnique { get; [param: NotNull] set; }
+        public virtual bool IsUnique { get; set; }
         public virtual string Filter { get; [param: CanBeNull] set; }
     }
 }

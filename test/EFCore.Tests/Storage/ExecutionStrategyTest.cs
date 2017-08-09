@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ExecutionStrategyTest
@@ -307,7 +308,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var executionStrategyMock = new TestExecutionStrategy(
                 CreateContext(),
                 retryCount: 2,
-                shouldRetryOn: e => e is ArgumentOutOfRangeException);
+                shouldRetryOn: e => e is ArgumentOutOfRangeException,
+                getNextDelay: e => TimeSpan.FromTicks(0));
 
             Assert.IsType<ArgumentOutOfRangeException>(
                 Assert.Throws<RetryLimitExceededException>(
@@ -531,7 +533,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var executionStrategyMock = new TestExecutionStrategy(
                 CreateContext(),
                 retryCount: 2,
-                shouldRetryOn: e => e is ArgumentOutOfRangeException);
+                shouldRetryOn: e => e is ArgumentOutOfRangeException,
+                getNextDelay: e => TimeSpan.FromTicks(0));
 
             Assert.IsType<ArgumentOutOfRangeException>(
                 (await Assert.ThrowsAsync<RetryLimitExceededException>(

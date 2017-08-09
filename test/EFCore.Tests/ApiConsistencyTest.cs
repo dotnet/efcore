@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
@@ -21,6 +22,15 @@ namespace Microsoft.EntityFrameworkCore
 
         public class SampleEntity
         {
+        }
+
+        protected override bool ShouldHaveNotNullAnnotation(MethodBase method, Type type)
+        {
+            return base.ShouldHaveNotNullAnnotation(method, type)
+                   && method.Name != nameof(DbContext.OnConfiguring)
+                   && method.Name != nameof(DbContext.OnModelCreating)
+                   && !(type == typeof(IEntityTypeConfiguration<>)
+                   && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
         }
 
         [Fact]

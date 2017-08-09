@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void VisitQueryModel([NotNull] QueryModel queryModel)
+        public override void VisitQueryModel(QueryModel queryModel)
         {
             queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<AdditionalFromClauseOptimizingQueryModelVisitor>(this).Visit);
 
@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override void VisitAdditionalFromClause(
-            [NotNull] AdditionalFromClause fromClause,
-            [NotNull] QueryModel queryModel,
+            AdditionalFromClause fromClause,
+            QueryModel queryModel,
             int index)
         {
             if (fromClause.FromExpression is SubQueryExpression subQueryExpression

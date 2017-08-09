@@ -63,8 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string name,
             [NotNull] string table,
             [CanBeNull] string type = null,
-            [CanBeNull] bool? unicode = null,
-            [CanBeNull] int? maxLength = null,
+            bool? unicode = null,
+            int? maxLength = null,
             bool rowVersion = false,
             [CanBeNull] string schema = null,
             bool nullable = false,
@@ -340,8 +340,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string name,
             [NotNull] string table,
             [CanBeNull] string type = null,
-            [CanBeNull] bool? unicode = null,
-            [CanBeNull] int? maxLength = null,
+            bool? unicode = null,
+            int? maxLength = null,
             bool rowVersion = false,
             [CanBeNull] string schema = null,
             bool nullable = false,
@@ -350,8 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string computedColumnSql = null,
             [CanBeNull] Type oldClrType = null,
             [CanBeNull] string oldType = null,
-            [CanBeNull] bool? oldUnicode = null,
-            [CanBeNull] int? oldMaxLength = null,
+            bool? oldUnicode = null,
+            int? oldMaxLength = null,
             bool oldRowVersion = false,
             bool oldNullable = false,
             [CanBeNull] object oldDefaultValue = null,
@@ -424,12 +424,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string name,
             [CanBeNull] string schema = null,
             int incrementBy = 1,
-            [CanBeNull] long? minValue = null,
-            [CanBeNull] long? maxValue = null,
+            long? minValue = null,
+            long? maxValue = null,
             bool cyclic = false,
             int oldIncrementBy = 1,
-            [CanBeNull] long? oldMinValue = null,
-            [CanBeNull] long? oldMaxValue = null,
+            long? oldMinValue = null,
+            long? oldMaxValue = null,
             bool oldCyclic = false)
         {
             Check.NotEmpty(name, nameof(name));
@@ -573,8 +573,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema = null,
             long startValue = 1L,
             int incrementBy = 1,
-            [CanBeNull] long? minValue = null,
-            [CanBeNull] long? maxValue = null,
+            long? minValue = null,
+            long? maxValue = null,
             bool cyclic = false)
             => CreateSequence<long>(name, schema, startValue, incrementBy, minValue, maxValue, cyclic);
 
@@ -595,8 +595,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string schema = null,
             long startValue = 1L,
             int incrementBy = 1,
-            [CanBeNull] long? minValue = null,
-            [CanBeNull] long? maxValue = null,
+            long? minValue = null,
+            long? maxValue = null,
             bool cyclic = false)
         {
             Check.NotEmpty(name, nameof(name));

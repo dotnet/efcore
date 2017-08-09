@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <typeparam name="T"> The underlying type of the nullable type. </typeparam>
         /// <param name="value"> The nullable value. </param>
         /// <returns> The literal. </returns>
-        string Literal<T>([NotNull] T? value) where T : struct;
+        string Literal<T>(T? value) where T : struct;
 
         /// <summary>
         ///     Generates a byte array literal.

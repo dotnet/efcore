@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         protected virtual bool TryCreateFromEntry(
             [NotNull] InternalEntityEntry entry,
             [NotNull] Func<InternalEntityEntry, IProperty, object> getValue,
-            [CanBeNull] out object[] key)
+            out object[] key)
         {
             key = new object[Properties.Count];
             var index = 0;

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable StringStartsWithIsCultureSpecific
 namespace Microsoft.EntityFrameworkCore
@@ -23,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        
+
         [Fact]
-        public void Service_implementations_should_use_dependencies_parameter_object()
+        public virtual void Service_implementations_should_use_dependencies_parameter_object()
         {
             var serviceCollection = new ServiceCollection();
 
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
                              || it.GetConstructors()[0].GetParameters().Length == 0
                              || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
                    select it)
-                .ToList();
+                    .ToList();
 
             Assert.False(
                 badServiceTypes.Any(),
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
 
         [Fact]
-        public void Public_inheritable_apis_should_be_virtual()
+        public virtual void Public_inheritable_apis_should_be_virtual()
         {
             var nonVirtualMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
@@ -85,24 +86,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Public_api_arguments_should_have_not_null_annotation()
+        public virtual void Public_api_arguments_should_have_not_null_annotation()
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
-                   from method in type.GetMethods(AnyInstance | BindingFlags.Static)
+                   from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                        .Concat<MethodBase>(type.GetConstructors())
-                   where (method.DeclaringType == type)
-                         && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                         && (method is ConstructorInfo
-                             || (((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType))
-                         && (method.Name != nameof(DbContext.OnConfiguring))
-                         && (method.Name != nameof(DbContext.OnModelCreating))
-                         && !(type == typeof(IEntityTypeConfiguration<>) && method.Name == nameof(IEntityTypeConfiguration<object>.Configure))
+                   where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                         && ShouldHaveNotNullAnnotation(method, type)
                    where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
-                   where !events.Any(e => (e.AddMethod == method) || (e.RemoveMethod == method))
+                   where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                    from parameter in method.GetParameters()
                    where !parameter.IsOut
                    let parameterType = parameter.ParameterType.IsByRef
@@ -110,9 +106,8 @@ namespace Microsoft.EntityFrameworkCore
                        : parameter.ParameterType
                    where !parameterType.GetTypeInfo().IsValueType
                          && !parameter.GetCustomAttributes()
-                             .Any(
-                                 a => (a.GetType().Name == nameof(NotNullAttribute))
-                                      || (a.GetType().Name == nameof(CanBeNullAttribute)))
+                             .Any(a => a.GetType().Name == nameof(NotNullAttribute)
+                                       || a.GetType().Name == nameof(CanBeNullAttribute))
                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
                     .ToList();
 
@@ -121,8 +116,40 @@ namespace Microsoft.EntityFrameworkCore
                 "\r\n-- Missing NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersMissingAttribute));
         }
 
+        protected virtual bool ShouldHaveNotNullAnnotation(MethodBase method, Type type)
+            => method is ConstructorInfo || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType;
+
         [Fact]
-        public void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
+        public virtual void Public_api_arguments_should_not_have_redundant_not_null_annotation()
+        {
+            var parametersWithRedundantAttribute
+                = (from type in GetAllTypes(TargetAssembly.GetTypes())
+                   where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
+                   let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
+                   let events = type.GetEvents()
+                   from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                       .Concat<MethodBase>(type.GetConstructors())
+                   where method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly
+                   from parameter in method.GetParameters()
+                   let parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType
+                   let attributes = parameter.GetCustomAttributes(inherit: false)
+                   where ((!ShouldHaveNotNullAnnotation(method, type)
+                           || !type.GetTypeInfo().IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                           || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
+                           || (parameterType.GetTypeInfo().IsValueType && !parameterType.GetTypeInfo().IsNullableType()))
+                          && attributes.Any(a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute)))
+                         || (parameterType.GetTypeInfo().IsValueType
+                             && parameterType.GetTypeInfo().IsNullableType()
+                             && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute)))
+                   select type.FullName + "." + method.Name + "[" + parameter.Name + "]").ToList();
+
+            Assert.False(
+                parametersWithRedundantAttribute.Any(),
+                "\r\n-- Redundant NotNull annotations --\r\n" + string.Join(Environment.NewLine, parametersWithRedundantAttribute));
+        }
+
+        [Fact]
+        public virtual void Async_methods_should_have_overload_with_cancellation_token_and_end_with_async_suffix()
         {
             var asyncMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
@@ -170,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Public_api_bool_parameters_should_not_be_prefixed()
+        public virtual void Public_api_bool_parameters_should_not_be_prefixed()
         {
             var prefixes = new[]
             {
@@ -180,14 +207,14 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var parameters = (
-                    from type in GetAllTypes(TargetAssembly.GetExportedTypes())
-                    where !type.Namespace.Contains("Internal")
-                    from method in type.GetTypeInfo().DeclaredMethods
-                    where !method.IsPrivate
-                    from parameter in method.GetParameters()
-                    where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
-                          && prefixes.Any(parameter.Name.StartsWith)
-                    select $"{type.FullName}.{method.Name}[{parameter.Name}]")
+                from type in GetAllTypes(TargetAssembly.GetExportedTypes())
+                where !type.Namespace.Contains("Internal")
+                from method in type.GetTypeInfo().DeclaredMethods
+                where !method.IsPrivate
+                from parameter in method.GetParameters()
+                where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
+                      && prefixes.Any(parameter.Name.StartsWith)
+                select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
             Assert.False(

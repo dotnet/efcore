@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public SqlServerByteArrayTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
+            DbType? dbType = System.Data.DbType.Binary,
             int? size = null)
             : base(storeType, dbType, size)
         {

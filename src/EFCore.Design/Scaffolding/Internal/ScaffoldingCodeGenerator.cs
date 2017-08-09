@@ -44,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IList<string> GetExistingFilePaths(
-            [NotNull] string outputPath,
-            [NotNull] string dbContextClassName,
-            [NotNull] IEnumerable<IEntityType> entityTypes)
+            string outputPath,
+            string dbContextClassName,
+            IEnumerable<IEntityType> entityTypes)
         {
             Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
@@ -82,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IList<string> GetReadOnlyFilePaths(
-            [NotNull] string outputPath,
-            [NotNull] string dbContextClassName,
-            [NotNull] IEnumerable<IEntityType> entityTypes)
+            string outputPath,
+            string dbContextClassName,
+            IEnumerable<IEntityType> entityTypes)
         {
             Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
@@ -109,11 +109,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract ReverseEngineerFiles WriteCode(
-            [NotNull] IModel model,
-            [NotNull] string outputPath,
-            [NotNull] string @namespace,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
+            IModel model,
+            string outputPath,
+            string @namespace,
+            string contextName,
+            string connectionString,
             bool dataAnnotations);
     }
 }

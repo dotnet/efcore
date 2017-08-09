@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         public SqliteDateTimeOffsetTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType = null)
+            DbType? dbType = null)
             : base(storeType, dbType)
         {
         }

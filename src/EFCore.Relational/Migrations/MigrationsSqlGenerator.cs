@@ -1354,8 +1354,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string name,
             [NotNull] Type clrType,
             [CanBeNull] string type,
-            [CanBeNull] bool? unicode,
-            [CanBeNull] int? maxLength,
+            bool? unicode,
+            int? maxLength,
             bool rowVersion,
             bool nullable,
             [CanBeNull] object defaultValue,
@@ -1403,8 +1403,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] string table,
             [NotNull] string name,
             [NotNull] Type clrType,
-            [CanBeNull] bool? unicode,
-            [CanBeNull] int? maxLength,
+            bool? unicode,
+            int? maxLength,
             bool rowVersion,
             [CanBeNull] IModel model)
         {

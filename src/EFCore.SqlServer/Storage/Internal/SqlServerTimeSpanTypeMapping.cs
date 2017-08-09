@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     {
-        public SqlServerTimeSpanTypeMapping([NotNull] string storeType, [CanBeNull] DbType? dbType = null)
+        public SqlServerTimeSpanTypeMapping([NotNull] string storeType, DbType? dbType = null)
             : base(storeType, dbType)
         {
         }

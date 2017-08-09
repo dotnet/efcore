@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override void FlattenSubQuery(
-            [NotNull] SubQueryExpression subQueryExpression,
-            [NotNull] IFromClause fromClause,
-            [NotNull] QueryModel queryModel,
+            SubQueryExpression subQueryExpression,
+            IFromClause fromClause,
+            QueryModel queryModel,
             int destinationIndex)
         {
             var subQueryModel = subQueryExpression.QueryModel;

@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SingleResultToSequence(queryModel);
 
                 TrackEntitiesInResults<TResult>(queryModel);
-                
+
                 InterceptExceptions();
 
                 return CreateExecutorLambda<IEnumerable<TResult>>();
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     QueryContextParameter);
 
         /// <summary>
-        /// Rewrites collection navigation projections so that they can be handled by the Include pipeline.
+        ///     Rewrites collection navigation projections so that they can be handled by the Include pipeline.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
         protected virtual void RewriteProjectedCollectionNavigationsToIncludes([NotNull] QueryModel queryModel)
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             new EagerLoadingExpressionVisitor(_queryCompilationContext, _querySourceTracingExpressionVisitorFactory)
                 .VisitQueryModel(queryModel);
-            
+
             // First pass of optimizations
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
@@ -343,9 +343,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             private void ApplyIncludesForOwnedNavigations(QuerySourceReferenceExpression querySourceReferenceExpression, QueryModel queryModel)
             {
                 if (_querySourceTracingExpressionVisitor
-                        .FindResultQuerySourceReferenceExpression(
-                            queryModel.SelectClause.Selector,
-                            querySourceReferenceExpression.ReferencedQuerySource) != null)
+                    .FindResultQuerySourceReferenceExpression(
+                        queryModel.SelectClause.Selector,
+                        querySourceReferenceExpression.ReferencedQuerySource) != null)
                 {
                     var entityType = _queryCompilationContext.Model.FindEntityType(querySourceReferenceExpression.Type);
 
@@ -579,13 +579,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression selector)
             => (from entityTrackingInfo in entityTrackingInfos
                 select
-                (Func<TResult, object>)
-                AccessorFindingExpressionVisitor
-                    .FindAccessorLambda(
-                        entityTrackingInfo.QuerySourceReferenceExpression,
-                        selector,
-                        Expression.Parameter(typeof(TResult), "result"))
-                    .Compile())
+                    (Func<TResult, object>)
+                        AccessorFindingExpressionVisitor
+                            .FindAccessorLambda(
+                                entityTrackingInfo.QuerySourceReferenceExpression,
+                                selector,
+                                Expression.Parameter(typeof(TResult), "result"))
+                            .Compile())
                 .ToList();
 
         /// <summary>
@@ -598,21 +598,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var expression = _expression;
 
-            var setFilterParameterExpressions 
+            var setFilterParameterExpressions
                 = CreateSetFilterParametersExpressions(out var contextVariableExpression);
 
             if (setFilterParameterExpressions != null)
             {
                 expression
                     = Expression.Block(
-                        new [] { contextVariableExpression },
+                        new[] { contextVariableExpression },
                         setFilterParameterExpressions.Concat(new[] { expression }));
             }
 
             var queryExecutorExpression
                 = Expression
                     .Lambda<Func<QueryContext, TResults>>(
-                        expression, 
+                        expression,
                         QueryContextParameter);
 
             try
@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Visits the root <see cref="QueryModel" /> node.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
-        public override void VisitQueryModel([NotNull] QueryModel queryModel)
+        public override void VisitQueryModel(QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
@@ -700,8 +700,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="fromClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
         public override void VisitMainFromClause(
-            [NotNull] MainFromClause fromClause,
-            [NotNull] QueryModel queryModel)
+            MainFromClause fromClause,
+            QueryModel queryModel)
         {
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -745,8 +745,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitAdditionalFromClause(
-            [NotNull] AdditionalFromClause fromClause,
-            [NotNull] QueryModel queryModel,
+            AdditionalFromClause fromClause,
+            QueryModel queryModel,
             int index)
         {
             Check.NotNull(fromClause, nameof(fromClause));
@@ -804,8 +804,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitJoinClause(
-            [NotNull] JoinClause joinClause,
-            [NotNull] QueryModel queryModel,
+            JoinClause joinClause,
+            QueryModel queryModel,
             int index)
         {
             Check.NotNull(joinClause, nameof(joinClause));
@@ -876,8 +876,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitGroupJoinClause(
-            [NotNull] GroupJoinClause groupJoinClause,
-            [NotNull] QueryModel queryModel,
+            GroupJoinClause groupJoinClause,
+            QueryModel queryModel,
             int index)
         {
             Check.NotNull(groupJoinClause, nameof(groupJoinClause));
@@ -954,8 +954,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitWhereClause(
-            [NotNull] WhereClause whereClause,
-            [NotNull] QueryModel queryModel,
+            WhereClause whereClause,
+            QueryModel queryModel,
             int index)
         {
             Check.NotNull(whereClause, nameof(whereClause));
@@ -978,9 +978,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="orderByClause"> The <see cref="OrderByClause" /> for the ordering. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitOrdering(
-            [NotNull] Ordering ordering,
-            [NotNull] QueryModel queryModel,
-            [NotNull] OrderByClause orderByClause,
+            Ordering ordering,
+            QueryModel queryModel,
+            OrderByClause orderByClause,
             int index)
         {
             Check.NotNull(ordering, nameof(ordering));
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (index == 0
                         ? LinqOperatorProvider.OrderBy
                         : LinqOperatorProvider.ThenBy)
-                    .MakeGenericMethod(CurrentParameter.Type, expression.Type),
+                        .MakeGenericMethod(CurrentParameter.Type, expression.Type),
                     _expression,
                     Expression.Lambda(expression, CurrentParameter),
                     Expression.Constant(ordering.OrderingDirection));
@@ -1006,8 +1006,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="selectClause"> The node being visited. </param>
         /// <param name="queryModel"> The query. </param>
         public override void VisitSelectClause(
-            [NotNull] SelectClause selectClause,
-            [NotNull] QueryModel queryModel)
+            SelectClause selectClause,
+            QueryModel queryModel)
         {
             Check.NotNull(selectClause, nameof(selectClause));
             Check.NotNull(queryModel, nameof(queryModel));
@@ -1058,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 asyncSelector,
                                 CurrentParameter,
                                 taskLiftingExpressionVisitor.CancellationTokenParameter
-                                    ?? Expression.Parameter(typeof(CancellationToken), name: "ct")));
+                                ?? Expression.Parameter(typeof(CancellationToken), name: "ct")));
             }
         }
 
@@ -1124,8 +1124,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="queryModel"> The query. </param>
         /// <param name="index"> Index of the node being visited. </param>
         public override void VisitResultOperator(
-            [NotNull] ResultOperatorBase resultOperator,
-            [NotNull] QueryModel queryModel,
+            ResultOperatorBase resultOperator,
+            QueryModel queryModel,
             int index)
         {
             Check.NotNull(resultOperator, nameof(resultOperator));

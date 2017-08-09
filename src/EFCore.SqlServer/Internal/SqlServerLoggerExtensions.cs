@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             int? precision,
             int? scale,
             int? maxLength,
-            [CanBeNull] bool? identity,
-            [CanBeNull] bool? computed)
+            bool? identity,
+            bool? computed)
         {
             // No DiagnosticsSource events because these are purely design-time messages
 

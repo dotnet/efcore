@@ -205,7 +205,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Type ClrType
         {
             get => GetData().ClrType;
-            [param: NotNull]
             set
             {
                 if (!SupportedTypes.Contains(value))

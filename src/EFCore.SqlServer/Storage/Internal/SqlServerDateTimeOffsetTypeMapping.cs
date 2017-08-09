@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         public SqlServerDateTimeOffsetTypeMapping(
             [NotNull] string storeType,
-            [NotNull] DbType? dbType = System.Data.DbType.DateTimeOffset)
-            : base(storeType, dbType: dbType)
+            DbType? dbType = System.Data.DbType.DateTimeOffset)
+            : base(storeType, dbType)
         {
         }
 

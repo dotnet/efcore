@@ -19,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The maximum value of the sequence, or <c>null</c> if not specified.
         /// </summary>
-        public virtual long? MaxValue { get; [param: CanBeNull] set; }
+        public virtual long? MaxValue { get; set; }
 
         /// <summary>
         ///     The minimum value of the sequence, or <c>null</c> if not specified.
         /// </summary>
-        public virtual long? MinValue { get; [param: CanBeNull] set; }
+        public virtual long? MinValue { get; set; }
 
         /// <summary>
         ///     Indicates whether or not the sequence will re-start when the maximum value is reached.

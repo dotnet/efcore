@@ -26,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not specified or does
         ///     not apply to this column type.
         /// </summary>
-        public virtual bool? IsUnicode { get; [param: CanBeNull] set; }
+        public virtual bool? IsUnicode { get; set; }
 
         /// <summary>
         ///     The maximum amount of data that the column can store, or <c>null</c> if this is not specified or does
         ///     not apply to this column type.
         /// </summary>
-        public virtual int? MaxLength { get; [param: CanBeNull] set; }
+        public virtual int? MaxLength { get; set; }
 
         /// <summary>
         ///     Indicates whether or not this column acts as an automatic concurrency token in the same vein

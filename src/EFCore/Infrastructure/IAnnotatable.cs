@@ -24,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
-        // ReSharper disable once AnnotationRedundancyInHierarchy
-        // TODO: Fix API test to handle indexer
         object this[[NotNull] string name] { get; }
 
         /// <summary>

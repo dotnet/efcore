@@ -110,9 +110,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-            [CanBeNull] PropertyIdentity? navigationToPrincipal,
-            [CanBeNull] PropertyIdentity? navigationToDependent,
-            [CanBeNull] ConfigurationSource? configurationSource)
+            PropertyIdentity? navigationToPrincipal,
+            PropertyIdentity? navigationToDependent,
+            ConfigurationSource? configurationSource)
             => Navigations(
                 navigationToPrincipal,
                 navigationToDependent,

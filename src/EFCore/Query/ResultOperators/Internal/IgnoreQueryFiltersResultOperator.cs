@@ -39,14 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
+        public override ResultOperatorBase Clone(CloneContext cloneContext)
             => new IgnoreQueryFiltersResultOperator();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
+        public override void TransformExpressions(Func<Expression, Expression> transformation)
         {
         }
 
@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override StreamedSequence ExecuteInMemory<T>([NotNull] StreamedSequence input) => input;
+        public override StreamedSequence ExecuteInMemory<T>(StreamedSequence input) => input;
     }
 }

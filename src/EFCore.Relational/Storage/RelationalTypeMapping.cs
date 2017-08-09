@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
-            [CanBeNull] DbType? dbType = null,
+            DbType? dbType = null,
             bool unicode = false,
             int? size = null)
             : this(storeType)

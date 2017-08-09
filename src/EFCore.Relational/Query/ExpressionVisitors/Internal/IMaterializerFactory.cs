@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] SelectExpression selectExpression,
             [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,
             [CanBeNull] IQuerySource querySource,
-            [CanBeNull] out Dictionary<Type, int[]> typeIndexMap);
+            out Dictionary<Type, int[]> typeIndexMap);
     }
 }

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             // ReSharper disable once SuggestBaseTypeForParameter
             [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [CanBeNull] int? maxBatchSize)
+            int? maxBatchSize)
             : base(
                 commandBuilderFactory,
                 sqlGenerationHelper,

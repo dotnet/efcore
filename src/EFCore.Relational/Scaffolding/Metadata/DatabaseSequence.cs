@@ -13,10 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         public virtual string Name { get; [param: NotNull] set; }
         public virtual string Schema { get; [param: CanBeNull] set; }
         public virtual string StoreType { get; [param: CanBeNull] set; }
-        public virtual long? StartValue { get; [param: CanBeNull] set; }
-        public virtual int? IncrementBy { get; [param: CanBeNull] set; }
-        public virtual long? MinValue { get; [param: CanBeNull] set; }
-        public virtual long? MaxValue { get; [param: CanBeNull] set; }
-        public virtual bool? IsCyclic { get; [param: CanBeNull] set; }
+        public virtual long? StartValue { get; set; }
+        public virtual int? IncrementBy { get; set; }
+        public virtual long? MinValue { get; set; }
+        public virtual long? MaxValue { get; set; }
+        public virtual bool? IsCyclic { get; set; }
     }
 }

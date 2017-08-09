@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] string invariantName,
             [NotNull] string name,
             [NotNull] RelationalTypeMapping relationalTypeMapping,
-            [CanBeNull] bool? nullable)
+            bool? nullable)
         {
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));

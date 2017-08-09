@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public DecimalTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType = null)
+            DbType? dbType = null)
             : base(storeType, typeof(decimal), dbType)
         {
         }

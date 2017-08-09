@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     {
         public virtual DatabaseTable Table { get; [param: NotNull] set; }
         public virtual string Name { get; [param: NotNull] set; }
-        public virtual bool IsNullable { get; [param: NotNull] set; }
+        public virtual bool IsNullable { get; set; }
         public virtual string StoreType { get; [param: CanBeNull] set; }
         public virtual string DefaultValueSql { get; [param: CanBeNull] set; }
         public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }

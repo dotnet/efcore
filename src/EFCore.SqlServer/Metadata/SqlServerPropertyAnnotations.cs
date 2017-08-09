@@ -64,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
-            get { return GetSqlServerValueGenerationStrategy(fallbackToModel: true); }
-            [param: CanBeNull] set { SetValueGenerationStrategy(value); }
+            get => GetSqlServerValueGenerationStrategy(fallbackToModel: true);
+            set => SetValueGenerationStrategy(value);
         }
 
         public virtual SqlServerValueGenerationStrategy? GetSqlServerValueGenerationStrategy(bool fallbackToModel)

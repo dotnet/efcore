@@ -186,8 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] this IPropertyBase propertyBase,
             bool forConstruction,
             bool forSet,
-            [CanBeNull] out MemberInfo memberInfo,
-            [CanBeNull] out string errorMessage)
+            out MemberInfo memberInfo,
+            out string errorMessage)
         {
             memberInfo = null;
             errorMessage = null;

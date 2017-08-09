@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override string GenerateOperator([NotNull] Expression expression)
+        protected override string GenerateOperator(Expression expression)
             => expression.NodeType == ExpressionType.Add && expression.Type == typeof(string)
                 ? " || "
                 : base.GenerateOperator(expression);

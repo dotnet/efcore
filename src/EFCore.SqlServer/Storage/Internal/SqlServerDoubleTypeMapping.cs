@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public SqlServerDoubleTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] DbType? dbType = null)
+            DbType? dbType = null)
             : base(storeType, dbType)
         {
         }

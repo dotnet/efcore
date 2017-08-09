@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
             [CanBeNull] string type = null,
-            [CanBeNull] bool? unicode = null,
-            [CanBeNull] int? maxLength = null,
+            bool? unicode = null,
+            int? maxLength = null,
             bool rowVersion = false,
             [CanBeNull] string name = null,
             bool nullable = false,

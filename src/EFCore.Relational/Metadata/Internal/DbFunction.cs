@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string Schema
         {
             get => _schema;
-            [param: CanBeNull] set => SetSchema(value, ConfigurationSource.Explicit);
+            set => SetSchema(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual string FunctionName
         {
             get => _functionName;
-            [param: NotNull] set => SetFunctionName(value, ConfigurationSource.Explicit);
+            set => SetFunctionName(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<IReadOnlyCollection<Expression>, Expression> Translation { get; [param: CanBeNull] set; }
+        public virtual Func<IReadOnlyCollection<Expression>, Expression> Translation { get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

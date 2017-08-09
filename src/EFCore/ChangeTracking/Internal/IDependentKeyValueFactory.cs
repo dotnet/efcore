@@ -17,34 +17,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromBuffer(ValueBuffer valueBuffer, [CanBeNull] out TKey key);
+        bool TryCreateFromBuffer(ValueBuffer valueBuffer, out TKey key);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromCurrentValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+        bool TryCreateFromCurrentValues([NotNull] InternalEntityEntry entry, out TKey key);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromPreStoreGeneratedCurrentValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+        bool TryCreateFromPreStoreGeneratedCurrentValues([NotNull] InternalEntityEntry entry, out TKey key);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+        bool TryCreateFromOriginalValues([NotNull] InternalEntityEntry entry, out TKey key);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromRelationshipSnapshot([NotNull] InternalEntityEntry entry, [CanBeNull] out TKey key);
+        bool TryCreateFromRelationshipSnapshot([NotNull] InternalEntityEntry entry, out TKey key);
     }
 }

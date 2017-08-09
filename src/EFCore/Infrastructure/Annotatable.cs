@@ -163,12 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The value of the existing annotation if an annotation with the specified name already exists.
         ///     Otherwise, null.
         /// </returns>
-        // ReSharper disable once AnnotationRedundancyInHierarchy
-        // TODO: Fix API test to handle indexer
-        public virtual object this[[NotNull] string name]
+        public virtual object this[string name]
         {
-            get { return FindAnnotation(name)?.Value; }
-            [param: CanBeNull]
+            get => FindAnnotation(name)?.Value;
             set
             {
                 Check.NotEmpty(name, nameof(name));

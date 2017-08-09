@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             [NotNull] Type propertyType,
             ConfigurationSource configurationSource,
-            [CanBeNull] ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? typeConfigurationSource)
             => Property(propertyName, propertyType, memberInfo: null,
                 configurationSource: configurationSource, typeConfigurationSource: typeConfigurationSource);
 
@@ -335,8 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
             [CanBeNull] MemberInfo memberInfo,
-            [CanBeNull] ConfigurationSource? configurationSource,
-            [CanBeNull] ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? configurationSource,
+            ConfigurationSource? typeConfigurationSource)
         {
             if (IsIgnored(propertyName, configurationSource))
             {
@@ -392,8 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string propertyName,
             [CanBeNull] Type propertyType,
             [CanBeNull] MemberInfo clrProperty,
-            [CanBeNull] ConfigurationSource? configurationSource,
-            [CanBeNull] ConfigurationSource? typeConfigurationSource)
+            ConfigurationSource? configurationSource,
+            ConfigurationSource? typeConfigurationSource)
         {
             var property = existingProperty;
             if (existingProperty == null)

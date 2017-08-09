@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -273,8 +272,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
             string identifier,
-            [CanBeNull] ICollection<string> existingIdentifiers,
-            [CanBeNull] Func<string, string> singularizePluralizer)
+            ICollection<string> existingIdentifiers,
+            Func<string, string> singularizePluralizer)
             => GenerateCSharpIdentifier(identifier, existingIdentifiers, singularizePluralizer, Uniquifier);
 
         /// <summary>
@@ -283,8 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
             string identifier,
-            [CanBeNull] ICollection<string> existingIdentifiers,
-            [CanBeNull] Func<string, string> singularizePluralizer,
+            ICollection<string> existingIdentifiers,
+            Func<string, string> singularizePluralizer,
             Func<string, ICollection<string>, string> uniquifier)
         {
             Check.NotNull(identifier, nameof(identifier));
@@ -324,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Uniquifier(
-            string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
+            string proposedIdentifier, ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 
@@ -398,12 +397,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsValidIdentifier([CanBeNull] string name)
+        public virtual bool IsValidIdentifier(string name)
         {
             if (string.IsNullOrEmpty(name))
             {
                 return false;
             }
+
             if (!IsIdentifierStartCharacter(name[0]))
             {
                 return false;
