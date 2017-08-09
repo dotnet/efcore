@@ -10,8 +10,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class InMemoryTestStore : TestStore
     {
-        public InMemoryTestStore(string name = null)
-            : base(name)
+        public InMemoryTestStore(string name = null, bool shared = true)
+            : base(name, shared)
         {
         }
 
@@ -19,40 +19,34 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new InMemoryTestStore(name);
 
         public static InMemoryTestStore GetOrCreateInitialized(string name)
-            => new InMemoryTestStore(name).InitializeInMemory(null, null, null);
+            => new InMemoryTestStore(name).InitializeInMemory(null, (Func<DbContext>)null, null);
 
-        public override void Clean(DbContext context)
-            => context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
+        public static InMemoryTestStore Create(string name)
+            => new InMemoryTestStore(name, shared: false);
 
-        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => InitializeInMemory(serviceProvider, createContext, seed);
+        public static InMemoryTestStore CreateInitialized(string name)
+            => new InMemoryTestStore(name, shared: false).InitializeInMemory(null, (Func<DbContext>)null, null);
 
-        public InMemoryTestStore InitializeInMemory(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-        {
-            ServiceProvider = serviceProvider;
-            if (createContext == null)
-            {
-                createContext = CreateDefaultContext;
-            }
-            if (seed == null)
-            {
-                seed = c => { };
-            }
+        public InMemoryTestStore InitializeInMemory(
+            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+            => (InMemoryTestStore)Initialize(serviceProvider, createContext, seed);
 
-            var testStoreIndex = serviceProvider == null ? GlobalTestStoreIndex : serviceProvider.GetRequiredService<TestStoreIndex>();
-            testStoreIndex.CreateShared(typeof(InMemoryTestStore).Name + Name, () =>
-                {
-                    using (var context = createContext())
-                    {
-                        context.Database.EnsureCreated();
-                        seed(context);
-                    }
-                });
+        public InMemoryTestStore InitializeInMemory(
+            IServiceProvider serviceProvider, Func<InMemoryTestStore, DbContext> createContext, Action<DbContext> seed)
+            => (InMemoryTestStore)Initialize(serviceProvider, () => createContext(this), seed);
 
-            return this;
-        }
+        protected override TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
+            => serviceProvider == null
+                ? base.GetTestStoreIndex(null)
+                : serviceProvider.GetRequiredService<TestStoreIndex>();
 
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
             => builder.UseInMemoryDatabase(Name);
+
+        public override void Clean(DbContext context)
+        {
+            context.GetService<IInMemoryStoreCache>().GetStore(Name).Clear();
+            context.Database.EnsureCreated();
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         protected DbContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
-            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
+            => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {

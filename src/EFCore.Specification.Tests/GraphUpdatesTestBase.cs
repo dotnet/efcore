@@ -7693,7 +7693,7 @@ namespace Microsoft.EntityFrameworkCore
             Action<DbContext> nestedTestOperation1 = null,
             Action<DbContext> nestedTestOperation2 = null,
             Action<DbContext> nestedTestOperation3 = null)
-            => DbContextHelpers.ExecuteWithStrategyInTransaction(
+            => TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 

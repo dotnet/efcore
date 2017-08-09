@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -13,167 +14,76 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public abstract class MonsterFixupTestBase
+    public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, IDisposable
+        where TFixture : MonsterFixupTestBase<TFixture>.MonsterFixupFixtureBase, new()
     {
-        private const string SnapshotDatabaseName = "MonsterSnapshot";
-        private const string FullNotifyDatabaseName = "MonsterFullNotify";
-        private const string ChangedOnlyDatabaseName = "MonsterChangedOnly";
+        protected MonsterFixupTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+            TestStore = fixture.CreateTestStore();
+            Options = fixture.CreateOptions(TestStore);
+        }
+
+        protected TFixture Fixture { get; }
+        protected TestStore TestStore { get; }
+        protected DbContextOptions Options { get; }
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_FKs()
-            => Can_build_monster_model_and_seed_data_using_FKs_test(CreateSnapshotMonsterContext, SnapshotDatabaseName);
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_FKs()
-            => Can_build_monster_model_and_seed_data_using_FKs_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName);
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_FKs()
-            => Can_build_monster_model_and_seed_data_using_FKs_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName);
-
-        private void Can_build_monster_model_and_seed_data_using_FKs_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName)
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            SimpleVerification(() => createContext(serviceProvider, databaseName));
-            FkVerification(() => createContext(serviceProvider, databaseName));
-            NavigationVerification(() => createContext(serviceProvider, databaseName));
+            SimpleVerification();
+            FkVerification();
+            NavigationVerification();
         }
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
-            => Can_build_monster_model_and_seed_data_using_all_navigations_test(
-                CreateSnapshotMonsterContext, SnapshotDatabaseName + "_AllNavs");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_all_navigations()
-            => Can_build_monster_model_and_seed_data_using_all_navigations_test(
-                CreateChangedChangingMonsterContext, FullNotifyDatabaseName + "_AllNavs");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_all_navigations()
-            => Can_build_monster_model_and_seed_data_using_all_navigations_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName + "_AllNavs");
-
-        private void Can_build_monster_model_and_seed_data_using_all_navigations_test(Func<IServiceProvider, string, MonsterContext> createContext, string databaseName)
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingNavigations(principalNavs: true, dependentNavs: true));
 
-            CreateAndSeedDatabase(databaseName,
-                () => createContext(serviceProvider, databaseName),
-                context => context.SeedUsingNavigations(principalNavs: true, dependentNavs: true));
-
-            SimpleVerification(() => createContext(serviceProvider, databaseName));
-            FkVerification(() => createContext(serviceProvider, databaseName));
-            NavigationVerification(() => createContext(serviceProvider, databaseName));
+            SimpleVerification();
+            FkVerification();
+            NavigationVerification();
         }
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
-            => Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
-                CreateSnapshotMonsterContext, SnapshotDatabaseName + "_DependentNavs");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_dependent_navigations()
-            => Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
-                CreateChangedChangingMonsterContext, FullNotifyDatabaseName + "_DependentNavs");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_dependent_navigations()
-            => Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
-                CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName + "_DependentNavs");
-
-        private void Can_build_monster_model_and_seed_data_using_dependent_navigations_test(Func<IServiceProvider, string, MonsterContext> createContext, string databaseName)
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingNavigations(principalNavs: false, dependentNavs: true));
 
-            CreateAndSeedDatabase(databaseName,
-                () => createContext(serviceProvider, databaseName),
-                context => context.SeedUsingNavigations(principalNavs: false, dependentNavs: true));
-
-            SimpleVerification(() => createContext(serviceProvider, databaseName));
-            FkVerification(() => createContext(serviceProvider, databaseName));
-            NavigationVerification(() => createContext(serviceProvider, databaseName));
+            SimpleVerification();
+            FkVerification();
+            NavigationVerification();
         }
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
-            => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
-                CreateSnapshotMonsterContext, SnapshotDatabaseName + "_PrincipalNavs");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_principal_navigations()
-            => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
-                CreateChangedChangingMonsterContext, FullNotifyDatabaseName + "_PrincipalNavs");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_principal_navigations()
-            => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
-                CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName + "_PrincipalNavs");
-
-        private void Can_build_monster_model_and_seed_data_using_principal_navigations_test(Func<IServiceProvider, string, MonsterContext> createContext, string databaseName)
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingNavigations(principalNavs: true, dependentNavs: false));
 
-            CreateAndSeedDatabase(databaseName,
-                () => createContext(serviceProvider, databaseName),
-                context => context.SeedUsingNavigations(principalNavs: true, dependentNavs: false));
-
-            SimpleVerification(() => createContext(serviceProvider, databaseName));
-            FkVerification(() => createContext(serviceProvider, databaseName));
-            NavigationVerification(() => createContext(serviceProvider, databaseName));
+            SimpleVerification();
+            FkVerification();
+            NavigationVerification();
         }
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
-            => Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
-                CreateSnapshotMonsterContext, SnapshotDatabaseName + "_AllNavsDeferred");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_navigations_with_deferred_add()
-            => Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
-                CreateChangedChangingMonsterContext, FullNotifyDatabaseName + "_AllNavsDeferred");
-
-        [Fact]
-        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_navigations_with_deferred_add()
-            => Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
-                CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName + "_AllNavsDeferred");
-
-        private void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(Func<IServiceProvider, string, MonsterContext> createContext, string databaseName)
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingNavigationsWithDeferredAdd());
 
-            CreateAndSeedDatabase(databaseName,
-                () => createContext(serviceProvider, databaseName),
-                context => context.SeedUsingNavigationsWithDeferredAdd());
-
-            SimpleVerification(() => createContext(serviceProvider, databaseName));
-            FkVerification(() => createContext(serviceProvider, databaseName));
-            NavigationVerification(() => createContext(serviceProvider, databaseName));
+            SimpleVerification();
+            FkVerification();
+            NavigationVerification();
         }
 
         [Fact]
-        public virtual void One_to_many_fixup_happens_when_FKs_change_for_snapshot_entities()
-            => One_to_many_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void One_to_many_fixup_happens_when_FKs_change_for_full_notification_entities()
-            => One_to_many_fixup_happens_when_FKs_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void One_to_many_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
-            => One_to_many_fixup_happens_when_FKs_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void One_to_many_fixup_happens_when_FKs_change_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void One_to_many_fixup_happens_when_FKs_change_test()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
                 var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
@@ -194,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Simple change
                 message2.ToUsername = login3.Username;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -210,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Change back
                 message2.ToUsername = login1.Username;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -226,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Remove the relationship
                 message2.ToUsername = null;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -243,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Put the relationship back
                 message2.ToUsername = login3.Username;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -259,25 +169,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void One_to_many_fixup_happens_when_reference_changes_for_snapshot_entities()
-            => One_to_many_fixup_happens_when_reference_changes_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void One_to_many_fixup_happens_when_reference_changes_for_full_notification_entities()
-            => One_to_many_fixup_happens_when_reference_changes_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void One_to_many_fixup_happens_when_reference_changes_for_changed_only_notification_entities()
-            => One_to_many_fixup_happens_when_reference_changes_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void One_to_many_fixup_happens_when_reference_changes_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void One_to_many_fixup_happens_when_reference_changes()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
                 var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
@@ -298,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Simple change
                 message2.Recipient = login3;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -314,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Change back
                 message2.Recipient = login1;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -330,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Remove the relationship
                 message2.Recipient = null;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -347,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Put the relationship back
                 message2.Recipient = login3;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -363,25 +259,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void One_to_many_fixup_happens_when_collection_changes_for_snapshot_entities()
-            => One_to_many_fixup_happens_when_collection_changes_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
-            => One_to_many_fixup_happens_when_collection_changes_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
-            => One_to_many_fixup_happens_when_collection_changes_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void One_to_many_fixup_happens_when_collection_changes_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void One_to_many_fixup_happens_when_collection_changes()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var login1 = context.Logins.Single(e => e.Username == "MrsKoalie73");
                 var login2 = context.Logins.Single(e => e.Username == "MrsBossyPants");
@@ -403,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
                 login2.ReceivedMessages.Remove(message3);
                 login1.ReceivedMessages.Remove(message2);
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -421,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
                 login1.ReceivedMessages.Add(message3);
                 login2.ReceivedMessages.Add(message2);
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -440,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
                 login1.ReceivedMessages.Add(message2);
                 login2.ReceivedMessages.Add(message3);
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -456,25 +338,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void One_to_one_fixup_happens_when_FKs_change_for_snapshot_entities()
-            => One_to_one_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void One_to_one_fixup_happens_when_FKs_change_for_full_notification_entities()
-            => One_to_one_fixup_happens_when_FKs_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void One_to_one_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
-            => One_to_one_fixup_happens_when_FKs_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void One_to_one_fixup_happens_when_FKs_change_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void One_to_one_fixup_happens_when_FKs_change_test()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
                 var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
@@ -492,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Add a new relationship
                 customer1.HusbandId = customer3.CustomerId;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -507,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Remove the relationship
                 customer1.HusbandId = null;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -523,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Change existing relationship
                 customer2.HusbandId = customer3.CustomerId;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -539,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Give Tarquin a husband and a wife
                 customer3.HusbandId = customer2.CustomerId;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -554,25 +422,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void One_to_one_fixup_happens_when_reference_change_for_snapshot_entities()
-            => One_to_one_fixup_happens_when_reference_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void One_to_one_fixup_happens_when_reference_change_for_full_notification_entities()
-            => One_to_one_fixup_happens_when_reference_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void One_to_one_fixup_happens_when_reference_change_for_changed_only_notification_entities()
-            => One_to_one_fixup_happens_when_reference_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void One_to_one_fixup_happens_when_reference_change_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void One_to_one_fixup_happens_when_reference_change_test()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
                 var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
@@ -590,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Set a dependent
                 customer1.Husband = customer3;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -605,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Remove a dependent
                 customer2.Husband = null;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -621,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Set a principal
                 customer0.Wife = customer3;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -636,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Remove a principal
                 customer0.Wife = null;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -652,25 +506,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Composite_fixup_happens_when_FKs_change_for_snapshot_entities()
-            => Composite_fixup_happens_when_FKs_change_test(CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void Composite_fixup_happens_when_FKs_change_for_full_notification_entities()
-            => Composite_fixup_happens_when_FKs_change_test(CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void Composite_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
-            => Composite_fixup_happens_when_FKs_change_test(CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void Composite_fixup_happens_when_FKs_change_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void Composite_fixup_happens_when_FKs_change_test()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var product1 = context.Products.Single(e => e.Description.StartsWith("Mrs"));
                 var product2 = context.Products.Single(e => e.Description.StartsWith("Chocolate"));
@@ -700,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Change one part of the key
                 productWebFeature1.ProductId = product3.ProductId;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -723,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Change the other part of the key
                 productWebFeature1.ReviewId = productReview3.ReviewId;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -744,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore
                 productWebFeature1.ReviewId = productReview1.ReviewId;
                 productWebFeature1.ProductId = product1.ProductId;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -761,28 +601,11 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_snapshot_entities()
-            => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
-                CreateSnapshotMonsterContext, SnapshotDatabaseName, true);
-
-        [Fact]
-        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
-            => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
-                CreateChangedChangingMonsterContext, FullNotifyDatabaseName, false);
-
-        [Fact]
-        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
-            => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
-                CreateChangedOnlyMonsterContext, ChangedOnlyDatabaseName, false);
-
-        private void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
-            Func<IServiceProvider, string, MonsterContext> createContext, string databaseName, bool useDetectChanges)
+        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test()
         {
-            var serviceProvider = CreateServiceProvider();
+            CreateAndSeedDatabase(context => context.SeedUsingFKs());
 
-            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider, databaseName), context => context.SeedUsingFKs());
-
-            using (var context = createContext(serviceProvider, databaseName))
+            using (var context = CreateContext())
             {
                 var barcode1 = context.Barcodes.Single(e => e.Text == "Barcode 1 2 3 4");
                 var barcode2 = context.Barcodes.Single(e => e.Text == "Barcode 2 2 3 4");
@@ -809,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Binary FK change
                 incorrectScan1.ExpectedCode = barcode3.Code.ToArray();
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -829,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore
                 // Binary FK change
                 incorrectScan2.ActualCode = barcode1.Code.ToArray();
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -850,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore
                 incorrectScan1.ExpectedCode = barcode2.Code.ToArray();
                 incorrectScan2.ActualCode = barcode2.Code.ToArray();
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -877,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore
                 barcode1.BadScans.Remove(incorrectScan2);
                 barcode2.BadScans.Add(incorrectScan2);
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -900,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore
                 incorrectScan1.ActualBarcode = barcode3;
                 incorrectScan2.ActualBarcode = barcode3;
 
-                if (useDetectChanges)
+                if (UseDetectChanges)
                 {
                     context.ChangeTracker.DetectChanges();
                 }
@@ -919,9 +742,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected void SimpleVerification(Func<MonsterContext> createContext)
+        protected void SimpleVerification()
         {
-            using (var context = createContext())
+            using (var context = CreateContext())
             {
                 Assert.Equal(
                     new[] { "Eeky Bear", "Sheila Koalie", "Sue Pandy", "Tarquin Tiger" },
@@ -1053,9 +876,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected void FkVerification(Func<MonsterContext> createContext)
+        protected void FkVerification()
         {
-            using (var context = createContext())
+            using (var context = CreateContext())
             {
                 var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
                 var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
@@ -1263,9 +1086,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected void NavigationVerification(Func<MonsterContext> createContext)
+        protected void NavigationVerification()
         {
-            using (var context = createContext())
+            using (var context = CreateContext())
             {
                 var customer0 = context.Customers.Single(e => e.Name == "Eeky Bear");
                 var customer1 = context.Customers.Single(e => e.Name == "Sheila Koalie");
@@ -1545,41 +1368,87 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected abstract IServiceProvider CreateServiceProvider();
+        protected bool UseDetectChanges => Fixture.UseDetectChanges;
 
-        protected abstract DbContextOptions CreateOptions(string databaseName);
+        protected void CreateAndSeedDatabase(Action<MonsterContext> seed)
+            => TestStore.Initialize(Fixture.ServiceProvider, CreateContext, c => seed((MonsterContext)c));
 
-        protected abstract void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext, Action<MonsterContext> seed);
+        protected MonsterContext CreateContext() => Fixture.CreateContext(Options);
 
-        private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName)
-            => new SnapshotMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
-                b =>
-                    {
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
-                        OnModelCreating<SnapshotMonsterContext.Message, SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>(b);
-                    });
+        public virtual void Dispose() => TestStore.Dispose();
 
-        private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName)
-            => new ChangedChangingMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
-                b =>
-                    {
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
-                        OnModelCreating<ChangedChangingMonsterContext.Message, ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>(b);
-                    });
-
-        private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName)
-            => new ChangedOnlyMonsterContext(new DbContextOptionsBuilder(CreateOptions(databaseName)).UseInternalServiceProvider(serviceProvider).Options,
-                b =>
-                    {
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
-                        OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>(b);
-                    });
-
-        protected virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
-            where TMessage : class, IMessage
-            where TProductPhoto : class, IProductPhoto
-            where TProductReview : class, IProductReview
+        public abstract class MonsterFixupFixtureBase : ServiceProviderFixtureBase
         {
+            public abstract string StoreName { get; }
+            public abstract bool UseDetectChanges { get; }
+
+            public TestStore CreateTestStore() => TestStoreFactory.Create(StoreName);
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
+
+            public abstract MonsterContext CreateContext(DbContextOptions options);
+
+            protected virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+                where TMessage : class, IMessage
+                where TProductPhoto : class, IProductPhoto
+                where TProductReview : class, IProductReview
+            {
+            }
+        }
+
+        public abstract class MonsterFixupSnapshotFixtureBase : MonsterFixupFixtureBase
+        {
+            public override string StoreName => "MonsterSnapshot";
+            public override bool UseDetectChanges => true;
+
+            public override MonsterContext CreateContext(DbContextOptions options)
+                => new SnapshotMonsterContext(options);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+                modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+                OnModelCreating<SnapshotMonsterContext.Message,
+                    SnapshotMonsterContext.ProductPhoto,
+                    SnapshotMonsterContext.ProductReview>(modelBuilder);
+            }
+        }
+
+        public abstract class MonsterFixupChangedOnlyFixtureBase : MonsterFixupFixtureBase
+        {
+            public override string StoreName => "MonsterChangedOnly";
+            public override bool UseDetectChanges => false;
+
+            public override MonsterContext CreateContext(DbContextOptions options)
+                => new ChangedOnlyMonsterContext(options);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+                modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+                OnModelCreating<ChangedOnlyMonsterContext.Message,
+                    ChangedOnlyMonsterContext.ProductPhoto,
+                    ChangedOnlyMonsterContext.ProductReview>(modelBuilder);
+            }
+        }
+
+        public abstract class MonsterFixupChangedChangingFixtureBase : MonsterFixupFixtureBase
+        {
+            public override string StoreName => "MonsterFullNotify";
+            public override bool UseDetectChanges => false;
+
+            public override MonsterContext CreateContext(DbContextOptions options)
+                => new ChangedChangingMonsterContext(options);
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+                modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+                OnModelCreating<ChangedChangingMonsterContext.Message,
+                    ChangedChangingMonsterContext.ProductPhoto,
+                    ChangedChangingMonsterContext.ProductReview>(modelBuilder);
+            }
         }
 
         private static void AssertBadScansConsistent(IBarcode expectedPrincipal, params IIncorrectScan[] expectedDependents)
@@ -1675,7 +1544,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Assert.Same(expectedPrincipal, getPrincipal(expectedDependents[i]));
                     }
-                    
+
                     Assert.Equal(principalKey, getForeignKey(expectedDependents[i]));
                 }
             }

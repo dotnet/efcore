@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         public abstract IQueryable<IDriver> Drivers { get; }
         public abstract IQueryable<ILicense> Licenses { get; }
 
-        public abstract void SeedUsingFKs(bool saveChanges = true);
-        public abstract void SeedUsingNavigations(bool dependentNavs, bool principalNavs, bool saveChanges = true);
-        public abstract void SeedUsingNavigationsWithDeferredAdd(bool saveChanges = true);
+        public abstract void SeedUsingFKs();
+        public abstract void SeedUsingNavigations(bool dependentNavs, bool principalNavs);
+        public abstract void SeedUsingNavigationsWithDeferredAdd();
     }
 }

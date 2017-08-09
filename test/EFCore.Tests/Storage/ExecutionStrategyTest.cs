@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -37,15 +38,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
             protected internal override bool ShouldRetryOn(Exception exception) 
                 => _shouldRetryOn?.Invoke(exception) == true;
 
-            public new virtual TimeSpan? GetNextDelay(Exception lastException)
+            protected override TimeSpan? GetNextDelay(Exception lastException)
+            {
+                var baseDelay = base.GetNextDelay(lastException);
+                return baseDelay != null && _getNextDelay != null ? _getNextDelay.Invoke(lastException) : baseDelay;
+            }
+
+            public TimeSpan? GetNextDelayBase(Exception lastException)
             {
                 ExceptionsEncountered.Add(lastException);
-                return _getNextDelay?.Invoke(lastException) ?? base.GetNextDelay(lastException);
+                return base.GetNextDelay(lastException);
             }
 
             public new static bool Suspended
             {
-                get => ExecutionStrategy.Suspended;
                 set => ExecutionStrategy.Suspended = value;
             }
         }
@@ -69,11 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var strategy = new TestExecutionStrategy(CreateContext());
             var delays = new List<TimeSpan>();
-            var delay = strategy.GetNextDelay(new Exception());
+            var delay = strategy.GetNextDelayBase(new Exception());
             while (delay != null)
             {
                 delays.Add(delay.Value);
-                delay = strategy.GetNextDelay(new Exception());
+                delay = strategy.GetNextDelayBase(new Exception());
             }
 
             var expectedDelays = new List<TimeSpan>
@@ -536,6 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 shouldRetryOn: e => e is ArgumentOutOfRangeException,
                 getNextDelay: e => TimeSpan.FromTicks(0));
 
+            // ReSharper disable once PossibleNullReferenceException
             Assert.IsType<ArgumentOutOfRangeException>(
                 (await Assert.ThrowsAsync<RetryLimitExceededException>(
                     () =>

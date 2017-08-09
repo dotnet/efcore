@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
+        public virtual TestStore Create(string storeName)
+            => SqliteTestStore.Create(storeName);
+
         public virtual TestStore GetOrCreate(string storeName)
             => SqliteTestStore.GetOrCreate(storeName);
 

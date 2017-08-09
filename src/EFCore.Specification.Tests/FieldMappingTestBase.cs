@@ -460,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void Update<TBlog>(string navigation)
             where TBlog : class, IBlogAccesor, new()
         {
-            DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
+            TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
                 context =>
                     {
                         var blogs = context.Set<TBlog>().ToList();

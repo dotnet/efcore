@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 
+// ReSharper disable MemberHidesStaticFromOuterClass
 namespace Microsoft.EntityFrameworkCore.TestModels
 {
     public class SnapshotMonsterContext : MonsterContext<
@@ -21,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         SnapshotMonsterContext.ContactDetails, SnapshotMonsterContext.Dimensions, SnapshotMonsterContext.Phone,
         SnapshotMonsterContext.BackOrderLine, SnapshotMonsterContext.DiscontinuedProduct, SnapshotMonsterContext.ProductPageView>
     {
-        public SnapshotMonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
-            : base(options, onModelCreating)
+        public SnapshotMonsterContext(DbContextOptions options)
+            : base(options)
         {
         }
 

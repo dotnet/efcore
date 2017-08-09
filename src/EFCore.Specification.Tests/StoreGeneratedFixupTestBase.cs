@@ -4061,7 +4061,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
-            => DbContextHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
+            => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 

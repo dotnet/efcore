@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
@@ -18,9 +19,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected virtual DbConnection Connection { get; set; }
 
-        protected RelationalTestStore(string name)
-            : base(name)
+        protected RelationalTestStore(string name, bool shared)
+            : base(name, shared)
         {
+        }
+
+        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+        {
+            base.Initialize(serviceProvider, createContext, seed);
+
+            if (ConnectionState != ConnectionState.Open)
+            {
+                OpenConnection();
+            }
+
+            return this;
         }
 
         public override void Dispose()

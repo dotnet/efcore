@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore
         private void ExecuteWithStrategyInTransaction(
             Action<BloggingContext> testOperation,
             Action<BloggingContext> nestedTestOperation)
-            => DbContextHelpers.ExecuteWithStrategyInTransaction(
+            => TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction, testOperation, nestedTestOperation);
 
         protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

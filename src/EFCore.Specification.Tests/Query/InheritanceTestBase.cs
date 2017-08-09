@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public virtual void Can_insert_update_delete()
         {
-            DbContextHelpers.ExecuteWithStrategyInTransaction(
+            TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext,
                 UseTransaction,
                 context =>

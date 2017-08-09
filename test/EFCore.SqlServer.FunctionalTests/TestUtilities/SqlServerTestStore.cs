@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static string BaseDirectory => AppContext.BaseDirectory;
 
         public static SqlServerTestStore GetNorthwindStore()
-            => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance.GetOrCreate(SqlServerNorthwindTestStoreFactory.Name);
+            => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
+            .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null);
 
         public static SqlServerTestStore GetOrCreate(string name)
             => new SqlServerTestStore(name);
@@ -30,9 +31,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static SqlServerTestStore GetOrCreateInitialized(string name)
             => new SqlServerTestStore(name).InitializeSqlServer(null, (Func<DbContext>)null, null);
 
-        public static SqlServerTestStore GetOrCreateInitialized(string name, string scriptPath)
-            => (SqlServerTestStore)new SqlServerTestStore(name, scriptPath: scriptPath)
-                .Initialize(null, (Func<DbContext>)null, null);
+        public static SqlServerTestStore GetOrCreate(string name, string scriptPath)
+            => new SqlServerTestStore(name, scriptPath: scriptPath);
 
         public static SqlServerTestStore Create(string name, bool useFileName = false)
             => new SqlServerTestStore(name, useFileName, shared: false);
@@ -42,14 +42,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private readonly string _fileName;
         private readonly string _scriptPath;
-        private readonly bool _shared;
 
         private SqlServerTestStore(
             string name,
             bool useFileName = false,
             string scriptPath = null,
             bool shared = true)
-            : base(name)
+            : base(name, shared)
         {
             if (useFileName)
             {
@@ -60,50 +59,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location), scriptPath);
             }
-            _shared = shared;
 
             ConnectionString = CreateConnectionString(Name, _fileName);
             Connection = new SqlConnection(ConnectionString);
         }
 
-        public override TestStore Initialize(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => InitializeSqlServer(serviceProvider, createContext, seed);
+        public SqlServerTestStore InitializeSqlServer(
+            IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
+            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed);
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<SqlServerTestStore, DbContext> createContext, Action<DbContext> seed)
             => InitializeSqlServer(serviceProvider, () => createContext(this), seed);
 
-        public SqlServerTestStore InitializeSqlServer(IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-        {
-            ServiceProvider = serviceProvider;
-            if (createContext == null)
-            {
-                createContext = CreateDefaultContext;
-            }
-            if (seed == null)
-            {
-                seed = c => { };
-            }
-
-            if (_shared)
-            {
-                GlobalTestStoreIndex.CreateShared(typeof(SqlServerTestStore).Name + Name,
-                    () => Inititialize(createContext, seed));
-            }
-            else
-            {
-                Inititialize(createContext, seed);
-            }
-
-            if (ConnectionState != ConnectionState.Open)
-            {
-                OpenConnection();
-            }
-
-            return this;
-        }
-
-        private void Inititialize(Func<DbContext> createContext, Action<DbContext> seed)
+        protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed)
         {
             if (CreateDatabase())
             {
@@ -157,9 +126,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override void Clean(DbContext context)
-        {
-            context.Database.EnsureClean();
-        }
+            => context.Database.EnsureClean();
 
         public void ExecuteScript(string scriptPath)
         {

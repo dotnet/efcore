@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -480,6 +482,116 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             return actual.Count;
+        }
+
+        public static void ExecuteWithStrategyInTransaction<TContext>(
+            Func<TContext> createContext,
+            Action<DatabaseFacade, IDbContextTransaction> useTransaction,
+            Action<TContext> testOperation,
+            Action<TContext> nestedTestOperation1 = null,
+            Action<TContext> nestedTestOperation2 = null,
+            Action<TContext> nestedTestOperation3 = null)
+            where TContext : DbContext
+        {
+            using (var c = createContext())
+            {
+                c.Database.CreateExecutionStrategy().Execute(c, context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            using (var innerContext = createContext())
+                            {
+                                useTransaction(innerContext.Database, transaction);
+                                testOperation(innerContext);
+                            }
+
+                            if (nestedTestOperation1 == null)
+                            {
+                                return;
+                            }
+                            using (var innerContext1 = createContext())
+                            {
+                                useTransaction(innerContext1.Database, transaction);
+                                nestedTestOperation1(innerContext1);
+                            }
+
+                            if (nestedTestOperation2 == null)
+                            {
+                                return;
+                            }
+                            using (var innerContext2 = createContext())
+                            {
+                                useTransaction(innerContext2.Database, transaction);
+                                nestedTestOperation2(innerContext2);
+                            }
+
+                            if (nestedTestOperation3 == null)
+                            {
+                                return;
+                            }
+                            using (var innerContext3 = createContext())
+                            {
+                                useTransaction(innerContext3.Database, transaction);
+                                nestedTestOperation3(innerContext3);
+                            }
+                        }
+                    });
+            }
+        }
+
+        public static async Task ExecuteWithStrategyInTransactionAsync<TContext>(
+            Func<TContext> createContext,
+            Action<DatabaseFacade, IDbContextTransaction> useTransaction,
+            Func<TContext, Task> testOperation,
+            Func<TContext, Task> nestedTestOperation1 = null,
+            Func<TContext, Task> nestedTestOperation2 = null,
+            Func<TContext, Task> nestedTestOperation3 = null)
+            where TContext : DbContext
+        {
+            using (var c = createContext())
+            {
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
+                    {
+                        using (var transaction = await context.Database.BeginTransactionAsync())
+                        {
+                            using (var innerContext = createContext())
+                            {
+                                useTransaction(innerContext.Database, transaction);
+                                await testOperation(innerContext);
+                            }
+
+                            if (nestedTestOperation1 == null)
+                            {
+                                return;
+                            }
+                            using (var innerContext1 = createContext())
+                            {
+                                useTransaction(innerContext1.Database, transaction);
+                                await nestedTestOperation1(innerContext1);
+                            }
+
+                            if (nestedTestOperation2 == null)
+                            {
+                                return;
+                            }
+                            using (var innerContext2 = createContext())
+                            {
+                                useTransaction(innerContext2.Database, transaction);
+                                await nestedTestOperation2(innerContext2);
+                            }
+
+                            if (nestedTestOperation3 == null)
+                            {
+                                return;
+                            }
+                            using (var innerContext3 = createContext())
+                            {
+                                useTransaction(innerContext3.Database, transaction);
+                                await nestedTestOperation3(innerContext3);
+                            }
+                        }
+                    });
+            }
         }
     }
 }

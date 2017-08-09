@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+// ReSharper disable UnusedVariable
 namespace Microsoft.EntityFrameworkCore.TestModels
 {
     public class MonsterContext<
@@ -53,12 +54,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         where TDiscontinuedProduct: class, TProduct, IDiscontinuedProduct, new()
         where TProductPageView: class, TPageView, IProductPageView, new()
     {
-        private readonly Action<ModelBuilder> _onModelCreating;
-
-        public MonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
+        public MonsterContext(DbContextOptions options)
             : base(options)
         {
-            _onModelCreating = onModelCreating;
         }
 
         public override IQueryable<ICustomer> Customers => Set<TCustomer>();
@@ -333,11 +331,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels
             modelBuilder.Entity<TProductPageView>(pb => pb.HasOne(p => (TProduct)p.Product)
                 .WithMany()
                 .HasForeignKey(e => e.ProductId));
-
-            _onModelCreating?.Invoke(modelBuilder);
         }
 
-        public override void SeedUsingFKs(bool saveChanges = true)
+        public override void SeedUsingFKs()
         {
             var customer0 = Add(new TCustomer { Name = "Eeky Bear" }).Entity;
             var customer1 = Add(new TCustomer { Name = "Sheila Koalie" }).Entity;
@@ -572,13 +568,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 ExpirationDate = new DateTime(2018, 9, 19)
             }).Entity;
 
-            if (saveChanges)
-            {
-                SaveChanges();
-            }
+            SaveChanges();
         }
 
-        public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs, bool saveChanges = true)
+        public override void SeedUsingNavigations(bool dependentNavs, bool principalNavs)
         {
             var customer0 = Add(new TCustomer { Name = "Eeky Bear" }).Entity;
             var customer1 = Add(new TCustomer { Name = "Sheila Koalie" }).Entity;
@@ -962,13 +955,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 driver2.License = license2;
             }
 
-            if (saveChanges)
-            {
-                SaveChanges();
-            }
+            SaveChanges();
         }
 
-        public override void SeedUsingNavigationsWithDeferredAdd(bool saveChanges = true)
+        public override void SeedUsingNavigationsWithDeferredAdd()
         {
             var toAdd = new List<object>[4];
 
@@ -1287,10 +1277,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 Add(entity);
             }
 
-            if (saveChanges)
-            {
-                SaveChanges();
-            }
+            SaveChanges();
         }
     }
 

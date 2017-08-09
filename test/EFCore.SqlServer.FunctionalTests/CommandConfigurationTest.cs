@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(2, 1)]
         public void Keys_generated_in_batches(int count, int expected)
         {
-            DbContextHelpers.ExecuteWithStrategyInTransaction(
+            TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
                 context =>
                     {

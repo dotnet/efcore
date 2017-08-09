@@ -8,6 +8,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable ArrangeAccessorOwnerBody
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.TestModels
 {
     public class ChangedChangingMonsterContext : MonsterContext<
@@ -26,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels
         ChangedChangingMonsterContext.BackOrderLine, ChangedChangingMonsterContext.DiscontinuedProduct,
         ChangedChangingMonsterContext.ProductPageView>
     {
-        public ChangedChangingMonsterContext(DbContextOptions options, Action<ModelBuilder> onModelCreating)
-            : base(options, onModelCreating)
+        public ChangedChangingMonsterContext(DbContextOptions options)
+            : base(options)
         {
         }
 
