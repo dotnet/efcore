@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var includeResultOperator in _includeResultOperators.ToArray())
             {
-                var navigationPath = includeResultOperator.GetNavigationPath(_queryCompilationContext);
+                var navigationPaths = includeResultOperator.GetNavigationPaths(_queryCompilationContext);
 
                 var querySourceReferenceExpression
                     = querySourceTracingExpressionVisitor
@@ -129,25 +129,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             includeResultOperator.QuerySource);
 
                 if (querySourceReferenceExpression == null
-                    || navigationPath == null)
+                    || navigationPaths == null
+                    || !navigationPaths.Any())
                 {
                     continue;
                 }
 
-                var includeLoadTree
+                foreach (var navigationPath in navigationPaths)
+                {
+                    var includeLoadTree
                     = includeLoadTrees
                         .SingleOrDefault(
                             t => ReferenceEquals(
                                 t.QuerySourceReferenceExpression, querySourceReferenceExpression));
 
-                if (includeLoadTree == null)
-                {
-                    includeLoadTrees.Add(includeLoadTree = new IncludeLoadTree(querySourceReferenceExpression));
+                    if (includeLoadTree == null)
+                    {
+                        includeLoadTrees.Add(includeLoadTree = new IncludeLoadTree(querySourceReferenceExpression));
+                    }
+
+                    includeLoadTree.AddLoadPath(navigationPath);
+
+                    _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator);
                 }
-
-                includeLoadTree.AddLoadPath(navigationPath);
-
-                _queryCompilationContext.Logger.NavigationIncluded(includeResultOperator);
 
                 _includeResultOperators.Remove(includeResultOperator);
             }

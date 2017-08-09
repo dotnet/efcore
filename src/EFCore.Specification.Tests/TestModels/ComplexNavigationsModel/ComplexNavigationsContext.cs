@@ -21,5 +21,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         public DbSet<ComplexNavigationString> MultilingualStrings { get; set; }
         public DbSet<ComplexNavigationGlobalization> Globalizations { get; set; }
         public DbSet<ComplexNavigationLanguage> Languages { get; set; }
+
+        public DbSet<InheritanceBase1> InheritanceOne { get; set; }
+        public DbSet<InheritanceBase2> InheritanceTwo { get; set; }
+        public DbSet<InheritanceLeaf1> InheritanceLeafOne { get; set; }
+        public DbSet<InheritanceLeaf2> InheritanceLeafTwo { get; set; }
     }
 }

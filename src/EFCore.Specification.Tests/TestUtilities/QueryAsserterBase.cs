@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertIncludeQuery
 
-        public abstract void AssertIncludeQuery<TItem1>(
+        public abstract List<object> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             int entryCount = 0)
             where TItem1 : class;
 
-        public abstract void AssertIncludeQuery<TItem1, TItem2>(
+        public abstract List<object> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,

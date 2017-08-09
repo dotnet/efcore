@@ -322,8 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertIncludeQuery
 
-        public void 
-            AssertIncludeQuery<TItem1>(
+        public List<object> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
@@ -333,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
-        public void AssertIncludeQuery<TItem1>(
+        public List<object> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
@@ -344,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
-        public void AssertIncludeQuery<TItem1, TItem2>(
+        public List<object> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
@@ -355,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem2 : class
             => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
-        public void AssertIncludeQuery<TItem1, TItem2>(
+        public List<object> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,

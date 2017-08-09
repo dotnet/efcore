@@ -712,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertIncludeQuery
 
-        public void AssertIncludeQuery<TItem1>(
+        public List<object> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
@@ -722,7 +722,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem1 : class
             => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
-        public override void AssertIncludeQuery<TItem1>(
+        public override List<object> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
@@ -766,10 +766,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+
+                return actual;
             }
         }
 
-        public void AssertIncludeQuery<TItem1, TItem2>(
+        public List<object> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
@@ -780,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem2 : class
             => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
-        public override void AssertIncludeQuery<TItem1, TItem2>(
+        public override List<object> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
@@ -829,6 +831,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+
+                return actual;
             }
         }
 

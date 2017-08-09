@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
         private List<string> _navigationPropertyPaths;
-        private INavigation[] _navigationPath;
+        private List<INavigation[]> _navigationPaths;
         private IQuerySource _querySource;
 
         /// <summary>
@@ -35,9 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         /// </summary>
         public IncludeResultOperator(
             [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource)
-            : this(navigationPath.Select(n => n.Name), pathFromQuerySource)
         {
-            _navigationPath = navigationPath;
+            _navigationPaths = new List<INavigation[]> { navigationPath };
+            _navigationPropertyPaths = new List<string>();
+            PathFromQuerySource = pathFromQuerySource;
         }
 
         /// <summary>
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeResultOperator(
-            [NotNull] IEnumerable<string> navigationPropertyPaths, [NotNull] Expression pathFromQuerySource)
+            [NotNull] IEnumerable<string> navigationPropertyPaths,
+            [NotNull] Expression pathFromQuerySource)
         {
             _navigationPropertyPaths = new List<string>(navigationPropertyPaths);
             PathFromQuerySource = pathFromQuerySource;
@@ -103,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual INavigation[] GetNavigationPath([NotNull] QueryCompilationContext queryCompilationContext)
+        public virtual List<INavigation[]> GetNavigationPaths([NotNull] QueryCompilationContext queryCompilationContext)
         {
-            if (_navigationPath == null)
+            if (_navigationPaths == null)
             {
                 IEntityType entityType = null;
                 if (PathFromQuerySource is QuerySourceReferenceExpression qsre)
@@ -136,23 +138,80 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
                             NavigationPropertyPaths.FirstOrDefault()));
                 }
 
-                _navigationPath = new INavigation[NavigationPropertyPaths.Count];
-
-                for (var i = 0; i < NavigationPropertyPaths.Count; i++)
+                var completedNavigationPaths = new List<List<INavigation>>();
+                var navigationPaths = new List<List<INavigation>>();
+                var navigations = FindNavigations(entityType, NavigationPropertyPaths.First());
+                if (!navigations.Any())
                 {
-                    _navigationPath[i] = entityType.FindNavigation(NavigationPropertyPaths[i]);
+                    throw new InvalidOperationException(
+                        CoreStrings.IncludeBadNavigation(NavigationPropertyPaths.First(), entityType.DisplayName()));
+                }
 
-                    if (_navigationPath[i] == null)
+                foreach (var navigation in navigations)
+                {
+                    var navigationPath = new List<INavigation> { navigation };
+                    navigationPaths.Add(navigationPath);
+                }
+
+                for (var i = 1; i < NavigationPropertyPaths.Count; i++)
+                {
+                    var newNavigationPaths = new List<List<INavigation>>();
+                    var matchingNavigations = false;
+                    foreach (var navigationPath in navigationPaths)
+                    {
+                        entityType = navigationPath.Last().GetTargetType();
+                        navigations = FindNavigations(entityType, NavigationPropertyPaths[i]);
+
+                        if (navigations.Any())
+                        {
+                            matchingNavigations = true;
+                            foreach (var navigation in navigations)
+                            {
+                                var newNavigationPath = new List<INavigation>(navigationPath) { navigation };
+                                newNavigationPaths.Add(newNavigationPath);
+                            }
+                        }
+                        else
+                        {
+                            completedNavigationPaths.Add(navigationPath);
+                        }
+                    }
+
+                    if (!matchingNavigations)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.IncludeBadNavigation(NavigationPropertyPaths[i], entityType.DisplayName()));
                     }
 
-                    entityType = _navigationPath[i].GetTargetType();
+                    navigationPaths = newNavigationPaths;
+                }
+
+                _navigationPaths = completedNavigationPaths.Select(p => p.ToArray())
+                    .Concat(navigationPaths.Select(p => p.ToArray()))
+                    .ToList();
+            }
+
+            return _navigationPaths;
+        }
+
+        private List<INavigation> FindNavigations(IEntityType entityType, string name)
+        {
+            var navigationPath = entityType.FindNavigation(name);
+            if (navigationPath != null)
+            {
+                return new List<INavigation> { navigationPath };
+            }
+
+            var navigations = new List<INavigation>();
+            foreach (var derived in entityType.GetDirectlyDerivedTypes())
+            {
+                foreach (var navigationPathOnDerived in FindNavigations(derived, name))
+                {
+                    navigations.Add(navigationPathOnDerived);
                 }
             }
 
-            return _navigationPath;
+            return navigations;
         }
 
         /// <summary>

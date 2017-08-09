@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -1336,6 +1337,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static Expression CreatePropertyExpression(Expression target, IProperty property, bool addNullCheck)
         {
             var propertyExpression = target.CreateEFPropertyExpression(property, makeNullable: false);
+
+            var propertyDeclaringType = property.DeclaringType.ClrType;
+            if (propertyDeclaringType != target.Type
+                && target.Type.GetTypeInfo().IsAssignableFrom(propertyDeclaringType.GetTypeInfo()))
+            {
+                return new NullConditionalExpression(
+                    Expression.TypeAs(target, propertyDeclaringType),
+                    propertyExpression);
+            }
 
             return addNullCheck
                 ? new NullConditionalExpression(target, propertyExpression)
