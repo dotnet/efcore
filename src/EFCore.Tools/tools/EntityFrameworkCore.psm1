@@ -120,11 +120,7 @@ function Drop-Database
             'DbContext.Database.EnsureDeleted() at runtime.'
     }
 
-    $params = 'dbcontext', 'info', '--json'
-    $params += GetParams $Context
-
-    # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
-    $info = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
+    $info = Get-DbContext -Context $Context -Project $Project -StartupProject $StartupProject
 
     if ($PSCmdlet.ShouldProcess("database '$($info.databaseName)' on server '$($info.dataSource)'"))
     {
