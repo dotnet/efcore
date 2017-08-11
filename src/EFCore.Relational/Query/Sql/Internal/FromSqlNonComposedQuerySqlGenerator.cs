@@ -60,11 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             var readerColumns
                 = Enumerable
                     .Range(0, dataReader.FieldCount)
-                    .Select(i => new
-                    {
-                        Name = dataReader.GetName(i),
-                        Ordinal = i
-                    })
+                    .Select(
+                        i => new
+                        {
+                            Name = dataReader.GetName(i),
+                            Ordinal = i
+                        })
                     .ToList();
 
             var types = new Type[SelectExpression.Projection.Count];
@@ -79,8 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                     if (columnName != null)
                     {
                         var readerColumn
-                            = readerColumns.SingleOrDefault(c =>
-                                string.Equals(columnName, c.Name, StringComparison.OrdinalIgnoreCase));
+                            = readerColumns.SingleOrDefault(
+                                c =>
+                                    string.Equals(columnName, c.Name, StringComparison.OrdinalIgnoreCase));
 
                         if (readerColumn == null)
                         {

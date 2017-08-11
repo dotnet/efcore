@@ -5,10 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -41,11 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var subSelector = subQueryExpression.QueryModel.SelectClause.Selector;
                 if ((subSelector is QuerySourceReferenceExpression || subSelector is SubQueryExpression)
-                    && !subQueryExpression.QueryModel.ResultOperators.Any(ro =>
-                        ro is ConcatResultOperator
-                        || ro is UnionResultOperator
-                        || ro is IntersectResultOperator
-                        || ro is ExceptResultOperator))
+                    && !subQueryExpression.QueryModel.ResultOperators.Any(
+                        ro =>
+                            ro is ConcatResultOperator
+                            || ro is UnionResultOperator
+                            || ro is IntersectResultOperator
+                            || ro is ExceptResultOperator))
                 {
                     if (!subQueryExpression.QueryModel.ResultOperators.Any(ro => ro is DistinctResultOperator))
                     {

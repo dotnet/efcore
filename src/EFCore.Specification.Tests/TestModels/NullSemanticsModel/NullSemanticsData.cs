@@ -95,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel
             _entities2 = entities2.ToArray();
         }
 
-        public IQueryable<TEntity> Set<TEntity>() where TEntity : NullSemanticsEntityBase
+        public IQueryable<TEntity> Set<TEntity>()
+            where TEntity : NullSemanticsEntityBase
         {
             if (typeof(TEntity) == typeof(NullSemanticsEntity1))
             {

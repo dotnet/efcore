@@ -15,11 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
     public class SqlServerQuerySqlGeneratorFactory : QuerySqlGeneratorFactoryBase
     {
         private readonly ISqlServerOptions _sqlServerOptions;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerQuerySqlGeneratorFactory([NotNull] QuerySqlGeneratorDependencies dependencies,
+        public SqlServerQuerySqlGeneratorFactory(
+            [NotNull] QuerySqlGeneratorDependencies dependencies,
             [NotNull] ISqlServerOptions sqlServerOptions)
             : base(dependencies)
         {

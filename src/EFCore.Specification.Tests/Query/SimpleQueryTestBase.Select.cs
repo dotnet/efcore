@@ -258,8 +258,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where c.City == "London"
                     orderby c.CustomerID
                     select os
-                        .Where(o => o.CustomerID == c.CustomerID
-                                    && o.OrderDate.Value.Year == 1997)
+                        .Where(
+                            o => o.CustomerID == c.CustomerID
+                                 && o.OrderDate.Value.Year == 1997)
                         .Select(o => o.OrderID)
                         .OrderBy(o => o),
                 e => ((IEnumerable<int>)e).Count(),
@@ -273,13 +274,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        OrderDates = c.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Take(3)
-                            .Select(o => new { Date = o.OrderDate })
-                    })
+                    .Select(
+                        c => new
+                        {
+                            OrderDates = c.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Take(3)
+                                .Select(o => new { Date = o.OrderDate })
+                        })
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
@@ -294,13 +296,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        OrderDates = c.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Select(o => o.OrderDate)
-                            .FirstOrDefault()
-                    })
+                    .Select(
+                        c => new
+                        {
+                            OrderDates = c.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Select(o => o.OrderDate)
+                                .FirstOrDefault()
+                        })
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
@@ -315,14 +318,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        OrderDates = context.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Where(o => c.CustomerID == o.CustomerID)
-                            .Select(o => o.OrderDate)
-                            .FirstOrDefault()
-                    })
+                    .Select(
+                        c => new
+                        {
+                            OrderDates = context.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Where(o => c.CustomerID == o.CustomerID)
+                                .Select(o => o.OrderDate)
+                                .FirstOrDefault()
+                        })
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
@@ -337,16 +341,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        Order = (int?)c.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Select(o => o.OrderDetails
-                                .Where(od => od.OrderID > 10)
-                                .Select(od => od.ProductID)
-                                .Count())
-                            .FirstOrDefault()
-                    })
+                    .Select(
+                        c => new
+                        {
+                            Order = (int?)c.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Select(
+                                    o => o.OrderDetails
+                                        .Where(od => od.OrderID > 10)
+                                        .Select(od => od.ProductID)
+                                        .Count())
+                                .FirstOrDefault()
+                        })
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
@@ -361,16 +367,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        Order = (int?)c.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Select(o => o.OrderDetails
-                                .Where(od => od.OrderID != c.Orders.Count)
-                                .Select(od => od.ProductID)
-                                .FirstOrDefault())
-                            .FirstOrDefault()
-                    })
+                    .Select(
+                        c => new
+                        {
+                            Order = (int?)c.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Select(
+                                    o => o.OrderDetails
+                                        .Where(od => od.OrderID != c.Orders.Count)
+                                        .Select(od => od.ProductID)
+                                        .FirstOrDefault())
+                                .FirstOrDefault()
+                        })
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
@@ -385,16 +393,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => new
-                    {
-                        Order = (int?)c.Orders
-                            .Where(o => o.OrderID < 10500)
-                            .Select(o => o.OrderDetails
-                                .Where(od => od.OrderID != c.CustomerID.Length)
-                                .Select(od => od.ProductID)
-                                .FirstOrDefault())
-                            .FirstOrDefault()
-                    })
+                    .Select(
+                        c => new
+                        {
+                            Order = (int?)c.Orders
+                                .Where(o => o.OrderID < 10500)
+                                .Select(
+                                    o => o.OrderDetails
+                                        .Where(od => od.OrderID != c.CustomerID.Length)
+                                        .Select(od => od.ProductID)
+                                        .FirstOrDefault())
+                                .FirstOrDefault()
+                        })
                     .ToList();
 
                 Assert.Equal(4, customers.Count);
@@ -407,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Customer>(
                 cs => cs.Where(c => c.CustomerID.StartsWith("A"))
-                        .Select(c => new { c.Orders.Count }),
+                    .Select(c => new { c.Orders.Count }),
                 e => e.Count);
         }
 
@@ -429,12 +439,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     select o1.OrderID)),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
-                {
-                    var expected = ((IEnumerable<IEnumerable<int>>)e).SelectMany(i => i).ToList();
-                    var actual = ((IEnumerable<IEnumerable<int>>)e).SelectMany(i => i).ToList();
+                    {
+                        var expected = ((IEnumerable<IEnumerable<int>>)e).SelectMany(i => i).ToList();
+                        var actual = ((IEnumerable<IEnumerable<int>>)e).SelectMany(i => i).ToList();
 
-                    Assert.Equal(expected, actual);
-                });
+                        Assert.Equal(expected, actual);
+                    });
         }
 
         [ConditionalFact]
@@ -534,7 +544,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(o => -((long)o.OrderID)),
                 assertOrder: true);
         }
-
 
         [ConditionalFact]
         public virtual void Select_non_matching_value_types_from_length_introduces_explicit_cast()

@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
             => _queryModelVisitor.BindNavigationPathPropertyExpression(
-                node,
-                (ps, qs) => RewritePropertyAccess(node, ps, qs)) ?? base.VisitMember(node);
+                   node,
+                   (ps, qs) => RewritePropertyAccess(node, ps, qs)) ?? base.VisitMember(node);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression node)
             => _queryModelVisitor.BindNavigationPathPropertyExpression(
-                node,
-                (ps, qs) => RewritePropertyAccess(node, ps, qs)) ?? base.VisitMethodCall(node);
+                   node,
+                   (ps, qs) => RewritePropertyAccess(node, ps, qs)) ?? base.VisitMethodCall(node);
 
         private Expression RewritePropertyAccess(
             Expression expression,
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private Expression BuildCollectionAccessorExpression(
-            ParameterExpression parameter, 
+            ParameterExpression parameter,
             IEnumerable<IPropertyBase> navigations)
         {
             Expression result = parameter;

@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             SetConditionAsProjection(
                 handlerContext,
-                    new ExistsExpression(innerSelectExpression));
+                new ExistsExpression(innerSelectExpression));
 
             return TransformClientExpression<bool>(handlerContext);
         }
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     expression = new ExplicitCastExpression(expression, outputType);
-                    Expression averageExpression = new SqlFunctionExpression("AVG", outputType, new [] { expression });
+                    Expression averageExpression = new SqlFunctionExpression("AVG", outputType, new[] { expression });
 
                     if (nonNullableInputType == typeof(float))
                     {
@@ -246,10 +246,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var averageExpressionType = averageExpression.Type;
                     var throwOnNullResult = DetermineAggregateThrowingBehavior(handlerContext, averageExpressionType);
-                    
+
                     return (Expression)_transformClientExpressionMethodInfo
                         .MakeGenericMethod(averageExpressionType)
-                        .Invoke(null, new object [] { handlerContext, throwOnNullResult });
+                        .Invoke(null, new object[] { handlerContext, throwOnNullResult });
                 }
             }
 
@@ -472,7 +472,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return sqlExpression != null
-                ? Expression.Call(newGroupByCall
+                ? Expression.Call(
+                    newGroupByCall
                         .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
                     oldGroupByCall.Arguments)
                 : oldGroupByCall;
@@ -593,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             requiresClientResultOperator
                 = requiresClientResultOperator
-                || !((LastResultOperator)handlerContext.ResultOperator).ReturnDefaultWhenEmpty
+                  || !((LastResultOperator)handlerContext.ResultOperator).ReturnDefaultWhenEmpty
                   && handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null;
 
             return handlerContext.EvalOnClient(requiresClientResultOperator);
@@ -626,16 +627,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
-                    var minExpression = new SqlFunctionExpression("MIN", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
+                    var minExpression = new SqlFunctionExpression("MIN", handlerContext.QueryModel.SelectClause.Selector.Type, new[] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
 
                     var minExpressionType = minExpression.Type;
                     var throwOnNullResult = DetermineAggregateThrowingBehavior(handlerContext, minExpressionType);
-                    
+
                     return (Expression)_transformClientExpressionMethodInfo
                         .MakeGenericMethod(minExpressionType)
-                        .Invoke(null, new object [] { handlerContext, throwOnNullResult });
+                        .Invoke(null, new object[] { handlerContext, throwOnNullResult });
                 }
             }
 
@@ -653,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
-                    var maxExpression = new SqlFunctionExpression("MAX", handlerContext.QueryModel.SelectClause.Selector.Type, new [] { expression });
+                    var maxExpression = new SqlFunctionExpression("MAX", handlerContext.QueryModel.SelectClause.Selector.Type, new[] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);
 
@@ -662,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return (Expression)_transformClientExpressionMethodInfo
                         .MakeGenericMethod(maxExpressionType)
-                        .Invoke(null, new object [] { handlerContext, throwOnNullResult });
+                        .Invoke(null, new object[] { handlerContext, throwOnNullResult });
                 }
             }
 
@@ -681,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             handlerContext.QueryModelVisitor.RequiresClientResultOperator = throwOnNullResult;
-            
+
             return throwOnNullResult;
         }
 
@@ -731,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var inputType = handlerContext.QueryModel.SelectClause.Selector.Type;
 
                     expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
-                    Expression sumExpression = new SqlFunctionExpression("SUM", inputType, new [] { expression });
+                    Expression sumExpression = new SqlFunctionExpression("SUM", inputType, new[] { expression });
                     if (inputType.UnwrapNullableType() == typeof(float))
                     {
                         sumExpression = new ExplicitCastExpression(sumExpression, inputType);
@@ -741,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return (Expression)_transformClientExpressionMethodInfo
                         .MakeGenericMethod(sumExpression.Type)
-                        .Invoke(null, new object [] { handlerContext, /*throwOnNullResult:*/ false });
+                        .Invoke(null, new object[] { handlerContext, /*throwOnNullResult:*/ false });
                 }
             }
 
@@ -773,7 +774,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             handlerContext.SelectExpression.Clear();
 
             handlerContext.SelectExpression.AddToProjection(
-                Expression.Condition(condition,
+                Expression.Condition(
+                    condition,
                     Expression.Constant(true),
                     Expression.Constant(false),
                     typeof(bool)));

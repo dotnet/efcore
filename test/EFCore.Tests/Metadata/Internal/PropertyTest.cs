@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), nameof(FakeProperty)),
                 Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
         }
-        
+
         private class FakeProperty : IProperty
         {
             public object this[string name] => throw new NotImplementedException();
@@ -102,8 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             stringProperty.IsNullable = true;
             Assert.True(stringProperty.IsNullable);
 
-            Assert.Equal(CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
-                Assert.Throws<InvalidOperationException>(() =>
+            Assert.Equal(
+                CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
                         stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
         }
 

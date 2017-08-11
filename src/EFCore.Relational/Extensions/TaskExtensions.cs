@@ -10,7 +10,8 @@ namespace System.Threading.Tasks
         {
             var taskCompletionSource = new TaskCompletionSource<TDerived>();
 
-            task.ContinueWith(t =>
+            task.ContinueWith(
+                t =>
                     {
                         if (t.IsFaulted)
                         {

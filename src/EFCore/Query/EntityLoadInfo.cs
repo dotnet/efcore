@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            if (_typeIndexMap == null || !_typeIndexMap.ContainsKey(clrType))
+            if (_typeIndexMap == null
+                || !_typeIndexMap.ContainsKey(clrType))
             {
                 return ValueBuffer;
             }

@@ -26,11 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.False(
                     context
                         .Set<Order>()
-                        .Select(o => new ProjectedType
-                        {
-                            Order = o.OrderID,
-                            Customer = o.CustomerID
-                        })
+                        .Select(
+                            o => new ProjectedType
+                            {
+                                Order = o.OrderID,
+                                Customer = o.CustomerID
+                            })
                         .All(p => p.Customer == "ALFKI")
                 );
             }
@@ -236,8 +237,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(() => 
-                    context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList());
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList());
             }
         }
 
@@ -255,8 +257,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(() => 
-                    context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList());
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList());
             }
         }
 
@@ -274,8 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(() => 
-                    context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList());
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList());
             }
         }
 
@@ -324,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Count_with_predicate()
         {
-            AssertSingleResult<Order>(os =>os.Count(o => o.CustomerID == "ALFKI"));
+            AssertSingleResult<Order>(os => os.Count(o => o.CustomerID == "ALFKI"));
         }
 
         [ConditionalFact]
@@ -485,8 +489,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Single_Throws()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                AssertSingleResult<Customer>(cs => cs.Single()));
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    AssertSingleResult<Customer>(cs => cs.Single()));
         }
 
         [ConditionalFact]
@@ -509,9 +514,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void SingleOrDefault_Throws()
         {
-            Assert.Throws<InvalidOperationException>(() =>
-                AssertSingleResult<Customer>(
-                    cs => cs.SingleOrDefault()));
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    AssertSingleResult<Customer>(
+                        cs => cs.SingleOrDefault()));
         }
 
         [ConditionalFact]
@@ -536,7 +542,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertSingleResult<Customer>(
                 cs => cs.OrderBy(c => c.ContactName).First(),
-                entryCount:1 );
+                entryCount: 1);
         }
 
         [ConditionalFact]
@@ -658,8 +664,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Contains_with_subquery()
         {
-            AssertQuery<Customer, Order>((cs, os) =>
-                cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)),
+            AssertQuery<Customer, Order>(
+                (cs, os) =>
+                    cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)),
                 entryCount: 89);
         }
 
@@ -668,13 +675,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new[] { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
 
             ids = new[] { "ABCDE" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)));
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
         [ConditionalFact]
@@ -682,16 +691,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new[] { "London", "Buenos Aires" };
 
-            AssertQuery<Customer>(cs =>
-                    cs.Where(c =>
-                        cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(
+                        c =>
+                            cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
                 entryCount: 9);
 
             ids = new[] { "London" };
 
-            AssertQuery<Customer>(cs =>
-                    cs.Where(c =>
-                        cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(
+                        c =>
+                            cs.Where(c1 => ids.Contains(c1.City)).Any(e => e.CustomerID == c.CustomerID)),
                 entryCount: 6);
         }
 
@@ -700,13 +713,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new[] { 0, 1 };
 
-            AssertQuery<Employee>(es =>
-                es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
 
             ids = new[] { 0 };
 
-            AssertQuery<Employee>(es =>
-                es.Where(e => ids.Contains(e.EmployeeID)));
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(e => ids.Contains(e.EmployeeID)));
         }
 
         [ConditionalFact]
@@ -714,35 +729,40 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new int?[] { 0, 1 };
 
-            AssertQuery<Employee>(es =>
-                es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
 
             ids = new int?[] { 0 };
 
-            AssertQuery<Employee>(es =>
-                es.Where(e => ids.Contains(e.EmployeeID)));
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(e => ids.Contains(e.EmployeeID)));
         }
 
         [ConditionalFact]
         public virtual void Contains_with_local_array_inline()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual void Contains_with_local_list_closure()
         {
             var ids = new List<string> { "ABCDE", "ALFKI" };
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual void Contains_with_local_list_inline()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -750,13 +770,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var id = "ALFKI";
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
 
             id = "ANATR";
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new List<string> { "ABCDE", id }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -764,8 +786,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
         }
 
         [ConditionalFact]
@@ -773,8 +796,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -782,8 +806,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -791,8 +816,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") || !ids.Contains(c.CustomerID)), entryCount: 91);
         }
 
         [ConditionalFact]
@@ -800,8 +826,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ABCDE", "ALFKI" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID) && (c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE")));
         }
 
         [ConditionalFact]
@@ -809,8 +836,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID) || (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE")), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -818,15 +846,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new string[0];
 
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)));
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
         [ConditionalFact]
         public virtual void Contains_with_local_collection_empty_inline()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Where(c => !(new List<string>().Contains(c.CustomerID))), entryCount: 91);
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => !(new List<string>().Contains(c.CustomerID))), entryCount: 91);
         }
 
         [ConditionalFact]

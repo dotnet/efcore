@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync(
-                [NotNull] TContext context)
+            [NotNull] TContext context)
             => ExecuteCore(context);
 
         /// <summary>
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync(
-                [NotNull] TContext context,
-                CancellationToken cancellationToken)
+            [NotNull] TContext context,
+            CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken);
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1)
             => ExecuteCore(context, param1);
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                CancellationToken cancellationToken)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken, param1);
 
         /// <summary>
@@ -66,9 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2)
             => ExecuteCore(context, param1, param2);
 
         /// <summary>
@@ -76,10 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                CancellationToken cancellationToken)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken, param1, param2);
 
         /// <summary>
@@ -87,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2, TParam3>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3)
             => ExecuteCore(context, param1, param2, param3);
 
         /// <summary>
@@ -98,11 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2, TParam3>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                CancellationToken cancellationToken)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken, param1, param2, param3);
 
         /// <summary>
@@ -110,11 +110,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2, TParam3, TParam4>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                [CanBeNull] TParam4 param4)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            [CanBeNull] TParam4 param4)
             => ExecuteCore(context, param1, param2, param3, param4);
 
         /// <summary>
@@ -122,12 +122,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2, TParam3, TParam4>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                [CanBeNull] TParam4 param4,
-                CancellationToken cancellationToken)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            [CanBeNull] TParam4 param4,
+            CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken, param1, param2, param3, param4);
 
         /// <summary>
@@ -135,12 +135,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2, TParam3, TParam4, TParam5>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                [CanBeNull] TParam4 param4,
-                [CanBeNull] TParam5 param5)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            [CanBeNull] TParam4 param4,
+            [CanBeNull] TParam5 param5)
             => ExecuteCore(context, param1, param2, param3, param4, param5);
 
         /// <summary>
@@ -148,13 +148,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<TResult> ExecuteAsync<TParam1, TParam2, TParam3, TParam4, TParam5>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                [CanBeNull] TParam4 param4,
-                [CanBeNull] TParam5 param5,
-                CancellationToken cancellationToken)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            [CanBeNull] TParam4 param4,
+            [CanBeNull] TParam5 param5,
+            CancellationToken cancellationToken)
             => ExecuteCore(context, cancellationToken, param1, param2, param3, param4, param5);
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Func<QueryContext, Task<TResult>> CreateCompiledQuery(
-                IQueryCompiler queryCompiler, Expression expression)
+            IQueryCompiler queryCompiler, Expression expression)
             => queryCompiler.CreateCompiledAsyncTaskQuery<TResult>(expression);
     }
 }

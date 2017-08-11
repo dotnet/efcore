@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public DbSet<Blog> Blogs { get; set; }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(nameof(ImplicitServicesAndConfigBlogContext));
         }
 
@@ -128,8 +128,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInMemoryDatabase(nameof(ExplicitServicesAndConfigBlogContext))
-                .UseInternalServiceProvider(new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
+                .UseInternalServiceProvider(
+                    new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
 
             using (var context = new ExplicitServicesAndConfigBlogContext(optionsBuilder.Options))
             {
@@ -166,14 +167,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        using (var context = new NoServicesAndNoConfigBlogContext())
+                Assert.Throws<InvalidOperationException>(
+                    () =>
                         {
-                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                            context.SaveChanges();
-                        }
-                    }).Message);
+                            using (var context = new NoServicesAndNoConfigBlogContext())
+                            {
+                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                                context.SaveChanges();
+                            }
+                        }).Message);
         }
 
         private class NoServicesAndNoConfigBlogContext : DbContext
@@ -190,14 +192,15 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 CoreStrings.NoProviderConfigured,
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
+                Assert.Throws<InvalidOperationException>(
+                    () =>
                         {
-                            context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
-                            context.SaveChanges();
-                        }
-                    }).Message);
+                            using (var context = new ImplicitConfigButNoServicesBlogContext(serviceProvider))
+                            {
+                                context.Blogs.Add(new Blog { Name = "The Waffle Cart" });
+                                context.SaveChanges();
+                            }
+                        }).Message);
         }
 
         private class ImplicitConfigButNoServicesBlogContext : DbContext

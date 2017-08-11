@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class InheritanceRelationalFixture : InheritanceFixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(RelationalEventId.QueryClientEvaluationWarning));
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(RelationalEventId.QueryClientEvaluationWarning));
     }
 }

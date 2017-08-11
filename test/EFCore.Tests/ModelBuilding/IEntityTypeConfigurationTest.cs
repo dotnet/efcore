@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(1000, entityType.FindProperty(nameof(Customer.Name)).GetMaxLength());
             }
 
-            class CustomerConfiguration : IEntityTypeConfiguration<Customer>
+            private class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             {
                 public void Configure(EntityTypeBuilder<Customer> builder)
                 {
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 }
             }
 
-            class CustomerConfiguration2 : IEntityTypeConfiguration<Customer>
+            private class CustomerConfiguration2 : IEntityTypeConfiguration<Customer>
             {
                 public void Configure(EntityTypeBuilder<Customer> builder)
                 {

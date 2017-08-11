@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (processedExpression is QuerySourceReferenceExpression qsre)
                 {
                     _canRewriteNullCheck = qsre.ReferencedQuerySource == _querySource
-                        && _propertyNames.Count == 0;
+                                           && _propertyNames.Count == 0;
 
                     return;
                 }

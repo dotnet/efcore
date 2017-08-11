@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static readonly long? DefaultMaxValue = default(long?);
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -71,14 +71,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            SetData(new SequenceData
-            {
-                Name = name,
-                Schema = schema,
-                ClrType = DefaultClrType,
-                IncrementBy = DefaultIncrementBy,
-                StartValue = DefaultStartValue
-            });
+            SetData(
+                new SequenceData
+                {
+                    Name = name,
+                    Schema = schema,
+                    ClrType = DefaultClrType,
+                    IncrementBy = DefaultIncrementBy,
+                    StartValue = DefaultStartValue
+                });
         }
 
         /// <summary>

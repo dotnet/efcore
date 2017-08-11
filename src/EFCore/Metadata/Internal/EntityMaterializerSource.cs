@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression CreateReadValueExpression(
-                Expression valueBuffer,
-                Type type,
-                int index,
-                IProperty property)
+            Expression valueBuffer,
+            Type type,
+            int index,
+            IProperty property)
             => Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
@@ -188,14 +188,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Func<ValueBuffer, object> GetMaterializer(IEntityType entityType)
-            => Materializers.GetOrAdd(entityType, e =>
-                {
-                    var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
+            => Materializers.GetOrAdd(
+                entityType, e =>
+                    {
+                        var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
 
-                    return Expression.Lambda<Func<ValueBuffer, object>>(
-                        CreateMaterializeExpression(e, valueBufferParameter),
-                        valueBufferParameter)
-                        .Compile();
-                });
+                        return Expression.Lambda<Func<ValueBuffer, object>>(
+                                CreateMaterializeExpression(e, valueBufferParameter),
+                                valueBufferParameter)
+                            .Compile();
+                    });
     }
 }

@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
-        
+
         private readonly Dictionary<IQuerySource, IEntityType> _querySourceEntityTypeMapping = new Dictionary<IQuerySource, IEntityType>();
         private readonly List<IQueryAnnotation> _queryAnnotations = new List<IQueryAnnotation>();
-        
+
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
@@ -412,8 +412,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
 
             var querySourcesRequiringMaterializationFinder = new QuerySourcesRequiringMaterializationFinder(
-                _requiresMaterializationExpressionVisitorFactory, 
-                queryModelVisitor, 
+                _requiresMaterializationExpressionVisitorFactory,
+                queryModelVisitor,
                 QuerySourcesRequiringMaterialization);
 
             querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(queryModel);
@@ -503,12 +503,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override Expression VisitMember(MemberExpression node)
             {
                 if (node.Expression is SubQueryExpression subQuery
-                    && subQuery.QueryModel.ResultOperators.Any(ro =>
-                        ro is DistinctResultOperator
-                        || ro is ConcatResultOperator
-                        || ro is UnionResultOperator
-                        || ro is IntersectResultOperator
-                        || ro is ExceptResultOperator))
+                    && subQuery.QueryModel.ResultOperators.Any(
+                        ro =>
+                            ro is DistinctResultOperator
+                            || ro is ConcatResultOperator
+                            || ro is UnionResultOperator
+                            || ro is IntersectResultOperator
+                            || ro is ExceptResultOperator))
                 {
                     MarkForMaterialization(subQuery.QueryModel.MainFromClause);
                 }
@@ -562,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(subQuery.QueryModel);
                         }
                         else if (resultOperatorSource is MethodCallExpression methodCall
-                            && methodCall.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo))
+                                 && methodCall.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo))
                         {
                             _querySourcesRequiringMaterializationFinder.AddQuerySourcesRequiringMaterialization(((SubQueryExpression)methodCall.Arguments[1]).QueryModel);
                         }

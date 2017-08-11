@@ -157,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryPlan = PostProcess(_stringBuilder.ToString());
 
-            if (characterLimit != null && characterLimit.Value > 0)
+            if (characterLimit != null
+                && characterLimit.Value > 0)
             {
                 queryPlan = queryPlan.Length > characterLimit
                     ? queryPlan.Substring(0, characterLimit.Value) + "..."
@@ -178,7 +179,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return null;
             }
 
-            if (CharacterLimit != null && _stringBuilder.Length > CharacterLimit.Value)
+            if (CharacterLimit != null
+                && _stringBuilder.Length > CharacterLimit.Value)
             {
                 return expression;
             }
@@ -554,8 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _stringBuilder.Append(methodCallExpression.Method.Name + "(");
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
-                || methodCallExpression.Arguments.Count < 2
-                || methodCallExpression.Method.IsEFPropertyMethod();
+                                           || methodCallExpression.Arguments.Count < 2
+                                           || methodCallExpression.Method.IsEFPropertyMethod();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
@@ -928,7 +930,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 bool removeFormatting)
             {
                 if (value is IEnumerable enumerable
-                     && !(value is string))
+                    && !(value is string))
                 {
                     var appendAction = value is byte[] || removeFormatting ? Append : AppendLine;
 
@@ -954,7 +956,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         ? value.ToString()
                         : value.GetType().ShortDisplayName();
 
-                if (value != null && value is string)
+                if (value != null
+                    && value is string)
                 {
                     stringValue = $@"""{stringValue}""";
                 }

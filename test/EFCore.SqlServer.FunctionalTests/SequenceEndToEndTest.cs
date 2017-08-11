@@ -4,8 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -229,11 +229,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Pegasus>(b =>
-                    {
-                        b.HasKey(e => e.Identifier);
-                        b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
-                    });
+                modelBuilder.Entity<Pegasus>(
+                    b =>
+                        {
+                            b.HasKey(e => e.Identifier);
+                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                        });
             }
         }
 
@@ -335,18 +336,19 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Unicon>(b =>
-                    {
-                        b.HasKey(e => e.Identifier);
-                        if (_useSequence)
+                modelBuilder.Entity<Unicon>(
+                    b =>
                         {
-                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
-                        }
-                        else
-                        {
-                            b.Property(e => e.Identifier).UseSqlServerIdentityColumn();
-                        }
-                    });
+                            b.HasKey(e => e.Identifier);
+                            if (_useSequence)
+                            {
+                                b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
+                            }
+                            else
+                            {
+                                b.Property(e => e.Identifier).UseSqlServerIdentityColumn();
+                            }
+                        });
             }
         }
 

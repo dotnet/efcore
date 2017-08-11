@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool UsePooling => true;
 
         private IDbContextPool _contextPool;
+
         private IDbContextPool ContextPool
             => _contextPool
                ?? (_contextPool = (IDbContextPool)ServiceProvider.GetRequiredService(typeof(DbContextPool<>).MakeGenericType(ContextType)));

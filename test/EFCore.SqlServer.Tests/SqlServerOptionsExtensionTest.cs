@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 optionsBuilder
-                    .UseSqlServer("Database=Maltesers",
+                    .UseSqlServer(
+                        "Database=Maltesers",
                         b =>
                             {
                                 if (_rowNumberPagingEnabled)

@@ -27,20 +27,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             switch (binaryExpression.NodeType)
             {
                 case ExpressionType.OrElse:
-                    {
-                        return Optimize(
-                            binaryExpression,
-                            equalityType: ExpressionType.Equal,
-                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
-                    }
+                {
+                    return Optimize(
+                        binaryExpression,
+                        equalityType: ExpressionType.Equal,
+                        inExpressionFactory: (c, vs) => new InExpression(c, vs));
+                }
 
                 case ExpressionType.AndAlso:
-                    {
-                        return Optimize(
-                            binaryExpression,
-                            equalityType: ExpressionType.NotEqual,
-                            inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
-                    }
+                {
+                    return Optimize(
+                        binaryExpression,
+                        equalityType: ExpressionType.NotEqual,
+                        inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
+                }
             }
 
             return base.VisitBinary(binaryExpression);
@@ -61,13 +61,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 = MatchEqualityExpression(
                     leftExpression,
                     equalityType,
-                    out Expression leftNonColumnExpression);
+                    out var leftNonColumnExpression);
 
             var rightColumnExpression
                 = MatchEqualityExpression(
                     rightExpression,
                     equalityType,
-                    out Expression rightNonColumnExpression);
+                    out var rightNonColumnExpression);
 
             if (leftColumnExpression == null)
             {
@@ -132,7 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 var isLeftConstantOrParameter = left is ConstantExpression || left is ParameterExpression;
 
-                if (isLeftConstantOrParameter || right is ConstantExpression || right is ParameterExpression)
+                if (isLeftConstantOrParameter
+                    || right is ConstantExpression
+                    || right is ParameterExpression)
                 {
                     nonColumnExpression = isLeftConstantOrParameter ? left : right;
 

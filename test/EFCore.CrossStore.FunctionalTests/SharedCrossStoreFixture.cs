@@ -19,8 +19,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (_model == null)
                 {
-                    var conventionSet = new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(
-                        new CoreTypeMapper(new CoreTypeMapperDependencies())))
+                    var conventionSet = new CoreConventionSetBuilder(
+                            new CoreConventionSetBuilderDependencies(
+                                new CoreTypeMapper(new CoreTypeMapperDependencies())))
                         .CreateConventionSet();
                     var modelBuilder = new ModelBuilder(conventionSet);
 

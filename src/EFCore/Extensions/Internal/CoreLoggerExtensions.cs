@@ -550,7 +550,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 p.Context.GetType().ShortDisplayName(),
                 p.Context.Database.ProviderName,
                 p.ContextOptions.BuildOptionsFragment());
-
         }
     }
 }

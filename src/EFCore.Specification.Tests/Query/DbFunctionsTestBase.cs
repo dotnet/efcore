@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected DbFunctionsTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [ConditionalFact]
         public virtual void String_Like_Literal()
         {

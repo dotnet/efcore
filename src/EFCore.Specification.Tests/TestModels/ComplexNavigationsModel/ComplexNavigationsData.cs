@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
         public IReadOnlyList<Level3> SplitLevelThrees { get; }
         public IReadOnlyList<Level4> SplitLevelFours { get; }
 
-        public abstract IQueryable<TEntity> Set<TEntity>() where TEntity : class;
+        public abstract IQueryable<TEntity> Set<TEntity>()
+            where TEntity : class;
 
         public ComplexNavigationsData()
         {
@@ -66,12 +67,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
             if (!tableSplitting)
             {
-                result.AddRange(new List<Level1>
-                {
-                    new Level1 { Id = 11, Name = "L1 11", Date = new DateTime(2009, 11, 11) },
-                    new Level1 { Id = 12, Name = "L1 12", Date = new DateTime(2008, 12, 12) },
-                    new Level1 { Id = 13, Name = "L1 13", Date = new DateTime(2007, 1, 1) }
-                });
+                result.AddRange(
+                    new List<Level1>
+                    {
+                        new Level1 { Id = 11, Name = "L1 11", Date = new DateTime(2009, 11, 11) },
+                        new Level1 { Id = 12, Name = "L1 12", Date = new DateTime(2008, 12, 12) },
+                        new Level1 { Id = 13, Name = "L1 13", Date = new DateTime(2007, 1, 1) }
+                    });
             }
 
             foreach (var l1 in result)
@@ -103,10 +105,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 
             if (!tableSplitting)
             {
-                result.AddRange(new List<Level2>
-                {
-                    new Level2 { Id = 11, Name = "L2 11", Date = new DateTime(2000, 1, 1) }
-                });
+                result.AddRange(
+                    new List<Level2>
+                    {
+                        new Level2 { Id = 11, Name = "L2 11", Date = new DateTime(2000, 1, 1) }
+                    });
             }
 
             foreach (var l2 in result)

@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [UsedImplicitly]
         private static async Task<TResult> GetResult<TResult>(
-            IAsyncEnumerable<ValueBuffer> valueBuffers, 
+            IAsyncEnumerable<ValueBuffer> valueBuffers,
             bool throwOnNullResult,
             CancellationToken cancellationToken)
         {
@@ -151,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (await enumerator.MoveNext(cancellationToken))
                 {
                     return enumerator.Current[0] == null
-                        ? !throwOnNullResult 
-                            ? default(TResult) 
+                        ? !throwOnNullResult
+                            ? default(TResult)
                             : throw new InvalidOperationException(RelationalStrings.NoElements)
                         : (TResult)enumerator.Current[0];
                 }

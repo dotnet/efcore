@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _annotations.Value[name] = annotation;
 
             return oldAnnotation != null
-                && oldAnnotation.Value.Equals(annotation.Value)
+                   && oldAnnotation.Value.Equals(annotation.Value)
                 ? annotation
                 : OnAnnotationSet(name, annotation, oldAnnotation);
         }

@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string TypeMapping = Prefix + "TypeMapping";
 
         /// <summary>
-        ///    The name for DbFunction annotations.
+        ///     The name for DbFunction annotations.
         /// </summary>
         public const string DbFunction = Prefix + "DbFunction";
     }

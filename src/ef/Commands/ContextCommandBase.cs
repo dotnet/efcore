@@ -8,14 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal class ContextCommandBase : ProjectCommandBase
     {
-        private CommandOption _context;
-
-        protected CommandOption Context
-            => _context;
+        protected CommandOption Context { get; private set; }
 
         public override void Configure(CommandLineApplication command)
         {
-            _context = command.Option("-c|--context <DBCONTEXT>", Resources.ContextDescription);
+            Context = command.Option("-c|--context <DBCONTEXT>", Resources.ContextDescription);
 
             base.Configure(command);
         }

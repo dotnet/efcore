@@ -73,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore
             int maxRetryCount,
             TimeSpan maxRetryDelay,
             [CanBeNull] ICollection<int> errorNumbersToAdd)
-            : base(context,
+            : base(
+                context,
                 maxRetryCount,
                 maxRetryDelay)
         {

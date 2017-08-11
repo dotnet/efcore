@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected FiltersInheritanceTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Can_use_of_type_animal()
         {

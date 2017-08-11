@@ -29,8 +29,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                    buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                ModelBuilder.Entity<TEntity>(
+                    entityTypeBuilder =>
+                        buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
                 return this;
             }
 
@@ -59,9 +60,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
-                => Wrap(EntityTypeBuilder.OwnsOne(
-                    navigationExpression,
-                    r => buildAction(new GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne(
+                        navigationExpression,
+                        r => buildAction(new GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)

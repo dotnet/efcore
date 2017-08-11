@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public ComplexNavigationsOwnedQueryInMemoryTest(ComplexNavigationsOwnedQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-           //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
     }
 }

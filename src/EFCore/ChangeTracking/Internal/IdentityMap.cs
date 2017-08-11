@@ -207,7 +207,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             CoreStrings.IdentityConflictSensitive(
                                 entry.EntityType.DisplayName(),
                                 entry.BuildCurrentValuesString(Key.Properties)));
-
                     }
 
                     throw new InvalidOperationException(

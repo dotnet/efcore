@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsGetValueExpression(
-            [NotNull] MethodCallExpression methodCallExpression, 
+            [NotNull] MethodCallExpression methodCallExpression,
             out QuerySourceReferenceExpression querySourceReferenceExpression)
         {
             querySourceReferenceExpression = null;

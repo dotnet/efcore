@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -14,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection
@@ -66,11 +66,12 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>()
-                .TryAddProviderSpecificServices(b => b
-                    .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
-                    .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
-                    .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
-                    .TryAddScoped<IMaterializerFactory, MaterializerFactory>());
+                .TryAddProviderSpecificServices(
+                    b => b
+                        .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
+                        .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
+                        .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
+                        .TryAddScoped<IMaterializerFactory, MaterializerFactory>());
 
             builder.TryAddCoreServices();
 

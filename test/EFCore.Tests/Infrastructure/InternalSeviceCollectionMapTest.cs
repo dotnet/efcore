@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         () => builder.TryAddCoreServices())
                     .Message);
         }
-        
+
         [Fact]
         public void Throws_if_attempt_is_made_to_register_dependency_as_instance()
         {
@@ -315,10 +315,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => new ServiceCollectionMap(new ServiceCollection().AddEntityFrameworkInMemoryDatabase());
 
         private static DbContext CreateContext(IServiceProvider serviceProvider)
-            => new DbContext(new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(serviceProvider)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options);
+            => new DbContext(
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .Options);
 
         private interface IFakeService
         {

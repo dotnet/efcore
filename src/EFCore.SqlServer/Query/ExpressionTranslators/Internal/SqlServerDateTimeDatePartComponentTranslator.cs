@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     returnType: memberExpression.Type,
                     arguments: new[]
                     {
-                        new SqlFragmentExpression(datePart), 
+                        new SqlFragmentExpression(datePart),
                         memberExpression.Expression
                     });
             }

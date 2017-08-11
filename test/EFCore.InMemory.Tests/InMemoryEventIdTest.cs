@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             InMemoryTestHelpers.Instance.TestEventLogging(
-                typeof(InMemoryEventId), 
-                typeof(InMemoryLoggerExtensions), 
+                typeof(InMemoryEventId),
+                typeof(InMemoryLoggerExtensions),
                 fakeFactories);
         }
     }

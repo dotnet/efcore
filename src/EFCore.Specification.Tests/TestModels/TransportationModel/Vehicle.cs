@@ -1,3 +1,6 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
     public class Vehicle
@@ -10,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         {
             var other = obj as Vehicle;
             return other != null
-                && Name == other.Name
-                && SeatingCapacity == other.SeatingCapacity
-                && Equals(Operator, other.Operator);
+                   && Name == other.Name
+                   && SeatingCapacity == other.SeatingCapacity
+                   && Equals(Operator, other.Operator);
         }
 
         public override int GetHashCode() => Name.GetHashCode();

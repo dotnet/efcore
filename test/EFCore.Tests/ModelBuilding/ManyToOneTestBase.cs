@@ -302,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != existingFk));
                 Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != existingFk));
                 AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
-                AssertEqual(new[] { "AnotherCustomerId", existingFk.Properties.Single().Name, fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
+                AssertEqual(
+                    new[] { "AnotherCustomerId", existingFk.Properties.Single().Name, fk.Properties.Single().Name, dependentKey.Properties.Single().Name },
                     dependentType.GetProperties().Select(p => p.Name));
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
@@ -1582,9 +1583,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(existingFk.DeclaringEntityType.FindIndex(existingFk.Properties).IsUnique);
                 Assert.False(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
 
-                Assert.Equal(CoreStrings.AmbiguousOneToOneRelationship(
-                    existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,
-                    existingFk.PrincipalEntityType.DisplayName() + "." + existingFk.PrincipalToDependent.Name),
+                Assert.Equal(
+                    CoreStrings.AmbiguousOneToOneRelationship(
+                        existingFk.DeclaringEntityType.DisplayName() + "." + existingFk.DependentToPrincipal.Name,
+                        existingFk.PrincipalEntityType.DisplayName() + "." + existingFk.PrincipalToDependent.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
             }
 
@@ -1639,7 +1641,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var dependentType = model.FindEntityType(typeof(Hob));
                 var principalType = model.FindEntityType(typeof(Nob));
 
-                Assert.Equal(CoreStrings.ConflictingRelationshipNavigation(
+                Assert.Equal(
+                    CoreStrings.ConflictingRelationshipNavigation(
                         principalType.DisplayName(),
                         nameof(Nob.Hobs),
                         dependentType.DisplayName(),
@@ -1648,7 +1651,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         nameof(Nob.Hob),
                         dependentType.DisplayName(),
                         nameof(Hob.Nob)),
-                    Assert.Throws<InvalidOperationException>(() =>
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
                             modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)).Message);
             }
 
@@ -1782,10 +1786,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ForeignKeyCannotBeOptional("{'NobId1', 'NobId2'}", "Hob"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder
-                        .Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)
-                        .HasForeignKey(e => new { e.NobId1, e.NobId2 })
-                        .IsRequired(false)).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                            .Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)
+                            .HasForeignKey(e => new { e.NobId1, e.NobId2 })
+                            .IsRequired(false)).Message);
             }
 
             [Fact]
@@ -1882,12 +1887,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // For NonGenericStringTest
                 modelBuilder.Entity<Beta>();
 
-                modelBuilder.Entity<Alpha>(b =>
-                    {
-                        b.HasMany<Beta>()
-                            .WithOne(e => e.FirstNav)
-                            .HasForeignKey("ShadowId");
-                    });
+                modelBuilder.Entity<Alpha>(
+                    b =>
+                        {
+                            b.HasMany<Beta>()
+                                .WithOne(e => e.FirstNav)
+                                .HasForeignKey("ShadowId");
+                        });
 
                 modelBuilder.Validate();
 

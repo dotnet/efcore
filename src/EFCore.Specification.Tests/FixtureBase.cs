@@ -15,9 +15,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => builder
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
-                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                .ConfigureWarnings(
+                    b => b.Default(WarningBehavior.Throw)
+                        .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

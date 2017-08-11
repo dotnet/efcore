@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Same(property, new ClrPropertySetterFactory().Create(property));
         }
-        
+
         private class FakeProperty : IProperty, IClrPropertySetter
         {
             public void SetClrValue(object instance, object value) => throw new NotImplementedException();
@@ -217,16 +217,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             // ReSharper disable once NotAccessedVariable
             _ = new ConcreteEntity1();
 
-            Assert.Throws<InvalidOperationException>(() =>
-                new ClrPropertySetterFactory().Create(property));
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    new ClrPropertySetterFactory().Create(property));
 
             entityType = new Model().AddEntityType(typeof(ConcreteEntity2));
             property = entityType.AddProperty(typeof(ConcreteEntity2).GetProperty(nameof(ConcreteEntity2.NoSetterProperty)));
             // ReSharper disable once RedundantAssignment
             _ = new ConcreteEntity2();
 
-            Assert.Throws<InvalidOperationException>(() =>
-                new ClrPropertySetterFactory().Create(property));
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    new ClrPropertySetterFactory().Create(property));
         }
 
         #region Fixture

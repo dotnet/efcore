@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected AsyncFromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual async Task From_sql_queryable_stored_procedure()
         {
@@ -31,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(10, actual.Length);
 
-                Assert.True(actual.Any(
-                    mep =>
-                        mep.TenMostExpensiveProducts == "Côte de Blaye"
-                        && mep.UnitPrice == 263.50m));
+                Assert.True(
+                    actual.Any(
+                        mep =>
+                            mep.TenMostExpensiveProducts == "Côte de Blaye"
+                            && mep.UnitPrice == 263.50m));
             }
         }
 
@@ -138,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .FromSql("SelectStoredProcedure")
                                 .Include(p => p.OrderDetails)
                                 .ToArrayAsync()
-                        )).Message);
+                    )).Message);
             }
         }
 

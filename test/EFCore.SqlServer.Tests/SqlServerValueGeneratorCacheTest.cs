@@ -338,12 +338,13 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.HasSequence("Heaven");
             modelBuilder.HasSequence("Rosie");
 
-            modelBuilder.Entity<Led>(b =>
-                {
-                    b.Property(e => e.Zeppelin).ForSqlServerUseSequenceHiLo("Heaven");
-                    b.Property(e => e.Stairway).ForSqlServerUseSequenceHiLo("Heaven");
-                    b.Property(e => e.WholeLotta).ForSqlServerUseSequenceHiLo("Rosie");
-                });
+            modelBuilder.Entity<Led>(
+                b =>
+                    {
+                        b.Property(e => e.Zeppelin).ForSqlServerUseSequenceHiLo("Heaven");
+                        b.Property(e => e.Stairway).ForSqlServerUseSequenceHiLo("Heaven");
+                        b.Property(e => e.WholeLotta).ForSqlServerUseSequenceHiLo("Rosie");
+                    });
 
             return modelBuilder.Model;
         }

@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         marked as <see cref="EntityState.Deleted" /> or <see cref="EntityState.Detached" />.
     ///     </para>
     ///     <para>
-    ///         Do not use this type directly for data binding. Instead call <see cref="ToObservableCollection" /> 
+    ///         Do not use this type directly for data binding. Instead call <see cref="ToObservableCollection" />
     ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
     ///     </para>
     /// </summary>
@@ -157,9 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             Add(entity);
                         }
                     }
-
                 }
-
             }
             finally
             {
@@ -217,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     _triggeringStateManagerChange = true;
 
                     OnCountPropertyChanging();
-                    
+
                     entry.SetEntityState(EntityState.Added);
 
                     _count++;
@@ -322,9 +320,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                     OnCountPropertyChanging();
 
-                    entry.SetEntityState(entry.EntityState == EntityState.Added
-                        ? EntityState.Detached
-                        : EntityState.Deleted);
+                    entry.SetEntityState(
+                        entry.EntityState == EntityState.Added
+                            ? EntityState.Detached
+                            : EntityState.Deleted);
 
                     _count--;
 
@@ -451,8 +450,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         directly to a <see cref="LocalView{TEntity}" />.
         ///     </para>
         ///     <para>
-        ///         This implementation always throws an exception as <see cref="LocalView{TEntity}" /> 
-        ///         does not maintain an ordered list with indexes. Instead call <see cref="ToObservableCollection" /> 
+        ///         This implementation always throws an exception as <see cref="LocalView{TEntity}" />
+        ///         does not maintain an ordered list with indexes. Instead call <see cref="ToObservableCollection" />
         ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
         ///     </para>
         /// </summary>

@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Creates a message fragment for logging typically containing information about 
+        ///     Creates a message fragment for logging typically containing information about
         ///     any useful non-default options that have been configured.
         /// </summary>
         public virtual string LogFragment

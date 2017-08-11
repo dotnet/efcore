@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.NotNull(services);
             Assert.Contains(
                 "warn: " +
-                    DesignStrings.InvokeBuildWebHostFailed(nameof(ProgramWithThrowingBuildWebHost), "This is a test."),
+                DesignStrings.InvokeBuildWebHostFailed(nameof(ProgramWithThrowingBuildWebHost), "This is a test."),
                 reporter.Messages);
         }
 

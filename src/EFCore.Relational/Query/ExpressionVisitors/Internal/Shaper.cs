@@ -84,8 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             _accessorExpression,
                             _accessorExpression.GetRootExpression<ParameterExpression>())
                     : Expression
-                        .Default(typeof(Func<,>)
-                            .MakeGenericType(Type, typeof(object)));
+                        .Default(
+                            typeof(Func<,>)
+                                .MakeGenericType(Type, typeof(object)));
             }
 
             return null;

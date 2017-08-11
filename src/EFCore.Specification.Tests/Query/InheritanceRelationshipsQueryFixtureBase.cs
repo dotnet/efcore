@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void Seed(InheritanceRelationshipsContext context)
             => InheritanceRelationshipsContext.Seed(context);
-        
+
         public override InheritanceRelationshipsContext CreateContext()
         {
             var context = base.CreateContext();

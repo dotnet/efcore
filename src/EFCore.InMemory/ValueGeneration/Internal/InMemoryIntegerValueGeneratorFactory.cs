@@ -65,8 +65,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
                 return new InMemoryIntegerValueGenerator<sbyte>();
             }
 
-            throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(
-                nameof(InMemoryIntegerValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+            throw new ArgumentException(
+                CoreStrings.InvalidValueGeneratorFactoryProperty(
+                    nameof(InMemoryIntegerValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }
 }

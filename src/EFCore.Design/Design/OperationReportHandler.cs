@@ -23,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         public virtual int Version => 0;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="OperationReportHandler"/> class.
+        ///     Initializes a new instance of the <see cref="OperationReportHandler" /> class.
         /// </summary>
-        /// <param name="errorHandler"> A callback for <see cref="OnError(string)"/>. </param>
-        /// <param name="warningHandler"> A callback for <see cref="OnWarning(string)"/>. </param>
-        /// <param name="informationHandler"> A callback for <see cref="OnInformation(string)"/>. </param>
-        /// <param name="verboseHandler"> A callback for <see cref="OnVerbose(string)"/>. </param>
+        /// <param name="errorHandler"> A callback for <see cref="OnError(string)" />. </param>
+        /// <param name="warningHandler"> A callback for <see cref="OnWarning(string)" />. </param>
+        /// <param name="informationHandler"> A callback for <see cref="OnInformation(string)" />. </param>
+        /// <param name="verboseHandler"> A callback for <see cref="OnVerbose(string)" />. </param>
         public OperationReportHandler(
             [CanBeNull] Action<string> errorHandler = null,
             [CanBeNull] Action<string> warningHandler = null,

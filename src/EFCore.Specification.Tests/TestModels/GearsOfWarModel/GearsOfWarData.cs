@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
@@ -37,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             WireUp2(LocustLeaders, Factions);
         }
 
-        public virtual IQueryable<TEntity> Set<TEntity>() where TEntity : class
+        public virtual IQueryable<TEntity> Set<TEntity>()
+            where TEntity : class
         {
             if (typeof(TEntity) == typeof(City))
             {
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             {
                 new Mission { Id = 1, CodeName = "Lightmass Offensive", Timeline = new DateTimeOffset(2, 1, 2, 10, 0, 0, new TimeSpan(1, 30, 0)) },
                 new Mission { Id = 2, CodeName = "Hollow Storm", Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)) },
-                new Mission { Id = 3, CodeName = "Halvo Bay defense",  Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()) }
+                new Mission { Id = 3, CodeName = "Halvo Bay defense", Timeline = new DateTimeOffset(10, 5, 3, 12, 0, 0, new TimeSpan()) }
             };
 
         public static IReadOnlyList<SquadMission> CreateSquadMissions()
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             {
                 new SquadMission(),
                 new SquadMission(),
-                new SquadMission(),
+                new SquadMission()
             };
 
         public static IReadOnlyList<City> CreateCities()
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Rank = MilitaryRank.Corporal,
                     CityOrBirthName = "Ephyra",
                     LeaderNickname = "Marcus",
-                    LeaderSquadId = 1,
+                    LeaderSquadId = 1
                 },
                 new Gear
                 {
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Rank = MilitaryRank.Private,
                     CityOrBirthName = "Hanover",
                     LeaderNickname = "Marcus",
-                    LeaderSquadId = 1,
+                    LeaderSquadId = 1
                 },
                 new Gear
                 {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Rank = MilitaryRank.Private,
                     CityOrBirthName = "Unknown",
                     LeaderNickname = "Baird",
-                    LeaderSquadId = 1,
+                    LeaderSquadId = 1
                 },
                 new Officer
                 {
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     Rank = MilitaryRank.Corporal,
                     CityOrBirthName = "Unknown",
                     LeaderNickname = "Marcus",
-                    LeaderSquadId = 1,
+                    LeaderSquadId = 1
                 },
                 new Officer
                 {
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 new LocustLeader { Name = "High Priest Skorge", ThreatLevel = 1 },
                 new LocustCommander { Name = "Queen Myrrah", ThreatLevel = 5 },
                 new LocustLeader { Name = "The Speaker", ThreatLevel = 3 },
-                new LocustCommander { Name = "Unknown", ThreatLevel = 0 },
+                new LocustCommander { Name = "Unknown", ThreatLevel = 0 }
             };
 
         public static IReadOnlyList<Faction> CreateFactions()
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             gears[2].CityOrBirthName = cities[3].Name;
             gears[2].Squad = squads[1];
             gears[2].Tag = tags[2];
-            gears[2].Weapons = new List<Weapon> { weapons[8], };
+            gears[2].Weapons = new List<Weapon> { weapons[8] };
 
             // baird
             gears[3].AssignedCity = cities[0];

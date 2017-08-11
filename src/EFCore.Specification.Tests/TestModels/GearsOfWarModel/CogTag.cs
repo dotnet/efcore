@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
     {
         // auto generated key (identity for now)
         public Guid Id { get; set; }
+
         public string Note { get; set; }
 
         public string GearNickName { get; set; }

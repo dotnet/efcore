@@ -33,8 +33,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             modelBuilder.HasDbFunction(methodInfo)
                 .HasTranslation(args => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
 
-            modelBuilder.HasDbFunction(typeof(NorthwindRelationalContext)
-                .GetRuntimeMethod(nameof(IsDate), new[] { typeof(string) }));
+            modelBuilder.HasDbFunction(
+                typeof(NorthwindRelationalContext)
+                    .GetRuntimeMethod(nameof(IsDate), new[] { typeof(string) }));
         }
 
         public enum ReportingPeriod

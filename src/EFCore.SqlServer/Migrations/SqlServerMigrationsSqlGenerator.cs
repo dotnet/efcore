@@ -1174,7 +1174,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
-                ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.SqlServer().IsMemoryOptimized) == true;
+               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.SqlServer().IsMemoryOptimized) == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;

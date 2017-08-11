@@ -115,9 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             var newCaller = visitor.Visit(Caller);
             var newAccessOperation = visitor.Visit(AccessOperation);
 
-            if (newCaller != Caller 
+            if (newCaller != Caller
                 || newAccessOperation != AccessOperation
-                    && (newAccessOperation as NullConditionalExpression)?.AccessOperation != AccessOperation)
+                && (newAccessOperation as NullConditionalExpression)?.AccessOperation != AccessOperation)
             {
                 return new NullConditionalExpression(newCaller, newAccessOperation);
             }

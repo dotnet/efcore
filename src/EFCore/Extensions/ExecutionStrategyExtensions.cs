@@ -27,11 +27,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            strategy.Execute(operation, operationScoped =>
-                {
-                    operationScoped();
-                    return true;
-                });
+            strategy.Execute(
+                operation, operationScoped =>
+                    {
+                        operationScoped();
+                        return true;
+                    });
         }
 
         /// <summary>
@@ -66,11 +67,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            strategy.Execute(new { operation, state }, s =>
-                {
-                    s.operation(s.state);
-                    return true;
-                });
+            strategy.Execute(
+                new { operation, state }, s =>
+                    {
+                        s.operation(s.state);
+                        return true;
+                    });
         }
 
         /// <summary>
@@ -89,11 +91,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(operation, async (operationScoped, ct) =>
-                {
-                    await operationScoped();
-                    return true;
-                }, default(CancellationToken));
+            return strategy.ExecuteAsync(
+                operation, async (operationScoped, ct) =>
+                    {
+                        await operationScoped();
+                        return true;
+                    }, default(CancellationToken));
         }
 
         /// <summary>
@@ -117,11 +120,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(operation, async (operationScoped, ct) =>
-                {
-                    await operationScoped(ct);
-                    return true;
-                }, cancellationToken);
+            return strategy.ExecuteAsync(
+                operation, async (operationScoped, ct) =>
+                    {
+                        await operationScoped(ct);
+                        return true;
+                    }, cancellationToken);
         }
 
         /// <summary>
@@ -196,11 +200,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(new { operation, state }, async (t, ct) =>
-                {
-                    await t.operation(t.state);
-                    return true;
-                }, default(CancellationToken));
+            return strategy.ExecuteAsync(
+                new { operation, state }, async (t, ct) =>
+                    {
+                        await t.operation(t.state);
+                        return true;
+                    }, default(CancellationToken));
         }
 
         /// <summary>
@@ -227,11 +232,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(new { operation, state }, async (t, ct) =>
-                {
-                    await t.operation(t.state, ct);
-                    return true;
-                }, cancellationToken);
+            return strategy.ExecuteAsync(
+                new { operation, state }, async (t, ct) =>
+                    {
+                        await t.operation(t.state, ct);
+                        return true;
+                    }, cancellationToken);
         }
 
         /// <summary>
@@ -522,11 +528,12 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] TState state,
             [NotNull] Action<TState> operation,
             [NotNull] Func<TState, bool> verifySucceeded)
-            => strategy.ExecuteInTransaction(state, s =>
-                {
-                    operation(s);
-                    return true;
-                }, verifySucceeded);
+            => strategy.ExecuteInTransaction(
+                state, s =>
+                    {
+                        operation(s);
+                        return true;
+                    }, verifySucceeded);
 
         /// <summary>
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
@@ -560,11 +567,12 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TState, CancellationToken, Task> operation,
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             CancellationToken cancellationToken = default(CancellationToken))
-            => strategy.ExecuteInTransactionAsync(state, async (s, ct) =>
-                {
-                    await operation(s, ct);
-                    return true;
-                }, verifySucceeded, cancellationToken);
+            => strategy.ExecuteInTransactionAsync(
+                state, async (s, ct) =>
+                    {
+                        await operation(s, ct);
+                        return true;
+                    }, verifySucceeded, cancellationToken);
 
         /// <summary>
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether

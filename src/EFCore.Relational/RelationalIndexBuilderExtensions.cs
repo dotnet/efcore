@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        /// Determines whether the specified index has filter expression.
+        ///     Determines whether the specified index has filter expression.
         /// </summary>
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
         /// <param name="sql"> The filter expression for the index. </param>

@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public interface IExpectedData
     {
-        IQueryable<TEntity> Set<TEntity>() where TEntity : class;
+        IQueryable<TEntity> Set<TEntity>()
+            where TEntity : class;
     }
 }

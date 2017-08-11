@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="match"> The expression to match. </param>
         /// <param name="pattern"> The pattern to match. </param>
-        /// <param name="escapeChar"> The escape character to use in <paramref name="pattern"/>. </param>
+        /// <param name="escapeChar"> The escape character to use in <paramref name="pattern" />. </param>
         public LikeExpression([NotNull] Expression match, [NotNull] Expression pattern, [CanBeNull] Expression escapeChar)
         {
             Check.NotNull(match, nameof(match));
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual Expression Pattern { get; }
 
         /// <summary>
-        ///     Gets the escape character to use in <see cref="Pattern"/>.
+        ///     Gets the escape character to use in <see cref="Pattern" />.
         /// </summary>
         /// <value>
         ///     The escape character to use. If null, no escape character is used.

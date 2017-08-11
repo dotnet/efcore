@@ -96,8 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.IncludeIgnoredWarning.ToString(),
                         CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
-                    Assert.Throws<InvalidOperationException>(()
-                        => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        ()
+                            => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
             }
         }
 
@@ -119,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public WarningAsErrorContext(
                 IList<string> sink = null,
-                EventId? toLog = null, 
+                EventId? toLog = null,
                 EventId? toThrow = null)
             {
                 _sink = sink;
@@ -132,21 +133,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseLoggerFactory(new FakeLoggerFactory(_sink))
-                    .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(c =>
-                    {
-                        if (_toThrow != null)
-                        {
-                            c.Throw(_toThrow.Value);
-                        }
-                        else if (_toLog != null)
-                        {
-                            c.Log(_toLog.Value);
-                        }
-                        else if (_sink == null)
-                        {
-                            c.Default(WarningBehavior.Throw);
-                        }
-                    });
+                    .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
+                        c =>
+                            {
+                                if (_toThrow != null)
+                                {
+                                    c.Throw(_toThrow.Value);
+                                }
+                                else if (_toLog != null)
+                                {
+                                    c.Log(_toLog.Value);
+                                }
+                                else if (_sink == null)
+                                {
+                                    c.Default(WarningBehavior.Throw);
+                                }
+                            });
         }
 
         private class WarningAsErrorEntity

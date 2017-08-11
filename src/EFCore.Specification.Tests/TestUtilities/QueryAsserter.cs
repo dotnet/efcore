@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var actual = actualQuery(SetExtractor.Set<TItem1>(context));
                 var expected = expectedQuery(ExpectedData.Set<TItem1>());
 
-                if (asserter == null && expected != null)
+                if (asserter == null
+                    && expected != null)
                 {
                     _entityAsserters.TryGetValue(expected.GetType(), out asserter);
                 }
@@ -88,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<IQueryable<TItem1>, IQueryable<TItem2>, object> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-        { 
+        {
             using (var context = _contextCreator())
             {
                 var actual = actualQuery(
@@ -99,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>());
 
-                if (asserter == null && expected != null)
+                if (asserter == null
+                    && expected != null)
                 {
                     _entityAsserters.TryGetValue(expected.GetType(), out asserter);
                 }
@@ -146,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem2>(),
                     ExpectedData.Set<TItem3>());
 
-                if (asserter == null && expected != null)
+                if (asserter == null
+                    && expected != null)
                 {
                     _entityAsserters.TryGetValue(expected.GetType(), out asserter);
                 }
@@ -188,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var actual = await actualQuery(SetExtractor.Set<TItem1>(context));
                 var expected = await expectedQuery(ExpectedData.Set<TItem1>());
 
-                if (asserter == null && expected != null)
+                if (asserter == null
+                    && expected != null)
                 {
                     _entityAsserters.TryGetValue(expected.GetType(), out asserter);
                 }
@@ -232,7 +236,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>());
 
-                if (asserter == null && expected != null)
+                if (asserter == null
+                    && expected != null)
                 {
                     _entityAsserters.TryGetValue(expected.GetType(), out asserter);
                 }
@@ -279,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem2>(),
                     ExpectedData.Set<TItem3>());
 
-                if (asserter == null && expected != null)
+                if (asserter == null
+                    && expected != null)
                 {
                     _entityAsserters.TryGetValue(expected.GetType(), out asserter);
                 }
@@ -330,12 +336,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
 
-                if (!assertOrder && elementSorter == null && expected.Length > 0 && expected[0] != null)
+                if (!assertOrder
+                    && elementSorter == null
+                    && expected.Length > 0
+                    && expected[0] != null)
                 {
                     _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                 }
 
-                if (elementAsserter == null && expected.Length > 0 && expected[0] != null)
+                if (elementAsserter == null
+                    && expected.Length > 0
+                    && expected[0] != null)
                 {
                     _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
                 }
@@ -384,15 +395,20 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         SetExtractor.Set<TItem2>(context)).ToArray();
 
                 var expected = expectedQuery(
-                    ExpectedData.Set<TItem1>(), 
+                    ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>()).ToArray();
 
-                if (!assertOrder && elementSorter == null && expected.Length > 0 && expected[0] != null)
+                if (!assertOrder
+                    && elementSorter == null
+                    && expected.Length > 0
+                    && expected[0] != null)
                 {
                     _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                 }
 
-                if (elementAsserter == null && expected.Length > 0 && expected[0] != null)
+                if (elementAsserter == null
+                    && expected.Length > 0
+                    && expected[0] != null)
                 {
                     _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
                 }
@@ -447,12 +463,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem2>(),
                     ExpectedData.Set<TItem3>()).ToArray();
 
-                if (!assertOrder && elementSorter == null && expected.Length > 0 && expected[0] != null)
+                if (!assertOrder
+                    && elementSorter == null
+                    && expected.Length > 0
+                    && expected[0] != null)
                 {
                     _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                 }
 
-                if (elementAsserter == null && expected.Length > 0 && expected[0] != null)
+                if (elementAsserter == null
+                    && expected.Length > 0
+                    && expected[0] != null)
                 {
                     _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
                 }
@@ -738,7 +759,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (!assertOrder)
                 {
-                    if (elementSorter == null && expected[0] != null)
+                    if (elementSorter == null
+                        && expected[0] != null)
                     {
                         _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                     }
@@ -801,7 +823,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (!assertOrder)
                 {
-                    if (elementSorter == null && expected[0] != null)
+                    if (elementSorter == null
+                        && expected[0] != null)
                     {
                         _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
                     }

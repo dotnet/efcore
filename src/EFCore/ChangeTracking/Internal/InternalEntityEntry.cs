@@ -217,12 +217,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (oldState == EntityState.Added)
                 {
                     foreach (var property in EntityType.GetProperties()
-                        .Where(p =>
-                            {
-                                var propertyIndex = p.GetIndex();
-                                return _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.TemporaryOrModified)
-                                       && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
-                            }))
+                        .Where(
+                            p =>
+                                {
+                                    var propertyIndex = p.GetIndex();
+                                    return _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.TemporaryOrModified)
+                                           && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
+                                }))
                     {
                         this[property] = property.ClrType.GetDefaultValue();
                     }
@@ -678,7 +679,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                return _storeGeneratedValues.TryGetValue(propertyBase, out object value)
+                return _storeGeneratedValues.TryGetValue(propertyBase, out var value)
                     ? value
                     : ReadPropertyValue(propertyBase);
             }
@@ -886,15 +887,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (fks.Any(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
             {
-                SetEntityState(EntityState == EntityState.Added
-                    ? EntityState.Detached
-                    : EntityState.Deleted);
+                SetEntityState(
+                    EntityState == EntityState.Added
+                        ? EntityState.Detached
+                        : EntityState.Deleted);
             }
             else if (fks.Any())
             {
-                throw new InvalidOperationException(CoreStrings.RelationshipConceptualNull(
-                    fks.First().PrincipalEntityType.DisplayName(),
-                    EntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.RelationshipConceptualNull(
+                        fks.First().PrincipalEntityType.DisplayName(),
+                        EntityType.DisplayName()));
             }
             else
             {
@@ -905,9 +908,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (property != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
-                        property.Name,
-                        EntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyConceptualNull(
+                            property.Name,
+                            EntityType.DisplayName()));
                 }
             }
         }
@@ -928,9 +932,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (fk.DeleteBehavior == DeleteBehavior.Cascade)
                         {
-                            dependent.SetEntityState(dependent.EntityState == EntityState.Added
-                                ? EntityState.Detached
-                                : EntityState.Deleted);
+                            dependent.SetEntityState(
+                                dependent.EntityState == EntityState.Added
+                                    ? EntityState.Detached
+                                    : EntityState.Deleted);
 
                             dependent.CascadeDelete();
                         }

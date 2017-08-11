@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter,
+        public CSharpUniqueNamer(
+            [NotNull] Func<T, string> nameGetter,
             [CanBeNull] IEnumerable<string> usedNames,
             [NotNull] ICSharpUtilities cSharpUtilities,
             [CanBeNull] Func<string, string> singularizePluralizer)

@@ -803,9 +803,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_create_new_connection_with_CommandTimeout()
         {
             using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension()
-                    .WithConnectionString("Database=FrodoLives")
-                    .WithCommandTimeout(99))))
+                CreateOptions(
+                    new FakeRelationalOptionsExtension()
+                        .WithConnectionString("Database=FrodoLives")
+                        .WithCommandTimeout(99))))
             {
                 Assert.Equal(99, connection.CommandTimeout);
             }
@@ -871,10 +872,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 RelationalStrings.ConnectionAndConnectionString,
-                Assert.Throws<InvalidOperationException>(() => new FakeRelationalConnection(
-                    CreateOptions(new FakeRelationalOptionsExtension()
-                        .WithConnection(new FakeDbConnection("Database=FrodoLives"))
-                        .WithConnectionString("Database=FrodoLives")))).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () => new FakeRelationalConnection(
+                        CreateOptions(
+                            new FakeRelationalOptionsExtension()
+                                .WithConnection(new FakeDbConnection("Database=FrodoLives"))
+                                .WithConnectionString("Database=FrodoLives")))).Message);
         }
 
         [Fact]

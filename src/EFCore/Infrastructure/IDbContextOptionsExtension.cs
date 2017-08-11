@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         void Validate([NotNull] IDbContextOptions options);
 
         /// <summary>
-        ///     Creates a message fragment for logging typically containing information about 
+        ///     Creates a message fragment for logging typically containing information about
         ///     any useful non-default options that have been configured.
         /// </summary>
         string LogFragment { get; }

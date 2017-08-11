@@ -229,9 +229,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TRelatedEntity, TProperty>> propertyExpression)
-            => new PropertyBuilder<TProperty>(RelatedEntityType.Builder.Property(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
-                ConfigurationSource.Explicit));
+            => new PropertyBuilder<TProperty>(
+                RelatedEntityType.Builder.Property(
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(),
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -270,8 +271,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TRelatedEntity, object>> indexExpression)
-            => new IndexBuilder(RelatedEntityType.Builder.HasIndex(
-                Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+            => new IndexBuilder(
+                RelatedEntityType.Builder.HasIndex(
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -385,7 +387,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 RelatedEntityType,
                 relatedEntityType,
                 navigation,
-                RelatedEntityType.Builder.Navigation(relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
+                RelatedEntityType.Builder.Navigation(
+                    relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: RelatedEntityType == relatedEntityType));
         }
 

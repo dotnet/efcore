@@ -485,11 +485,12 @@ namespace Microsoft.EntityFrameworkCore
             Action<EarlyLearningCenter, Category> action,
             EntityState initialState,
             EntityState expectedState)
-            => ChangeStateWithMethod((c, e) =>
-                {
-                    action(c, e);
-                    return Task.FromResult(0);
-                },
+            => ChangeStateWithMethod(
+                (c, e) =>
+                    {
+                        action(c, e);
+                        return Task.FromResult(0);
+                    },
                 initialState,
                 expectedState);
 
@@ -562,7 +563,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Equal(CoreStrings.DataBindingWithIListSource,
+                Assert.Equal(
+                    CoreStrings.DataBindingWithIListSource,
                     Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus).GetList()).Message);
             }
         }
@@ -572,7 +574,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Equal(CoreStrings.DataBindingWithIListSource,
+                Assert.Equal(
+                    CoreStrings.DataBindingWithIListSource,
                     Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Distinct()).GetList()).Message);
             }
         }
@@ -582,7 +585,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Equal(CoreStrings.DataBindingWithIListSource,
+                Assert.Equal(
+                    CoreStrings.DataBindingWithIListSource,
                     Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
             }
         }

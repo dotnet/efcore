@@ -393,8 +393,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<INavigation> FindDerivedNavigations(
             [NotNull] this IEntityType entityType, [NotNull] string navigationName)
-            => entityType.GetDerivedTypes().SelectMany(et =>
-                et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
+            => entityType.GetDerivedTypes().SelectMany(
+                et =>
+                    et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -409,8 +410,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<IProperty> FindDerivedProperties(
             [NotNull] this IEntityType entityType, [NotNull] string propertyName)
-            => entityType.GetDerivedTypes().SelectMany(et =>
-                et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
+            => entityType.GetDerivedTypes().SelectMany(
+                et =>
+                    et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -570,7 +572,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (entityType.FindNavigation(name) != null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.PropertyIsNavigation(name, entityType.DisplayName(),
+                        CoreStrings.PropertyIsNavigation(
+                            name, entityType.DisplayName(),
                             nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
                 }
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, entityType.DisplayName()));

@@ -222,10 +222,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(() =>
-                    context.Set<Customer>()
-                        .Where(c => c.City == city.Nested.InstanceFieldValue)
-                        .ToList());
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Set<Customer>()
+                            .Where(c => c.City == city.Nested.InstanceFieldValue)
+                            .ToList());
             }
         }
 
@@ -236,10 +237,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(() =>
-                    context.Set<Customer>()
-                        .Where(c => c.City == city.Throw().InstanceFieldValue)
-                        .ToList());
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Set<Customer>()
+                            .Where(c => c.City == city.Throw().InstanceFieldValue)
+                            .ToList());
             }
         }
 
@@ -388,7 +390,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_shadow_subquery_FirstOrDefault()
         {
-            AssertQuery<Employee>(es =>
+            AssertQuery<Employee>(
+                es =>
                     from e in es
                     where EF.Property<string>(e, "Title")
                           == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault(), "Title")
@@ -600,8 +603,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var myDatetime = new DateTime(1998, 5, 4);
             AssertQuery<Order>(
-                oc => oc.Where(o =>
-                    o.OrderDate.Value.Date == myDatetime),
+                oc => oc.Where(
+                    o =>
+                        o.OrderDate.Value.Date == myDatetime),
                 entryCount: 3);
         }
 
@@ -1088,7 +1092,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var flag = true;
 
-            AssertQuery<Product>(ps => ps
+            AssertQuery<Product>(
+                ps => ps
                     .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
                 entryCount: 51);
         }
@@ -1098,7 +1103,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var flag = false;
 
-            AssertQuery<Product>(ps => ps
+            AssertQuery<Product>(
+                ps => ps
                     .Where(p => flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20),
                 entryCount: 26);
         }
@@ -1109,9 +1115,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var flag = true;
             var productId = 15;
 
-            AssertQuery<Product>(ps => ps
-                    .Where(p => p.ProductID < productId
-                                && (flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20)),
+            AssertQuery<Product>(
+                ps => ps
+                    .Where(
+                        p => p.ProductID < productId
+                             && (flag ? p.UnitsInStock >= 20 : p.UnitsInStock < 20)),
                 entryCount: 9);
         }
 
@@ -1120,7 +1128,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var flag = true;
 
-            AssertQuery<Product>(ps => ps
+            AssertQuery<Product>(
+                ps => ps
                     // ReSharper disable once SimplifyConditionalTernaryExpression
                     .Where(p => flag ? p.UnitsInStock >= 20 : false),
                 entryCount: 51);
@@ -1131,9 +1140,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var flag = false;
 
-            AssertQuery<Product>(ps => ps
-                // ReSharper disable once SimplifyConditionalTernaryExpression
-                .Where(p => flag ? p.UnitsInStock >= 20 : false));
+            AssertQuery<Product>(
+                ps => ps
+                    // ReSharper disable once SimplifyConditionalTernaryExpression
+                    .Where(p => flag ? p.UnitsInStock >= 20 : false));
         }
 
         // TODO: Re-write entity ref equality to identity equality.
@@ -1231,9 +1241,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_chain()
         {
-            AssertQuery<Order>(order => order
-                .Where(o => o.CustomerID == "QUICK")
-                .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
+            AssertQuery<Order>(
+                order => order
+                    .Where(o => o.CustomerID == "QUICK")
+                    .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
         }
     }
 }

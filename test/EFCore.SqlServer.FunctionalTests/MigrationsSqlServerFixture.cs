@@ -11,8 +11,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public override MigrationsContext CreateContext()
         {
-            var options = AddOptions(new DbContextOptionsBuilder()
-                .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+            var options = AddOptions(
+                    new DbContextOptionsBuilder()
+                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
                 .UseInternalServiceProvider(ServiceProvider)
                 .Options;
             return new MigrationsContext(options);

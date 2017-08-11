@@ -303,7 +303,7 @@ FROM (
 ) AS [t1]
 ORDER BY [t1].[ContactTitle], [t1].[ContactName]");
         }
-        
+
         public override void OrderBy_skip_take_skip_take_skip()
         {
             base.OrderBy_skip_take_skip_take_skip();
@@ -790,7 +790,7 @@ FROM (
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-        
+
         protected override void ClearLog()
             => Fixture.TestSqlLoggerFactory.Clear();
     }

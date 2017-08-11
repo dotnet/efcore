@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class BufferedEntityShaper<TEntity> : EntityShaper, IShaper<TEntity>
         where TEntity : class
     {
-        private readonly Dictionary<Type, int []> _typeIndexMap;
+        private readonly Dictionary<Type, int[]> _typeIndexMap;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

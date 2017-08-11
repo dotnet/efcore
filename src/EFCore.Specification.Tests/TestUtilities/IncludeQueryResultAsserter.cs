@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected virtual void AssertObject(object expected, object actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
-            if (expected == null && actual == null)
+            if (expected == null
+                && actual == null)
             {
                 return;
             }
@@ -65,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected virtual void AssertElement<TElement>(TElement expected, TElement actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
-            if (expected == null && actual == null)
+            if (expected == null
+                && actual == null)
             {
                 return;
             }
@@ -85,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             var expectedTypeInfo = expectedType.GetTypeInfo();
-            if (expectedTypeInfo.IsGenericType && expectedTypeInfo.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
+            if (expectedTypeInfo.IsGenericType
+                && expectedTypeInfo.GetGenericTypeDefinition() == typeof(KeyValuePair<,>))
             {
                 var keyPropertyInfo = expectedTypeInfo.GetDeclaredProperty("Key");
                 var expectedKeyProperty = keyPropertyInfo.GetValue(expected);
@@ -107,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected virtual void AssertCollection<TElement>(IEnumerable<TElement> expected, IEnumerable<TElement> actual, IEnumerable<IExpectedInclude> expectedIncludes)
         {
-            if (expected == null && actual == null)
+            if (expected == null
+                && actual == null)
             {
                 return;
             }
@@ -125,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             Assert.Equal(expectedList.Count, actualList.Count);
 
-            for (int i = 0; i < expectedList.Count; i++)
+            for (var i = 0; i < expectedList.Count; i++)
             {
                 _fullPath.Push("[" + i + "]");
 

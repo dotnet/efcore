@@ -176,11 +176,12 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder =>
                     {
                         modelBuilder.Entity("Person");
-                        modelBuilder.Entity("SpecialPerson", b =>
-                            {
-                                b.HasBaseType("Person");
-                                b.Property<string>("Name").HasMaxLength(30);
-                            });
+                        modelBuilder.Entity(
+                            "SpecialPerson", b =>
+                                {
+                                    b.HasBaseType("Person");
+                                    b.Property<string>("Name").HasMaxLength(30);
+                                });
 
                         modelBuilder.Entity("MoreSpecialPerson").HasBaseType("SpecialPerson");
                     },
@@ -580,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore
                         { 1, "Daenerys Targaryen" },
                         { 2, "John Snow" },
                         { 3, "Arya Stark" },
-                        { 4, "Harry Strickland" },
+                        { 4, "Harry Strickland" }
                     }
                 });
 

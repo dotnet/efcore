@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class InMemoryDbContextOptionsExtensions
     {
         private const string LegacySharedName = "___Shared_Database___";
-		
+
         /// <summary>
         ///     Configures the context to connect to an in-memory database.
         ///     The in-memory database is shared anywhere the same name is used.
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(databaseName, nameof(databaseName));
 
             var extension = optionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
-                ?? new InMemoryOptionsExtension();
+                            ?? new InMemoryOptionsExtension();
 
             extension = extension.WithStoreName(databaseName);
 
@@ -73,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},Action{InMemoryDbContextOptionsBuilder})" /> instead.
+        ///     This method is obsolete. Use
+        ///     <see cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},Action{InMemoryDbContextOptionsBuilder})" /> instead.
         ///     The database will be shared anywhere the same name is used.
         /// </summary>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
@@ -89,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Configures the context to connect to the legacy shared in-memory database.
-        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,Action{InMemoryDbContextOptionsBuilder})" /> instead.
+        ///     This method is obsolete. Use <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,Action{InMemoryDbContextOptionsBuilder})" />
+        ///     instead.
         ///     The database will be shared anywhere the same name is used.
         /// </summary>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>

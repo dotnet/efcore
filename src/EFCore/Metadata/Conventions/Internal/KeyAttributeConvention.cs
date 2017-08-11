@@ -41,9 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (currentKey != null
                 && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)
             {
-                properties.AddRange(currentKey.Properties
-                    .Where(p => !p.Name.Equals(propertyBuilder.Metadata.Name, StringComparison.OrdinalIgnoreCase))
-                    .Select(p => p.Name));
+                properties.AddRange(
+                    currentKey.Properties
+                        .Where(p => !p.Name.Equals(propertyBuilder.Metadata.Name, StringComparison.OrdinalIgnoreCase))
+                        .Select(p => p.Name));
                 properties.Sort(StringComparer.OrdinalIgnoreCase);
                 entityTypeBuilder.RemoveKey(currentKey, ConfigurationSource.DataAnnotation);
             }

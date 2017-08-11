@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual AsyncEnumerable<TResult> Execute(
-                [NotNull] TContext context)
+            [NotNull] TContext context)
             => ExecuteCore(context);
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual AsyncEnumerable<TResult> Execute<TParam1>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1)
             => ExecuteCore(context, param1);
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2)
             => ExecuteCore(context, param1, param2);
 
         /// <summary>
@@ -55,10 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3)
             => ExecuteCore(context, param1, param2, param3);
 
         /// <summary>
@@ -66,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3, TParam4>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                [CanBeNull] TParam4 param4)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            [CanBeNull] TParam4 param4)
             => ExecuteCore(context, param1, param2, param3, param4);
 
         /// <summary>
@@ -78,12 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual AsyncEnumerable<TResult> Execute<TParam1, TParam2, TParam3, TParam4, TParam5>(
-                [NotNull] TContext context,
-                [CanBeNull] TParam1 param1,
-                [CanBeNull] TParam2 param2,
-                [CanBeNull] TParam3 param3,
-                [CanBeNull] TParam4 param4,
-                [CanBeNull] TParam5 param5)
+            [NotNull] TContext context,
+            [CanBeNull] TParam1 param1,
+            [CanBeNull] TParam2 param2,
+            [CanBeNull] TParam3 param3,
+            [CanBeNull] TParam4 param4,
+            [CanBeNull] TParam5 param5)
             => ExecuteCore(context, param1, param2, param3, param4, param5);
 
         /// <summary>

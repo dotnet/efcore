@@ -35,8 +35,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private static int CalculateSize(bool unicode, int? size)
             => unicode
-                ? size.HasValue && size < 4000 ? size.Value : 4000
-                : size.HasValue && size < 8000 ? size.Value : 8000;
+                ? size.HasValue && size < 4000
+                    ? size.Value
+                    : 4000
+                : size.HasValue && size < 8000
+                    ? size.Value
+                    : 8000;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

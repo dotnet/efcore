@@ -427,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(dependentState, context.Entry(chunky2).State);
             }
         }
-        
+
         [Theory]
         [InlineData(EntityState.Detached, EntityState.Modified)]
         [InlineData(EntityState.Added, EntityState.Modified)]

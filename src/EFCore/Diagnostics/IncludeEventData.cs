@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="includeResultOperator"> The <see cref="IncludeResultOperator"/>. </param>
+        /// <param name="includeResultOperator"> The <see cref="IncludeResultOperator" />. </param>
         public IncludeEventData(
             [NotNull] EventDefinitionBase eventDefinition,
             [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,

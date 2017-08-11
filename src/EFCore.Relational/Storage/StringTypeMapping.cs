@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
-        protected virtual string EscapeSqlLiteral([NotNull]string literal)
+        protected virtual string EscapeSqlLiteral([NotNull] string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
         /// <summary>

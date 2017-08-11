@@ -229,15 +229,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
             createTableOperations = createTableGraph.TopologicalSort(
                 (principalCreateTableOperation, createTableOperation, cyclicAddForeignKeyOperations) =>
-                {
-                    foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
                     {
-                        createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
-                        constraintOperations.Add(cyclicAddForeignKeyOperation);
-                    }
+                        foreach (var cyclicAddForeignKeyOperation in cyclicAddForeignKeyOperations)
+                        {
+                            createTableOperation.ForeignKeys.Remove(cyclicAddForeignKeyOperation);
+                            constraintOperations.Add(cyclicAddForeignKeyOperation);
+                        }
 
-                    return true;
-                }).ToList();
+                        return true;
+                    }).ToList();
 
             var dropTableGraph = new Multigraph<DropTableOperation, IForeignKey>();
             dropTableGraph.AddVertices(dropTableOperations);
@@ -258,11 +258,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var newDiffContext = new DiffContext(null, null);
             dropTableOperations = dropTableGraph.TopologicalSort(
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
-                {
-                    dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
+                    {
+                        dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
-                    return true;
-                }).ToList();
+                        return true;
+                    }).ToList();
 
             return dropForeignKeyOperations
                 .Concat(dropTableOperations)
@@ -299,10 +299,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Concat(Diff(GetSchemas(source), GetSchemas(target)))
                     .Concat(Diff(diffContext.GetSourceTables(), diffContext.GetTargetTables(), diffContext))
                     .Concat(Diff(source.Relational().Sequences, target.Relational().Sequences))
-                    .Concat(Diff(
-                        diffContext.GetSourceTables().SelectMany(s => s.GetForeignKeys()),
-                        diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()),
-                        diffContext))
+                    .Concat(
+                        Diff(
+                            diffContext.GetSourceTables().SelectMany(s => s.GetForeignKeys()),
+                            diffContext.GetTargetTables().SelectMany(t => t.GetForeignKeys()),
+                            diffContext))
                 : target != null
                     ? Add(target, diffContext)
                     : source != null
@@ -425,18 +426,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 source,
                 target,
                 (s, t) =>
-                {
-                    diffContext.AddMapping(s, t);
+                    {
+                        diffContext.AddMapping(s, t);
 
-                    return Diff(s, t, diffContext);
-                },
+                        return Diff(s, t, diffContext);
+                    },
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
                 (s, t) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
                 (s, t) => string.Equals(
-                    s.Schema,
-                    t.Schema,
-                    StringComparison.OrdinalIgnoreCase)
+                              s.Schema,
+                              t.Schema,
+                              StringComparison.OrdinalIgnoreCase)
                           && string.Equals(
                               s.Name,
                               t.Name,
@@ -569,11 +570,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 source,
                 target,
                 (s, t) =>
-                {
-                    diffContext.AddMapping(s, t);
+                    {
+                        diffContext.AddMapping(s, t);
 
-                    return Diff(s, t);
-                },
+                        return Diff(s, t);
+                    },
                 t => Add(t, diffContext),
                 Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
@@ -582,21 +583,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     t.Relational().ColumnName,
                     StringComparison.OrdinalIgnoreCase),
                 (s, t) =>
-                {
-                    var sAnnotations = s.Relational();
-                    var tAnnotations = t.Relational();
+                    {
+                        var sAnnotations = s.Relational();
+                        var tAnnotations = t.Relational();
 
-                    return s.ClrType == t.ClrType
-                           && s.IsConcurrencyToken == t.IsConcurrencyToken
-                           && s.ValueGenerated == t.ValueGenerated
-                           && s.GetMaxLength() == t.GetMaxLength()
-                           && s.IsColumnNullable() == t.IsColumnNullable()
-                           && s.IsUnicode() == t.IsUnicode()
-                           && sAnnotations.ColumnType == tAnnotations.ColumnType
-                           && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
-                           && Equals(sAnnotations.DefaultValue, tAnnotations.DefaultValue)
-                           && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
-                });
+                        return s.ClrType == t.ClrType
+                               && s.IsConcurrencyToken == t.IsConcurrencyToken
+                               && s.ValueGenerated == t.ValueGenerated
+                               && s.GetMaxLength() == t.GetMaxLength()
+                               && s.IsColumnNullable() == t.IsColumnNullable()
+                               && s.IsUnicode() == t.IsUnicode()
+                               && sAnnotations.ColumnType == tAnnotations.ColumnType
+                               && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
+                               && Equals(sAnnotations.DefaultValue, tAnnotations.DefaultValue)
+                               && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
+                    });
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -858,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t) => s.Relational().Name == t.Relational().Name
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && diffContext.FindTarget(diffContext.FindSourceTable(s.PrincipalEntityType))
-                            == diffContext.FindTargetTable(t.PrincipalEntityType)
+                          == diffContext.FindTargetTable(t.PrincipalEntityType)
                           && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
                           && s.DeleteBehavior == t.DeleteBehavior
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t)));
@@ -952,9 +953,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 t => Add(t, diffContext),
                 Remove,
                 (s, t) => string.Equals(
-                    s.Relational().Name,
-                    t.Relational().Name,
-                    StringComparison.OrdinalIgnoreCase)
+                              s.Relational().Name,
+                              t.Relational().Name,
+                              StringComparison.OrdinalIgnoreCase)
                           && s.IsUnique == t.IsUnique
                           && s.Relational().Filter == t.Relational().Filter
                           && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
@@ -1221,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected virtual string[] GetColumns([NotNull] IEnumerable<IProperty> properties)
             => properties.Select(p => p.Relational().ColumnName).ToArray();
 
-        /// <summary>.Relational(
+        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>

@@ -364,7 +364,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId MigrationsNotApplied = MakeMigrationsId(Id.MigrationsNotApplied);
 
-
         /// <summary>
         ///     <para>
         ///         Migrations weren't found.

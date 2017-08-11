@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            public override RelationalTypeMapping Clone(string storeType, int? size) 
+            public override RelationalTypeMapping Clone(string storeType, int? size)
                 => new NullTypeMapping(storeType);
         }
 

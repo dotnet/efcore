@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
             modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(Animal), nameof(Animal.Id),
                     nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
                 modelBuilder.Model);
         }
@@ -31,8 +33,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Cat>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().Property(c => c.Type);
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder.Model);
         }
 
         public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
@@ -49,8 +52,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().ToTable("Table");
             modelBuilder.Entity<B>().ToTable("Table");
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder.Model);
         }
 
         [Fact]

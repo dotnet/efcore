@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+
 // ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel

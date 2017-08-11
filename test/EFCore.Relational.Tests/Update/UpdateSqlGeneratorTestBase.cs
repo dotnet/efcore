@@ -289,9 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual string Schema => "dbo";
 
         protected virtual string SchemaPrefix =>
-            string.IsNullOrEmpty(Schema) ?
-                string.Empty :
-                OpenDelimeter + Schema + CloseDelimeter + ".";
+            string.IsNullOrEmpty(Schema) ? string.Empty : OpenDelimeter + Schema + CloseDelimeter + ".";
 
         protected ModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {

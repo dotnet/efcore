@@ -156,8 +156,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         if (inverse != null
                             && ReferenceEquals(oldTargetEntry[inverse], entry.Entity)
                             && (!oldTargetEntry.EntityType.HasDefiningNavigation()
-                                || entry.EntityType.GetNavigations().All(n =>
-                                    n == navigation || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
+                                || entry.EntityType.GetNavigations().All(
+                                    n =>
+                                        n == navigation || !ReferenceEquals(oldTargetEntry.Entity, entry[n]))))
                         {
                             SetNavigation(oldTargetEntry, inverse, null);
                         }
@@ -762,8 +763,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependentProperty = dependentProperties[i];
 
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(
-                    dependentEntry[dependentProperty],
-                    principalValue)
+                        dependentEntry[dependentProperty],
+                        principalValue)
                     || (dependentEntry.IsConceptualNull(dependentProperty)
                         && principalValue != null))
                 {

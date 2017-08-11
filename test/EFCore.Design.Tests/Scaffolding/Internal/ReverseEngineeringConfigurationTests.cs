@@ -39,16 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
                 Assert.Throws<ArgumentException>(
                         () => reverseEngineer.Generate(
-                                connectionString: "connectionstring",
-                                tables: Enumerable.Empty<string>(),
-                                schemas: Enumerable.Empty<string>(),
-                                projectPath: "FakeProjectPath",
-                                outputPath: null,
-                                rootNamespace: "FakeNamespace",
-                                contextName: contextName,
-                                useDataAnnotations: false,
-                                overwriteFiles: false,
-                                useDatabaseNames: false))
+                            connectionString: "connectionstring",
+                            tables: Enumerable.Empty<string>(),
+                            schemas: Enumerable.Empty<string>(),
+                            projectPath: "FakeProjectPath",
+                            outputPath: null,
+                            rootNamespace: "FakeNamespace",
+                            contextName: contextName,
+                            useDataAnnotations: false,
+                            overwriteFiles: false,
+                            useDatabaseNames: false))
                     .Message);
         }
 

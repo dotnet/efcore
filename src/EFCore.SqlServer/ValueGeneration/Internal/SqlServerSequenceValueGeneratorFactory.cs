@@ -94,8 +94,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
                 return new SqlServerSequenceHiLoValueGenerator<sbyte>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
-            throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(
-                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+            throw new ArgumentException(
+                CoreStrings.InvalidValueGeneratorFactoryProperty(
+                    nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }
 }

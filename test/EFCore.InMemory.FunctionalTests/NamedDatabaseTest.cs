@@ -212,7 +212,6 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     optionsBuilder.UseInMemoryDatabase(_databaseName);
                 }
-                    
             }
         }
 

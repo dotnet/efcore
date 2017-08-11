@@ -315,11 +315,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<BaseType>();
 
-            builder.Entity<Product>(b =>
-                {
-                    b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
-                    b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
-                });
+            builder.Entity<Product>(
+                b =>
+                    {
+                        b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
+                        b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
+                    });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
@@ -329,11 +330,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<OrderLineDetail>().HasKey(e => new { e.OrderId, e.ProductId });
 
-            builder.Entity<OrderLine>(b =>
-                {
-                    b.HasKey(e => new { e.OrderId, e.ProductId });
-                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
-                });
+            builder.Entity<OrderLine>(
+                b =>
+                    {
+                        b.HasKey(e => new { e.OrderId, e.ProductId });
+                        b.HasOne(e => e.Detail).WithOne(e => e.OrderLine).HasForeignKey<OrderLineDetail>(e => new { e.OrderId, e.ProductId });
+                    });
 
             if (generateTemporary)
             {

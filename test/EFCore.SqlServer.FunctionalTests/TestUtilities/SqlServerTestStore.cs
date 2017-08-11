@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static SqlServerTestStore GetNorthwindStore()
             => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
-            .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null);
+                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null);
 
         public static SqlServerTestStore GetOrCreate(string name)
             => new SqlServerTestStore(name);
@@ -143,17 +143,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             var script = File.ReadAllText(scriptPath);
-            Execute(Connection, command =>
-                {
-                    foreach (var batch in
-                        new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                            .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+            Execute(
+                Connection, command =>
                     {
-                        command.CommandText = batch;
-                        command.ExecuteNonQuery();
-                    }
-                    return 0;
-                }, "");
+                        foreach (var batch in
+                            new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                                .Split(script).Where(b => !string.IsNullOrEmpty(b)))
+                        {
+                            command.CommandText = batch;
+                            command.ExecuteNonQuery();
+                        }
+                        return 0;
+                    }, "");
         }
 
         private static void WaitForExists(SqlConnection connection)
@@ -228,7 +229,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var master = new SqlConnection(CreateConnectionString("master")))
             {
-                ExecuteNonQuery(master, string.Format(@"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+                ExecuteNonQuery(
+                    master, string.Format(
+                        @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
                                           BEGIN
                                               ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
                                               DROP DATABASE [{0}];
@@ -283,41 +286,44 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => Query<T>(Connection, sql, parameters);
 
         private static IEnumerable<T> Query<T>(DbConnection connection, string sql, object[] parameters = null)
-            => Execute(connection, command =>
-                {
-                    using (var dataReader = command.ExecuteReader())
+            => Execute(
+                connection, command =>
                     {
-                        var results = Enumerable.Empty<T>();
-                        while (dataReader.Read())
+                        using (var dataReader = command.ExecuteReader())
                         {
-                            results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
+                            var results = Enumerable.Empty<T>();
+                            while (dataReader.Read())
+                            {
+                                results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
+                            }
+                            return results;
                         }
-                        return results;
-                    }
-                }, sql, false, parameters);
+                    }, sql, false, parameters);
 
         public Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
             => QueryAsync<T>(Connection, sql, parameters);
 
         private static Task<IEnumerable<T>> QueryAsync<T>(DbConnection connection, string sql, object[] parameters = null)
-            => ExecuteAsync(connection, async command =>
-                {
-                    using (var dataReader = await command.ExecuteReaderAsync())
+            => ExecuteAsync(
+                connection, async command =>
                     {
-                        var results = Enumerable.Empty<T>();
-                        while (await dataReader.ReadAsync())
+                        using (var dataReader = await command.ExecuteReaderAsync())
                         {
-                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                            var results = Enumerable.Empty<T>();
+                            while (await dataReader.ReadAsync())
+                            {
+                                results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                            }
+                            return results;
                         }
-                        return results;
-                    }
-                }, sql, false, parameters);
+                    }, sql, false, parameters);
 
         private static T Execute<T>(
             DbConnection connection, Func<DbCommand, T> execute, string sql,
             bool useTransaction = false, object[] parameters = null)
             => TestEnvironment.IsSqlAzure
-                ? new TestSqlServerRetryingExecutionStrategy().Execute(new { connection, execute, sql, useTransaction, parameters },
+                ? new TestSqlServerRetryingExecutionStrategy().Execute(
+                    new { connection, execute, sql, useTransaction, parameters },
                     state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters))
                 : ExecuteCommand(connection, execute, sql, useTransaction, parameters);
 

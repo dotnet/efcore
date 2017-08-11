@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                    && method.Name != nameof(DbContext.OnConfiguring)
                    && method.Name != nameof(DbContext.OnModelCreating)
                    && !(type == typeof(IEntityTypeConfiguration<>)
-                   && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
+                        && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
         }
 
         [Fact]

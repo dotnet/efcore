@@ -25,7 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 var source = new BuildSource
                 {
                     TargetDir = directory.Path,
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                         using System;
                         namespace Microsoft.EntityFrameworkCore.Design.Internal
                         {
@@ -41,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                                     get { return 7; }
                                 }
                             }
-                        }" }
+                        }"
+                    }
                 };
                 var build = source.Build();
 

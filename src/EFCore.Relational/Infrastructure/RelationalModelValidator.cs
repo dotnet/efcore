@@ -68,13 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var dbFunction in model.Relational().DbFunctions)
             {
                 var methodInfo = dbFunction.MethodInfo;
-                
+
                 if (string.IsNullOrEmpty(dbFunction.FunctionName))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DbFunctionNameEmpty(methodInfo.DisplayName()));
                 }
-                
+
                 if (dbFunction.Translation == null)
                 {
                     if (!RelationalDependencies.TypeMapper.IsTypeMapped(methodInfo.ReturnType))
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateDefaultValuesOnKeys([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(
-                t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
+                    t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
                 .Where(p => p.Relational().DefaultValue != null))
             {
                 Dependencies.Logger.ModelValidationKeyDefaultValueWarning(property);
@@ -205,10 +205,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var entityType = typesToValidate.Dequeue();
                 var typesToValidateLeft = typesToValidate.Count;
-                var nextTypeSet = unvalidatedTypes.Where(unvalidatedType =>
-                    entityType.RootType() == unvalidatedType.RootType()
-                    || IsIdentifyingPrincipal(entityType, unvalidatedType)
-                    || IsIdentifyingPrincipal(unvalidatedType, entityType));
+                var nextTypeSet = unvalidatedTypes.Where(
+                    unvalidatedType =>
+                        entityType.RootType() == unvalidatedType.RootType()
+                        || IsIdentifyingPrincipal(entityType, unvalidatedType)
+                        || IsIdentifyingPrincipal(unvalidatedType, entityType));
                 foreach (var nextEntityType in nextTypeSet)
                 {
                     var key = entityType.FindPrimaryKey();
@@ -228,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                     typesToValidate.Enqueue(nextEntityType);
                 }
-                
+
                 foreach (var typeToValidate in typesToValidate.Skip(typesToValidateLeft))
                 {
                     unvalidatedTypes.Remove(typeToValidate);
@@ -239,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 return;
             }
-            
+
             foreach (var invalidEntityType in unvalidatedTypes)
             {
                 throw new InvalidOperationException(

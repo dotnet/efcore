@@ -155,13 +155,15 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Same(typeof(TindersticksIICd), typeof(TindersticksIICd).GetAnyProperty("VertrauenIII").DeclaringType);
             Assert.Throws<AmbiguousMatchException>(() => typeof(TindersticksIICd).GetAnyProperty("SleepySong"));
         }
-        
+
         public class TindersticksII
         {
             public virtual int ElDiabloEnElOjo { get; set; }
             internal virtual int ANightIn { get; set; }
+
             // ReSharper disable once UnusedMember.Local
             private int MySister { get; set; }
+
             protected virtual int TinyTears { get; set; }
             public virtual int SnowyInFSharpMinor { get; private set; }
             public virtual int Seaweed { private get; set; }
@@ -480,8 +482,12 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(new[] { "Microsoft.EntityFrameworkCore.Utilities", "System.Collections.Generic", "System" }, typeof(Outer<List<int>>).GetNamespaces().ToArray());
         }
 
-        private class Outer<T> { }
+        private class Outer<T>
+        {
+        }
 
-        private class A { }
+        private class A
+        {
+        }
     }
 }

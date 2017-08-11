@@ -363,8 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             foreach (var command in commands)
             {
                 builder
-                   .AppendLine(command.CommandText)
-                   .Append(_sqlGenerationHelper.BatchTerminator);
+                    .AppendLine(command.CommandText)
+                    .Append(_sqlGenerationHelper.BatchTerminator);
             }
 
             return builder.ToString();

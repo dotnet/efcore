@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValue = 0,
                     IsNullable = false,
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                        SqlServerValueGenerationStrategy.IdentityColumn
+                    SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Id",
                     ClrType = typeof(int),
                     [SqlServerAnnotationNames.ValueGenerationStrategy] =
-                        SqlServerValueGenerationStrategy.IdentityColumn
+                    SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -297,11 +297,12 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
-                    .Entity("Person", x =>
-                        {
-                            x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
-                            x.HasIndex("FullName");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+                                x.HasIndex("FullName");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -335,12 +336,13 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
-                    .Entity("Person", x =>
-                        {
-                            x.ForSqlServerIsMemoryOptimized();
-                            x.Property<string>("Name");
-                            x.HasIndex("Name");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.ForSqlServerIsMemoryOptimized();
+                                x.Property<string>("Name");
+                                x.HasIndex("Name");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -350,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore
                     OldColumn = new ColumnOperation
                     {
                         ClrType = typeof(string)
-                    },
+                    }
                 });
 
             Assert.Equal(
@@ -372,11 +374,12 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
-                    .Entity("Person", x =>
-                        {
-                            x.Property<string>("Name");
-                            x.HasIndex("Name");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.Property<string>("Name");
+                                x.HasIndex("Name");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -407,11 +410,12 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
-                    .Entity("Person", x =>
-                        {
-                            x.Property<string>("Name").HasMaxLength(30);
-                            x.HasIndex("Name");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.Property<string>("Name").HasMaxLength(30);
+                                x.HasIndex("Name");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -445,11 +449,12 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.0.0-rtm")
-                    .Entity("Person", x =>
-                        {
-                            x.Property<string>("Name").HasMaxLength(30);
-                            x.HasIndex("Name");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.Property<string>("Name").HasMaxLength(30);
+                                x.HasIndex("Name");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -477,12 +482,13 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
-                    .Entity("Person", x =>
-                        {
-                            x.Property<string>("FirstName").IsRequired();
-                            x.Property<string>("LastName");
-                            x.HasIndex("FirstName", "LastName");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.Property<string>("FirstName").IsRequired();
+                                x.Property<string>("LastName");
+                                x.HasIndex("FirstName", "LastName");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -515,11 +521,12 @@ namespace Microsoft.EntityFrameworkCore
             Generate(
                 modelBuilder => modelBuilder
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
-                    .Entity("Person", x =>
-                        {
-                            x.Property<string>("Name").HasMaxLength(30);
-                            x.HasIndex("Name");
-                        }),
+                    .Entity(
+                        "Person", x =>
+                            {
+                                x.Property<string>("Name").HasMaxLength(30);
+                                x.HasIndex("Name");
+                            }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -792,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "IX_People_Name",
                     Table = "People",
                     Columns = new[] { "Name" },
-                    IsUnique = true,
+                    IsUnique = true
                 });
 
             Assert.Equal(
@@ -811,7 +818,7 @@ namespace Microsoft.EntityFrameworkCore
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true,
-                    Filter = "[Name] IS NOT NULL AND <> ''",
+                    Filter = "[Name] IS NOT NULL AND <> ''"
                 });
 
             Assert.Equal(
@@ -903,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore
                 new DropIndexOperation
                 {
                     Name = "IX_People_Name",
-                    Table = "People",
+                    Table = "People"
                 });
 
             Assert.Equal(
@@ -1031,7 +1038,7 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlOperation
                 {
                     Sql = @"-- Multiline \" + EOL +
-                        "comment"
+                          "comment"
                 });
 
             Assert.Equal(
@@ -1046,8 +1053,8 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlOperation
                 {
                     Sql = "-- Ready set" + EOL +
-                        "GO" + EOL +
-                        "GO"
+                          "GO" + EOL +
+                          "GO"
                 });
 
             Assert.Equal(
@@ -1062,8 +1069,8 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlOperation
                 {
                     Sql = "-- I" + EOL +
-                        "go" + EOL +
-                        "-- Too"
+                          "go" + EOL +
+                          "-- Too"
                 });
 
             Assert.Equal(
@@ -1081,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlOperation
                 {
                     Sql = "-- I" + EOL +
-                        "GO 2"
+                          "GO 2"
                 });
 
             Assert.Equal(

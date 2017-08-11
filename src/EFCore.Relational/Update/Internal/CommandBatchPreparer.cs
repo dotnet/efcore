@@ -141,8 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
             }
 
-            return commands.Where(c => c.EntityState != EntityState.Modified
-                                       || c.ColumnModifications.Any(m => m.IsWrite));
+            return commands.Where(
+                c => c.EntityState != EntityState.Modified
+                     || c.ColumnModifications.Any(m => m.IsWrite));
         }
 
         private IReadOnlyDictionary<IEntityType, ModificationCommandIdentityMapFactory> GetTableSharingIdentityMapFactories(
@@ -279,8 +280,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             var keyValueIndexFactory = _keyValueIndexFactorySource.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
 
-                            var candidateKeyValueColumnModifications = columnModifications.Where(cm =>
-                                foreignKey.PrincipalKey.Properties.Contains(cm.Property) && (cm.IsWrite || cm.IsRead));
+                            var candidateKeyValueColumnModifications = columnModifications.Where(
+                                cm =>
+                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property) && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Any())
@@ -311,8 +313,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             var keyValueIndexFactory = _keyValueIndexFactorySource.GetKeyValueIndexFactory(foreignKey.PrincipalKey);
 
                             var currentForeignKey = foreignKey;
-                            var foreignKeyValueColumnModifications = columnModifications.Where(cm =>
-                                currentForeignKey.Properties.Contains(cm.Property) && (cm.IsWrite || cm.IsRead));
+                            var foreignKeyValueColumnModifications = columnModifications.Where(
+                                cm =>
+                                    currentForeignKey.Properties.Contains(cm.Property) && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Deleted
                                 || foreignKeyValueColumnModifications.Any())
@@ -412,9 +415,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique))
                         {
                             var indexColumnModifications =
-                                command.ColumnModifications.Where(cm =>
-                                    index.Properties.Contains(cm.Property)
-                                    && (cm.IsWrite || cm.IsRead));
+                                command.ColumnModifications.Where(
+                                    cm =>
+                                        index.Properties.Contains(cm.Property)
+                                        && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Deleted
                                 || indexColumnModifications.Any())
@@ -451,9 +455,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         foreach (var index in entry.EntityType.GetIndexes().Where(i => i.IsUnique))
                         {
                             var indexColumnModifications =
-                                command.ColumnModifications.Where(cm =>
-                                    index.Properties.Contains(cm.Property)
-                                    && cm.IsWrite);
+                                command.ColumnModifications.Where(
+                                    cm =>
+                                        index.Properties.Contains(cm.Property)
+                                        && cm.IsWrite);
 
                             if (command.EntityState == EntityState.Added
                                 || indexColumnModifications.Any())

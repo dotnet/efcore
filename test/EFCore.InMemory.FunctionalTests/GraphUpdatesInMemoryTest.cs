@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
             base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
             Fixture.Reseed();
         }
-        
+
         public class GraphUpdatesInMemoryFixture : GraphUpdatesFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

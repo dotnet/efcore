@@ -704,7 +704,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(baseEntity, derivedEntity.BaseType);
                 Assert.NotNull(baseEntity.FindPrimaryKey());
 
-
                 var modelBuilder2 = CreateModelBuilder();
                 var derivedEntity2 = modelBuilder2.Entity<StringIdDerived>().Metadata;
                 var baseEntity2 = modelBuilder2.Entity<StringIdBase>().Metadata;
@@ -736,9 +735,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public Q F { get; set; }
             }
 
-            public class P : PBase { }
+            public class P : PBase
+            {
+            }
 
-            public class Q : PBase { }
+            public class Q : PBase
+            {
+            }
 
             public abstract class PBase
             {

@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] string name,
             // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-            => Navigation(PropertyIdentity.Create(name), configurationSource,  pointsToPrincipal: false);
+            => Navigation(PropertyIdentity.Create(name), configurationSource, pointsToPrincipal: false);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -364,8 +364,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _isUnique = unique;
             UpdateIsUniqueConfigurationSource(configurationSource);
 
-            return isChanging 
-                ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata 
+            return isChanging
+                ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata
                 : this;
         }
 
@@ -714,8 +714,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(CoreStrings.ForeignKeyCannotBeOptional(
-                        Property.Format(properties), entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.ForeignKeyCannotBeOptional(
+                            Property.Format(properties), entityType.DisplayName()));
                 }
                 return false;
             }

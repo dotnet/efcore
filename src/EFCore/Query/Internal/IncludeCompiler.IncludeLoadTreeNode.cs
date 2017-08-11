@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     blockExpressions.Add(
                         targetEntityExpression
                             .MakeMemberAccess(Navigation.GetMemberInfo(false, true))
-                                .CreateAssignExpression(relatedEntityExpression));
+                            .CreateAssignExpression(relatedEntityExpression));
                 }
 
                 var inverseNavigation = Navigation.FindInverse();
@@ -268,8 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     relatedArrayAccessExpression,
                                     targetEntityExpression)
                                 : relatedEntityExpression.MakeMemberAccess(
-                                    inverseNavigation.GetMemberInfo(forConstruction: false, forSet: true))
-                                        .CreateAssignExpression(targetEntityExpression));
+                                        inverseNavigation.GetMemberInfo(forConstruction: false, forSet: true))
+                                    .CreateAssignExpression(targetEntityExpression));
                     }
                 }
 

@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    /// Base class for helpers that can handle setting annotations when used with
-    /// conventions that may or may not be able to override an annotation that has 
-    /// already been set.
+    ///     Base class for helpers that can handle setting annotations when used with
+    ///     conventions that may or may not be able to override an annotation that has
+    ///     already been set.
     /// </summary>
     public class RelationalAnnotations
     {
         /// <summary>
-        /// Constructs a new helper for the given <see cref="IAnnotatable"/> metadata item.
+        ///     Constructs a new helper for the given <see cref="IAnnotatable" /> metadata item.
         /// </summary>
         /// <param name="metadata"> The metadata item to be annotated. </param>
         public RelationalAnnotations([NotNull] IAnnotatable metadata)
@@ -26,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        /// The metadata item that is being annotated.
+        ///     The metadata item that is being annotated.
         /// </summary>
         public virtual IAnnotatable Metadata { get; }
 
         /// <summary>
-        /// Attempts to set an annotation with the given name to the given value and
-        /// returns whether or not this was successful.
+        ///     Attempts to set an annotation with the given name to the given value and
+        ///     returns whether or not this was successful.
         /// </summary>
         /// <param name="annotationName"> The name of the annotation to set. </param>
         /// <param name="value"> The value to set. </param>
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        /// Checks whether or not the annotation with the given name can be set to the given value.
+        ///     Checks whether or not the annotation with the given name can be set to the given value.
         /// </summary>
         /// <param name="relationalAnnotationName"> The name of the annotation to set. </param>
         /// <param name="value"> The value to set. </param>

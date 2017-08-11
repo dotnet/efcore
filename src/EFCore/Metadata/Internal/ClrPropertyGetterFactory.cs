@@ -32,9 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
-            return new ClrPropertyGetter<TEntity, TValue>(Expression.Lambda<Func<TEntity, TValue>>(
-                Expression.MakeMemberAccess(entityParameter, memberInfo),
-                entityParameter).Compile());
+            return new ClrPropertyGetter<TEntity, TValue>(
+                Expression.Lambda<Func<TEntity, TValue>>(
+                    Expression.MakeMemberAccess(entityParameter, memberInfo),
+                    entityParameter).Compile());
         }
     }
 }

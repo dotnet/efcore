@@ -70,12 +70,13 @@ FROM [dbo].[Orders] AS [o]",
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder.Entity<MappedCustomer>(e =>
-                    {
-                        e.Property(c => c.CompanyName2).Metadata.SqlServer().ColumnName = "CompanyName";
-                        e.Metadata.SqlServer().TableName = "Customers";
-                        e.Metadata.SqlServer().Schema = "dbo";
-                    });
+                modelBuilder.Entity<MappedCustomer>(
+                    e =>
+                        {
+                            e.Property(c => c.CompanyName2).Metadata.SqlServer().ColumnName = "CompanyName";
+                            e.Metadata.SqlServer().TableName = "Customers";
+                            e.Metadata.SqlServer().Schema = "dbo";
+                        });
             }
         }
     }

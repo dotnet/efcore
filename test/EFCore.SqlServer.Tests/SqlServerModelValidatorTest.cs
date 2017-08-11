@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(nameof(Animal), nameof(Animal.Id),
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(Animal), nameof(Animal.Id),
                     nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "int", "nvarchar(max)"),
                 modelBuilder.Model);
         }
@@ -32,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Cat>().Property(c => c.Type);
             modelBuilder.Entity<Dog>().Property(c => c.Type);
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "nvarchar(max)", "int"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "nvarchar(max)", "int"), modelBuilder.Model);
         }
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
@@ -45,8 +48,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().ToTable("Table");
             modelBuilder.Entity<B>().ToTable("Table");
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "int"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "int"), modelBuilder.Model);
         }
 
         public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
@@ -56,8 +60,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasMaxLength(30);
             modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).HasMaxLength(15);
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "nvarchar(30)", "nvarchar(15)"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "nvarchar(30)", "nvarchar(15)"), modelBuilder.Model);
         }
 
         [Fact]
@@ -68,8 +73,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).IsUnicode(false);
             modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).IsUnicode();
 
-            VerifyError(RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
         }
 
         [Fact]
@@ -113,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
             modelBuilder.Entity<B>().ToTable("Table");
 
-            VerifyError(SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(A), nameof(B), nameof(A), nameof(B)),
+            VerifyError(
+                SqlServerStrings.IncompatibleTableMemoryOptimizedMismatch("Table", nameof(A), nameof(B), nameof(A), nameof(B)),
                 modelBuilder.Model);
         }
 

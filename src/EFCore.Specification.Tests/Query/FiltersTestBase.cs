@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _context = CreateContext();
         }
-        
+
         protected TFixture Fixture { get; }
-        
+
         [ConditionalFact]
         public virtual void Count_query()
         {

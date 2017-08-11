@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
+
 // ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable InconsistentNaming
@@ -72,26 +73,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             for (var i = 0; i < threadCount; i++)
             {
-                tasks[i] = Task.Run(() =>
-                    {
-                        using (var context = CreateContext())
+                tasks[i] = Task.Run(
+                    () =>
                         {
-                            using ((from c in context.Customers
-                                    where c.City == "London"
-                                    orderby c.CustomerID
-                                    select (from o1 in context.Orders
-                                            where o1.CustomerID == c.CustomerID
-                                                  && o1.OrderDate.Value.Year == 1997
-                                            orderby o1.OrderID
-                                            select (from o2 in context.Orders
-                                                    where o1.CustomerID == c.CustomerID
-                                                    orderby o2.OrderID
-                                                    select o1.OrderID)))
-                                .GetEnumerator())
+                            using (var context = CreateContext())
                             {
+                                using ((from c in context.Customers
+                                        where c.City == "London"
+                                        orderby c.CustomerID
+                                        select (from o1 in context.Orders
+                                                where o1.CustomerID == c.CustomerID
+                                                      && o1.OrderDate.Value.Year == 1997
+                                                orderby o1.OrderID
+                                                select (from o2 in context.Orders
+                                                        where o1.CustomerID == c.CustomerID
+                                                        orderby o2.OrderID
+                                                        select o1.OrderID)))
+                                    .GetEnumerator())
+                                {
+                                }
                             }
-                        }
-                    });
+                        });
             }
 
             await Task.WhenAll(tasks);

@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore
                 return await Task.FromResult(true);
             }
 
-            public override ISqlServerConnection CreateMasterConnection() 
+            public override ISqlServerConnection CreateMasterConnection()
                 => new FakeSqlServerConnection(_options, Dependencies);
         }
 

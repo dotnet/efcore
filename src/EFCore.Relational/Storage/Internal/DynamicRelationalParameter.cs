@@ -57,8 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             if (value == null)
             {
                 command.Parameters
-                    .Add(_typeMapper.GetMappingForValue(null)
-                        .CreateParameter(command, Name, null));
+                    .Add(
+                        _typeMapper.GetMappingForValue(null)
+                            .CreateParameter(command, Name, null));
 
                 return;
             }
@@ -75,8 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var type = value.GetType();
 
             command.Parameters
-                .Add(_typeMapper.GetMapping(type)
-                    .CreateParameter(command, Name, value, type.IsNullableType()));
+                .Add(
+                    _typeMapper.GetMapping(type)
+                        .CreateParameter(command, Name, value, type.IsNullableType()));
         }
     }
 }

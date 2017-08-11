@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (internalEntry.EntityType.FindProperty(name) != null)
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.NavigationIsProperty(name, internalEntry.EntityType.DisplayName(),
+                        CoreStrings.NavigationIsProperty(
+                            name, internalEntry.EntityType.DisplayName(),
                             nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)));
                 }
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
@@ -63,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 && !navigation.IsCollection())
             {
                 throw new InvalidOperationException(
-                    CoreStrings.CollectionIsReference(name, internalEntry.EntityType.DisplayName(),
+                    CoreStrings.CollectionIsReference(
+                        name, internalEntry.EntityType.DisplayName(),
                         nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)));
             }
 
@@ -71,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 && navigation.IsCollection())
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ReferenceIsCollection(name, internalEntry.EntityType.DisplayName(),
+                    CoreStrings.ReferenceIsCollection(
+                        name, internalEntry.EntityType.DisplayName(),
                         nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
             }
 

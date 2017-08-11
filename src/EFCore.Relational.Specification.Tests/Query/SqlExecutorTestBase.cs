@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected SqlExecutorTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Executes_stored_procedure()
         {

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
             var property = new Property("A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             var queryModel = new QueryModel(new MainFromClause("A", typeof(object), Expression.Constant("A")), new SelectClause(Expression.Constant("A")));
-            var includeResultOperator = new IncludeResultOperator(new [] { "Foo" }, Expression.Constant("A"));
+            var includeResultOperator = new IncludeResultOperator(new[] { "Foo" }, Expression.Constant("A"));
             var options = new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options;
 
             var fakeFactories = new Dictionary<Type, Func<object>>
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IPropertyBase), () => property },
                 { typeof(IServiceProvider), () => new FakeServiceProvider() },
                 { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
-                { typeof(IReadOnlyCollection<IPropertyBase>), () => new [] { property } },
+                { typeof(IReadOnlyCollection<IPropertyBase>), () => new[] { property } },
                 { typeof(IncludeResultOperator), () => includeResultOperator }
             };
 

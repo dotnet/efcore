@@ -415,11 +415,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public static implicit operator ListElement(int i) => new ListElement(i);
 
             public int Int { get; }
-            public int? NullableInt { get; set; }
-            public string String { get; set; }
-            public NotXNode XNode { get; set; }
-            public Random Random { get; set; }
-            public byte[] ByteArray { get; set; }
+            public int? NullableInt { get; }
+            public string String { get; }
+            public NotXNode XNode { get; }
+            public Random Random { get; }
+            public byte[] ByteArray { get; }
 
             public static PropertyDescriptor Property(string name)
                 => TypeDescriptor.GetProperties(typeof(ListElement))[name];

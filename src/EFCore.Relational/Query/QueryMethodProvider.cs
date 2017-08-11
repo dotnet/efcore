@@ -129,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (enumerator.MoveNext())
                 {
                     return enumerator.Current[0] == null
-                        ? !throwOnNullResult 
-                            ? default(TResult) 
+                        ? !throwOnNullResult
+                            ? default(TResult)
                             : throw new InvalidOperationException(RelationalStrings.NoElements)
                         : (TResult)enumerator.Current[0];
                 }

@@ -32,8 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>().Where(p => p.ProductID != 1).ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>().Where(p => p.ProductID != 1).ToList()).Message);
             }
         }
 
@@ -44,8 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueNullReference(typeof(int)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>().Where(p => p.ProductID != 2).ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>().Where(p => p.ProductID != 2).ToList()).Message);
             }
         }
 
@@ -56,8 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>().Where(p => p.ProductID != 3).ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>().Where(p => p.ProductID != 3).ToList()).Message);
             }
         }
 
@@ -68,10 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>().Where(p => p.ProductID != 4)
-                            .Select(p => p.ProductName)
-                            .ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>().Where(p => p.ProductID != 4)
+                                .Select(p => p.ProductName)
+                                .ToList()).Message);
             }
         }
 
@@ -82,11 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .Where(p => p.ProductID != 5)
-                            .AsNoTracking()
-                            .ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .Where(p => p.ProductID != 5)
+                                .AsNoTracking()
+                                .ToList()).Message);
             }
         }
 
@@ -97,8 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>().Where(p => p.ProductID != 6).ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>().Where(p => p.ProductID != 6).ToList()).Message);
             }
         }
 
@@ -109,11 +115,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .Where(p => p.ProductID != 7)
-                            .Select(p => p.Discontinued)
-                            .ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .Where(p => p.ProductID != 7)
+                                .Select(p => p.Discontinued)
+                                .ToList()).Message);
             }
         }
 
@@ -124,11 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueNullReference(typeof(int)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .Where(p => p.ProductID != 8)
-                            .AsNoTracking()
-                            .ToList()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .Where(p => p.ProductID != 8)
+                                .AsNoTracking()
+                                .ToList()).Message);
             }
         }
 

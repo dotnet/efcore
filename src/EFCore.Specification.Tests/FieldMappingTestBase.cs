@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : FieldMappingTestBase<TFixture>.FieldMappingFixtureBase, new()
     {
         protected FieldMappingTestBase(TFixture fixture) => Fixture = fixture;
-        
+
         protected TFixture Fixture { get; }
 
         [Fact]
@@ -460,7 +460,8 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void Update<TBlog>(string navigation)
             where TBlog : class, IBlogAccesor, new()
         {
-            TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction,
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext, UseTransaction,
                 context =>
                     {
                         var blogs = context.Set<TBlog>().ToList();
@@ -1283,7 +1284,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected DbContext CreateContext() => Fixture.CreateContext();
-        
+
         public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "FieldMapping";
@@ -1296,106 +1297,118 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<PostFull>();
                 modelBuilder.Entity<BlogFull>();
 
-                modelBuilder.Entity<PostFullExplicit>(b =>
-                    {
-                        b.Property(e => e.Id).HasField("_myid");
-                        b.Property(e => e.Title).HasField("_mytitle");
-                        b.Property(e => e.BlogId).HasField("_myblogId");
-                    });
+                modelBuilder.Entity<PostFullExplicit>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).HasField("_myid");
+                            b.Property(e => e.Title).HasField("_mytitle");
+                            b.Property(e => e.BlogId).HasField("_myblogId");
+                        });
 
-                modelBuilder.Entity<BlogFullExplicit>(b =>
-                    {
-                        b.Property(e => e.Id).HasField("_myid");
-                        b.Property(e => e.Title).HasField("_mytitle");
-                        b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                    });
+                modelBuilder.Entity<BlogFullExplicit>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).HasField("_myid");
+                            b.Property(e => e.Title).HasField("_mytitle");
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                        });
 
                 modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                 modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {
-                    modelBuilder.Entity<PostReadOnly>(b =>
-                        {
-                            b.HasKey(e => e.Id);
-                            b.Property(e => e.Title);
-                            b.Property(e => e.BlogId);
-                        });
+                    modelBuilder.Entity<PostReadOnly>(
+                        b =>
+                            {
+                                b.HasKey(e => e.Id);
+                                b.Property(e => e.Title);
+                                b.Property(e => e.BlogId);
+                            });
 
-                    modelBuilder.Entity<BlogReadOnly>(b =>
-                        {
-                            b.HasKey(e => e.Id);
-                            b.Property(e => e.Title);
-                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                        });
+                    modelBuilder.Entity<BlogReadOnly>(
+                        b =>
+                            {
+                                b.HasKey(e => e.Id);
+                                b.Property(e => e.Title);
+                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                            });
 
-                    modelBuilder.Entity<PostReadOnlyExplicit>(b =>
-                        {
-                            b.HasKey(e => e.Id);
-                            b.Property(e => e.Id).HasField("_myid");
-                            b.Property(e => e.Title).HasField("_mytitle");
-                            b.Property(e => e.BlogId).HasField("_myblogId");
-                        });
+                    modelBuilder.Entity<PostReadOnlyExplicit>(
+                        b =>
+                            {
+                                b.HasKey(e => e.Id);
+                                b.Property(e => e.Id).HasField("_myid");
+                                b.Property(e => e.Title).HasField("_mytitle");
+                                b.Property(e => e.BlogId).HasField("_myblogId");
+                            });
 
-                    modelBuilder.Entity<BlogReadOnlyExplicit>(b =>
-                        {
-                            b.HasKey(e => e.Id);
-                            b.Property(e => e.Id).HasField("_myid");
-                            b.Property(e => e.Title).HasField("_mytitle");
-                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                        });
+                    modelBuilder.Entity<BlogReadOnlyExplicit>(
+                        b =>
+                            {
+                                b.HasKey(e => e.Id);
+                                b.Property(e => e.Id).HasField("_myid");
+                                b.Property(e => e.Title).HasField("_mytitle");
+                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                            });
 
                     modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                     modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
-                    modelBuilder.Entity<PostWriteOnly>(b =>
-                        {
-                            b.HasKey("Id");
-                            b.Property("Title");
-                            b.Property("BlogId");
-                        });
+                    modelBuilder.Entity<PostWriteOnly>(
+                        b =>
+                            {
+                                b.HasKey("Id");
+                                b.Property("Title");
+                                b.Property("BlogId");
+                            });
 
-                    modelBuilder.Entity<BlogWriteOnly>(b =>
-                        {
-                            b.HasKey("Id");
-                            b.Property("Title");
-                            b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
-                        });
+                    modelBuilder.Entity<BlogWriteOnly>(
+                        b =>
+                            {
+                                b.HasKey("Id");
+                                b.Property("Title");
+                                b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
+                            });
 
-                    modelBuilder.Entity<PostWriteOnlyExplicit>(b =>
-                        {
-                            b.HasKey("Id");
-                            b.Property("Id").HasField("_myid");
-                            b.Property("Title").HasField("_mytitle");
-                            b.Property("BlogId").HasField("_myblogId");
-                        });
+                    modelBuilder.Entity<PostWriteOnlyExplicit>(
+                        b =>
+                            {
+                                b.HasKey("Id");
+                                b.Property("Id").HasField("_myid");
+                                b.Property("Title").HasField("_mytitle");
+                                b.Property("BlogId").HasField("_myblogId");
+                            });
 
-                    modelBuilder.Entity<BlogWriteOnlyExplicit>(b =>
-                        {
-                            b.HasKey("Id");
-                            b.Property("Id").HasField("_myid");
-                            b.Property("Title").HasField("_mytitle");
-                            b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
-                        });
+                    modelBuilder.Entity<BlogWriteOnlyExplicit>(
+                        b =>
+                            {
+                                b.HasKey("Id");
+                                b.Property("Id").HasField("_myid");
+                                b.Property("Title").HasField("_mytitle");
+                                b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
+                            });
 
                     modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                     modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
-                    modelBuilder.Entity<PostFields>(b =>
-                        {
-                            b.Property("_id");
-                            b.HasKey("_id");
-                            b.Property("_title");
-                            b.Property("_blogId");
-                        });
+                    modelBuilder.Entity<PostFields>(
+                        b =>
+                            {
+                                b.Property("_id");
+                                b.HasKey("_id");
+                                b.Property("_title");
+                                b.Property("_blogId");
+                            });
 
-                    modelBuilder.Entity<BlogFields>(b =>
-                        {
-                            b.Property("_id");
-                            b.HasKey("_id");
-                            b.Property("_title");
-                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
-                        });
+                    modelBuilder.Entity<BlogFields>(
+                        b =>
+                            {
+                                b.Property("_id");
+                                b.HasKey("_id");
+                                b.Property("_title");
+                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
+                            });
                 }
             }
 

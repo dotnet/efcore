@@ -21,12 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalExpressionPrinter()
-            : base(new List<ConstantPrinterBase>
-            {
-                new CommandBuilderPrinter(),
-                new EntityTrackingInfoListPrinter(),
-                new MetadataPropertyCollectionPrinter()
-            })
+            : base(
+                new List<ConstantPrinterBase>
+                {
+                    new CommandBuilderPrinter(),
+                    new EntityTrackingInfoListPrinter(),
+                    new MetadataPropertyCollectionPrinter()
+                })
         {
         }
 
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var sql = querySqlGenerator.GenerateSql(new Dictionary<string, object>()).CommandText;
 
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
-                    for (int i = 0; i < lines.Length; i++)
+                    for (var i = 0; i < lines.Length; i++)
                     {
                         if (i == lines.Length - 1)
                         {

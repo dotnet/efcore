@@ -298,10 +298,10 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             new Answer
                             {
-                                Author = context.Users.Last(),
+                                Author = context.Users.Last()
                             }
                         }
-                    },
+                    }
                 };
 
                 if (async)
@@ -350,16 +350,14 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Question>(b =>
-                {
-                    b.HasOne(x => x.Author).WithMany(x => x.Questions).HasForeignKey(x => x.AuthorId);
-                });
+                modelBuilder.Entity<Question>(b => { b.HasOne(x => x.Author).WithMany(x => x.Questions).HasForeignKey(x => x.AuthorId); });
 
-                modelBuilder.Entity<Answer>(b =>
-                {
-                    b.HasOne(x => x.Author).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
-                    b.HasOne(x => x.Question).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
-                });
+                modelBuilder.Entity<Answer>(
+                    b =>
+                        {
+                            b.HasOne(x => x.Author).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
+                            b.HasOne(x => x.Question).WithMany(x => x.Answers).HasForeignKey(x => x.AuthorId);
+                        });
             }
         }
 
@@ -433,6 +431,7 @@ namespace Microsoft.EntityFrameworkCore
                 return Gus;
             }
         }
+
         [Fact]
         public void Model_cannot_be_used_in_OnModelCreating()
         {
@@ -793,7 +792,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var expectedProperties = new List<string> { "ChangeTracker", "Database", "Model" };
 
-            Assert.True(expectedProperties.SequenceEqual(
+            Assert.True(
+                expectedProperties.SequenceEqual(
                     typeof(DbContext)
                         .GetProperties()
                         .Select(p => p.Name)

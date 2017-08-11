@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool logParameterValues,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(eventDefinition, messageGenerator, command, executeMethod, commandId, connectionId, async, logParameterValues, startTime, duration) 
+            : base(eventDefinition, messageGenerator, command, executeMethod, commandId, connectionId, async, logParameterValues, startTime, duration)
             => Exception = exception;
 
         /// <summary>

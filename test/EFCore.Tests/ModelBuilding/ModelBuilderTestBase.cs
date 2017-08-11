@@ -3,16 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -248,7 +244,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
             public abstract TestPropertyBuilder<TProperty> ValueGeneratedOnUpdate();
 
-            public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>() where TGenerator : ValueGenerator;
+            public abstract TestPropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+                where TGenerator : ValueGenerator;
+
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
             public abstract TestPropertyBuilder<TProperty> HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory);
 

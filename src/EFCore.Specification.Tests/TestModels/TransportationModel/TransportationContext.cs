@@ -19,38 +19,38 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Vehicle>(eb =>
-                {
-                    eb.HasKey(e => e.Name);
-                });
-            modelBuilder.Entity<Engine>(eb =>
-                {
-                    eb.HasKey(e => e.VehicleName);
-                    eb.HasOne(e => e.Vehicle)
-                        .WithOne(e => e.Engine)
-                        .HasForeignKey<Engine>(e => e.VehicleName);
-                });
+            modelBuilder.Entity<Vehicle>(eb => { eb.HasKey(e => e.Name); });
+            modelBuilder.Entity<Engine>(
+                eb =>
+                    {
+                        eb.HasKey(e => e.VehicleName);
+                        eb.HasOne(e => e.Vehicle)
+                            .WithOne(e => e.Engine)
+                            .HasForeignKey<Engine>(e => e.VehicleName);
+                    });
             modelBuilder.Entity<CombustionEngine>();
 
-            modelBuilder.Entity<Operator>(eb =>
-                {
-                    eb.HasKey(e => e.VehicleName);
-                    eb.HasOne(e => e.Vehicle)
-                        .WithOne(e => e.Operator)
-                        .HasForeignKey<Operator>(e => e.VehicleName);
-                });
+            modelBuilder.Entity<Operator>(
+                eb =>
+                    {
+                        eb.HasKey(e => e.VehicleName);
+                        eb.HasOne(e => e.Vehicle)
+                            .WithOne(e => e.Operator)
+                            .HasForeignKey<Operator>(e => e.VehicleName);
+                    });
             modelBuilder.Entity<LicensedOperator>();
 
-            modelBuilder.Entity<FuelTank>(eb =>
-                {
-                    eb.HasKey(e => e.VehicleName);
-                    eb.HasOne(e => e.Engine)
-                        .WithOne(e => e.FuelTank)
-                        .HasForeignKey<FuelTank>(e => e.VehicleName);
-                    eb.HasOne(e => e.Vehicle)
-                        .WithOne()
-                        .HasForeignKey<FuelTank>(e => e.VehicleName);
-                });
+            modelBuilder.Entity<FuelTank>(
+                eb =>
+                    {
+                        eb.HasKey(e => e.VehicleName);
+                        eb.HasOne(e => e.Engine)
+                            .WithOne(e => e.FuelTank)
+                            .HasForeignKey<FuelTank>(e => e.VehicleName);
+                        eb.HasOne(e => e.Vehicle)
+                            .WithOne()
+                            .HasForeignKey<FuelTank>(e => e.VehicleName);
+                    });
         }
 
         public void Seed()

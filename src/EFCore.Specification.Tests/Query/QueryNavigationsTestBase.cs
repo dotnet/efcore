@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var expectedIncludes = new List<IExpectedInclude>
             {
                 new ExpectedInclude<OrderDetail>(od => od.Order, "Order"),
-                new ExpectedInclude<Order>(o => o.Customer, "Customer", "Order"),
+                new ExpectedInclude<Order>(o => o.Customer, "Customer", "Order")
             };
 
             AssertIncludeQuery<OrderDetail>(
@@ -318,11 +318,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_count_plus_sum()
         {
-            AssertQuery<Order>(os => os.Select(o => new
-            {
-                Total = o.OrderDetails.Sum(od => od.Quantity) + o.OrderDetails.Count()
-            }),
-            elementSorter: e => e.Total);
+            AssertQuery<Order>(
+                os => os.Select(
+                    o => new
+                    {
+                        Total = o.OrderDetails.Sum(od => od.Quantity) + o.OrderDetails.Count()
+                    }),
+                elementSorter: e => e.Total);
         }
 
         [ConditionalFact]
@@ -392,10 +394,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { A = o.Customer, B = o.Customer },
                 elementSorter: e => e.A.CustomerID,
                 elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.A.CustomerID, a.A.CustomerID);
-                    Assert.Equal(e.B.CustomerID, a.B.CustomerID);
-                },
+                    {
+                        Assert.Equal(e.A.CustomerID, a.A.CustomerID);
+                        Assert.Equal(e.B.CustomerID, a.B.CustomerID);
+                    },
                 entryCount: 89);
         }
 
@@ -409,10 +411,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { A = o.Customer, B = o.Customer },
                 elementSorter: e => e.A.CustomerID,
                 elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.A.CustomerID, a.A.CustomerID);
-                    Assert.Equal(e.B.CustomerID, a.B.CustomerID);
-                },
+                    {
+                        Assert.Equal(e.A.CustomerID, a.A.CustomerID);
+                        Assert.Equal(e.B.CustomerID, a.B.CustomerID);
+                    },
                 entryCount: 1);
         }
 
@@ -426,10 +428,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { c.CustomerID, c.Orders },
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.CustomerID, a.CustomerID);
-                    CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
-                },
+                    {
+                        Assert.Equal(e.CustomerID, a.CustomerID);
+                        CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
+                    },
                 entryCount: 34);
         }
 
@@ -442,10 +444,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { o.OrderID, o.Customer.Orders },
                 elementSorter: e => e.OrderID,
                 elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.OrderID, a.OrderID);
-                    CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
-                },
+                    {
+                        Assert.Equal(e.OrderID, a.OrderID);
+                        CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
+                    },
                 entryCount: 7);
         }
 
@@ -719,16 +721,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Customer, Order>(
                 (cs, os) => cs.Where(e => e.CustomerID.StartsWith("A"))
-                    .Select(c => EF.Property<string>(
-                        EF.Property<Customer>(
-                            os.FirstOrDefault(oo => oo.CustomerID == "ALFKI"),
-                            "Customer"),
-                        "City")),
+                    .Select(
+                        c => EF.Property<string>(
+                            EF.Property<Customer>(
+                                os.FirstOrDefault(oo => oo.CustomerID == "ALFKI"),
+                                "Customer"),
+                            "City")),
                 (cs, os) => cs.Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null
-                        ? os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
-                        : null)
-                );
+                    .Select(
+                        c => os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer != null
+                            ? os.FirstOrDefault(o => o.CustomerID == "ALFKI").Customer.City
+                            : null)
+            );
         }
 
         [ConditionalFact]
@@ -879,10 +883,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<short, OrderDetail>(
                     e => e.OrderID + " " + e.ProductID,
                     (e, a) =>
-                    {
-                        Assert.Equal(e.OrderID, a.OrderID);
-                        Assert.Equal(e.ProductID, a.ProductID);
-                    }),
+                        {
+                            Assert.Equal(e.OrderID, a.OrderID);
+                            Assert.Equal(e.ProductID, a.ProductID);
+                        }),
                 entryCount: 12);
         }
 
@@ -966,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                           join o in os on od.OrderID equals 10260
                                           join c2 in cs on o.CustomerID equals c2.CustomerID
                                           select c2
-                                          )
+                                      )
                                       on c.CustomerID equals subquery.CustomerID
                                       into result
                                   from subquery in result.DefaultIfEmpty()
@@ -985,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                           join o in os on od.OrderID equals 10260
                                           join c2 in cs on o.CustomerID equals c2.CustomerID
                                           select c2
-                                          )
+                                      )
                                       on c.CustomerID equals subquery.CustomerID
                                       into result
                                   from subquery in result.DefaultIfEmpty()
@@ -1022,16 +1026,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.c.CustomerID, a.c.CustomerID);
-                    CollectionAsserter<OrderDetail>(
-                        ee => ee.OrderID + " " + ee.ProductID,
-                        (ee, aa) =>
-                        {
-                            Assert.Equal(ee.OrderID, aa.OrderID);
-                            Assert.Equal(ee.ProductID, aa.ProductID);
-                        });
-                },
+                    {
+                        Assert.Equal(e.c.CustomerID, a.c.CustomerID);
+                        CollectionAsserter<OrderDetail>(
+                            ee => ee.OrderID + " " + ee.ProductID,
+                            (ee, aa) =>
+                                {
+                                    Assert.Equal(ee.OrderID, aa.OrderID);
+                                    Assert.Equal(ee.ProductID, aa.ProductID);
+                                });
+                    },
                 entryCount: 1);
         }
 
@@ -1046,12 +1050,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.Select(o => o.OrderDetails).ToList(),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
-                {
-                    var expected = ((IEnumerable<IEnumerable<OrderDetail>>)e).SelectMany(i => i).ToList();
-                    var actual = ((IEnumerable<IEnumerable<OrderDetail>>)e).SelectMany(i => i).ToList();
+                    {
+                        var expected = ((IEnumerable<IEnumerable<OrderDetail>>)e).SelectMany(i => i).ToList();
+                        var actual = ((IEnumerable<IEnumerable<OrderDetail>>)e).SelectMany(i => i).ToList();
 
-                    Assert.Equal(expected, actual);
-                });
+                        Assert.Equal(expected, actual);
+                    });
         }
 
         [ConditionalFact]

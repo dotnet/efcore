@@ -341,15 +341,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 // TODO: Support cycle-breaking?
 
-                var currentCycleVertex = _vertices.First(v =>
-                    {
-                        int predecessorNumber;
-                        if (predecessorCounts.TryGetValue(v, out predecessorNumber))
+                var currentCycleVertex = _vertices.First(
+                    v =>
                         {
-                            return predecessorNumber != 0;
-                        }
-                        return false;
-                    });
+                            int predecessorNumber;
+                            if (predecessorCounts.TryGetValue(v, out predecessorNumber))
+                            {
+                                return predecessorNumber != 0;
+                            }
+                            return false;
+                        });
                 var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)

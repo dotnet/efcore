@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Initializes_all_entity_set_properties_with_setters()
         {
-
             var setFinder = new FakeSetFinder();
 
             var customServices = new ServiceCollection()

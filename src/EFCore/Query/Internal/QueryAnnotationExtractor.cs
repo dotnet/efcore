@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryModel queryModel, ICollection<IQueryAnnotation> queryAnnotations)
         {
             queryModel
-                .TransformExpressions(e =>
-                    ExtractQueryAnnotations(e, queryAnnotations));
+                .TransformExpressions(
+                    e =>
+                        ExtractQueryAnnotations(e, queryAnnotations));
 
             foreach (var resultOperator in queryModel.ResultOperators.ToList())
             {

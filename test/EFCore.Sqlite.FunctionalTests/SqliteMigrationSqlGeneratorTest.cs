@@ -19,27 +19,29 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void It_lifts_foreign_key_additions()
         {
-            Generate(new CreateTableOperation
-            {
-                Name = "Pie",
-                Columns =
+            Generate(
+                new CreateTableOperation
                 {
-                    new AddColumnOperation
+                    Name = "Pie",
+                    Columns =
                     {
-                        ClrType = typeof(int),
-                        Name = "FlavorId",
-                        ColumnType = "INT"
+                        new AddColumnOperation
+                        {
+                            ClrType = typeof(int),
+                            Name = "FlavorId",
+                            ColumnType = "INT"
+                        }
                     }
-                }
-            }, new AddForeignKeyOperation
-            {
-                Table = "Pie",
-                PrincipalTable = "Flavor",
-                Columns = new[] { "FlavorId" },
-                PrincipalColumns = new[] { "Id" }
-            });
+                }, new AddForeignKeyOperation
+                {
+                    Table = "Pie",
+                    PrincipalTable = "Flavor",
+                    Columns = new[] { "FlavorId" },
+                    PrincipalColumns = new[] { "Id" }
+                });
 
-            Assert.Equal(@"CREATE TABLE ""Pie"" (
+            Assert.Equal(
+                @"CREATE TABLE ""Pie"" (
     ""FlavorId"" INT NOT NULL,
     FOREIGN KEY (""FlavorId"") REFERENCES ""Flavor"" (""Id"")
 );
@@ -50,22 +52,24 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void DefaultValue_formats_literal_correctly()
         {
-            Generate(new CreateTableOperation
-            {
-                Name = "History",
-                Columns =
+            Generate(
+                new CreateTableOperation
                 {
-                    new AddColumnOperation
+                    Name = "History",
+                    Columns =
                     {
-                        Name = "Event",
-                        ClrType = typeof(string),
-                        ColumnType = "TEXT",
-                        DefaultValue = new DateTime(2015, 4, 12, 17, 5, 0)
+                        new AddColumnOperation
+                        {
+                            Name = "Event",
+                            ClrType = typeof(string),
+                            ColumnType = "TEXT",
+                            DefaultValue = new DateTime(2015, 4, 12, 17, 5, 0)
+                        }
                     }
-                }
-            });
+                });
 
-            Assert.Equal(@"CREATE TABLE ""History"" (
+            Assert.Equal(
+                @"CREATE TABLE ""History"" (
     ""Event"" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00'
 );
 ",

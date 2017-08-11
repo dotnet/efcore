@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new ProviderContext(
                 new DbContextOptionsBuilder().UseSqlite("Database=Maltesers").Options))
             {
-                Assert.True(SqliteDatabaseFacadeExtensions.IsSqlite(context.Database));
+                Assert.True(context.Database.IsSqlite());
             }
         }
 
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new ProviderContext(
                 new DbContextOptionsBuilder().UseInMemoryDatabase("Maltesers").Options))
             {
-                Assert.False(SqliteDatabaseFacadeExtensions.IsSqlite(context.Database));
+                Assert.False(context.Database.IsSqlite());
             }
         }
 

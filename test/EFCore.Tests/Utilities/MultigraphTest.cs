@@ -306,10 +306,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Assert.Equal(
                 new[] { vertexOne },
-                graph.TopologicalSort((from, to, edges) =>
-                    (from == vertexOne) &&
-                    (to == vertexOne) &&
-                    (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
+                graph.TopologicalSort(
+                    (from, to, edges) =>
+                        (from == vertexOne) &&
+                        (to == vertexOne) &&
+                        (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
 
         [Fact]

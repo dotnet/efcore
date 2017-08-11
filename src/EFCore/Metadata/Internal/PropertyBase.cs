@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
+
         private IClrPropertySetter _setter;
         private PropertyAccessors _accessors;
 

@@ -15,12 +15,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     /// <summary>
-    ///     Used to generate C# for creating <see cref="MigrationOperation"/> objects.
+    ///     Used to generate C# for creating <see cref="MigrationOperation" /> objects.
     /// </summary>
     public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenerator
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CSharpMigrationOperationGenerator"/> class.
+        ///     Initializes a new instance of the <see cref="CSharpMigrationOperationGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
         public CSharpMigrationOperationGenerator([NotNull] CSharpMigrationOperationGeneratorDependencies dependencies)
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private ICSharpHelper Code => Dependencies.CSharpHelper;
 
         /// <summary>
-        ///     Generates code for creating <see cref="MigrationOperation"/> objects.
+        ///     Generates code for creating <see cref="MigrationOperation" /> objects.
         /// </summary>
-        /// <param name="builderName"> The <see cref="MigrationOperation"/> variable name. </param>
+        /// <param name="builderName"> The <see cref="MigrationOperation" /> variable name. </param>
         /// <param name="operations"> The operations. </param>
         /// <param name="builder"> The builder code is added to. </param>
         public virtual void Generate(
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an unknown <see cref="MigrationOperation"/>.
+        ///     Generates code for an unknown <see cref="MigrationOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AddColumnOperation"/>.
+        ///     Generates code for an <see cref="AddColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AddForeignKeyOperation"/>.
+        ///     Generates code for an <see cref="AddForeignKeyOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AddPrimaryKeyOperation"/>.
+        ///     Generates code for an <see cref="AddPrimaryKeyOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AddUniqueConstraintOperation"/>.
+        ///     Generates code for an <see cref="AddUniqueConstraintOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AlterColumnOperation"/>.
+        ///     Generates code for an <see cref="AlterColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -537,7 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AlterDatabaseOperation"/>.
+        ///     Generates code for an <see cref="AlterDatabaseOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AlterSequenceOperation"/>.
+        ///     Generates code for an <see cref="AlterSequenceOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -651,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="AlterTableOperation"/>.
+        ///     Generates code for an <see cref="AlterTableOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -684,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="CreateIndexOperation"/>.
+        ///     Generates code for a <see cref="CreateIndexOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -750,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="EnsureSchemaOperation"/>.
+        ///     Generates code for an <see cref="EnsureSchemaOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -773,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="CreateSequenceOperation"/>.
+        ///     Generates code for a <see cref="CreateSequenceOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -854,7 +854,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="CreateTableOperation"/>.
+        ///     Generates code for a <see cref="CreateTableOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1023,9 +1023,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                 .Append("name: ")
                                 .Append(Code.Literal(foreignKey.Name))
                                 .AppendLine(",")
-                                .Append(foreignKey.Columns.Length == 1
-                                    ? "column: "
-                                    : "columns: ")
+                                .Append(
+                                    foreignKey.Columns.Length == 1
+                                        ? "column: "
+                                        : "columns: ")
                                 .Append(Code.Lambda(foreignKey.Columns.Select(c => map[c]).ToList()));
 
                             if (foreignKey.PrincipalSchema != null)
@@ -1087,7 +1088,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropColumnOperation"/>.
+        ///     Generates code for a <see cref="DropColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1123,7 +1124,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropForeignKeyOperation"/>.
+        ///     Generates code for a <see cref="DropForeignKeyOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1159,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropIndexOperation"/>.
+        ///     Generates code for a <see cref="DropIndexOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1195,7 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropPrimaryKeyOperation"/>.
+        ///     Generates code for a <see cref="DropPrimaryKeyOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1231,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropSchemaOperation"/>.
+        ///     Generates code for a <see cref="DropSchemaOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1254,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropSequenceOperation"/>.
+        ///     Generates code for a <see cref="DropSequenceOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1286,7 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropTableOperation"/>.
+        ///     Generates code for a <see cref="DropTableOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1318,7 +1319,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DropUniqueConstraintOperation"/>.
+        ///     Generates code for a <see cref="DropUniqueConstraintOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1354,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="RenameColumnOperation"/>.
+        ///     Generates code for a <see cref="RenameColumnOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1393,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="RenameIndexOperation"/>.
+        ///     Generates code for a <see cref="RenameIndexOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1432,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="RenameSequenceOperation"/>.
+        ///     Generates code for a <see cref="RenameSequenceOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1480,7 +1481,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="RenameTableOperation"/>.
+        ///     Generates code for a <see cref="RenameTableOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1528,7 +1529,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="RestartSequenceOperation"/>.
+        ///     Generates code for a <see cref="RestartSequenceOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1563,7 +1564,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="SqlOperation"/>.
+        ///     Generates code for a <see cref="SqlOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1584,7 +1585,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="InsertDataOperation"/>.
+        ///     Generates code for an <see cref="InsertDataOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1627,7 +1628,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 builder.AppendLine(",");
 
-                if (operation.Values.GetLength(0) == 1 && operation.Values.GetLength(1) == 1)
+                if (operation.Values.GetLength(0) == 1
+                    && operation.Values.GetLength(1) == 1)
                 {
                     builder
                         .Append("value: ")
@@ -1661,7 +1663,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for a <see cref="DeleteDataOperation"/>.
+        ///     Generates code for a <see cref="DeleteDataOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1704,7 +1706,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 builder.AppendLine(",");
 
-                if (operation.KeyValues.GetLength(0) == 1 && operation.KeyValues.GetLength(1) == 1)
+                if (operation.KeyValues.GetLength(0) == 1
+                    && operation.KeyValues.GetLength(1) == 1)
                 {
                     builder
                         .Append("keyValue: ")
@@ -1738,7 +1741,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="UpdateDataOperation"/>.
+        ///     Generates code for an <see cref="UpdateDataOperation" />.
         /// </summary>
         /// <param name="operation"> The operation. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1781,7 +1784,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 builder.AppendLine(",");
 
-                if (operation.KeyValues.GetLength(0) == 1 && operation.KeyValues.GetLength(1) == 1)
+                if (operation.KeyValues.GetLength(0) == 1
+                    && operation.KeyValues.GetLength(1) == 1)
                 {
                     builder
                         .Append("keyValue: ")
@@ -1827,7 +1831,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 builder.AppendLine(",");
 
-                if (operation.Values.GetLength(0) == 1 && operation.Values.GetLength(1) == 1)
+                if (operation.Values.GetLength(0) == 1
+                    && operation.Values.GetLength(1) == 1)
                 {
                     builder
                         .Append("value: ")
@@ -1861,7 +1866,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for <see cref="Annotation"/> objects.
+        ///     Generates code for <see cref="Annotation" /> objects.
         /// </summary>
         /// <param name="annotations"> The annotations. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1886,7 +1891,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for removed <see cref="Annotation"/> objects.
+        ///     Generates code for removed <see cref="Annotation" /> objects.
         /// </summary>
         /// <param name="annotations"> The annotations. </param>
         /// <param name="builder"> The builder code is added to. </param>
@@ -1912,7 +1917,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private static object[] ToOnedimensionalArray(object[,] values, bool firstDimension = false)
         {
-            Debug.Assert(values.GetLength(firstDimension ? 1 : 0) == 1,
+            Debug.Assert(
+                values.GetLength(firstDimension ? 1 : 0) == 1,
                 $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
 
             var result = new object[values.Length];

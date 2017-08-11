@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -13,8 +13,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly MethodInfo _addDbContext
             = typeof(EntityFrameworkServiceCollectionExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext))
-                .Single(mi => mi.GetParameters().Length == 4
-                              && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>));
+                .Single(
+                    mi => mi.GetParameters().Length == 4
+                          && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>));
 
         public static IServiceCollection AddDbContext(
             this IServiceCollection serviceCollection,
@@ -25,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => (IServiceCollection)_addDbContext.MakeGenericMethod(contextType)
                 .Invoke(null, new object[] { serviceCollection, optionsAction, contextLifetime, optionsLifetime });
 
-
         private static readonly MethodInfo _addDbContextPool
             = typeof(EntityFrameworkServiceCollectionExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContextPool))
-                .Single(mi => mi.GetParameters().Length == 3
-                              && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>));
+                .Single(
+                    mi => mi.GetParameters().Length == 3
+                          && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>));
 
         public static IServiceCollection AddDbContextPool(
             this IServiceCollection serviceCollection,

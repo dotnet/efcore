@@ -13,10 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
         }
-        
+
         public class OneToOneQuerySqliteFixture : OneToOneQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+
             public TestSqlLoggerFactory TestSqlLoggerFactory =>
                 (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
         }

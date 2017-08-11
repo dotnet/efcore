@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected IncludeTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Include_reference_invalid()
         {
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     },
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer"),
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails")
-                    ),
+                ),
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     },
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "Customer"),
                     anonymousType.GetTypeInfo().DeclaredMembers.Single(m => m.Name == "OrderDetails")
-                    ),
+                ),
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
@@ -699,11 +699,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                            from c2 in context.Set<Customer>().Include("Orders")
                            select c2)
-                            .ToList()
+                        .ToList()
                         : (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                            from c2 in context.Set<Customer>().Include(c2 => c2.Orders)
                            select c2)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(455, customers.Count);
                 Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
@@ -734,11 +734,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                            from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
                            select c2)
-                            .ToList()
+                        .ToList()
                         : (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                            from c2 in context.Set<Customer>().AsNoTracking().Include(c => c.Orders)
                            select c2)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(455, customers.Count);
                 Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
@@ -771,13 +771,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                .Include("Orders")
                                .Where(c => c.CustomerID == "ALFKI")
                            select c2)
-                            .ToList()
+                        .ToList()
                         : (from c1 in context.Set<Customer>()
                            from c2 in context.Set<Customer>()
                                .Include(c => c.Orders)
                                .Where(c => c.CustomerID == "ALFKI")
                            select c2)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(546, customers.SelectMany(c => c.Orders).Count());
@@ -808,11 +808,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                            from c2 in context.Set<Customer>().Include("Orders")
                            select c1)
-                            .ToList()
+                        .ToList()
                         : (from c1 in context.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                            from c2 in context.Set<Customer>().Include(c2 => c2.Orders)
                            select c1)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(455, customers.Count);
                 Assert.True(customers.All(c => c.Orders == null));
@@ -845,11 +845,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ThenBy(od => od.ProductID)
                             .Skip(1)
                             .Take(2)
-                            .Select(od =>
-                                new
-                                {
-                                    od.Order.CustomerID
-                                })
+                            .Select(
+                                od =>
+                                    new
+                                    {
+                                        od.Order.CustomerID
+                                    })
                             .ToList()
                         : context.OrderDetails.Include(od => od.Order)
                             .Where(od => od.Quantity == 10)
@@ -857,11 +858,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ThenBy(od => od.ProductID)
                             .Skip(1)
                             .Take(2)
-                            .Select(od =>
-                                new
-                                {
-                                    od.Order.CustomerID
-                                })
+                            .Select(
+                                od =>
+                                    new
+                                    {
+                                        od.Order.CustomerID
+                                    })
                             .ToList();
 
                 Assert.Equal(2, orders.Count);
@@ -881,12 +883,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                            join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
                            where c.CustomerID == "ALFKI"
                            select c)
-                            .ToList()
+                        .ToList()
                         : (from c in context.Set<Customer>().Include(c => c.Orders)
                            join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
                            where c.CustomerID == "ALFKI"
                            select c)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(36, customers.SelectMany(c => c.Orders).Count());
@@ -919,13 +921,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                            where c.CustomerID == "ALFKI"
                            orderby c.City
                            select c)
-                            .ToList()
+                        .ToList()
                         : (from c in context.Set<Customer>().Include(c => c.Orders)
                            join o in context.Set<Order>() on c.CustomerID equals o.CustomerID
                            where c.CustomerID == "ALFKI"
                            orderby c.City
                            select c)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(36, customers.SelectMany(c => c.Orders).Count());
@@ -957,12 +959,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                            join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
                            where c.CustomerID == "ALFKI"
                            select new { c, g })
-                            .ToList()
+                        .ToList()
                         : (from c in context.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.Customer)
                            join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
                            where c.CustomerID == "ALFKI"
                            select new { c, g })
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.c.Orders).Count());
@@ -995,13 +997,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                on c.CustomerID equals o.CustomerID into g
                            where c.CustomerID == "ALFKI"
                            select new { c, g })
-                            .ToList()
+                        .ToList()
                         : (from c in context.Set<Customer>()
                            join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
                                on c.CustomerID equals o.CustomerID into g
                            where c.CustomerID == "ALFKI"
                            select new { c, g })
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.g).Count());
@@ -1033,11 +1035,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? (from c in context.Set<Customer>().Include("Orders")
                            where c.CustomerID == "ALFKI"
                            group c by c.City)
-                            .ToList()
+                        .ToList()
                         : (from c in context.Set<Customer>().Include(c => c.Orders)
                            where c.CustomerID == "ALFKI"
                            group c by c.City)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.Single().Orders).Count());
@@ -1065,17 +1067,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var grouping
                     = useString
                         ? (from c in context.Set<Customer>()
-                            .Include("Orders.OrderDetails.Product")
+                               .Include("Orders.OrderDetails.Product")
                            where c.CustomerID == "ALFKI"
                            group c by c.City)
-                            .SingleOrDefault()
+                        .SingleOrDefault()
                         : (from c in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .ThenInclude(o => o.OrderDetails)
-                            .ThenInclude(od => od.Product)
+                               .Include(c => c.Orders)
+                               .ThenInclude(o => o.OrderDetails)
+                               .ThenInclude(od => od.Product)
                            where c.CustomerID == "ALFKI"
                            group c by c.City)
-                            .SingleOrDefault();
+                        .SingleOrDefault();
 
                 Assert.NotNull(grouping);
                 Assert.Equal(6, grouping.SelectMany(c => c.Orders).Count());
@@ -1527,27 +1529,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = useString
                         ? (from c1 in context.Set<Customer>()
-                            .Include("Orders")
-                            .OrderBy(c => c.CustomerID)
-                            .Take(2)
+                               .Include("Orders")
+                               .OrderBy(c => c.CustomerID)
+                               .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include("Orders")
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { c1, c2 })
-                            .ToList()
+                        .ToList()
                         : (from c1 in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .OrderBy(c => c.CustomerID)
-                            .Take(2)
+                               .Include(c => c.Orders)
+                               .OrderBy(c => c.CustomerID)
+                               .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include(c => c.Orders)
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { c1, c2 })
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(4, customers.Count);
                 Assert.Equal(20, customers.SelectMany(c => c.c1.Orders).Count());
@@ -1588,29 +1590,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = useString
                         ? (from c1 in context.Set<Customer>()
-                            .Include("Orders")
-                            .OrderBy(c => c.CustomerID)
-                            .Take(2)
+                               .Include("Orders")
+                               .OrderBy(c => c.CustomerID)
+                               .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include("Orders")
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { c1, c2 })
-                            .Take(1)
-                            .ToList()
+                        .Take(1)
+                        .ToList()
                         : (from c1 in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .OrderBy(c => c.CustomerID)
-                            .Take(2)
+                               .Include(c => c.Orders)
+                               .OrderBy(c => c.CustomerID)
+                               .Take(2)
                            from c2 in context.Set<Customer>()
                                .Include(c => c.Orders)
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { c1, c2 })
-                            .Take(1)
-                            .ToList();
+                        .Take(1)
+                        .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
@@ -1651,27 +1653,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = useString
                         ? (from c1 in context.Set<Customer>()
-                            .Include("Orders")
-                            .OrderBy(c => c.CustomerID)
-                            .Take(2)
+                               .Include("Orders")
+                               .OrderBy(c => c.CustomerID)
+                               .Take(2)
                            from c2 in context.Set<Customer>()
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { c1, c2 })
-                            .Take(1)
-                            .ToList()
+                        .Take(1)
+                        .ToList()
                         : (from c1 in context.Set<Customer>()
-                            .Include(c => c.Orders)
-                            .OrderBy(c => c.CustomerID)
-                            .Take(2)
+                               .Include(c => c.Orders)
+                               .OrderBy(c => c.CustomerID)
+                               .Take(2)
                            from c2 in context.Set<Customer>()
                                .OrderBy(c => c.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { c1, c2 })
-                            .Take(1)
-                            .ToList();
+                        .Take(1)
+                        .ToList();
 
                 Assert.Equal(1, customers.Count);
                 Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
@@ -1711,27 +1713,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders
                     = useString
                         ? (from o1 in context.Set<Order>()
-                            .Include("Customer")
-                            .OrderBy(o => o.CustomerID)
-                            .Take(2)
+                               .Include("Customer")
+                               .OrderBy(o => o.CustomerID)
+                               .Take(2)
                            from o2 in context.Set<Order>()
                                .Include("Customer")
                                .OrderBy(o => o.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { o1, o2 })
-                            .ToList()
+                        .ToList()
                         : (from o1 in context.Set<Order>()
-                            .Include(o => o.Customer)
-                            .OrderBy(o => o.CustomerID)
-                            .Take(2)
+                               .Include(o => o.Customer)
+                               .OrderBy(o => o.CustomerID)
+                               .Take(2)
                            from o2 in context.Set<Order>()
                                .Include(o => o.Customer)
                                .OrderBy(o => o.CustomerID)
                                .Skip(2)
                                .Take(2)
                            select new { o1, o2 })
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer != null));
@@ -1774,25 +1776,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders
                     = useString
                         ? (from o1 in context.Set<Order>()
-                            .Include("Customer")
-                            .OrderBy(o => o.OrderID)
-                            .Take(2)
+                               .Include("Customer")
+                               .OrderBy(o => o.OrderID)
+                               .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Skip(2)
                                .Take(2)
                            select new { o1, o2 })
-                            .ToList()
+                        .ToList()
                         : (from o1 in context.Set<Order>()
-                            .Include(o => o.Customer)
-                            .OrderBy(o => o.OrderID)
-                            .Take(2)
+                               .Include(o => o.Customer)
+                               .OrderBy(o => o.OrderID)
+                               .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Skip(2)
                                .Take(2)
                            select new { o1, o2 })
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer != null));
@@ -1834,25 +1836,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orders
                     = useString
                         ? (from o1 in context.Set<Order>()
-                            .OrderBy(o => o.OrderID)
-                            .Take(2)
+                               .OrderBy(o => o.OrderID)
+                               .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Include("Customer")
                                .Skip(2)
                                .Take(2)
                            select new { o1, o2 })
-                            .ToList()
+                        .ToList()
                         : (from o1 in context.Set<Order>()
-                            .OrderBy(o => o.OrderID)
-                            .Take(2)
+                               .OrderBy(o => o.OrderID)
+                               .Take(2)
                            from o2 in context.Set<Order>()
                                .OrderBy(o => o.OrderID)
                                .Include(o => o.Customer)
                                .Skip(2)
                                .Take(2)
                            select new { o1, o2 })
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer == null));
@@ -2265,11 +2267,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? (from o in context.Set<Order>().Include("OrderDetails")
                            where o.CustomerID == "ALFKI"
                            select o)
-                            .ToList()
+                        .ToList()
                         : (from o in context.Set<Order>().Include(o => o.OrderDetails)
                            where o.CustomerID == "ALFKI"
                            select o)
-                            .ToList();
+                        .ToList();
 
                 Assert.Equal(6, result.Count);
                 Assert.True(result.SelectMany(r => r.OrderDetails).All(od => od.Order != null));

@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         : "." + referencingFk.PrincipalToDependent.Name),
                                     entityType.DisplayName()));
                         }
-                        
+
                         foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null))
                         {
                             throw new InvalidOperationException(

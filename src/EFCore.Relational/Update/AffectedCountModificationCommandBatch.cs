@@ -62,12 +62,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                     commandIndex++;
                 }
 
-                Debug.Assert(commandIndex == ModificationCommands.Count,
+                Debug.Assert(
+                    commandIndex == ModificationCommands.Count,
                     "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 
                 var expectedResultSetCount = CommandResultSet.Count(e => e == ResultSetMapping.LastInResultSet);
 
-                Debug.Assert(actualResultSetCount == expectedResultSetCount,
+                Debug.Assert(
+                    actualResultSetCount == expectedResultSetCount,
                     "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
             }
@@ -120,12 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                     commandIndex++;
                 }
 
-                Debug.Assert(commandIndex == ModificationCommands.Count,
+                Debug.Assert(
+                    commandIndex == ModificationCommands.Count,
                     "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
 
                 var expectedResultSetCount = CommandResultSet.Count(e => e == ResultSetMapping.LastInResultSet);
 
-                Debug.Assert(actualResultSetCount == expectedResultSetCount,
+                Debug.Assert(
+                    actualResultSetCount == expectedResultSetCount,
                     "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
             }

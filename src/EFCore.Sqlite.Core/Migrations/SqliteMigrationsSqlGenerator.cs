@@ -136,8 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = annotatable[SqliteAnnotationNames.Autoincrement] as bool?
-                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
-                    ?? annotatable[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
+                                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
+                                    ?? annotatable[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
                 if (autoincrement == true)
                 {
                     builder.Append(" AUTOINCREMENT");

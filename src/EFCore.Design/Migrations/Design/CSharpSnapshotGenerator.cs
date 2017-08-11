@@ -17,12 +17,12 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     /// <summary>
-    ///     Used to generate C# code for creating an <see cref="IModel"/>.
+    ///     Used to generate C# code for creating an <see cref="IModel" />.
     /// </summary>
     public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator"/> class.
+        ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
         public CSharpSnapshotGenerator([NotNull] CSharpSnapshotGeneratorDependencies dependencies)
@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private ICSharpHelper Code => Dependencies.CSharpHelper;
 
         /// <summary>
-        ///     Generates code for creating an <see cref="IModel"/>.
+        ///     Generates code for creating an <see cref="IModel" />.
         /// </summary>
-        /// <param name="builderName"> The <see cref="ModelBuilder"/> variable name. </param>
+        /// <param name="builderName"> The <see cref="ModelBuilder" /> variable name. </param>
         /// <param name="model"> The model. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         public virtual void Generate(string builderName, IModel model, IndentedStringBuilder stringBuilder)
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for <see cref="IEntityType"/> objects.
+        ///     Generates code for <see cref="IEntityType" /> objects.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="entityTypes"> The entity types. </param>
@@ -105,10 +105,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateEntityType(builderName, entityType, stringBuilder);
             }
 
-            foreach (var entityType in entityTypes.Where(e =>
-                !e.HasDefiningNavigation()
-                && (e.GetDeclaredForeignKeys().Any()
-                    || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
+            foreach (var entityType in entityTypes.Where(
+                e =>
+                    !e.HasDefiningNavigation()
+                    && (e.GetDeclaredForeignKeys().Any()
+                        || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
             {
                 stringBuilder.AppendLine();
 
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="IEntityType"/>.
+        ///     Generates code for an <see cref="IEntityType" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
@@ -133,9 +134,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .Append(builderName)
-                .Append(entityType.HasDefiningNavigation()
-                    ? ".OwnsOne("
-                    : ".Entity(")
+                .Append(
+                    entityType.HasDefiningNavigation()
+                        ? ".OwnsOne("
+                        : ".Entity(")
                 .Append(Code.Literal(entityType.Name));
 
             if (entityType.HasDefiningNavigation())
@@ -238,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for the relationships of an <see cref="IEntityType"/>.
+        ///     Generates code for the relationships of an <see cref="IEntityType" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
@@ -272,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for the relationships of an <see cref="IEntityType"/>.
+        ///     Generates code for the relationships of an <see cref="IEntityType" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
@@ -287,12 +289,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             GenerateForeignKeys(builderName, entityType.GetDeclaredForeignKeys(), stringBuilder);
-            
+
             GenerateOwnedTypes(builderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
         }
 
         /// <summary>
-        ///     Generates code for the base type of an <see cref="IEntityType"/>.
+        ///     Generates code for the base type of an <see cref="IEntityType" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="baseType"> The base entity type. </param>
@@ -317,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for <see cref="IProperty"/> objects.
+        ///     Generates code for <see cref="IProperty" /> objects.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="properties"> The properties. </param>
@@ -348,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="IProperty"/>.
+        ///     Generates code for an <see cref="IProperty" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="property"> The property. </param>
@@ -406,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for the annotations on an <see cref="IProperty"/>.
+        ///     Generates code for the annotations on an <see cref="IProperty" />.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
@@ -434,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for <see cref="IKey"/> objects.
+        ///     Generates code for <see cref="IKey" /> objects.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="keys"> The keys. </param>
@@ -456,9 +458,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             var firstKey = true;
-            foreach (var key in keys.Where(key => key != primaryKey
-                                                  && (!key.GetReferencingForeignKeys().Any()
-                                                      || key.GetAnnotations().Any())))
+            foreach (var key in keys.Where(
+                key => key != primaryKey
+                       && (!key.GetReferencingForeignKeys().Any()
+                           || key.GetAnnotations().Any())))
             {
                 if (!firstKey)
                 {
@@ -474,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="IKey"/>.
+        ///     Generates code for an <see cref="IKey" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="key"> The key. </param>
@@ -511,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for <see cref="IIndex"/> objects.
+        ///     Generates code for <see cref="IIndex" /> objects.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="indexes"> The indexes. </param>
@@ -533,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code an <see cref="IIndex"/>.
+        ///     Generates code an <see cref="IIndex" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="index"> The index. </param>
@@ -680,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for <see cref="IForeignKey"/> objects.
+        ///     Generates code for <see cref="IForeignKey" /> objects.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="foreignKeys"> The foreign keys. </param>
@@ -693,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(foreignKeys, nameof(foreignKeys));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
-            
+
             foreach (var foreignKey in foreignKeys)
             {
                 stringBuilder.AppendLine();
@@ -703,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Generates code for an <see cref="IForeignKey"/>.
+        ///     Generates code for an <see cref="IForeignKey" />.
         /// </summary>
         /// <param name="builderName"> The name of the builder variable. </param>
         /// <param name="foreignKey"> The foreign key. </param>
@@ -821,7 +824,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = foreignKey.GetAnnotations().ToList();
 
-            GenerateFluentApiForAnnotation(ref annotations,
+            GenerateFluentApiForAnnotation(
+                ref annotations,
                 RelationalAnnotationNames.Name,
                 foreignKey.IsUnique
                     ? nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)

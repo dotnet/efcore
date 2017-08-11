@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] AliasExpression aliasExpression,
             [NotNull] TableExpressionBase tableExpression)
             : this(
-                  Check.NotNull(aliasExpression, nameof(aliasExpression)).Alias,
-                  aliasExpression,
-                  Check.NotNull(tableExpression, nameof(tableExpression)))
+                Check.NotNull(aliasExpression, nameof(aliasExpression)).Alias,
+                aliasExpression,
+                Check.NotNull(tableExpression, nameof(tableExpression)))
         {
         }
 
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] ColumnExpression columnExpression,
             [NotNull] TableExpressionBase tableExpression)
             : this(
-                  Check.NotNull(columnExpression, nameof(columnExpression)).Name,
-                  columnExpression,
-                  Check.NotNull(tableExpression, nameof(tableExpression)))
+                Check.NotNull(columnExpression, nameof(columnExpression)).Name,
+                columnExpression,
+                Check.NotNull(tableExpression, nameof(tableExpression)))
         {
         }
 
@@ -56,9 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] ColumnReferenceExpression columnReferenceExpression,
             [NotNull] TableExpressionBase tableExpression)
             : this(
-                  Check.NotNull(columnReferenceExpression, nameof(columnReferenceExpression)).Name,
-                  columnReferenceExpression,
-                  Check.NotNull(tableExpression, nameof(tableExpression)))
+                Check.NotNull(columnReferenceExpression, nameof(columnReferenceExpression)).Name,
+                columnReferenceExpression,
+                Check.NotNull(tableExpression, nameof(tableExpression)))
         {
         }
 

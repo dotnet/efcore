@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private Func<bool, IIdentityMap> _identityMapFactory;
+
         private Func<IWeakReferenceIdentityMap> _weakReferenceIdentityMap;
         private object _principalKeyValueFactory;
 
@@ -53,8 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual EntityType DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get { return Properties[0].DeclaringEntityType; }
+            [DebuggerStepThrough] get => Properties[0].DeclaringEntityType;
         }
 
         /// <summary>

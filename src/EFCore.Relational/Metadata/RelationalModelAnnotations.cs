@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        /// Either returns the existing <see cref="IMutableSequence"/> with the given name in the given schema
-        /// or creates a new sequence with the given name and schema.
+        ///     Either returns the existing <see cref="IMutableSequence" /> with the given name in the given schema
+        ///     or creates a new sequence with the given name and schema.
         /// </summary>
         /// <param name="name"> The sequence name. </param>
         /// <param name="schema"> The schema name, or <c>null</c> to use the default schema. </param>
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        /// Either returns the existing <see cref="DbFunction"/> mapped to the given method 
-        /// or creates a new function mapped to the method.
+        ///     Either returns the existing <see cref="DbFunction" /> mapped to the given method
+        ///     or creates a new function mapped to the method.
         /// </summary>
         /// <param name="methodInfo"> The <see cref="MethodInfo" /> for the method that is mapped to the function. </param>
         /// <returns> The <see cref="DbFunction" />. </returns>

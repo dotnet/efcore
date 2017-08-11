@@ -16,13 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindQueryFixtureBase()
         {
             var entitySorters = new Dictionary<Type, Func<dynamic, object>>
-                {
-                    { typeof(Customer), e => e.CustomerID },
-                    { typeof(Order), e => e.OrderID },
-                    { typeof(Employee), e => e.EmployeeID },
-                    { typeof(Product), e => e.ProductID },
-                    { typeof(OrderDetail), e => e.OrderID.ToString() + " " + e.ProductID.ToString() },
-                };
+            {
+                { typeof(Customer), e => e.CustomerID },
+                { typeof(Order), e => e.OrderID },
+                { typeof(Employee), e => e.EmployeeID },
+                { typeof(Product), e => e.ProductID },
+                { typeof(OrderDetail), e => e.OrderID.ToString() + " " + e.ProductID.ToString() }
+            };
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>();
 
@@ -45,10 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(NorthwindContext context) => NorthwindData.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
-                .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
-                .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
-                .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
+                    .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+                    .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
     }
 }

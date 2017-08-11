@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected InheritanceRelationshipsQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Changes_in_derived_related_entities_are_detected()
         {
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Single(e => e.Name == "Derived1(4)") as DerivedInheritanceRelationshipEntity;
 
                 Assert.NotNull(derivedEntity);
-                
+
                 var firstRelatedEntity = derivedEntity.BaseCollectionOnBase.Cast<DerivedCollectionOnBase>().First();
 
                 var originalValue = firstRelatedEntity.DerivedProperty;

@@ -1631,7 +1631,7 @@ DROP TABLE PrincipalTable;");
         }
 
         #endregion
-        
+
         private readonly List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
 
         private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)

@@ -273,9 +273,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
 
-            Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42),
-            (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                async () => await batch.ExecuteAsync(connection))).Message);
+            Assert.Equal(
+                RelationalStrings.UpdateConcurrencyException(1, 42),
+                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                    async () => await batch.ExecuteAsync(connection))).Message);
         }
 
         [Fact]
@@ -293,9 +294,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
 
-            Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0),
-            (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                async () => await batch.ExecuteAsync(connection))).Message);
+            Assert.Equal(
+                RelationalStrings.UpdateConcurrencyException(1, 0),
+                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                    async () => await batch.ExecuteAsync(connection))).Message);
         }
 
         [Fact]
@@ -589,8 +591,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             var optionsBuilder = new DbContextOptionsBuilder();
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
-                .AddOrUpdateExtension(optionsExtension
-                                      ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
+                .AddOrUpdateExtension(
+                    optionsExtension
+                    ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
         }

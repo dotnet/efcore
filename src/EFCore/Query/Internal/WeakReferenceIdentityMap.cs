@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual WeakReference<object> TryGetEntity(
-            ValueBuffer valueBuffer, 
+            ValueBuffer valueBuffer,
             bool throwOnNullKey,
             out bool hasNullKey)
         {
@@ -94,11 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (++_identityMapGarbageCollectionIterations == IdentityMapGarbageCollectionThreshold)
             {
-                var deadEntries 
+                var deadEntries
                     = (from entry in _identityMap
                        where !entry.Value.TryGetTarget(out _)
                        select entry.Key)
-                       .ToList();
+                    .ToList();
 
                 foreach (var keyValue in deadEntries)
                 {

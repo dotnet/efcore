@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         protected LoadTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Theory]
         [InlineData(EntityState.Unchanged, true)]
         [InlineData(EntityState.Unchanged, false)]
@@ -3868,17 +3868,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await collectionEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                collectionEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await collectionEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    collectionEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -3897,17 +3898,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await collectionEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                collectionEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await collectionEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    collectionEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -3926,17 +3928,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await collectionEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                collectionEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await collectionEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    collectionEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -3955,17 +3958,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await referenceEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                referenceEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -3984,17 +3988,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await referenceEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                referenceEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -4013,17 +4018,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await referenceEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                referenceEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -4042,17 +4048,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await referenceEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                referenceEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -4071,17 +4078,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await referenceEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                referenceEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -4100,17 +4108,18 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                        {
-                            if (async)
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
                             {
-                                await referenceEntry.LoadAsync();
-                            }
-                            else
-                            {
-                                referenceEntry.Load();
-                            }
-                        })).Message);
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
             }
         }
 
@@ -4387,87 +4396,89 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<SingleShadowFk>()
                     .Property<int?>("ParentId");
 
-                modelBuilder.Entity<Parent>(b =>
-                    {
-                        b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
+                modelBuilder.Entity<Parent>(
+                    b =>
+                        {
+                            b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                        b.HasMany(e => e.Children)
-                            .WithOne(e => e.Parent)
-                            .HasForeignKey(e => e.ParentId);
+                            b.HasMany(e => e.Children)
+                                .WithOne(e => e.Parent)
+                                .HasForeignKey(e => e.ParentId);
 
-                        b.HasOne(e => e.SinglePkToPk)
-                            .WithOne(e => e.Parent)
-                            .HasForeignKey<SinglePkToPk>(e => e.Id)
-                            .IsRequired();
+                            b.HasOne(e => e.SinglePkToPk)
+                                .WithOne(e => e.Parent)
+                                .HasForeignKey<SinglePkToPk>(e => e.Id)
+                                .IsRequired();
 
-                        b.HasOne(e => e.Single)
-                            .WithOne(e => e.Parent)
-                            .HasForeignKey<Single>(e => e.ParentId);
+                            b.HasOne(e => e.Single)
+                                .WithOne(e => e.Parent)
+                                .HasForeignKey<Single>(e => e.ParentId);
 
-                        b.HasMany(e => e.ChildrenAk)
-                            .WithOne(e => e.Parent)
-                            .HasPrincipalKey(e => e.AlternateId)
-                            .HasForeignKey(e => e.ParentId);
+                            b.HasMany(e => e.ChildrenAk)
+                                .WithOne(e => e.Parent)
+                                .HasPrincipalKey(e => e.AlternateId)
+                                .HasForeignKey(e => e.ParentId);
 
-                        b.HasOne(e => e.SingleAk)
-                            .WithOne(e => e.Parent)
-                            .HasPrincipalKey<Parent>(e => e.AlternateId)
-                            .HasForeignKey<SingleAk>(e => e.ParentId);
+                            b.HasOne(e => e.SingleAk)
+                                .WithOne(e => e.Parent)
+                                .HasPrincipalKey<Parent>(e => e.AlternateId)
+                                .HasForeignKey<SingleAk>(e => e.ParentId);
 
-                        b.HasMany(e => e.ChildrenShadowFk)
-                            .WithOne(e => e.Parent)
-                            .HasPrincipalKey(e => e.Id)
-                            .HasForeignKey("ParentId");
+                            b.HasMany(e => e.ChildrenShadowFk)
+                                .WithOne(e => e.Parent)
+                                .HasPrincipalKey(e => e.Id)
+                                .HasForeignKey("ParentId");
 
-                        b.HasOne(e => e.SingleShadowFk)
-                            .WithOne(e => e.Parent)
-                            .HasPrincipalKey<Parent>(e => e.Id)
-                            .HasForeignKey<SingleShadowFk>("ParentId");
+                            b.HasOne(e => e.SingleShadowFk)
+                                .WithOne(e => e.Parent)
+                                .HasPrincipalKey<Parent>(e => e.Id)
+                                .HasForeignKey<SingleShadowFk>("ParentId");
 
-                        b.HasMany(e => e.ChildrenCompositeKey)
-                            .WithOne(e => e.Parent)
-                            .HasPrincipalKey(e => new { e.AlternateId, e.Id })
-                            .HasForeignKey(e => new { e.ParentAlternateId, e.ParentId });
+                            b.HasMany(e => e.ChildrenCompositeKey)
+                                .WithOne(e => e.Parent)
+                                .HasPrincipalKey(e => new { e.AlternateId, e.Id })
+                                .HasForeignKey(e => new { e.ParentAlternateId, e.ParentId });
 
-                        b.HasOne(e => e.SingleCompositeKey)
-                            .WithOne(e => e.Parent)
-                            .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
-                            .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
-                    });
+                            b.HasOne(e => e.SingleCompositeKey)
+                                .WithOne(e => e.Parent)
+                                .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
+                                .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
+                        });
             }
 
             protected override void Seed(DbContext context)
             {
-                context.Add((object)new Parent
-                {
-                    Id = 707,
-                    AlternateId = "Root",
-                    Children = new List<Child>
+                context.Add(
+                    (object)new Parent
                     {
-                        new Child { Id = 11 },
-                        new Child { Id = 12 }
-                    },
-                    SinglePkToPk = new SinglePkToPk { Id = 707 },
-                    Single = new Single { Id = 21 },
-                    ChildrenAk = new List<ChildAk>
-                    {
-                        new ChildAk { Id = 31 },
-                        new ChildAk { Id = 32 }
-                    },
-                    SingleAk = new SingleAk { Id = 42 },
-                    ChildrenShadowFk = new List<ChildShadowFk>
-                    {
-                        new ChildShadowFk { Id = 51 },
-                        new ChildShadowFk { Id = 52 }
-                    },
-                    SingleShadowFk = new SingleShadowFk { Id = 62 },
-                    ChildrenCompositeKey = new List<ChildCompositeKey>
-                    {
-                        new ChildCompositeKey { Id = 51 },
-                        new ChildCompositeKey { Id = 52 }
-                    },
-                    SingleCompositeKey = new SingleCompositeKey { Id = 62 }
-                });
+                        Id = 707,
+                        AlternateId = "Root",
+                        Children = new List<Child>
+                        {
+                            new Child { Id = 11 },
+                            new Child { Id = 12 }
+                        },
+                        SinglePkToPk = new SinglePkToPk { Id = 707 },
+                        Single = new Single { Id = 21 },
+                        ChildrenAk = new List<ChildAk>
+                        {
+                            new ChildAk { Id = 31 },
+                            new ChildAk { Id = 32 }
+                        },
+                        SingleAk = new SingleAk { Id = 42 },
+                        ChildrenShadowFk = new List<ChildShadowFk>
+                        {
+                            new ChildShadowFk { Id = 51 },
+                            new ChildShadowFk { Id = 52 }
+                        },
+                        SingleShadowFk = new SingleShadowFk { Id = 62 },
+                        ChildrenCompositeKey = new List<ChildCompositeKey>
+                        {
+                            new ChildCompositeKey { Id = 51 },
+                            new ChildCompositeKey { Id = 52 }
+                        },
+                        SingleCompositeKey = new SingleCompositeKey { Id = 62 }
+                    });
                 context.SaveChanges();
             }
         }

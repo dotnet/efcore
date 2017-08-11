@@ -158,9 +158,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             // ReSharper disable UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
+
             public string Foo { get; set; }
             public Guid? Goo { get; set; }
             public SomeEnum Enum { get; set; }
+
             public SomeEnum? MaybeEnum { get; set; }
             // ReSharper restore UnusedAutoPropertyAccessor.Local
         }

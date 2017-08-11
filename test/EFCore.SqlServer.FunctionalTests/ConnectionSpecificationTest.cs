@@ -258,10 +258,11 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_use_AddDbContext_and_get_connection_string_from_config(string key, string connectionString)
         {
             var configBuilder = new ConfigurationBuilder()
-                .AddInMemoryCollection(new Dictionary<string, string>
-                {
-                    { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString },
-                });
+                .AddInMemoryCollection(
+                    new Dictionary<string, string>
+                    {
+                        { key, SqlServerNorthwindTestStoreFactory.NorthwindConnectionString }
+                    });
 
             var serviceProvider
                 = new ServiceCollection()
@@ -305,19 +306,22 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>(b =>
-                    {
-                        b.HasKey(c => c.CustomerID);
-                        b.ToTable("Customers");
-                    });
+                modelBuilder.Entity<Customer>(
+                    b =>
+                        {
+                            b.HasKey(c => c.CustomerID);
+                            b.ToTable("Customers");
+                        });
             }
         }
 
         private class Customer
         {
             public string CustomerID { get; set; }
+
             // ReSharper disable UnusedMember.Local
             public string CompanyName { get; set; }
+
             public string Fax { get; set; }
             // ReSharper restore UnusedMember.Local
         }

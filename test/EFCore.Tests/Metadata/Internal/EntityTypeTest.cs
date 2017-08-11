@@ -295,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var b = model.AddEntityType(typeof(B));
             b.HasBaseType(a);
 
-            Assert.Equal(CoreStrings.DuplicateProperty("G", typeof(B).Name, typeof(A).Name),
+            Assert.Equal(
+                CoreStrings.DuplicateProperty("G", typeof(B).Name, typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => b.AddProperty("G")).Message);
         }
 
@@ -429,18 +430,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var b = model.AddEntityType(typeof(B));
             b.AddProperty(B.FProperty);
 
-            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+            Assert.Equal(
+                new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new string[0][],
+            Assert.Equal(
+                new string[0][],
                 b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F" }, b.GetProperties().Select(p => p.Name).ToArray());
 
             b.HasBaseType(a);
 
-            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+            Assert.Equal(
+                new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+            Assert.Equal(
+                new[] { new[] { "E" }, new[] { "G" } },
                 b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -466,9 +471,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             a.SetPrimaryKey(a.FindProperty("G"));
             a.AddKey(a.FindProperty("E"));
 
-            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+            Assert.Equal(
+                new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+            Assert.Equal(
+                new[] { new[] { "E" }, new[] { "G" } },
                 b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -493,9 +500,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             b.HasBaseType(null);
 
-            Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
+            Assert.Equal(
+                new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new string[0][],
+            Assert.Equal(
+                new string[0][],
                 b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -652,8 +661,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        specialCustomerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
         }
 
         [Fact]
@@ -680,8 +690,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey("Orders", typeof(Customer).Name, "{'Id'}", "{'CustomerId'}"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    specialCustomerForeignKey.HasPrincipalToDependent("Orders")).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        specialCustomerForeignKey.HasPrincipalToDependent("Orders")).Message);
 
             Assert.Equal("Orders", ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
@@ -707,8 +718,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey("Orders", typeof(SpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    customerForeignKey.HasPrincipalToDependent("Orders")).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        customerForeignKey.HasPrincipalToDependent("Orders")).Message);
         }
 
         [Fact]
@@ -735,8 +747,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NavigationForWrongForeignKey(nameof(Customer.Orders), typeof(VerySpecialCustomer).Name, "{'CustomerId'}", "{'Id'}"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        customerForeignKey.HasPrincipalToDependent(Customer.OrdersProperty)).Message);
 
             Assert.Equal(nameof(Customer.Orders), ((IEntityType)verySpecialCustomerType).GetNavigations().Single().Name);
         }
@@ -845,16 +858,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var derivedForeignKeyProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
             specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.IdProperty.Name } },
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
             specialOrderType.HasBaseType(orderType);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Same(customerForeignKey, specialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType));
         }
@@ -875,17 +892,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialOrderType.HasBaseType(orderType);
             orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
             var derivedForeignKeyProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
             specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         }
 
@@ -909,9 +930,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             specialOrderType.HasBaseType(null);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.IdProperty.Name } },
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         }
 
@@ -937,8 +960,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     typeof(Order).Name,
                     Property.Format(customerKey.Properties),
                     typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        specialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
         [Fact]
@@ -966,8 +990,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     typeof(Order).Name,
                     Property.Format(customerKey.Properties),
                     typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        verySpecialOrderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
         [Fact]
@@ -992,8 +1017,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     typeof(SpecialOrder).Name,
                     Property.Format(customerKey.Properties),
                     typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
         [Fact]
@@ -1021,8 +1047,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     typeof(VerySpecialOrder).Name,
                     Property.Format(customerKey.Properties),
                     typeof(Customer).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
         [Fact]
@@ -1038,16 +1065,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var derivedIndexProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
             specialOrderType.GetOrAddIndex(derivedIndexProperty);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.IdProperty.Name } },
                 specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
             specialOrderType.HasBaseType(orderType);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
                 specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
             Assert.Same(index, specialOrderType.GetOrAddIndex(indexProperty));
         }
@@ -1065,17 +1096,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             specialOrderType.HasBaseType(orderType);
             orderType.GetOrAddIndex(indexProperty);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
             var derivedIndexProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
             specialOrderType.GetOrAddIndex(derivedIndexProperty);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
                 specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         }
 
@@ -1096,9 +1131,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             specialOrderType.HasBaseType(null);
 
-            Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
-            Assert.Equal(new[] { new[] { Order.IdProperty.Name } },
+            Assert.Equal(
+                new[] { new[] { Order.IdProperty.Name } },
                 specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         }
 
@@ -1141,8 +1178,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(SpecialOrder).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    specialOrderType.AddIndex(indexProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        specialOrderType.AddIndex(indexProperty)).Message);
         }
 
         [Fact]
@@ -1162,8 +1200,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(VerySpecialOrder).Name, typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    verySpecialOrderType.AddIndex(indexProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        verySpecialOrderType.AddIndex(indexProperty)).Message);
         }
 
         [Fact]
@@ -1180,8 +1219,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).Name, typeof(SpecialOrder).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    orderType.AddIndex(indexProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderType.AddIndex(indexProperty)).Message);
         }
 
         [Fact]
@@ -1201,8 +1241,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).Name, typeof(VerySpecialOrder).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    orderType.AddIndex(indexProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        orderType.AddIndex(indexProperty)).Message);
         }
 
         [Fact]
@@ -2316,7 +2357,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             fk.IsUnique = true;
 
             fk.HasPrincipalToDependent(SelfRef.SelfRef1Property);
-            Assert.Equal(CoreStrings.DuplicateNavigation(nameof(SelfRef.SelfRef1), typeof(SelfRef).Name, typeof(SelfRef).Name),
+            Assert.Equal(
+                CoreStrings.DuplicateNavigation(nameof(SelfRef.SelfRef1), typeof(SelfRef).Name, typeof(SelfRef).Name),
                 Assert.Throws<InvalidOperationException>(() => fk.HasDependentToPrincipal(SelfRef.SelfRef1Property)).Message);
         }
 
@@ -2402,7 +2444,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property1 = entityType1.AddProperty(Customer.IdProperty);
             var property2 = entityType1.AddProperty(Customer.NameProperty);
 
-            Assert.Equal(CoreStrings.IndexPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Order).Name),
+            Assert.Equal(
+                CoreStrings.IndexPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType2.AddIndex(new[] { property1, property2 })).Message);
         }
@@ -2416,7 +2459,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property2 = entityType.AddProperty(Customer.NameProperty);
             entityType.AddIndex(new[] { property1, property2 });
 
-            Assert.Equal(CoreStrings.DuplicateIndex("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name, typeof(Customer).Name),
+            Assert.Equal(
+                CoreStrings.DuplicateIndex("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name, typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType.AddIndex(new[] { property1, property2 })).Message);
         }
@@ -2490,9 +2534,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityType = new Model().AddEntityType("Customer");
 
-            Assert.Equal(CoreStrings.ClrPropertyOnShadowEntity(nameof(Customer.Name), "Customer"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty(Customer.NameProperty)).Message);
+            Assert.Equal(
+                CoreStrings.ClrPropertyOnShadowEntity(nameof(Customer.Name), "Customer"),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        entityType.AddProperty(Customer.NameProperty)).Message);
         }
 
         [Fact]
@@ -2500,9 +2546,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
 
-            Assert.Equal(CoreStrings.NoPropertyType("_foo", nameof(Customer)),
-                Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty("_foo")).Message);
+            Assert.Equal(
+                CoreStrings.NoPropertyType("_foo", nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        entityType.AddProperty("_foo")).Message);
         }
 
         [Fact]
@@ -2510,10 +2558,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
 
-            Assert.Equal(CoreStrings.PropertyWrongClrType(
-                nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() =>
-                    entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
+            Assert.Equal(
+                CoreStrings.PropertyWrongClrType(
+                    nameof(Customer.Name), nameof(Customer), typeof(string).DisplayName(), typeof(int).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        entityType.AddProperty(nameof(Customer.Name), typeof(int))).Message);
         }
 
         [Fact]
@@ -3118,11 +3168,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
             var derivedType = model.AddEntityType(typeof(SpecialOrder), nameof(Customer.Orders), customerType);
 
-            Assert.Equal(CoreStrings.DependentDerivedType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
+            Assert.Equal(
+                CoreStrings.DependentDerivedType(
+                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
-            Assert.Equal(CoreStrings.DependentDerivedType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(SpecialOrder)),
+            Assert.Equal(
+                CoreStrings.DependentDerivedType(
+                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(SpecialOrder)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
 
@@ -3135,11 +3187,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order), nameof(Customer.Orders), customerType);
             var derivedType = model.AddEntityType(typeof(SpecialOrder));
 
-            Assert.Equal(CoreStrings.DependentDerivedType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
+            Assert.Equal(
+                CoreStrings.DependentDerivedType(
+                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => orderType.BaseType = baseType).Message);
-            Assert.Equal(CoreStrings.DependentBaseType(
-                typeof(SpecialOrder).DisplayName(fullName: false), nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
+            Assert.Equal(
+                CoreStrings.DependentBaseType(
+                    typeof(SpecialOrder).DisplayName(fullName: false), nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.BaseType = orderType).Message);
         }
 

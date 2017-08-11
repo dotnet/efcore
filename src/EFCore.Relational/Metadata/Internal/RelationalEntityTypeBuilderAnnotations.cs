@@ -178,8 +178,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            return new DiscriminatorBuilder(Annotations, entityBuilder
-                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource));
+            return new DiscriminatorBuilder(
+                Annotations, entityBuilder
+                    => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource));
         }
 
         private DiscriminatorBuilder DiscriminatorBuilder(
@@ -248,8 +249,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (property, entityType) => new DiscriminatorValueGenerator(GetAnnotations(entityType).DiscriminatorValue),
                 configurationSource);
 
-            return new DiscriminatorBuilder(Annotations, entityBuilder
-                => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource));
+            return new DiscriminatorBuilder(
+                Annotations, entityBuilder
+                    => new RelationalEntityTypeBuilderAnnotations(entityBuilder, Annotations.ConfigurationSource));
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Dependencies = dependencies;
 
             var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
-            
+
             _commandTimeout = relationalOptions.CommandTimeout;
 
             if (relationalOptions.Connection != null)
@@ -190,10 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     dbTransaction,
                     Dependencies.TransactionLogger,
                     transactionOwned: true);
-            
+
             Dependencies.TransactionLogger.TransactionStarted(
-                this, 
-                dbTransaction, 
+                this,
+                dbTransaction,
                 CurrentTransaction.TransactionId,
                 DateTimeOffset.UtcNow);
 
@@ -223,14 +223,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Open();
 
                 CurrentTransaction = new RelationalTransaction(
-                    this, 
-                    transaction, 
-                    Dependencies.TransactionLogger, 
+                    this,
+                    transaction,
+                    Dependencies.TransactionLogger,
                     transactionOwned: false);
 
                 Dependencies.TransactionLogger.TransactionUsed(
-                    this, 
-                    transaction, 
+                    this,
+                    transaction,
                     CurrentTransaction.TransactionId,
                     DateTimeOffset.UtcNow);
             }
@@ -267,7 +267,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
-        /// /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
+        /// <param name="errorsExpected">
+        ///     Indicates if the connection errors are expected and should be logged as debug message.
+        /// </param>
         /// <returns> True if the underlying connection was actually opened; false otherwise. </returns>
         public virtual bool Open(bool errorsExpected = false)
         {
@@ -305,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 catch (Exception e)
                 {
                     Dependencies.ConnectionLogger.ConnectionError(
-                        this, 
+                        this,
                         e,
                         startTime,
                         stopwatch.Elapsed,

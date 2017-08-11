@@ -177,7 +177,8 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
             var expectedText = @"INSERT INTO [dbo].[Ducks]
 DEFAULT VALUES;
 ";
-            AssertBaseline(expectedText + expectedText,
+            AssertBaseline(
+                expectedText + expectedText,
                 stringBuilder.ToString());
             Assert.Equal(ResultSetMapping.NoResultSet, grouping);
         }
@@ -193,11 +194,10 @@ DEFAULT VALUES;
 
         protected override string CloseDelimeter => "]";
 
-
         private const string FileLineEnding = @"
 ";
 
-        private void AssertBaseline(string expected, string actual )
+        private void AssertBaseline(string expected, string actual)
         {
             Assert.Equal(expected.Replace(FileLineEnding, Environment.NewLine), actual);
         }

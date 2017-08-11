@@ -24,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 principal.Child1 = dependent;
                 principal.Child2 = dependent;
 
-                Assert.Equal(CoreStrings.UntrackedDependentEntity(
-                    typeof(ChildPN).ShortDisplayName(),
-                    "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
+                Assert.Equal(
+                    CoreStrings.UntrackedDependentEntity(
+                        typeof(ChildPN).ShortDisplayName(),
+                        "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
 
                 var dependentEntry1 = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
@@ -35,9 +36,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var dependentEntry2 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
 
-                Assert.Equal(CoreStrings.AmbiguousDependentEntity(
-                    typeof(ChildPN).ShortDisplayName(),
-                    "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
+                Assert.Equal(
+                    CoreStrings.AmbiguousDependentEntity(
+                        typeof(ChildPN).ShortDisplayName(),
+                        "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(dependent)).Message);
             }
         }
@@ -57,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(dependentEntry1.GetInfrastructure(), context.Entry(dependent).GetInfrastructure());
 
                 Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(CoreEventId.DuplicateDependentEntityTypeInstanceWarning.ToString(),
+                    CoreStrings.WarningAsErrorTemplate(
+                        CoreEventId.DuplicateDependentEntityTypeInstanceWarning.ToString(),
                         CoreStrings.LogDuplicateDependentEntityTypeInstance.GenerateMessage(
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + typeof(ChildPN).ShortDisplayName(),
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName())),
@@ -383,12 +386,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(dependent1, principal.Child2);
                 Assert.Same(dependent2, principal.Child1);
                 Assert.Equal(entityState, context.Entry(principal).State);
-                Assert.Same(dependent1Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent1Entry.GetInfrastructure(),
                     context.Entry(principal).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Same(dependent2Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent2Entry.GetInfrastructure(),
                     context.Entry(principal).Reference(p => p.Child2).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent2Entry.State);
@@ -426,12 +431,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(principal, dependent2.Parent);
                 Assert.Same(dependent2, principal.Child1);
                 Assert.Equal(entityState, context.Entry(principal).State);
-                Assert.Same(dependent1Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent1Entry.GetInfrastructure(),
                     context.Entry(principal).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Same(dependent2Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent2Entry.GetInfrastructure(),
                     context.Entry(principal).Reference(p => p.Child2).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent2Entry.State);
@@ -462,7 +469,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityState != EntityState.Added)
                 {
-                    Assert.Equal(CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
+                    Assert.Equal(
+                        CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
                         Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 }
                 else
@@ -508,7 +516,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityState != EntityState.Added)
                 {
-                    Assert.Equal(CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
+                    Assert.Equal(
+                        CoreStrings.KeyReadOnly("ParentId", dependentEntry1.Metadata.DisplayName()),
                         Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
                 }
                 else
@@ -567,12 +576,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(entityState, context.Entry(principal2).State);
                 Assert.Equal(EntityState.Detached, dependent1Entry.State);
                 Assert.Equal(EntityState.Detached, dependent2Entry.State);
-                Assert.Same(dependent1Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent1Entry.GetInfrastructure(),
                     context.Entry(principal2).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal2.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(nameof(Parent.Child1), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Same(dependent2Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent2Entry.GetInfrastructure(),
                     context.Entry(principal1).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal1.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent2Entry.State);
@@ -615,12 +626,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(principal1, dependent2.Parent);
                 Assert.Equal(entityState, context.Entry(principal1).State);
                 Assert.Equal(entityState, context.Entry(principal2).State);
-                Assert.Same(dependent1Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent1Entry.GetInfrastructure(),
                     context.Entry(principal2).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(principal2.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(nameof(Parent.Child1), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Same(dependent2Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent2Entry.GetInfrastructure(),
                     context.Entry(principal1).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal1.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent2Entry.State);
@@ -738,12 +751,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Null(principal2.Child2);
                 Assert.Equal(entityState, context.Entry(principal1).State);
                 Assert.Equal(entityState, context.Entry(principal2).State);
-                Assert.Same(dependent1Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent1Entry.GetInfrastructure(),
                     context.Entry(principal1).Reference(p => p.Child2).TargetEntry.GetInfrastructure());
                 Assert.Equal(EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(nameof(Parent.Child2), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Same(dependent2Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent2Entry.GetInfrastructure(),
                     context.Entry(principal2).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent2Entry.State);
@@ -786,12 +801,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(principal1, dependent2.Parent);
                 Assert.Equal(entityState, context.Entry(principal1).State);
                 Assert.Equal(entityState, context.Entry(principal2).State);
-                Assert.Same(dependent1Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent1Entry.GetInfrastructure(),
                     context.Entry(principal1).Reference(p => p.Child2).TargetEntry.GetInfrastructure());
                 Assert.Equal(EntityState.Modified, dependent1Entry.State);
                 Assert.Equal(principal1.Id, dependent1Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(nameof(Parent.Child2), dependent1Entry.Metadata.DefiningNavigationName);
-                Assert.Same(dependent2Entry.GetInfrastructure(),
+                Assert.Same(
+                    dependent2Entry.GetInfrastructure(),
                     context.Entry(principal2).Reference(p => p.Child1).TargetEntry.GetInfrastructure());
                 Assert.Equal(principal2.Id, dependent2Entry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Modified, dependent2Entry.State);
@@ -855,53 +872,61 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Parent>(pb =>
-                    {
-                        pb.Property(p => p.Id).ValueGeneratedNever();
-                        pb.OwnsOne(p => p.Child1, cb =>
-                            {
-                                cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.HasOne(c => c.Parent)
-                                    .WithOne(p => p.Child1);
-                                cb.OwnsOne(c => c.SubChild, scb =>
+                modelBuilder.Entity<Parent>(
+                    pb =>
+                        {
+                            pb.Property(p => p.Id).ValueGeneratedNever();
+                            pb.OwnsOne(
+                                p => p.Child1, cb =>
                                     {
-                                        scb.HasForeignKey("ChildId");
-                                        scb.HasOne(sc => sc.Child)
-                                            .WithOne(c => c.SubChild);
+                                        cb.Property<int?>("ParentId");
+                                        cb.HasForeignKey("ParentId");
+                                        cb.HasOne(c => c.Parent)
+                                            .WithOne(p => p.Child1);
+                                        cb.OwnsOne(
+                                            c => c.SubChild, scb =>
+                                                {
+                                                    scb.HasForeignKey("ChildId");
+                                                    scb.HasOne(sc => sc.Child)
+                                                        .WithOne(c => c.SubChild);
+                                                });
                                     });
-                            });
-                        pb.OwnsOne(p => p.Child2, cb =>
-                            {
-                                cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.HasOne(c => c.Parent)
-                                    .WithOne(p => p.Child2);
-                                cb.OwnsOne(c => c.SubChild, scb =>
+                            pb.OwnsOne(
+                                p => p.Child2, cb =>
                                     {
-                                        scb.HasForeignKey("ChildId");
-                                        scb.HasOne(sc => sc.Child)
-                                            .WithOne(c => c.SubChild);
+                                        cb.Property<int?>("ParentId");
+                                        cb.HasForeignKey("ParentId");
+                                        cb.HasOne(c => c.Parent)
+                                            .WithOne(p => p.Child2);
+                                        cb.OwnsOne(
+                                            c => c.SubChild, scb =>
+                                                {
+                                                    scb.HasForeignKey("ChildId");
+                                                    scb.HasOne(sc => sc.Child)
+                                                        .WithOne(c => c.SubChild);
+                                                });
                                     });
-                            });
-                    });
+                        });
 
-                modelBuilder.Entity<ParentPN>(pb =>
-                    {
-                        pb.Property(p => p.Id).ValueGeneratedNever();
-                        pb.OwnsOne(p => p.Child1, cb =>
-                            {
-                                cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
-                            });
-                        pb.OwnsOne(p => p.Child2, cb =>
-                            {
-                                cb.Property<int?>("ParentId");
-                                cb.HasForeignKey("ParentId");
-                                cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
-                            });
-                    });
+                modelBuilder.Entity<ParentPN>(
+                    pb =>
+                        {
+                            pb.Property(p => p.Id).ValueGeneratedNever();
+                            pb.OwnsOne(
+                                p => p.Child1, cb =>
+                                    {
+                                        cb.Property<int?>("ParentId");
+                                        cb.HasForeignKey("ParentId");
+                                        cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
+                                    });
+                            pb.OwnsOne(
+                                p => p.Child2, cb =>
+                                    {
+                                        cb.Property<int?>("ParentId");
+                                        cb.HasForeignKey("ParentId");
+                                        cb.OwnsOne(c => c.SubChild, scb => { scb.HasForeignKey("ChildId"); });
+                                    });
+                        });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

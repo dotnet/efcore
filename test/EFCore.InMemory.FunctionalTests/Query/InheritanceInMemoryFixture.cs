@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(InMemoryEventId.TransactionIgnoredWarning));
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(InMemoryEventId.TransactionIgnoredWarning));
     }
 }

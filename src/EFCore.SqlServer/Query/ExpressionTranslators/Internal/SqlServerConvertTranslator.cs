@@ -42,9 +42,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
         private static readonly IEnumerable<MethodInfo> _supportedMethods
             = _typeMapping.Keys
-                .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
-                    .Where(m => m.GetParameters().Length == 1
-                                && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
+                .SelectMany(
+                    t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
+                        .Where(
+                            m => m.GetParameters().Length == 1
+                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

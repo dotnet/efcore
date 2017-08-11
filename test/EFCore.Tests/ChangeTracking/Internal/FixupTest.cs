@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -3436,7 +3438,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         });
             }
         }
-        
+
         [Theory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
@@ -3450,7 +3452,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: true, setToPrincipal: false);
         }
-        
+
         [Theory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
@@ -3464,7 +3466,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Replace_dependent_one_to_one_dep_uni(oldEntityState, newEntityState, setFk: true, setToPrincipal: true);
         }
-        
+
         [Theory]
         [InlineData(EntityState.Added, EntityState.Added)]
         [InlineData(EntityState.Added, EntityState.Modified)]
@@ -3936,6 +3938,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private int _id;
             private ICollection<Product> _products;
 
+            // ReSharper disable once UnusedMember.Local
             public Category()
             {
             }
@@ -3963,6 +3966,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private Category _category;
             private ICollection<SpecialOffer> _specialOffers;
 
+            // ReSharper disable once UnusedMember.Local
             public Product()
             {
             }
@@ -4000,6 +4004,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private int _productId;
             private Product _product;
 
+            // ReSharper disable once UnusedMember.Local
             public SpecialOffer()
             {
             }
@@ -4016,6 +4021,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public int ProductId => _productId;
 
+            // ReSharper disable once UnusedMember.Local
             public void SetProductId(int productId) => _productId = productId;
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
@@ -4024,7 +4030,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void SetProduct(Product product) => _product = product;
         }
 
-        private class FixupContext : DbContext
+        private sealed class FixupContext : DbContext
         {
             public FixupContext()
             {
@@ -4153,6 +4159,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class Context4853 : DbContext
         {
+            // ReSharper disable once UnusedMember.Local
             public DbSet<TestAssembly> Assemblies { get; set; }
             public DbSet<TestClass> Classes { get; set; }
 

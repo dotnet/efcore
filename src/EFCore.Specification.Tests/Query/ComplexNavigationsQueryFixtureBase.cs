@@ -30,11 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     typeof(Level1),
                     (e, a) =>
-                    {
-                        Assert.Equal(e.Id, a.Id);
-                        Assert.Equal(e.Name, a.Name);
-                        Assert.Equal(e.Date, a.Date);
-                    }
+                        {
+                            Assert.Equal(e.Id, a.Id);
+                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.Date, a.Date);
+                        }
                 },
                 {
                     typeof(Level2),
@@ -135,9 +135,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(ComplexNavigationsContext context) => ComplexNavigationsData.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning));
-        
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning));
+
         public override ComplexNavigationsContext CreateContext()
         {
             var context = base.CreateContext();

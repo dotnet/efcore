@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (_parameterScope != null)
                 {
-                    if (_parameterScope.TryGetValue(a, out ParameterExpression mapped))
+                    if (_parameterScope.TryGetValue(a, out var mapped))
                     {
                         return mapped.Name == b.Name
                                && mapped.Type == b.Type;
@@ -587,10 +587,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return Compare(
                                nullConditionalEqualExpressionA.OuterNullProtection,
                                nullConditionalEqualExpressionB.OuterNullProtection)
-                        && Compare(
+                           && Compare(
                                nullConditionalEqualExpressionA.OuterKey,
                                nullConditionalEqualExpressionB.OuterKey)
-                        && Compare(
+                           && Compare(
                                nullConditionalEqualExpressionA.InnerKey,
                                nullConditionalEqualExpressionB.InnerKey);
                 }

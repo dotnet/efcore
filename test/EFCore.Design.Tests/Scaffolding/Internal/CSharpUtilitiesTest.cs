@@ -21,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Assert.Equal(typeName, new CSharpUtilities().GetTypeName(type));
         }
 
-        struct SomeGenericStruct<T> {}
+        private struct SomeGenericStruct<T>
+        {
+        }
 
         [Theory]
         [InlineData("", "\"\"")]

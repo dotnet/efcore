@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
@@ -65,8 +64,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.Entity(typeof(TEntity), entityTypeBuilder =>
-                    buildAction(new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                ModelBuilder.Entity(
+                    typeof(TEntity), entityTypeBuilder =>
+                        buildAction(new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
                 return this;
             }
 
@@ -141,10 +141,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
-                => Wrap(EntityTypeBuilder.OwnsOne(
-                    typeof(TRelatedEntity),
-                    navigationExpression.GetPropertyAccess().Name,
-                    r => buildAction(new NonGenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne(
+                        typeof(TRelatedEntity),
+                        navigationExpression.GetPropertyAccess().Name,
+                        r => buildAction(new NonGenericTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
@@ -312,12 +313,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => Wrap(ReferenceReferenceBuilder.HasAnnotation(annotation, value));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasForeignKey(
-                    typeof(TDependentEntity), foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap(
+                    ReferenceReferenceBuilder.HasForeignKey(
+                        typeof(TDependentEntity), foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(
-                    typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap(
+                    ReferenceReferenceBuilder.HasPrincipalKey(
+                        typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
                 params string[] foreignKeyPropertyNames)
@@ -367,8 +370,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasForeignKey(
                 Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
-                => Wrap<TEntity, TRelatedEntity>(ReferenceOwnershipBuilder.HasForeignKey(
-                    foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap<TEntity, TRelatedEntity>(
+                    ReferenceOwnershipBuilder.HasForeignKey(
+                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
                 params string[] keyPropertyNames)
@@ -376,8 +380,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
                 Expression<Func<TEntity, object>> keyExpression)
-                => Wrap<TEntity, TRelatedEntity>(ReferenceOwnershipBuilder.HasPrincipalKey(
-                    keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap<TEntity, TRelatedEntity>(
+                    ReferenceOwnershipBuilder.HasPrincipalKey(
+                        keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
                 => Wrap<TEntity, TRelatedEntity>(ReferenceOwnershipBuilder.OnDelete(deleteBehavior));
@@ -402,21 +407,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new TestIndexBuilder(ReferenceOwnershipBuilder.HasIndex(propertyNames));
 
             public override TestIndexBuilder HasIndex(Expression<Func<TRelatedEntity, object>> indexExpression)
-                => new TestIndexBuilder(ReferenceOwnershipBuilder.HasIndex(
-                    indexExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => new TestIndexBuilder(
+                    ReferenceOwnershipBuilder.HasIndex(
+                        indexExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity> OwnsOne<TNewRelatedEntity>(
                 Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression)
-                => Wrap<TRelatedEntity, TNewRelatedEntity>(ReferenceOwnershipBuilder.OwnsOne(
-                    typeof(TNewRelatedEntity), navigationExpression.GetPropertyAccess().Name));
+                => Wrap<TRelatedEntity, TNewRelatedEntity>(
+                    ReferenceOwnershipBuilder.OwnsOne(
+                        typeof(TNewRelatedEntity), navigationExpression.GetPropertyAccess().Name));
 
             public override TestReferenceOwnershipBuilder<TEntity, TRelatedEntity> OwnsOne<TNewRelatedEntity>(
                 Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity>> buildAction)
-                => Wrap<TEntity, TRelatedEntity>(ReferenceOwnershipBuilder.OwnsOne(
-                    typeof(TNewRelatedEntity),
-                    navigationExpression.GetPropertyAccess().Name,
-                    r => buildAction(Wrap<TRelatedEntity, TNewRelatedEntity>(r))));
+                => Wrap<TEntity, TRelatedEntity>(
+                    ReferenceOwnershipBuilder.OwnsOne(
+                        typeof(TNewRelatedEntity),
+                        navigationExpression.GetPropertyAccess().Name,
+                        r => buildAction(Wrap<TRelatedEntity, TNewRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
                 Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression = null)

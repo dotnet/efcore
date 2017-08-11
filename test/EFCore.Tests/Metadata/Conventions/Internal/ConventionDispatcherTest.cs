@@ -1130,8 +1130,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
             else
             {
-                Assert.NotNull(entityBuilder.Metadata.SetPrimaryKey(
-                    entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
+                Assert.NotNull(
+                    entityBuilder.Metadata.SetPrimaryKey(
+                        entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
             }
 
             if (useScope)
@@ -1151,8 +1152,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
             else
             {
-                Assert.NotNull(entityBuilder.Metadata.SetPrimaryKey(
-                    entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
+                Assert.NotNull(
+                    entityBuilder.Metadata.SetPrimaryKey(
+                        entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
             }
 
             Assert.Equal(new string[] { null }, convention1.Calls);
@@ -1871,7 +1873,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { true, false }, convention2.Calls);
             Assert.Empty(convention3.Calls);
 
-            Assert.Same(foreignKey,
+            Assert.Same(
+                foreignKey,
                 dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 
@@ -1964,7 +1967,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(new[] { true, false }, convention2.Calls);
             Assert.Empty(convention3.Calls);
 
-            Assert.Same(foreignKey,
+            Assert.Same(
+                foreignKey,
                 dependentEntityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
         }
 

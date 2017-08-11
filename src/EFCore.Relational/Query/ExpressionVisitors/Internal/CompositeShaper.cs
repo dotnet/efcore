@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override Shaper Unwrap(IQuerySource querySource)
             {
-                return _outerShaper.Unwrap(querySource) 
-                    ?? _innerShaper.Unwrap(querySource) 
-                    ?? base.Unwrap(querySource);
+                return _outerShaper.Unwrap(querySource)
+                       ?? _innerShaper.Unwrap(querySource)
+                       ?? base.Unwrap(querySource);
             }
         }
     }

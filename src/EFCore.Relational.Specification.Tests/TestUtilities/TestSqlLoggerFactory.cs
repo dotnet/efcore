@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             catch
             {
                 var methodCallLine = Environment.StackTrace.Split(
-                    new[] { Environment.NewLine },
-                    StringSplitOptions.RemoveEmptyEntries)[4]
+                        new[] { Environment.NewLine },
+                        StringSplitOptions.RemoveEmptyEntries)[4]
                     .Substring(6);
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                    0,
-                    currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
+                                  0,
+                                  currentDirectory.LastIndexOf("\\test\\", StringComparison.Ordinal) + 1)
                               + "QueryBaseline.cs";
 
                 var testInfo = $"{testName + " : " + lineNumber}" + FileLineEnding;

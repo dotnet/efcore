@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class AsyncQueryNavigationsTestBase<TFixture> : AsyncQueryTestBase<TFixture>
         where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
     {
-
         protected AsyncQueryNavigationsTestBase(TFixture fixture)
             : base(fixture)
         {

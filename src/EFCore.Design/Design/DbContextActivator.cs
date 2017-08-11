@@ -10,16 +10,16 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     Used to instantiate <see cref="DbContext"/> types at design time.
+    ///     Used to instantiate <see cref="DbContext" /> types at design time.
     /// </summary>
     public static class DbContextActivator
     {
         /// <summary>
-        ///     Creates an instance of the specified <see cref="DbContext"/> type using the standard design-time
-        ///     mechanisms. When available, this will use any <see cref="IDesignTimeDbContextFactory{TContext}"/>
+        ///     Creates an instance of the specified <see cref="DbContext" /> type using the standard design-time
+        ///     mechanisms. When available, this will use any <see cref="IDesignTimeDbContextFactory{TContext}" />
         ///     implementations or the application's service provider.
         /// </summary>
-        /// <param name="contextType"> The <see cref="DbContext"/> type to instantiate. </param>
+        /// <param name="contextType"> The <see cref="DbContext" /> type to instantiate. </param>
         /// <param name="startupAssembly"> The application's startup assembly. </param>
         /// <param name="reportHandler"> The design-time report handler. </param>
         /// <returns> The newly created object. </returns>

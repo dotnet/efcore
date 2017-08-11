@@ -156,7 +156,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine();
         }
 
-
         private void GenerateOnModelCreating(IModel model, bool useDataAnnotations)
         {
             _sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
@@ -343,7 +342,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (key.Properties.Count == 1)
             {
-
                 if (key is Key concreteKey
                     && key.Properties.SequenceEqual(new KeyDiscoveryConvention().DiscoverKeyProperties(concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
                 {
@@ -355,7 +353,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     return;
                 }
-
             }
 
             var lines = new List<string>
@@ -629,14 +626,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (!foreignKey.PrincipalKey.IsPrimaryKey())
             {
                 canUseDataAnnotations = false;
-                lines.Add($".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
+                lines.Add(
+                    $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
                     + $"{(foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")}"
                     + $"(p => {GenerateLambdaToKey(foreignKey.PrincipalKey.Properties, "p")})");
             }
 
-            lines.Add($".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
-                      + $"{(foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")}"
-                      + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
+            lines.Add(
+                $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
+                + $"{(foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")}"
+                + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired
                 ? DeleteBehavior.Cascade
@@ -678,7 +677,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
 
-            if (!useDataAnnotations || !canUseDataAnnotations)
+            if (!useDataAnnotations
+                || !canUseDataAnnotations)
             {
                 AppendMultiLineFluentApi(foreignKey.DeclaringEntityType, lines);
             }

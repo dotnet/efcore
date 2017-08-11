@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Use_of_custom_IKey_throws()
         {
             var key = new FakeKey();
-            
+
             Assert.Equal(
                 CoreStrings.CustomMetadata(nameof(Use_of_custom_IKey_throws), nameof(IKey), nameof(FakeKey)),
                 Assert.Throws<NotSupportedException>(() => key.AsKey()).Message);
@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType2.GetOrAddProperty(Order.NameProperty);
 
-            Assert.Equal(CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
+            Assert.Equal(
+                CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType1.AddKey(new[] { property1, property2 })).Message);
         }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class MonsterFixupChangedChangingSqlServerTest : 
+    public class MonsterFixupChangedChangingSqlServerTest :
         MonsterFixupTestBase<MonsterFixupChangedChangingSqlServerTest.MonsterFixupChangedChangingSqlServerFixture>
     {
         public MonsterFixupChangedChangingSqlServerTest(MonsterFixupChangedChangingSqlServerFixture fixture)

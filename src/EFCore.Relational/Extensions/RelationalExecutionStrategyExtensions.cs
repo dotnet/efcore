@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     Extension methods for <see cref="IExecutionStrategy" /> that can only be used with a 
+    ///     Extension methods for <see cref="IExecutionStrategy" /> that can only be used with a
     ///     relational database provider.
     /// </summary>
     public static class RelationalExecutionStrategyExtensions
@@ -184,7 +184,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Action<TState> operation,
             [NotNull] Func<TState, bool> verifySucceeded,
             IsolationLevel isolationLevel)
-            => strategy.ExecuteInTransaction(state,
+            => strategy.ExecuteInTransaction(
+                state,
                 s =>
                     {
                         operation(s);
@@ -225,7 +226,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default(CancellationToken))
-            => strategy.ExecuteInTransactionAsync(state,
+            => strategy.ExecuteInTransactionAsync(
+                state,
                 async (s, ct) =>
                     {
                         await operation(s, ct);

@@ -52,9 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 if (keyPropertyNames == null)
                 {
-                    var candidateProperties = entityType.GetProperties().Where(p =>
-                        !p.IsShadowProperty
-                        || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
+                    var candidateProperties = entityType.GetProperties().Where(
+                        p =>
+                            !p.IsShadowProperty
+                            || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
                     keyPropertyNames = DiscoverKeyProperties(entityType, candidateProperties).Select(p => p.Name).ToList();
                     if (keyPropertyNames.Count > 1)
                     {

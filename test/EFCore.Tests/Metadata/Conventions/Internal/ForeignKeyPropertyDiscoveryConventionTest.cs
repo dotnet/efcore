@@ -598,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(DependentType.Metadata, newRelationshipBuilder.Metadata.DeclaringEntityType);
 
             newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(newRelationshipBuilder);
-            
+
             var fk = (IForeignKey)DependentType.Metadata.GetForeignKeys().Single();
             Assert.Same(fk, newRelationshipBuilder.Metadata);
             Assert.Same(DependentType.Metadata, fk.DeclaringEntityType);
@@ -747,12 +747,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var otherNewRelationshipBuilder = convention.Apply(otherRelationshipBuilder);
             Assert.Same(otherRelationshipBuilder, otherNewRelationshipBuilder);
 
-            Assert.Equal(CoreStrings.AmbiguousForeignKeyPropertyCandidates(
-                nameof(DependentEntity) + ".SomeNav",
-                nameof(PrincipalEntity),
-                nameof(DependentEntity),
-                nameof(PrincipalEntity),
-                "{'" + nameof(DependentEntity.PrincipalEntityPeEKaY) + "'}"),
+            Assert.Equal(
+                CoreStrings.AmbiguousForeignKeyPropertyCandidates(
+                    nameof(DependentEntity) + ".SomeNav",
+                    nameof(PrincipalEntity),
+                    nameof(DependentEntity),
+                    nameof(PrincipalEntity),
+                    "{'" + nameof(DependentEntity.PrincipalEntityPeEKaY) + "'}"),
                 Assert.Throws<InvalidOperationException>(() => convention.Apply(DependentType.Metadata.Model.Builder)).Message);
 
             newRelationshipBuilder.Metadata.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Explicit);

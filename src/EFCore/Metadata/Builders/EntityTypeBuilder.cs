@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
-        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex"/> to specify uniqueness
+        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex" /> to specify uniqueness
         ///     in the model that does not force properties to be read-only.
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the key. </param>
@@ -120,10 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] string propertyName)
-            => new PropertyBuilder<TProperty>(Builder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                typeof(TProperty),
-                ConfigurationSource.Explicit));
+            => new PropertyBuilder<TProperty>(
+                Builder.Property(
+                    Check.NotEmpty(propertyName, nameof(propertyName)),
+                    typeof(TProperty),
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -142,10 +143,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
-            => new PropertyBuilder(Builder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                Check.NotNull(propertyType, nameof(propertyType)),
-                ConfigurationSource.Explicit));
+            => new PropertyBuilder(
+                Builder.Property(
+                    Check.NotEmpty(propertyName, nameof(propertyName)),
+                    Check.NotNull(propertyType, nameof(propertyType)),
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -161,9 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] string propertyName)
-            => new PropertyBuilder(Builder.Property(
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                ConfigurationSource.Explicit));
+            => new PropertyBuilder(
+                Builder.Property(
+                    Check.NotEmpty(propertyName, nameof(propertyName)),
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -360,7 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                Builder.Navigation(relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
+                Builder.Navigation(
+                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
         }
 
@@ -398,7 +402,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigationName,
-                Builder.Navigation(relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
+                Builder.Navigation(
+                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
         }
 

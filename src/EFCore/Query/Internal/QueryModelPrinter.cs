@@ -47,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _queryModelPrintingVisitor.VisitQueryModel(queryModel);
 
             var result = _expressionPrinter.StringBuilder.ToString();
-            if (characterLimit != null && characterLimit.Value > 0)
+            if (characterLimit != null
+                && characterLimit.Value > 0)
             {
                 result = result.Length > characterLimit
                     ? result.Substring(0, characterLimit.Value) + "..."
@@ -221,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private static string ResultOperatorString(ResultOperatorBase resultOperator)
             {
-                switch(resultOperator)
+                switch (resultOperator)
                 {
                     case CastResultOperator cast:
                         return "Cast<" + cast.CastItemType.ShortDisplayName() + ">()";

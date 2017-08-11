@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override TestStore GetOrCreate(string storeName)
-            => SqlServerTestStore.GetOrCreate("adventureworks",
+            => SqlServerTestStore.GetOrCreate(
+                "adventureworks",
                 Path.Combine("SqlAzure", "adventureworks.sql"));
     }
 }

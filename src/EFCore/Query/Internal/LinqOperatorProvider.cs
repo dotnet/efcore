@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IOrderedEnumerable<TResult> CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending) => !descending
-                    ? _results.OrderBy(keySelector, comparer)
-                    : _results.OrderByDescending(keySelector, comparer);
+                ? _results.OrderBy(keySelector, comparer)
+                : _results.OrderByDescending(keySelector, comparer);
 
             public IEnumerator<TResult> GetEnumerator() => _results.GetEnumerator();
 
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
                 private readonly IEnumerator<T> _innerEnumerator;
-                
+
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
@@ -220,12 +220,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IList<Func<TElement, object>> entityAccessors)
         {
             return groupings
-                .Select(g =>
-                    new TrackingGrouping<TKey, TElement>(
-                        g,
-                        queryContext,
-                        entityTrackingInfos,
-                        entityAccessors));
+                .Select(
+                    g =>
+                        new TrackingGrouping<TKey, TElement>(
+                            g,
+                            queryContext,
+                            entityTrackingInfos,
+                            entityAccessors));
         }
 
         private sealed class TrackingGrouping<TKey, TElement> : IGrouping<TKey, TElement>
@@ -633,6 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         // Set Operations
         private static readonly MethodInfo _concat = GetMethod("Concat", 1);
+
         private static readonly MethodInfo _except = GetMethod("Except", 1);
         private static readonly MethodInfo _intersect = GetMethod("Intersect", 1);
         private static readonly MethodInfo _union = GetMethod("Union", 1);
@@ -654,8 +656,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return
                 aggregateMethods
-                    .FirstOrDefault(mi => mi.GetParameters()[0].ParameterType
-                                          == typeof(IEnumerable<>).MakeGenericType(elementType))
+                    .FirstOrDefault(
+                        mi => mi.GetParameters()[0].ParameterType
+                              == typeof(IEnumerable<>).MakeGenericType(elementType))
                 ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
                     .MakeGenericMethod(elementType);
         }

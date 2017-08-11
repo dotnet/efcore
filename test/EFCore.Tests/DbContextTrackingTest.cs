@@ -6,17 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -54,24 +45,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Task TrackEntitiesTest(
-            Func<DbContext, DbContextTest.Category, EntityEntry<DbContextTest.Category>> categoryAdder,
-            Func<DbContext, DbContextTest.Product, EntityEntry<DbContextTest.Product>> productAdder, EntityState expectedState)
+            Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
+            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
                 expectedState);
 
         private static async Task TrackEntitiesTest(
-            Func<DbContext, DbContextTest.Category, Task<EntityEntry<DbContextTest.Category>>> categoryAdder,
-            Func<DbContext, DbContextTest.Product, Task<EntityEntry<DbContextTest.Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
+            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new DbContextTest.Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var principal = new DbContextTest.Category { Id = 1, Name = "Beverages", Products = new List<DbContextTest.Product> { relatedDependent } };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new DbContextTest.Category { Id = 2, Name = "Foods" };
-                var dependent = new DbContextTest.Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 var principalEntry = await categoryAdder(context, principal);
                 var dependentEntry = await productAdder(context, dependent);
@@ -148,13 +139,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object[], Task> adder,
             EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new DbContextTest.Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var principal = new DbContextTest.Category { Id = 1, Name = "Beverages", Products = new List<DbContextTest.Product> { relatedDependent } };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new DbContextTest.Category { Id = 2, Name = "Foods" };
-                var dependent = new DbContextTest.Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 await adder(context, new object[] { principal, dependent });
 
@@ -208,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Task TrackEntitiesDefaultValueTest(
-            Func<DbContext, DbContextTest.Category, EntityEntry<DbContextTest.Category>> categoryAdder,
-            Func<DbContext, DbContextTest.Product, EntityEntry<DbContextTest.Product>> productAdder, EntityState expectedState)
+            Func<DbContext, Category, EntityEntry<Category>> categoryAdder,
+            Func<DbContext, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
             => TrackEntitiesDefaultValueTest(
                 (c, e) => Task.FromResult(categoryAdder(c, e)),
                 (c, e) => Task.FromResult(productAdder(c, e)),
@@ -217,13 +208,13 @@ namespace Microsoft.EntityFrameworkCore
 
         // Issue #3890
         private static async Task TrackEntitiesDefaultValueTest(
-            Func<DbContext, DbContextTest.Category, Task<EntityEntry<DbContextTest.Category>>> categoryAdder,
-            Func<DbContext, DbContextTest.Product, Task<EntityEntry<DbContextTest.Product>>> productAdder, EntityState expectedState)
+            Func<DbContext, Category, Task<EntityEntry<Category>>> categoryAdder,
+            Func<DbContext, Product, Task<EntityEntry<Product>>> productAdder, EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new DbContextTest.Category { Id = 0, Name = "Beverages" };
-                var product1 = new DbContextTest.Product { Id = 0, Name = "Marmite", Price = 7.99m };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 var categoryEntry1 = await categoryAdder(context, category1);
                 var productEntry1 = await productAdder(context, product1);
@@ -293,10 +284,10 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object[], Task> categoryAdder,
             Func<DbContext, object[], Task> productAdder, EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new DbContextTest.Category { Id = 0, Name = "Beverages" };
-                var product1 = new DbContextTest.Product { Id = 0, Name = "Marmite", Price = 7.99m };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 await categoryAdder(context, new[] { category1 });
                 await productAdder(context, new[] { product1 });
@@ -321,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Can_add_no_new_entities_to_context_async()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 await context.AddRangeAsync();
                 await context.AddRangeAsync();
@@ -349,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void TrackNoEntitiesTest(Action<DbContext> categoryAdder, Action<DbContext> productAdder)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 categoryAdder(context);
                 productAdder(context);
@@ -399,13 +390,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object, Task<EntityEntry>> categoryAdder,
             Func<DbContext, object, Task<EntityEntry>> productAdder, EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new DbContextTest.Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var principal = new DbContextTest.Category { Id = 1, Name = "Beverages", Products = new List<DbContextTest.Product> { relatedDependent } };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new DbContextTest.Category { Id = 2, Name = "Foods" };
-                var dependent = new DbContextTest.Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 var principalEntry = await categoryAdder(context, principal);
                 var dependentEntry = await productAdder(context, dependent);
@@ -482,13 +473,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, IEnumerable<object>, Task> adder,
             EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new DbContextTest.Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var principal = new DbContextTest.Category { Id = 1, Name = "Beverages", Products = new List<DbContextTest.Product> { relatedDependent } };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new DbContextTest.Category { Id = 2, Name = "Foods" };
-                var dependent = new DbContextTest.Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 await adder(context, new object[] { principal, dependent });
 
@@ -554,10 +545,10 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, object, Task<EntityEntry>> categoryAdder,
             Func<DbContext, object, Task<EntityEntry>> productAdder, EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new DbContextTest.Category { Id = 0, Name = "Beverages" };
-                var product1 = new DbContextTest.Product { Id = 0, Name = "Marmite", Price = 7.99m };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 var categoryEntry1 = await categoryAdder(context, category1);
                 var productEntry1 = await productAdder(context, product1);
@@ -627,13 +618,13 @@ namespace Microsoft.EntityFrameworkCore
             Func<DbContext, IEnumerable<object>, Task> categoryAdder,
             Func<DbContext, IEnumerable<object>, Task> productAdder, EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new DbContextTest.Category { Id = 0, Name = "Beverages" };
-                var product1 = new DbContextTest.Product { Id = 0, Name = "Marmite", Price = 7.99m };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
-                await categoryAdder(context, new List<DbContextTest.Category> { category1 });
-                await productAdder(context, new List<DbContextTest.Product> { product1 });
+                await categoryAdder(context, new List<Category> { category1 });
+                await productAdder(context, new List<Product> { product1 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(product1, context.Entry(product1).Entity);
@@ -661,10 +652,10 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public async Task Can_add_no_new_entities_to_context_Enumerable_graph_async()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                await context.AddRangeAsync(new HashSet<DbContextTest.Category>());
-                await context.AddRangeAsync(new HashSet<DbContextTest.Product>());
+                await context.AddRangeAsync(new HashSet<Category>());
+                await context.AddRangeAsync(new HashSet<Product>());
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -685,10 +676,10 @@ namespace Microsoft.EntityFrameworkCore
             Action<DbContext, IEnumerable<object>> categoryAdder,
             Action<DbContext, IEnumerable<object>> productAdder)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                categoryAdder(context, new HashSet<DbContextTest.Category>());
-                productAdder(context, new HashSet<DbContextTest.Product>());
+                categoryAdder(context, new HashSet<Category>());
+                productAdder(context, new HashSet<Product>());
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -702,10 +693,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true, false)]
         public async Task Can_add_new_entities_to_context_with_key_generation_graph(bool attachFirst, bool useEntry, bool async)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var gu1 = new DbContextTest.TheGu { ShirtColor = "Red" };
-                var gu2 = new DbContextTest.TheGu { ShirtColor = "Still Red" };
+                var gu1 = new TheGu { ShirtColor = "Red" };
+                var gu2 = new TheGu { ShirtColor = "Still Red" };
 
                 if (attachFirst)
                 {
@@ -815,9 +806,9 @@ namespace Microsoft.EntityFrameworkCore
             EntityState initialState,
             EntityState expectedState)
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var entity = new DbContextTest.Category { Id = 1, Name = "Beverages" };
+                var entity = new Category { Id = 1, Name = "Beverages" };
                 var entry = context.Entry(entity);
 
                 entry.State = initialState;
@@ -831,11 +822,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -860,11 +851,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -887,11 +878,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Attach(category);
 
@@ -914,11 +905,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Attach(product);
 
@@ -941,11 +932,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -968,11 +959,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -995,11 +986,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1024,11 +1015,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1051,11 +1042,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1078,11 +1069,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1105,11 +1096,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1132,11 +1123,11 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1159,13 +1150,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1191,13 +1182,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -1221,13 +1212,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Attach(category);
 
@@ -1252,13 +1243,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Attach(product);
 
@@ -1283,13 +1274,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1314,13 +1305,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -1344,13 +1335,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1375,13 +1366,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1405,13 +1396,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1436,13 +1427,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
-                category.Products = new List<DbContextTest.Product>();
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product>();
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1467,13 +1458,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1498,13 +1489,13 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // Issue #1246
         public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up_with_tracked_FK_match()
         {
-            using (var context = new DbContextTest.EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
+            using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new DbContextTest.Category { Id = 7, Products = new List<DbContextTest.Product>() }).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new DbContextTest.Category { Id = 1, Name = "Beverages" };
-                var product = new DbContextTest.Product { Id = 1, CategoryId = 7, Name = "Marmite" };
-                category.Products = new List<DbContextTest.Product> { product };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 

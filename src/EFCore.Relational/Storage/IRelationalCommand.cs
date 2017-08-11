@@ -77,7 +77,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
             CancellationToken cancellationToken = default(CancellationToken));
 
-
         /// <summary>
         ///     Executes the command with a <see cref="RelationalDataReader" /> result.
         /// </summary>

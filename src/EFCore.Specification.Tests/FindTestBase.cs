@@ -17,9 +17,11 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues) where TEntity : class;
+        protected abstract TEntity Find<TEntity>(DbContext context, params object[] keyValues)
+            where TEntity : class;
 
-        protected abstract Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues) where TEntity : class;
+        protected abstract Task<TEntity> FindAsync<TEntity>(DbContext context, params object[] keyValues)
+            where TEntity : class;
 
         [Fact]
         public virtual void Find_int_key_tracked()
@@ -275,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     Assert.Throws<ArgumentNullException>(() => Find<CompositeKey>(context, null)).ParamName);
             }
         }
@@ -285,7 +288,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     Assert.Throws<ArgumentNullException>(() => Find<IntKey>(context, new object[] { null })).ParamName);
             }
         }
@@ -295,7 +299,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     Assert.Throws<ArgumentNullException>(() => Find<NullableIntKey>(context, new object[] { null })).ParamName);
             }
         }
@@ -305,7 +310,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     Assert.Throws<ArgumentNullException>(() => Find<CompositeKey>(context, 77, null)).ParamName);
             }
         }
@@ -315,7 +321,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindNotCompositeKey("IntKey", 2),
+                Assert.Equal(
+                    CoreStrings.FindNotCompositeKey("IntKey", 2),
                     Assert.Throws<ArgumentException>(() => Find<IntKey>(context, 77, 88)).Message);
             }
         }
@@ -325,7 +332,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
+                Assert.Equal(
+                    CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
                     Assert.Throws<ArgumentException>(() => Find<CompositeKey>(context, 77)).Message);
             }
         }
@@ -335,7 +343,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
+                Assert.Equal(
+                    CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
                     Assert.Throws<ArgumentException>(() => Find<IntKey>(context, "77")).Message);
             }
         }
@@ -345,7 +354,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
+                Assert.Equal(
+                    CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
                     Assert.Throws<ArgumentException>(() => Find<CompositeKey>(context, 77, 88)).Message);
             }
         }
@@ -355,7 +365,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.InvalidSetType(nameof(Random)),
+                Assert.Equal(
+                    CoreStrings.InvalidSetType(nameof(Random)),
                     Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
             }
         }
@@ -614,7 +625,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     (await Assert.ThrowsAsync<ArgumentNullException>(() => FindAsync<CompositeKey>(context, null))).ParamName);
             }
         }
@@ -624,7 +636,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     (await Assert.ThrowsAsync<ArgumentNullException>(() => FindAsync<IntKey>(context, new object[] { null }))).ParamName);
             }
         }
@@ -634,7 +647,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal("keyValues",
+                Assert.Equal(
+                    "keyValues",
                     (await Assert.ThrowsAsync<ArgumentNullException>(() => FindAsync<CompositeKey>(context, 77, null))).ParamName);
             }
         }
@@ -644,7 +658,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindNotCompositeKey("IntKey", 2),
+                Assert.Equal(
+                    CoreStrings.FindNotCompositeKey("IntKey", 2),
                     (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, 77, 88))).Message);
             }
         }
@@ -654,7 +669,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
+                Assert.Equal(
+                    CoreStrings.FindValueCountMismatch("CompositeKey", 2, 1),
                     (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77))).Message);
             }
         }
@@ -664,7 +680,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
+                Assert.Equal(
+                    CoreStrings.FindValueTypeMismatch(0, "IntKey", "string", "int"),
                     (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<IntKey>(context, "77"))).Message);
             }
         }
@@ -674,7 +691,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
+                Assert.Equal(
+                    CoreStrings.FindValueTypeMismatch(1, "CompositeKey", "int", "string"),
                     (await Assert.ThrowsAsync<ArgumentException>(() => FindAsync<CompositeKey>(context, 77, 88))).Message);
             }
         }
@@ -684,7 +702,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.InvalidSetType(nameof(Random)),
+                Assert.Equal(
+                    CoreStrings.InvalidSetType(nameof(Random)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77))).Message);
             }
         }

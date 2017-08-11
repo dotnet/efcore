@@ -149,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(@"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion]
+            Assert.Equal(
+                @"SELECT TOP(1) [r].[UniqueNo], [r].[MaxLengthProperty], [r].[Name], [r].[RowVersion]
 FROM [Sample] AS [r]
 WHERE [r].[UniqueNo] = 1
 
@@ -183,7 +184,8 @@ SELECT @@ROWCOUNT;",
         {
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
-            Assert.Equal(@"@p0='' (Size = 10) (DbType = String)
+            Assert.Equal(
+                @"@p0='' (Size = 10) (DbType = String)
 @p1='Third' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000003'
 
@@ -200,7 +202,8 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
         {
             base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
-            Assert.Equal(@"@p0='Short' (Size = 10)
+            Assert.Equal(
+                @"@p0='Short' (Size = 10)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
 
@@ -228,11 +231,13 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Contains(@"@p1='1'
+            Assert.Contains(
+                @"@p1='1'
 ",
                 Sql);
 
-            Assert.Contains(@"@p1='' (Nullable = false) (DbType = Int32)
+            Assert.Contains(
+                @"@p1='' (Nullable = false) (DbType = Int32)
 ",
                 Sql);
         }
@@ -241,7 +246,8 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
         {
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
-            Assert.Equal(@"@p0='' (Size = 10) (DbType = String)
+            Assert.Equal(
+                @"@p0='' (Size = 10) (DbType = String)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
 
@@ -269,7 +275,8 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
         {
             base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
-            Assert.Equal(@"@p0='ValidString' (Size = 16)
+            Assert.Equal(
+                @"@p0='ValidString' (Size = 16)
 
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected FromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void From_sql_queryable_stored_procedure()
         {
@@ -31,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(10, actual.Length);
 
-                Assert.True(actual.Any(
-                    mep =>
-                        mep.TenMostExpensiveProducts == "Côte de Blaye"
-                        && mep.UnitPrice == 263.50m));
+                Assert.True(
+                    actual.Any(
+                        mep =>
+                            mep.TenMostExpensiveProducts == "Côte de Blaye"
+                            && mep.UnitPrice == 263.50m));
             }
         }
 
@@ -62,12 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual = context
                     .Set<MostExpensiveProduct>()
                     .FromSql(TenMostExpensiveProductsSproc)
-                    .Select(mep =>
-                        new MostExpensiveProduct
-                        {
-                            TenMostExpensiveProducts = "Foo",
-                            UnitPrice = mep.UnitPrice
-                        })
+                    .Select(
+                        mep =>
+                            new MostExpensiveProduct
+                            {
+                                TenMostExpensiveProducts = "Foo",
+                                UnitPrice = mep.UnitPrice
+                            })
                     .ToArray();
 
                 Assert.Equal(10, actual.Length);
@@ -174,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .FromSql("SelectStoredProcedure")
                             .Include(p => p.OrderDetails)
                             .ToArray()
-                        ).Message);
+                    ).Message);
             }
         }
 
@@ -188,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from b in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
                        select new { a, b })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -204,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from p in context.Set<Product>().FromSql("SELECT * FROM Products")
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new { mep, p })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -220,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from mep in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new { mep, p })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }

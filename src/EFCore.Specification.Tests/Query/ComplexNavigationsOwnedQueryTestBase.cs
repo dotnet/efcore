@@ -295,6 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Optional_navigation_propagates_nullability_to_manually_created_left_join1()
         {
         }
+
         public override void Optional_navigation_propagates_nullability_to_manually_created_left_join2()
         {
         }

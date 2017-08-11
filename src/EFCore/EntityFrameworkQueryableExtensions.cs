@@ -2162,8 +2162,9 @@ namespace Microsoft.EntityFrameworkCore
         internal static readonly MethodInfo IncludeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(Include))
-                .Single(mi => mi.GetParameters().Any(
-                    pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
+                .Single(
+                    mi => mi.GetParameters().Any(
+                        pi => pi.Name == "navigationPropertyPath" && pi.ParameterType != typeof(string)));
 
         /// <summary>
         ///     Specifies related entities to include in the query results. The navigation property to be included is specified starting with the
@@ -2229,12 +2230,13 @@ namespace Microsoft.EntityFrameworkCore
         private static MethodInfo GetThenIncludeMethodInfo(Type navType)
             => typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
-                .Single(mi =>
-                    {
-                        var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].GetTypeInfo();
-                        return typeInfo.IsGenericType
-                               && typeInfo.GetGenericTypeDefinition() == navType;
-                    });
+                .Single(
+                    mi =>
+                        {
+                            var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].GetTypeInfo();
+                            return typeInfo.IsGenericType
+                                   && typeInfo.GetGenericTypeDefinition() == navType;
+                        });
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
@@ -2363,8 +2365,9 @@ namespace Microsoft.EntityFrameworkCore
         internal static readonly MethodInfo StringIncludeMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethods(nameof(Include))
-                .Single(mi => mi.GetParameters().Any(
-                    pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
+                .Single(
+                    mi => mi.GetParameters().Any(
+                        pi => pi.Name == "navigationPropertyPath" && pi.ParameterType == typeof(string)));
 
         /// <summary>
         ///     Specifies related entities to include in the query results. The navigation property to be included is
@@ -2854,8 +2857,9 @@ namespace Microsoft.EntityFrameworkCore
         private static MethodInfo GetMethod(
             string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
             => typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
-                .Single(mi => mi.GetParameters().Length == parameterCount + 1
-                              && (predicate == null || predicate(mi)));
+                .Single(
+                    mi => mi.GetParameters().Length == parameterCount + 1
+                          && (predicate == null || predicate(mi)));
 
         #endregion
     }

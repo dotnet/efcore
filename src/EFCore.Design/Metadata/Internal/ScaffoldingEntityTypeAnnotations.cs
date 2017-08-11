@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
-    ///     Provides strongly typed access to scaffolding related annotations on an 
-    ///     <see cref="IEntityType"/> instance. Instances of this class are typically obtained via the
+    ///     Provides strongly typed access to scaffolding related annotations on an
+    ///     <see cref="IEntityType" /> instance. Instances of this class are typically obtained via the
     ///     <see cref="ScaffoldingMetadataExtensions.Scaffolding(IEntityType)" /> extension method and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
     public class ScaffoldingEntityTypeAnnotations : RelationalEntityTypeAnnotations
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ScaffoldingEntityTypeAnnotations"/> class. 
+        ///     Initializes a new instance of the <see cref="ScaffoldingEntityTypeAnnotations" /> class.
         ///     Instances of this class are typically obtained via the
         ///     <see cref="ScaffoldingMetadataExtensions.Scaffolding(IEntityType)" /> extension method and it is not designed
         ///     to be directly constructed in your application code.
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <summary>
-        ///     Gets or set the name of the <see cref="DbSet{TEntity}"/> property for this entity type.
+        ///     Gets or set the name of the <see cref="DbSet{TEntity}" /> property for this entity type.
         /// </summary>
         public virtual string DbSetName
         {

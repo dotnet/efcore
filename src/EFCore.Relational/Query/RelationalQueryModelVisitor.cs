@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return QueriesBySource.TryGetValue(querySource, out SelectExpression selectExpression)
+            return QueriesBySource.TryGetValue(querySource, out var selectExpression)
                 ? selectExpression
                 : QueriesBySource.Values.LastOrDefault(se => se.HandlesQuerySource(querySource));
         }
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
                             }
-                            
+
                             if (_canEliminate)
                             {
                                 var newTableExpression
@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     switch (expression)
                     {
                         case ColumnExpression columnExpression
-                            when ReferenceEquals(columnExpression.Table, _oldTableExpression):
+                        when ReferenceEquals(columnExpression.Table, _oldTableExpression):
                         {
                             return new ColumnExpression(
                                 columnExpression.Name, columnExpression.Property, _newTableExpression);
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return base.Visit(nullableExpression);
                     }
                     case UnaryExpression unaryExpression
-                        when unaryExpression.NodeType == ExpressionType.Convert:
+                    when unaryExpression.NodeType == ExpressionType.Convert:
                     {
                         return base.Visit(unaryExpression);
                     }
@@ -431,7 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return expression;
             }
         }
-        
+
         /// <summary>
         ///     Visit a sub-query model.
         /// </summary>
@@ -1924,7 +1924,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (selectExpression == null
                     && bindSubQueries)
                 {
-                    if (_subQueryModelVisitorsBySource.TryGetValue(querySource, out RelationalQueryModelVisitor subQueryModelVisitor))
+                    if (_subQueryModelVisitorsBySource.TryGetValue(querySource, out var subQueryModelVisitor))
                     {
                         if (!subQueryModelVisitor.RequiresClientProjection)
                         {
@@ -1964,7 +1964,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
         {
-            if (querySource != null && _canBindPropertyToOuterParameter && ParentQueryModelVisitor != null)
+            if (querySource != null
+                && _canBindPropertyToOuterParameter
+                && ParentQueryModelVisitor != null)
             {
                 var isBindable = CanBindToParentUsingOuterParameter(querySource);
 

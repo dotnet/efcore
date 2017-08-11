@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
+
 // ReSharper disable UnusedMember.Local
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -98,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var methodInfo
                 = typeof(MyDerivedContext)
                     .GetRuntimeMethod(nameof(MyDerivedContext.NonStatic), new Type[] { });
-            
+
             Assert.Equal(
                 RelationalStrings.DbFunctionMethodMustBeStatic("MyDerivedContext.NonStatic"),
                 Assert.Throws<ArgumentException>(() => modelBuilder.HasDbFunction(methodInfo)).Message);

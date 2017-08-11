@@ -17,9 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private static readonly MethodInfo _stringConcatMethodInfo = typeof(string).GetTypeInfo()
             .GetDeclaredMethods(nameof(string.Concat))
-            .Single(m => m.GetParameters().Length == 2
-                         && m.GetParameters()[0].ParameterType == typeof(object)
-                         && m.GetParameters()[1].ParameterType == typeof(object));
+            .Single(
+                m => m.GetParameters().Length == 2
+                     && m.GetParameters()[0].ParameterType == typeof(object)
+                     && m.GetParameters()[1].ParameterType == typeof(object));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

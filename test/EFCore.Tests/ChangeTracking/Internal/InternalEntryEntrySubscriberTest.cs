@@ -394,11 +394,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entries = new List<InternalEntityEntry>();
             for (var i = 0; i < 10; i++)
             {
-                entities.Add(new FullNotificationEntity
-                {
-                    Id = i + 1,
-                    RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>()
-                });
+                entities.Add(
+                    new FullNotificationEntity
+                    {
+                        Id = i + 1,
+                        RelatedCollection = new ObservableHashSet<ChangedOnlyNotificationEntity>()
+                    });
                 entries.Add(contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(entities[i]));
                 entries[i].SetEntityState(EntityState.Unchanged);
             }
@@ -500,12 +501,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<FullNotificationEntity>(b =>
-                {
-                    b.Ignore(e => e.NotMapped);
-                    b.HasMany(e => e.RelatedCollection).WithOne(e => e.Related).HasForeignKey(e => e.Fk);
-                    b.HasChangeTrackingStrategy(changeTrackingStrategy);
-                });
+            builder.Entity<FullNotificationEntity>(
+                b =>
+                    {
+                        b.Ignore(e => e.NotMapped);
+                        b.HasMany(e => e.RelatedCollection).WithOne(e => e.Related).HasForeignKey(e => e.Fk);
+                        b.HasChangeTrackingStrategy(changeTrackingStrategy);
+                    });
 
             return builder.Model;
         }

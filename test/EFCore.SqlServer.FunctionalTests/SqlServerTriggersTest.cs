@@ -81,9 +81,9 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqual(productToBeAdded2, productBackups.Single(p => p.Name == "a2"));
                 AssertEqual(productToBeUpdated1, productBackups.Single(p => p.Name == "n1"));
                 AssertEqual(productToBeUpdated2, productBackups.Single(p => p.Name == "n2"));
-                
+
                 context.Products.RemoveRange(context.Products);
-                
+
                 context.SaveChanges();
             }
         }
@@ -109,13 +109,14 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Product>(eb =>
-                    {
-                        eb.Property(e => e.Version)
-                            .ValueGeneratedOnAddOrUpdate()
-                            .IsConcurrencyToken();
-                        eb.Ignore(e => e.StoreUpdated);
-                    });
+                modelBuilder.Entity<Product>(
+                    eb =>
+                        {
+                            eb.Property(e => e.Version)
+                                .ValueGeneratedOnAddOrUpdate()
+                                .IsConcurrencyToken();
+                            eb.Ignore(e => e.StoreUpdated);
+                        });
 
                 modelBuilder.Entity<ProductBackup>()
                     .Property(e => e.Id).ValueGeneratedNever();
@@ -147,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreated();
 
-                context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(
+                    @"
 CREATE TRIGGER TRG_InsertProduct
 ON Products
 AFTER INSERT AS
@@ -160,7 +162,8 @@ BEGIN
     SELECT * FROM INSERTED;
 END");
 
-                context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(
+                    @"
 CREATE TRIGGER TRG_UpdateProduct
 ON Products
 AFTER UPDATE AS
@@ -177,7 +180,8 @@ BEGIN
     WHERE p.Id IN(SELECT INSERTED.Id FROM INSERTED);
 END");
 
-                context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(
+                    @"
 CREATE TRIGGER TRG_DeleteProduct
 ON Products
 AFTER DELETE AS

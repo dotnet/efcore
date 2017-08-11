@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : IncludeOneToOneTestBase<TFixture>.OneToOneQueryFixtureBase, new()
     {
         protected IncludeOneToOneTestBase(TFixture fixture) => Fixture = fixture;
-        
+
         public TFixture Fixture { get; }
 
         [Fact]
@@ -163,8 +164,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder
-                    .Entity<Address>(e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
-                        .HasPrincipalKey<Person>(person => person.Id));
+                    .Entity<Address>(
+                        e => e.HasOne(a => a.Resident).WithOne(p => p.Address)
+                            .HasPrincipalKey<Person>(person => person.Id));
 
                 modelBuilder.Entity<Address2>().Property<int>("PersonId");
 
@@ -222,6 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public int Id { get; set; }
             public string Name { get; set; }
+
             // ReSharper disable once MemberHidesStaticFromOuterClass
             public Address2 Address { get; set; }
         }

@@ -388,9 +388,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var innerExpression
                 = memberExpression?.Expression
-                    ?? ((methodCallExpression?.Method).IsEFPropertyMethod()
-                        ? methodCallExpression?.Arguments[0]
-                        : null);
+                  ?? ((methodCallExpression?.Method).IsEFPropertyMethod()
+                      ? methodCallExpression?.Arguments[0]
+                      : null);
 
             if (innerExpression == null)
             {

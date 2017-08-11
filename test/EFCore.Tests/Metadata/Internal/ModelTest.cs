@@ -122,32 +122,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { customerType, dependentOrderType }, model.GetEntityTypes());
             Assert.True(model.HasEntityTypeWithDefiningNavigation(typeof(Order)));
             Assert.True(model.HasEntityTypeWithDefiningNavigation(typeof(Order).DisplayName()));
-            Assert.Same(dependentOrderType,
+            Assert.Same(
+                dependentOrderType,
                 model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), customerType));
-            Assert.Same(dependentOrderType,
+            Assert.Same(
+                dependentOrderType,
                 model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), (IEntityType)customerType));
 
-            Assert.Equal(CoreStrings.ClashingDependentEntityType(typeof(Order).DisplayName(fullName: false)),
+            Assert.Equal(
+                CoreStrings.ClashingDependentEntityType(typeof(Order).DisplayName(fullName: false)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Order))).Message);
-            Assert.Equal(CoreStrings.ClashingNonDependentEntityType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "#"
-                + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
+            Assert.Equal(
+                CoreStrings.ClashingNonDependentEntityType(
+                    nameof(Customer) + "." + nameof(Customer.Orders) + "#"
+                    + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer), nameof(Order.Customer), dependentOrderType)).Message);
 
-            Assert.Equal(CoreStrings.ForeignKeySelfReferencingDependentEntityType(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
+            Assert.Equal(
+                CoreStrings.ForeignKeySelfReferencingDependentEntityType(
+                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order)),
                 Assert.Throws<InvalidOperationException>(
                     () => dependentOrderType.AddForeignKey(fkProperty, orderKey, dependentOrderType)).Message);
 
-            Assert.Equal(CoreStrings.EntityTypeInUseByForeignKey(
-                nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order),
-                nameof(Customer), Property.Format(fk.Properties)),
+            Assert.Equal(
+                CoreStrings.EntityTypeInUseByForeignKey(
+                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order),
+                    nameof(Customer), Property.Format(fk.Properties)),
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(dependentOrderType)).Message);
 
             dependentOrderType.RemoveForeignKey(fk.Properties, fk.PrincipalKey, fk.PrincipalEntityType);
 
-            Assert.Same(dependentOrderType, model.RemoveEntityType(
-                typeof(Order), nameof(Customer.Orders), customerType));
+            Assert.Same(
+                dependentOrderType, model.RemoveEntityType(
+                    typeof(Order), nameof(Customer.Orders), customerType));
             Assert.Null(((EntityType)dependentOrderType).Builder);
             Assert.Null(model.RemoveEntityType(dependentOrderType));
         }

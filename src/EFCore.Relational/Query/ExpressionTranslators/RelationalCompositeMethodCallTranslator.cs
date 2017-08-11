@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
 {
@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// </returns>
         public virtual Expression Translate(MethodCallExpression methodCallExpression, IModel model)
             => ((IMethodCallTranslator)model.Relational().FindDbFunction(methodCallExpression.Method))?.Translate(methodCallExpression)
-                    ?? _methodCallTranslators
-                        .Select(translator => translator.Translate(methodCallExpression))
-                        .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
+               ?? _methodCallTranslators
+                   .Select(translator => translator.Translate(methodCallExpression))
+                   .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
 
         /// <summary>
         ///     Adds additional translators to the dispatch list.

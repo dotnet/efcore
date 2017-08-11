@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     Parameter object containing service dependencies.
         /// </summary>
         protected virtual CoreConventionSetBuilderDependencies Dependencies { get; }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.BaseEntityTypeChangedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(foreignKeyIndexConvention);
-            conventionSet.BaseEntityTypeChangedConventions.Add(valueGeneratorConvention );
+            conventionSet.BaseEntityTypeChangedConventions.Add(valueGeneratorConvention);
 
             // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
@@ -99,12 +100,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention(Dependencies.TypeMapper));
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(keyDiscoveryConvention);
-            conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention );
+            conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention);
             conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyRemovedConventions.Add(keyDiscoveryConvention);
-            conventionSet.ForeignKeyRemovedConventions.Add(valueGeneratorConvention );
+            conventionSet.ForeignKeyRemovedConventions.Add(valueGeneratorConvention);
             conventionSet.ForeignKeyRemovedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyUniquenessChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
@@ -146,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyFieldChangedConventions.Add(maxLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);
-            
+
             return conventionSet;
         }
     }

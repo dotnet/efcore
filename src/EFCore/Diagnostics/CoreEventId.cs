@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A <see cref="DbContext"/> was initialized.
+        ///         A <see cref="DbContext" /> was initialized.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.

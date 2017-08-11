@@ -158,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
-            var leastDerivedEntityTypes = modelBuilder.FindLeastDerivedEntityTypes(declaringType,
+            var leastDerivedEntityTypes = modelBuilder.FindLeastDerivedEntityTypes(
+                declaringType,
                 t => !t.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.DataAnnotation));
             foreach (var leastDerivedEntityType in leastDerivedEntityTypes)
             {
@@ -307,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 SetInverseNavigations(targetEntityType.Builder, inverseNavigations);
             }
 
-            if (!inverseNavigations.TryGetValue(inverseNavigation, out List<Tuple<PropertyInfo, Type>> referencingNavigationsWithAttribute))
+            if (!inverseNavigations.TryGetValue(inverseNavigation, out var referencingNavigationsWithAttribute))
             {
                 referencingNavigationsWithAttribute = new List<Tuple<PropertyInfo, Type>>();
                 inverseNavigations[inverseNavigation] = referencingNavigationsWithAttribute;

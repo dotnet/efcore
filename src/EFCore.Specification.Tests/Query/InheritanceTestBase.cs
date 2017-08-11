@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected InheritanceTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Can_query_when_shared_column()
         {

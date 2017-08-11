@@ -91,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IServiceCollection ConfigureContextServices(
-                [NotNull] IServiceProvider contextServices,
-                [NotNull] IServiceCollection services)
+            [NotNull] IServiceProvider contextServices,
+            [NotNull] IServiceCollection services)
             => services
                 .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<MigrationsScaffolder>()

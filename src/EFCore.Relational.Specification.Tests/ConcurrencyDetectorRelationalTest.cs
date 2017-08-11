@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
         }
-        
+
         [Fact]
         public virtual Task FromSql_logs_concurrent_access_nonasync()
         {

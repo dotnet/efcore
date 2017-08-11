@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected AsNoTrackingTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [ConditionalFact]
         public virtual void Entity_not_added_to_state_manager()
         {
@@ -38,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().AsNoTracking()
-                       on c.CustomerID equals o.CustomerID
+                           on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
-                        .ToList();
+                    .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from o in context.Set<Order>().AsNoTracking()
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToList();
+                    .ToList();
 
                 Assert.Equal(830, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
@@ -73,10 +73,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().AsNoTracking()
-                       on c.CustomerID equals o.CustomerID
+                           on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select new { c.CustomerID, c, ocid = o.CustomerID, o })
-                        .ToList();
+                    .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
@@ -91,11 +91,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var customers
                     = (from c in context.Set<Customer>()
                        join o in context.Set<Order>().AsNoTracking()
-                       on c.CustomerID equals o.CustomerID
+                           on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select new { c, o })
-                        .AsNoTracking()
-                        .ToList();
+                    .AsNoTracking()
+                    .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
@@ -157,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from e in context.Set<Employee>()
                        from c in context.Set<Customer>()
                        select new { c, e })
-                        .AsNoTracking()
-                        .ToList();
+                    .AsNoTracking()
+                    .ToList();
 
                 Assert.Equal(819, results.Count);
             }

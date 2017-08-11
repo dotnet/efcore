@@ -279,7 +279,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void AddCoreServices<TContext>(
             IServiceCollection serviceCollection,
-            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction, 
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
             ServiceLifetime optionsLifetime)
             where TContext : DbContext
         {
@@ -287,15 +287,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddMemoryCache()
                 .AddLogging();
 
-            serviceCollection.TryAdd(new ServiceDescriptor(
-                typeof(DbContextOptions<TContext>), 
-                p => DbContextOptionsFactory<TContext>(p, optionsAction),
-                optionsLifetime));
+            serviceCollection.TryAdd(
+                new ServiceDescriptor(
+                    typeof(DbContextOptions<TContext>),
+                    p => DbContextOptionsFactory<TContext>(p, optionsAction),
+                    optionsLifetime));
 
-            serviceCollection.Add(new ServiceDescriptor(
-                typeof(DbContextOptions),
-                p => p.GetRequiredService<DbContextOptions<TContext>>(),
-                optionsLifetime));
+            serviceCollection.Add(
+                new ServiceDescriptor(
+                    typeof(DbContextOptions),
+                    p => p.GetRequiredService<DbContextOptions<TContext>>(),
+                    optionsLifetime));
         }
 
         private static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(
@@ -313,7 +315,8 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder.Options;
         }
 
-        private static void CheckContextConstructors<TContext>() where TContext : DbContext
+        private static void CheckContextConstructors<TContext>()
+            where TContext : DbContext
         {
             var declaredConstructors = typeof(TContext).GetTypeInfo().DeclaredConstructors.ToList();
             if (declaredConstructors.Count == 1

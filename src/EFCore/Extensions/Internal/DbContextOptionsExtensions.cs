@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             foreach (var extension in contextOptions.Extensions)
             {
                 builder.Append(extension.LogFragment);
-
             }
             var fragment = builder.ToString();
 

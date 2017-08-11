@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -401,19 +400,20 @@ namespace Microsoft.EntityFrameworkCore
                     db.Entry(toUpdate).State = EntityState.Modified;
                     db.Entry(toDelete).State = EntityState.Deleted;
 
-                    var toAdd = db.Add(new Blog
-                    {
-                        Name = "Blog to Insert",
-                        George = true,
-                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                        ToEat = 64,
-                        OrNothing = 0.123456789,
-                        Fuse = 777,
-                        WayRound = 9876543210,
-                        Away = 0.12345f,
-                        AndChew = new byte[16]
-                    }).Entity;
+                    var toAdd = db.Add(
+                        new Blog
+                        {
+                            Name = "Blog to Insert",
+                            George = true,
+                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                            ToEat = 64,
+                            OrNothing = 0.123456789,
+                            Fuse = 777,
+                            WayRound = 9876543210,
+                            Away = 0.12345f,
+                            AndChew = new byte[16]
+                        }).Entity;
 
                     await db.SaveChangesAsync();
 
@@ -463,19 +463,20 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var blogs = await CreateBlogDatabaseAsync<Blog>(db);
 
-                    var toAdd = db.Blogs.Add(new Blog
-                    {
-                        Name = "Blog to Insert",
-                        George = true,
-                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                        ToEat = 64,
-                        OrNothing = 0.123456789,
-                        Fuse = 777,
-                        WayRound = 9876543210,
-                        Away = 0.12345f,
-                        AndChew = new byte[16]
-                    }).Entity;
+                    var toAdd = db.Blogs.Add(
+                        new Blog
+                        {
+                            Name = "Blog to Insert",
+                            George = true,
+                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                            ToEat = 64,
+                            OrNothing = 0.123456789,
+                            Fuse = 777,
+                            WayRound = 9876543210,
+                            Away = 0.12345f,
+                            AndChew = new byte[16]
+                        }).Entity;
                     db.Entry(toAdd).State = EntityState.Detached;
 
                     var toUpdate = blogs[0];
@@ -611,29 +612,31 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
 
-                modelBuilder.Entity<Actor>(eb =>
-                    {
-                        eb.HasKey(a => new { a.GameId, a.Id });
-                        eb.HasOne(a => a.Level)
-                            .WithMany()
-                            .HasForeignKey(nameof(Actor.GameId), "LevelId")
-                            .IsRequired();
-                    });
+                modelBuilder.Entity<Actor>(
+                    eb =>
+                        {
+                            eb.HasKey(a => new { a.GameId, a.Id });
+                            eb.HasOne(a => a.Level)
+                                .WithMany()
+                                .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                                .IsRequired();
+                        });
 
                 modelBuilder.Entity<PlayerCharacter>();
 
-                modelBuilder.Entity<Game>(eb =>
-                    {
-                        eb.Property(g => g.Id)
-                            .ValueGeneratedOnAdd();
-                        eb.HasMany(g => g.Levels)
-                            .WithOne(l => l.Game)
-                            .HasForeignKey(l => l.GameId);
-                        eb.HasMany(g => g.Actors)
-                            .WithOne(a => a.Game)
-                            .HasForeignKey(a => a.GameId)
-                            .OnDelete(DeleteBehavior.Restrict);
-                    });
+                modelBuilder.Entity<Game>(
+                    eb =>
+                        {
+                            eb.Property(g => g.Id)
+                                .ValueGeneratedOnAdd();
+                            eb.HasMany(g => g.Levels)
+                                .WithOne(l => l.Game)
+                                .HasForeignKey(l => l.GameId);
+                            eb.HasMany(g => g.Actors)
+                                .WithOne(a => a.Game)
+                                .HasForeignKey(a => a.GameId)
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
             }
         }
 
@@ -733,7 +736,8 @@ namespace Microsoft.EntityFrameworkCore
             await RoundTripChanges<ChangedOnlyBlog>();
         }
 
-        private async Task RoundTripChanges<TBlog>() where TBlog : class, IBlog, new()
+        private async Task RoundTripChanges<TBlog>()
+            where TBlog : class, IBlog, new()
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName))
             {
@@ -810,46 +814,49 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context) where TBlog : class, IBlog, new()
+        private static async Task<TBlog[]> CreateBlogDatabaseAsync<TBlog>(DbContext context)
+            where TBlog : class, IBlog, new()
         {
             context.Database.EnsureCreated();
 
-            var blog1 = context.Add(new TBlog
-            {
-                Name = "Blog1",
-                George = true,
-                TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                ToEat = 64,
-                //CupOfChar = 'C', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
-                OrNothing = 0.123456789,
-                Fuse = 777,
-                WayRound = 9876543210,
-                //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
-                Away = 0.12345f,
-                //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
-                //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
-                //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
-                AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
-            }).Entity;
-            var blog2 = context.Add(new TBlog
-            {
-                Name = "Blog2",
-                George = false,
-                TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9CF"),
-                NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 778),
-                ToEat = 65,
-                //CupOfChar = 'D', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
-                OrNothing = 0.987654321,
-                Fuse = 778,
-                WayRound = 98765432100,
-                //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
-                Away = 0.12345f,
-                //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
-                //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
-                //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
-                AndChew = new byte[16]
-            }).Entity;
+            var blog1 = context.Add(
+                new TBlog
+                {
+                    Name = "Blog1",
+                    George = true,
+                    TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                    NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                    ToEat = 64,
+                    //CupOfChar = 'C', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
+                    OrNothing = 0.123456789,
+                    Fuse = 777,
+                    WayRound = 9876543210,
+                    //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
+                    Away = 0.12345f,
+                    //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
+                    //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
+                    //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
+                    AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+                }).Entity;
+            var blog2 = context.Add(
+                new TBlog
+                {
+                    Name = "Blog2",
+                    George = false,
+                    TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9CF"),
+                    NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 778),
+                    ToEat = 65,
+                    //CupOfChar = 'D', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
+                    OrNothing = 0.987654321,
+                    Fuse = 778,
+                    WayRound = 98765432100,
+                    //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
+                    Away = 0.12345f,
+                    //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
+                    //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
+                    //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
+                    AndChew = new byte[16]
+                }).Entity;
             await context.SaveChangesAsync();
 
             return new[] { blog1, blog2 };
@@ -866,11 +873,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>(b =>
-                    {
-                        b.HasKey(c => c.CustomerID);
-                        b.ToTable("Customers");
-                    });
+                modelBuilder.Entity<Customer>(
+                    b =>
+                        {
+                            b.HasKey(c => c.CustomerID);
+                            b.ToTable("Customers");
+                        });
             }
         }
 
@@ -896,13 +904,19 @@ namespace Microsoft.EntityFrameworkCore
             public bool George { get; set; }
             public Guid TheGu { get; set; }
             public DateTime NotFigTime { get; set; }
+
             public byte ToEat { get; set; }
+
             //public char CupOfChar { get; set; }
             public double OrNothing { get; set; }
+
             public short Fuse { get; set; }
+
             public long WayRound { get; set; }
+
             //public sbyte NotToEat { get; set; }
             public float Away { get; set; }
+
             //public ushort OrULong { get; set; }
             //public uint OrUSkint { get; set; }
             //public ulong OrUShort { get; set; }
@@ -940,13 +954,19 @@ namespace Microsoft.EntityFrameworkCore
             bool George { get; set; }
             Guid TheGu { get; set; }
             DateTime NotFigTime { get; set; }
+
             byte ToEat { get; set; }
+
             //char CupOfChar { get; set; }
             double OrNothing { get; set; }
+
             short Fuse { get; set; }
+
             long WayRound { get; set; }
+
             //sbyte NotToEat { get; set; }
             float Away { get; set; }
+
             //ushort OrULong { get; set; }
             //uint OrUSkint { get; set; }
             //ulong OrUShort { get; set; }
@@ -960,13 +980,19 @@ namespace Microsoft.EntityFrameworkCore
             private bool _george;
             private Guid _theGu;
             private DateTime _notFigTime;
+
             private byte _toEat;
+
             //private char _cupOfChar;
             private double _orNothing;
+
             private short _fuse;
+
             private long _wayRound;
+
             //private sbyte _notToEat;
             private float _away;
+
             //private ushort _orULong;
             //private uint _orUSkint;
             //private ulong _orUShort;
@@ -1213,13 +1239,19 @@ namespace Microsoft.EntityFrameworkCore
             private bool _george;
             private Guid _theGu;
             private DateTime _notFigTime;
+
             private byte _toEat;
+
             //private char _cupOfChar;
             private double _orNothing;
+
             private short _fuse;
+
             private long _wayRound;
+
             //private sbyte _notToEat;
             private float _away;
+
             //private ushort _orULong;
             //private uint _orUSkint;
             //private ulong _orUShort;

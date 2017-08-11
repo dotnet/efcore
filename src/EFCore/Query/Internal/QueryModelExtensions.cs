@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
     public static class QueryModelExtensions
-    {        
+    {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public static Expression GetOutputExpression([NotNull] this QueryModel queryModel)
         {
             var outputExpression = queryModel.SelectClause.Selector;
-            
+
             var groupResultOperator
                 = queryModel.ResultOperators.OfType<GroupResultOperator>().LastOrDefault();
 
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             return outputExpression;
         }
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.

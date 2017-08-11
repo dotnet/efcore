@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClashingNonDependentEntityType(entityType.DisplayName()));
                 }
 
-                if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out SortedSet<EntityType> entityTypesWithSameType))
+                if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var entityTypesWithSameType))
                 {
                     entityTypesWithSameType = new SortedSet<EntityType>(EntityTypePathComparer.Instance);
                     _entityTypesWithDefiningNavigation[entityTypeName] = entityTypesWithSameType;
@@ -395,7 +395,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] Type type,
+        public virtual void Ignore(
+            [NotNull] Type type,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => Ignore(Check.NotNull(type, nameof(type)).DisplayName(), type, configurationSource);
 
@@ -403,11 +404,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Ignore([NotNull] string name,
+        public virtual void Ignore(
+            [NotNull] string name,
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => Ignore(Check.NotNull(name, nameof(name)), null, configurationSource);
 
-        private void Ignore([NotNull] string name,
+        private void Ignore(
+            [NotNull] string name,
             [CanBeNull] Type type,
             ConfigurationSource configurationSource)
         {

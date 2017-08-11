@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private readonly string _activeProvider;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="MigrationsScaffolder"/> class.
+        ///     Initializes a new instance of the <see cref="MigrationsScaffolder" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
         public MigrationsScaffolder([NotNull] MigrationsScaffolderDependencies dependencies)

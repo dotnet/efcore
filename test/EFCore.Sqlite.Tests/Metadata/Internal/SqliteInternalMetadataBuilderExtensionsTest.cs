@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(77, builder.Metadata.Relational().FindSequence("Mine").IncrementBy);
 
-            Assert.Equal(1, builder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
+            Assert.Equal(
+                1, builder.Metadata.GetAnnotations().Count(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -39,8 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(typeBuilder.Sqlite(ConfigurationSource.Convention).ToTable("Splod"));
             Assert.Equal("Splow", typeBuilder.Metadata.Relational().TableName);
 
-            Assert.Equal(1, typeBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
+            Assert.Equal(
+                1, typeBuilder.Metadata.GetAnnotations().Count(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -59,8 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(propertyBuilder.Sqlite(ConfigurationSource.Convention).HasColumnName("Splod"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);
 
-            Assert.Equal(1, propertyBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
+            Assert.Equal(
+                1, propertyBuilder.Metadata.GetAnnotations().Count(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -80,8 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(keyBuilder.Sqlite(ConfigurationSource.Convention).HasName("Splod"));
             Assert.Equal("Splow", keyBuilder.Metadata.Relational().Name);
 
-            Assert.Equal(1, keyBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
+            Assert.Equal(
+                1, keyBuilder.Metadata.GetAnnotations().Count(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -101,8 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             indexBuilder.Sqlite(ConfigurationSource.Convention).HasName("Splod");
             Assert.Equal("Splow", indexBuilder.Metadata.Relational().Name);
 
-            Assert.Equal(1, indexBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
+            Assert.Equal(
+                1, indexBuilder.Metadata.GetAnnotations().Count(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         [Fact]
@@ -122,8 +127,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(relationshipBuilder.Sqlite(ConfigurationSource.Convention).HasConstraintName("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.Equal(1, relationshipBuilder.Metadata.GetAnnotations().Count(
-                a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
+            Assert.Equal(
+                1, relationshipBuilder.Metadata.GetAnnotations().Count(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
         private class Splot

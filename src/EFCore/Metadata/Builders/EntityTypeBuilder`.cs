@@ -84,12 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
         public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-            => new KeyBuilder(Builder.PrimaryKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+            => new KeyBuilder(
+                Builder.PrimaryKey(
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Creates an alternate key in the model for this entity type if one does not already exist over the specified
-        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex"/> to specify uniqueness
+        ///     properties. This will force the properties to be read-only. Use <see cref="HasIndex" /> to specify uniqueness
         ///     in the model that does not force properties to be read-only.
         /// </summary>
         /// <param name="keyExpression">
@@ -103,8 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the key. </returns>
         public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
-            => new KeyBuilder(Builder.HasKey(
-                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+            => new KeyBuilder(
+                Builder.HasKey(
+                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Returns an object that can be used to configure a property of the entity type.
@@ -116,8 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
-            => new PropertyBuilder<TProperty>(Builder.Property(
-                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit));
+            => new PropertyBuilder<TProperty>(
+                Builder.Property(
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetPropertyAccess(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -164,8 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
         public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
-            => new IndexBuilder(Builder.HasIndex(
-                Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
+            => new IndexBuilder(
+                Builder.HasIndex(
+                    Check.NotNull(indexExpression, nameof(indexExpression)).GetPropertyAccessList(), ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -279,7 +283,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigation,
-                Builder.Navigation(relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
+                Builder.Navigation(
+                    relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
         }
 

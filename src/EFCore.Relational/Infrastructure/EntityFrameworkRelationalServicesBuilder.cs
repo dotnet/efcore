@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalConnection), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRelationalDatabaseCreator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IHistoryRepository), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(INamedConnectionStringResolver), new ServiceCharacteristics(ServiceLifetime.Scoped) }
             };
 
         /// <summary>

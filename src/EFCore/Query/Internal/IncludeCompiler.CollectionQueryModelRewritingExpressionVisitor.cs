@@ -49,20 +49,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         .IsAssignableFrom(methodCallExpression.Object?.Type.GetTypeInfo())
                     && methodCallExpression.Method.Name
                         .StartsWith(nameof(IQueryBuffer.IncludeCollection), StringComparison.Ordinal)
-                        && (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value != -1) // -1 == unable to optimize (GJ)
+                    && (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value != -1) // -1 == unable to optimize (GJ)
                 {
                     var lambaArgument = methodCallExpression.Arguments[8];
                     var convertExpression = lambaArgument as UnaryExpression;
 
                     var subQueryExpression
                         = (SubQueryExpression)
-                            ((LambdaExpression)(convertExpression?.Operand ?? lambaArgument))
-                             .Body.RemoveConvert();
+                        ((LambdaExpression)(convertExpression?.Operand ?? lambaArgument))
+                        .Body.RemoveConvert();
 
                     var navigation
                         = (INavigation)
-                            ((ConstantExpression)methodCallExpression.Arguments[1])
-                            .Value;
+                        ((ConstantExpression)methodCallExpression.Arguments[1])
+                        .Value;
 
                     Rewrite(subQueryExpression.QueryModel, navigation);
 
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 Expression.Constant(subQueryProjection.Count)),
                             principalKeyProperty.ClrType.MakeNullable()));
 
-                    var propertyExpression 
+                    var propertyExpression
                         = parentQuerySourceReferenceExpression.CreateEFPropertyExpression(principalKeyProperty);
 
                     subQueryProjection.Add(
@@ -433,10 +433,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.NewArrayInit(
                             typeof(object),
                             properties
-                                .Select(p =>
-                                    Expression.Convert(
-                                        target.CreateEFPropertyExpression(p),
-                                        typeof(object)))
+                                .Select(
+                                    p =>
+                                        Expression.Convert(
+                                            target.CreateEFPropertyExpression(p),
+                                            typeof(object)))
                                 .Cast<Expression>()
                                 .ToArray()));
 
@@ -515,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                             {
                                                 var expressionWithoutConvert = e.RemoveConvert();
                                                 var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
-                                                    ?? expressionWithoutConvert;
+                                                                           ?? expressionWithoutConvert;
 
                                                 if (projectionExpression is MethodCallExpression methodCall
                                                     && methodCall.Method.IsEFPropertyMethod())
@@ -524,15 +525,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                                     var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
 
                                                     return properyQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
-                                                            && propertyName == memberExpression.Member.Name;
+                                                           && propertyName == memberExpression.Member.Name;
                                                 }
 
                                                 if (projectionExpression is MemberExpression projectionMemberExpression)
-                                                { 
+                                                {
                                                     var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression;
 
                                                     return projectionMemberQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
-                                                        && projectionMemberExpression.Member.Name == memberExpression.Member.Name;
+                                                           && projectionMemberExpression.Member.Name == memberExpression.Member.Name;
                                                 }
 
                                                 return false;
@@ -553,8 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 Expression.Convert(
                                     // Workaround re-linq#RMLNQ-111 - When this is fixed the Clone can go away
                                     CloningExpressionVisitor.AdjustExpressionAfterCloning(
-                                        ordering.Expression, 
-                                        new QuerySourceMapping()), 
+                                        ordering.Expression,
+                                        new QuerySourceMapping()),
                                     typeof(object)));
                         }
 

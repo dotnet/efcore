@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Query_for_leaf_type_loads_all_owned_navs();
 
-            AssertSql(@"SELECT [o].[Id], [o].[Discriminator], [o].[Id], [o].[Id], [o].[LeafAAddress_Country_Name], [o].[Id], [o].[Id], [o].[BranchAddress_Country_Name], [o].[Id], [o].[Id], [o].[PersonAddress_Country_Name]
+            AssertSql(
+                @"SELECT [o].[Id], [o].[Discriminator], [o].[Id], [o].[Id], [o].[LeafAAddress_Country_Name], [o].[Id], [o].[Id], [o].[BranchAddress_Country_Name], [o].[Id], [o].[Id], [o].[PersonAddress_Country_Name]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Discriminator] = N'LeafA'");
         }
@@ -56,7 +57,7 @@ WHERE [o].[Discriminator] = N'LeafA'");
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-        
+
         public class OwnedQuerySqlServerFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;

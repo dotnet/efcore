@@ -532,8 +532,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.Database.AutoTransactionsEnabled = autoTransaction;
 
-                    var ex = Assert.Throws<InvalidOperationException>(() =>
-                        context.Database.UseTransaction(transaction));
+                    var ex = Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Database.UseTransaction(transaction));
                     Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
                 }
             }
@@ -552,8 +553,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     using (context.Database.BeginTransaction())
                     {
-                        var ex = Assert.Throws<InvalidOperationException>(() =>
-                            context.Database.UseTransaction(transaction));
+                        var ex = Assert.Throws<InvalidOperationException>(
+                            () =>
+                                context.Database.UseTransaction(transaction));
                         Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
                     }
                 }
@@ -595,9 +597,9 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool DirtyReadsOccur => true;
 
         protected DbContext CreateContext() => Fixture.CreateContext();
-        
+
         protected abstract DbContext CreateContextWithConnectionString();
-        
+
         public abstract class TransactionFixtureBase : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "TransactionTest";
@@ -605,11 +607,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
-                modelBuilder.Entity<TransactionCustomer>(ps =>
-                    {
-                        ps.Property(c => c.Id).ValueGeneratedNever();
-                        ps.ToTable("Customers");
-                    });
+                modelBuilder.Entity<TransactionCustomer>(
+                    ps =>
+                        {
+                            ps.Property(c => c.Id).ValueGeneratedNever();
+                            ps.ToTable("Customers");
+                        });
             }
 
             protected override void Seed(DbContext context)

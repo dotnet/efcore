@@ -8,8 +8,8 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Xunit;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable UnusedMember.Local
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public bool IsEnabled(LogLevel logLevel) => true;
 
             public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel) => WarningBehavior.Log;
-            
+
             public IDisposable BeginScope<TState>(TState state) => null;
 
             public ILoggingOptions Options { get; }

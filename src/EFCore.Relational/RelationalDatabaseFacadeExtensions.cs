@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Executes the given SQL against the database and returns the number of rows affected.
         ///     </para>
         ///     <para>
-        ///         Note that this method does not start a transaction. To use this method with 
+        ///         Note that this method does not start a transaction. To use this method with
         ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="UseTransaction" />.
         ///     </para>
         ///     <para>
@@ -356,8 +356,9 @@ namespace Microsoft.EntityFrameworkCore
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
-            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(databaseFacade, (database, ct) =>
-                database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
+            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
+                databaseFacade, (database, ct) =>
+                    database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
@@ -367,28 +368,29 @@ namespace Microsoft.EntityFrameworkCore
             => databaseFacade.GetRelationalService<IRelationalConnection>().Close();
 
         /// <summary>
-        ///     Starts a new transaction with a given <see cref="IsolationLevel"/>.
+        ///     Starts a new transaction with a given <see cref="IsolationLevel" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="isolationLevel"> The <see cref="IsolationLevel"/> to use. </param>
+        /// <param name="isolationLevel"> The <see cref="IsolationLevel" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that represents the started transaction. </returns>
         public static IDbContextTransaction BeginTransaction([NotNull] this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
-            => databaseFacade.CreateExecutionStrategy().Execute(databaseFacade, database =>
-                {
-                    var transactionManager = database.GetTransactionManager();
+            => databaseFacade.CreateExecutionStrategy().Execute(
+                databaseFacade, database =>
+                    {
+                        var transactionManager = database.GetTransactionManager();
 
-                    var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
+                        var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
 
-                    return relationalTransactionManager != null
-                        ? relationalTransactionManager.BeginTransaction(isolationLevel)
-                        : transactionManager.BeginTransaction();
-                });
+                        return relationalTransactionManager != null
+                            ? relationalTransactionManager.BeginTransaction(isolationLevel)
+                            : transactionManager.BeginTransaction();
+                    });
 
         /// <summary>
-        ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel"/>.
+        ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
-        /// <param name="isolationLevel"> The <see cref="IsolationLevel"/> to use. </param>
+        /// <param name="isolationLevel"> The <see cref="IsolationLevel" /> to use. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
@@ -398,16 +400,17 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default(CancellationToken))
-            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(databaseFacade, (database, ct) =>
-                {
-                    var transactionManager = database.GetTransactionManager();
+            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
+                databaseFacade, (database, ct) =>
+                    {
+                        var transactionManager = database.GetTransactionManager();
 
-                    var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
+                        var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
 
-                    return relationalTransactionManager != null
-                        ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
-                        : transactionManager.BeginTransactionAsync(ct);
-                }, cancellationToken);
+                        return relationalTransactionManager != null
+                            ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
+                            : transactionManager.BeginTransactionAsync(ct);
+                    }, cancellationToken);
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.

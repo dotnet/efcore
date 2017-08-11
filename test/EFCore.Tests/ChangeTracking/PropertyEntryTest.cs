@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var entity = new Wotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
-                
+
                 new PropertyEntry(entry, "Primate").CurrentValue = "Chimp";
                 new PropertyEntry(entry, "RequiredPrimate").CurrentValue = "Bushbaby";
 
@@ -925,20 +925,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
                     });
 
-
             builder.Entity<NotifyingWotty>(
-                b =>
-                    {
-                        b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
-                    });
-
+                b => { b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications); });
 
             builder.Entity<FullyNotifyingWotty>(
                 b =>
                     {
                         b.HasChangeTrackingStrategy(fullNotificationStrategy);
                         b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
-
                     });
 
             return builder.Model;
@@ -956,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(GetType().FullName);
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => BuildModel(_fullNotificationStrategy, modelBuilder);
         }
     }

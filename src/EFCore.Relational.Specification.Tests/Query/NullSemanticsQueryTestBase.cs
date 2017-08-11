@@ -312,11 +312,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             string prm2 = null;
             var prm3 = "Blah";
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
-                e.NullableStringA != "Foo"
-                && e.NullableStringA != prm1
-                && e.NullableStringA != prm2
-                && e.NullableStringA != prm3));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e =>
+                        e.NullableStringA != "Foo"
+                        && e.NullableStringA != prm1
+                        && e.NullableStringA != prm2
+                        && e.NullableStringA != prm3));
         }
 
         [Fact]
@@ -326,12 +328,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             string prm2 = null;
             var prm3 = "Blah";
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e =>
-                e.NullableStringB != null
-                && e.NullableStringA != "Foo"
-                && e.NullableStringA != prm1
-                && e.NullableStringA != prm2
-                && e.NullableStringA != prm3));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e =>
+                        e.NullableStringB != null
+                        && e.NullableStringA != "Foo"
+                        && e.NullableStringA != prm1
+                        && e.NullableStringA != prm2
+                        && e.NullableStringA != prm3));
         }
 
         [Fact]
@@ -345,8 +349,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string prm = null;
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => e.NullableStringA == prm));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => e.NullableStringA == prm));
         }
 
         [Fact]
@@ -354,63 +359,71 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             string prm = null;
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => e.NullableStringA != prm));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => e.NullableStringA != prm));
         }
 
         [Fact]
         public virtual void Where_equal_with_coalesce()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => (e.NullableStringA ?? e.NullableStringB) == e.NullableStringC));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => (e.NullableStringA ?? e.NullableStringB) == e.NullableStringC));
         }
 
         [Fact]
         public virtual void Where_not_equal_with_coalesce()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => (e.NullableStringA ?? e.NullableStringB) != e.NullableStringC));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => (e.NullableStringA ?? e.NullableStringB) != e.NullableStringC));
         }
 
         [Fact]
         public virtual void Where_equal_with_coalesce_both_sides()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => (e.NullableStringA ?? e.NullableStringB) == (e.StringA ?? e.StringB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => (e.NullableStringA ?? e.NullableStringB) == (e.StringA ?? e.StringB)));
         }
 
         [Fact]
         public virtual void Where_not_equal_with_coalesce_both_sides()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => (e.NullableIntA ?? e.NullableIntB) != (e.NullableIntC ?? e.NullableIntB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => (e.NullableIntA ?? e.NullableIntB) != (e.NullableIntC ?? e.NullableIntB)));
         }
 
         [Fact]
         public virtual void Where_equal_with_conditional()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => (e.NullableStringA == e.NullableStringB
-                    ? e.NullableStringA
-                    : e.NullableStringB) == e.NullableStringC));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => (e.NullableStringA == e.NullableStringB
+                             ? e.NullableStringA
+                             : e.NullableStringB) == e.NullableStringC));
         }
 
         [Fact]
         public virtual void Where_not_equal_with_conditional()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => e.NullableStringC != (e.NullableStringA == e.NullableStringB
-                    ? e.NullableStringA
-                    : e.NullableStringB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => e.NullableStringC != (e.NullableStringA == e.NullableStringB
+                             ? e.NullableStringA
+                             : e.NullableStringB)));
         }
 
         [Fact]
         public virtual void Where_equal_with_conditional_non_nullable()
         {
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => e.NullableStringC != (e.NullableStringA == e.NullableStringB
-                    ? e.StringA
-                    : e.StringB)));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => e.NullableStringC != (e.NullableStringA == e.NullableStringB
+                             ? e.StringA
+                             : e.StringB)));
         }
 
         [Fact]
@@ -419,11 +432,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var prm = true;
             var list = new[] { "Foo", "Bar" };
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => prm ? list.Contains(e.StringA) : false));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => prm ? list.Contains(e.StringA) : false));
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => !prm ? true : e.StringA.StartsWith("A")));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => !prm ? true : e.StringA.StartsWith("A")));
         }
 
         [Fact]
@@ -433,14 +448,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             var prm2 = false;
             var list = new[] { "Foo", "Bar" };
 
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(
-                e => prm1
-                    ? (prm2
-                        ? (e.BoolA
-                            ? e.StringA.StartsWith("A")
-                            : false)
-                        : true)
-                    : (e.BoolB ? list.Contains(e.StringA) : list.Contains(e.StringB))));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(
+                    e => prm1
+                        ? (prm2
+                            ? (e.BoolA
+                                ? e.StringA.StartsWith("A")
+                                : false)
+                            : true)
+                        : (e.BoolB ? list.Contains(e.StringA) : list.Contains(e.StringB))));
         }
 
         [Fact]
@@ -448,8 +464,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.Contains(e.NullableStringB) && e.BoolA),
-                es => es.Where(e =>
-                    e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah") && e.BoolA),
+                es => es.Where(
+                    e =>
+                        e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah") && e.BoolA),
                 useRelationalNulls: false);
         }
 

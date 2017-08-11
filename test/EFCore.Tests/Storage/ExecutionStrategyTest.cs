@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             private readonly Func<Exception, TimeSpan?> _getNextDelay;
 
             public TestExecutionStrategy(
-                DbContext context, 
-                int? retryCount = null, 
+                DbContext context,
+                int? retryCount = null,
                 Func<Exception, bool> shouldRetryOn = null,
                 Func<Exception, TimeSpan?> getNextDelay = null)
                 : base(
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _getNextDelay = getNextDelay;
             }
 
-            protected internal override bool ShouldRetryOn(Exception exception) 
+            protected internal override bool ShouldRetryOn(Exception exception)
                 => _shouldRetryOn?.Invoke(exception) == true;
 
             protected override TimeSpan? GetNextDelay(Exception lastException)
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 set => ExecutionStrategy.Suspended = value;
             }
         }
-        
+
         private TestExecutionStrategy CreateFailOnRetryStrategy()
             => new TestExecutionStrategy(
                 CreateContext(),
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var executed = false;
 
             var executionStrategyMock = new TestExecutionStrategy(
-                CreateContext(), 
+                CreateContext(),
                 shouldRetryOn: e => e is ArgumentOutOfRangeException);
 
             for (var i = 0; i < 2; i++)
@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var executionStrategyMock = new TestExecutionStrategy(
                 CreateContext(),
                 shouldRetryOn: e => e is ArgumentOutOfRangeException);
-            
+
             for (var i = 0; i < 2; i++)
             {
                 await executeAsync(

@@ -9,15 +9,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public interface IModelScaffolder
     {
         ReverseEngineerFiles Generate(
-               [NotNull] string connectionString,
-               [NotNull] IEnumerable<string> tables,
-               [NotNull] IEnumerable<string> schemas,
-               [NotNull] string projectPath,
-               [CanBeNull] string outputPath,
-               [NotNull] string rootNamespace,
-               [CanBeNull] string contextName,
-               bool useDataAnnotations,
-               bool overwriteFiles,
-               bool useDatabaseNames);
+            [NotNull] string connectionString,
+            [NotNull] IEnumerable<string> tables,
+            [NotNull] IEnumerable<string> schemas,
+            [NotNull] string projectPath,
+            [CanBeNull] string outputPath,
+            [NotNull] string rootNamespace,
+            [CanBeNull] string contextName,
+            bool useDataAnnotations,
+            bool overwriteFiles,
+            bool useDatabaseNames);
     }
 }

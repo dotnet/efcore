@@ -25,8 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreignKey.DeclaringEntityType.RootType().GetDerivedTypesInclusive()
                     .SelectMany(et => et.GetDeclaredForeignKeys())
                     .Where(fk => fk != foreignKey)
-                    .Where(fk => !ConfigurationSource.Convention.Overrides(
-                        (fk as ForeignKey)
+                    .Where(
+                        fk => !ConfigurationSource.Convention.Overrides(
+                            (fk as ForeignKey)
                             ?.FindAnnotation(RelationalAnnotationNames.Name)
                             ?.GetConfigurationSource()))
                     .Select(fk => fk.Relational().Name),
@@ -61,8 +62,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 index.DeclaringEntityType.RootType().GetDerivedTypesInclusive()
                     .SelectMany(et => et.GetDeclaredIndexes())
                     .Where(i => i != index)
-                    .Where(i => !ConfigurationSource.Convention.Overrides(
-                        (i as Index)
+                    .Where(
+                        i => !ConfigurationSource.Convention.Overrides(
+                            (i as Index)
                             ?.FindAnnotation(RelationalAnnotationNames.Name)
                             ?.GetConfigurationSource()))
                     .Select(i => i.Relational().Name),

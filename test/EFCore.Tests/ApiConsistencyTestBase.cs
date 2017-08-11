@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
                              || it.GetConstructors()[0].GetParameters().Length == 0
                              || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
                    select it)
-                    .ToList();
+                .ToList();
 
             Assert.False(
                 badServiceTypes.Any(),
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                          && (method.Name != "GenerateCacheKeyCore")
                    select type.FullName + "." + method.Name)
-                    .ToList();
+                .ToList();
 
             Assert.False(
                 nonVirtualMethods.Any(),
@@ -106,10 +106,11 @@ namespace Microsoft.EntityFrameworkCore
                        : parameter.ParameterType
                    where !parameterType.GetTypeInfo().IsValueType
                          && !parameter.GetCustomAttributes()
-                             .Any(a => a.GetType().Name == nameof(NotNullAttribute)
-                                       || a.GetType().Name == nameof(CanBeNullAttribute))
+                             .Any(
+                                 a => a.GetType().Name == nameof(NotNullAttribute)
+                                      || a.GetType().Name == nameof(CanBeNullAttribute))
                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
-                    .ToList();
+                .ToList();
 
             Assert.False(
                 parametersMissingAttribute.Any(),
@@ -173,12 +174,13 @@ namespace Microsoft.EntityFrameworkCore
             var missingOverloads
                 = (from methodWithoutToken in asyncMethodsWithoutToken
                    where !asyncMethodsWithToken
-                       .Any(methodWithToken => (methodWithoutToken.Name == methodWithToken.Name)
-                                               && (methodWithoutToken.DeclaringType == methodWithToken.DeclaringType))
+                       .Any(
+                           methodWithToken => (methodWithoutToken.Name == methodWithToken.Name)
+                                              && (methodWithoutToken.DeclaringType == methodWithToken.DeclaringType))
                    // ReSharper disable once PossibleNullReferenceException
                    select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
-                    .Except(GetCancellationTokenExceptions())
-                    .ToList();
+                .Except(GetCancellationTokenExceptions())
+                .ToList();
 
             Assert.False(
                 missingOverloads.Any(),
@@ -207,14 +209,14 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             var parameters = (
-                from type in GetAllTypes(TargetAssembly.GetExportedTypes())
-                where !type.Namespace.Contains("Internal")
-                from method in type.GetTypeInfo().DeclaredMethods
-                where !method.IsPrivate
-                from parameter in method.GetParameters()
-                where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
-                      && prefixes.Any(parameter.Name.StartsWith)
-                select $"{type.FullName}.{method.Name}[{parameter.Name}]")
+                    from type in GetAllTypes(TargetAssembly.GetExportedTypes())
+                    where !type.Namespace.Contains("Internal")
+                    from method in type.GetTypeInfo().DeclaredMethods
+                    where !method.IsPrivate
+                    from parameter in method.GetParameters()
+                    where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
+                          && prefixes.Any(parameter.Name.StartsWith)
+                    select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
             Assert.False(

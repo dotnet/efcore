@@ -101,19 +101,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     CoreStrings.BadValueGeneratorType(valueGeneratorType.ShortDisplayName(), typeof(ValueGenerator).ShortDisplayName()));
             }
 
-            return HasValueGenerator((_, __)
-                =>
-                {
-                    try
+            return HasValueGenerator(
+                (_, __)
+                    =>
                     {
-                        return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
-                    }
-                    catch (Exception e)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
-                    }
-                }, configurationSource);
+                        try
+                        {
+                            return (ValueGenerator)Activator.CreateInstance(valueGeneratorType);
+                        }
+                        catch (Exception e)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.CannotCreateValueGenerator(valueGeneratorType.ShortDisplayName()), e);
+                        }
+                    }, configurationSource);
         }
 
         /// <summary>
@@ -144,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (fieldName != null)
             {
-                var fieldInfo = PropertyBase.GetFieldInfo(fieldName, Metadata.DeclaringType.ClrType, Metadata.Name,
+                var fieldInfo = PropertyBase.GetFieldInfo(
+                    fieldName, Metadata.DeclaringType.ClrType, Metadata.Name,
                     shouldThrow: configurationSource == ConfigurationSource.Explicit);
                 Metadata.SetFieldInfo(fieldInfo, configurationSource);
                 return true;
@@ -288,14 +290,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldBeforeSaveBehaviorConfigurationSource = Metadata.GetBeforeSaveBehaviorConfigurationSource();
             if (oldBeforeSaveBehaviorConfigurationSource.HasValue)
             {
-                newPropertyBuilder.BeforeSave(Metadata.BeforeSaveBehavior,
+                newPropertyBuilder.BeforeSave(
+                    Metadata.BeforeSaveBehavior,
                     oldBeforeSaveBehaviorConfigurationSource.Value);
             }
 
             var oldAfterSaveBehaviorConfigurationSource = Metadata.GetAfterSaveBehaviorConfigurationSource();
             if (oldAfterSaveBehaviorConfigurationSource.HasValue)
             {
-                newPropertyBuilder.AfterSave(Metadata.AfterSaveBehavior,
+                newPropertyBuilder.AfterSave(
+                    Metadata.AfterSaveBehavior,
                     oldAfterSaveBehaviorConfigurationSource.Value);
             }
 
@@ -308,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldIsConcurrencyTokenConfigurationSource = Metadata.GetIsConcurrencyTokenConfigurationSource();
             if (oldIsConcurrencyTokenConfigurationSource.HasValue)
             {
-                newPropertyBuilder.IsConcurrencyToken(Metadata.IsConcurrencyToken,
+                newPropertyBuilder.IsConcurrencyToken(
+                    Metadata.IsConcurrencyToken,
                     oldIsConcurrencyTokenConfigurationSource.Value);
             }
 

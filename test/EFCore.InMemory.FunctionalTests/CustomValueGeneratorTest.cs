@@ -208,10 +208,10 @@ namespace Microsoft.EntityFrameworkCore
         private class CustomGuidValueGenerator : ValueGenerator<Guid>
         {
             public static Guid[] SpecialGuids { get; } =
-                {
-                    Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
-                    Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()
-                };
+            {
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(),
+                Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()
+            };
 
             private int _counter = -1;
 
@@ -237,8 +237,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 if (property.ClrType == typeof(Guid))
                 {
-                    return property["SpecialGuid"] != null ?
-                        (ValueGenerator)new CustomGuidValueGenerator()
+                    return property["SpecialGuid"] != null
+                        ? (ValueGenerator)new CustomGuidValueGenerator()
                         : new SequentialGuidValueGenerator();
                 }
 

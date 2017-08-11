@@ -73,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore
             public class ChangedNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
                 protected override string StoreName { get; } = "GraphUpdatesChangedTest";
+
                 protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
@@ -93,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             public class ChangedChangingNotificationsFixture : GraphUpdatesSqliteFixtureBase
             {
                 protected override string StoreName { get; } = "GraphUpdatesFullTest";
-                
+
                 protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);

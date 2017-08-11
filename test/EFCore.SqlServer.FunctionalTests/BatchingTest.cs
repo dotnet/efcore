@@ -74,65 +74,67 @@ namespace Microsoft.EntityFrameworkCore
         {
             var expectedBlogs = new List<Blog>();
 
-            ExecuteWithStrategyInTransaction(context =>
-                {
-                    var owner1 = new Owner { Name = "0" };
-                    var owner2 = new Owner { Name = "1" };
-                    context.Owners.Add(owner1);
-                    context.Owners.Add(owner2);
-
-                    var blog1 = new Blog
+            ExecuteWithStrategyInTransaction(
+                context =>
                     {
-                        Id = Guid.NewGuid(),
-                        Owner = owner1,
-                        Order = 1
-                    };
+                        var owner1 = new Owner { Name = "0" };
+                        var owner2 = new Owner { Name = "1" };
+                        context.Owners.Add(owner1);
+                        context.Owners.Add(owner2);
 
-                    context.Set<Blog>().Add(blog1);
-                    expectedBlogs.Add(blog1);
+                        var blog1 = new Blog
+                        {
+                            Id = Guid.NewGuid(),
+                            Owner = owner1,
+                            Order = 1
+                        };
 
-                    context.SaveChanges();
+                        context.Set<Blog>().Add(blog1);
+                        expectedBlogs.Add(blog1);
 
-                    owner2.Name = "2";
+                        context.SaveChanges();
 
-                    blog1.Order = 0;
-                    var blog2 = new Blog
-                    {
-                        Id = Guid.NewGuid(),
-                        Owner = owner1,
-                        Order = 1
-                    };
+                        owner2.Name = "2";
 
-                    context.Set<Blog>().Add(blog2);
-                    expectedBlogs.Add(blog2);
+                        blog1.Order = 0;
+                        var blog2 = new Blog
+                        {
+                            Id = Guid.NewGuid(),
+                            Owner = owner1,
+                            Order = 1
+                        };
 
-                    var blog3 = new Blog
-                    {
-                        Id = Guid.NewGuid(),
-                        Owner = owner2,
-                        Order = 2
-                    };
+                        context.Set<Blog>().Add(blog2);
+                        expectedBlogs.Add(blog2);
 
-                    context.Set<Blog>().Add(blog3);
-                    expectedBlogs.Add(blog3);
+                        var blog3 = new Blog
+                        {
+                            Id = Guid.NewGuid(),
+                            Owner = owner2,
+                            Order = 2
+                        };
 
-                    context.SaveChanges();
-                },
+                        context.Set<Blog>().Add(blog3);
+                        expectedBlogs.Add(blog3);
+
+                        context.SaveChanges();
+                    },
                 context => AssertDatabaseState(context, true, expectedBlogs));
         }
 
         [Fact]
         public void Inserts_when_database_type_is_different()
         {
-            ExecuteWithStrategyInTransaction(context =>
-                {
-                    var owner1 = new Owner { Id = "0", Name = "Zero" };
-                    var owner2 = new Owner { Id = "A", Name = string.Join("", Enumerable.Repeat('A', 900)) };
-                    context.Owners.Add(owner1);
-                    context.Owners.Add(owner2);
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var owner1 = new Owner { Id = "0", Name = "Zero" };
+                        var owner2 = new Owner { Id = "A", Name = string.Join("", Enumerable.Repeat('A', 900)) };
+                        context.Owners.Add(owner1);
+                        context.Owners.Add(owner2);
 
-                    context.SaveChanges();
-                },
+                        context.SaveChanges();
+                    },
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
@@ -177,16 +179,18 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Owner>(b =>
-                    {
-                        b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                        b.Property(e => e.Name).HasColumnType("nvarchar(450)");
-                    });
-                modelBuilder.Entity<Blog>(b =>
-                    {
-                        b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
-                        b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                    });
+                modelBuilder.Entity<Owner>(
+                    b =>
+                        {
+                            b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                            b.Property(e => e.Name).HasColumnType("nvarchar(450)");
+                        });
+                modelBuilder.Entity<Blog>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).HasDefaultValueSql("NEWID()");
+                            b.Property(e => e.Version).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                        });
             }
 
             public DbSet<Blog> Blogs { get; set; }
@@ -213,13 +217,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "BatchingTest";
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            
+
             protected override Type ContextType { get; } = typeof(BloggingContext);
 
             protected override void Seed(DbContext context)
             {
                 context.Database.EnsureCreated();
-                context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(
+                    @"
 ALTER TABLE dbo.Owners
     ALTER COLUMN Name nvarchar(MAX);");
             }

@@ -78,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder<TEntity> Entity<TEntity>() where TEntity : class
+        public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
+            where TEntity : class
             => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
 
         /// <summary>
@@ -124,7 +125,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction) where TEntity : class
+        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+            where TEntity : class
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
@@ -194,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Ignore<TEntity>() where TEntity : class
+        public virtual ModelBuilder Ignore<TEntity>()
+            where TEntity : class
             => Ignore(typeof(TEntity));
 
         /// <summary>
@@ -215,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Applies configuration that is defined in an <see cref="IEntityTypeConfiguration{TEntity}"/> instance.
+        ///     Applies configuration that is defined in an <see cref="IEntityTypeConfiguration{TEntity}" /> instance.
         /// </summary>
         /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
         /// <param name="configuration"> The configuration to be applied. </param>

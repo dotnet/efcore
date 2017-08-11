@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected GearsOfWarFromSqlQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void From_sql_queryable_simple_columns_out_of_order()
         {

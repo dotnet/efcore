@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             _queryCompiler = queryCompiler;
             _genericExecuteMethod = queryCompiler.GetType()
-                    .GetRuntimeMethods()
-                    .Single(m => (m.Name == "Execute") && m.IsGenericMethod);
+                .GetRuntimeMethods()
+                .Single(m => (m.Name == "Execute") && m.IsGenericMethod);
         }
 
         /// <summary>

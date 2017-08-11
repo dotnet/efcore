@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             TestSqlServerRetryingExecutionStrategy.Suspended = true;
         }
-        
+
         protected override bool SnapshotSupported => true;
 
         public virtual void Dispose()
@@ -25,8 +25,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override DbContext CreateContextWithConnectionString()
         {
-            var options = Fixture.AddOptions(new DbContextOptionsBuilder()
-                .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
+            var options = Fixture.AddOptions(
+                    new DbContextOptionsBuilder()
+                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout)))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -57,8 +58,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
-                new SqlServerDbContextOptionsBuilder(base.AddOptions(builder)
-                    .ConfigureWarnings(w => w.Log(RelationalEventId.QueryClientEvaluationWarning)))
+                new SqlServerDbContextOptionsBuilder(
+                        base.AddOptions(builder)
+                            .ConfigureWarnings(w => w.Log(RelationalEventId.QueryClientEvaluationWarning)))
                     .MaxBatchSize(1);
                 return builder;
             }

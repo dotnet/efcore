@@ -329,7 +329,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
             }
 
-            public DbSet<TEntity> CreateSet<TEntity>(DbContext context) where TEntity : class => throw new NotImplementedException();
+            public DbSet<TEntity> CreateSet<TEntity>(DbContext context)
+                where TEntity : class => throw new NotImplementedException();
 
             public object CreateSet(DbContext context, Type type) => throw new NotImplementedException();
         }
@@ -346,9 +347,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         private static DbContext CreateContext(IServiceProvider serviceProvider)
-            => new DbContext(new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(serviceProvider)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options);
+            => new DbContext(
+                new DbContextOptionsBuilder()
+                    .UseInternalServiceProvider(serviceProvider)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .Options);
     }
 }

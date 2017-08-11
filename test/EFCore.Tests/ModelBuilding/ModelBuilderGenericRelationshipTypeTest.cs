@@ -30,8 +30,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
             {
-                ModelBuilder.Entity<TEntity>(entityTypeBuilder =>
-                    buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
+                ModelBuilder.Entity<TEntity>(
+                    entityTypeBuilder =>
+                        buildAction(new GenericTypeTestEntityTypeBuilder<TEntity>(entityTypeBuilder)));
                 return this;
             }
 
@@ -60,9 +61,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> OwnsOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression,
                 Action<TestReferenceOwnershipBuilder<TEntity, TRelatedEntity>> buildAction)
-                => Wrap(EntityTypeBuilder.OwnsOne(
-                    navigationExpression,
-                    r => buildAction(new GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
+                => Wrap(
+                    EntityTypeBuilder.OwnsOne(
+                        navigationExpression,
+                        r => buildAction(new GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>(r))));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
                 Expression<Func<TEntity, TRelatedEntity>> navigationExpression = null)
@@ -98,14 +100,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasForeignKey(
-                    typeof(TDependentEntity),
-                    foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap(
+                    ReferenceReferenceBuilder.HasForeignKey(
+                        typeof(TDependentEntity),
+                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(
-                    typeof(TPrincipalEntity),
-                    keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+                => Wrap(
+                    ReferenceReferenceBuilder.HasPrincipalKey(
+                        typeof(TPrincipalEntity),
+                        keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
         }
 
         private class GenericTypeTestReferenceOwnershipBuilder<TEntity, TRelatedEntity>

@@ -61,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual int GetHashCode(IForeignKey obj) =>
             unchecked(
-                ((((PropertyListComparer.Instance.GetHashCode(obj.PrincipalKey.Properties) * 397)
-                   ^ PropertyListComparer.Instance.GetHashCode(obj.Properties)) * 397)
-                 ^ EntityTypePathComparer.Instance.GetHashCode(obj.PrincipalEntityType)) * 397)
+            ((((PropertyListComparer.Instance.GetHashCode(obj.PrincipalKey.Properties) * 397)
+               ^ PropertyListComparer.Instance.GetHashCode(obj.Properties)) * 397)
+             ^ EntityTypePathComparer.Instance.GetHashCode(obj.PrincipalEntityType)) * 397)
             ^ EntityTypePathComparer.Instance.GetHashCode(obj.DeclaringEntityType);
     }
 }

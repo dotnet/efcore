@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 
         // composite key
         public string Nickname { get; set; }
+
         public int SquadId { get; set; }
 
         public string FullName { get; set; }

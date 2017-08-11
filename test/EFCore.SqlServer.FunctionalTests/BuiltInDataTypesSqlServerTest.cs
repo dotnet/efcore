@@ -6,9 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
@@ -16,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
 // ReSharper disable StringIndexOfIsCultureSpecific.1
@@ -2069,37 +2069,41 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
                 MakeRequired<MappedDataTypes>(modelBuilder);
 
-                modelBuilder.Entity<BuiltInDataTypes>(b =>
-                {
-                    b.Ignore(dt => dt.TestUnsignedInt16);
-                    b.Ignore(dt => dt.TestUnsignedInt32);
-                    b.Ignore(dt => dt.TestUnsignedInt64);
-                    b.Ignore(dt => dt.TestCharacter);
-                    b.Ignore(dt => dt.TestSignedByte);
-                    b.Property(dt => dt.TestDecimal).HasColumnType("decimal(18,2)");
-                });
+                modelBuilder.Entity<BuiltInDataTypes>(
+                    b =>
+                        {
+                            b.Ignore(dt => dt.TestUnsignedInt16);
+                            b.Ignore(dt => dt.TestUnsignedInt32);
+                            b.Ignore(dt => dt.TestUnsignedInt64);
+                            b.Ignore(dt => dt.TestCharacter);
+                            b.Ignore(dt => dt.TestSignedByte);
+                            b.Property(dt => dt.TestDecimal).HasColumnType("decimal(18,2)");
+                        });
 
-                modelBuilder.Entity<BuiltInNullableDataTypes>(b =>
-                {
-                    b.Ignore(dt => dt.TestNullableUnsignedInt16);
-                    b.Ignore(dt => dt.TestNullableUnsignedInt32);
-                    b.Ignore(dt => dt.TestNullableUnsignedInt64);
-                    b.Ignore(dt => dt.TestNullableCharacter);
-                    b.Ignore(dt => dt.TestNullableSignedByte);
-                });
+                modelBuilder.Entity<BuiltInNullableDataTypes>(
+                    b =>
+                        {
+                            b.Ignore(dt => dt.TestNullableUnsignedInt16);
+                            b.Ignore(dt => dt.TestNullableUnsignedInt32);
+                            b.Ignore(dt => dt.TestNullableUnsignedInt64);
+                            b.Ignore(dt => dt.TestNullableCharacter);
+                            b.Ignore(dt => dt.TestNullableSignedByte);
+                        });
 
-                modelBuilder.Entity<MappedDataTypes>(b =>
-                {
-                    b.HasKey(e => e.Int);
-                    b.Property(e => e.Int).ValueGeneratedNever();
-                });
+                modelBuilder.Entity<MappedDataTypes>(
+                    b =>
+                        {
+                            b.HasKey(e => e.Int);
+                            b.Property(e => e.Int).ValueGeneratedNever();
+                        });
 
-                modelBuilder.Entity<MappedNullableDataTypes>(b =>
-                {
-                    b.HasKey(e => e.Int);
-                    b.Property(e => e.Int)
-                        .ValueGeneratedNever();
-                });
+                modelBuilder.Entity<MappedNullableDataTypes>(
+                    b =>
+                        {
+                            b.HasKey(e => e.Int);
+                            b.Property(e => e.Int)
+                                .ValueGeneratedNever();
+                        });
 
                 modelBuilder.Entity<MappedSizedDataTypes>()
                     .Property(e => e.Id)
@@ -2141,7 +2145,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 MapPreciseColumnTypes<MappedPrecisionAndScaledDataTypesWithIdentity>(modelBuilder);
             }
 
-            private static void MapColumnTypes<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+            private static void MapColumnTypes<TEntity>(ModelBuilder modelBuilder)
+                where TEntity : class
             {
                 var entityType = modelBuilder.Entity<TEntity>().Metadata;
 
@@ -2160,7 +2165,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 }
             }
 
-            private static void MapSizedColumnTypes<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+            private static void MapSizedColumnTypes<TEntity>(ModelBuilder modelBuilder)
+                where TEntity : class
             {
                 var entityType = modelBuilder.Entity<TEntity>().Metadata;
 
@@ -2171,7 +2177,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 }
             }
 
-            private static void MapPreciseColumnTypes<TEntity>(ModelBuilder modelBuilder) where TEntity : class
+            private static void MapPreciseColumnTypes<TEntity>(ModelBuilder modelBuilder)
+                where TEntity : class
             {
                 var entityType = modelBuilder.Entity<TEntity>().Metadata;
 
@@ -2183,8 +2190,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(c => c
-                    .Log(RelationalEventId.QueryClientEvaluationWarning));
+                => base.AddOptions(builder).ConfigureWarnings(
+                    c => c
+                        .Log(RelationalEventId.QueryClientEvaluationWarning));
 
             public override bool SupportsBinaryKeys => true;
 

@@ -80,17 +80,18 @@ FROM [Orders] AS [c1_Orders]");
         [Fact]
         public virtual void Cache_key_contexts_are_detached()
         {
-            var weakRef = Scoper(() =>
-                {
-                    var context = new NorthwindRelationalContext(Fixture.CreateOptions());
-
-                    var wr = new WeakReference(context);
-
-                    using (context)
+            var weakRef = Scoper(
+                () =>
                     {
-                        var orderDetails = context.OrderDetails;
+                        var context = new NorthwindRelationalContext(Fixture.CreateOptions());
 
-                        Customer Query(NorthwindContext param) =>
+                        var wr = new WeakReference(context);
+
+                        using (context)
+                        {
+                            var orderDetails = context.OrderDetails;
+
+                            Customer Query(NorthwindContext param) =>
                             (from c in context.Customers
                              from o in context.Set<Order>()
                              from od in orderDetails
@@ -98,13 +99,13 @@ FROM [Orders] AS [c1_Orders]");
                              from e2 in param.Set<Order>()
                              select c).First();
 
-                        Assert.NotNull(Query(context));
+                            Assert.NotNull(Query(context));
 
-                        Assert.True(wr.IsAlive);
+                            Assert.True(wr.IsAlive);
 
-                        return wr;
-                    }
-                });
+                            return wr;
+                        }
+                    });
 
             GC.Collect();
 

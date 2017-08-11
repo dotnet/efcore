@@ -52,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="functionName"> Name of the function. </param>
         /// <param name="returnType"> The return type. </param>
-        /// /// <param name="schema"> The schema this function exists in if any. </param>
+        /// ///
+        /// <param name="schema"> The schema this function exists in if any. </param>
         /// <param name="arguments"> The arguments. </param>
         public SqlFunctionExpression(
             [NotNull] string functionName,

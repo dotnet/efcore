@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
     {
         // non-integer key with not conventional name
         public string Name { get; set; }
+
         public string Location { get; set; }
 
         public List<Gear> BornGears { get; set; }

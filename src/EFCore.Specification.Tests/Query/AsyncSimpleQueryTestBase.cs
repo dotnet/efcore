@@ -40,11 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results
                     = await context.Customers
                         .Where(c => c.CustomerID == "ALFKI")
-                        .Select(c => new
-                        {
-                            c,
-                            Orders = ((IAsyncEnumerable<Order>)(from o in c.Orders select o)).ToList().Result
-                        })
+                        .Select(
+                            c => new
+                            {
+                                c,
+                                Orders = ((IAsyncEnumerable<Order>)(from o in c.Orders select o)).ToList().Result
+                            })
                         .ToListAsync();
 
                 Assert.Equal(1, results.Count);
@@ -101,19 +102,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var results
                     = (await context.Customers
-                        .Select(c => new
-                        {
-                            c.CustomerID,
-                            Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
-                        }).ToListAsync())
-                    .Select(x => new
-                    {
-                        Orders = x.Orders
-                            .GroupJoin(new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                        .Select(
+                            c => new
                             {
-                                h.Customer
-                            })
-                    })
+                                c.CustomerID,
+                                Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
+                            }).ToListAsync())
+                    .Select(
+                        x => new
+                        {
+                            Orders = x.Orders
+                                .GroupJoin(
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                                    {
+                                        h.Customer
+                                    })
+                        })
                     .ToList();
 
                 Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
@@ -138,9 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             await AssertQuery<Customer>(
                 cs => cs
-                    .Where(c => expectedOrders
-                        .All(expected => c.Orders.Select(o => o.OrderID)
-                            .Any(orderId => orderId == expected))));
+                    .Where(
+                        c => expectedOrders
+                            .All(
+                                expected => c.Orders.Select(o => o.OrderID)
+                                    .Any(orderId => orderId == expected))));
         }
 
         protected virtual async Task Single_Predicate_Cancellation_test(CancellationToken cancellationToken)
@@ -361,16 +367,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Projection_when_arithmetic_expressions()
         {
             await AssertQuery<Order>(
-                os => os.Select(o => new
-                {
-                    o.OrderID,
-                    Double = o.OrderID * 2,
-                    Add = o.OrderID + 23,
-                    Sub = 100000 - o.OrderID,
-                    Divide = o.OrderID / (o.OrderID / 2),
-                    Literal = 42,
-                    o
-                }),
+                os => os.Select(
+                    o => new
+                    {
+                        o.OrderID,
+                        Double = o.OrderID * 2,
+                        Add = o.OrderID + 23,
+                        Sub = 100000 - o.OrderID,
+                        Divide = o.OrderID / (o.OrderID / 2),
+                        Literal = 42,
+                        o
+                    }),
                 elementSorter: e => e.OrderID,
                 entryCount: 830);
         }
@@ -675,10 +682,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                    await context.Set<Customer>()
-                        .Where(c => c.City == city.Nested.InstanceFieldValue)
-                        .ToListAsync());
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () =>
+                        await context.Set<Customer>()
+                            .Where(c => c.City == city.Nested.InstanceFieldValue)
+                            .ToListAsync());
             }
         }
 
@@ -689,10 +697,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                    await context.Set<Customer>()
-                        .Where(c => c.City == city.Throw().InstanceFieldValue)
-                        .ToListAsync());
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () =>
+                        await context.Set<Customer>()
+                            .Where(c => c.City == city.Throw().InstanceFieldValue)
+                            .ToListAsync());
             }
         }
 
@@ -791,7 +800,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_shadow_subquery_first()
         {
-            await AssertQuery<Employee>(es =>
+            await AssertQuery<Employee>(
+                es =>
                     from e in es
                     where EF.Property<string>(e, "Title")
                           == EF.Property<string>(es.OrderBy(e2 => EF.Property<string>(e2, "Title")).First(), "Title")
@@ -1518,8 +1528,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where c.City == "London"
                     orderby c.CustomerID
                     select os
-                        .Where(o => o.CustomerID == c.CustomerID
-                                    && o.OrderDate.Value.Year == 1997)
+                        .Where(
+                            o => o.CustomerID == c.CustomerID
+                                 && o.OrderDate.Value.Year == 1997)
                         .Select(o => o.OrderID)
                         .OrderBy(o => o),
                 e => ((IEnumerable<int>)e).Count(),
@@ -1582,8 +1593,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         CustomerId = c.CustomerID,
                         OrderIds
-                        = os.Where(o => o.CustomerID == c.CustomerID
-                                        && o.OrderDate.Value.Year == 1997)
+                        = os.Where(
+                                o => o.CustomerID == c.CustomerID
+                                     && o.OrderDate.Value.Year == 1997)
                             .Select(o => o.OrderID)
                             .OrderBy(o => o),
                         Customer = c
@@ -1620,10 +1632,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_subquery_on_collection()
         {
-            await AssertQuery<Product, OrderDetail>((pr, od) =>
-                from p in pr
-                where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
-                select p);
+            await AssertQuery<Product, OrderDetail>(
+                (pr, od) =>
+                    from p in pr
+                    where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
+                    select p);
         }
 
         [ConditionalFact]
@@ -1764,7 +1777,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs =>
                     from c in cs
                     from c1 in
-                    (from c2 in (from c3 in cs select c3) select c2)
+                        (from c2 in (from c3 in cs select c3) select c2)
                     orderby c1.CustomerID
                     select c1,
                 assertOrder: true,
@@ -1774,7 +1787,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task SelectMany_correlated_simple()
         {
-            await AssertQuery<Customer, Employee>((cs, es) =>
+            await AssertQuery<Customer, Employee>(
+                (cs, es) =>
                     from c in cs
                     from e in es
                     where c.City == e.City
@@ -1803,11 +1817,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer, Employee>(
                 (cs, es) =>
                     from c1 in
-                    (from c2 in cs.Take(91) select c2.City).Distinct()
+                        (from c2 in cs.Take(91) select c2.City).Distinct()
                     from e1 in
-                    (from e2 in es where c1 == e2.City select new { e2.City, c1 }).Take(9)
+                        (from e2 in es where c1 == e2.City select new { e2.City, c1 }).Take(9)
                     from e2 in
-                    (from e3 in es where e1.City == e3.City select c1).Take(9)
+                        (from e3 in es where e1.City == e3.City select c1).Take(9)
                     select new { c1, e1 },
                 elementSorter: e => e.c1 + " " + e.e1.City + " " + e.e1.c1);
         }
@@ -1820,7 +1834,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     from e in es
                     where c.City == e.City
-                    orderby e.City ascending, c.CustomerID descending
+                    orderby e.City, c.CustomerID descending
                     select new { c, e.City },
                 assertOrder: true,
                 entryCount: 8);
@@ -1907,7 +1921,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o1 in
-                    (from o2 in os orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                        (from o2 in os orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
                     where o1.CustomerID == "ALFKI"
                     select new { c.ContactName, o1.OrderID },
                 elementSorter: e => e.ContactName + " " + e.OrderID);
@@ -1920,7 +1934,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o1 in
-                    (from o2 in os orderby o2.OrderID select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
+                        (from o2 in os orderby o2.OrderID select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
                     where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
                     select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") },
                 e => e.o1.o2.OrderID);
@@ -1933,7 +1947,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o1 in
-                    (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
+                        (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
                     where o1.CustomerID == "ALFKI"
                     select new { c.ContactName, o1.OrderID },
                 elementSorter: e => e.ContactName + " " + e.OrderID);
@@ -1946,7 +1960,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on new { a = c.CustomerID, b = c.CustomerID }
-                    equals new { a = o.CustomerID, b = o.CustomerID }
+                        equals new { a = o.CustomerID, b = o.CustomerID }
                     select new { c, o },
                 elementSorter: e => e.c.CustomerID + " " + e.o.OrderID,
                 entryCount: 919);
@@ -2004,7 +2018,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupJoin_customers_orders()
         {
-            await AssertQuery<Customer, Order>((cs, os) =>
+            await AssertQuery<Customer, Order>(
+                (cs, os) =>
                     from c in cs
                     join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID into orders
                     select new { customer = c, orders = orders.ToList() },
@@ -2032,15 +2047,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Default_if_empty_top_level()
         {
-            await AssertQuery<Employee>(es =>
-                from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
-                select e);
+            await AssertQuery<Employee>(
+                es =>
+                    from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
+                    select e);
         }
 
         [ConditionalFact]
         public virtual async Task Default_if_empty_top_level_arg()
         {
-            await AssertQuery<Employee>(es =>
+            await AssertQuery<Employee>(
+                es =>
                     from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
                     select e,
                 entryCount: 1);
@@ -2049,7 +2066,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Default_if_empty_top_level_positive()
         {
-            await AssertQuery<Employee>(es =>
+            await AssertQuery<Employee>(
+                es =>
                     from e in es.Where(c => c.EmployeeID > 0).DefaultIfEmpty()
                     select e,
                 entryCount: 9);
@@ -2058,9 +2076,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Default_if_empty_top_level_projection()
         {
-            await AssertQueryScalar<Employee>(es =>
-                from e in es.Where(e => e.EmployeeID == -1).Select(e => e.EmployeeID).DefaultIfEmpty()
-                select e);
+            await AssertQueryScalar<Employee>(
+                es =>
+                    from e in es.Where(e => e.EmployeeID == -1).Select(e => e.EmployeeID).DefaultIfEmpty()
+                    select e);
         }
 
         [ConditionalFact]
@@ -2072,12 +2091,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                      join e in es on c.City equals e.City into employees
                      select employees)
                     .SelectMany(emps => emps)
-                    .Select(e =>
-                        new
-                        {
-                            Title = EF.Property<string>(e, "Title"),
-                            Id = e.EmployeeID
-                        }),
+                    .Select(
+                        e =>
+                            new
+                            {
+                                Title = EF.Property<string>(e, "Title"),
+                                Id = e.EmployeeID
+                            }),
                 elementSorter: e => e.Id);
         }
 
@@ -2090,12 +2110,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                      join e in es.OrderBy(e => e.City) on c.City equals e.City into employees
                      select employees)
                     .SelectMany(emps => emps)
-                    .Select(e =>
-                        new
-                        {
-                            Title = EF.Property<string>(e, "Title"),
-                            Id = e.EmployeeID
-                        }),
+                    .Select(
+                        e =>
+                            new
+                            {
+                                Title = EF.Property<string>(e, "Title"),
+                                Id = e.EmployeeID
+                            }),
                 elementSorter: e => e.Title + " " + e.Id);
         }
 
@@ -2192,11 +2213,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task OrderBy_multiple_queries()
         {
-            await AssertQuery<Customer, Order>((cs, os) =>
-                from c in cs
-                join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
-                orderby c.IsLondon, o.OrderDate
-                select new { c, o });
+            await AssertQuery<Customer, Order>(
+                (cs, os) =>
+                    from c in cs
+                    join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
+                    orderby c.IsLondon, o.OrderDate
+                    select new { c, o });
         }
 
         [ConditionalFact]
@@ -2308,7 +2330,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task OrderBy_SelectMany()
         {
-            await AssertQuery<Customer, Order>((cs, os) =>
+            await AssertQuery<Customer, Order>(
+                (cs, os) =>
                     from c in cs.OrderBy(c => c.CustomerID)
                     from o in os.OrderBy(o => o.OrderID)
                     where c.CustomerID == o.CustomerID
@@ -2386,66 +2409,76 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_Sum()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_Count()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.Count()));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_LongCount()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_Shadow()
         {
-            await AssertQuery<Employee>(es =>
-                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
-                              && e.EmployeeID == 1)
-                    .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => EF.Property<string>(g.First(), "Title")));
+            await AssertQuery<Employee>(
+                es =>
+                    es.Where(
+                            e => EF.Property<string>(e, "Title") == "Sales Representative"
+                                 && e.EmployeeID == 1)
+                        .GroupBy(e => EF.Property<string>(e, "Title"))
+                        .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_Shadow2()
         {
-            await AssertQuery<Employee>(es =>
-                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
-                              && e.EmployeeID == 1)
-                    .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => g.First()));
+            await AssertQuery<Employee>(
+                es =>
+                    es.Where(
+                            e => EF.Property<string>(e, "Title") == "Sales Representative"
+                                 && e.EmployeeID == 1)
+                        .GroupBy(e => EF.Property<string>(e, "Title"))
+                        .Select(g => g.First()));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_Shadow3()
         {
-            await AssertQuery<Employee>(es =>
-                es.Where(e => e.EmployeeID == 1)
-                    .GroupBy(e => e.EmployeeID)
-                    .Select(g => EF.Property<string>(g.First(), "Title")));
+            await AssertQuery<Employee>(
+                es =>
+                    es.Where(e => e.EmployeeID == 1)
+                        .GroupBy(e => e.EmployeeID)
+                        .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_Sum_Min_Max_Avg()
         {
-            await AssertQuery<Order>(os =>
+            await AssertQuery<Order>(
+                os =>
                     os.GroupBy(o => o.CustomerID)
-                        .Select(g =>
-                            new
-                            {
-                                Sum = g.Sum(o => o.OrderID),
-                                Min = g.Min(o => o.OrderID),
-                                Max = g.Max(o => o.OrderID),
-                                Avg = g.Average(o => o.OrderID)
-                            }),
+                        .Select(
+                            g =>
+                                new
+                                {
+                                    Sum = g.Sum(o => o.OrderID),
+                                    Min = g.Min(o => o.OrderID),
+                                    Max = g.Max(o => o.OrderID),
+                                    Avg = g.Average(o => o.OrderID)
+                                }),
                 elementSorter: e => e.Sum + " " + e.Min + " " + e.Max + " " + e.Avg);
         }
 
@@ -2469,8 +2502,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_with_element_selector_sum()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
         }
 
         [ConditionalFact]
@@ -2500,7 +2534,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_with_element_selector3()
         {
-            await AssertQuery<Employee>(es =>
+            await AssertQuery<Employee>(
+                es =>
                     es.GroupBy(e => e.EmployeeID)
                         .OrderBy(g => g.Key)
                         .Select(g => g.Select(e => new { Title = EF.Property<string>(e, "Title"), e }).ToList()),
@@ -2517,7 +2552,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public async virtual Task GroupBy_with_aggregate_function_by_navigation_property()
+        public virtual async Task GroupBy_with_aggregate_function_by_navigation_property()
         {
             await AssertQuery<Order>(
                 os => os.GroupBy(c => c.EmployeeID).Select(g => new { max = g.Max(i => i.Customer.Region) }),
@@ -2527,32 +2562,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_with_anonymous_element()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
-                    .Select(g => g.Sum(x => x.OrderID)));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
+                        .Select(g => g.Sum(x => x.OrderID)));
         }
 
         [ConditionalFact]
         public virtual async Task GroupBy_with_two_part_key()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
-                    .Select(g => g.Sum(o => o.OrderID)));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                        .Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
         public virtual async Task OrderBy_GroupBy()
         {
-            await AssertQueryScalar<Order>(os =>
-                os.OrderBy(o => o.OrderID)
-                    .GroupBy(o => o.CustomerID)
-                    .Select(g => g.Sum(o => o.OrderID)));
+            await AssertQueryScalar<Order>(
+                os =>
+                    os.OrderBy(o => o.OrderID)
+                        .GroupBy(o => o.CustomerID)
+                        .Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
         public virtual async Task OrderBy_GroupBy_SelectMany()
         {
-            await AssertQuery<Order>(os =>
+            await AssertQuery<Order>(
+                os =>
                     os.OrderBy(o => o.OrderID)
                         .GroupBy(o => o.CustomerID)
                         .SelectMany(g => g),
@@ -2562,11 +2601,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task OrderBy_GroupBy_SelectMany_shadow()
         {
-            await AssertQuery<Employee>(es =>
-                es.OrderBy(e => e.EmployeeID)
-                    .GroupBy(e => e.EmployeeID)
-                    .SelectMany(g => g)
-                    .Select(g => EF.Property<string>(g, "Title")));
+            await AssertQuery<Employee>(
+                es =>
+                    es.OrderBy(e => e.EmployeeID)
+                        .GroupBy(e => e.EmployeeID)
+                        .SelectMany(g => g)
+                        .Select(g => EF.Property<string>(g, "Title")));
         }
 
         [ConditionalFact]
@@ -2638,7 +2678,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Average_with_coalesce()
         {
-            await AssertSingleResult<Product>(ps => ps.Where(p => p.ProductID < 40).AverageAsync(p => p.UnitPrice ?? 0),
+            await AssertSingleResult<Product>(
+                ps => ps.Where(p => p.ProductID < 40).AverageAsync(p => p.UnitPrice ?? 0),
                 asserter: (e, a) => Assert.InRange((decimal)e - (decimal)a, -0.1m, 0.1m));
         }
 
@@ -2830,7 +2871,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Distinct_GroupBy()
         {
-            await AssertQuery<Order>(os =>
+            await AssertQuery<Order>(
+                os =>
                     os.Distinct()
                         .GroupBy(o => o.CustomerID)
                         .OrderBy(g => g.Key)
@@ -2841,8 +2883,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task GroupBy_Distinct()
         {
-            await AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
+            await AssertQuery<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [ConditionalFact]
@@ -2866,9 +2909,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Single_Throws()
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await AssertSingleResult<Customer, Customer>(
-                    cs => cs.SingleAsync()));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                    await AssertSingleResult<Customer, Customer>(
+                        cs => cs.SingleAsync()));
         }
 
         [ConditionalFact]
@@ -2891,9 +2935,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task SingleOrDefault_Throws()
         {
-            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-                await AssertSingleResult<Customer, Customer>(
-                    cs => cs.SingleOrDefaultAsync()));
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                    await AssertSingleResult<Customer, Customer>(
+                        cs => cs.SingleOrDefaultAsync()));
         }
 
         [ConditionalFact]
@@ -3299,7 +3344,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Contains_with_subquery()
         {
-            await AssertQuery<Customer, Order>((cs, os) =>
+            await AssertQuery<Customer, Order>(
+                (cs, os) =>
                     cs.Where(c => os.Select(o => o.CustomerID).Contains(c.CustomerID)),
                 entryCount: 89);
         }
@@ -3308,86 +3354,97 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Contains_with_local_array_closure()
         {
             string[] ids = { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_array_inline()
         {
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new[] { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_list_closure()
         {
             var ids = new List<string> { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_list_inline()
         {
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new List<string> { "ABCDE", "ALFKI" }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_list_inline_closure_mix()
         {
             var alfki = "ALFKI";
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => new List<string> { "ABCDE", alfki }.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => new List<string> { "ABCDE", alfki }.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_false()
         {
             string[] ids = { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => !ids.Contains(c.CustomerID)), entryCount: 90);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_complex_predicate_and()
         {
             string[] ids = { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => (c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE") && ids.Contains(c.CustomerID)), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_complex_predicate_or()
         {
             string[] ids = { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_complex_predicate_not_matching_ins1()
         {
             string[] ids = { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE" || !ids.Contains(c.CustomerID)), entryCount: 91);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE" || !ids.Contains(c.CustomerID)), entryCount: 91);
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_complex_predicate_not_matching_ins2()
         {
             string[] ids = { "ABCDE", "ALFKI" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) && c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE"));
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID) && c.CustomerID != "ALFKI" && c.CustomerID != "ABCDE"));
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_sql_injection()
         {
             string[] ids = { "ALFKI", "ABC')); GO; DROP TABLE Orders; GO; --" };
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID) || c.CustomerID == "ALFKI" || c.CustomerID == "ABCDE"), entryCount: 1);
         }
 
         [ConditionalFact]
@@ -3395,15 +3452,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new string[0];
 
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => ids.Contains(c.CustomerID)));
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => ids.Contains(c.CustomerID)));
         }
 
         [ConditionalFact]
         public virtual async Task Contains_with_local_collection_empty_inline()
         {
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => !new List<string>().Contains(c.CustomerID)), entryCount: 91);
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => !new List<string>().Contains(c.CustomerID)), entryCount: 91);
         }
 
         [ConditionalFact]
@@ -3415,9 +3474,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_chain()
         {
-            await AssertQuery<Order>(order => order
-                .Where(o => o.CustomerID == "QUICK")
-                .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
+            await AssertQuery<Order>(
+                order => order
+                    .Where(o => o.CustomerID == "QUICK")
+                    .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
         }
 
         [ConditionalFact]
@@ -3647,7 +3707,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_bitwise_or()
         {
-            await AssertQuery<Customer>(cs =>
+            await AssertQuery<Customer>(
+                cs =>
                     cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"),
                 entryCount: 2);
         }
@@ -3655,8 +3716,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_bitwise_and()
         {
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"));
         }
 
         [ConditionalFact]
@@ -3710,7 +3772,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_bitwise_or_with_logical_or()
         {
-            await AssertQuery<Customer>(cs =>
+            await AssertQuery<Customer>(
+                cs =>
                     cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
                 entryCount: 3);
         }
@@ -3718,14 +3781,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_bitwise_and_with_logical_and()
         {
-            await AssertQuery<Customer>(cs =>
-                cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"));
+            await AssertQuery<Customer>(
+                cs =>
+                    cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"));
         }
 
         [ConditionalFact]
         public virtual async Task Where_bitwise_or_with_logical_and()
         {
-            await AssertQuery<Customer>(cs =>
+            await AssertQuery<Customer>(
+                cs =>
                     cs.Where(c => c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" && c.Country == "Germany"),
                 entryCount: 1);
         }
@@ -3733,7 +3798,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Where_bitwise_and_with_logical_or()
         {
-            await AssertQuery<Customer>(cs =>
+            await AssertQuery<Customer>(
+                cs =>
                     cs.Where(c => c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" || c.CustomerID == "ANTON"),
                 entryCount: 1);
         }
@@ -3743,11 +3809,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new
-                {
-                    c.CustomerID,
-                    Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
-                }).ToListAsync();
+                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(
+                    c => new
+                    {
+                        c.CustomerID,
+                        Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
+                    }).ToListAsync();
 
                 Assert.All(query.Take(3), t => Assert.True(t.Value));
                 Assert.All(query.Skip(3), t => Assert.False(t.Value));
@@ -3759,11 +3826,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(c => new
-                {
-                    c.CustomerID,
-                    Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
-                }).ToListAsync();
+                var query = await context.Customers.OrderBy(c => c.CustomerID).Select(
+                    c => new
+                    {
+                        c.CustomerID,
+                        Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
+                    }).ToListAsync();
 
                 Assert.All(query, t => Assert.False(t.Value));
             }
@@ -3798,12 +3866,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery<Order, OrderDetail>(
                 (os, ods) =>
-                    os.Where(o => o.OrderID > 11000
-                                  && ods.Where(od => od.Product.ProductName == "Chai")
-                                      .Select(od => od.OrderID)
-                                      .Contains(o.OrderID)),
+                    os.Where(
+                        o => o.OrderID > 11000
+                             && ods.Where(od => od.Product.ProductName == "Chai")
+                                 .Select(od => od.OrderID)
+                                 .Contains(o.OrderID)),
                 entryCount: 8);
         }
-
     }
 }

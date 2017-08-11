@@ -3,9 +3,9 @@
 
 using System.Data;
 using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         public SqlAzureConnectionTest(SqlAzureFixture fixture)
         {
         }
-        
+
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]

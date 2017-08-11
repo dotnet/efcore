@@ -16,10 +16,11 @@ namespace Microsoft.EntityFrameworkCore
         public class LoadSqliteFixture : LoadFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
-            
+
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(c => c
-                    .Log(RelationalEventId.QueryClientEvaluationWarning));
+                => base.AddOptions(builder).ConfigureWarnings(
+                    c => c
+                        .Log(RelationalEventId.QueryClientEvaluationWarning));
         }
     }
 }

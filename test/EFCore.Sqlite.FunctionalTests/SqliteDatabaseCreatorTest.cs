@@ -32,11 +32,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private IRelationalDatabaseCreator GetDatabaseCreator(string connectionString)
-            => new DbContext(new DbContextOptionsBuilder()
-                .UseSqlite(connectionString)
-                .UseInternalServiceProvider(SqliteTestStoreFactory.Instance.AddProviderServices(new ServiceCollection())
-                    .BuildServiceProvider(validateScopes: true))
-                .Options)
+            => new DbContext(
+                    new DbContextOptionsBuilder()
+                        .UseSqlite(connectionString)
+                        .UseInternalServiceProvider(
+                            SqliteTestStoreFactory.Instance.AddProviderServices(new ServiceCollection())
+                                .BuildServiceProvider(validateScopes: true))
+                        .Options)
                 .GetService<IRelationalDatabaseCreator>();
     }
 }

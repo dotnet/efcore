@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
+
         private PropertyIndexes _indexes;
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual ForeignKey ForeignKey { get; }
-        
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -145,8 +146,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(
-                        navigationProperty.Name, sourceClrType.ShortDisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.NoClrNavigation(
+                            navigationProperty.Name, sourceClrType.ShortDisplayName()));
                 }
                 return false;
             }
@@ -160,11 +162,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (shouldThrow)
                     {
-                        throw new InvalidOperationException(CoreStrings.NavigationCollectionWrongClrType(
-                            navigationProperty.Name,
-                            sourceClrType.ShortDisplayName(),
-                            navigationProperty.PropertyType.ShortDisplayName(),
-                            targetClrType.ShortDisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.NavigationCollectionWrongClrType(
+                                navigationProperty.Name,
+                                sourceClrType.ShortDisplayName(),
+                                navigationProperty.PropertyType.ShortDisplayName(),
+                                targetClrType.ShortDisplayName()));
                     }
                     return false;
                 }
@@ -173,11 +176,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (shouldThrow)
                     {
-                        throw new InvalidOperationException(CoreStrings.NavigationSingleWrongClrType(
-                            navigationProperty.Name,
-                            sourceClrType.ShortDisplayName(),
-                            navigationProperty.PropertyType.ShortDisplayName(),
-                            targetClrType.ShortDisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.NavigationSingleWrongClrType(
+                                navigationProperty.Name,
+                                sourceClrType.ShortDisplayName(),
+                                navigationProperty.PropertyType.ShortDisplayName(),
+                                targetClrType.ShortDisplayName()));
                     }
                     return false;
                 }
@@ -194,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             get
             {
-                return NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
+                return NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _indexes, this,
                     property => property.DeclaringType.CalculateIndexes(property));
             }
 

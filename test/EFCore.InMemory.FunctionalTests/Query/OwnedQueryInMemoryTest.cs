@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
-        
+
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

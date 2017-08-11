@@ -59,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommand BuildCore(
-                [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                [NotNull] string commandText,
-                [NotNull] IReadOnlyList<IRelationalParameter> parameters)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] string commandText,
+            [NotNull] IReadOnlyList<IRelationalParameter> parameters)
             => new RelationalCommand(
                 logger, commandText, parameters);
 

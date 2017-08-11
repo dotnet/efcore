@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The name of the table.
         /// </summary>
         public virtual string Name { get; [param: NotNull] set; }
-        
+
         /// <summary>
         ///     The schema that contains the table, or <c>null</c> if the default schema should be used.
         /// </summary>
         public virtual string Schema { get; [param: CanBeNull] set; }
-        
+
         /// <summary>
         ///     An operation representing the table as it was before being altered.
         /// </summary>

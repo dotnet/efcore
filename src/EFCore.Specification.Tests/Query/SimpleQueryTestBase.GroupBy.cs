@@ -36,20 +36,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Test does not pass. See issue#7160")]
         public virtual void GroupBy_anonymous_subquery()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => new { c.City, c.CustomerID })
-                    .GroupBy(a => from c2 in cs select c2),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Select(c => new { c.City, c.CustomerID })
+                        .GroupBy(a => from c2 in cs select c2),
                 assertOrder: true);
         }
 
         [ConditionalFact]
         public virtual void GroupBy_nested_order_by_enumerable()
         {
-            AssertQuery<Customer>(cs =>
-                cs.Select(c => new { c.Country, c.CustomerID })
-                    .OrderBy(a => a.Country)
-                    .GroupBy(a => a.Country)
-                    .Select(g => g.OrderBy(a => a.CustomerID)),
+            AssertQuery<Customer>(
+                cs =>
+                    cs.Select(c => new { c.Country, c.CustomerID })
+                        .OrderBy(a => a.Country)
+                        .GroupBy(a => a.Country)
+                        .Select(g => g.OrderBy(a => a.CustomerID)),
                 assertOrder: true);
         }
 
@@ -132,44 +134,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupBy_Shadow()
         {
-            AssertQuery<Employee>(es =>
-                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
-                              && e.EmployeeID == 1)
-                    .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => EF.Property<string>(g.First(), "Title")));
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(
+                            e => EF.Property<string>(e, "Title") == "Sales Representative"
+                                 && e.EmployeeID == 1)
+                        .GroupBy(e => EF.Property<string>(e, "Title"))
+                        .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
         [ConditionalFact]
         public virtual void GroupBy_Shadow2()
         {
-            AssertQuery<Employee>(es =>
-                es.Where(e => EF.Property<string>(e, "Title") == "Sales Representative"
-                              && e.EmployeeID == 1)
-                    .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => g.First()));
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(
+                            e => EF.Property<string>(e, "Title") == "Sales Representative"
+                                 && e.EmployeeID == 1)
+                        .GroupBy(e => EF.Property<string>(e, "Title"))
+                        .Select(g => g.First()));
         }
 
         [ConditionalFact]
         public virtual void GroupBy_Shadow3()
         {
-            AssertQuery<Employee>(es =>
-                es.Where(e => e.EmployeeID == 1)
-                    .GroupBy(e => e.EmployeeID)
-                    .Select(g => EF.Property<string>(g.First(), "Title")));
+            AssertQuery<Employee>(
+                es =>
+                    es.Where(e => e.EmployeeID == 1)
+                        .GroupBy(e => e.EmployeeID)
+                        .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
         [ConditionalFact]
         public virtual void GroupBy_Sum_Min_Max_Avg()
         {
             AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID).Select(g =>
-                    new
-                    {
-                        Sum = g.Sum(o => o.OrderID),
-                        Min = g.Min(o => o.OrderID),
-                        Max = g.Max(o => o.OrderID),
-                        Avg = g.Average(o => o.OrderID)
-                    }),
+                os => os.GroupBy(o => o.CustomerID).Select(
+                    g =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                            Min = g.Min(o => o.OrderID),
+                            Max = g.Max(o => o.OrderID),
+                            Avg = g.Average(o => o.OrderID)
+                        }),
                 e => e.Min + " " + e.Max);
         }
 
@@ -177,14 +185,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void GroupBy_with_result_selector()
         {
             AssertQuery<Order>(
-                os => os.GroupBy(o => o.CustomerID, (k, g) =>
-                    new
-                    {
-                        Sum = g.Sum(o => o.OrderID),
-                        Min = g.Min(o => o.OrderID),
-                        Max = g.Max(o => o.OrderID),
-                        Avg = g.Average(o => o.OrderID)
-                    }),
+                os => os.GroupBy(
+                    o => o.CustomerID, (k, g) =>
+                        new
+                        {
+                            Sum = g.Sum(o => o.OrderID),
+                            Min = g.Min(o => o.OrderID),
+                            Max = g.Max(o => o.OrderID),
+                            Avg = g.Average(o => o.OrderID)
+                        }),
                 e => e.Min + " " + e.Max);
         }
 
@@ -239,17 +248,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupBy_with_anonymous_element()
         {
-            AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
-                    .Select(g => g.Sum(x => x.OrderID)));
+            AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID, o => new { o.OrderID })
+                        .Select(g => g.Sum(x => x.OrderID)));
         }
 
         [ConditionalFact]
         public virtual void GroupBy_with_two_part_key()
         {
-            AssertQueryScalar<Order>(os =>
-                os.GroupBy(o => new { o.CustomerID, o.OrderDate })
-                    .Select(g => g.Sum(o => o.OrderID)));
+            AssertQueryScalar<Order>(
+                os =>
+                    os.GroupBy(o => new { o.CustomerID, o.OrderDate })
+                        .Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
@@ -265,30 +276,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void OrderBy_GroupBy()
         {
-            AssertQueryScalar<Order>(os =>
-                os.OrderBy(o => o.OrderID)
-                    .GroupBy(o => o.CustomerID)
-                    .Select(g => g.Sum(o => o.OrderID)));
+            AssertQueryScalar<Order>(
+                os =>
+                    os.OrderBy(o => o.OrderID)
+                        .GroupBy(o => o.CustomerID)
+                        .Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalFact]
         public virtual void OrderBy_GroupBy_SelectMany()
         {
-            AssertQuery<Order>(os =>
-                os.OrderBy(o => o.OrderID)
-                    .GroupBy(o => o.CustomerID)
-                    .SelectMany(g => g),
+            AssertQuery<Order>(
+                os =>
+                    os.OrderBy(o => o.OrderID)
+                        .GroupBy(o => o.CustomerID)
+                        .SelectMany(g => g),
                 entryCount: 830);
         }
 
         [ConditionalFact]
         public virtual void OrderBy_GroupBy_SelectMany_shadow()
         {
-            AssertQuery<Employee>(es =>
-                es.OrderBy(e => e.EmployeeID)
-                    .GroupBy(e => e.EmployeeID)
-                    .SelectMany(g => g)
-                    .Select(g => EF.Property<string>(g, "Title")));
+            AssertQuery<Employee>(
+                es =>
+                    es.OrderBy(e => e.EmployeeID)
+                        .GroupBy(e => e.EmployeeID)
+                        .SelectMany(g => g)
+                        .Select(g => EF.Property<string>(g, "Title")));
         }
 
         [ConditionalFact]
@@ -308,12 +322,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Select(g => new { Foo = "Foo", Group = g }),
                 e => GroupingSorter<string, object>()(e.Group),
                 elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Foo, a.Foo);
-                    IGrouping<string, Order> eGrouping = e.Group;
-                    IGrouping<string, Order> aGrouping = a.Group;
-                    Assert.Equal(eGrouping.OrderBy(p => p.OrderID), aGrouping.OrderBy(p => p.OrderID));
-                },
+                    {
+                        Assert.Equal(e.Foo, a.Foo);
+                        IGrouping<string, Order> eGrouping = e.Group;
+                        IGrouping<string, Order> aGrouping = a.Group;
+                        Assert.Equal(eGrouping.OrderBy(p => p.OrderID), aGrouping.OrderBy(p => p.OrderID));
+                    },
                 entryCount: 830);
         }
 
@@ -356,11 +370,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.False(
                     context
                         .Set<Order>()
-                        .Select(o => new ProjectedType
-                        {
-                            Order = o.OrderID,
-                            Customer = o.CustomerID
-                        })
+                        .Select(
+                            o => new ProjectedType
+                            {
+                                Order = o.OrderID,
+                                Customer = o.CustomerID
+                            })
                         .GroupBy(a => a.Customer)
                         .All(a => a.Key == "ALFKI")
                 );
@@ -372,17 +387,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Order>().Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
+                var actual = context.Set<Order>().Select(
+                    o => new ProjectedType
+                    {
+                        Order = o.OrderID,
+                        Customer = o.CustomerID
+                    }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
 
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(
+                    o => new ProjectedType
+                    {
+                        Order = o.OrderID,
+                        Customer = o.CustomerID
+                    }).GroupBy(p => p.Customer).ToList().OrderBy(g => g.Key + " " + g.Count()).ToList();
 
                 Assert.Equal(expected.Count, actual.Count);
                 for (var i = 0; i < expected.Count; i++)
@@ -398,19 +415,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Order>().Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                })
+                var actual = context.Set<Order>().Select(
+                        o => new ProjectedType
+                        {
+                            Order = o.OrderID,
+                            Customer = o.CustomerID
+                        })
                     .GroupBy(o => o.Order)
                     .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
 
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(o => new ProjectedType
-                {
-                    Order = o.OrderID,
-                    Customer = o.CustomerID
-                })
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>().Select(
+                        o => new ProjectedType
+                        {
+                            Order = o.OrderID,
+                            Customer = o.CustomerID
+                        })
                     .GroupBy(o => o.Order)
                     .SelectMany(g => g).ToList().OrderBy(e => e.Order).ToList();
 
@@ -425,7 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Distinct_GroupBy()
         {
-            AssertQuery<Order>(os =>
+            AssertQuery<Order>(
+                os =>
                     os.Distinct()
                         .GroupBy(o => o.CustomerID)
                         .OrderBy(g => g.Key)
@@ -436,8 +456,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void GroupBy_Distinct()
         {
-            AssertQuery<Order>(os =>
-                os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
+            AssertQuery<Order>(
+                os =>
+                    os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [ConditionalFact(Skip = "Unable to bind group by. See Issue#6658")]
@@ -447,11 +468,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(s => s.ContactTitle == "Owner")
                     .Union(cs.Where(c => c.City == "México D.F."))
                     .GroupBy(c => c.City)
-                    .Select(g => new
-                    {
-                        g.Key,
-                        Total = g.Count()
-                    }),
+                    .Select(
+                        g => new
+                        {
+                            g.Key,
+                            Total = g.Count()
+                        }),
                 entryCount: 19);
         }
 
@@ -464,17 +486,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(c => c.Orders)
                     .Where(c => c.CustomerID.StartsWith("A"))
                     .ToList()
-                    .Select(c => c.Orders.Any()
-                        ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                        : new int[0]).ToList();
+                    .Select(
+                        c => c.Orders.Any()
+                            ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
+                            : new int[0]).ToList();
 
                 ClearLog();
 
                 var query = context.Customers
                     .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(c => c.Orders.Any()
-                        ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                        : new int[0]);
+                    .Select(
+                        c => c.Orders.Any()
+                            ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
+                            : new int[0]);
 
                 var result = query.ToList();
 

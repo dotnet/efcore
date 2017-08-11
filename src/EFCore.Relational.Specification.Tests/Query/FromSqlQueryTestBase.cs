@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Bad_data_error_handling_invalid_cast_key()
         {
@@ -34,11 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"" AS ""ProductName"", ""ProductName"" AS ""ProductID"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .FromSql(
+                                    @"SELECT ""ProductID"" AS ""ProductName"", ""ProductName"" AS ""ProductID"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
-                            .ToList()).Message);
+                                .ToList()).Message);
             }
         }
 
@@ -49,11 +51,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "UnitPrice", typeof(decimal?), typeof(int)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""SupplierID"", ""UnitsInStock"", ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .FromSql(
+                                    @"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""SupplierID"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
-                            .ToList()).Message);
+                                .ToList()).Message);
             }
         }
 
@@ -64,12 +68,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "UnitPrice", typeof(decimal?), typeof(int)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""UnitsInStock"", ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .FromSql(
+                                    @"SELECT ""ProductID"", ""SupplierID"" AS ""UnitPrice"", ""ProductName"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
-                            .Select(p => p.UnitPrice)
-                            .ToList()).Message);
+                                .Select(p => p.UnitPrice)
+                                .ToList()).Message);
             }
         }
 
@@ -80,12 +86,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .AsNoTracking()
-                            .FromSql(@"SELECT ""ProductID"" AS ""ProductName"", ""ProductName"" AS ""ProductID"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .AsNoTracking()
+                                .FromSql(
+                                    @"SELECT ""ProductID"" AS ""ProductName"", ""ProductName"" AS ""ProductID"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", ""Discontinued""
                                FROM ""Products""")
-                            .ToList()).Message);
+                                .ToList()).Message);
             }
         }
 
@@ -96,11 +104,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .FromSql(
+                                    @"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""
                                FROM ""Products""")
-                            .ToList()).Message);
+                                .ToList()).Message);
             }
         }
 
@@ -111,12 +121,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .FromSql(
+                                    @"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""
                                FROM ""Products""")
-                            .Select(p => p.Discontinued)
-                            .ToList()).Message);
+                                .Select(p => p.Discontinued)
+                                .ToList()).Message);
             }
         }
 
@@ -127,12 +139,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        context.Set<Product>()
-                            .AsNoTracking()
-                            .FromSql(@"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            context.Set<Product>()
+                                .AsNoTracking()
+                                .FromSql(
+                                    @"SELECT ""ProductID"", ""ProductName"", ""SupplierID"", ""UnitPrice"", ""UnitsInStock"", NULL AS ""Discontinued""
                                FROM ""Products""")
-                            .ToList()).Message);
+                                .ToList()).Message);
             }
         }
 
@@ -189,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => context.Set<Customer>()
                             .FromSql(@"SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
                             .ToArray()
-                        ).Message);
+                    ).Message);
             }
         }
 
@@ -213,7 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql(@"
+                    .FromSql(
+                        @"
     
 
 
@@ -253,7 +268,7 @@ SELECT
                            .Select(o => o.CustomerID)
                            .Contains(c.CustomerID)
                        select c)
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(89, actual.Length);
             }
@@ -272,7 +287,7 @@ SELECT
                                .Select(o => o.CustomerID)
                                .Contains(c.CustomerID)
                        select c)
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(1, actual.Length);
             }
@@ -288,7 +303,7 @@ SELECT
                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders""")
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(830, actual.Length);
             }
@@ -304,12 +319,13 @@ SELECT
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
-                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                       from o in context.Set<Order>().FromSql(
+                           @"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(411, actual.Length);
             }
@@ -326,12 +342,13 @@ SELECT
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
-                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                       from o in context.Set<Order>().FromSql(
+                           @"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(25, actual.Length);
 
@@ -341,12 +358,13 @@ SELECT
 
                 actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
-                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                       from o in context.Set<Order>().FromSql(
+                           @"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(1, actual.Length);
             }
@@ -358,7 +376,8 @@ SELECT
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql(@"SELECT *
+                    .FromSql(
+                        @"SELECT *
 FROM ""Customers""
 WHERE ""City"" = 'London'")
                     .ToArray();
@@ -374,7 +393,8 @@ WHERE ""City"" = 'London'")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql(@"SELECT *
+                    .FromSql(
+                        @"SELECT *
 FROM ""Customers""")
                     .Where(c => c.City == "London")
                     .ToArray();
@@ -472,7 +492,7 @@ FROM ""Customers""")
                        from o in context.Set<Order>().FromSql($@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {startDate} AND {endDate}")
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(25, actual.Length);
 
@@ -485,7 +505,7 @@ FROM ""Customers""")
                        from o in context.Set<Order>().FromSql($@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {startDate} AND {endDate}")
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
-                        .ToArray();
+                    .ToArray();
 
                 Assert.Equal(1, actual.Length);
             }
@@ -600,7 +620,8 @@ FROM ""Customers""")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Product>()
-                    .FromSql(@"SELECT *
+                    .FromSql(
+                        @"SELECT *
 FROM Products
 WHERE Discontinued <> 1
 AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
@@ -699,7 +720,8 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 var titleParameter = CreateDbParameter("@title", title);
 
                 var actual = context.Customers
-                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
+                    .FromSql(
+                        @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
                         city,
                         titleParameter)
                     .ToArray();
@@ -711,7 +733,8 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
                 var cityParameter = CreateDbParameter("@city", city);
 
                 actual = context.Customers
-                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
+                    .FromSql(
+                        @"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
                         cityParameter,
                         title)
                     .ToArray();
@@ -767,7 +790,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             using (var context = CreateContext())
             {
                 var query = from c1 in context.Set<Customer>()
-                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
+                                .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'ALFKI'")
                             from c2 in context.Set<Customer>()
                                 .FromSql(@"SELECT * FROM ""Customers"" WHERE ""CustomerID"" = 'AROUT'")
                                 .Include(c => c.Orders)

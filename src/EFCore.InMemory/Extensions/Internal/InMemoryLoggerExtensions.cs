@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name, 
+                    definition.EventId.Name,
                     new EventData(
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage()));

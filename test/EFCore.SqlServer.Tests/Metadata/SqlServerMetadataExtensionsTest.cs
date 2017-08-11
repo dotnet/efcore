@@ -269,9 +269,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "1");
 
-            Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.NullableInt), firstConfiguration),
-                Assert.Throws<InvalidOperationException>(() =>
-                    ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2")).Message);
+            Assert.Equal(
+                RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.NullableInt), firstConfiguration),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2")).Message);
         }
 
         protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)

@@ -464,7 +464,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())).Apply(entityBuilder));
             new ModelCleanupConvention().Apply(modelBuilder);
 
-            VerifyRelationship(entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.Base)),
+            VerifyRelationship(
+                entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.Base)),
                 expectedInverseName: nameof(Base.BaseNavigation), unique: true);
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count());
         }
@@ -486,7 +487,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())).Apply(entityBuilder));
 
-            VerifyRelationship(entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.Base)),
+            VerifyRelationship(
+                entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.Base)),
                 expectedInverseName: nameof(Base.BaseNavigation), unique: true);
             Assert.Empty(derivedBuilder.Metadata.GetDeclaredNavigations());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());
@@ -509,7 +511,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(baseBuilder, new RelationshipDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())).Apply(baseBuilder));
 
-            VerifyRelationship(baseBuilder.Metadata.FindNavigation(nameof(Base.BaseNavigation)),
+            VerifyRelationship(
+                baseBuilder.Metadata.FindNavigation(nameof(Base.BaseNavigation)),
                 expectedInverseName: nameof(NavigationsToBaseAndDerived.Base), unique: true);
             Assert.Empty(derivedBuilder.Metadata.GetDeclaredNavigations());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count());

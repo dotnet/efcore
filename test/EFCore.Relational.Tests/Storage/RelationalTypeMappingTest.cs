@@ -173,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var literal = new IntTypeMapping("int?", DbType.Int32).GenerateSqlLiteral((int?)123);
             Assert.Equal("123", literal);
         }
+
         [Fact]
         public virtual void GenerateSqlLiteral_for_Byte_works_for_range_limits()
         {

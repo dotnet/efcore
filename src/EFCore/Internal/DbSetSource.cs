@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 t => (Func<DbContext, object>)_genericCreate.MakeGenericMethod(t).Invoke(null, null))(context);
 
         [UsedImplicitly]
-        private static Func<DbContext, object> CreateConstructor<TEntity>() where TEntity : class
+        private static Func<DbContext, object> CreateConstructor<TEntity>()
+            where TEntity : class
             => c => new InternalDbSet<TEntity>(c);
     }
 }

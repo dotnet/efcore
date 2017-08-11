@@ -123,23 +123,26 @@ namespace Microsoft.EntityFrameworkCore
 
             // ReSharper disable UnusedAutoPropertyAccessor.Local
             public DbSet<Pegasus> Pegasuses { get; set; }
+
             public DbSet<EarthPony> EarthPonies { get; set; }
             // ReSharper restore UnusedAutoPropertyAccessor.Local
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Pegasus>(b =>
-                    {
-                        b.ToTable("Pegasus");
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                    });
+                modelBuilder.Entity<Pegasus>(
+                    b =>
+                        {
+                            b.ToTable("Pegasus");
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                        });
 
-                modelBuilder.Entity<EarthPony>(b =>
-                    {
-                        b.ToTable("EarthPony");
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.Property(e => e.Id1);
-                    });
+                modelBuilder.Entity<EarthPony>(
+                    b =>
+                        {
+                            b.ToTable("EarthPony");
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.Property(e => e.Id1);
+                        });
             }
         }
 

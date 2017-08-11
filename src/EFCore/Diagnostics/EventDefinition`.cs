@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> Optional exception associated with this event. </param>
         /// <returns> The message string. </returns>
         public virtual string GenerateMessage(
-            [CanBeNull] TParam arg, 
+            [CanBeNull] TParam arg,
             [CanBeNull] Exception exception = null)
         {
             var extractor = new MessageExtractingLogger();

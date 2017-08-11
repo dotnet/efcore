@@ -94,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
-                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                HasForeignKeyBuilder(
+                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -131,7 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder(
-                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                HasForeignKeyBuilder(
+                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -146,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
-            => HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
+            => HasForeignKeyBuilder(
+                dependentEntityType, dependentEntityTypeName,
                 (b, d) => b.HasForeignKey(foreignKeyPropertyNames, d, ConfigurationSource.Explicit));
 
         /// <summary>
@@ -157,7 +160,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType dependentEntityType,
             [NotNull] string dependentEntityTypeName,
             [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
-            => HasForeignKeyBuilder(dependentEntityType, dependentEntityTypeName,
+            => HasForeignKeyBuilder(
+                dependentEntityType, dependentEntityTypeName,
                 (b, d) => b.HasForeignKey(foreignKeyProperties, d, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder HasForeignKeyBuilder(
@@ -167,10 +171,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (dependentEntityType == null)
             {
-                throw new InvalidOperationException(CoreStrings.DependentEntityTypeNotInRelationship(
-                    DeclaringEntityType.DisplayName(),
-                    RelatedEntityType.DisplayName(),
-                    dependentEntityTypeName));
+                throw new InvalidOperationException(
+                    CoreStrings.DependentEntityTypeNotInRelationship(
+                        DeclaringEntityType.DisplayName(),
+                        RelatedEntityType.DisplayName(),
+                        dependentEntityTypeName));
             }
 
             using (var batch = dependentEntityType.Model.ConventionDispatcher.StartBatch())
@@ -249,7 +254,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<string> foreignKeyPropertyNames)
-            => HasPrincipalKeyBuilder(principalEntityType, principalEntityTypeName,
+            => HasPrincipalKeyBuilder(
+                principalEntityType, principalEntityTypeName,
                 b => b.HasPrincipalKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
 
         /// <summary>
@@ -260,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] EntityType principalEntityType,
             [NotNull] string principalEntityTypeName,
             [NotNull] IReadOnlyList<PropertyInfo> foreignKeyProperties)
-            => HasPrincipalKeyBuilder(principalEntityType, principalEntityTypeName,
+            => HasPrincipalKeyBuilder(
+                principalEntityType, principalEntityTypeName,
                 b => b.HasPrincipalKey(foreignKeyProperties, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder HasPrincipalKeyBuilder(
@@ -270,10 +277,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             if (principalEntityType == null)
             {
-                throw new InvalidOperationException(CoreStrings.PrincipalEntityTypeNotInRelationship(
-                    DeclaringEntityType.DisplayName(),
-                    RelatedEntityType.DisplayName(),
-                    principalEntityTypeName));
+                throw new InvalidOperationException(
+                    CoreStrings.PrincipalEntityTypeNotInRelationship(
+                        DeclaringEntityType.DisplayName(),
+                        RelatedEntityType.DisplayName(),
+                        principalEntityTypeName));
             }
 
             using (var batch = principalEntityType.Model.ConventionDispatcher.StartBatch())

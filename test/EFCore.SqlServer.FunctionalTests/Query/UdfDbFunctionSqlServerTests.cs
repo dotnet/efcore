@@ -73,13 +73,14 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<NotImplementedException>(() => (from e in context.Employees
-                                                              where e.EmployeeID == 5
-                                                              select new
-                                                              {
-                                                                  e.FirstName,
-                                                                  OrderCount = NorthwindRelationalContext.EmployeeOrderCount(AddFive(e.EmployeeID - 5))
-                                                              }).Single());
+                Assert.Throws<NotImplementedException>(
+                    () => (from e in context.Employees
+                           where e.EmployeeID == 5
+                           select new
+                           {
+                               e.FirstName,
+                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(AddFive(e.EmployeeID - 5))
+                           }).Single());
             }
         }
 
@@ -256,7 +257,7 @@ WHERE [dbo].GetEmployeeWithMostOrdersAfterDate(@__startDate_0) = [e].[EmployeeID
 
                 var emp = (from e in context.Employees
                            where e.EmployeeID == NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(
-                               NorthwindRelationalContext.GetReportingPeriodStartDate(period))
+                                     NorthwindRelationalContext.GetReportingPeriodStartDate(period))
                            select e).SingleOrDefault();
 
                 Assert.NotNull(emp);
@@ -278,8 +279,8 @@ WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetRepor
             {
                 var emp = (from e in context.Employees
                            where e.EmployeeID == NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(
-                               NorthwindRelationalContext.GetReportingPeriodStartDate(
-                                   NorthwindRelationalContext.ReportingPeriod.Winter))
+                                     NorthwindRelationalContext.GetReportingPeriodStartDate(
+                                         NorthwindRelationalContext.ReportingPeriod.Winter))
                            select e).SingleOrDefault();
 
                 Assert.NotNull(emp);

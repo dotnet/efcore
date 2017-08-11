@@ -29,10 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
             return Expression.Constant(
                 _createEntityQueryableMethod
                     .MakeGenericMethod(type)
-                    .Invoke(null, new object[]
-                    {
-                        entityQueryProvider
-                    }));
+                    .Invoke(
+                        null, new object[]
+                        {
+                            entityQueryProvider
+                        }));
         }
 
         private static readonly MethodInfo _createEntityQueryableMethod

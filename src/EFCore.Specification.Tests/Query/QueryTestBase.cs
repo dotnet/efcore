@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<object, object> asserter = null,
             int entryCount = 0)
             where TItem1 : class
-            =>  AssertSingleResult(query, query, asserter, entryCount);
+            => AssertSingleResult(query, query, asserter, entryCount);
 
         protected virtual void AssertSingleResult<TItem1>(
             Func<IQueryable<TItem1>, object> actualQuery,
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
-        
+
         public virtual void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
@@ -322,14 +322,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertIncludeQuery
 
-        public void 
+        public void
             AssertIncludeQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter = null,
-            List<Func<dynamic, object>> clientProjections = null,
-            bool assertOrder = false,
-            int entryCount = 0)
+                Func<IQueryable<TItem1>, IQueryable<object>> query,
+                List<IExpectedInclude> expectedIncludes,
+                Func<dynamic, object> elementSorter = null,
+                List<Func<dynamic, object>> clientProjections = null,
+                bool assertOrder = false,
+                int entryCount = 0)
             where TItem1 : class
             => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
 
@@ -384,39 +384,40 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
-            {
-                Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
-                CollectionAsserter(elementSorter, elementAsserter)(e, a);
-            };
+                {
+                    Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
+                    CollectionAsserter(elementSorter, elementAsserter)(e, a);
+                };
         }
 
         public static Action<dynamic, dynamic> CollectionAsserter<TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
-            {
-                var actual = elementSorter != null
-                    ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
-                    : ((IEnumerable<TElement>)a).ToList();
-
-                var expected = elementSorter != null
-                    ? ((IEnumerable<TElement>)e).OrderBy(elementSorter).ToList()
-                    : ((IEnumerable<TElement>)e).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                elementAsserter = elementAsserter ?? Assert.Equal;
-
-                for (var i = 0; i < expected.Count; i++)
                 {
-                    elementAsserter(expected[i], actual[i]);
-                }
-            };
+                    var actual = elementSorter != null
+                        ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
+                        : ((IEnumerable<TElement>)a).ToList();
+
+                    var expected = elementSorter != null
+                        ? ((IEnumerable<TElement>)e).OrderBy(elementSorter).ToList()
+                        : ((IEnumerable<TElement>)e).ToList();
+
+                    Assert.Equal(expected.Count, actual.Count);
+                    elementAsserter = elementAsserter ?? Assert.Equal;
+
+                    for (var i = 0; i < expected.Count; i++)
+                    {
+                        elementAsserter(expected[i], actual[i]);
+                    }
+                };
         }
 
         #endregion
 
         #region Helpers - Maybe
 
-        public static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
+        public static TResult Maybe<TResult>(object caller, Func<TResult> expression)
+            where TResult : class
         {
             if (caller == null)
             {
@@ -426,7 +427,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return expression();
         }
 
-        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression) where TResult : struct
+        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+            where TResult : struct
         {
             if (caller == null)
             {

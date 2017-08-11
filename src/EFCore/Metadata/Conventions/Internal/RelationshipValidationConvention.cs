@@ -29,9 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (foreignKey.IsUnique
                         && foreignKey.GetPrincipalEndConfigurationSource() == null)
                     {
-                        throw new InvalidOperationException(CoreStrings.AmbiguousOneToOneRelationship(
-                            foreignKey.DeclaringEntityType.DisplayName() + (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
-                            foreignKey.PrincipalEntityType.DisplayName() + (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name)));
+                        throw new InvalidOperationException(
+                            CoreStrings.AmbiguousOneToOneRelationship(
+                                foreignKey.DeclaringEntityType.DisplayName() + (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
+                                foreignKey.PrincipalEntityType.DisplayName() + (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name)));
                     }
                 }
             }

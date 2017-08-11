@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -866,13 +866,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence<int>("Snook", b =>
-                    {
-                        b.IncrementsBy(11)
-                            .StartsAt(1729)
-                            .HasMin(111)
-                            .HasMax(2222);
-                    });
+                .HasSequence<int>(
+                    "Snook", b =>
+                        {
+                            b.IncrementsBy(11)
+                                .StartsAt(1729)
+                                .HasMin(111)
+                                .HasMax(2222);
+                        });
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -885,13 +886,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence(typeof(int), "Snook", b =>
-                    {
-                        b.IncrementsBy(11)
-                            .StartsAt(1729)
-                            .HasMin(111)
-                            .HasMax(2222);
-                    });
+                .HasSequence(
+                    typeof(int), "Snook", b =>
+                        {
+                            b.IncrementsBy(11)
+                                .StartsAt(1729)
+                                .HasMin(111)
+                                .HasMax(2222);
+                        });
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -968,7 +970,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ValidateSchemaNamedSpecificSequence(sequence);
         }
-
 
         [Fact]
         public void Can_create_dbFunction()

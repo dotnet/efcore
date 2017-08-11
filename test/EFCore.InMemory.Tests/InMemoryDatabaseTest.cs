@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var log = new List<(LogLevel Level, EventId Id, string Message)>();
             var loggerFactory = new ListLoggerFactory(log);
-            
+
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore
             await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
 
             var entry = log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
-            
+
             Assert.Equal(LogLevel.Information, entry.Level);
             Assert.Equal(InMemoryStrings.LogSavedChanges.GenerateMessage(1), entry.Message);
         }
@@ -156,11 +156,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            modelBuilder.Entity<Customer>(b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Name);
-                });
+            modelBuilder.Entity<Customer>(
+                b =>
+                    {
+                        b.HasKey(c => c.Id);
+                        b.Property(c => c.Name);
+                    });
 
             return modelBuilder.Model;
         }

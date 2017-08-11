@@ -22,19 +22,21 @@ namespace Microsoft.EntityFrameworkCore
         public TestStore CreateTestStore(ITestStoreFactory testStoreFactory)
         {
             return testStoreFactory.GetOrCreate(StoreName)
-                .Initialize(AddServices(testStoreFactory.AddProviderServices(new ServiceCollection()))
-                    .BuildServiceProvider(validateScopes: true), CreateContext, c => { });
+                .Initialize(
+                    AddServices(testStoreFactory.AddProviderServices(new ServiceCollection()))
+                        .BuildServiceProvider(validateScopes: true), CreateContext, c => { });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<SimpleEntity>(eb =>
-                {
-                    eb.ToTable("RelationalSimpleEntity");
-                    eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
-                    eb.HasKey(e => e.Id);
-                    eb.Property(e => e.Id).UseSqlServerIdentityColumn();
-                });
+            modelBuilder.Entity<SimpleEntity>(
+                eb =>
+                    {
+                        eb.ToTable("RelationalSimpleEntity");
+                        eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
+                        eb.HasKey(e => e.Id);
+                        eb.Property(e => e.Id).UseSqlServerIdentityColumn();
+                    });
         }
     }
 }

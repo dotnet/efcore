@@ -83,8 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public string Name
         {
-            [DebuggerStepThrough]
-            get { return Property?.Name ?? (string)_nameOrProperty; }
+            [DebuggerStepThrough] get { return Property?.Name ?? (string)_nameOrProperty; }
         }
 
         /// <summary>
@@ -93,8 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public PropertyInfo Property
         {
-            [DebuggerStepThrough]
-            get { return _nameOrProperty as PropertyInfo; }
+            [DebuggerStepThrough] get { return _nameOrProperty as PropertyInfo; }
         }
 
         private string DebuggerDisplay()

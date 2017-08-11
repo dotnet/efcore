@@ -96,7 +96,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         private class Bug6091Context : DbContext
         {
             public Bug6091Context(DbContextOptions options)
-                :base(options)
+                : base(options)
             {
             }
 
@@ -151,7 +151,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         private class DeadlockContext : DbContext
         {
             public DeadlockContext(DbContextOptions options)
-                :base(options)
+                : base(options)
             {
             }
 
@@ -245,7 +245,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
         private class NullKeyContext : DbContext
         {
             public NullKeyContext(DbContextOptions options)
-                :base(options)
+                : base(options)
             {
             }
 

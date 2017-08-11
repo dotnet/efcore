@@ -145,14 +145,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var fk5a = entityType5.AddProperty("Fk1", typeof(int));
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
-            
-            modelBuilder.Entity<OwnerClass>(eb =>
-                {
-                    eb.HasKey(e => e.Id);
-                    var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
-                    owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
-                    owned.Property(e => e.Value);
-                });
+
+            modelBuilder.Entity<OwnerClass>(
+                eb =>
+                    {
+                        eb.HasKey(e => e.Id);
+                        var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
+                        owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
+                        owned.Property(e => e.Value);
+                    });
 
             return (Model)model;
         }

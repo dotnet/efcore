@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Logs_context_initialization_no_tracking()
         {
             Assert.Equal(
-                ExpectedMessage("NoTracking " + DefaultOptions), 
+                ExpectedMessage("NoTracking " + DefaultOptions),
                 ActualMessage(CreateOptionsBuilder().UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)));
         }
 
@@ -42,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore
                 nameof(LoggingContext),
                 ProviderName,
                 optionsFragment ?? "None");
-
 
         protected abstract DbContextOptionsBuilder CreateOptionsBuilder();
 

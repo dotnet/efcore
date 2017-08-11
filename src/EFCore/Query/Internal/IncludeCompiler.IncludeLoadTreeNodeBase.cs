@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (blockExpressions.Count > 1
                     || blockExpressions.Count == 1
                     && !trackingQuery)
-                { 
+                {
                     AwaitTaskExpressions(asyncQuery, blockExpressions);
 
                     var includeExpression

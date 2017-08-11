@@ -321,7 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.False(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(CoreStrings.CannotBeNullable(nameof(Customer.Id), typeof(Customer).Name, "int"),
+            Assert.Equal(
+                CoreStrings.CannotBeNullable(nameof(Customer.Id), typeof(Customer).Name, "int"),
                 Assert.Throws<InvalidOperationException>(() => builder.IsRequired(false, ConfigurationSource.Explicit)).Message);
         }
 

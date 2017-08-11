@@ -1592,9 +1592,10 @@ namespace Microsoft.EntityFrameworkCore
 
             if (expectedDependent != null)
             {
-                Assert.True(StructuralComparisons.StructuralEqualityComparer.Equals(
-                    expectedPrincipal == null ? null : getPrincipalKey(expectedPrincipal),
-                    getForeignKey(expectedDependent)));
+                Assert.True(
+                    StructuralComparisons.StructuralEqualityComparer.Equals(
+                        expectedPrincipal == null ? null : getPrincipalKey(expectedPrincipal),
+                        getForeignKey(expectedDependent)));
             }
         }
     }

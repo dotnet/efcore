@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     Used with <see cref="OperationExecutor"/> to handle operation results.
+    ///     Used with <see cref="OperationExecutor" /> to handle operation results.
     /// </summary>
     public class OperationResultHandler : MarshalByRefObject, IOperationResultHandler
     {
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <value> The stack trace. </value>
         /// <remarks>
-        ///     When an <see cref="OperationException"/> is recieved, the stack trace should not be shown by default.
+        ///     When an <see cref="OperationException" /> is recieved, the stack trace should not be shown by default.
         /// </remarks>
         public virtual string ErrorStackTrace => _errorStackTrace;
 

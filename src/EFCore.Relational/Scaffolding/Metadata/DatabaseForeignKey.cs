@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     {
         public virtual DatabaseTable Table { get; [param: CanBeNull] set; }
 
-        public virtual DatabaseTable PrincipalTable { get; [param: CanBeNull]  set; }
+        public virtual DatabaseTable PrincipalTable { get; [param: CanBeNull] set; }
 
         public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
 

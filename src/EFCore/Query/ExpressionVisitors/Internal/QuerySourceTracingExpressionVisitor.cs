@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         Visit(fromClauseBase.FromExpression);
                     }
-                    
+
                     if (expression.ReferencedQuerySource is JoinClause joinClause)
                     {
                         Visit(joinClause.InnerSequence);

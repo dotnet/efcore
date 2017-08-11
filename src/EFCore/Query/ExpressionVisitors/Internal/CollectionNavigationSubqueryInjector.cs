@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             nameof(Enumerable.ToArray),
             nameof(Enumerable.ToDictionary),
             nameof(Enumerable.ToList),
-            nameof(Enumerable.ToLookup),
+            nameof(Enumerable.ToLookup)
         };
 
         private static readonly List<MethodInfo> _collectionMaterializingMethods
             = typeof(Enumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))
-            .Concat(typeof(AsyncEnumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))).ToList();
+                .Concat(typeof(AsyncEnumerable).GetRuntimeMethods().Where(m => _collectionMaterializingMethodNames.Contains(m.Name))).ToList();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,13 +78,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newMemberExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     memberExpression,
                     (properties, querySource) =>
-                    {
-                        var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
+                        {
+                            var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                        return collectionNavigation != null
+                            return collectionNavigation != null
                                 ? InjectSubquery(memberExpression, collectionNavigation)
                                 : default(Expression);
-                    });
+                        });
             }
 
             return newMemberExpression ?? base.VisitMember(memberExpression);
@@ -127,13 +127,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newMethodCallExpression = _queryModelVisitor.BindNavigationPathPropertyExpression(
                     methodCallExpression,
                     (properties, querySource) =>
-                    {
-                        var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
+                        {
+                            var collectionNavigation = properties.OfType<INavigation>().SingleOrDefault(n => n.IsCollection());
 
-                        return collectionNavigation != null
-                            ? InjectSubquery(methodCallExpression, collectionNavigation)
-                            : default(Expression);
-                    });
+                            return collectionNavigation != null
+                                ? InjectSubquery(methodCallExpression, collectionNavigation)
+                                : default(Expression);
+                        });
             }
 
             try
@@ -145,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ShouldInject = shouldInject;
             }
         }
+
         private static Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
         {
             var targetType = collectionNavigation.GetTargetType().ClrType;
@@ -167,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         [UsedImplicitly]
         private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(
-            INavigation navigation, 
+            INavigation navigation,
             IEnumerable<object> elements)
         {
             var collection = navigation.GetCollectionAccessor().Create(elements);

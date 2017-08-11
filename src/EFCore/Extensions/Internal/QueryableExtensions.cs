@@ -62,9 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
             where TSource : class
         {
             var parameter = Expression.Parameter(typeof(TSource), "e");
-            return source.Select(Expression.Lambda<Func<TSource, TResult>>(
-                Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
-                parameter));
+            return source.Select(
+                Expression.Lambda<Func<TSource, TResult>>(
+                    Expression.MakeMemberAccess(parameter, typeof(TSource).GetAnyProperty(propertyName)),
+                    parameter));
         }
     }
 }

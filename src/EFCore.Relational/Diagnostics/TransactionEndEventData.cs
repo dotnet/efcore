@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(eventDefinition, messageGenerator, transaction, transactionId, connectionId, startTime) 
+            : base(eventDefinition, messageGenerator, transaction, transactionId, connectionId, startTime)
             => Duration = duration;
 
         /// <summary>

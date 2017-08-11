@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -110,9 +109,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public int Id { get; set; }
             }
 
-            public class DisjointChildSubclass1 : Child { }
+            public class DisjointChildSubclass1 : Child
+            {
+            }
 
-            public class DisjointChildSubclass2 : Child { }
+            public class DisjointChildSubclass2 : Child
+            {
+            }
 
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
@@ -196,17 +199,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
 
-                Assert.Equal(nameof(Book.Label) + "_" + nameof(BookLabel.Id),
+                Assert.Equal(
+                    nameof(Book.Label) + "_" + nameof(BookLabel.Id),
                     bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);
-                Assert.Equal(nameof(Book.AlternateLabel) + "_" + nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
+                Assert.Equal(
+                    nameof(Book.AlternateLabel) + "_" + nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);
 
                 bookOwnershipBuilder1.ToTable("Label");
                 bookOwnershipBuilder2.ToTable("AlternateLabel");
 
-                Assert.Equal(nameof(BookLabel.Id),
+                Assert.Equal(
+                    nameof(BookLabel.Id),
                     bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);
-                Assert.Equal(nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
+                Assert.Equal(
+                    nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);
             }
 

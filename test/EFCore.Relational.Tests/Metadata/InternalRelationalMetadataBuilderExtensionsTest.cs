@@ -245,10 +245,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(discriminatorBuilder.HasValue("Splow", 2));
             Assert.NotNull(discriminatorBuilder.HasValue("Splod", 3));
             Assert.Equal(1, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(2, typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(3, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                2, typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                3, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
             Assert.Same(typeBuilder.Metadata, typeBuilder.ModelBuilder.Metadata.FindEntityType("Splow").BaseType);
 
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.DataAnnotation).HasDiscriminator();
@@ -256,20 +258,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(discriminatorBuilder.HasValue("Splow", 5));
             Assert.NotNull(discriminatorBuilder.HasValue("Splod", 6));
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(5, typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                5, typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
 
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator();
             Assert.Null(discriminatorBuilder.HasValue("Splot", 1));
             Assert.Null(discriminatorBuilder.HasValue("Splow", 2));
             Assert.Null(discriminatorBuilder.HasValue("Splod", 3));
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(5, typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                5, typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
 
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((Type)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
@@ -297,10 +303,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
                 .HasDiscriminator("Splowed", typeof(string));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Null(typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Null(typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
             Assert.NotNull(discriminatorBuilder.HasValue("Splot", "4"));
             Assert.NotNull(discriminatorBuilder.HasValue("Splow", "5"));
             Assert.NotNull(discriminatorBuilder.HasValue("Splod", "6"));
@@ -308,17 +316,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
                 .HasDiscriminator("Splotted", typeof(string));
             Assert.Equal("4", typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal("5", typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal("6", typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                "5", typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                "6", typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
 
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(int));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Null(typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Null(typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Null(
+                typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -332,10 +344,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splow), 2));
             Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splod), 3));
             Assert.Equal(1, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(2, typeBuilder.ModelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(3, typeBuilder.ModelBuilder.Entity(typeof(Splod), ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                2, typeBuilder.ModelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                3, typeBuilder.ModelBuilder.Entity(typeof(Splod), ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
 
             discriminatorBuilder = new DiscriminatorBuilder<int?>(
                 typeBuilder.Relational(ConfigurationSource.DataAnnotation).HasDiscriminator());
@@ -343,10 +357,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splow), 5));
             Assert.NotNull(discriminatorBuilder.HasValue(typeof(Splod), 6));
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(5, typeBuilder.ModelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(6, typeBuilder.ModelBuilder.Entity(typeof(Splod), ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                5, typeBuilder.ModelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                6, typeBuilder.ModelBuilder.Entity(typeof(Splod), ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
 
             discriminatorBuilder = new DiscriminatorBuilder<int?>(
                 typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator());
@@ -354,10 +370,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(discriminatorBuilder.HasValue(typeof(Splow), 2));
             Assert.Null(discriminatorBuilder.HasValue(typeof(Splod), 3));
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(5, typeBuilder.ModelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(6, typeBuilder.ModelBuilder.Entity(typeof(Splod), ConfigurationSource.Convention)
-                .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                5, typeBuilder.ModelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(
+                6, typeBuilder.ModelBuilder.Entity(typeof(Splod), ConfigurationSource.Convention)
+                    .Metadata.Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -370,7 +388,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 modelBuilder.Entity("Splod", ConfigurationSource.Convention).Metadata, ConfigurationSource.Explicit);
 
             var discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator();
-            Assert.Equal(RelationalStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
+            Assert.Equal(
+                RelationalStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
                 Assert.Throws<InvalidOperationException>(() => discriminatorBuilder.HasValue("Splow", "1")).Message);
         }
 

@@ -68,12 +68,13 @@ FROM ""Orders"" AS ""o""",
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
-                
-                modelBuilder.Entity<MappedCustomer>(e =>
-                    {
-                        e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "CompanyName";
-                        e.Metadata.Relational().TableName = "Customers";
-                    });
+
+                modelBuilder.Entity<MappedCustomer>(
+                    e =>
+                        {
+                            e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "CompanyName";
+                            e.Metadata.Relational().TableName = "Customers";
+                        });
             }
         }
     }

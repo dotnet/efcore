@@ -148,7 +148,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.Primitives", true),
                         BuildReference.ByName("Remotion.Linq", true)
                     },
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                             using Microsoft.EntityFrameworkCore;
                             using Microsoft.EntityFrameworkCore.Infrastructure;
                             using Microsoft.EntityFrameworkCore.Migrations;
@@ -174,11 +176,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                         }
                                     }
                                 }
-                            }" }
+                            }"
+                    }
                 };
                 var build = source.Build();
                 File.Copy(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, build.TargetPath + ".config");
-                Executor = new AppDomainOperationExecutor(build.TargetPath,
+                Executor = new AppDomainOperationExecutor(
+                    build.TargetPath,
                     build.TargetPath,
                     build.TargetDir,
                     build.TargetDir,

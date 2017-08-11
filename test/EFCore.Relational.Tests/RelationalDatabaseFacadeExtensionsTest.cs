@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                 new ServiceCollection().AddScoped<IDbContextTransactionManager, FakeDbContextTransactionManager>());
 
             var transactionManager = (FakeDbContextTransactionManager)context.GetService<IDbContextTransactionManager>();
-            
+
             if (async)
             {
                 await context.Database.BeginTransactionAsync(IsolationLevel.Chaos);
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int BeginCount { get; set; }
             public int BeginAsyncCount { get; set; }
-            
+
             public void ResetState()
             {
             }
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
                 "00000000000002_Two",
                 "00000000000003_Three"
             };
-            
+
             var migrationsAssembly = new FakeIMigrationsAssembly
             {
                 Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo))
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public List<HistoryRow> AppliedMigrations { get; set; }
 
-            public IReadOnlyList<HistoryRow> GetAppliedMigrations() 
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations()
                 => AppliedMigrations;
 
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -254,7 +254,6 @@ namespace Microsoft.EntityFrameworkCore
             public string GetEndIfScript() => throw new NotImplementedException();
         }
 
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -266,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore
                 "00000000000002_Two",
                 "00000000000003_Three"
             };
-            
+
             var appliedMigrations = new[]
             {
                 "00000000000001_One",

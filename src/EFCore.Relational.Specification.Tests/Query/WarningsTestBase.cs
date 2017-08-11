@@ -19,15 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected WarningsTestBase(TFixture fixture) => Fixture = fixture;
-        
+
         [Fact]
         public virtual void Throws_when_warning_as_error()
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.QueryClientEvaluationWarning,
-                    RelationalStrings.LogClientEvalWarning.GenerateMessage("where [c].IsLondon")),
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        RelationalEventId.QueryClientEvaluationWarning,
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("where [c].IsLondon")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.IsLondon).ToList()).Message);
             }
@@ -115,9 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.QueryClientEvaluationWarning,
-                    RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        RelationalEventId.QueryClientEvaluationWarning,
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Last()).Message);
             }
@@ -128,9 +130,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.QueryClientEvaluationWarning,
-                    RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        RelationalEventId.QueryClientEvaluationWarning,
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("Last()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.OrderBy(o => o.OrderID).Last().OrderID > 1000).ToList()).Message);
             }
@@ -141,9 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(CoreStrings.WarningAsErrorTemplate(
-                    RelationalEventId.QueryClientEvaluationWarning,
-                    RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()")),
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        RelationalEventId.QueryClientEvaluationWarning,
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("LastOrDefault()")),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers.LastOrDefault()).Message);
             }

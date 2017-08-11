@@ -95,13 +95,14 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Product>(eb =>
-                    {
-                        eb.Property(e => e.StoreUpdated)
-                            .HasDefaultValue(0)
-                            .ValueGeneratedOnAddOrUpdate();
-                        eb.ToTable("UpdatedProducts");
-                    });
+                modelBuilder.Entity<Product>(
+                    eb =>
+                        {
+                            eb.Property(e => e.StoreUpdated)
+                                .HasDefaultValue(0)
+                                .ValueGeneratedOnAddOrUpdate();
+                            eb.ToTable("UpdatedProducts");
+                        });
             }
         }
 
@@ -123,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreated();
 
-                context.Database.ExecuteSqlCommand(@"
+                context.Database.ExecuteSqlCommand(
+                    @"
 CREATE TRIGGER TRG_InsertUpdateProduct
 ON UpdatedProducts
 AFTER INSERT, UPDATE AS

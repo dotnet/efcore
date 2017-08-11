@@ -105,14 +105,14 @@ namespace Microsoft.EntityFrameworkCore
         private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)
             => new ConcreteModelSource(setFinder);
 
-
         private class ConcreteModelSource : ModelSource
         {
             public ConcreteModelSource(IDbSetFinder setFinder)
-                : base(new ModelSourceDependencies(
-                    new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))),
-                    new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                    new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
+                : base(
+                    new ModelSourceDependencies(
+                        new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))),
+                        new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
+                        new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
             {
             }
         }

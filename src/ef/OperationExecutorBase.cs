@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
         }
 
         public IDictionary AddMigration(string name, string outputDir, string contextType)
-            => InvokeOperation<IDictionary>("AddMigration",
+            => InvokeOperation<IDictionary>(
+                "AddMigration",
                 new Dictionary<string, string>
                 {
                     ["name"] = name,
@@ -93,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 });
 
         public IDictionary RemoveMigration(string contextType, bool force)
-            => InvokeOperation<IDictionary>("RemoveMigration",
+            => InvokeOperation<IDictionary>(
+                "RemoveMigration",
                 new Dictionary<string, object>
                 {
                     ["contextType"] = contextType,
@@ -101,28 +103,32 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 });
 
         public IEnumerable<IDictionary> GetMigrations(string contextType)
-            => InvokeOperation<IEnumerable<IDictionary>>("GetMigrations",
+            => InvokeOperation<IEnumerable<IDictionary>>(
+                "GetMigrations",
                 new Dictionary<string, object>
                 {
                     ["contextType"] = contextType
                 });
 
         public void DropDatabase(string contextType)
-            => InvokeOperation("DropDatabase",
+            => InvokeOperation(
+                "DropDatabase",
                 new Dictionary<string, object>
                 {
                     ["contextType"] = contextType
                 });
 
         public IDictionary GetContextInfo(string name)
-            => InvokeOperation<IDictionary>("GetContextInfo",
+            => InvokeOperation<IDictionary>(
+                "GetContextInfo",
                 new Dictionary<string, object>
                 {
                     ["contextType"] = name
                 });
 
         public void UpdateDatabase(string migration, string contextType)
-            => InvokeOperation("UpdateDatabase",
+            => InvokeOperation(
+                "UpdateDatabase",
                 new Dictionary<string, string>
                 {
                     ["targetMigration"] = migration,
@@ -132,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public IEnumerable<IDictionary> GetContextTypes()
             => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
-        public IDictionary ScaffoldContext(string provider,
+        public IDictionary ScaffoldContext(
+            string provider,
             string connectionString,
             string outputDir,
             string dbContextClassName,
@@ -141,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             bool useDataAnnotations,
             bool overwriteFiles,
             bool useDatabaseNames)
-            => InvokeOperation<IDictionary>("ScaffoldContext",
+            => InvokeOperation<IDictionary>(
+                "ScaffoldContext",
                 new Dictionary<string, object>
                 {
                     ["provider"] = provider,
@@ -160,7 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string toMigration,
             bool idempotent,
             string contextType)
-            => InvokeOperation<string>("ScriptMigration",
+            => InvokeOperation<string>(
+                "ScriptMigration",
                 new Dictionary<string, object>
                 {
                     ["fromMigration"] = fromMigration,

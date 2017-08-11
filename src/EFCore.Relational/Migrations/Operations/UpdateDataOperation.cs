@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     the rows that should be updated.
         /// </summary>
         public virtual string[] KeyColumns { get; [param: NotNull] set; }
-        
+
         /// <summary>
         ///     The rows to be updated, represented as a list of key value arrays where each
         ///     value in the array corresponds to a column in the <see cref="KeyColumns" /> property.
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     A list of column names that represent the columns that contain data to be updated.
         /// </summary>
         public virtual string[] Columns { get; [param: NotNull] set; }
-        
+
         /// <summary>
         ///     The data to be updated, represented as a list of value arrays where each
         ///     value in the array corresponds to a column in the <see cref="Columns" /> property.

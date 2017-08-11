@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public DiagnosticSource DiagnosticSource { get; } = new DiagnosticListener("Fake");
 
         public void Log<TState>(
-            LogLevel logLevel, 
-            EventId eventId, 
-            TState state, 
-            Exception exception, 
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
             Func<TState, Exception, string> formatter)
         {
         }

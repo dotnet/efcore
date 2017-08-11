@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     public class ScaffoldedMigration
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ScaffoldedMigration"/> class.
+        ///     Initializes a new instance of the <see cref="ScaffoldedMigration" /> class.
         /// </summary>
         /// <param name="fileExtension"> The file extension code files should use. </param>
         /// <param name="previousMigrationId"> The previous migraiton's ID. </param>

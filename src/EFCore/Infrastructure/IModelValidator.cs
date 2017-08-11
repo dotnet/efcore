@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public interface IModelValidator
     {
         /// <summary>
-        ///      Validates a model, throwing an exception if any errors are found.
+        ///     Validates a model, throwing an exception if any errors are found.
         /// </summary>
         void Validate([NotNull] IModel model);
     }

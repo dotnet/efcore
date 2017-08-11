@@ -8,8 +8,8 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private class Post
         {
             public int BlogId { get; set; }
-            public Blog  Blog { get; set; }
+            public Blog Blog { get; set; }
         }
     }
 }

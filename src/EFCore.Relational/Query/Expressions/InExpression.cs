@@ -121,7 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     children, and if any of them change, should return a new copy of
         ///     itself with the modified children.
         /// </remarks>
-        ///         
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var newOperand = visitor.Visit(Operand);
@@ -134,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 foreach (var value in Values)
                 {
                     var newValue = visitor.Visit(value);
-                    if (newValue is BlockExpression && value is ListInitExpression)
+                    if (newValue is BlockExpression
+                        && value is ListInitExpression)
                     {
                         newValues.Add(value);
                     }

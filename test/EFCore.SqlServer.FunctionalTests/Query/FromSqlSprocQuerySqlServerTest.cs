@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             fixture.TestSqlLoggerFactory.Clear();
         }
-        
+
         public override void From_sql_queryable_stored_procedure()
         {
             base.From_sql_queryable_stored_procedure();

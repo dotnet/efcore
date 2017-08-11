@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             fixture.TestSqlLoggerFactory.Clear();
         }
-        
+
         public override void Include_person()
         {
             base.Include_person();

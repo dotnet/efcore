@@ -105,11 +105,12 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(_serviceProvider);
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Customer>(b =>
-                    {
-                        b.HasKey(c => c.CustomerID);
-                        b.ToTable("Customers");
-                    });
+                => modelBuilder.Entity<Customer>(
+                    b =>
+                        {
+                            b.HasKey(c => c.CustomerID);
+                            b.ToTable("Customers");
+                        });
         }
 
         // ReSharper disable once ClassNeverInstantiated.Local
@@ -117,8 +118,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string CustomerID { get; set; }
+
             // ReSharper disable UnusedMember.Local
             public string CompanyName { get; set; }
+
             public string Fax { get; set; }
         }
     }

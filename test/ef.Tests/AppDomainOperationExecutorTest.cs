@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
         {
             File.Copy(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, build.TargetPath + ".config");
 
-            return new AppDomainOperationExecutor(build.TargetPath,
+            return new AppDomainOperationExecutor(
+                build.TargetPath,
                 build.TargetPath,
                 build.TargetDir,
                 build.TargetDir,
@@ -66,7 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.Primitives", true),
                         BuildReference.ByName("Remotion.Linq", true)
                     },
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                         using Microsoft.EntityFrameworkCore;
                         using Microsoft.EntityFrameworkCore.Infrastructure;
                         using Microsoft.EntityFrameworkCore.Migrations;
@@ -111,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                     }
                                 }
                             }
-                        }" }
+                        }"
+                    }
                 };
 
                 var build = source.Build();
@@ -137,7 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     {
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true)
                     },
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                         using Microsoft.EntityFrameworkCore;
 
                         namespace MyProject
@@ -149,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                             public class Context2 : DbContext
                             {
                             }
-                        }" }
+                        }"
+                    }
                 };
                 var contextsBuild = contextsSource.Build();
                 var migrationsSource = new BuildSource
@@ -166,7 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true),
                         BuildReference.ByPath(contextsBuild.TargetPath)
                     },
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                         using Microsoft.EntityFrameworkCore;
                         using Microsoft.EntityFrameworkCore.Infrastructure;
                         using Microsoft.EntityFrameworkCore.Migrations;
@@ -203,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                     }
                                 }
                             }
-                        }" }
+                        }"
+                    }
                 };
                 var build = migrationsSource.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject"))
@@ -243,7 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.Primitives", true),
                         BuildReference.ByName("Remotion.Linq", true)
                     },
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                             using Microsoft.EntityFrameworkCore;
                             using Microsoft.EntityFrameworkCore.Infrastructure;
                             using Microsoft.EntityFrameworkCore.Migrations;
@@ -277,7 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                         }
                                     }
                                 }
-                            }" }
+                            }"
+                    }
                 };
                 var build = source.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject"))
@@ -306,9 +319,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection", true),
                         BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", true),
                         BuildReference.ByName("Microsoft.Extensions.Logging", true),
-                        BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true),
+                        BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", true)
                     },
-                    Sources = { @"
+                    Sources =
+                    {
+                        @"
                             using Microsoft.EntityFrameworkCore;
                             using Microsoft.EntityFrameworkCore.Infrastructure;
                             using Microsoft.EntityFrameworkCore.Migrations;
@@ -319,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                                 {
                                     public MyContext(DbContextOptions<MyContext> options) :base(options)  {}
                                 }
-                            }" }
+                            }"
+                    }
                 };
                 var build = source.Build();
                 using (var executor = CreateExecutorFromBuildResult(build, "MyProject"))

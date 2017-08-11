@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
         }
 
         [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-        public SkippedTestCase() : base()
+        public SkippedTestCase()
         {
         }
 

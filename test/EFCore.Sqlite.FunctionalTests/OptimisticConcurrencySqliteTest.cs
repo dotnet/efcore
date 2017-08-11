@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         // Override failing tests because SQLite does not allow store-generated row versions.
         // Row version behavior could be imitated on SQLite. See Issue #2195
         public override Task Simple_concurrency_exception_can_be_resolved_with_store_values() => Task.FromResult(true);
+
         public override Task Simple_concurrency_exception_can_be_resolved_with_client_values() => Task.FromResult(true);
         public override Task Simple_concurrency_exception_can_be_resolved_with_new_values() => Task.FromResult(true);
         public override Task Simple_concurrency_exception_can_be_resolved_with_store_values_using_equivalent_of_accept_changes() => Task.FromResult(true);

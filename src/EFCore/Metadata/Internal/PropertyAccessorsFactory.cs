@@ -97,9 +97,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.Constant(property),
                             Expression.Constant(originalValuesIndex))
                         : Expression.Block(
-                            Expression.Throw(Expression.Constant(
-                                new InvalidOperationException(
-                                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                            Expression.Throw(
+                                Expression.Constant(
+                                    new InvalidOperationException(
+                                        CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
                             Expression.Constant(default(TProperty), typeof(TProperty))),
                     entryParameter)
                 .Compile();

@@ -45,7 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property1 = new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
             var property2 = new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
 
-            Assert.Equal(CoreStrings.IndexPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", typeof(Customer).Name),
+            Assert.Equal(
+                CoreStrings.IndexPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => property1.DeclaringEntityType.AddIndex(new[] { property1, property2 })).Message);
         }

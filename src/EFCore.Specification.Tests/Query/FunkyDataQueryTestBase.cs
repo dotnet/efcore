@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         where TFixture : FunkyDataQueryFixtureBase, new()
     {
         protected FunkyDataQueryTestBase(TFixture fixture) => Fixture = fixture;
-        
+
         protected TFixture Fixture { get; }
 
         [ConditionalFact]
@@ -478,10 +478,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var expected = ctx.FunkyCustomers.ToList()
                     .SelectMany(c => ctx.FunkyCustomers.ToList(), (c1, c2) => new { c1, c2 })
-                    .Where(r =>
-                        (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue && r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
-                        || r.c1.NullableBool == null
-                        || (r.c2.LastName == null && r.c1.NullableBool == true))
+                    .Where(
+                        r =>
+                            (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue && r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
+                            || r.c1.NullableBool == null
+                            || (r.c2.LastName == null && r.c1.NullableBool == true))
                     .ToList().Select(r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName).ToList();
 
                 ClearLog();

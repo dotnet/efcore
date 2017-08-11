@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         }
                     });
 
-            if (AnonymousObject.IsGetValueExpression(node, out QuerySourceReferenceExpression querySourceReferenceExpression))
+            if (AnonymousObject.IsGetValueExpression(node, out var querySourceReferenceExpression))
             {
                 DemoteQuerySource(querySourceReferenceExpression.ReferencedQuerySource);
             }

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -181,27 +180,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var emptyQueryModelWithFlattenableResultOperatorInSubquery
                 = !queryModel.BodyClauses.Any()
                   && subQueryModel.ResultOperators.All(
-                    ro => ro is CastResultOperator
-                        || ro is ConcatResultOperator
-                        || ro is DefaultIfEmptyResultOperator
-                        || ro is ExceptResultOperator
-                        || ro is IntersectResultOperator
-                        || ro is OfTypeResultOperator
-                        || ro is ReverseResultOperator
-                        || ro is SkipResultOperator
-                        || ro is TakeResultOperator
-                        || ro is UnionResultOperator);
+                      ro => ro is CastResultOperator
+                            || ro is ConcatResultOperator
+                            || ro is DefaultIfEmptyResultOperator
+                            || ro is ExceptResultOperator
+                            || ro is IntersectResultOperator
+                            || ro is OfTypeResultOperator
+                            || ro is ReverseResultOperator
+                            || ro is SkipResultOperator
+                            || ro is TakeResultOperator
+                            || ro is UnionResultOperator);
 
             // we can lift distinct however if the outer query has result operator that doesn't care about having correct element count
             var emptyQueryModelWithResultOperatorThatIgnoresElementCountAndDistinctInSubquery
                 = !queryModel.BodyClauses.Any()
-                && subQueryModel.ResultOperators.Any(ro => ro is DistinctResultOperator)
-                && queryModel.ResultOperators.Any(
-                    ro => ro is ContainsResultOperator
-                        || ro is AnyResultOperator
-                        || ro is AllResultOperator
-                        || ro is MinResultOperator
-                        || ro is MaxResultOperator);
+                  && subQueryModel.ResultOperators.Any(ro => ro is DistinctResultOperator)
+                  && queryModel.ResultOperators.Any(
+                      ro => ro is ContainsResultOperator
+                            || ro is AnyResultOperator
+                            || ro is AllResultOperator
+                            || ro is MinResultOperator
+                            || ro is MaxResultOperator);
 
             var subqueryInMainClauseWithoutResultOperatorsProjectingItsMainClause
                 = fromClause is MainFromClause
@@ -242,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var newExpressionTypeInfo = newExpression.Type.GetTypeInfo();
                 var castResultOperatorTypes = subQueryModel.ResultOperators.OfType<CastResultOperator>().Select(cre => cre.CastItemType).ToList();
                 var type = castResultOperatorTypes.LastOrDefault(t => newExpressionTypeInfo.IsAssignableFrom(t.GetTypeInfo()));
-                if (type != null && type != newExpression.Type)
+                if (type != null
+                    && type != newExpression.Type)
                 {
                     newExpression = Expression.Convert(newExpression, type);
                 }
@@ -314,7 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             queryModel.MainFromClause = newMainFromClause;
 
-                            UpdateQuerySourceMapping(queryModel,
+                            UpdateQuerySourceMapping(
+                                queryModel,
                                 oldQuerySource,
                                 new QuerySourceReferenceExpression(newMainFromClause));
                         }
@@ -335,9 +336,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var querySourceMapping = new QuerySourceMapping();
             querySourceMapping.AddMapping(oldQuerySource, newExpression);
 
-            queryModel.TransformExpressions(e =>
-                ReferenceReplacingExpressionVisitor
-                    .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+            queryModel.TransformExpressions(
+                e =>
+                    ReferenceReplacingExpressionVisitor
+                        .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
             if (newExpression is QuerySourceReferenceExpression qsre)
             {

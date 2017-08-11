@@ -7,9 +7,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -91,11 +91,12 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.ForSqlServerUseSequenceHiLo();
 
-                modelBuilder.Entity<Blog>(eb =>
-                    {
-                        eb.HasAlternateKey(b => new { b.OtherId });
-                        eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
-                    });
+                modelBuilder.Entity<Blog>(
+                    eb =>
+                        {
+                            eb.HasAlternateKey(b => new { b.OtherId });
+                            eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+                        });
             }
         }
 
@@ -418,17 +419,16 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Blog>(
-                        b =>
-                            {
-                                b.Property(e => e.CreatedOn)
-                                    .HasDefaultValueSql("getdate()");
+                    b =>
+                        {
+                            b.Property(e => e.CreatedOn)
+                                .HasDefaultValueSql("getdate()");
 
-                                b.Property(e => e.OtherId)
-                                    .HasDefaultValue(value: null);
-                            });
+                            b.Property(e => e.OtherId)
+                                .HasDefaultValue(value: null);
+                        });
             }
         }
-
 
         [Fact]
         public void Insert_with_non_key_default_value_readonly()
@@ -550,7 +550,8 @@ namespace Microsoft.EntityFrameworkCore
                 using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
                     context.Database.ExecuteSqlCommand
-                    (@"CREATE FUNCTION
+                    (
+                        @"CREATE FUNCTION
 [dbo].[GetFullName](@First NVARCHAR(MAX), @Second NVARCHAR(MAX))
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 
@@ -609,7 +610,8 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
 
                     context.Database.ExecuteSqlCommand("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
 
-                    context.Database.ExecuteSqlCommand(@"CREATE FUNCTION [dbo].[GetFullName](@Id int)
+                    context.Database.ExecuteSqlCommand(
+                        @"CREATE FUNCTION [dbo].[GetFullName](@Id int)
 RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS
 BEGIN
     DECLARE @FullName NVARCHAR(MAX);
@@ -708,11 +710,12 @@ END");
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<GuidBlog>(eb =>
-                    {
-                        eb.HasAlternateKey(e => e.NotId);
-                        eb.Property(e => e.NotId).ValueGeneratedOnAdd();
-                    });
+                => modelBuilder.Entity<GuidBlog>(
+                    eb =>
+                        {
+                            eb.HasAlternateKey(e => e.NotId);
+                            eb.Property(e => e.NotId).ValueGeneratedOnAdd();
+                        });
         }
 
         [ConditionalFact]
@@ -792,13 +795,14 @@ END");
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder
-                    .Entity<GuidBlog>(eb =>
-                        {
-                            eb.Property(e => e.Id)
-                                .HasDefaultValueSql("newsequentialid()");
-                            eb.Property(e => e.NotId)
-                                .HasDefaultValueSql("newsequentialid()");
-                        });
+                    .Entity<GuidBlog>(
+                        eb =>
+                            {
+                                eb.Property(e => e.Id)
+                                    .HasDefaultValueSql("newsequentialid()");
+                                eb.Property(e => e.NotId)
+                                    .HasDefaultValueSql("newsequentialid()");
+                            });
             }
         }
 
@@ -818,8 +822,9 @@ END");
                     // inner exception for details.
                     // SqlException : Cannot insert explicit value for identity column in table
                     // 'Blog' when IDENTITY_INSERT is set to OFF.
-                    context.Database.CreateExecutionStrategy().Execute(context, c =>
-                        Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
+                    context.Database.CreateExecutionStrategy().Execute(
+                        context, c =>
+                            Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
                 }
             }
         }

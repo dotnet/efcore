@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Can_perform_query_with_ansi_strings_test(supportsAnsi: false);
         }
-        
+
         public class BuiltInDataTypesInMemoryFixture : BuiltInDataTypesFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

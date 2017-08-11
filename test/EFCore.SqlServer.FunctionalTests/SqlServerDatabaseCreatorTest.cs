@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -91,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task Returns_true_when_database_exists_test(bool async, bool file)
         {
-            using (var testDatabase = file ? SqlServerTestStore.CreateInitialized("ExistingBloggingFile", useFileName: true)
+            using (var testDatabase = file
+                ? SqlServerTestStore.CreateInitialized("ExistingBloggingFile", useFileName: true)
                 : SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging"))
             {
                 using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
@@ -728,8 +729,9 @@ namespace Microsoft.EntityFrameworkCore
                     await testDatabase.OpenConnectionAsync();
                 }
 
-                Assert.Equal(0, (await testDatabase.QueryAsync<string>(
-                    "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).Count());
+                Assert.Equal(
+                    0, (await testDatabase.QueryAsync<string>(
+                        "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")).Count());
 
                 Assert.True(
                     await testDatabase.ExecuteScalarAsync<bool>(
@@ -819,11 +821,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Blog>(b =>
-                    {
-                        b.HasKey(e => new { e.Key1, e.Key2 });
-                        b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
-                    });
+                modelBuilder.Entity<Blog>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Key1, e.Key2 });
+                            b.Property(e => e.AndRow).IsConcurrencyToken().ValueGeneratedOnAddOrUpdate();
+                        });
             }
 
             public DbSet<Blog> Blogs { get; set; }

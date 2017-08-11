@@ -48,22 +48,24 @@ namespace Microsoft.EntityFrameworkCore
         [Fact(Skip = "#8973")]
         public void Can_use_with_chained_relationships()
         {
-            Test_roundtrip(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
-                });
+            Test_roundtrip(
+                modelBuilder =>
+                    {
+                        OnModelCreating(modelBuilder);
+                        modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
+                    });
         }
 
         [Fact(Skip = "#8973")]
         public void Can_use_with_fanned_relationships()
         {
-            Test_roundtrip(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Engine); });
-                    modelBuilder.Entity<CombustionEngine>(eb => { eb.Ignore(e => e.FuelTank); });
-                });
+            Test_roundtrip(
+                modelBuilder =>
+                    {
+                        OnModelCreating(modelBuilder);
+                        modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Engine); });
+                        modelBuilder.Entity<CombustionEngine>(eb => { eb.Ignore(e => e.FuelTank); });
+                    });
         }
 
         protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
@@ -85,12 +87,13 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Vehicle>(eb =>
-                {
-                    eb.HasDiscriminator<string>("Discriminator");
-                    eb.Property<string>("Discriminator").HasColumnName("Discriminator");
-                    eb.ToTable("Vehicles");
-                });
+            modelBuilder.Entity<Vehicle>(
+                eb =>
+                    {
+                        eb.HasDiscriminator<string>("Discriminator");
+                        eb.Property<string>("Discriminator").HasColumnName("Discriminator");
+                        eb.ToTable("Vehicles");
+                    });
 
             modelBuilder.Entity<Engine>().ToTable("Vehicles");
             modelBuilder.Entity<Operator>().ToTable("Vehicles");
@@ -116,9 +119,10 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => builder
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
-                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                .ConfigureWarnings(
+                    b => b.Default(WarningBehavior.Throw)
+                        .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                        .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
         protected virtual TransportationContext CreateContext()
         {

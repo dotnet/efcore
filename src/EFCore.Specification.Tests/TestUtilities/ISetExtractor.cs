@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class ISetExtractor
     {
-        public abstract IQueryable<TEntity> Set<TEntity>(DbContext context) where TEntity : class;
+        public abstract IQueryable<TEntity> Set<TEntity>(DbContext context)
+            where TEntity : class;
     }
 }

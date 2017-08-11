@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
 
             return CreateFromBuildWebHost(args)
-                ?? CreateEmptyServiceProvider();
+                   ?? CreateEmptyServiceProvider();
         }
 
         private IServiceProvider CreateFromBuildWebHost(string[] args)

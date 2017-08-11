@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         /// <returns>
         ///     A SQL expression representing the translated MethodCallExpression.
         /// </returns>
-        public virtual Expression Translate(MethodCallExpression methodCallExpression) 
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
             => _methodInfo.Equals(methodCallExpression.Method)
-            ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments)
-            : null;
+                ? new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments)
+                : null;
     }
 }

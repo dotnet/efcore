@@ -111,8 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     foreignKey.IsRequired,
                     foreignKey.DependentToPrincipal?.Name ?? foreignKey.PrincipalEntityType.ShortName());
                 return newTemporaryProperties != null
-                    ? batch.Run(relationshipBuilder.HasForeignKey(
-                        newTemporaryProperties, foreignKey.DeclaringEntityType, null))
+                    ? batch.Run(
+                        relationshipBuilder.HasForeignKey(
+                            newTemporaryProperties, foreignKey.DeclaringEntityType, null))
                     : relationshipBuilder;
             }
         }
@@ -232,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             for (var i = 0; i < propertiesToReference.Count; i++)
             {
                 var referencedProperty = propertiesToReference[i];
-                var property = TryGetProperty(dependentEntityType,
+                var property = TryGetProperty(
+                    dependentEntityType,
                     baseName, referencedProperty.Name,
                     referencedProperty.ClrType.UnwrapNullableType());
 
@@ -248,7 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (!matchFound
                 && propertiesToReference.Count == 1)
             {
-                var property = TryGetProperty(dependentEntityType,
+                var property = TryGetProperty(
+                    dependentEntityType,
                     baseName, "Id",
                     propertiesToReference.Single().ClrType.UnwrapNullableType());
 
@@ -414,20 +417,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (foreignKeyProperties != null)
                     {
                         var conflictingForeignKey = foreignKey.DeclaringEntityType.FindForeignKeysInHierarchy(foreignKeyProperties)
-                            .FirstOrDefault(fk => fk != foreignKey
-                                                  && ConfigurationSource.Convention.Overrides(fk.GetForeignKeyPropertiesConfigurationSource()));
+                            .FirstOrDefault(
+                                fk => fk != foreignKey
+                                      && ConfigurationSource.Convention.Overrides(fk.GetForeignKeyPropertiesConfigurationSource()));
                         if (conflictingForeignKey != null)
                         {
-                            throw new InvalidOperationException(CoreStrings.AmbiguousForeignKeyPropertyCandidates(
-                                conflictingForeignKey.DeclaringEntityType.DisplayName() +
-                                (conflictingForeignKey.DependentToPrincipal == null ? "" : "." + conflictingForeignKey.DependentToPrincipal.Name),
-                                conflictingForeignKey.PrincipalEntityType.DisplayName() +
-                                (conflictingForeignKey.PrincipalToDependent == null ? "" : "." + conflictingForeignKey.PrincipalToDependent.Name),
-                                foreignKey.DeclaringEntityType.DisplayName() +
-                                (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
-                                foreignKey.PrincipalEntityType.DisplayName() +
-                                (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name),
-                                Property.Format(foreignKeyProperties)));
+                            throw new InvalidOperationException(
+                                CoreStrings.AmbiguousForeignKeyPropertyCandidates(
+                                    conflictingForeignKey.DeclaringEntityType.DisplayName() +
+                                    (conflictingForeignKey.DependentToPrincipal == null ? "" : "." + conflictingForeignKey.DependentToPrincipal.Name),
+                                    conflictingForeignKey.PrincipalEntityType.DisplayName() +
+                                    (conflictingForeignKey.PrincipalToDependent == null ? "" : "." + conflictingForeignKey.PrincipalToDependent.Name),
+                                    foreignKey.DeclaringEntityType.DisplayName() +
+                                    (foreignKey.DependentToPrincipal == null ? "" : "." + foreignKey.DependentToPrincipal.Name),
+                                    foreignKey.PrincipalEntityType.DisplayName() +
+                                    (foreignKey.PrincipalToDependent == null ? "" : "." + foreignKey.PrincipalToDependent.Name),
+                                    Property.Format(foreignKeyProperties)));
                         }
                     }
                 }

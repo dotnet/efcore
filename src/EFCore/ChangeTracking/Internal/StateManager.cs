@@ -138,14 +138,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
                     {
-                        throw new InvalidOperationException(CoreStrings.UntrackedDependentEntity(
-                            entity.GetType().ShortDisplayName(),
-                            "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
+                        throw new InvalidOperationException(
+                            CoreStrings.UntrackedDependentEntity(
+                                entity.GetType().ShortDisplayName(),
+                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }
-                    else
-                    {
-                        throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
-                    }
+                    throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
                 }
 
                 entry = _factory.Create(this, entityType, entity);
@@ -231,7 +229,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var clrType = entity.GetType();
 
-            var newEntry = _factory.Create(this,
+            var newEntry = _factory.Create(
+                this,
                 baseEntityType.ClrType == clrType
                     ? baseEntityType
                     : _model.FindEntityType(clrType),
@@ -274,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity)
         {
-            if (_entityReferenceMap.TryGetValue(entity, out InternalEntityEntry entry))
+            if (_entityReferenceMap.TryGetValue(entity, out var entry))
             {
                 return entry;
             }
@@ -289,9 +288,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (found)
                     {
-                        throw new InvalidOperationException(CoreStrings.AmbiguousDependentEntity(
-                            entity.GetType().ShortDisplayName(),
-                            "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
+                        throw new InvalidOperationException(
+                            CoreStrings.AmbiguousDependentEntity(
+                                entity.GetType().ShortDisplayName(),
+                                "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }
                     entry = foundEntry;
                     found = true;
@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(object entity, IEntityType entityType)
-            => _entityReferenceMap.TryGetValue(entity, out InternalEntityEntry entry)
+            => _entityReferenceMap.TryGetValue(entity, out var entry)
                 ? entry
                 : _dependentTypeReferenceMap.TryGetValue(entityType, out var entries)
                   && entries.TryGetValue(entity, out entry)
@@ -730,9 +730,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return Entries
-                .Where(e => e.EntityState == EntityState.Added
-                            || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
+                .Where(
+                    e => e.EntityState == EntityState.Added
+                         || e.EntityState == EntityState.Modified
+                         || e.EntityState == EntityState.Deleted)
                 .Select(e => e.PrepareToSave())
                 .ToList();
         }
@@ -810,9 +811,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void AcceptAllChanges()
         {
             var changedEntries = Entries
-                .Where(e => e.EntityState == EntityState.Added
-                            || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
+                .Where(
+                    e => e.EntityState == EntityState.Added
+                         || e.EntityState == EntityState.Modified
+                         || e.EntityState == EntityState.Deleted)
                 .ToList();
 
             AcceptAllChanges(changedEntries);

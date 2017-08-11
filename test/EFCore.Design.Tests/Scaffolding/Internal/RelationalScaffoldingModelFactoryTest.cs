@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using ScaffoldingAnnotationNames = Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -28,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         private readonly FakeScaffoldingModelFactory _factory;
         private readonly TestOperationReporter _reporter;
         private static DatabaseColumn IdColumn => new DatabaseColumn { Name = "Id", StoreType = "int" };
-        private static DatabasePrimaryKey IdPrimaryKey = new DatabasePrimaryKey { Columns = { IdColumn } };
+        private static readonly DatabasePrimaryKey IdPrimaryKey = new DatabasePrimaryKey { Columns = { IdColumn } };
 
         public RelationalDatabaseModelFactoryTest()
         {
@@ -917,17 +918,17 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 entity =>
-                {
-                    Assert.Equal("Blog", entity.Relational().TableName);
-                    Assert.Equal("Blog", entity.Name);
-                    Assert.Equal("Blog", entity.Scaffolding().DbSetName);
-                },
+                    {
+                        Assert.Equal("Blog", entity.Relational().TableName);
+                        Assert.Equal("Blog", entity.Name);
+                        Assert.Equal("Blog", entity.Scaffolding().DbSetName);
+                    },
                 entity =>
-                {
-                    Assert.Equal("Posts", entity.Relational().TableName);
-                    Assert.Equal("Posts", entity.Name);
-                    Assert.Equal("Posts", entity.Scaffolding().DbSetName);
-                }
+                    {
+                        Assert.Equal("Posts", entity.Relational().TableName);
+                        Assert.Equal("Posts", entity.Name);
+                        Assert.Equal("Posts", entity.Scaffolding().DbSetName);
+                    }
             );
         }
 
@@ -1034,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore
                 Name = "Rowversion",
                 StoreType = "rowversion",
                 ValueGenerated = ValueGenerated.OnAddOrUpdate,
-                [Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames.ConcurrencyToken] = true
+                [ScaffoldingAnnotationNames.ConcurrencyToken] = true
             };
 
             var principalTable = new DatabaseTable

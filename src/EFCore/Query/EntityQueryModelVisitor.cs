@@ -343,9 +343,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             private void ApplyIncludesForOwnedNavigations(QuerySourceReferenceExpression querySourceReferenceExpression, QueryModel queryModel)
             {
                 if (_querySourceTracingExpressionVisitor
-                    .FindResultQuerySourceReferenceExpression(
-                        queryModel.SelectClause.Selector,
-                        querySourceReferenceExpression.ReferencedQuerySource) != null)
+                        .FindResultQuerySourceReferenceExpression(
+                            queryModel.SelectClause.Selector,
+                            querySourceReferenceExpression.ReferencedQuerySource) != null)
                 {
                     var entityType = _queryCompilationContext.Model.FindEntityType(querySourceReferenceExpression.Type);
 
@@ -580,12 +580,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             => (from entityTrackingInfo in entityTrackingInfos
                 select
                     (Func<TResult, object>)
-                        AccessorFindingExpressionVisitor
-                            .FindAccessorLambda(
-                                entityTrackingInfo.QuerySourceReferenceExpression,
-                                selector,
-                                Expression.Parameter(typeof(TResult), "result"))
-                            .Compile())
+                    AccessorFindingExpressionVisitor
+                        .FindAccessorLambda(
+                            entityTrackingInfo.QuerySourceReferenceExpression,
+                            selector,
+                            Expression.Parameter(typeof(TResult), "result"))
+                        .Compile())
                 .ToList();
 
         /// <summary>
@@ -994,7 +994,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (index == 0
                         ? LinqOperatorProvider.OrderBy
                         : LinqOperatorProvider.ThenBy)
-                        .MakeGenericMethod(CurrentParameter.Type, expression.Type),
+                    .MakeGenericMethod(CurrentParameter.Type, expression.Type),
                     _expression,
                     Expression.Lambda(expression, CurrentParameter),
                     Expression.Constant(ordering.OrderingDirection));

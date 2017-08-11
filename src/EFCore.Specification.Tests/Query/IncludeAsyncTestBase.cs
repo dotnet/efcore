@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected IncludeAsyncTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [ConditionalFact]
         public virtual async Task Include_collection()
         {
@@ -490,9 +490,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = await (from c1 in context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .Take(2)
+                                 .Include(c => c.Orders)
+                                 .OrderBy(c => c.CustomerID)
+                                 .Take(2)
                              from c2 in context.Set<Customer>()
                                  .Include(c => c.Orders)
                                  .OrderBy(c => c.CustomerID)
@@ -517,9 +517,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = await (from c1 in context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .Take(2)
+                                 .Include(c => c.Orders)
+                                 .OrderBy(c => c.CustomerID)
+                                 .Take(2)
                              from c2 in context.Set<Customer>()
                                  .Include(c => c.Orders)
                                  .OrderBy(c => c.CustomerID)
@@ -545,9 +545,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = await (from c1 in context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .OrderBy(c => c.CustomerID)
-                        .Take(2)
+                                 .Include(c => c.Orders)
+                                 .OrderBy(c => c.CustomerID)
+                                 .Take(2)
                              from c2 in context.Set<Customer>()
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
@@ -571,9 +571,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = await (from o1 in context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .OrderBy(o => o.CustomerID)
-                        .Take(2)
+                                 .Include(o => o.Customer)
+                                 .OrderBy(o => o.CustomerID)
+                                 .Take(2)
                              from o2 in context.Set<Order>()
                                  .Include(o => o.Customer)
                                  .OrderBy(o => o.CustomerID)
@@ -598,9 +598,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = await (from o1 in context.Set<Order>()
-                        .Include(o => o.Customer)
-                        .OrderBy(o => o.OrderID)
-                        .Take(2)
+                                 .Include(o => o.Customer)
+                                 .OrderBy(o => o.OrderID)
+                                 .Take(2)
                              from o2 in context.Set<Order>()
                                  .OrderBy(o => o.OrderID)
                                  .Skip(2)
@@ -623,8 +623,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = await (from o1 in context.Set<Order>()
-                        .OrderBy(o => o.OrderID)
-                        .Take(2)
+                                 .OrderBy(o => o.OrderID)
+                                 .Take(2)
                              from o2 in context.Set<Order>()
                                  .OrderBy(o => o.OrderID)
                                  .Include(o => o.Customer)

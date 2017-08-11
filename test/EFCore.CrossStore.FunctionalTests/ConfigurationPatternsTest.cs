@@ -4,10 +4,11 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+
 // ReSharper disable UnusedMember.Local
 
 // ReSharper disable InconsistentNaming
@@ -185,11 +186,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>(b =>
-                    {
-                        b.HasKey(c => c.CustomerID);
-                        b.ToTable("Customers");
-                    });
+                modelBuilder.Entity<Customer>(
+                    b =>
+                        {
+                            b.HasKey(c => c.CustomerID);
+                            b.ToTable("Customers");
+                        });
             }
         }
 
@@ -198,6 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string CustomerID { get; set; }
+
             public string CompanyName { get; set; }
             public string Fax { get; set; }
         }
@@ -248,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
                         .BuildServiceProvider();
 
                     await NestedContextTest(
-                        () => new BlogContext(inMemoryServiceProvider), 
+                        () => new BlogContext(inMemoryServiceProvider),
                         () => new NorthwindContext(sqlServerServiceProvider));
                 }
             }

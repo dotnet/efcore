@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(NavigationAsProperty), ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.PropertyNotMapped(
+            Assert.Equal(
+                CoreStrings.PropertyNotMapped(
                     typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(),
                     "Property",
                     typeof(NavigationAsProperty).ShortDisplayName()),
@@ -147,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var modelBuilder = new InternalModelBuilder(new Model());
             modelBuilder.Entity(typeof(InterfaceNavigationEntity), ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.InterfacePropertyNotAdded(
+            Assert.Equal(
+                CoreStrings.InterfacePropertyNotAdded(
                     typeof(InterfaceNavigationEntity).ShortDisplayName(),
                     "Navigation",
                     typeof(IList<INavigationEntity>).ShortDisplayName()),
@@ -163,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             CreateConvention().Apply(modelBuilder);
         }
 
-        protected virtual PropertyMappingValidationConvention CreateConvention() 
+        protected virtual PropertyMappingValidationConvention CreateConvention()
             => new PropertyMappingValidationConvention(new CoreTypeMapper(new CoreTypeMapperDependencies()));
 
         protected class NonPrimitiveAsPropertyEntity

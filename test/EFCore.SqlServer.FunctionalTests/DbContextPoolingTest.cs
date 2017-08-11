@@ -7,8 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,12 +24,12 @@ namespace Microsoft.EntityFrameworkCore
     {
         private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
             where TContext : DbContext
-        => new ServiceCollection()
-            .AddEntityFrameworkSqlServer()
-            .AddDbContextPool<TContext>(
-                ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
-                poolSize)
-            .BuildServiceProvider();
+            => new ServiceCollection()
+                .AddEntityFrameworkSqlServer()
+                .AddDbContextPool<TContext>(
+                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    poolSize)
+                .BuildServiceProvider();
 
         private class PooledContext : DbContext
         {
@@ -113,12 +113,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceCollection = new ServiceCollection();
 
-            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+            Assert.Equal(
+                CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
                 Assert.Throws<ArgumentException>(
                     () => serviceCollection.AddDbContextPool<BadCtorContext>(
                         _ => { })).Message);
 
-            Assert.Equal(CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
+            Assert.Equal(
+                CoreStrings.DbContextMissingConstructor(nameof(BadCtorContext)),
                 Assert.Throws<ArgumentException>(
                     () => serviceCollection.AddDbContextPool<BadCtorContext>(
                         (_, __) => { })).Message);
@@ -215,29 +217,30 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void State_manager_is_reset()
         {
-            var weakRef = Scoper(() =>
-            {
-                var serviceProvider = BuildServiceProvider<PooledContext>();
+            var weakRef = Scoper(
+                () =>
+                    {
+                        var serviceProvider = BuildServiceProvider<PooledContext>();
 
-                var serviceScope = serviceProvider.CreateScope();
+                        var serviceScope = serviceProvider.CreateScope();
 
-                var context1 = serviceScope.ServiceProvider.GetService<PooledContext>();
+                        var context1 = serviceScope.ServiceProvider.GetService<PooledContext>();
 
-                var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+                        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                Assert.Equal(1, context1.ChangeTracker.Entries().Count());
+                        Assert.Equal(1, context1.ChangeTracker.Entries().Count());
 
-                serviceScope.Dispose();
+                        serviceScope.Dispose();
 
-                serviceScope = serviceProvider.CreateScope();
+                        serviceScope = serviceProvider.CreateScope();
 
-                var context2 = serviceScope.ServiceProvider.GetService<PooledContext>();
+                        var context2 = serviceScope.ServiceProvider.GetService<PooledContext>();
 
-                Assert.Same(context1, context2);
-                Assert.Empty(context2.ChangeTracker.Entries());
+                        Assert.Same(context1, context2);
+                        Assert.Empty(context2.ChangeTracker.Entries());
 
-                return new WeakReference(entity);
-            });
+                        return new WeakReference(entity);
+                    });
 
             GC.Collect();
 

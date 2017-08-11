@@ -13,21 +13,18 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class ComplexNavigationsOwnedQueryRelationalFixtureBase : ComplexNavigationsOwnedQueryFixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Level1>(eb =>
-                {
-                    eb.ToTable(nameof(Level1));
-                });
+            modelBuilder.Entity<Level1>(eb => { eb.ToTable(nameof(Level1)); });
         }
 
         protected override void Configure(ReferenceOwnershipBuilder<Level1, Level2> l2)
         {
             base.Configure(l2);
-            
+
             l2.ToTable(nameof(Level1));
             l2.Property(l => l.Date).HasColumnName("OneToOne_Required_PK_Date");
         }
@@ -35,19 +32,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Configure(ReferenceOwnershipBuilder<Level2, Level3> l3)
         {
             base.Configure(l3);
-            
+
             l3.ToTable(nameof(Level1));
         }
 
         protected override void Configure(ReferenceOwnershipBuilder<Level3, Level4> l4)
         {
             base.Configure(l4);
-            
+
             l4.ToTable(nameof(Level1));
         }
-        
+
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(RelationalEventId.QueryClientEvaluationWarning));
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(RelationalEventId.QueryClientEvaluationWarning));
     }
 }

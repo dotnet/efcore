@@ -1,4 +1,4 @@
-﻿﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(Mission), e => e.Id },
                 { typeof(Squad), e => e.Id },
                 { typeof(SquadMission), e => e.SquadId + " " + e.MissionId },
-                { typeof(Weapon), e => e.Id },
+                { typeof(Weapon), e => e.Id }
             };
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
@@ -163,46 +163,49 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entityAsserters);
         }
 
-
         public QueryAsserterBase QueryAsserter { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<City>().HasKey(c => c.Name);
 
-            modelBuilder.Entity<Gear>(b =>
-                {
-                    b.HasKey(g => new { g.Nickname, g.SquadId });
+            modelBuilder.Entity<Gear>(
+                b =>
+                    {
+                        b.HasKey(g => new { g.Nickname, g.SquadId });
 
-                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOrBirthName).IsRequired();
-                    b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
-                    b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
-                });
+                        b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOrBirthName).IsRequired();
+                        b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+                        b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
+                    });
 
             modelBuilder.Entity<Officer>().HasMany(o => o.Reports).WithOne().HasForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
 
-            modelBuilder.Entity<Squad>(b =>
-                {
-                    b.HasKey(s => s.Id);
-                    b.Property(s => s.Id).ValueGeneratedNever();
-                    b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
-                });
+            modelBuilder.Entity<Squad>(
+                b =>
+                    {
+                        b.HasKey(s => s.Id);
+                        b.Property(s => s.Id).ValueGeneratedNever();
+                        b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
+                    });
 
-            modelBuilder.Entity<Weapon>(b =>
-                {
-                    b.Property(w => w.Id).ValueGeneratedNever();
-                    b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
-                    b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
-                });
+            modelBuilder.Entity<Weapon>(
+                b =>
+                    {
+                        b.Property(w => w.Id).ValueGeneratedNever();
+                        b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
+                        b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
+                    });
 
             modelBuilder.Entity<Mission>().Property(m => m.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<SquadMission>(b =>
-                {
-                    b.HasKey(sm => new { sm.SquadId, sm.MissionId });
-                    b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
-                    b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
-                });
+            modelBuilder.Entity<SquadMission>(
+                b =>
+                    {
+                        b.HasKey(sm => new { sm.SquadId, sm.MissionId });
+                        b.HasOne(sm => sm.Mission).WithMany(m => m.ParticipatingSquads).HasForeignKey(sm => sm.MissionId);
+                        b.HasOne(sm => sm.Squad).WithMany(s => s.Missions).HasForeignKey(sm => sm.SquadId);
+                    });
 
             modelBuilder.Entity<Faction>().HasKey(f => f.Id);
             modelBuilder.Entity<Faction>().Property(f => f.Id).ValueGeneratedNever();
@@ -219,8 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(GearsOfWarContext context) => GearsOfWarContext.Seed(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(CoreEventId.IncludeIgnoredWarning));
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(CoreEventId.IncludeIgnoredWarning));
 
         public override GearsOfWarContext CreateContext()
         {

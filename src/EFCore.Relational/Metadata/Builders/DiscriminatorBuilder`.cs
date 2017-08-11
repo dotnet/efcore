@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             var builder = Builder.HasValue(entityType, value);
             return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
         }
+
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
         /// </summary>

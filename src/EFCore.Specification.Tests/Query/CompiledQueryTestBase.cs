@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected CompiledQueryTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [ConditionalFact]
         public virtual void DbSet_query()
         {
@@ -233,8 +233,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var customerID = "ALFKI";
 
-            var query = EF.CompileQuery((NorthwindContext context)
-                => context.Customers.Where(c => c.CustomerID == customerID));
+            var query = EF.CompileQuery(
+                (NorthwindContext context)
+                    => context.Customers.Where(c => c.CustomerID == customerID));
 
             using (var context = CreateContext())
             {
@@ -409,8 +410,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var customerID = "ALFKI";
 
-            var query = EF.CompileAsyncQuery((NorthwindContext context)
-                => context.Customers.Where(c => c.CustomerID == customerID));
+            var query = EF.CompileAsyncQuery(
+                (NorthwindContext context)
+                    => context.Customers.Where(c => c.CustomerID == customerID));
 
             using (var context = CreateContext())
             {

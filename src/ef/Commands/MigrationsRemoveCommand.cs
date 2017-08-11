@@ -5,6 +5,7 @@ using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
+    // ReSharper disable once ArrangeTypeModifiers
     partial class MigrationsRemoveCommand
     {
         protected override int Execute()

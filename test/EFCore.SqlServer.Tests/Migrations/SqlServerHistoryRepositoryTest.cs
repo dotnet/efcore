@@ -5,7 +5,6 @@ using System;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -133,12 +132,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private static IHistoryRepository CreateHistoryRepository(string schema = null)
             => new DbContext(
-                new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider(SqlServerTestHelpers.Instance.CreateServiceProvider())
-                    .UseSqlServer(
-                        new SqlConnection("Database=DummyDatabase"),
-                        b => b.MigrationsHistoryTable(HistoryRepository.DefaultTableName, schema))
-                    .Options)
+                    new DbContextOptionsBuilder()
+                        .UseInternalServiceProvider(SqlServerTestHelpers.Instance.CreateServiceProvider())
+                        .UseSqlServer(
+                            new SqlConnection("Database=DummyDatabase"),
+                            b => b.MigrationsHistoryTable(HistoryRepository.DefaultTableName, schema))
+                        .Options)
                 .GetService<IHistoryRepository>();
     }
 }

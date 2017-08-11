@@ -78,10 +78,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMemberTranslator, SqliteCompositeMemberTranslator>()
                 .TryAdd<ICompositeMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
-                .TryAddProviderSpecificServices(b => b
-                    .TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
+                .TryAddProviderSpecificServices(
+                    b => b
+                        .TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 
-            builder.TryAddCoreServices();    
+            builder.TryAddCoreServices();
 
             return serviceCollection;
         }

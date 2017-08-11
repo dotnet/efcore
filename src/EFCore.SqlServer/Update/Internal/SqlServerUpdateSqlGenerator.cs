@@ -40,10 +40,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             int commandPosition)
         {
             if (modificationCommands.Count == 1
-                && modificationCommands[0].ColumnModifications.All(o =>
-                    !o.IsKey
-                    || !o.IsRead
-                    || o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                && modificationCommands[0].ColumnModifications.All(
+                    o =>
+                        !o.IsKey
+                        || !o.IsRead
+                        || o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -460,14 +461,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 .Append(insertedTableName).Append(insertedTableIndex)
                 .Append(" i")
                 .Append(" ON ")
-                .AppendJoin(keyOperations, (sb, c) =>
-                    {
-                        sb.Append("(");
-                        SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
-                        sb.Append(" = ");
-                        SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
-                        sb.Append(")");
-                    }, " AND ");
+                .AppendJoin(
+                    keyOperations, (sb, c) =>
+                        {
+                            sb.Append("(");
+                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
+                            sb.Append(" = ");
+                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
+                            sb.Append(")");
+                        }, " AND ");
 
             if (orderColumn != null)
             {

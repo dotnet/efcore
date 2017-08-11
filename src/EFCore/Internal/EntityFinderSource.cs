@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 t => (Func<DbContext, IEntityType, IEntityFinder>)_genericCreate.MakeGenericMethod(t).Invoke(null, null))(context, type);
 
         [UsedImplicitly]
-        private static Func<DbContext, IEntityType, IEntityFinder> CreateConstructor<TEntity>() where TEntity : class
+        private static Func<DbContext, IEntityType, IEntityFinder> CreateConstructor<TEntity>()
+            where TEntity : class
             => (c, t) => new EntityFinder<TEntity>(c, t);
     }
 }

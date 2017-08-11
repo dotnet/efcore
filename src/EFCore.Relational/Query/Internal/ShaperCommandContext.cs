@@ -41,12 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     foreach (var parameterValue in _parameterValues)
                     {
                         var value = parameterValue.Value;
-                        
+
                         if (!other._parameterValues.TryGetValue(parameterValue.Key, out var otherValue))
                         {
                             return false;
                         }
-                   
+
                         if (value == null
                             != (otherValue == null))
                         {

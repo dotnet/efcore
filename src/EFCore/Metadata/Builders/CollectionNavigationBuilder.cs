@@ -134,15 +134,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreingKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
                 && foreingKey.DependentToPrincipal.Name != referenceName)
             {
-                throw new InvalidOperationException(CoreStrings.ConflictingRelationshipNavigation(
-                    foreingKey.PrincipalEntityType.DisplayName(),
-                    foreingKey.PrincipalToDependent.Name,
-                    foreingKey.DeclaringEntityType.DisplayName(),
-                    referenceName,
-                    foreingKey.PrincipalEntityType.DisplayName(),
-                    foreingKey.PrincipalToDependent.Name,
-                    foreingKey.DeclaringEntityType.DisplayName(),
-                    foreingKey.DependentToPrincipal.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.ConflictingRelationshipNavigation(
+                        foreingKey.PrincipalEntityType.DisplayName(),
+                        foreingKey.PrincipalToDependent.Name,
+                        foreingKey.DeclaringEntityType.DisplayName(),
+                        referenceName,
+                        foreingKey.PrincipalEntityType.DisplayName(),
+                        foreingKey.PrincipalToDependent.Name,
+                        foreingKey.DeclaringEntityType.DisplayName(),
+                        foreingKey.DependentToPrincipal.Name));
             }
 
             if (referenceName != null

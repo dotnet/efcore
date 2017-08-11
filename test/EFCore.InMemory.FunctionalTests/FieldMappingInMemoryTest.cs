@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void Update<TBlog>(string navigation)
         {
             base.Update<TBlog>(navigation);
-            
+
             Fixture.Reseed();
         }
 

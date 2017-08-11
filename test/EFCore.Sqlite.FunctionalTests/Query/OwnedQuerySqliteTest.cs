@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Query_for_leaf_type_loads_all_owned_navs();
         }
-        
+
         public class OwnedQuerySqliteFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;

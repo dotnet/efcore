@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         MethodInfo MethodInfo { get; }
 
         /// <summary>
-        ///    A translation callback for performing custom translation of the method call into a SQL expression fragment.
+        ///     A translation callback for performing custom translation of the method call into a SQL expression fragment.
         /// </summary>
         Func<IReadOnlyCollection<Expression>, Expression> Translation { get; }
     }

@@ -152,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             get => _isDistinct;
             set
             {
-                if (_offset != null || _limit != null)
+                if (_offset != null
+                    || _limit != null)
                 {
                     PushDownSubquery();
                 }
@@ -502,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return AddToProjection(
                 BindProperty(property, querySource));
         }
-        
+
         /// <summary>
         ///     Adds an expression to the projection.
         /// </summary>
@@ -576,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] IEnumerable<Expression> expressions)
         {
             Check.NotNull(expressions, nameof(expressions));
-            
+
             ClearProjection();
 
             _projection.AddRange(expressions);
@@ -858,7 +859,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 AddToOrderBy(ordering);
             }
         }
-        
+
         /// <summary>
         ///     TODO
         /// </summary>

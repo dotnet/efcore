@@ -17,8 +17,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override DbContext CreateContextWithConnectionString()
         {
-            var options = Fixture.AddOptions(new DbContextOptionsBuilder()
-                .UseSqlite(TestStore.ConnectionString))
+            var options = Fixture.AddOptions(
+                    new DbContextOptionsBuilder()
+                        .UseSqlite(TestStore.ConnectionString))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);

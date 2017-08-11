@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public override void Validate(IModel model)
         {
             base.Validate(model);
-            
+
             ValidateNoSchemas(model);
             ValidateNoSequences(model);
         }

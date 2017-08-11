@@ -5,8 +5,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -43,9 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var builder = testStore.AddProviderOptions(new DbContextOptionsBuilder())
                 .EnableSensitiveDataLogging()
-                .ConfigureWarnings(b => b.Default(WarningBehavior.Throw)
-                    .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.ManyServiceProvidersCreatedWarning));
+                .ConfigureWarnings(
+                    b => b.Default(WarningBehavior.Throw)
+                        .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
+                        .Log(CoreEventId.ManyServiceProvidersCreatedWarning));
 
             if (rowNumberPaging)
             {

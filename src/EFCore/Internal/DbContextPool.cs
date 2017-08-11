@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private static Func<TContext> CreateActivator(DbContextOptions options)
         {
-            var ctors 
+            var ctors
                 = typeof(TContext).GetTypeInfo().DeclaredConstructors
                     .Where(c => !c.IsStatic && c.IsPublic)
                     .ToArray();
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var parameters = ctors[0].GetParameters();
 
                 if (parameters.Length == 1
-                    && (parameters[0].ParameterType == typeof(DbContextOptions) 
+                    && (parameters[0].ParameterType == typeof(DbContextOptions)
                         || parameters[0].ParameterType == typeof(DbContextOptions<TContext>)))
                 {
                     return

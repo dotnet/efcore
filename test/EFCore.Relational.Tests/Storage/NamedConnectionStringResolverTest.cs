@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             new Dictionary<string, string>
                             {
                                 { "MyConnectuonString", "Conn1" },
-                                {"ConnectionStrings:DefaultConnection", "Conn2" },
-                                {"ConnectionStrings:MyConnectuonString", "Conn3" }
+                                { "ConnectionStrings:DefaultConnection", "Conn2" },
+                                { "ConnectionStrings:MyConnectuonString", "Conn3" }
                             })
                         .Build()));
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         .AddInMemoryCollection(
                             new Dictionary<string, string>
                             {
-                                { "Nope", "NoThanks" },
+                                { "Nope", "NoThanks" }
                             })
                         .Build()));
 

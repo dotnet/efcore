@@ -228,29 +228,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .WithOne(e => e.Self)
                     .HasForeignKey<WithStringFk>(e => e.SelfFk);
 
-                modelBuilder.Entity<WithIntKey>(b =>
-                    {
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.HasMany(e => e.Dependents)
-                            .WithOne(e => e.Principal)
-                            .HasForeignKey(e => e.Fk);
-                    });
+                modelBuilder.Entity<WithIntKey>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                            b.HasMany(e => e.Dependents)
+                                .WithOne(e => e.Principal)
+                                .HasForeignKey(e => e.Fk);
+                        });
 
-                modelBuilder.Entity<WithNullableIntKey>(b =>
-                    {
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.HasMany(e => e.Dependents)
-                            .WithOne(e => e.Principal)
-                            .HasForeignKey(e => e.Fk);
-                    });
+                modelBuilder.Entity<WithNullableIntKey>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                            b.HasMany(e => e.Dependents)
+                                .WithOne(e => e.Principal)
+                                .HasForeignKey(e => e.Fk);
+                        });
 
-                modelBuilder.Entity<WithAllNullableIntKey>(b =>
-                    {
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.HasMany(e => e.Dependents)
-                            .WithOne(e => e.Principal)
-                            .HasForeignKey(e => e.Fk);
-                    });
+                modelBuilder.Entity<WithAllNullableIntKey>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                            b.HasMany(e => e.Dependents)
+                                .WithOne(e => e.Principal)
+                                .HasForeignKey(e => e.Fk);
+                        });
 
                 modelBuilder.Entity<WithIntFk>()
                     .Property(e => e.Id).ValueGeneratedNever();

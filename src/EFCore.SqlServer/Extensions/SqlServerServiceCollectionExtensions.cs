@@ -89,12 +89,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ICompositeMethodCallTranslator, SqlServerCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
                 .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
-                .TryAddProviderSpecificServices(b => b
-                    .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
-                    .TryAddSingleton<ISqlServerOptions, SqlServerOptions>()
-                    .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
-                    .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-                    .TryAddScoped<ISqlServerConnection, SqlServerConnection>());
+                .TryAddProviderSpecificServices(
+                    b => b
+                        .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
+                        .TryAddSingleton<ISqlServerOptions, SqlServerOptions>()
+                        .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
+                        .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+                        .TryAddScoped<ISqlServerConnection, SqlServerConnection>());
 
             builder.TryAddCoreServices();
 

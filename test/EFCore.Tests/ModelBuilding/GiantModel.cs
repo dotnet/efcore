@@ -11,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public class RelatedEntity1
         {
             public int Id { get; set; }
-			
+
             public RelatedEntity2000 ParentEntity { get; set; }
 
-            public IEnumerable<RelatedEntity2> ChildEntities { get; set; }			
+            public IEnumerable<RelatedEntity2> ChildEntities { get; set; }
         }
 
         public class RelatedEntity2

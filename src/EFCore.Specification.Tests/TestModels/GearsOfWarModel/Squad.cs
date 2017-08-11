@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 
         // non-auto generated key
         public int Id { get; set; }
+
         public string Name { get; set; }
 
         // auto-generated non-key (sequence)

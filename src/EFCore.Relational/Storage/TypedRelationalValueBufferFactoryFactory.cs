@@ -157,11 +157,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     Expression.NewArrayInit(
                         typeof(object),
                         cacheKey.ValueTypes
-                            .Select((type, i) =>
-                                CreateGetValueExpression(
-                                    dataReaderParameter,
-                                    type,
-                                    Expression.Constant(cacheKey.IndexMap?[i] ?? i)))),
+                            .Select(
+                                (type, i) =>
+                                    CreateGetValueExpression(
+                                        dataReaderParameter,
+                                        type,
+                                        Expression.Constant(cacheKey.IndexMap?[i] ?? i)))),
                     dataReaderParameter)
                 .Compile();
         }
@@ -190,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var catchBlock
                 = Expression
-                    .Catch(exceptionParameter,
+                    .Catch(
+                        exceptionParameter,
                         Expression.Call(
                             EntityMaterializerSource
                                 .ThrowReadValueExceptionMethod
@@ -217,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         Expression.Default(expression.Type),
                         expression);
             }
-            
+
             return expression;
         }
     }

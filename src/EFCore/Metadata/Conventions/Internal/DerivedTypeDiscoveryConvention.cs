@@ -27,11 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            var directlyDerivedTypes = entityType.Model.GetEntityTypes().Where(t =>
-                t != entityType
-                && t.HasClrType()
-                && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
-                    || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
+            var directlyDerivedTypes = entityType.Model.GetEntityTypes().Where(
+                    t =>
+                        t != entityType
+                        && t.HasClrType()
+                        && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
+                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
                 .ToList();
 
             foreach (var directlyDerivedType in directlyDerivedTypes)

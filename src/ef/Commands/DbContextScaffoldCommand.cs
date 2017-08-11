@@ -3,11 +3,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
+    // ReSharper disable once ArrangeTypeModifiers
     partial class DbContextScaffoldCommand
     {
         protected override void Validate()
@@ -64,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             Reporter.WriteData("  ]");
             Reporter.WriteData("}");
-
         }
     }
 }

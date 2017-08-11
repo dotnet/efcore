@@ -314,11 +314,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(category, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        e.Entry.State = EntityState.Modified;
-                    });
+                context.ChangeTracker.TrackGraph(
+                    category, e =>
+                        {
+                            traversal.Add(NodeString(e));
+                            e.Entry.State = EntityState.Modified;
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -356,11 +357,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(product, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        e.Entry.State = EntityState.Modified;
-                    });
+                context.ChangeTracker.TrackGraph(
+                    product, e =>
+                        {
+                            traversal.Add(NodeString(e));
+                            e.Entry.State = EntityState.Modified;
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -389,11 +391,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(product, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        e.Entry.State = EntityState.Unchanged;
-                    });
+                context.ChangeTracker.TrackGraph(
+                    product, e =>
+                        {
+                            traversal.Add(NodeString(e));
+                            e.Entry.State = EntityState.Unchanged;
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -424,11 +427,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(tag, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        e.Entry.State = EntityState.Unchanged;
-                    });
+                context.ChangeTracker.TrackGraph(
+                    tag, e =>
+                        {
+                            traversal.Add(NodeString(e));
+                            e.Entry.State = EntityState.Unchanged;
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -459,11 +463,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(details, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        e.Entry.State = EntityState.Unchanged;
-                    });
+                context.ChangeTracker.TrackGraph(
+                    details, e =>
+                        {
+                            traversal.Add(NodeString(e));
+                            e.Entry.State = EntityState.Unchanged;
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -505,11 +510,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(category, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        e.Entry.State = EntityState.Modified;
-                    });
+                context.ChangeTracker.TrackGraph(
+                    category, e =>
+                        {
+                            traversal.Add(NodeString(e));
+                            e.Entry.State = EntityState.Modified;
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -555,16 +561,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var traversal = new List<string>();
 
-                context.ChangeTracker.TrackGraph(category, e =>
-                    {
-                        traversal.Add(NodeString(e));
-                        var product = e.Entry.Entity as Product;
-                        if ((product == null)
-                            || (product.Id != 2))
+                context.ChangeTracker.TrackGraph(
+                    category, e =>
                         {
-                            e.Entry.State = EntityState.Unchanged;
-                        }
-                    });
+                            traversal.Add(NodeString(e));
+                            var product = e.Entry.Entity as Product;
+                            if ((product == null)
+                                || (product.Id != 2))
+                            {
+                                e.Entry.State = EntityState.Unchanged;
+                            }
+                        });
 
                 Assert.Equal(
                     new List<string>
@@ -628,29 +635,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [Fact]
         public void Can_attach_parent_with_some_new_and_some_existing_entities()
         {
-            KeyValueAttachTest((category, changeTracker) =>
-                {
-                    var traversal = new List<string>();
+            KeyValueAttachTest(
+                (category, changeTracker) =>
+                    {
+                        var traversal = new List<string>();
 
-                    changeTracker.TrackGraph(
-                        category,
-                        e =>
+                        changeTracker.TrackGraph(
+                            category,
+                            e =>
+                                {
+                                    traversal.Add(NodeString(e));
+                                    var product = e.Entry.Entity as Product;
+                                    e.Entry.State = (product != null) && (product.Id == 0) ? EntityState.Added : EntityState.Unchanged;
+                                });
+
+                        Assert.Equal(
+                            new List<string>
                             {
-                                traversal.Add(NodeString(e));
-                                var product = e.Entry.Entity as Product;
-                                e.Entry.State = (product != null) && (product.Id == 0) ? EntityState.Added : EntityState.Unchanged;
-                            });
-
-                    Assert.Equal(
-                        new List<string>
-                        {
-                            "<None> -----> Category:77",
-                            "Category:77 ---Products--> Product:77",
-                            "Category:77 ---Products--> Product:0",
-                            "Category:77 ---Products--> Product:78"
-                        },
-                        traversal);
-                });
+                                "<None> -----> Category:77",
+                                "Category:77 ---Products--> Product:77",
+                                "Category:77 ---Products--> Product:0",
+                                "Category:77 ---Products--> Product:78"
+                            },
+                            traversal);
+                    });
         }
 
         [Fact]
@@ -1293,7 +1301,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Equal(CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
+                Assert.Equal(
+                    CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
                     Assert.Throws<InvalidOperationException>(() => context.Add(new SpecialProduct())).Message);
             }
         }
@@ -1372,12 +1381,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class TheShadows : DbContext
         {
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Dark>(b =>
-                    {
-                        b.Property<int>("Id").ValueGeneratedOnAdd();
-                        b.Property<int>("SomeInt");
-                        b.Property<string>("SomeString");
-                    });
+                => modelBuilder.Entity<Dark>(
+                    b =>
+                        {
+                            b.Property<int>("Id").ValueGeneratedOnAdd();
+                            b.Property<int>("SomeInt");
+                            b.Property<string>("SomeString");
+                        });
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase(nameof(TheShadows));
@@ -1557,7 +1567,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         });
 
                 modelBuilder
-                   .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
                 modelBuilder
                     .Entity<ProductDetailsTag>().HasOne(e => e.TagDetails).WithOne(e => e.Tag)
@@ -1571,12 +1581,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .Entity<Product>().HasOne(e => e.Details).WithOne(e => e.Product)
                     .HasForeignKey<ProductDetails>(e => e.Id);
 
-                modelBuilder.Entity<OrderDetails>(b =>
-                    {
-                        b.HasKey(e => new { e.OrderId, e.ProductId });
-                        b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
-                        b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
-                    });
+                modelBuilder.Entity<OrderDetails>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.OrderId, e.ProductId });
+                            b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
+                            b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
+                        });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

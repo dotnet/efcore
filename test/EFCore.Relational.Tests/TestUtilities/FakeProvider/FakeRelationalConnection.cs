@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
     public class FakeRelationalConnection : RelationalConnection
     {
         private DbConnection _connection;
-        
+
         private readonly List<FakeDbConnection> _dbConnections = new List<FakeDbConnection>();
 
         public FakeRelationalConnection(IDbContextOptions options)

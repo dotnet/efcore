@@ -839,12 +839,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>(eb =>
-                    {
-                        eb.Property(e => e.Id).HasDefaultValue(1);
-                        eb.Property(e => e.Name).HasComputedColumnSql("Default");
-                        eb.Property(e => e.Offset).HasDefaultValueSql("Now");
-                    });
+                .Entity<Customer>(
+                    eb =>
+                        {
+                            eb.Property(e => e.Id).HasDefaultValue(1);
+                            eb.Property(e => e.Name).HasComputedColumnSql("Default");
+                            eb.Property(e => e.Offset).HasDefaultValueSql("Now");
+                        });
 
             modelBuilder.ForSqlServerUseIdentityColumns();
 
@@ -1037,13 +1038,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence<int>("Snook", "Tasty", b =>
-                    {
-                        b.IncrementsBy(11)
-                            .StartsAt(1729)
-                            .HasMin(111)
-                            .HasMax(2222);
-                    })
+                .HasSequence<int>(
+                    "Snook", "Tasty", b =>
+                        {
+                            b.IncrementsBy(11)
+                                .StartsAt(1729)
+                                .HasMin(111)
+                                .HasMax(2222);
+                        })
                 .Entity<Customer>()
                 .Property(e => e.Id)
                 .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
@@ -1157,13 +1159,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence<int>("Snook", b =>
-                    {
-                        b.IncrementsBy(11)
-                            .StartsAt(1729)
-                            .HasMin(111)
-                            .HasMax(2222);
-                    });
+                .HasSequence<int>(
+                    "Snook", b =>
+                        {
+                            b.IncrementsBy(11)
+                                .StartsAt(1729)
+                                .HasMin(111)
+                                .HasMax(2222);
+                        });
 
             ValidateNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook"));
             ValidateNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook"));
@@ -1175,13 +1178,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence(typeof(int), "Snook", b =>
-                    {
-                        b.IncrementsBy(11)
-                            .StartsAt(1729)
-                            .HasMin(111)
-                            .HasMax(2222);
-                    });
+                .HasSequence(
+                    typeof(int), "Snook", b =>
+                        {
+                            b.IncrementsBy(11)
+                                .StartsAt(1729)
+                                .HasMin(111)
+                                .HasMax(2222);
+                        });
 
             ValidateNamedSpecificSequence(modelBuilder.Model.Relational().FindSequence("Snook"));
             ValidateNamedSpecificSequence(modelBuilder.Model.SqlServer().FindSequence("Snook"));

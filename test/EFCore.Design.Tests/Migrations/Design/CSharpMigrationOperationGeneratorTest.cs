@@ -54,11 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    nullable: false);",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(typeof(int), o.ClrType);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(typeof(int), o.ClrType);
+                    });
         }
 
         [Fact]
@@ -89,15 +89,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    nullable: true," + EOL +
                 "    defaultValue: 1);",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Equal("int", o.ColumnType);
-                    Assert.True(o.IsNullable);
-                    Assert.Equal(1, o.DefaultValue);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Equal("int", o.ColumnType);
+                        Assert.True(o.IsNullable);
+                        Assert.Equal(1, o.DefaultValue);
+                    });
         }
 
         [Fact]
@@ -117,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    nullable: false," + EOL +
                 "    defaultValueSql: \"1\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Equal("1", o.DefaultValueSql);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Equal("1", o.DefaultValueSql);
+                    });
         }
 
         [Fact]
@@ -142,12 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    nullable: false," + EOL +
                 "    computedColumnSql: \"1\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Equal("1", o.ComputedColumnSql);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Equal("1", o.ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -169,12 +169,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    principalTable: \"Blog\"," + EOL +
                 "    principalColumn: \"Id\");",
                 o =>
-                {
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("FK_Post_Blog_BlogId", o.Name);
-                    Assert.Equal(new[] { "BlogId" }, o.Columns);
-                    Assert.Equal("Blog", o.PrincipalTable);
-                });
+                    {
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                        Assert.Equal(new[] { "BlogId" }, o.Columns);
+                        Assert.Equal("Blog", o.PrincipalTable);
+                    });
         }
 
         [Fact]
@@ -204,16 +204,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    onUpdate: ReferentialAction.Restrict," + EOL +
                 "    onDelete: ReferentialAction.Cascade);",
                 o =>
-                {
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("FK_Post_Blog_BlogId", o.Name);
-                    Assert.Equal(new[] { "BlogId" }, o.Columns);
-                    Assert.Equal("Blog", o.PrincipalTable);
-                    Assert.Equal("my", o.PrincipalSchema);
-                    Assert.Equal(new[] { "Id" }, o.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
-                });
+                    {
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                        Assert.Equal(new[] { "BlogId" }, o.Columns);
+                        Assert.Equal("Blog", o.PrincipalTable);
+                        Assert.Equal("my", o.PrincipalSchema);
+                        Assert.Equal(new[] { "Id" }, o.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
+                    });
         }
 
         [Fact]
@@ -235,13 +235,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    principalTable: \"Blog\"," + EOL +
                 "    principalColumns: new[] { \"Id1\", \"Id2\" });",
                 o =>
-                {
-                    Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
-                    Assert.Equal("Blog", o.PrincipalTable);
-                    Assert.Equal(new[] { "Id1", "Id2" }, o.PrincipalColumns);
-                });
+                    {
+                        Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                        Assert.Equal("Blog", o.PrincipalTable);
+                        Assert.Equal(new[] { "Id1", "Id2" }, o.PrincipalColumns);
+                    });
         }
 
         [Fact]
@@ -259,11 +259,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    column: \"Id\");",
                 o =>
-                {
-                    Assert.Equal("PK_Post", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "Id" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("PK_Post", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "Id" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -283,12 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    column: \"Id\");",
                 o =>
-                {
-                    Assert.Equal("PK_Post", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "Id" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("PK_Post", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "Id" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -306,11 +306,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    columns: new[] { \"Id1\", \"Id2\" });",
                 o =>
-                {
-                    Assert.Equal("PK_Post", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "Id1", "Id2" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("PK_Post", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "Id1", "Id2" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -328,11 +328,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    column: \"AltId\");",
                 o =>
-                {
-                    Assert.Equal("AK_Post_AltId", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "AltId" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("AK_Post_AltId", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "AltId" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -352,12 +352,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    column: \"AltId\");",
                 o =>
-                {
-                    Assert.Equal("AK_Post_AltId", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "AltId" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("AK_Post_AltId", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "AltId" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -375,11 +375,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    columns: new[] { \"AltId1\", \"AltId2\" });",
                 o =>
-                {
-                    Assert.Equal("AK_Post_AltId1_AltId2", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "AltId1", "AltId2" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("AK_Post_AltId1_AltId2", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "AltId1", "AltId2" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -397,28 +397,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    nullable: false);",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Null(o.ColumnType);
-                    Assert.Null(o.IsUnicode);
-                    Assert.Null(o.MaxLength);
-                    Assert.False(o.IsRowVersion);
-                    Assert.False(o.IsNullable);
-                    Assert.Null(o.DefaultValue);
-                    Assert.Null(o.DefaultValueSql);
-                    Assert.Null(o.ComputedColumnSql);
-                    Assert.Equal(typeof(int), o.OldColumn.ClrType);
-                    Assert.Null(o.OldColumn.ColumnType);
-                    Assert.Null(o.OldColumn.IsUnicode);
-                    Assert.Null(o.OldColumn.MaxLength);
-                    Assert.False(o.OldColumn.IsRowVersion);
-                    Assert.False(o.OldColumn.IsNullable);
-                    Assert.Null(o.OldColumn.DefaultValue);
-                    Assert.Null(o.OldColumn.DefaultValueSql);
-                    Assert.Null(o.OldColumn.ComputedColumnSql);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Null(o.ColumnType);
+                        Assert.Null(o.IsUnicode);
+                        Assert.Null(o.MaxLength);
+                        Assert.False(o.IsRowVersion);
+                        Assert.False(o.IsNullable);
+                        Assert.Null(o.DefaultValue);
+                        Assert.Null(o.DefaultValueSql);
+                        Assert.Null(o.ComputedColumnSql);
+                        Assert.Equal(typeof(int), o.OldColumn.ClrType);
+                        Assert.Null(o.OldColumn.ColumnType);
+                        Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.MaxLength);
+                        Assert.False(o.OldColumn.IsRowVersion);
+                        Assert.False(o.OldColumn.IsNullable);
+                        Assert.Null(o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -466,29 +466,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    oldNullable: true," + EOL +
                 "    oldDefaultValue: 0);",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Equal("int", o.ColumnType);
-                    Assert.False(o.IsUnicode);
-                    Assert.Equal(30, o.MaxLength);
-                    Assert.True(o.IsRowVersion);
-                    Assert.True(o.IsNullable);
-                    Assert.Equal(1, o.DefaultValue);
-                    Assert.Null(o.DefaultValueSql);
-                    Assert.Null(o.ComputedColumnSql);
-                    Assert.Equal(typeof(string), o.OldColumn.ClrType);
-                    Assert.Equal("string", o.OldColumn.ColumnType);
-                    Assert.False(o.OldColumn.IsUnicode);
-                    Assert.Equal(20, o.OldColumn.MaxLength);
-                    Assert.True(o.OldColumn.IsRowVersion);
-                    Assert.True(o.OldColumn.IsNullable);
-                    Assert.Equal(0, o.OldColumn.DefaultValue);
-                    Assert.Null(o.OldColumn.DefaultValueSql);
-                    Assert.Null(o.OldColumn.ComputedColumnSql);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Equal("int", o.ColumnType);
+                        Assert.False(o.IsUnicode);
+                        Assert.Equal(30, o.MaxLength);
+                        Assert.True(o.IsRowVersion);
+                        Assert.True(o.IsNullable);
+                        Assert.Equal(1, o.DefaultValue);
+                        Assert.Null(o.DefaultValueSql);
+                        Assert.Null(o.ComputedColumnSql);
+                        Assert.Equal(typeof(string), o.OldColumn.ClrType);
+                        Assert.Equal("string", o.OldColumn.ColumnType);
+                        Assert.False(o.OldColumn.IsUnicode);
+                        Assert.Equal(20, o.OldColumn.MaxLength);
+                        Assert.True(o.OldColumn.IsRowVersion);
+                        Assert.True(o.OldColumn.IsNullable);
+                        Assert.Equal(0, o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -508,28 +508,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    nullable: false," + EOL +
                 "    defaultValueSql: \"1\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("1", o.DefaultValueSql);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Null(o.ColumnType);
-                    Assert.Null(o.IsUnicode);
-                    Assert.Null(o.MaxLength);
-                    Assert.False(o.IsRowVersion);
-                    Assert.False(o.IsNullable);
-                    Assert.Null(o.DefaultValue);
-                    Assert.Null(o.ComputedColumnSql);
-                    Assert.Equal(typeof(int), o.OldColumn.ClrType);
-                    Assert.Null(o.OldColumn.ColumnType);
-                    Assert.Null(o.OldColumn.IsUnicode);
-                    Assert.Null(o.OldColumn.MaxLength);
-                    Assert.False(o.OldColumn.IsRowVersion);
-                    Assert.False(o.OldColumn.IsNullable);
-                    Assert.Null(o.OldColumn.DefaultValue);
-                    Assert.Null(o.OldColumn.DefaultValueSql);
-                    Assert.Null(o.OldColumn.ComputedColumnSql);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("1", o.DefaultValueSql);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Null(o.ColumnType);
+                        Assert.Null(o.IsUnicode);
+                        Assert.Null(o.MaxLength);
+                        Assert.False(o.IsRowVersion);
+                        Assert.False(o.IsNullable);
+                        Assert.Null(o.DefaultValue);
+                        Assert.Null(o.ComputedColumnSql);
+                        Assert.Equal(typeof(int), o.OldColumn.ClrType);
+                        Assert.Null(o.OldColumn.ColumnType);
+                        Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.MaxLength);
+                        Assert.False(o.OldColumn.IsRowVersion);
+                        Assert.False(o.OldColumn.IsNullable);
+                        Assert.Null(o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -549,28 +549,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    nullable: false," + EOL +
                 "    computedColumnSql: \"1\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("1", o.ComputedColumnSql);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Null(o.ColumnType);
-                    Assert.Null(o.IsUnicode);
-                    Assert.Null(o.MaxLength);
-                    Assert.False(o.IsRowVersion);
-                    Assert.False(o.IsNullable);
-                    Assert.Null(o.DefaultValue);
-                    Assert.Null(o.DefaultValueSql);
-                    Assert.Equal(typeof(int), o.OldColumn.ClrType);
-                    Assert.Null(o.OldColumn.ColumnType);
-                    Assert.Null(o.OldColumn.IsUnicode);
-                    Assert.Null(o.OldColumn.MaxLength);
-                    Assert.False(o.OldColumn.IsRowVersion);
-                    Assert.False(o.OldColumn.IsNullable);
-                    Assert.Null(o.OldColumn.DefaultValue);
-                    Assert.Null(o.OldColumn.DefaultValueSql);
-                    Assert.Null(o.OldColumn.ComputedColumnSql);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("1", o.ComputedColumnSql);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Null(o.ColumnType);
+                        Assert.Null(o.IsUnicode);
+                        Assert.Null(o.MaxLength);
+                        Assert.False(o.IsRowVersion);
+                        Assert.False(o.IsNullable);
+                        Assert.Null(o.DefaultValue);
+                        Assert.Null(o.DefaultValueSql);
+                        Assert.Equal(typeof(int), o.OldColumn.ClrType);
+                        Assert.Null(o.OldColumn.ColumnType);
+                        Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.MaxLength);
+                        Assert.False(o.OldColumn.IsRowVersion);
+                        Assert.False(o.OldColumn.IsNullable);
+                        Assert.Null(o.OldColumn.DefaultValue);
+                        Assert.Null(o.OldColumn.DefaultValueSql);
+                        Assert.Null(o.OldColumn.ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -589,10 +589,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    .Annotation(\"foo\", \"bar\")" + EOL +
                 "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
-                {
-                    Assert.Equal("bar", o["foo"]);
-                    Assert.Equal("foo", o.OldDatabase["bar"]);
-                });
+                    {
+                        Assert.Equal("bar", o["foo"]);
+                        Assert.Equal("foo", o.OldDatabase["bar"]);
+                    });
         }
 
         [Fact]
@@ -603,18 +603,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "mb.AlterSequence(" + EOL +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Null(o.Schema);
-                    Assert.Equal(1, o.IncrementBy);
-                    Assert.Null(o.MinValue);
-                    Assert.Null(o.MaxValue);
-                    Assert.False(o.IsCyclic);
-                    Assert.Equal(1, o.OldSequence.IncrementBy);
-                    Assert.Null(o.OldSequence.MinValue);
-                    Assert.Null(o.OldSequence.MaxValue);
-                    Assert.False(o.OldSequence.IsCyclic);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Null(o.Schema);
+                        Assert.Equal(1, o.IncrementBy);
+                        Assert.Null(o.MinValue);
+                        Assert.Null(o.MaxValue);
+                        Assert.False(o.IsCyclic);
+                        Assert.Equal(1, o.OldSequence.IncrementBy);
+                        Assert.Null(o.OldSequence.MinValue);
+                        Assert.Null(o.OldSequence.MaxValue);
+                        Assert.False(o.OldSequence.IsCyclic);
+                    });
         }
 
         [Fact]
@@ -649,18 +649,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    oldMaxValue: 5L," + EOL +
                 "    oldCyclic: true);",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal(3, o.IncrementBy);
-                    Assert.Equal(2, o.MinValue);
-                    Assert.Equal(4, o.MaxValue);
-                    Assert.True(o.IsCyclic);
-                    Assert.Equal(4, o.OldSequence.IncrementBy);
-                    Assert.Equal(3, o.OldSequence.MinValue);
-                    Assert.Equal(5, o.OldSequence.MaxValue);
-                    Assert.True(o.OldSequence.IsCyclic);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal(3, o.IncrementBy);
+                        Assert.Equal(2, o.MinValue);
+                        Assert.Equal(4, o.MaxValue);
+                        Assert.True(o.IsCyclic);
+                        Assert.Equal(4, o.OldSequence.IncrementBy);
+                        Assert.Equal(3, o.OldSequence.MinValue);
+                        Assert.Equal(5, o.OldSequence.MaxValue);
+                        Assert.True(o.OldSequence.IsCyclic);
+                    });
         }
 
         [Fact]
@@ -676,10 +676,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"Customer\"," + EOL +
                 "    schema: \"dbo\");",
                 o =>
-                {
-                    Assert.Equal("Customer", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                });
+                    {
+                        Assert.Equal("Customer", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                    });
         }
 
         [Fact]
@@ -697,11 +697,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    column: \"Title\");",
                 o =>
-                {
-                    Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "Title" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("IX_Post_Title", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "Title" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -725,13 +725,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    unique: true," + EOL +
                 "    filter: \"[Title] IS NOT NULL\");",
                 o =>
-                {
-                    Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "Title" }, o.Columns);
-                    Assert.True(o.IsUnique);
-                });
+                    {
+                        Assert.Equal("IX_Post_Title", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "Title" }, o.Columns);
+                        Assert.True(o.IsUnique);
+                    });
         }
 
         [Fact]
@@ -749,11 +749,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    columns: new[] { \"Title\", \"Subtitle\" });",
                 o =>
-                {
-                    Assert.Equal("IX_Post_Title_Subtitle", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal(new[] { "Title", "Subtitle" }, o.Columns);
-                });
+                    {
+                        Assert.Equal("IX_Post_Title_Subtitle", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal(new[] { "Title", "Subtitle" }, o.Columns);
+                    });
         }
 
         [Fact]
@@ -778,10 +778,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "mb.CreateSequence(" + EOL +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal(typeof(long), o.ClrType);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal(typeof(long), o.ClrType);
+                    });
         }
 
         [Fact]
@@ -796,10 +796,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "mb.CreateSequence<int>(" + EOL +
                 "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal(typeof(int), o.ClrType);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal(typeof(int), o.ClrType);
+                    });
         }
 
         [Fact]
@@ -826,16 +826,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    maxValue: 4L," + EOL +
                 "    cyclic: true);",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal(typeof(long), o.ClrType);
-                    Assert.Equal(3, o.StartValue);
-                    Assert.Equal(5, o.IncrementBy);
-                    Assert.Equal(2, o.MinValue);
-                    Assert.Equal(4, o.MaxValue);
-                    Assert.True(o.IsCyclic);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal(typeof(long), o.ClrType);
+                        Assert.Equal(3, o.StartValue);
+                        Assert.Equal(5, o.IncrementBy);
+                        Assert.Equal(2, o.MinValue);
+                        Assert.Equal(4, o.MaxValue);
+                        Assert.True(o.IsCyclic);
+                    });
         }
 
         [Fact]
@@ -862,16 +862,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    maxValue: 4L," + EOL +
                 "    cyclic: true);",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal(typeof(int), o.ClrType);
-                    Assert.Equal(3, o.StartValue);
-                    Assert.Equal(5, o.IncrementBy);
-                    Assert.Equal(2, o.MinValue);
-                    Assert.Equal(4, o.MaxValue);
-                    Assert.True(o.IsCyclic);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal(typeof(int), o.ClrType);
+                        Assert.Equal(3, o.StartValue);
+                        Assert.Equal(5, o.IncrementBy);
+                        Assert.Equal(2, o.MinValue);
+                        Assert.Equal(4, o.MaxValue);
+                        Assert.True(o.IsCyclic);
+                    });
         }
 
         [Fact]
@@ -901,14 +901,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    {" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("Post", o.Name);
-                    Assert.Equal(1, o.Columns.Count);
+                    {
+                        Assert.Equal("Post", o.Name);
+                        Assert.Equal(1, o.Columns.Count);
 
-                    Assert.Equal("Id", o.Columns[0].Name);
-                    Assert.Equal("Post", o.Columns[0].Table);
-                    Assert.Equal(typeof(int), o.Columns[0].ClrType);
-                });
+                        Assert.Equal("Id", o.Columns[0].Name);
+                        Assert.Equal("Post", o.Columns[0].Table);
+                        Assert.Equal(typeof(int), o.Columns[0].ClrType);
+                    });
         }
 
         [Fact]
@@ -947,19 +947,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    {" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("Post", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal(1, o.Columns.Count);
+                    {
+                        Assert.Equal("Post", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal(1, o.Columns.Count);
 
-                    Assert.Equal("Post Id", o.Columns[0].Name);
-                    Assert.Equal("dbo", o.Columns[0].Schema);
-                    Assert.Equal("Post", o.Columns[0].Table);
-                    Assert.Equal(typeof(int), o.Columns[0].ClrType);
-                    Assert.Equal("int", o.Columns[0].ColumnType);
-                    Assert.True(o.Columns[0].IsNullable);
-                    Assert.Equal(1, o.Columns[0].DefaultValue);
-                });
+                        Assert.Equal("Post Id", o.Columns[0].Name);
+                        Assert.Equal("dbo", o.Columns[0].Schema);
+                        Assert.Equal("Post", o.Columns[0].Table);
+                        Assert.Equal(typeof(int), o.Columns[0].ClrType);
+                        Assert.Equal("int", o.Columns[0].ColumnType);
+                        Assert.True(o.Columns[0].IsNullable);
+                        Assert.Equal(1, o.Columns[0].DefaultValue);
+                    });
         }
 
         [Fact]
@@ -990,14 +990,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    {" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.Columns.Count);
+                    {
+                        Assert.Equal(1, o.Columns.Count);
 
-                    Assert.Equal("Id", o.Columns[0].Name);
-                    Assert.Equal("Post", o.Columns[0].Table);
-                    Assert.Equal(typeof(int), o.Columns[0].ClrType);
-                    Assert.Equal("1", o.Columns[0].DefaultValueSql);
-                });
+                        Assert.Equal("Id", o.Columns[0].Name);
+                        Assert.Equal("Post", o.Columns[0].Table);
+                        Assert.Equal(typeof(int), o.Columns[0].ClrType);
+                        Assert.Equal("1", o.Columns[0].DefaultValueSql);
+                    });
         }
 
         [Fact]
@@ -1028,14 +1028,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    {" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.Columns.Count);
+                    {
+                        Assert.Equal(1, o.Columns.Count);
 
-                    Assert.Equal("Id", o.Columns[0].Name);
-                    Assert.Equal("Post", o.Columns[0].Table);
-                    Assert.Equal(typeof(int), o.Columns[0].ClrType);
-                    Assert.Equal("1", o.Columns[0].ComputedColumnSql);
-                });
+                        Assert.Equal("Id", o.Columns[0].Name);
+                        Assert.Equal("Post", o.Columns[0].Table);
+                        Assert.Equal(typeof(int), o.Columns[0].ClrType);
+                        Assert.Equal("1", o.Columns[0].ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -1076,15 +1076,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "            principalColumn: \"Id\");" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.ForeignKeys.Count);
+                    {
+                        Assert.Equal(1, o.ForeignKeys.Count);
 
-                    var fk = o.ForeignKeys.First();
-                    Assert.Equal("FK_Post_Blog_BlogId", fk.Name);
-                    Assert.Equal("Post", fk.Table);
-                    Assert.Equal(new[] { "BlogId" }, fk.Columns.ToArray());
-                    Assert.Equal("Blog", fk.PrincipalTable);
-                });
+                        var fk = o.ForeignKeys.First();
+                        Assert.Equal("FK_Post_Blog_BlogId", fk.Name);
+                        Assert.Equal("Post", fk.Table);
+                        Assert.Equal(new[] { "BlogId" }, fk.Columns.ToArray());
+                        Assert.Equal("Blog", fk.PrincipalTable);
+                    });
         }
 
         [Fact]
@@ -1134,20 +1134,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "            onDelete: ReferentialAction.SetDefault);" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.ForeignKeys.Count);
+                    {
+                        Assert.Equal(1, o.ForeignKeys.Count);
 
-                    var fk = o.ForeignKeys.First();
-                    Assert.Equal("Post", fk.Table);
-                    Assert.Equal("dbo", fk.Schema);
-                    Assert.Equal("FK_Post_Blog_BlogId", fk.Name);
-                    Assert.Equal(new[] { "BlogId" }, fk.Columns.ToArray());
-                    Assert.Equal("Blog", fk.PrincipalTable);
-                    Assert.Equal("my", fk.PrincipalSchema);
-                    Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.SetNull, fk.OnUpdate);
-                    Assert.Equal(ReferentialAction.SetDefault, fk.OnDelete);
-                });
+                        var fk = o.ForeignKeys.First();
+                        Assert.Equal("Post", fk.Table);
+                        Assert.Equal("dbo", fk.Schema);
+                        Assert.Equal("FK_Post_Blog_BlogId", fk.Name);
+                        Assert.Equal(new[] { "BlogId" }, fk.Columns.ToArray());
+                        Assert.Equal("Blog", fk.PrincipalTable);
+                        Assert.Equal("my", fk.PrincipalSchema);
+                        Assert.Equal(new[] { "Id" }, fk.PrincipalColumns);
+                        Assert.Equal(ReferentialAction.SetNull, fk.OnUpdate);
+                        Assert.Equal(ReferentialAction.SetDefault, fk.OnDelete);
+                    });
         }
 
         [Fact]
@@ -1190,15 +1190,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "            principalColumns: new[] { \"Id1\", \"Id2\" });" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.ForeignKeys.Count);
+                    {
+                        Assert.Equal(1, o.ForeignKeys.Count);
 
-                    var fk = o.ForeignKeys.First();
-                    Assert.Equal("Post", fk.Table);
-                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
-                    Assert.Equal("Blog", fk.PrincipalTable);
-                    Assert.Equal(new[] { "Id1", "Id2" }, fk.PrincipalColumns);
-                });
+                        var fk = o.ForeignKeys.First();
+                        Assert.Equal("Post", fk.Table);
+                        Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
+                        Assert.Equal("Blog", fk.PrincipalTable);
+                        Assert.Equal(new[] { "Id1", "Id2" }, fk.PrincipalColumns);
+                    });
         }
 
         [Fact]
@@ -1230,13 +1230,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.NotNull(o.PrimaryKey);
+                    {
+                        Assert.NotNull(o.PrimaryKey);
 
-                    Assert.Equal("PK_Post", o.PrimaryKey.Name);
-                    Assert.Equal("Post", o.PrimaryKey.Table);
-                    Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
-                });
+                        Assert.Equal("PK_Post", o.PrimaryKey.Name);
+                        Assert.Equal("Post", o.PrimaryKey.Table);
+                        Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
+                    });
         }
 
         [Fact]
@@ -1271,14 +1271,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.NotNull(o.PrimaryKey);
+                    {
+                        Assert.NotNull(o.PrimaryKey);
 
-                    Assert.Equal("PK_Post", o.PrimaryKey.Name);
-                    Assert.Equal("dbo", o.PrimaryKey.Schema);
-                    Assert.Equal("Post", o.PrimaryKey.Table);
-                    Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
-                });
+                        Assert.Equal("PK_Post", o.PrimaryKey.Name);
+                        Assert.Equal("dbo", o.PrimaryKey.Schema);
+                        Assert.Equal("Post", o.PrimaryKey.Table);
+                        Assert.Equal(new[] { "Id" }, o.PrimaryKey.Columns);
+                    });
         }
 
         [Fact]
@@ -1312,13 +1312,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        table.PrimaryKey(\"PK_Post\", x => new { x.Id1, x.Id2 });" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.NotNull(o.PrimaryKey);
+                    {
+                        Assert.NotNull(o.PrimaryKey);
 
-                    Assert.Equal("PK_Post", o.PrimaryKey.Name);
-                    Assert.Equal("Post", o.PrimaryKey.Table);
-                    Assert.Equal(new[] { "Id1", "Id2" }, o.PrimaryKey.Columns);
-                });
+                        Assert.Equal("PK_Post", o.PrimaryKey.Name);
+                        Assert.Equal("Post", o.PrimaryKey.Table);
+                        Assert.Equal(new[] { "Id1", "Id2" }, o.PrimaryKey.Columns);
+                    });
         }
 
         [Fact]
@@ -1353,13 +1353,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.UniqueConstraints.Count);
+                    {
+                        Assert.Equal(1, o.UniqueConstraints.Count);
 
-                    Assert.Equal("AK_Post_AltId", o.UniqueConstraints[0].Name);
-                    Assert.Equal("Post", o.UniqueConstraints[0].Table);
-                    Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
-                });
+                        Assert.Equal("AK_Post_AltId", o.UniqueConstraints[0].Name);
+                        Assert.Equal("Post", o.UniqueConstraints[0].Table);
+                        Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
+                    });
         }
 
         [Fact]
@@ -1397,14 +1397,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.UniqueConstraints.Count);
+                    {
+                        Assert.Equal(1, o.UniqueConstraints.Count);
 
-                    Assert.Equal("AK_Post_AltId", o.UniqueConstraints[0].Name);
-                    Assert.Equal("dbo", o.UniqueConstraints[0].Schema);
-                    Assert.Equal("Post", o.UniqueConstraints[0].Table);
-                    Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
-                });
+                        Assert.Equal("AK_Post_AltId", o.UniqueConstraints[0].Name);
+                        Assert.Equal("dbo", o.UniqueConstraints[0].Schema);
+                        Assert.Equal("Post", o.UniqueConstraints[0].Table);
+                        Assert.Equal(new[] { "AltId" }, o.UniqueConstraints[0].Columns);
+                    });
         }
 
         [Fact]
@@ -1441,13 +1441,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        table.UniqueConstraint(\"AK_Post_AltId1_AltId2\", x => new { x.AltId1, x.AltId2 });" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal(1, o.UniqueConstraints.Count);
+                    {
+                        Assert.Equal(1, o.UniqueConstraints.Count);
 
-                    Assert.Equal("AK_Post_AltId1_AltId2", o.UniqueConstraints[0].Name);
-                    Assert.Equal("Post", o.UniqueConstraints[0].Table);
-                    Assert.Equal(new[] { "AltId1", "AltId2" }, o.UniqueConstraints[0].Columns);
-                });
+                        Assert.Equal("AK_Post_AltId1_AltId2", o.UniqueConstraints[0].Name);
+                        Assert.Equal("Post", o.UniqueConstraints[0].Table);
+                        Assert.Equal(new[] { "AltId1", "AltId2" }, o.UniqueConstraints[0].Columns);
+                    });
         }
 
         [Fact]
@@ -1463,10 +1463,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1484,11 +1484,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1504,10 +1504,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"FK_Post_BlogId\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("FK_Post_BlogId", o.Name);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("FK_Post_BlogId", o.Name);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1525,11 +1525,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("FK_Post_BlogId", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("FK_Post_BlogId", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1545,10 +1545,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"IX_Post_Title\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("IX_Post_Title", o.Name);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1566,11 +1566,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("IX_Post_Title", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1586,10 +1586,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"PK_Post\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("PK_Post", o.Name);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("PK_Post", o.Name);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1607,11 +1607,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("PK_Post", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("PK_Post", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1647,10 +1647,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    schema: \"dbo\");",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                    });
         }
 
         [Fact]
@@ -1676,10 +1676,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"Post\"," + EOL +
                 "    schema: \"dbo\");",
                 o =>
-                {
-                    Assert.Equal("Post", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                });
+                    {
+                        Assert.Equal("Post", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                    });
         }
 
         [Fact]
@@ -1695,10 +1695,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"AK_Post_AltId\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("AK_Post_AltId", o.Name);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("AK_Post_AltId", o.Name);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1716,11 +1716,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\");",
                 o =>
-                {
-                    Assert.Equal("AK_Post_AltId", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                });
+                    {
+                        Assert.Equal("AK_Post_AltId", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                    });
         }
 
         [Fact]
@@ -1738,11 +1738,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    newName: \"PostId\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("PostId", o.NewName);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("PostId", o.NewName);
+                    });
         }
 
         [Fact]
@@ -1762,12 +1762,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    newName: \"PostId\");",
                 o =>
-                {
-                    Assert.Equal("Id", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("PostId", o.NewName);
-                });
+                    {
+                        Assert.Equal("Id", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("PostId", o.NewName);
+                    });
         }
 
         [Fact]
@@ -1785,11 +1785,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    newName: \"IX_Post_PostTitle\");",
                 o =>
-                {
-                    Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("IX_Post_PostTitle", o.NewName);
-                });
+                    {
+                        Assert.Equal("IX_Post_Title", o.Name);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("IX_Post_PostTitle", o.NewName);
+                    });
         }
 
         [Fact]
@@ -1809,12 +1809,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    newName: \"IX_dbo.Post_PostTitle\");",
                 o =>
-                {
-                    Assert.Equal("IX_dbo.Post_Title", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("IX_dbo.Post_PostTitle", o.NewName);
-                });
+                    {
+                        Assert.Equal("IX_dbo.Post_Title", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Post", o.Table);
+                        Assert.Equal("IX_dbo.Post_PostTitle", o.NewName);
+                    });
         }
 
         [Fact]
@@ -1844,12 +1844,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    newName: \"MySequence\"," + EOL +
                 "    newSchema: \"my\");",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("MySequence", o.NewName);
-                    Assert.Equal("my", o.NewSchema);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("MySequence", o.NewName);
+                        Assert.Equal("my", o.NewSchema);
+                    });
         }
 
         [Fact]
@@ -1879,12 +1879,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    newName: \"Posts\"," + EOL +
                 "    newSchema: \"my\");",
                 o =>
-                {
-                    Assert.Equal("Post", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("Posts", o.NewName);
-                    Assert.Equal("my", o.NewSchema);
-                });
+                    {
+                        Assert.Equal("Post", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("Posts", o.NewName);
+                        Assert.Equal("my", o.NewSchema);
+                    });
         }
 
         [Fact]
@@ -1900,10 +1900,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    startValue: 1L);",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal(1, o.StartValue);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal(1, o.StartValue);
+                    });
         }
 
         [Fact]
@@ -1921,11 +1921,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    startValue: 1L);",
                 o =>
-                {
-                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal(1, o.StartValue);
-                });
+                    {
+                        Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal(1, o.StartValue);
+                    });
         }
 
         [Fact]
@@ -1968,14 +1968,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        { 4, \"Harry Strickland\" }" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.Columns.Length);
-                    Assert.Equal(5, o.Values.GetLength(0));
-                    Assert.Equal(2, o.Values.GetLength(1));
-                    Assert.Equal("John Snow", o.Values[2, 1]);
-                });
+                    {
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.Columns.Length);
+                        Assert.Equal(5, o.Values.GetLength(0));
+                        Assert.Equal(2, o.Values.GetLength(1));
+                        Assert.Equal("John Snow", o.Values[2, 1]);
+                    });
         }
 
         [Fact]
@@ -1996,13 +1996,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    column: \"Full Name\"," + EOL +
                 "    value: \"John Snow\");",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.Columns.Length);
-                    Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("John Snow", o.Values[0, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.Columns.Length);
+                        Assert.Equal(1, o.Values.GetLength(0));
+                        Assert.Equal(1, o.Values.GetLength(1));
+                        Assert.Equal("John Snow", o.Values[0, 0]);
+                    });
         }
 
         [Fact]
@@ -2023,13 +2023,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    columns: new[] { \"First Name\", \"Last Name\" }," + EOL +
                 "    values: new object[] { \"John\", \"Snow\" });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.Columns.Length);
-                    Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(2, o.Values.GetLength(1));
-                    Assert.Equal("Snow", o.Values[0, 1]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.Columns.Length);
+                        Assert.Equal(1, o.Values.GetLength(0));
+                        Assert.Equal(2, o.Values.GetLength(1));
+                        Assert.Equal("Snow", o.Values[0, 1]);
+                    });
         }
 
         [Fact]
@@ -2055,13 +2055,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        \"Daenerys Targaryen\"" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.Columns.Length);
-                    Assert.Equal(2, o.Values.GetLength(0));
-                    Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("John Snow", o.Values[0, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.Columns.Length);
+                        Assert.Equal(2, o.Values.GetLength(0));
+                        Assert.Equal(1, o.Values.GetLength(1));
+                        Assert.Equal("John Snow", o.Values[0, 0]);
+                    });
         }
 
         [Fact]
@@ -2095,14 +2095,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        \"Harry\"" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.KeyColumns.Length);
-                    Assert.Equal(5, o.KeyValues.GetLength(0));
-                    Assert.Equal(1, o.KeyValues.GetLength(1));
-                    Assert.Equal("John", o.KeyValues[2, 0]);
-                });
+                    {
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.KeyColumns.Length);
+                        Assert.Equal(5, o.KeyValues.GetLength(0));
+                        Assert.Equal(1, o.KeyValues.GetLength(1));
+                        Assert.Equal("John", o.KeyValues[2, 0]);
+                    });
         }
 
         [Fact]
@@ -2134,13 +2134,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        { \"Harry\", \"Strickland\" }" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(5, o.KeyValues.GetLength(0));
-                    Assert.Equal(2, o.KeyValues.GetLength(1));
-                    Assert.Equal("Snow", o.KeyValues[2, 1]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.KeyColumns.Length);
+                        Assert.Equal(5, o.KeyValues.GetLength(0));
+                        Assert.Equal(2, o.KeyValues.GetLength(1));
+                        Assert.Equal("Snow", o.KeyValues[2, 1]);
+                    });
         }
 
         [Fact]
@@ -2161,13 +2161,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    keyColumn: \"Last Name\"," + EOL +
                 "    keyValue: \"Snow\");",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.KeyColumns.Length);
-                    Assert.Equal(1, o.KeyValues.GetLength(0));
-                    Assert.Equal(1, o.KeyValues.GetLength(1));
-                    Assert.Equal("Snow", o.KeyValues[0, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.KeyColumns.Length);
+                        Assert.Equal(1, o.KeyValues.GetLength(0));
+                        Assert.Equal(1, o.KeyValues.GetLength(1));
+                        Assert.Equal("Snow", o.KeyValues[0, 0]);
+                    });
         }
 
         [Fact]
@@ -2188,13 +2188,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + EOL +
                 "    keyValues: new object[] { \"John\", \"Snow\" });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(1, o.KeyValues.GetLength(0));
-                    Assert.Equal(2, o.KeyValues.GetLength(1));
-                    Assert.Equal("Snow", o.KeyValues[0, 1]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.KeyColumns.Length);
+                        Assert.Equal(1, o.KeyValues.GetLength(0));
+                        Assert.Equal(2, o.KeyValues.GetLength(1));
+                        Assert.Equal("Snow", o.KeyValues[0, 1]);
+                    });
         }
 
         [Fact]
@@ -2234,18 +2234,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("dbo", o.Schema);
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.KeyColumns.Length);
-                    Assert.Equal(2, o.KeyValues.GetLength(0));
-                    Assert.Equal(1, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
-                    Assert.Equal(3, o.Columns.Length);
-                    Assert.Equal(2, o.Values.GetLength(0));
-                    Assert.Equal(3, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[1, 1]);
-                });
+                    {
+                        Assert.Equal("dbo", o.Schema);
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.KeyColumns.Length);
+                        Assert.Equal(2, o.KeyValues.GetLength(0));
+                        Assert.Equal(1, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                        Assert.Equal(3, o.Columns.Length);
+                        Assert.Equal(2, o.Values.GetLength(0));
+                        Assert.Equal(3, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[1, 1]);
+                    });
         }
 
         [Fact]
@@ -2283,17 +2283,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        \"Targaryen\"" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(2, o.KeyValues.GetLength(0));
-                    Assert.Equal(2, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
-                    Assert.Equal(1, o.Columns.Length);
-                    Assert.Equal(2, o.Values.GetLength(0));
-                    Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[1, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.KeyColumns.Length);
+                        Assert.Equal(2, o.KeyValues.GetLength(0));
+                        Assert.Equal(2, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                        Assert.Equal(1, o.Columns.Length);
+                        Assert.Equal(2, o.Values.GetLength(0));
+                        Assert.Equal(1, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[1, 0]);
+                    });
         }
 
         [Fact]
@@ -2331,17 +2331,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(2, o.KeyValues.GetLength(0));
-                    Assert.Equal(2, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
-                    Assert.Equal(3, o.Columns.Length);
-                    Assert.Equal(2, o.Values.GetLength(0));
-                    Assert.Equal(3, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[1, 1]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.KeyColumns.Length);
+                        Assert.Equal(2, o.KeyValues.GetLength(0));
+                        Assert.Equal(2, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                        Assert.Equal(3, o.Columns.Length);
+                        Assert.Equal(2, o.Values.GetLength(0));
+                        Assert.Equal(3, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[1, 1]);
+                    });
         }
 
         [Fact]
@@ -2369,17 +2369,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    column: \"House Allegiance\"," + EOL +
                 "    value: \"Targaryen\");",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.KeyColumns.Length);
-                    Assert.Equal(1, o.KeyValues.GetLength(0));
-                    Assert.Equal(1, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[0, 0]);
-                    Assert.Equal(1, o.Columns.Length);
-                    Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[0, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.KeyColumns.Length);
+                        Assert.Equal(1, o.KeyValues.GetLength(0));
+                        Assert.Equal(1, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[0, 0]);
+                        Assert.Equal(1, o.Columns.Length);
+                        Assert.Equal(1, o.Values.GetLength(0));
+                        Assert.Equal(1, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[0, 0]);
+                    });
         }
 
         [Fact]
@@ -2417,17 +2417,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "        \"Targaryen\"" + EOL +
                 "    });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.KeyColumns.Length);
-                    Assert.Equal(2, o.KeyValues.GetLength(0));
-                    Assert.Equal(1, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[1, 0]);
-                    Assert.Equal(1, o.Columns.Length);
-                    Assert.Equal(2, o.Values.GetLength(0));
-                    Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[1, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.KeyColumns.Length);
+                        Assert.Equal(2, o.KeyValues.GetLength(0));
+                        Assert.Equal(1, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[1, 0]);
+                        Assert.Equal(1, o.Columns.Length);
+                        Assert.Equal(2, o.Values.GetLength(0));
+                        Assert.Equal(1, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[1, 0]);
+                    });
         }
 
         [Fact]
@@ -2455,17 +2455,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    column: \"House Allegiance\"," + EOL +
                 "    value: \"Targaryen\");",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(1, o.KeyValues.GetLength(0));
-                    Assert.Equal(2, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[0, 0]);
-                    Assert.Equal(1, o.Columns.Length);
-                    Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(1, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[0, 0]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.KeyColumns.Length);
+                        Assert.Equal(1, o.KeyValues.GetLength(0));
+                        Assert.Equal(2, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[0, 0]);
+                        Assert.Equal(1, o.Columns.Length);
+                        Assert.Equal(1, o.Values.GetLength(0));
+                        Assert.Equal(1, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[0, 0]);
+                    });
         }
 
         [Fact]
@@ -2493,17 +2493,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
                 "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(2, o.KeyColumns.Length);
-                    Assert.Equal(1, o.KeyValues.GetLength(0));
-                    Assert.Equal(2, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys", o.KeyValues[0, 0]);
-                    Assert.Equal(3, o.Columns.Length);
-                    Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(3, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[0, 1]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(2, o.KeyColumns.Length);
+                        Assert.Equal(1, o.KeyValues.GetLength(0));
+                        Assert.Equal(2, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys", o.KeyValues[0, 0]);
+                        Assert.Equal(3, o.Columns.Length);
+                        Assert.Equal(1, o.Values.GetLength(0));
+                        Assert.Equal(3, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[0, 1]);
+                    });
         }
 
         [Fact]
@@ -2531,17 +2531,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
                 "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
-                {
-                    Assert.Equal("People", o.Table);
-                    Assert.Equal(1, o.KeyColumns.Length);
-                    Assert.Equal(1, o.KeyValues.GetLength(0));
-                    Assert.Equal(1, o.KeyValues.GetLength(1));
-                    Assert.Equal("Daenerys Targaryen", o.KeyValues[0, 0]);
-                    Assert.Equal(3, o.Columns.Length);
-                    Assert.Equal(1, o.Values.GetLength(0));
-                    Assert.Equal(3, o.Values.GetLength(1));
-                    Assert.Equal("Targaryen", o.Values[0, 1]);
-                });
+                    {
+                        Assert.Equal("People", o.Table);
+                        Assert.Equal(1, o.KeyColumns.Length);
+                        Assert.Equal(1, o.KeyValues.GetLength(0));
+                        Assert.Equal(1, o.KeyValues.GetLength(1));
+                        Assert.Equal("Daenerys Targaryen", o.KeyValues[0, 0]);
+                        Assert.Equal(3, o.Columns.Length);
+                        Assert.Equal(1, o.Values.GetLength(0));
+                        Assert.Equal(3, o.Values.GetLength(1));
+                        Assert.Equal("Targaryen", o.Values[0, 1]);
+                    });
         }
 
         private void Test<T>(T operation, string expectedCode, Action<T> assert)
@@ -2562,7 +2562,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
-                Sources = { @"
+                Sources =
+                {
+                    @"
                     using Microsoft.EntityFrameworkCore.Migrations;
 
                     public static class OperationsFactory
@@ -2572,7 +2574,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             " + code + @"
                         }
                     }
-                " }
+                "
+                }
             };
 
             var assembly = build.BuildInMemory();

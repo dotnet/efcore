@@ -139,8 +139,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotEmpty(name, nameof(name));
 
-            return new DiscriminatorBuilder<TDiscriminator>(entityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
-                .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, typeof(TDiscriminator)));
+            return new DiscriminatorBuilder<TDiscriminator>(
+                entityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
+                    .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, typeof(TDiscriminator)));
         }
 
         /// <summary>
@@ -163,8 +164,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new DiscriminatorBuilder<TDiscriminator>(entityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
-                .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyAccess()));
+            return new DiscriminatorBuilder<TDiscriminator>(
+                entityTypeBuilder.GetInfrastructure<InternalEntityTypeBuilder>()
+                    .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyAccess()));
         }
     }
 }

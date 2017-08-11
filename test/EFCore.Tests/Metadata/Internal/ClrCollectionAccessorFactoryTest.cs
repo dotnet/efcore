@@ -372,7 +372,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
             var otherType = model.AddEntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(otherType.AddProperty("MyEntityId", typeof(int)),
+            var foreignKey = otherType.GetOrAddForeignKey(
+                otherType.AddProperty("MyEntityId", typeof(int)),
                 entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 

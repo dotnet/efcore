@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _model = model;
         }
 
-        public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression) 
-            => _model.Relational().FindDbFunction(methodCallExpression.Method) == null 
-                    && base.IsEvaluatableMethodCall(methodCallExpression);
+        public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
+            => _model.Relational().FindDbFunction(methodCallExpression.Method) == null
+               && base.IsEvaluatableMethodCall(methodCallExpression);
     }
 }

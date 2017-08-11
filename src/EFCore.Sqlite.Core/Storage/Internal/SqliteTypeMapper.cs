@@ -100,11 +100,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             name => Contains(name, "INT") ? _integer : null,
             name => Contains(name, "CHAR")
                     || Contains(name, "CLOB")
-                    || Contains(name, "TEXT") ? _text : null,
+                    || Contains(name, "TEXT")
+                ? _text
+                : null,
             name => Contains(name, "BLOB") ? _blob : null,
             name => Contains(name, "REAL")
                     || Contains(name, "FLOA")
-                    || Contains(name, "DOUB") ? _real : null
+                    || Contains(name, "DOUB")
+                ? _real
+                : null
         };
 
         private static bool Contains(string haystack, string needle)

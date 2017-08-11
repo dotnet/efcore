@@ -123,11 +123,12 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(DbContext context)
             {
-                context.Add(new Blog
-                {
-                    Id = 1,
-                    Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
-                });
+                context.Add(
+                    new Blog
+                    {
+                        Id = 1,
+                        Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } }
+                    });
 
                 context.SaveChanges();
             }

@@ -63,8 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 dbContextClassName + FileExtension
             };
-            filesToTest.AddRange(entityTypes
-                .Select(entityType => entityType.DisplayName() + FileExtension));
+            filesToTest.AddRange(
+                entityTypes
+                    .Select(entityType => entityType.DisplayName() + FileExtension));
 
             foreach (var fileName in filesToTest)
             {

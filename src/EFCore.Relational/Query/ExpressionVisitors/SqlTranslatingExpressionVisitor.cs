@@ -151,9 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var right = Visit(expression.Right);
 
                     return left != null
-                            && right != null
-                            && left.Type != typeof(Expression[])
-                            && right.Type != typeof(Expression[])
+                           && right != null
+                           && left.Type != typeof(Expression[])
+                           && right.Type != typeof(Expression[])
                         ? expression.Update(left, expression.Conversion, right)
                         : null;
                 }
@@ -377,18 +377,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     _queryModelVisitor.BindMethodCallExpression(
                         methodCallExpression,
                         (p, qs) =>
-                        {
-                            _querySource = qs;
-                            _propertyName = p.Name;
-
-                            if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
-                                    ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
-                                ?.FindProperty(_propertyName)?.IsPrimaryKey()
-                                ?? false)
                             {
-                                _propertyName = null;
-                            }
-                        });
+                                _querySource = qs;
+                                _propertyName = p.Name;
+
+                                if ((_queryModelVisitor.QueryCompilationContext.FindEntityType(_querySource)
+                                     ?? _queryModelVisitor.QueryCompilationContext.Model.FindEntityType(_querySource.ItemType))
+                                    ?.FindProperty(_propertyName)?.IsPrimaryKey()
+                                    ?? false)
+                                {
+                                    _propertyName = null;
+                                }
+                            });
                 }
             }
 
@@ -452,7 +452,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 // not safe to make the optimization due to null semantics
                 // e.g. a != null ? a.Name == null : null cant be translated to a.Name == null
                 // because even if value of 'a' is null, the result of the optimization would be 'true', not the expected 'null'
-                if (node.NodeType == ExpressionType.Equal || node.NodeType == ExpressionType.NotEqual)
+                if (node.NodeType == ExpressionType.Equal
+                    || node.NodeType == ExpressionType.NotEqual)
                 {
                     _canRemoveNullCheck = false;
 
@@ -518,13 +519,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
 
                 return leftExpressions
-                    .Zip(rightExpressions, (l, r) =>
-                        TransformNullComparison(l, r, expressionType)
-                        ?? Expression.MakeBinary(expressionType, l, r))
-                    .Aggregate((e1, e2) =>
-                        expressionType == ExpressionType.Equal
-                            ? Expression.AndAlso(e1, e2)
-                            : Expression.OrElse(e1, e2));
+                    .Zip(
+                        rightExpressions, (l, r) =>
+                            TransformNullComparison(l, r, expressionType)
+                            ?? Expression.MakeBinary(expressionType, l, r))
+                    .Aggregate(
+                        (e1, e2) =>
+                            expressionType == ExpressionType.Equal
+                                ? Expression.AndAlso(e1, e2)
+                                : Expression.OrElse(e1, e2));
             }
 
             return expression;
@@ -617,11 +620,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 var arguments
                     = methodCallExpression.Arguments
-                        .Where(e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
-                                && !IsNonTranslatableSubquery(e.RemoveConvert()))
-                        .Select(e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
-                            ? e
-                            : Visit(e))
+                        .Where(
+                            e => !(e.RemoveConvert() is QuerySourceReferenceExpression)
+                                 && !IsNonTranslatableSubquery(e.RemoveConvert()))
+                        .Select(
+                            e => (e.RemoveConvert() as ConstantExpression)?.Value is Array || e.RemoveConvert().Type == typeof(DbFunctions)
+                                ? e
+                                : Visit(e))
                         .Where(e => e != null)
                         .ToArray();
 
@@ -641,7 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            if (AnonymousObject.IsGetValueExpression(methodCallExpression, out QuerySourceReferenceExpression querySourceReferenceExpression))
+            if (AnonymousObject.IsGetValueExpression(methodCallExpression, out var querySourceReferenceExpression))
             {
                 var selectExpression
                     = _queryModelVisitor.TryGetQuery(querySourceReferenceExpression.ReferencedQuerySource);
@@ -657,16 +662,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return TryBindMemberOrMethodToSelectExpression(methodCallExpression, (expression, visitor, binder)
-                    => visitor.BindMethodCallExpression(expression, binder))
-                ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression)
-                ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
+            return TryBindMemberOrMethodToSelectExpression(
+                       methodCallExpression, (expression, visitor, binder)
+                           => visitor.BindMethodCallExpression(expression, binder))
+                   ?? _queryModelVisitor.BindLocalMethodCallExpression(methodCallExpression)
+                   ?? _queryModelVisitor.BindMethodToOuterQueryParameter(methodCallExpression);
         }
 
         private bool IsNonTranslatableSubquery(Expression expression)
             => expression is SubQueryExpression subQueryExpression
-            && !(subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedScalarValueInfo
-                || subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedSingleValueInfo streamedSingleValueInfo
+               && !(subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedScalarValueInfo
+                    || subQueryExpression.QueryModel.GetOutputDataInfo() is StreamedSingleValueInfo streamedSingleValueInfo
                     && IsStreamedSingleValueSupportedType(streamedSingleValueInfo));
 
         /// <summary>
@@ -702,10 +708,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            return TryBindMemberOrMethodToSelectExpression(memberExpression, (expression, visitor, binder)
-                    => visitor.BindMemberExpression(expression, binder))
-                ?? TryBindQuerySourcePropertyExpression(memberExpression)
-                ?? _queryModelVisitor.BindMemberToOuterQueryParameter(memberExpression);
+            return TryBindMemberOrMethodToSelectExpression(
+                       memberExpression, (expression, visitor, binder)
+                           => visitor.BindMemberExpression(expression, binder))
+                   ?? TryBindQuerySourcePropertyExpression(memberExpression)
+                   ?? _queryModelVisitor.BindMemberToOuterQueryParameter(memberExpression);
         }
 
         private Expression TryBindQuerySourcePropertyExpression(MemberExpression memberExpression)
@@ -727,21 +734,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Expression BindPropertyToSelectExpression(
                 IProperty property, IQuerySource querySource, SelectExpression selectExpression)
                 => selectExpression.BindProperty(
-                        property,
-                        querySource);
+                    property,
+                    querySource);
 
-            var boundExpression = binder(sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
-            {
-                var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
+            var boundExpression = binder(
+                sourceExpression, _queryModelVisitor, (property, querySource, selectExpression) =>
+                    {
+                        var boundPropertyExpression = BindPropertyToSelectExpression(property, querySource, selectExpression);
 
-                if (_targetSelectExpression != null && selectExpression != _targetSelectExpression)
-                {
-                    selectExpression.AddToProjection(boundPropertyExpression);
-                    return null;
-                }
+                        if (_targetSelectExpression != null
+                            && selectExpression != _targetSelectExpression)
+                        {
+                            selectExpression.AddToProjection(boundPropertyExpression);
+                            return null;
+                        }
 
-                return boundPropertyExpression;
-            });
+                        return boundPropertyExpression;
+                    });
 
             if (boundExpression != null)
             {
@@ -810,10 +819,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     if (operand != null)
                     {
                         return _isTopLevelProjection
-                            && operand.Type.IsValueType
-                            && expression.Type.IsValueType
-                            && expression.Type.UnwrapNullableType() != operand.Type.UnwrapNullableType()
-                            && expression.Type.UnwrapEnumType() != operand.Type.UnwrapEnumType()
+                               && operand.Type.IsValueType
+                               && expression.Type.IsValueType
+                               && expression.Type.UnwrapNullableType() != operand.Type.UnwrapNullableType()
+                               && expression.Type.UnwrapEnumType() != operand.Type.UnwrapEnumType()
                             ? (Expression)new ExplicitCastExpression(operand, expression.Type)
                             : Expression.Convert(operand, expression.Type);
                     }
@@ -1160,7 +1169,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="baseBehavior">The behavior exposed by <see cref="T:Remotion.Linq.Parsing.RelinqExpressionVisitor" /> for this item type.</param>
         /// <returns>An object to replace <paramref name="unhandledItem" /> in the expression tree. Alternatively, the method can throw any exception.</returns>
         protected override TResult VisitUnhandledItem<TItem, TResult>(
-                TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
+            TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
             => default(TResult);
 
         /// <summary>

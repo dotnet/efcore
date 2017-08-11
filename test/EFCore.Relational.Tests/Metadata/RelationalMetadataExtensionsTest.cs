@@ -235,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
-            Assert.Equal(RelationalStrings.IncorrectDefaultValueType(guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
+            Assert.Equal(
+                RelationalStrings.IncorrectDefaultValueType(guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => property.Relational().DefaultValue = guid).Message);
         }
 
@@ -256,8 +257,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "first");
 
-            Assert.Equal(RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Name), firstConfiguration),
-                Assert.Throws<InvalidOperationException>(() =>
+            Assert.Equal(
+                RelationalStrings.ConflictingColumnServerGeneration(secondConfiguration, nameof(Customer.Name), firstConfiguration),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
                         ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "second")).Message);
         }
 
@@ -389,7 +392,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Metadata;
             derivedType.BaseType = entityType;
 
-            Assert.Equal(RelationalStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
+            Assert.Equal(
+                RelationalStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => derivedType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -408,7 +412,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var property = entityType.AddProperty("D", typeof(string));
 
-            Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
+            Assert.Equal(
+                RelationalStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
                 Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -444,8 +449,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Equal(RelationalStrings.NoDiscriminatorForValue("Customer", "Customer"),
-                Assert.Throws<InvalidOperationException>(() =>
+            Assert.Equal(
+                RelationalStrings.NoDiscriminatorForValue("Customer", "Customer"),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
                         entityType.Relational().DiscriminatorValue = "V").Message);
         }
 
@@ -461,8 +468,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var property = entityType.AddProperty("D", typeof(int));
             entityType.Relational().DiscriminatorProperty = property;
 
-            Assert.Equal(RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
-                Assert.Throws<InvalidOperationException>(() =>
+            Assert.Equal(
+                RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
                         entityType.Relational().DiscriminatorValue = "V").Message);
 
             entityType.Relational().DiscriminatorValue = null;
@@ -514,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(model.Relational().FindSequence("Foo"));
 
             var sequence = extensions.GetOrAddSequence("Foo");
-            
+
             Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
             Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
 

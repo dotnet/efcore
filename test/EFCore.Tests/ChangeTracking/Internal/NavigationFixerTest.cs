@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 blog1.Posts.Add(post1);
                 blog1.Posts.Add(new Post { BlogId = 2 });
-                
+
                 context.Add(blog2);
                 context.Add(blog1);
             }
@@ -1247,32 +1247,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<Product>(b =>
-                {
-                    b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
-                        .HasForeignKey<Product>(e => e.AlternateProductId);
+            builder.Entity<Product>(
+                b =>
+                    {
+                        b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
+                            .HasForeignKey<Product>(e => e.AlternateProductId);
 
-                    b.HasOne(e => e.Detail).WithOne(e => e.Product)
-                        .HasForeignKey<ProductDetail>(e => e.Id);
-                });
+                        b.HasOne(e => e.Detail).WithOne(e => e.Product)
+                            .HasForeignKey<ProductDetail>(e => e.Id);
+                    });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
             builder.Entity<ProductDetail>();
 
-            builder.Entity<ProductPhoto>(b =>
-                {
-                    b.HasKey(e => new { e.ProductId, e.PhotoId });
-                    b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
-                        .HasForeignKey(e => new { e.ProductId, e.PhotoId });
-                });
+            builder.Entity<ProductPhoto>(
+                b =>
+                    {
+                        b.HasKey(e => new { e.ProductId, e.PhotoId });
+                        b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
+                            .HasForeignKey(e => new { e.ProductId, e.PhotoId });
+                    });
 
-            builder.Entity<ProductReview>(b =>
-                {
-                    b.HasKey(e => new { e.ProductId, e.ReviewId });
-                    b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
-                        .HasForeignKey(e => new { e.ProductId, e.ReviewId });
-                });
+            builder.Entity<ProductReview>(
+                b =>
+                    {
+                        b.HasKey(e => new { e.ProductId, e.ReviewId });
+                        b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
+                            .HasForeignKey(e => new { e.ProductId, e.ReviewId });
+                    });
 
             builder.Entity<ProductTag>();
 

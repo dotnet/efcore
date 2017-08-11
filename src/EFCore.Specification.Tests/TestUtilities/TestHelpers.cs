@@ -53,8 +53,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
             {
                 var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
-                    .Single(m => m.Name == "With"
-                                 && m.GetParameters()[0].ParameterType == serviceType);
+                    .Single(
+                        m => m.Name == "With"
+                             && m.GetParameters()[0].ParameterType == serviceType);
 
                 var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
 
@@ -343,7 +344,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
             => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
-        public IMutableModel BuildModelFor<TEntity>() where TEntity : class
+        public IMutableModel BuildModelFor<TEntity>()
+            where TEntity : class
         {
             var builder = CreateConventionBuilder();
             builder.Entity<TEntity>();
@@ -495,47 +497,48 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var c = createContext())
             {
-                c.Database.CreateExecutionStrategy().Execute(c, context =>
-                    {
-                        using (var transaction = context.Database.BeginTransaction())
+                c.Database.CreateExecutionStrategy().Execute(
+                    c, context =>
                         {
-                            using (var innerContext = createContext())
+                            using (var transaction = context.Database.BeginTransaction())
                             {
-                                useTransaction(innerContext.Database, transaction);
-                                testOperation(innerContext);
-                            }
+                                using (var innerContext = createContext())
+                                {
+                                    useTransaction(innerContext.Database, transaction);
+                                    testOperation(innerContext);
+                                }
 
-                            if (nestedTestOperation1 == null)
-                            {
-                                return;
-                            }
-                            using (var innerContext1 = createContext())
-                            {
-                                useTransaction(innerContext1.Database, transaction);
-                                nestedTestOperation1(innerContext1);
-                            }
+                                if (nestedTestOperation1 == null)
+                                {
+                                    return;
+                                }
+                                using (var innerContext1 = createContext())
+                                {
+                                    useTransaction(innerContext1.Database, transaction);
+                                    nestedTestOperation1(innerContext1);
+                                }
 
-                            if (nestedTestOperation2 == null)
-                            {
-                                return;
-                            }
-                            using (var innerContext2 = createContext())
-                            {
-                                useTransaction(innerContext2.Database, transaction);
-                                nestedTestOperation2(innerContext2);
-                            }
+                                if (nestedTestOperation2 == null)
+                                {
+                                    return;
+                                }
+                                using (var innerContext2 = createContext())
+                                {
+                                    useTransaction(innerContext2.Database, transaction);
+                                    nestedTestOperation2(innerContext2);
+                                }
 
-                            if (nestedTestOperation3 == null)
-                            {
-                                return;
+                                if (nestedTestOperation3 == null)
+                                {
+                                    return;
+                                }
+                                using (var innerContext3 = createContext())
+                                {
+                                    useTransaction(innerContext3.Database, transaction);
+                                    nestedTestOperation3(innerContext3);
+                                }
                             }
-                            using (var innerContext3 = createContext())
-                            {
-                                useTransaction(innerContext3.Database, transaction);
-                                nestedTestOperation3(innerContext3);
-                            }
-                        }
-                    });
+                        });
             }
         }
 
@@ -550,47 +553,48 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var c = createContext())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
-                    {
-                        using (var transaction = await context.Database.BeginTransactionAsync())
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                    c, async context =>
                         {
-                            using (var innerContext = createContext())
+                            using (var transaction = await context.Database.BeginTransactionAsync())
                             {
-                                useTransaction(innerContext.Database, transaction);
-                                await testOperation(innerContext);
-                            }
+                                using (var innerContext = createContext())
+                                {
+                                    useTransaction(innerContext.Database, transaction);
+                                    await testOperation(innerContext);
+                                }
 
-                            if (nestedTestOperation1 == null)
-                            {
-                                return;
-                            }
-                            using (var innerContext1 = createContext())
-                            {
-                                useTransaction(innerContext1.Database, transaction);
-                                await nestedTestOperation1(innerContext1);
-                            }
+                                if (nestedTestOperation1 == null)
+                                {
+                                    return;
+                                }
+                                using (var innerContext1 = createContext())
+                                {
+                                    useTransaction(innerContext1.Database, transaction);
+                                    await nestedTestOperation1(innerContext1);
+                                }
 
-                            if (nestedTestOperation2 == null)
-                            {
-                                return;
-                            }
-                            using (var innerContext2 = createContext())
-                            {
-                                useTransaction(innerContext2.Database, transaction);
-                                await nestedTestOperation2(innerContext2);
-                            }
+                                if (nestedTestOperation2 == null)
+                                {
+                                    return;
+                                }
+                                using (var innerContext2 = createContext())
+                                {
+                                    useTransaction(innerContext2.Database, transaction);
+                                    await nestedTestOperation2(innerContext2);
+                                }
 
-                            if (nestedTestOperation3 == null)
-                            {
-                                return;
+                                if (nestedTestOperation3 == null)
+                                {
+                                    return;
+                                }
+                                using (var innerContext3 = createContext())
+                                {
+                                    useTransaction(innerContext3.Database, transaction);
+                                    await nestedTestOperation3(innerContext3);
+                                }
                             }
-                            using (var innerContext3 = createContext())
-                            {
-                                useTransaction(innerContext3.Database, transaction);
-                                await nestedTestOperation3(innerContext3);
-                            }
-                        }
-                    });
+                        });
             }
         }
     }

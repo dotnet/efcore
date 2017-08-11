@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual IRelationalCommandBuilder CreateCore(
-                [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                [NotNull] IRelationalTypeMapper relationalTypeMapper)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            [NotNull] IRelationalTypeMapper relationalTypeMapper)
             => new RelationalCommandBuilder(
                 logger,
                 relationalTypeMapper);

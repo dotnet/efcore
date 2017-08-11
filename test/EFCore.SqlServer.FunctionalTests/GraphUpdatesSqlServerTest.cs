@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             public class GraphUpdatesWithIdentitySqlServerFixture : GraphUpdatesSqlServerFixtureBase
             {
                 protected override string StoreName { get; } = "GraphIdentityUpdatesTest";
-                
+
                 protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
                 {
                     modelBuilder.ForSqlServerUseIdentityColumns();

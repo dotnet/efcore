@@ -11,11 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_override_foreign_key_index_uniqueness_when_referenced_key_changes()
         {
-            var modelBuilder 
+            var modelBuilder
                 = new ModelBuilder(
-                     new CoreConventionSetBuilder(
-                         new CoreConventionSetBuilderDependencies(
-                             new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
+                    new CoreConventionSetBuilder(
+                        new CoreConventionSetBuilderDependencies(
+                            new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
 
             var principalTypeBuilder = modelBuilder.Entity<PrincipalEntity>();
             var dependentTypeBuilder = modelBuilder.Entity<DependentEntity>();

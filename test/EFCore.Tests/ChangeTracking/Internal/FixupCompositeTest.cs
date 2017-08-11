@@ -3487,83 +3487,91 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Parent>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasOne(e => e.Child)
-                            .WithOne(e => e.Parent)
-                            .HasForeignKey<Child>(e => new { e.ParentId1, e.ParentId2 });
-                    });
+                modelBuilder.Entity<Parent>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasOne(e => e.Child)
+                                .WithOne(e => e.Parent)
+                                .HasForeignKey<Child>(e => new { e.ParentId1, e.ParentId2 });
+                        });
 
                 modelBuilder.Entity<Child>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<ParentPN>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasOne(e => e.Child)
-                            .WithOne()
-                            .HasForeignKey<ChildPN>(e => new { e.ParentId1, e.ParentId2 });
-                    });
+                modelBuilder.Entity<ParentPN>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasOne(e => e.Child)
+                                .WithOne()
+                                .HasForeignKey<ChildPN>(e => new { e.ParentId1, e.ParentId2 });
+                        });
 
                 modelBuilder.Entity<ChildPN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<ParentDN>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasOne<ChildDN>()
-                            .WithOne(e => e.Parent)
-                            .HasForeignKey<ChildDN>(e => new { e.ParentId1, e.ParentId2 });
-                    });
+                modelBuilder.Entity<ParentDN>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasOne<ChildDN>()
+                                .WithOne(e => e.Parent)
+                                .HasForeignKey<ChildDN>(e => new { e.ParentId1, e.ParentId2 });
+                        });
 
                 modelBuilder.Entity<ChildDN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<ParentNN>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasOne<ChildNN>()
-                            .WithOne()
-                            .HasForeignKey<ChildNN>(e => new { e.ParentId1, e.ParentId2 });
-                    });
+                modelBuilder.Entity<ParentNN>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasOne<ChildNN>()
+                                .WithOne()
+                                .HasForeignKey<ChildNN>(e => new { e.ParentId1, e.ParentId2 });
+                        });
 
                 modelBuilder.Entity<ChildNN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<CategoryDN>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasMany<ProductDN>()
-                            .WithOne(e => e.Category)
-                            .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
-                    });
+                modelBuilder.Entity<CategoryDN>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasMany<ProductDN>()
+                                .WithOne(e => e.Category)
+                                .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
+                        });
 
                 modelBuilder.Entity<ProductDN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<CategoryPN>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasMany(e => e.Products)
-                            .WithOne()
-                            .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
-                    });
+                modelBuilder.Entity<CategoryPN>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasMany(e => e.Products)
+                                .WithOne()
+                                .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
+                        });
 
                 modelBuilder.Entity<ProductPN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<CategoryNN>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasMany<ProductNN>()
-                            .WithOne()
-                            .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
-                    });
+                modelBuilder.Entity<CategoryNN>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasMany<ProductNN>()
+                                .WithOne()
+                                .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
+                        });
 
                 modelBuilder.Entity<ProductNN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
 
-                modelBuilder.Entity<Category>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasMany(e => e.Products)
-                            .WithOne(e => e.Category)
-                            .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
-                    });
+                modelBuilder.Entity<Category>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasMany(e => e.Products)
+                                .WithOne(e => e.Category)
+                                .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
+                        });
 
                 modelBuilder.Entity<Product>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
             }

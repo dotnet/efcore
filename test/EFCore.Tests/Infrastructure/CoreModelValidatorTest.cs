@@ -117,11 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 principalEntityBuilder.HasKey(new[] { "ReferencedFoo" }, ConfigurationSource.Convention).Metadata,
                 ConfigurationSource.Convention);
 
-            VerifyError(CoreStrings.ReferencedShadowKey(
-                typeof(SampleEntity).Name,
-                typeof(ReferencedEntity).Name,
-                "{'Foo' : string}",
-                "{'Id' : int}"),
+            VerifyError(
+                CoreStrings.ReferencedShadowKey(
+                    typeof(SampleEntity).Name,
+                    typeof(ReferencedEntity).Name,
+                    "{'Foo' : string}",
+                    "{'Id' : int}"),
                 modelBuilder.Metadata);
         }
 
@@ -333,10 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             entityTypeBuilder.Metadata.RemoveNavigation(nameof(SampleEntity.ReferencedEntity));
 
-            VerifyError(CoreStrings.NoDefiningNavigation(
-                nameof(SampleEntity.ReferencedEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
-                nameof(SampleEntity)),
+            VerifyError(
+                CoreStrings.NoDefiningNavigation(
+                    nameof(SampleEntity.ReferencedEntity),
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
+                    nameof(SampleEntity)),
                 modelBuilder.Metadata);
         }
 
@@ -354,8 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.Relationship(entityTypeBuilder, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
                 .Metadata.IsOwnership = true;
 
-            VerifyError(CoreStrings.MultipleOwnerships(
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+            VerifyError(
+                CoreStrings.MultipleOwnerships(
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 
@@ -373,10 +376,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.Relationship(entityTypeBuilder, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
                 .IsOwnership(true, ConfigurationSource.Convention);
 
-            VerifyError(CoreStrings.NonDefiningOwnership(
-                nameof(SampleEntity),
-                nameof(SampleEntity.ReferencedEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+            VerifyError(
+                CoreStrings.NonDefiningOwnership(
+                    nameof(SampleEntity),
+                    nameof(SampleEntity.ReferencedEntity),
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 
@@ -397,12 +401,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             nonOwnedTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
             anotherEntityTypeBuilder.Navigation(nonOwnedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention);
 
-            VerifyError(CoreStrings.InconsistentOwnership(
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
-                nameof(AnotherSampleEntity) + "." + nameof(AnotherSampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+            VerifyError(
+                CoreStrings.InconsistentOwnership(
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
+                    nameof(AnotherSampleEntity) + "." + nameof(AnotherSampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
-        
+
         [Fact]
         public virtual void Detects_principal_owned_entity_type()
         {
@@ -415,13 +420,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
             var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(AnotherSampleEntity), ConfigurationSource.Convention);
             anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(AnotherSampleEntity.Id) }, ConfigurationSource.Convention);
-            anotherEntityTypeBuilder.Navigation(ownedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention,
-                 setTargetAsPrincipal: true);
+            anotherEntityTypeBuilder.Navigation(
+                ownedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention,
+                setTargetAsPrincipal: true);
 
-            VerifyError(CoreStrings.PrincipalOwnedType(
-                nameof(AnotherSampleEntity) + "." + nameof(AnotherSampleEntity.ReferencedEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+            VerifyError(
+                CoreStrings.PrincipalOwnedType(
+                    nameof(AnotherSampleEntity) + "." + nameof(AnotherSampleEntity.ReferencedEntity),
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity),
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 
@@ -440,10 +447,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             anotherEntityTypeBuilder.Navigation(ownedTypeBuilder, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention)
                 .RelatedEntityTypes(anotherEntityTypeBuilder.Metadata, ownedTypeBuilder.Metadata, ConfigurationSource.Convention);
 
-            VerifyError(CoreStrings.InverseToOwnedType(
-                nameof(AnotherSampleEntity),
-                nameof(SampleEntity.ReferencedEntity),
-                nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
+            VerifyError(
+                CoreStrings.InverseToOwnedType(
+                    nameof(AnotherSampleEntity),
+                    nameof(SampleEntity.ReferencedEntity),
+                    nameof(SampleEntity) + "." + nameof(SampleEntity.ReferencedEntity) + "#" + nameof(ReferencedEntity)),
                 modelBuilder.Metadata);
         }
 

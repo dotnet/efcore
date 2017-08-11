@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
                         () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
 
                     Assert.Throws<ArgumentException>(
-                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(UInt32.MaxValue)));
+                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
                 }
             }
 
@@ -62,10 +62,10 @@ namespace Microsoft.EntityFrameworkCore
                 {
                 }
 
-                public TimeoutContext(int? commandTimeout) 
+                public TimeoutContext(int? commandTimeout)
                     => Database.SetCommandTimeout(commandTimeout);
 
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                     => optionsBuilder.UseSqlServer(new FakeDbConnection("A=B"));
             }
         }

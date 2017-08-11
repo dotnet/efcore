@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
             : base(options)
         {
         }
-        
+
         public static void Seed(UpdatesContext context)
         {
             var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");

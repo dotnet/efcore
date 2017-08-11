@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return model;
         }
 
-        protected virtual ConventionSet GetConventionSet() 
+        protected virtual ConventionSet GetConventionSet()
             => new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet();
 
         [Table("ProductTable")]

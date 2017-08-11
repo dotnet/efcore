@@ -1037,7 +1037,6 @@ WHERE [p].[Discontinued] <> CASE
 END");
         }
 
-
         public override void Where_bool_parameter()
         {
             base.Where_bool_parameter();

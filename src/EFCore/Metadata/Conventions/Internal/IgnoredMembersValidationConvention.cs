@@ -29,8 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         if (property.DeclaringEntityType != entityType)
                         {
-                            throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
-                                ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
                         }
                         Debug.Assert(false);
                     }
@@ -40,8 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         if (navigation.DeclaringEntityType != entityType)
                         {
-                            throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
-                                ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                         }
                         Debug.Assert(false);
                     }

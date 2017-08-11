@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Use_of_custom_IForeignKey_throws()
         {
             var foreignKey = new FakeForeignKey();
-            
+
             Assert.Equal(
                 CoreStrings.CustomMetadata(nameof(Use_of_custom_IForeignKey_throws), nameof(IForeignKey), nameof(FakeForeignKey)),
                 Assert.Throws<NotSupportedException>(() => foreignKey.AsForeignKey()).Message);
@@ -108,11 +108,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var property2 = principalEntityType.AddProperty("Id1", typeof(int));
             var property3 = principalEntityType.AddProperty("Id2", typeof(int));
-            principalEntityType.GetOrSetPrimaryKey(new[]
-            {
-                property2,
-                property3
-            });
+            principalEntityType.GetOrSetPrimaryKey(
+                new[]
+                {
+                    property2,
+                    property3
+                });
 
             Assert.Equal(
                 CoreStrings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "{'Id1', 'Id2'}", "P"),
@@ -203,11 +204,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(new[]
-            {
-                property,
-                property1
-            });
+            entityType.GetOrSetPrimaryKey(
+                new[]
+                {
+                    property,
+                    property1
+                });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int));
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
@@ -224,11 +226,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(new[]
-            {
-                property,
-                property1
-            });
+            entityType.GetOrSetPrimaryKey(
+                new[]
+                {
+                    property,
+                    property1
+                });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int));
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
@@ -275,11 +278,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property = entityType.AddProperty("Id1", typeof(int));
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
-            entityType.GetOrSetPrimaryKey(new[]
-            {
-                property,
-                property1
-            });
+            entityType.GetOrSetPrimaryKey(
+                new[]
+                {
+                    property,
+                    property1
+                });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int?));
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
@@ -392,8 +396,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(OneToManyDependent),
                     Property.Format(foreignKey2.Properties),
                     Property.Format(foreignKey1.Properties)),
-                Assert.Throws<InvalidOperationException>(()
-                    => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
         [Fact]
@@ -414,8 +419,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     nameof(OneToManyDependent),
                     Property.Format(foreignKey2.Properties),
                     Property.Format(foreignKey1.Properties)),
-                Assert.Throws<InvalidOperationException>(()
-                    => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
+                Assert.Throws<InvalidOperationException>(
+                    ()
+                        => foreignKey2.HasDependentToPrincipal(OneToManyDependent.DeceptionProperty)).Message);
         }
 
         private ForeignKey CreateSelfRefFK(bool useAltKey = false)
@@ -706,22 +712,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(fk.PrincipalEntityType, fk.ResolveOtherEntityType(fk.DeclaringEntityType));
             Assert.Same(fk.DeclaringEntityType, fk.ResolveOtherEntityType(fk.PrincipalEntityType));
 
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsFrom(fk.PrincipalEntityType).ToArray());
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsFrom(fk.DeclaringEntityType).ToArray());
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsTo(fk.PrincipalEntityType).ToArray());
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsTo(fk.DeclaringEntityType).ToArray());
 
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType).ToArray());
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType).ToArray());
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType).ToArray());
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
                 fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType).ToArray());
         }
 
@@ -751,13 +765,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(fk.PrincipalEntityType.DisplayName(), Property.Format(fk.Properties), fk.PrincipalEntityType.DisplayName(), fk.DeclaringEntityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityTypeInHierarchy(fk.PrincipalEntityType)).Message);
 
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
                 fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType));
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
                 fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType));
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
                 fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType));
-            Assert.Equal(new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
+            Assert.Equal(
+                new[] { fk.PrincipalToDependent, fk.DependentToPrincipal }.Where(n => n != null),
                 fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType));
         }
 

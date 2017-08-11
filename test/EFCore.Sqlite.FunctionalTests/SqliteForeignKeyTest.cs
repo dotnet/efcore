@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var options = testStore.AddProviderOptions(new DbContextOptionsBuilder()).Options;
 
-                testStore.ExecuteNonQuery(@"
+                testStore.ExecuteNonQuery(
+                    @"
 CREATE TABLE User (
     Id INTEGER PRIMARY KEY,
     AltId INTEGER NOT NULL UNIQUE
@@ -120,15 +121,16 @@ CREATE TABLE Comment (
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Comment>(entity =>
-                    {
-                        entity.ToTable("Comment");
+                modelBuilder.Entity<Comment>(
+                    entity =>
+                        {
+                            entity.ToTable("Comment");
 
-                        entity.HasOne(d => d.User)
-                            .WithMany(p => p.Comments)
-                            .HasPrincipalKey(p => p.AltId)
-                            .HasForeignKey(d => d.UserAltId);
-                    });
+                            entity.HasOne(d => d.User)
+                                .WithMany(p => p.Comments)
+                                .HasPrincipalKey(p => p.AltId)
+                                .HasForeignKey(d => d.UserAltId);
+                        });
 
                 modelBuilder.Entity<User>(entity => { entity.HasAlternateKey(e => e.AltId); });
             }

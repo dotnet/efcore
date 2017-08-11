@@ -727,6 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         // Set operations
         private static readonly MethodInfo _concat = GetMethod("Concat", 1);
+
         private static readonly MethodInfo _except = GetMethod("Except", 1);
         private static readonly MethodInfo _intersect = GetMethod("Intersect", 1);
         private static readonly MethodInfo _union = GetMethod("Union", 1);
@@ -746,14 +747,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var aggregateMethods
                 = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
-                    .Where(mi => mi.GetParameters().Length == 2
-                                 && mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
+                    .Where(
+                        mi => mi.GetParameters().Length == 2
+                              && mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
                     .ToList();
 
             return
                 aggregateMethods
-                    .SingleOrDefault(mi => mi.GetParameters()[0].ParameterType
-                                           == typeof(IAsyncEnumerable<>).MakeGenericType(elementType))
+                    .SingleOrDefault(
+                        mi => mi.GetParameters()[0].ParameterType
+                              == typeof(IAsyncEnumerable<>).MakeGenericType(elementType))
                 ?? aggregateMethods.Single(mi => mi.IsGenericMethod)
                     .MakeGenericMethod(elementType);
         }
@@ -773,9 +776,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .ToList();
 
             return candidateMethods
-                .SingleOrDefault(mi =>
-                    mi.GetParameters().Length == parameterCount + 2
-                    && mi.GetParameters().Last().ParameterType == typeof(CancellationToken))
+                       .SingleOrDefault(
+                           mi =>
+                               mi.GetParameters().Length == parameterCount + 2
+                               && mi.GetParameters().Last().ParameterType == typeof(CancellationToken))
                    ?? candidateMethods.Single(mi => mi.GetParameters().Length == parameterCount + 1);
         }
 

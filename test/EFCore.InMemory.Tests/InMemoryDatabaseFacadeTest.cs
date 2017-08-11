@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new ProviderContext())
             {
-                Assert.True(InMemoryDatabaseFacadeExtensions.IsInMemory(context.Database));
+                Assert.True(context.Database.IsInMemory());
             }
         }
 

@@ -1065,8 +1065,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entry.AcceptChanges();
 
-            Assert.Equal(entityState == EntityState.Deleted || entityState == EntityState.Detached ?
-                EntityState.Detached : EntityState.Unchanged, entry.EntityState);
+            Assert.Equal(entityState == EntityState.Deleted || entityState == EntityState.Detached ? EntityState.Detached : EntityState.Unchanged, entry.EntityState);
             if (entityState == EntityState.Unchanged)
             {
                 Assert.Equal("Kool", entry[valueProperty]);
@@ -1075,8 +1074,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 Assert.Equal("Pickle", entry[valueProperty]);
-                Assert.Equal(entityState == EntityState.Detached || entityState == EntityState.Deleted ?
-                    "Cheese" : "Pickle", entry.GetOriginalValue(valueProperty));
+                Assert.Equal(entityState == EntityState.Detached || entityState == EntityState.Deleted ? "Cheese" : "Pickle", entry.GetOriginalValue(valueProperty));
             }
         }
 
@@ -1122,14 +1120,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
-                .Entity<Root>(b =>
-                    {
-                        b.Property(e => e.Id).ValueGeneratedNever();
+                .Entity<Root>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
 
-                        b.HasOne(e => e.First)
-                            .WithOne(e => e.Root)
-                            .HasForeignKey<FirstDependent>(e => e.Id);
-                    });
+                            b.HasOne(e => e.First)
+                                .WithOne(e => e.Root)
+                                .HasForeignKey<FirstDependent>(e => e.Id);
+                        });
 
             return modelBuilder.Model;
         }
@@ -1418,13 +1417,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
 
-            modelBuilder.Entity<OwnerClass>(eb =>
-                {
-                    eb.HasKey(e => e.Id);
-                    var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
-                    owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
-                    owned.Property(e => e.Value);
-                });
+            modelBuilder.Entity<OwnerClass>(
+                eb =>
+                    {
+                        eb.HasKey(e => e.Id);
+                        var owned = eb.OwnsOne(e => e.Owned).HasForeignKey("Id");
+                        owned.OwnedEntityType.SetPrimaryKey(new[] { owned.OwnedEntityType.FindProperty("Id") });
+                        owned.Property(e => e.Value);
+                    });
 
             return (Model)model;
         }

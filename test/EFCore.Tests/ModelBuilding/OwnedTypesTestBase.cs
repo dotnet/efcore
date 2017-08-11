@@ -150,8 +150,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var ownership = model.FindEntityType(typeof(OtherCustomer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
-                    .Single(fk => fk.DeclaringEntityType.ClrType == typeof(CustomerDetails)
-                                  && fk.PrincipalToDependent == null);
+                    .Single(
+                        fk => fk.DeclaringEntityType.ClrType == typeof(CustomerDetails)
+                              && fk.PrincipalToDependent == null);
                 Assert.Same(ownership.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.NotEqual(ownership.Properties.Single().Name, foreignKey.Properties.Single().Name);
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));

@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
         /// <returns> The extension, or null if none was found. </returns>
-        TExtension FindExtension<TExtension>() where TExtension : class, IDbContextOptionsExtension;
+        TExtension FindExtension<TExtension>()
+            where TExtension : class, IDbContextOptionsExtension;
     }
 }

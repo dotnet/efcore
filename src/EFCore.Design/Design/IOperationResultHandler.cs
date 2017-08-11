@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     Used with <see cref="OperationExecutor"/> to handle operation results.
+    ///     Used with <see cref="OperationExecutor" /> to handle operation results.
     /// </summary>
     public interface IOperationResultHandler
     {
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="message"> The error message. </param>
         /// <param name="stackTrace"> The stack trace. </param>
         /// <remarks>
-        ///     When an <see cref="OperationException"/> is recieved, the stack trace should not be shown by default.
+        ///     When an <see cref="OperationException" /> is recieved, the stack trace should not be shown by default.
         /// </remarks>
         void OnError([NotNull] string type, [NotNull] string message, [NotNull] string stackTrace);
     }

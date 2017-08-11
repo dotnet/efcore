@@ -77,9 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<IForeignKey> GetForeignKeys()
             => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredForeignKeys)
                 .Distinct((x, y) => x.Relational().Name == y.Relational().Name)
-                .Where(fk => !(EntityTypes.Contains(fk.PrincipalEntityType)
-                               && fk.Properties.Select(p => p.Relational().ColumnName)
-                                   .SequenceEqual(fk.PrincipalKey.Properties.Select(p => p.Relational().ColumnName))));
+                .Where(
+                    fk => !(EntityTypes.Contains(fk.PrincipalEntityType)
+                            && fk.Properties.Select(p => p.Relational().ColumnName)
+                                .SequenceEqual(fk.PrincipalKey.Properties.Select(p => p.Relational().ColumnName))));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

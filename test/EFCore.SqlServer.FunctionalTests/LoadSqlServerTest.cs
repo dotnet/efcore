@@ -1452,10 +1452,11 @@ WHERE 0 = 1",
         {
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            
+
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(c => c
-                    .Log(RelationalEventId.QueryClientEvaluationWarning));
+                => base.AddOptions(builder).ConfigureWarnings(
+                    c => c
+                        .Log(RelationalEventId.QueryClientEvaluationWarning));
         }
     }
 }

@@ -95,10 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 }
 
-                var nullableKeyColumns = Enumerable
-                    .Concat(
-                        databaseModel.Tables.Where(t => t.PrimaryKey != null).SelectMany(t => t.PrimaryKey.Columns),
-                        databaseModel.Tables.SelectMany(t => t.ForeignKeys).SelectMany(fk => fk.PrincipalColumns))
+                var nullableKeyColumns = databaseModel.Tables
+                    .Where(t => t.PrimaryKey != null).SelectMany(t => t.PrimaryKey.Columns)
+                    .Concat(databaseModel.Tables.SelectMany(t => t.ForeignKeys).SelectMany(fk => fk.PrincipalColumns))
                     .Where(c => c.IsNullable)
                     .Distinct();
                 foreach (var column in nullableKeyColumns)
@@ -273,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     return GetRowidPrimaryKey(connection, table, columns);
                 }
-                if (!name.StartsWith("sqlite_"))
+                if (!name.StartsWith("sqlite_", StringComparison.Ordinal))
                 {
                     primaryKey.Name = name;
                 }
@@ -295,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         var columnName = reader.GetString(0);
                         var column = columns.FirstOrDefault(c => c.Name == columnName)
-                            ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                     ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Debug.Assert(column != null, "column is null.");
 
                         primaryKey.Columns.Add(column);
@@ -333,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     var columnName = reader.GetString(0);
                     var column = columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                 ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                     Debug.Assert(column != null, "column is null.");
 
                     Debug.Assert(!reader.Read(), "Unexpected composite primary key.");
@@ -368,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         var uniqueConstraint = new DatabaseUniqueConstraint();
                         var name = reader1.GetString(0);
-                        if (!name.StartsWith("sqlite_"))
+                        if (!name.StartsWith("sqlite_", StringComparison.Ordinal))
                         {
                             uniqueConstraint.Name = name;
                         }
@@ -394,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 {
                                     var columnName = reader2.GetString(0);
                                     var column = columns.FirstOrDefault(c => c.Name == columnName)
-                                        ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                                 ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                     Debug.Assert(column != null, "column is null.");
 
                                     uniqueConstraint.Columns.Add(column);
@@ -458,7 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 {
                                     var name = reader2.GetString(0);
                                     var column = columns.FirstOrDefault(c => c.Name == name)
-                                        ?? columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
+                                                 ?? columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
                                     Debug.Assert(column != null, "column is null.");
 
                                     index.Columns.Add(column);
@@ -497,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         var foreignKey = new DatabaseForeignKey
                         {
                             PrincipalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
-                                ?? tables.FirstOrDefault(t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase)),
+                                             ?? tables.FirstOrDefault(t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase)),
                             OnDelete = ConvertToReferentialAction(onDelete)
                         };
 
@@ -536,12 +535,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 {
                                     var columnName = reader2.GetString(0);
                                     var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                        ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                                 ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                     Debug.Assert(column != null, "column is null.");
 
                                     var principalColumnName = reader2.GetString(1);
                                     var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                                        ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                                          ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                                     if (principalColumn == null)
                                     {
                                         invalid = true;

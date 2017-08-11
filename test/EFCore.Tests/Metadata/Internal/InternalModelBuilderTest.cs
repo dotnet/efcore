@@ -161,8 +161,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
 
-            Assert.NotNull(orderEntityTypeBuilder
-                .HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(
+                orderEntityTypeBuilder
+                    .HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
 
             Assert.True(modelBuilder.Ignore(typeof(Order), ConfigurationSource.DataAnnotation));
 

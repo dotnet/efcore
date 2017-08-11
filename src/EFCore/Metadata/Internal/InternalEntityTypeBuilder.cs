@@ -314,7 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type propertyType,
             ConfigurationSource configurationSource,
             ConfigurationSource? typeConfigurationSource)
-            => Property(propertyName, propertyType, memberInfo: null,
+            => Property(
+                propertyName, propertyType, memberInfo: null,
                 configurationSource: configurationSource, typeConfigurationSource: typeConfigurationSource);
 
         /// <summary>
@@ -478,8 +479,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanAddOrReplaceNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
             => !IsIgnored(navigationName, configurationSource: configurationSource)
-               && Metadata.FindNavigationsInHierarchy(navigationName).All(n =>
-                   n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsDependentToPrincipal(), configurationSource));
+               && Metadata.FindNavigationsInHierarchy(navigationName).All(
+                   n =>
+                       n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsDependentToPrincipal(), configurationSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -536,14 +538,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (configurationSource == ConfigurationSource.Explicit)
                         {
-                            throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
-                                name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    name, Metadata.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                         }
                         return false;
                     }
 
                     if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
-                        foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                            foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                     {
                         Metadata.Unignore(name);
                         return false;
@@ -558,14 +561,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             if (configurationSource == ConfigurationSource.Explicit)
                             {
-                                throw new InvalidOperationException(CoreStrings.InheritedPropertyCannotBeIgnored(
-                                    name, Metadata.DisplayName(), property.DeclaringEntityType.DisplayName()));
+                                throw new InvalidOperationException(
+                                    CoreStrings.InheritedPropertyCannotBeIgnored(
+                                        name, Metadata.DisplayName(), property.DeclaringEntityType.DisplayName()));
                             }
                             return false;
                         }
 
                         if (property.DeclaringEntityType.Builder.RemoveProperty(
-                            property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                                property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                         {
                             Metadata.Unignore(name);
                             return false;
@@ -687,8 +691,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var foreignKeysUsingKeyProperties = Metadata.GetDerivedForeignKeysInclusive()
                         .Where(fk => fk.Properties.Any(p => baseEntityType.FindProperty(p.Name)?.IsKey() == true)).ToList();
 
-                    if (foreignKeysUsingKeyProperties.Any(fk =>
-                        !configurationSourceForRemoval.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
+                    if (foreignKeysUsingKeyProperties.Any(
+                        fk =>
+                            !configurationSourceForRemoval.Overrides(fk.GetForeignKeyPropertiesConfigurationSource())))
                     {
                         return null;
                     }
@@ -753,8 +758,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 HashSet<Property> removedInheritedPropertiesToDuplicate = null;
                 if (Metadata.BaseType != null)
                 {
-                    var removedInheritedProperties = new HashSet<Property>(Metadata.BaseType.GetProperties()
-                        .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
+                    var removedInheritedProperties = new HashSet<Property>(
+                        Metadata.BaseType.GetProperties()
+                            .Where(p => baseEntityType == null || baseEntityType.FindProperty(p.Name) != p));
                     if (removedInheritedProperties.Count != 0)
                     {
                         removedInheritedPropertiesToDuplicate = new HashSet<Property>();
@@ -987,8 +993,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var key in property.GetContainingKeys().ToList())
                 {
-                    detachedRelationships.AddRange(key.GetReferencingForeignKeys().ToList()
-                        .Select(DetachRelationship));
+                    detachedRelationships.AddRange(
+                        key.GetReferencingForeignKeys().ToList()
+                            .Select(DetachRelationship));
                     var removed = RemoveKey(key, configurationSource);
                     Debug.Assert(removed.HasValue);
                 }
@@ -1321,7 +1328,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
             [NotNull] IReadOnlyList<Property> dependentProperties,
             ConfigurationSource configurationSource)
-            => HasForeignKeyInternal(principalEntityTypeBuilder,
+            => HasForeignKeyInternal(
+                principalEntityTypeBuilder,
                 GetActualProperties(dependentProperties, configurationSource),
                 null,
                 configurationSource);
@@ -1335,7 +1343,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [NotNull] Key principalKey,
             ConfigurationSource configurationSource)
-            => HasForeignKeyInternal(principalEntityTypeBuilder,
+            => HasForeignKeyInternal(
+                principalEntityTypeBuilder,
                 GetActualProperties(dependentProperties, configurationSource),
                 principalKey,
                 configurationSource);
@@ -1406,8 +1415,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder));
 
-            Debug.Assert(navigationToTarget != null
-                         || inverseNavigation != null);
+            Debug.Assert(
+                navigationToTarget != null
+                || inverseNavigation != null);
 
             var navigationProperty = navigationToTarget?.Property;
             if (inverseNavigation == null
@@ -1675,7 +1685,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string targetEntityTypeName,
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
-            => Owns(new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationName),
+            => Owns(
+                new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationName),
                 inverse: null, configurationSource: configurationSource);
 
         /// <summary>
@@ -1686,7 +1697,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string targetEntityTypeName,
             [NotNull] PropertyInfo navigationProperty,
             ConfigurationSource configurationSource)
-            => Owns(new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationProperty),
+            => Owns(
+                new TypeIdentity(targetEntityTypeName), PropertyIdentity.Create(navigationProperty),
                 inverse: null, configurationSource: configurationSource);
 
         /// <summary>
@@ -1697,7 +1709,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type targetEntityType,
             [NotNull] string navigationName,
             ConfigurationSource configurationSource)
-            => Owns(new TypeIdentity(targetEntityType), PropertyIdentity.Create(navigationName),
+            => Owns(
+                new TypeIdentity(targetEntityType), PropertyIdentity.Create(navigationName),
                 inverse: null, configurationSource: configurationSource);
 
         /// <summary>
@@ -1708,7 +1721,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Type targetEntityType,
             [NotNull] PropertyInfo navigationProperty,
             ConfigurationSource configurationSource)
-            => Owns(new TypeIdentity(targetEntityType), PropertyIdentity.Create(navigationProperty),
+            => Owns(
+                new TypeIdentity(targetEntityType), PropertyIdentity.Create(navigationProperty),
                 inverse: null, configurationSource: configurationSource);
 
         /// <summary>
@@ -1739,16 +1753,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var existingNavigation = Metadata
                     .FindNavigationsInHierarchy(navigation.Name)
                     .SingleOrDefault(n => n.GetTargetType().Name == targetEntityType.Name && n.GetTargetType().HasDefiningNavigation());
-                
+
                 var builder = existingNavigation?.ForeignKey.Builder;
-                
+
                 if (builder != null)
                 {
                     builder = builder.RelatedEntityTypes(Metadata, existingNavigation.GetTargetType(), configurationSource);
                     builder = builder?.IsRequired(true, configurationSource);
                     builder = builder?.IsOwnership(true, configurationSource);
                     builder = builder?.Navigations(inverse, navigation, configurationSource);
-                    
+
                     return builder == null ? null : batch.Run(builder);
                 }
 
@@ -1934,16 +1948,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var newProperties = new Property[propertyCount];
             var clrMembers = Metadata.ClrType == null
                 ? null
-                : new HashSet<string>(Metadata.ClrType.GetRuntimeProperties().Select(p => p.Name)
-                    .Concat(Metadata.ClrType.GetRuntimeFields().Select(p => p.Name)));
+                : new HashSet<string>(
+                    Metadata.ClrType.GetRuntimeProperties().Select(p => p.Name)
+                        .Concat(Metadata.ClrType.GetRuntimeFields().Select(p => p.Name)));
             var noNewProperties = true;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
             {
                 using (var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator())
                 {
-                    for (var i = 0; i < newProperties.Length
-                                    && principalPropertyNamesEnumerator.MoveNext()
-                                    && principalPropertyTypesEnumerator.MoveNext(); i++)
+                    for (var i = 0;
+                         i < newProperties.Length
+                         && principalPropertyNamesEnumerator.MoveNext()
+                         && principalPropertyTypesEnumerator.MoveNext();
+                         i++)
                     {
                         var keyPropertyName = principalPropertyNamesEnumerator.Current;
                         var keyPropertyType = principalPropertyTypesEnumerator.Current;
@@ -2025,7 +2042,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     var clrProperty = Metadata.ClrType?.GetMembersInHierarchy(propertyName).FirstOrDefault();
                     var type = referencedProperties == null
-                        ? useDefaultType ? typeof(int) : null
+                        ? useDefaultType
+                            ? typeof(int)
+                            : null
                         : referencedProperties[i].ClrType;
 
                     InternalPropertyBuilder propertyBuilder;

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly Stopwatch _stopwatch;
 
         private int _readCount;
-        
+
         private bool _disposed;
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             _readCount++;
-            
+
             return _reader.ReadAsync(cancellationToken);
         }
 

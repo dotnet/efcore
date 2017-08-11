@@ -459,6 +459,7 @@ CreatedTable
             {
                 // ReSharper disable UnusedMember.Local
                 public int Id { get; set; }
+
                 public string Name { get; set; }
                 // ReSharper restore UnusedMember.Local
             }

@@ -117,47 +117,53 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     foreach (var principalEntityType in _principals[entry.EntityType])
                     {
-                        if (!command.Entries.Any(principalEntry => principalEntry != entry
-                                                                   && principalEntityType.IsAssignableFrom(principalEntry.EntityType)))
+                        if (!command.Entries.Any(
+                            principalEntry => principalEntry != entry
+                                              && principalEntityType.IsAssignableFrom(principalEntry.EntityType)))
                         {
                             if (sensitiveLoggingEnabled)
                             {
-                                throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                                throw new InvalidOperationException(
+                                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                                        entry.EntityType.DisplayName(),
+                                        tableName,
+                                        principalEntityType.DisplayName(),
+                                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                        command.EntityState));
+                            }
+
+                            throw new InvalidOperationException(
+                                RelationalStrings.SharedRowEntryCountMismatch(
                                     entry.EntityType.DisplayName(),
                                     tableName,
                                     principalEntityType.DisplayName(),
-                                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
                                     command.EntityState));
-                            }
-
-                            throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatch(
-                                entry.EntityType.DisplayName(),
-                                tableName,
-                                principalEntityType.DisplayName(),
-                                command.EntityState));
                         }
                     }
-                    
+
                     foreach (var dependentEntityType in _dependents[entry.EntityType])
                     {
-                        if (!command.Entries.Any(dependentEntry => dependentEntry != entry
-                                                                   && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType)))
+                        if (!command.Entries.Any(
+                            dependentEntry => dependentEntry != entry
+                                              && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType)))
                         {
                             if (sensitiveLoggingEnabled)
                             {
-                                throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                                throw new InvalidOperationException(
+                                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                                        entry.EntityType.DisplayName(),
+                                        tableName,
+                                        dependentEntityType.DisplayName(),
+                                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                                        command.EntityState));
+                            }
+
+                            throw new InvalidOperationException(
+                                RelationalStrings.SharedRowEntryCountMismatch(
                                     entry.EntityType.DisplayName(),
                                     tableName,
                                     dependentEntityType.DisplayName(),
-                                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
                                     command.EntityState));
-                            }
-
-                            throw new InvalidOperationException(RelationalStrings.SharedRowEntryCountMismatch(
-                                entry.EntityType.DisplayName(),
-                                tableName,
-                                dependentEntityType.DisplayName(),
-                                command.EntityState));
                         }
                     }
                 }

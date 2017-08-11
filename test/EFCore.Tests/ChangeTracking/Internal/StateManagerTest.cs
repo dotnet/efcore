@@ -215,19 +215,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<SingleKey>(b =>
-                    {
-                        b.HasKey(e => e.Id);
-                        b.HasAlternateKey(e => e.AlternateId);
-                        b.Property(e => e.Id).ValueGeneratedNever();
-                        b.Property(e => e.AlternateId).ValueGeneratedNever();
-                    });
+                modelBuilder.Entity<SingleKey>(
+                    b =>
+                        {
+                            b.HasKey(e => e.Id);
+                            b.HasAlternateKey(e => e.AlternateId);
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                            b.Property(e => e.AlternateId).ValueGeneratedNever();
+                        });
 
-                modelBuilder.Entity<CompositeKey>(b =>
-                    {
-                        b.HasKey(e => new { e.Id1, e.Id2 });
-                        b.HasAlternateKey(e => new { e.AlternateId1, e.AlternateId2 });
-                    });
+                modelBuilder.Entity<CompositeKey>(
+                    b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.HasAlternateKey(e => new { e.AlternateId1, e.AlternateId2 });
+                        });
             }
         }
 
@@ -649,7 +651,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int ChangedCount;
             public EntityState ChangingState;
             public EntityState ChangedState;
-            
+
             public void StateChanging(InternalEntityEntry entry, EntityState newState)
             {
                 ChangingCount++;
@@ -660,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 ChangedCount++;
                 ChangedState = oldState;
-                
+
                 Assert.False(fromQuery);
             }
         }
@@ -773,7 +775,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var model = BuildModel();
             var stateManager = CreateStateManager(model);
-            Assert.Equal(CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
+            Assert.Equal(
+                CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
                 Assert.Throws<InvalidOperationException>(() => stateManager.GetOrCreateEntry(new SpecialProduct())).Message);
         }
 
@@ -832,12 +835,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             builder.Entity<Dogegory>();
 
-            builder.Entity("Location", eb =>
-                {
-                    eb.Property<int>("Id");
-                    eb.Property<string>("Planet");
-                    eb.HasKey("Id");
-                });
+            builder.Entity(
+                "Location", eb =>
+                    {
+                        eb.Property<int>("Id");
+                        eb.Property<string>("Planet");
+                        eb.HasKey("Id");
+                    });
 
             return model;
         }

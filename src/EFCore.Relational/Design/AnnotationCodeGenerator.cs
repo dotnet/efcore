@@ -41,7 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="model"> The <see cref="IModel" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> <c>False.</c> </returns>
+        /// <returns>
+        ///     <c>False.</c>
+        /// </returns>
         public virtual bool IsHandledByConvention(IModel model, IAnnotation annotation)
         {
             Check.NotNull(model, nameof(model));
@@ -55,7 +57,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="entityType"> The <see cref="IEntityType" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> <c>False.</c> </returns>
+        /// <returns>
+        ///     <c>False.</c>
+        /// </returns>
         public virtual bool IsHandledByConvention(IEntityType entityType, IAnnotation annotation)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -69,7 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="key"> The <see cref="IKey" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> <c>False.</c> </returns>
+        /// <returns>
+        ///     <c>False.</c>
+        /// </returns>
         public virtual bool IsHandledByConvention(IKey key, IAnnotation annotation)
         {
             Check.NotNull(key, nameof(key));
@@ -83,7 +89,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="property"> The <see cref="IProperty" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> <c>False.</c> </returns>
+        /// <returns>
+        ///     <c>False.</c>
+        /// </returns>
         public virtual bool IsHandledByConvention(IProperty property, IAnnotation annotation)
         {
             Check.NotNull(property, nameof(property));
@@ -97,7 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="foreignKey"> The <see cref="IForeignKey" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> <c>False.</c> </returns>
+        /// <returns>
+        ///     <c>False.</c>
+        /// </returns>
         public virtual bool IsHandledByConvention(IForeignKey foreignKey, IAnnotation annotation)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -111,7 +121,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="index"> The <see cref="IIndex" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
-        /// <returns> <c>False.</c> </returns>
+        /// <returns>
+        ///     <c>False.</c>
+        /// </returns>
         public virtual bool IsHandledByConvention(IIndex index, IAnnotation annotation)
         {
             Check.NotNull(index, nameof(index));
@@ -126,7 +138,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="model"> The <see cref="IModel" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> <c>Null.</c> </returns>
+        /// <returns>
+        ///     <c>Null.</c>
+        /// </returns>
         public virtual string GenerateFluentApi(IModel model, IAnnotation annotation, string language)
         {
             Check.NotNull(model, nameof(model));
@@ -142,7 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="entityType"> The <see cref="IEntityType" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> <c>Null.</c> </returns>
+        /// <returns>
+        ///     <c>Null.</c>
+        /// </returns>
         public virtual string GenerateFluentApi(IEntityType entityType, IAnnotation annotation, string language)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -158,7 +174,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="key"> The <see cref="IKey" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> <c>Null.</c> </returns>
+        /// <returns>
+        ///     <c>Null.</c>
+        /// </returns>
         public virtual string GenerateFluentApi(IKey key, IAnnotation annotation, string language)
         {
             Check.NotNull(key, nameof(key));
@@ -174,7 +192,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="property"> The <see cref="IProperty" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> <c>Null.</c> </returns>
+        /// <returns>
+        ///     <c>Null.</c>
+        /// </returns>
         public virtual string GenerateFluentApi(IProperty property, IAnnotation annotation, string language)
         {
             Check.NotNull(property, nameof(property));
@@ -190,7 +210,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="foreignKey"> The <see cref="IForeignKey" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> <c>Null.</c> </returns>
+        /// <returns>
+        ///     <c>Null.</c>
+        /// </returns>
         public virtual string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation, string language)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -206,7 +228,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <param name="index"> The <see cref="IIndex" />. </param>
         /// <param name="annotation"> The <see cref="IAnnotation" />. </param>
         /// <param name="language"> The programming language to use. For example, CSharp. </param>
-        /// <returns> <c>Null.</c> </returns>
+        /// <returns>
+        ///     <c>Null.</c>
+        /// </returns>
         public virtual string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
         {
             Check.NotNull(index, nameof(index));

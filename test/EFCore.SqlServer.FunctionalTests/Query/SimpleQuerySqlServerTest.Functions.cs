@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public partial  class SimpleQuerySqlServerTest
+    public partial class SimpleQuerySqlServerTest
     {
         public override void String_StartsWith_Literal()
         {

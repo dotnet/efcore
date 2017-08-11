@@ -36,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected ReferenceReferenceBuilder(InternalRelationshipBuilder builder,
+        protected ReferenceReferenceBuilder(
+            InternalRelationshipBuilder builder,
             ReferenceReferenceBuilder oldBuilder,
             bool inverted = false,
             bool foreignKeySet = false,
@@ -86,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
+                HasForeignKeyBuilder(
+                    ResolveEntityType(Check.NotNull(dependentEntityType, nameof(dependentEntityType))),
                     dependentEntityType.ShortDisplayName(),
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -200,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                HasForeignKeyBuilder(ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
+                HasForeignKeyBuilder(
+                    ResolveEntityType(Check.NotNull(dependentEntityTypeName, nameof(dependentEntityTypeName))),
                     dependentEntityTypeName,
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
@@ -274,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
             where TDependentEntity : class
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                HasForeignKeyBuilder(ResolveEntityType(typeof(TDependentEntity)),
+                HasForeignKeyBuilder(
+                    ResolveEntityType(typeof(TDependentEntity)),
                     typeof(TDependentEntity).ShortDisplayName(),
                     Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList()),
                 this,

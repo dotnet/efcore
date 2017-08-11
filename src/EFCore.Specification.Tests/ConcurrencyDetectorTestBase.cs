@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         protected ConcurrencyDetectorTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual Task SaveChanges_logs_concurrent_access_nonasync()
         {

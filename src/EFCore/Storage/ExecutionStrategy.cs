@@ -52,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] DbContext context,
             int maxRetryCount,
             TimeSpan maxRetryDelay)
-            : this(context.GetService<ExecutionStrategyDependencies>(),
+            : this(
+                context.GetService<ExecutionStrategyDependencies>(),
                 maxRetryCount,
                 maxRetryDelay)
         {

@@ -288,16 +288,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 modelBuilder =>
-                {
-                    modelBuilder.Entity(
-                        "Cat",
-                        x =>
-                            {
-                                x.Property<int>("Id");
-                                x.Property<string>("MouseId");
-                                x.ToTable("Animal");
-                            });
-                },
+                    {
+                        modelBuilder.Entity(
+                            "Cat",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("MouseId");
+                                    x.ToTable("Animal");
+                                });
+                    },
                 _ => { },
                 modelBuilder =>
                     {
@@ -325,16 +325,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 modelBuilder =>
-                {
-                    modelBuilder.Entity(
-                        "Cat",
-                        x =>
-                            {
-                                x.Property<int>("Id");
-                                x.Property<string>("MouseId");
-                                x.ToTable("Animal");
-                            });
-                },
+                    {
+                        modelBuilder.Entity(
+                            "Cat",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.Property<string>("MouseId");
+                                    x.ToTable("Animal");
+                                });
+                    },
                 modelBuilder =>
                     {
                         modelBuilder.Entity(
@@ -412,7 +412,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var dropColumnOperation = Assert.IsType<DropColumnOperation>(operations[0]);
                         Assert.Equal("HandlerId", dropColumnOperation.Name);
                         Assert.Equal("Dog", dropColumnOperation.Table);
-
 
                         var addColumnOperation = Assert.IsType<AddColumnOperation>(operations[1]);
                         Assert.Equal("HandlerId", addColumnOperation.Name);
@@ -3590,13 +3589,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 modelBuilder =>
                     {
                         modelBuilder.Entity("Order").ToTable("Orders").Property<int>("Id");
-                        modelBuilder.Entity("OrderDetails", eb =>
-                            {
-                                eb.Property<int>("Id");
-                                eb.Property<DateTime>("Time");
-                                eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
-                                eb.ToTable("Orders");
-                            });
+                        modelBuilder.Entity(
+                            "OrderDetails", eb =>
+                                {
+                                    eb.Property<int>("Id");
+                                    eb.Property<DateTime>("Time");
+                                    eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
+                                    eb.ToTable("Orders");
+                                });
                     },
                 operations =>
                     {
@@ -3622,12 +3622,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         modelBuilder.Entity(
                             "OrderDetails",
                             eb =>
-                            {
-                                eb.Property<int>("Id");
-                                eb.Property<DateTime>("Time");
-                                eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
-                                eb.ToTable("Orders");
-                            });
+                                {
+                                    eb.Property<int>("Id");
+                                    eb.Property<DateTime>("Time");
+                                    eb.HasOne("Order").WithOne().HasForeignKey("OrderDetails", "Id");
+                                    eb.ToTable("Orders");
+                                });
                     },
                 operations =>
                     {

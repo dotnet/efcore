@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Expression<Func<TContext, DbSet<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, TParam1, AsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TParam1, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TParam4, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, IQueryable<TResult>>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
+            => new CompiledAsyncEnumerableQuery<TContext, TResult>(queryExpression).Execute;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, Task<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, CancellationToken, Task<TResult>> CompileAsyncQuery<TContext, TResult>(
             [NotNull] Expression<Func<TContext, CancellationToken, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, TParam1, Task<TResult>> CompileAsyncQuery<TContext, TParam1, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Func<TContext, TParam1, CancellationToken, Task<TResult>> CompileAsyncQuery<TContext, TParam1, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, CancellationToken, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, CancellationToken, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, CancellationToken, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TParam4, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TParam4, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, CancellationToken, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
 
         /// <summary>
         ///     Creates a compiled query delegate that when invoked will execute the specified LINQ query.
@@ -299,6 +299,6 @@ namespace Microsoft.EntityFrameworkCore
             TContext, TParam1, TParam2, TParam3, TParam4, TParam5, TResult>(
             [NotNull] Expression<Func<TContext, TParam1, TParam2, TParam3, TParam4, TParam5, CancellationToken, TResult>> queryExpression)
             where TContext : DbContext
-        => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
+            => new CompiledAsyncTaskQuery<TContext, TResult>(queryExpression).ExecuteAsync;
     }
 }

@@ -82,8 +82,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
                 return new TemporaryDoubleValueGenerator();
             }
 
-            throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(
-                nameof(TemporaryNumberValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+            throw new ArgumentException(
+                CoreStrings.InvalidValueGeneratorFactoryProperty(
+                    nameof(TemporaryNumberValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }
 }

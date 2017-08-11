@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly TestHelpers _testHelpers;
 
-        protected EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers) 
+        protected EntityFrameworkServiceCollectionExtensionsTest(TestHelpers testHelpers)
             => _testHelpers = testHelpers;
 
         [Fact]

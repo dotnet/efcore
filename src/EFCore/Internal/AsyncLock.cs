@@ -36,9 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var wait = _semaphore.WaitAsync(cancellationToken);
 
-            return wait.IsCompleted ?
-                _releaserTask :
-                wait.ContinueWith((_, state) => ((AsyncLock)state)._releaser,
+            return wait.IsCompleted
+                ? _releaserTask
+                : wait.ContinueWith(
+                    (_, state) => ((AsyncLock)state)._releaser,
                     this, CancellationToken.None,
                     TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }

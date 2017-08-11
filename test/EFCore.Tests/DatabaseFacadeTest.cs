@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         private class FakeDbContextTransactionManager : IDbContextTransactionManager
         {
             private readonly FakeDbContextTransaction _transaction;
-            
+
             public FakeDbContextTransactionManager(FakeDbContextTransaction transaction)
             {
                 _transaction = transaction;
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
             public int CommitCalls;
             public int RollbackCalls;
 
-            public IDbContextTransaction BeginTransaction() 
+            public IDbContextTransaction BeginTransaction()
                 => _transaction;
 
             public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))

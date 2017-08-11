@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
 
                 return newCaller != nullConditionalExpression.Caller
-                    || newAccessOperation != nullConditionalExpression.AccessOperation
+                       || newAccessOperation != nullConditionalExpression.AccessOperation
                     ? new NullConditionalExpression(newCaller, newAccessOperation)
                     : node;
             }

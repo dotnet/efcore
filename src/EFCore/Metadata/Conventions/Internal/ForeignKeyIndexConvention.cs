@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (!foreignKey.IsUnique
                     && (foreignKey.DeclaringEntityType.GetKeys()
-                        .Any(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, existingIndexUniqueness: true))
+                            .Any(k => AreIndexedBy(foreignKey.Properties, false, k.Properties, existingIndexUniqueness: true))
                         || foreignKey.DeclaringEntityType.GetIndexes()
                             .Any(i => AreIndexedBy(foreignKey.Properties, false, i.Properties, i.IsUnique))))
                 {

@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
-        public virtual DbSet<TEntity> Set<TEntity>() where TEntity : class 
+        public virtual DbSet<TEntity> Set<TEntity>()
+            where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
         private IEntityFinder Finder(Type type)
@@ -336,8 +337,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     An error is encountered while saving to the database.
         /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
-        ///     A concurrency violation is encountered while saving to the database. 
-        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     A concurrency violation is encountered while saving to the database.
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
         [DebuggerStepThrough]
@@ -362,8 +363,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     An error is encountered while saving to the database.
         /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
-        ///     A concurrency violation is encountered while saving to the database. 
-        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     A concurrency violation is encountered while saving to the database.
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
         [DebuggerStepThrough]
@@ -416,8 +417,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     An error is encountered while saving to the database.
         /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
-        ///     A concurrency violation is encountered while saving to the database. 
-        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     A concurrency violation is encountered while saving to the database.
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -450,11 +451,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     An error is encountered while saving to the database.
         /// </exception>
         /// <exception cref="DbUpdateConcurrencyException">
-        ///     A concurrency violation is encountered while saving to the database. 
-        ///     A concurrency violation occurs when an unexpected number of rows are affected during save. 
+        ///     A concurrency violation is encountered while saving to the database.
+        ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
+        public virtual async Task<int> SaveChangesAsync(
+            bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             CheckDisposed();
@@ -550,7 +552,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to get the entry for. </param>
         /// <returns> The entry for the given entity. </returns>
-        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity) where TEntity : class
+        public virtual EntityEntry<TEntity> Entry<TEntity>([NotNull] TEntity entity)
+            where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
@@ -560,7 +563,8 @@ namespace Microsoft.EntityFrameworkCore
             return EntryWithoutDetectChanges(entity);
         }
 
-        private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity) where TEntity : class
+        private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity)
+            where TEntity : class
             => new EntityEntry<TEntity>(DbContextDependencies.StateManager.GetOrCreateEntry(entity));
 
         /// <summary>
@@ -598,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore
             else
             {
                 entry.SetEntityState(
-                    entityState, 
+                    entityState,
                     acceptChanges: true,
                     forceStateWhenUnknownKey: true);
             }
@@ -612,17 +616,17 @@ namespace Microsoft.EntityFrameworkCore
             if (entry.EntityState == EntityState.Detached)
             {
                 await DbContextDependencies.EntityGraphAttacher.AttachGraphAsync(
-                    entry, 
-                    entityState, 
+                    entry,
+                    entityState,
                     forceStateWhenUnknownKey: true,
                     cancellationToken: cancellationToken);
             }
             else
             {
                 await entry.SetEntityStateAsync(
-                    entityState, 
+                    entityState,
                     acceptChanges: true,
-                    forceStateWhenUnknownKey: true, 
+                    forceStateWhenUnknownKey: true,
                     cancellationToken: cancellationToken);
             }
         }
@@ -638,7 +642,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity) where TEntity : class
+        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity)
+            where TEntity : class
         {
             CheckDisposed();
 
@@ -701,7 +706,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity) where TEntity : class
+        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity)
+            where TEntity : class
         {
             CheckDisposed();
 
@@ -734,7 +740,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity) where TEntity : class
+        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity)
+            where TEntity : class
         {
             CheckDisposed();
 
@@ -763,7 +770,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity) where TEntity : class
+        public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity)
+            where TEntity : class
         {
             Check.NotNull(entity, nameof(entity));
             CheckDisposed();
@@ -788,7 +796,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private EntityEntry<TEntity> SetEntityState<TEntity>(
             TEntity entity,
-            EntityState entityState) where TEntity : class
+            EntityState entityState)
+            where TEntity : class
         {
             var entry = EntryWithoutDetectChanges(entity);
 
@@ -1214,9 +1223,10 @@ namespace Microsoft.EntityFrameworkCore
                     SetEntityState(entry, EntityState.Unchanged);
                 }
 
-                entry.SetEntityState(initialState == EntityState.Added
-                    ? EntityState.Detached
-                    : EntityState.Deleted);
+                entry.SetEntityState(
+                    initialState == EntityState.Added
+                        ? EntityState.Detached
+                        : EntityState.Deleted);
             }
         }
 
@@ -1282,7 +1292,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+        public virtual TEntity Find<TEntity>([NotNull] params object[] keyValues)
+            where TEntity : class
         {
             CheckDisposed();
 
@@ -1299,7 +1310,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues) where TEntity : class
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] params object[] keyValues)
+            where TEntity : class
         {
             CheckDisposed();
 
@@ -1317,7 +1329,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or null.</returns>
-        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken) where TEntity : class
+        public virtual Task<TEntity> FindAsync<TEntity>([NotNull] object[] keyValues, CancellationToken cancellationToken)
+            where TEntity : class
         {
             CheckDisposed();
 

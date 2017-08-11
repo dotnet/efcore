@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
         public async Task<TResult[]> ToArrayAsync(
-                CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default(CancellationToken))
             => (await ToListAsync(cancellationToken)).ToArray();
 
         /// <summary>

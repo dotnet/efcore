@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => TryAdd(serviceType, implementationType, ServiceLifetime.Singleton);
 
         /// <summary>
-        ///     Adds a service implemented by the given concrete type if no service for the given service 
+        ///     Adds a service implemented by the given concrete type if no service for the given service
         ///     type has already been registered.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => TryAdd(serviceType, factory, ServiceLifetime.Singleton);
 
         /// <summary>
-        ///     Adds a service implemented by the given factory if no service for the given service type 
+        ///     Adds a service implemented by the given factory if no service for the given service type
         ///     has already been registered.
         /// </summary>
         /// <param name="serviceType"> The contract for the service. </param>
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="implementation"> The object that implements the service. </param>
         /// <returns> The map, such that further calls can be chained. </returns>
         public virtual ServiceCollectionMap TryAddSingleton([NotNull] Type serviceType, [CanBeNull] object implementation)
-        { 
+        {
             Check.NotNull(serviceType, nameof(serviceType));
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);

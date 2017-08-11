@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             await internalEntityEntry.SetEntityStateAsync(
                 internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
-                    ? tuple.State : EntityState.Added,
+                    ? tuple.State
+                    : EntityState.Added,
                 acceptChanges: true,
                 forceStateWhenUnknownKey: tuple.Force,
                 cancellationToken: cancellationToken);

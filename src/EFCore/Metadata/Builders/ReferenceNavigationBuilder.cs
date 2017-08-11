@@ -203,8 +203,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     && referenceName != null
                     && ReferenceName == referenceName)
                 {
-                    throw new InvalidOperationException(CoreStrings.DuplicateNavigation(
-                        referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.DuplicateNavigation(
+                            referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
                 }
 
                 var pointsToPrincipal = !foreingKey.IsSelfReferencing()
@@ -271,15 +272,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private static void ThrowForConflictingNavigation(ForeignKey foreingKey, string newInverseName, bool newToPrincipal)
         {
-            throw new InvalidOperationException(CoreStrings.ConflictingRelationshipNavigation(
-                foreingKey.PrincipalEntityType.DisplayName(),
-                newToPrincipal ? foreingKey.PrincipalToDependent.Name : newInverseName,
-                foreingKey.DeclaringEntityType.DisplayName(),
-                newToPrincipal ? newInverseName : foreingKey.DependentToPrincipal.Name,
-                foreingKey.PrincipalEntityType.DisplayName(),
-                foreingKey.PrincipalToDependent.Name,
-                foreingKey.DeclaringEntityType.DisplayName(),
-                foreingKey.DependentToPrincipal.Name));
+            throw new InvalidOperationException(
+                CoreStrings.ConflictingRelationshipNavigation(
+                    foreingKey.PrincipalEntityType.DisplayName(),
+                    newToPrincipal ? foreingKey.PrincipalToDependent.Name : newInverseName,
+                    foreingKey.DeclaringEntityType.DisplayName(),
+                    newToPrincipal ? newInverseName : foreingKey.DependentToPrincipal.Name,
+                    foreingKey.PrincipalEntityType.DisplayName(),
+                    foreingKey.PrincipalToDependent.Name,
+                    foreingKey.DeclaringEntityType.DisplayName(),
+                    foreingKey.DependentToPrincipal.Name));
         }
     }
 }

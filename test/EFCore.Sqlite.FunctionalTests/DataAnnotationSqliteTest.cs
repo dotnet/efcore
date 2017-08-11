@@ -100,13 +100,15 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            Assert.Contains(@"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+            Assert.Contains(
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
 FROM ""Sample"" AS ""r""
 WHERE ""r"".""UniqueNo"" = 1
 LIMIT 1",
                 Sql);
 
-            Assert.Contains(@"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+            Assert.Contains(
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
 FROM ""Sample"" AS ""r""
 WHERE ""r"".""UniqueNo"" = 1
 LIMIT 1
@@ -135,7 +137,8 @@ SELECT changes();",
         {
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
-            Assert.Contains(@"@p0='' (DbType = String)
+            Assert.Contains(
+                @"@p0='' (DbType = String)
 @p1='Third' (Nullable = false)
 @p2='00000000-0000-0000-0000-000000000003' (DbType = String)
 
@@ -160,11 +163,13 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Contains(@"@p1='1' (DbType = String)
+            Assert.Contains(
+                @"@p1='1' (DbType = String)
 ",
                 Sql);
 
-            Assert.Contains(@"@p1='' (Nullable = false) (DbType = String)
+            Assert.Contains(
+                @"@p1='' (Nullable = false) (DbType = String)
 ",
                 Sql);
         }
@@ -173,7 +178,8 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
-            Assert.Contains(@"@p0='' (DbType = String)
+            Assert.Contains(
+                @"@p0='' (DbType = String)
 @p1='ValidString' (Nullable = false)
 @p2='00000000-0000-0000-0000-000000000001' (DbType = String)
 
@@ -184,7 +190,8 @@ FROM ""Sample""
 WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
 
-            Assert.Contains(@"@p0='' (DbType = String)
+            Assert.Contains(
+                @"@p0='' (DbType = String)
 @p1='' (Nullable = false) (DbType = String)
 @p2='00000000-0000-0000-0000-000000000002' (DbType = String)
 

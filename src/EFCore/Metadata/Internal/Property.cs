@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual EntityType DeclaringEntityType { [DebuggerStepThrough]  get; }
+        public virtual EntityType DeclaringEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -79,8 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public new virtual EntityType DeclaringType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -467,7 +466,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string Format([NotNull] IEnumerable<IProperty> properties, bool includeTypes = false)
             => "{"
-               + string.Join(", ",
+               + string.Join(
+                   ", ",
                    properties.Select(p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
                + "}";
 
@@ -485,13 +485,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(entityType, nameof(entityType));
 
-            return properties.All(property =>
-                property.IsShadowProperty
-                || (entityType.HasClrType()
-                    && ((property.PropertyInfo != null
-                         && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)
-                        || (property.FieldInfo != null
-                            && entityType.ClrType.GetFieldInfo(property.Name) != null))));
+            return properties.All(
+                property =>
+                    property.IsShadowProperty
+                    || (entityType.HasClrType()
+                        && ((property.PropertyInfo != null
+                             && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)
+                            || (property.FieldInfo != null
+                                && entityType.ClrType.GetFieldInfo(property.Name) != null))));
         }
 
         /// <summary>
@@ -500,7 +501,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyIndexes PropertyIndexes
         {
-            get => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, this,
+            get => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _indexes, this,
                 property => property.DeclaringType.CalculateIndexes(property));
 
             [param: CanBeNull]

@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual TResult ExecuteCore(
-                [NotNull] TContext context,
-                [NotNull] params object[] parameters)
+            [NotNull] TContext context,
+            [NotNull] params object[] parameters)
             => ExecuteCore(context, default(CancellationToken), parameters);
 
         /// <summary>

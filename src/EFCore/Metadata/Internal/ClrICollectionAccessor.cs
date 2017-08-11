@@ -88,8 +88,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (_createCollection == null)
             {
-                throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
-                    _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.NavigationCannotCreateType(
+                        _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
             }
 
             return _createCollection();
@@ -129,8 +130,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (_createAndSetCollection == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
-                        _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationCannotCreateType(
+                            _propertyName, typeof(TEntity).ShortDisplayName(), typeof(TCollection).ShortDisplayName()));
                 }
 
                 collection = (ICollection<TElement>)_createAndSetCollection((TEntity)instance, _setCollection);

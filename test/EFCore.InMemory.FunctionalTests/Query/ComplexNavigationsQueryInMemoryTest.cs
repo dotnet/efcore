@@ -3,7 +3,6 @@
 
 using Xunit.Abstractions;
 
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ComplexNavigationsQueryInMemoryTest : ComplexNavigationsQueryTestBase<ComplexNavigationsQueryInMemoryFixture>

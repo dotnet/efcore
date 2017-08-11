@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     /// <summary>
-    ///     Used to generate C# code for creating <see cref="MigrationOperation"/> objects.
+    ///     Used to generate C# code for creating <see cref="MigrationOperation" /> objects.
     /// </summary>
     public interface ICSharpMigrationOperationGenerator
     {
         /// <summary>
-        ///     Generates code for creating <see cref="MigrationOperation"/> objects.
+        ///     Generates code for creating <see cref="MigrationOperation" /> objects.
         /// </summary>
-        /// <param name="builderName"> The <see cref="MigrationOperation"/> variable name. </param>
+        /// <param name="builderName"> The <see cref="MigrationOperation" /> variable name. </param>
         /// <param name="operations"> The operations. </param>
         /// <param name="builder"> The builder code is added to. </param>
         void Generate(

@@ -22,14 +22,14 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, CreateAndUseFactory(entityType.FindProperty("Id")));
             Assert.Equal(1L, CreateAndUseFactory(entityType.FindProperty("Long")));
             Assert.Equal((short)1, CreateAndUseFactory(entityType.FindProperty("Short")));
-            Assert.Equal(unchecked((byte)1), CreateAndUseFactory(entityType.FindProperty("Byte")));
+            Assert.Equal((byte)1, CreateAndUseFactory(entityType.FindProperty("Byte")));
             Assert.Equal((int?)1, CreateAndUseFactory(entityType.FindProperty("NullableInt")));
             Assert.Equal((long?)1, CreateAndUseFactory(entityType.FindProperty("NullableLong")));
             Assert.Equal((short?)1, CreateAndUseFactory(entityType.FindProperty("NullableShort")));
             Assert.Equal((byte?)1, CreateAndUseFactory(entityType.FindProperty("NullableByte")));
-            Assert.Equal(unchecked((uint)1), CreateAndUseFactory(entityType.FindProperty("UInt")));
-            Assert.Equal(unchecked((ulong)1), CreateAndUseFactory(entityType.FindProperty("ULong")));
-            Assert.Equal(unchecked((ushort)1), CreateAndUseFactory(entityType.FindProperty("UShort")));
+            Assert.Equal((uint)1, CreateAndUseFactory(entityType.FindProperty("UInt")));
+            Assert.Equal((ulong)1, CreateAndUseFactory(entityType.FindProperty("ULong")));
+            Assert.Equal((ushort)1, CreateAndUseFactory(entityType.FindProperty("UShort")));
             Assert.Equal((sbyte)1, CreateAndUseFactory(entityType.FindProperty("SByte")));
             Assert.Equal((uint?)1, CreateAndUseFactory(entityType.FindProperty("NullableUInt")));
             Assert.Equal((ulong?)1, CreateAndUseFactory(entityType.FindProperty("NullableULong")));

@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 contexts.Add(
                     context,
                     FindContextFactory(context)
-                        ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
+                    ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
             }
 
             // Look for DbContext classes in assemblies

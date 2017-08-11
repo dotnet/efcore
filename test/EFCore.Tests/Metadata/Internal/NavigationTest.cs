@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IForeignKey ForeignKey { get; }
             public bool IsEagerLoaded { get; }
         }
-        
+
         [Fact]
         public void Can_create_navigation()
         {

@@ -21,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             => memberExpression.Expression != null
                && (memberExpression.Expression.Type == typeof(DateTime) || memberExpression.Expression.Type == typeof(DateTimeOffset))
                && memberExpression.Member.Name == nameof(DateTime.Date)
-                ? new SqlFunctionExpression("CONVERT",
+                ? new SqlFunctionExpression(
+                    "CONVERT",
                     memberExpression.Type,
                     new[]
                     {

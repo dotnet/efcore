@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetSchema([CanBeNull] string schema, ConfigurationSource configurationSource)
         {
             _schema = schema;
-            
+
             UpdateSchemaConfigurationSource(configurationSource);
         }
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(functionName, nameof(functionName));
 
             _functionName = functionName;
-            
+
             UpdateNameConfigurationSource(configurationSource);
         }
 

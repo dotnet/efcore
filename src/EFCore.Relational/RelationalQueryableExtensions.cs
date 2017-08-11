@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <code>context.Blogs.FromSql("SELECT * FROM [dbo].[SearchBlogs]({0})", userSuppliedSearchTerm)</code>.
         ///     </para>
         ///     <para>
-        ///         This overload also accepts DbParameter instances as parameter values. This allows you to use named 
+        ///         This overload also accepts DbParameter instances as parameter values. This allows you to use named
         ///         parameters in the SQL query string -
         ///         <code>context.Blogs.FromSql("SELECT * FROM [dbo].[SearchBlogs]({@searchTerm})", new SqlParameter("@searchTerm", userSuppliedSearchTerm))</code>
         ///     </para>

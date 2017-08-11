@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var snapshotParameter = Expression.Parameter(typeof(TSnapshot), "snapshot");
 
-                delegates[i] = Expression.Lambda(typeof(Func<,>).MakeGenericType(typeof(TSnapshot), genericArguments[i]),
+                delegates[i] = Expression.Lambda(
+                        typeof(Func<,>).MakeGenericType(typeof(TSnapshot), genericArguments[i]),
                         Expression.Field(snapshotParameter, "_value" + i), snapshotParameter)
                     .Compile();
             }

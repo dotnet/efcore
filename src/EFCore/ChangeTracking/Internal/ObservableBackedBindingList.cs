@@ -177,8 +177,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
 
                     if (e.Action == NotifyCollectionChangedAction.Remove
-                        ||
-                        e.Action == NotifyCollectionChangedAction.Replace)
+                        || e.Action == NotifyCollectionChangedAction.Replace)
                     {
                         foreach (T entity in e.OldItems)
                         {
@@ -187,8 +186,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
 
                     if (e.Action == NotifyCollectionChangedAction.Add
-                        ||
-                        e.Action == NotifyCollectionChangedAction.Replace)
+                        || e.Action == NotifyCollectionChangedAction.Replace)
                     {
                         foreach (T entity in e.NewItems)
                         {

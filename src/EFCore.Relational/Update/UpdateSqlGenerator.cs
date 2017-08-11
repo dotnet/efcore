@@ -187,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 commandStringBuilder
                     .Append(" (")
-                    .AppendJoin(operations,
+                    .AppendJoin(
+                        operations,
                         SqlGenerationHelper,
                         (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName))
                     .Append(")");
@@ -332,20 +333,21 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 commandStringBuilder
                     .Append(" AND ")
-                    .AppendJoin(operations, (sb, v) =>
-                        {
-                            if (v.IsKey)
+                    .AppendJoin(
+                        operations, (sb, v) =>
                             {
-                                if (v.IsRead)
+                                if (v.IsKey)
                                 {
-                                    AppendIdentityWhereCondition(sb, v);
+                                    if (v.IsRead)
+                                    {
+                                        AppendIdentityWhereCondition(sb, v);
+                                    }
+                                    else
+                                    {
+                                        AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                                    }
                                 }
-                                else
-                                {
-                                    AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
-                                }
-                            }
-                        }, " AND ");
+                            }, " AND ");
             }
         }
 
@@ -372,9 +374,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             else
             {
                 commandStringBuilder.Append(" = ");
-                SqlGenerationHelper.GenerateParameterName(commandStringBuilder, useOriginalValue
-                    ? columnModification.OriginalParameterName
-                    : columnModification.ParameterName);
+                SqlGenerationHelper.GenerateParameterName(
+                    commandStringBuilder, useOriginalValue
+                        ? columnModification.OriginalParameterName
+                        : columnModification.ParameterName);
             }
         }
 

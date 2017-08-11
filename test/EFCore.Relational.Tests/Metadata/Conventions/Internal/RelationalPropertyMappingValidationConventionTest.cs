@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.PropertyNotMapped(
+            Assert.Equal(
+                CoreStrings.PropertyNotMapped(
                     typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(Tuple<long>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }
@@ -31,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Convention).Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
 
-            Assert.Equal(CoreStrings.PropertyNotMapped(
+            Assert.Equal(
+                CoreStrings.PropertyNotMapped(
                     typeof(NonPrimitiveAsPropertyEntity).ShortDisplayName(), "LongProperty", typeof(Tuple<long>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => CreateConvention().Apply(modelBuilder)).Message);
         }

@@ -98,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <typeparam name="TEntity"> The type of entities to get entries for. </typeparam>
         /// <returns> An entry for each entity of the given type that is being tracked. </returns>
-        public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>() where TEntity : class
+        public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>()
+            where TEntity : class
         {
             TryDetectChanges();
 

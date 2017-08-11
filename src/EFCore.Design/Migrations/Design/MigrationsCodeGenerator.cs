@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator"/> class.
+        ///     Initializes a new instance of the <see cref="MigrationsCodeGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
         public MigrationsCodeGenerator([NotNull] MigrationsCodeGeneratorDependencies dependencies)
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Generates the migration metadata code.
         /// </summary>
         /// <param name="migrationNamespace"> The migration's namespace. </param>
-        /// <param name="contextType"> The migration's <see cref="DbContext"/> type. </param>
+        /// <param name="contextType"> The migration's <see cref="DbContext" /> type. </param>
         /// <param name="migrationName"> The migration's name. </param>
         /// <param name="migrationId"> The migration's ID. </param>
         /// <param name="targetModel"> The migraiton's target model. </param>
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Generates the model snapshot code.
         /// </summary>
         /// <param name="modelSnapshotNamespace"> The model snapshot's namespace. </param>
-        /// <param name="contextType"> The model snapshot's <see cref="DbContext"/> type. </param>
+        /// <param name="contextType"> The model snapshot's <see cref="DbContext" /> type. </param>
         /// <param name="modelSnapshotName"> The model snapshot's name. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The model snapshot code. </returns>
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IModel model);
 
         /// <summary>
-        ///     Gets the namespaces required for a list of <see cref="MigrationOperation"/> objects.
+        ///     Gets the namespaces required for a list of <see cref="MigrationOperation" /> objects.
         /// </summary>
         /// <param name="operations"> The operations. </param>
         /// <returns> The namespaces. </returns>
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Gets the namespaces required for an <see cref="IModel"/>.
+        ///     Gets the namespaces required for an <see cref="IModel" />.
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The namespaces. </returns>

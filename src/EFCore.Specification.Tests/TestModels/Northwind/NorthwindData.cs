@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             }
         }
 
-        public IQueryable<TEntity> Set<TEntity>() where TEntity : class
+        public IQueryable<TEntity> Set<TEntity>()
+            where TEntity : class
         {
             if (typeof(TEntity) == typeof(Customer))
             {

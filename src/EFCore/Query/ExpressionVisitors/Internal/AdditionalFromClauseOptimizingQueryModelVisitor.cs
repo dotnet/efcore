@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -79,11 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             foreach (var bodyClause in oldQueryModel.BodyClauses.ToArray())
             {
-                bodyClause.TransformExpressions(expression =>
-                    ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
-                        expression,
-                        querySourceMapping,
-                        throwOnUnmappedReferences: false));
+                bodyClause.TransformExpressions(
+                    expression =>
+                        ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
+                            expression,
+                            querySourceMapping,
+                            throwOnUnmappedReferences: false));
 
                 oldQueryModel.BodyClauses.Remove(bodyClause);
                 newQueryModel.BodyClauses.Add(bodyClause);

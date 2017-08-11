@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 Console.OutputEncoding = Encoding.UTF8;
             }
 
-            var app = new CommandLineApplication()
+            var app = new CommandLineApplication
             {
                 Name = "ef"
             };

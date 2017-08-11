@@ -119,10 +119,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private Func<QueryContext, TResult> CompileQueryCore<TResult>(
-            Expression query, 
-            INodeTypeProvider nodeTypeProvider, 
-            IDatabase database, 
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger, 
+            Expression query,
+            INodeTypeProvider nodeTypeProvider,
+            IDatabase database,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             Type contextType)
         {
             var queryModel
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private static Func<QueryContext, Task<TResult>> CreateCompiledSingletonAsyncQuery<TResult>(
-                Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, IDiagnosticsLogger<DbLoggerCategory.Query> logger, Type contextType)
+            Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery, IDiagnosticsLogger<DbLoggerCategory.Query> logger, Type contextType)
             => qc => ExecuteSingletonAsyncQuery(qc, compiledQuery, logger, contextType);
 
         /// <summary>

@@ -99,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         };
 
         private static readonly Regex _invalidCharsRegex
-            = new Regex(@"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]",
+            = new Regex(
+                @"[^\p{Ll}\p{Lu}\p{Lt}\p{Lo}\p{Nd}\p{Nl}\p{Mn}\p{Mc}\p{Cf}\p{Pc}\p{Lm}]",
                 default(RegexOptions),
                 TimeSpan.FromMilliseconds(1000.0));
 

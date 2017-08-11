@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                  let selectExpression = v.TryGetQuery(querySource)
                  where selectExpression != null
                  select selectExpression)
-                    .First();
+                .First();
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return currentAlias;
             }
 
-            while(currentAlias.Length > MaxTableAliasLength - 3)
+            while (currentAlias.Length > MaxTableAliasLength - 3)
             {
                 var index = currentAlias.IndexOf(".", StringComparison.OrdinalIgnoreCase);
                 currentAlias = index > 0 ? currentAlias.Substring(index + 1) : currentAlias.Substring(0, MaxTableAliasLength - 3);

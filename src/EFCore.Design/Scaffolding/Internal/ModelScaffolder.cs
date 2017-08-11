@@ -103,10 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 @namespace += "." + string.Join(
                                   ".", relativeOutputPath
                                       .Split(_directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries)
-                                      .Select(p => _cSharpUtilities.GenerateCSharpIdentifier(
-                                          p,
-                                          existingIdentifiers: null,
-                                          singularizePluralizer: null)));
+                                      .Select(
+                                          p => _cSharpUtilities.GenerateCSharpIdentifier(
+                                              p,
+                                              existingIdentifiers: null,
+                                              singularizePluralizer: null)));
             }
 
             if (string.IsNullOrEmpty(contextName))

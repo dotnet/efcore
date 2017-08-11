@@ -92,29 +92,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 source => source.Entity(
                     "Person",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").HasName("PK_People");
-                        x.ToTable("People", "dbo");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_People");
+                            x.ToTable("People", "dbo");
+                        }),
                 modelBuilder => modelBuilder.Entity(
                     "Person",
                     x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").HasName("PK_People");
-                        x.ToTable("People", "dbo");
-                        x.Property<string>("FirstName");
-                        x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + [LastName]");
-                        x.Property<string>("LastName");
-                    }),
+                        {
+                            x.Property<int>("Id");
+                            x.HasKey("Id").HasName("PK_People");
+                            x.ToTable("People", "dbo");
+                            x.Property<string>("FirstName");
+                            x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + [LastName]");
+                            x.Property<string>("LastName");
+                        }),
                 operations =>
-                {
-                    Assert.Equal(3, operations.Count);
+                    {
+                        Assert.Equal(3, operations.Count);
 
-                    var columnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
-                    Assert.Equal("[FirstName] + [LastName]", columnOperation.ComputedColumnSql);
-                });
+                        var columnOperation = Assert.IsType<AddColumnOperation>(operations[2]);
+                        Assert.Equal("[FirstName] + [LastName]", columnOperation.ComputedColumnSql);
+                    });
         }
 
         [Fact]
@@ -325,12 +325,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), new Type[] { });
 
             Execute(
-                 _ => { },
+                _ => { },
                 modelBuilder => modelBuilder.HasDbFunction(mi),
-                operations =>
-                {
-                    Assert.Equal(0, operations.Count);
-                });
+                operations => { Assert.Equal(0, operations.Count); });
         }
 
         [Fact]

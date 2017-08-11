@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        /// The SQL fragment.
+        ///     The SQL fragment.
         /// </summary>
         public virtual string Sql { get; }
 

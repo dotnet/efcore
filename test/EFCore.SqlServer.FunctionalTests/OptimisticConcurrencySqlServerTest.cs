@@ -22,35 +22,36 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var c = CreateF1Context())
             {
-                await c.Database.CreateExecutionStrategy().ExecuteAsync(c, async context =>
-                    {
-                        using (var transaction = context.Database.BeginTransaction())
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                    c, async context =>
                         {
-                            var driver = context.Drivers.Single(d => d.CarNumber == 1);
-                            driver.Podiums = StorePodiums;
-                            var firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                            await context.SaveChangesAsync();
-
-                            using (var innerContext = CreateF1Context())
+                            using (var transaction = context.Database.BeginTransaction())
                             {
-                                innerContext.Database.UseTransaction(transaction.GetDbTransaction());
-                                driver = innerContext.Drivers.Single(d => d.CarNumber == 1);
-                                Assert.NotEqual(firstVersion, innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
-                                Assert.Equal(StorePodiums, driver.Podiums);
+                                var driver = context.Drivers.Single(d => d.CarNumber == 1);
+                                driver.Podiums = StorePodiums;
+                                var firstVersion = context.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                                await context.SaveChangesAsync();
 
-                                var secondVersion = innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue;
-                                innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
-                                await innerContext.SaveChangesAsync();
-                                using (var validationContext = CreateF1Context())
+                                using (var innerContext = CreateF1Context())
                                 {
-                                    validationContext.Database.UseTransaction(transaction.GetDbTransaction());
-                                    driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
-                                    Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
+                                    innerContext.Database.UseTransaction(transaction.GetDbTransaction());
+                                    driver = innerContext.Drivers.Single(d => d.CarNumber == 1);
+                                    Assert.NotEqual(firstVersion, innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
                                     Assert.Equal(StorePodiums, driver.Podiums);
+
+                                    var secondVersion = innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue;
+                                    innerContext.Entry(driver).Property<byte[]>("Version").CurrentValue = firstVersion;
+                                    await innerContext.SaveChangesAsync();
+                                    using (var validationContext = CreateF1Context())
+                                    {
+                                        validationContext.Database.UseTransaction(transaction.GetDbTransaction());
+                                        driver = validationContext.Drivers.Single(d => d.CarNumber == 1);
+                                        Assert.Equal(secondVersion, validationContext.Entry(driver).Property<byte[]>("Version").CurrentValue);
+                                        Assert.Equal(StorePodiums, driver.Podiums);
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
             }
         }
 

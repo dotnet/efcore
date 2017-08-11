@@ -41,5 +41,5 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
             => new ByteArrayTypeMapping(StoreType).GenerateSqlLiteral(((Guid)value).ToByteArray());
-   }
+    }
 }

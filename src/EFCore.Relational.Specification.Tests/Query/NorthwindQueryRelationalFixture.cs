@@ -18,10 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c
-                .Log(RelationalEventId.QueryClientEvaluationWarning)
-                .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
-                .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator));
+            => base.AddOptions(builder).ConfigureWarnings(
+                c => c
+                    .Log(RelationalEventId.QueryClientEvaluationWarning)
+                    .Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning)
+                    .Log(RelationalEventId.QueryPossibleExceptionWithAggregateOperator));
 
         protected override Type ContextType => typeof(NorthwindRelationalContext);
     }

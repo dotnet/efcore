@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             DateTimeOffset startTime,
             TimeSpan duration)
-            : base(eventDefinition, messageGenerator, connection, connectionId, async, startTime, duration) 
+            : base(eventDefinition, messageGenerator, connection, connectionId, async, startTime, duration)
             => Exception = exception;
 
         /// <summary>

@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 {
                     @namespace.Append(identifier)
                         .Append('.');
-            }
+                }
             }
             return @namespace.Length > 0 ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
@@ -335,7 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual string Literal(ulong value) => value + "ul";
         public virtual string Literal(ushort value) => "(ushort)" + value;
 
-        public virtual string Literal<T>(T? value) where T : struct =>
+        public virtual string Literal<T>(T? value)
+            where T : struct =>
             UnknownLiteral(value);
 
         public virtual string Literal<T>(IReadOnlyList<T> values) =>
@@ -359,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             using (builder.Indent())
             {
-                for (int i = 0; i < values.Count; i++)
+                for (var i = 0; i < values.Count; i++)
                 {
                     if (i != 0)
                     {
@@ -423,7 +424,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         public virtual string UnknownLiteral(object value)
         {
-            if (value == null || value == DBNull.Value)
+            if (value == null
+                || value == DBNull.Value)
             {
                 return "null";
             }

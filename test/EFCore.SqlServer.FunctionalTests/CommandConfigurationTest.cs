@@ -97,6 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             // ReSharper disable once UnusedMember.Local
             public int Id { get; set; }
+
             public string Name { get; set; }
             public DateTime BestBuyDate { get; set; }
         }

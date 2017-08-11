@@ -44,17 +44,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(property, nameof(property));
 
             var mapping = (RelationalTypeMapping)property[RelationalAnnotationNames.TypeMapping]
-                ?? typeMapper.FindMapping(property);
+                          ?? typeMapper.FindMapping(property);
 
             if (mapping != null)
             {
                 return mapping;
             }
 
-            throw new InvalidOperationException(RelationalStrings.UnsupportedPropertyType(
-                property.DeclaringEntityType.DisplayName(),
-                property.Name,
-                property.ClrType.ShortDisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.UnsupportedPropertyType(
+                    property.DeclaringEntityType.DisplayName(),
+                    property.Name,
+                    property.ClrType.ShortDisplayName()));
         }
 
         /// <summary>

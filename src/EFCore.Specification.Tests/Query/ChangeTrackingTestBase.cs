@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected ChangeTrackingTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
-        
+
         [Fact]
         public virtual void Entity_reverts_when_state_set_to_unchanged()
         {
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
         // ReSharper restore PossibleMultipleEnumeration
-        
+
         [Fact]
         public virtual void Can_disable_and_reenable_query_result_tracking()
         {
@@ -381,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
-                        .ToList();
+                    .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
-                        .ToList();
+                    .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
@@ -417,8 +417,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                            on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
                        select o)
-                        .AsNoTracking()
-                        .ToList();
+                    .AsNoTracking()
+                    .ToList();
 
                 Assert.Equal(6, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
@@ -428,7 +428,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected NorthwindContext CreateNoTrackingContext()
-            => new NorthwindContext(new DbContextOptionsBuilder(Fixture.CreateOptions())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
+            => new NorthwindContext(
+                new DbContextOptionsBuilder(Fixture.CreateOptions())
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
     }
 }
