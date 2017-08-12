@@ -288,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IEnumerable<T> _ToSequence<T>(T element) => new[] { element };
+        private static IEnumerable<T> _ToSequence<T>(Func<T> getElement) => new[] { getElement() };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

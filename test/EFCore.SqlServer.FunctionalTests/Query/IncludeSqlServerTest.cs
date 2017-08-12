@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
 
+        // ReSharper disable once UnusedParameter.Local
         public IncludeSqlServerTest(IncludeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

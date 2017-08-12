@@ -37,8 +37,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static SqlServerTestStore Create(string name, bool useFileName = false)
             => new SqlServerTestStore(name, useFileName, shared: false);
 
-        public static SqlServerTestStore CreateInitialized(string name, bool useFileName = false)
-            => new SqlServerTestStore(name, useFileName, shared: false).InitializeSqlServer(null, (Func<DbContext>)null, null);
+        public static SqlServerTestStore CreateInitialized(string name, bool useFileName = false, bool? multipleActiveResultSets = null)
+            => new SqlServerTestStore(name, useFileName, shared: false, multipleActiveResultSets: multipleActiveResultSets)
+                .InitializeSqlServer(null, (Func<DbContext>)null, null);
 
         private readonly string _fileName;
         private readonly string _scriptPath;
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private SqlServerTestStore(
             string name,
             bool useFileName = false,
+            bool? multipleActiveResultSets = null,
             string scriptPath = null,
             bool shared = true)
             : base(name, shared)
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location), scriptPath);
             }
 
-            ConnectionString = CreateConnectionString(Name, _fileName);
+            ConnectionString = CreateConnectionString(Name, _fileName, multipleActiveResultSets);
             Connection = new SqlConnection(ConnectionString);
         }
 
@@ -96,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private bool CreateDatabase()
         {
-            using (var master = new SqlConnection(CreateConnectionString("master", false)))
+            using (var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false)))
             {
                 if (ExecuteScalar<int>(master, $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
                 {
@@ -429,20 +431,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public static string CreateConnectionString(string name)
-            => CreateConnectionString(name, null, true); // Force MARS until #9074 is fixed
-
-        public static string CreateConnectionString(string name, string fileName)
-            => CreateConnectionString(name, fileName, true); // Force MARS until #9074 is fixed
-
-        private static string CreateConnectionString(string name, bool multipleActiveResultSets)
-            => CreateConnectionString(name, null, multipleActiveResultSets);
-
-        private static string CreateConnectionString(string name, string fileName, bool multipleActiveResultSets)
+        public static string CreateConnectionString(string name, string fileName = null, bool? multipleActiveResultSets = null)
         {
             var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
-                MultipleActiveResultSets = multipleActiveResultSets,
+                MultipleActiveResultSets = multipleActiveResultSets ?? true, // #9404
                 InitialCatalog = name
             };
             if (fileName != null)

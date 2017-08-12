@@ -304,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IAsyncEnumerable<T> _ToSequence<T>(Task<T> task)
-            => new TaskResultAsyncEnumerable<T>(task);
+        private static IAsyncEnumerable<T> _ToSequence<T>(Func<Task<T>> getElement)
+            => new TaskResultAsyncEnumerable<T>(getElement);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -313,24 +313,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class TaskResultAsyncEnumerable<T> : IAsyncEnumerable<T>
         {
-            private readonly Task<T> _task;
+            private readonly Func<Task<T>> _getElement;
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public TaskResultAsyncEnumerable([NotNull] Task<T> task)
+            public TaskResultAsyncEnumerable([NotNull] Func<Task<T>> getElement)
             {
-                Check.NotNull(task, nameof(task));
+                Check.NotNull(getElement, nameof(getElement));
 
-                _task = task;
+                _getElement = getElement;
             }
 
             /// <summary>
             ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            public IAsyncEnumerator<T> GetEnumerator() => new Enumerator(_task);
+            public IAsyncEnumerator<T> GetEnumerator() => new Enumerator(_getElement());
 
             private sealed class Enumerator : IAsyncEnumerator<T>
             {

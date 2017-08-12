@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -108,17 +106,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 c.CustomerID,
                                 Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
                             }).ToListAsync())
-                    .Select(
-                        x => new
-                        {
-                            Orders = x.Orders
-                                .GroupJoin(
-                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
-                                    {
-                                        h.Customer
-                                    })
-                        })
-                    .ToList();
+                        .Select(
+                            x => new
+                            {
+                                Orders = x.Orders
+                                    .GroupJoin(
+                                        new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                                        {
+                                            h.Customer
+                                        })
+                            })
+                        .ToList();
 
                 Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
             }
@@ -446,9 +444,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                      from o in os
                      orderby c.CustomerID, o.OrderID
                      select new { c, o })
-                    .Take(1)
-                    .Cast<object>()
-                    .SingleAsync(),
+                        .Take(1)
+                        .Cast<object>()
+                        .SingleAsync(),
                 entryCount: 2);
         }
 
@@ -1593,11 +1591,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         CustomerId = c.CustomerID,
                         OrderIds
-                        = os.Where(
+                            = os.Where(
                                 o => o.CustomerID == c.CustomerID
                                      && o.OrderDate.Value.Year == 1997)
-                            .Select(o => o.OrderID)
-                            .OrderBy(o => o),
+                                .Select(o => o.OrderID)
+                                .OrderBy(o => o),
                         Customer = c
                     },
                 elementAsserter: (e, a) =>
@@ -2090,14 +2088,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (from c in cs
                      join e in es on c.City equals e.City into employees
                      select employees)
-                    .SelectMany(emps => emps)
-                    .Select(
-                        e =>
-                            new
-                            {
-                                Title = EF.Property<string>(e, "Title"),
-                                Id = e.EmployeeID
-                            }),
+                        .SelectMany(emps => emps)
+                        .Select(
+                            e =>
+                                new
+                                {
+                                    Title = EF.Property<string>(e, "Title"),
+                                    Id = e.EmployeeID
+                                }),
                 elementSorter: e => e.Id);
         }
 
@@ -2109,14 +2107,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (from c in cs
                      join e in es.OrderBy(e => e.City) on c.City equals e.City into employees
                      select employees)
-                    .SelectMany(emps => emps)
-                    .Select(
-                        e =>
-                            new
-                            {
-                                Title = EF.Property<string>(e, "Title"),
-                                Id = e.EmployeeID
-                            }),
+                        .SelectMany(emps => emps)
+                        .Select(
+                            e =>
+                                new
+                                {
+                                    Title = EF.Property<string>(e, "Title"),
+                                    Id = e.EmployeeID
+                                }),
                 elementSorter: e => e.Title + " " + e.Id);
         }
 
@@ -2436,8 +2434,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Employee>(
                 es =>
                     es.Where(
-                            e => EF.Property<string>(e, "Title") == "Sales Representative"
-                                 && e.EmployeeID == 1)
+                        e => EF.Property<string>(e, "Title") == "Sales Representative"
+                             && e.EmployeeID == 1)
                         .GroupBy(e => EF.Property<string>(e, "Title"))
                         .Select(g => EF.Property<string>(g.First(), "Title")));
         }
@@ -2448,8 +2446,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Employee>(
                 es =>
                     es.Where(
-                            e => EF.Property<string>(e, "Title") == "Sales Representative"
-                                 && e.EmployeeID == 1)
+                        e => EF.Property<string>(e, "Title") == "Sales Representative"
+                             && e.EmployeeID == 1)
                         .GroupBy(e => EF.Property<string>(e, "Title"))
                         .Select(g => g.First()));
         }
@@ -3485,12 +3483,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                using (var synchronizationEvent = new ManualResetEventSlim(false))
+                {
+                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    {
+                        var blockingTask = Task.Run(() =>
+                            context.Customers.Select(
+                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () => await context.Customers.ToListAsync())).Message);
+                        var throwingTask = Task.Run(async () =>
+                            {
+                                synchronizationEvent.Wait();
+
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                                        () => context.Customers.ToListAsync())).Message);
+                            });
+
+                        await throwingTask;
+
+                        blockingSemaphore.Release(1);
+
+                        await blockingTask;
+                    }
+                }
             }
         }
 
@@ -3499,13 +3516,39 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                using (var synchronizationEvent = new ManualResetEventSlim(false))
+                {
+                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    {
+                        var blockingTask = Task.Run(() =>
+                            context.Customers.Select(
+                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () => await context.Customers.FirstAsync())).Message);
+                        var throwingTask = Task.Run(async () =>
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                                        () => context.Customers.FirstAsync())).Message);
+                            });
+
+                        await throwingTask;
+
+                        blockingSemaphore.Release(1);
+
+                        await blockingTask;
+                    }
+                }
             }
+        }
+
+        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        {
+            e.Set();
+            s.Wait();
+            s.Release(1);
+            return c;
         }
 
         // Set Operations

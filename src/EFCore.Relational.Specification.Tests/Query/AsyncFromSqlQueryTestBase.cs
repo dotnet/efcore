@@ -19,8 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected AsyncFromSqlQueryTestBase(TFixture fixture)
         {
             Fixture = fixture;
-            // #9074
-            Fixture.TestStore.CloseConnection();
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
@@ -382,6 +380,7 @@ FROM ""Customers""")
         [Fact]
         public virtual async Task Include_closed_connection_opened_by_it_when_buffering()
         {
+            Fixture.TestStore.CloseConnection();
             using (var context = CreateContext())
             {
                 var connection = context.Database.GetDbConnection();

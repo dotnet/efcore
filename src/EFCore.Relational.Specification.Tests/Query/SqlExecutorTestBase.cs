@@ -3,14 +3,15 @@
 
 using System;
 using System.Data.Common;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
 // ReSharper disable InconsistentNaming
 // ReSharper disable ConvertToConstant.Local
 namespace Microsoft.EntityFrameworkCore.Query
@@ -56,12 +57,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+                using (var synchronizationEvent = new ManualResetEventSlim(false))
+                {
+                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    {
+                        var blockingTask = Task.Run(() =>
+                            context.Customers.Select(
+                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+
+                        var throwingTask = Task.Run(() =>
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    Assert.Throws<InvalidOperationException>(
+                                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+                            });
+
+                        throwingTask.Wait();
+
+                        blockingSemaphore.Release(1);
+
+                        blockingTask.Wait();
+                    }
+                }
             }
         }
 
@@ -201,13 +222,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () => await context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
+                using (var synchronizationEvent = new ManualResetEventSlim(false))
+                {
+                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    {
+                        var blockingTask = Task.Run(() =>
+                            context.Customers.Select(
+                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+
+                        var throwingTask = Task.Run(async () =>
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                                        () => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
+                            });
+
+                        await throwingTask;
+
+                        blockingSemaphore.Release(1);
+
+                        await blockingTask;
+                    }
+                }
             }
+        }
+
+        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        {
+            e.Set();
+            s.Wait();
+            s.Release(1);
+            return c;
         }
 
         [Fact]

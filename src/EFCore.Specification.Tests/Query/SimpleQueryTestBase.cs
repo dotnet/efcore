@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable ReplaceWithSingleCallToAny
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c in customerRepository.Find()
                        where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
                        select c)
-                    .ToList();
+                        .ToList();
 
                 Assert.Equal(89, results.Count);
 
@@ -106,13 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c1_Orders in context.Orders
                        join _c1 in
                            (from c1 in
-                                (from c in context.Customers
-                                 orderby c.CustomerID
-                                 select c)
-                                .Take(2)
+                               (from c in context.Customers
+                                orderby c.CustomerID
+                                select c)
+                                   .Take(2)
                             from c2 in context.Customers
                             select EF.Property<string>(c1, "CustomerID"))
-                           .Distinct()
+                               .Distinct()
                            on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
                        orderby _c1
                        select c1_Orders).ToList();
@@ -130,13 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c1_Orders in context.Orders
                        join _c1 in
                            (from c1 in
-                                (from c in context.Customers
-                                 orderby c.CustomerID
-                                 select c)
-                                .Take(2)
+                               (from c in context.Customers
+                                orderby c.CustomerID
+                                select c)
+                                   .Take(2)
                             from c2 in context.Customers
                             select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
-                           .Distinct()
+                               .Distinct()
                            on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
                        orderby _c1.CustomerID
                        select c1_Orders).ToList();
@@ -233,6 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs =>
                     from c in cs
 #pragma warning disable CS1718 // Comparison made to same variable
+                    // ReSharper disable once EqualExpressionComparison
                     where c == c
 #pragma warning restore CS1718 // Comparison made to same variable
                     select c.CustomerID);
@@ -807,9 +808,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                      from o in os
                      orderby c.CustomerID, o.OrderID
                      select new { c, o })
-                    .Take(1)
-                    .Cast<object>()
-                    .Single(),
+                        .Take(1)
+                        .Cast<object>()
+                        .Single(),
                 entryCount: 2);
         }
 
@@ -1193,11 +1194,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         CustomerId = c.CustomerID,
                         OrderIds
-                        = os.Where(
+                            = os.Where(
                                 o => o.CustomerID == c.CustomerID
                                      && o.OrderDate.Value.Year == 1997)
-                            .Select(o => o.OrderID)
-                            .OrderBy(o => o),
+                                .Select(o => o.OrderID)
+                                .OrderBy(o => o),
                         Customer = c
                     },
                 elementAsserter: (e, a) =>
@@ -1370,7 +1371,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where e1.FirstName ==
                           (from e2 in es.OrderBy(e => e.EmployeeID)
                            select new { Foo = e2 })
-                          .First().Foo.FirstName
+                              .First().Foo.FirstName
                     select e1,
                 entryCount: 1);
         }
@@ -1384,7 +1385,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where e1.FirstName ==
                           (from e2 in es.OrderBy(e => e.EmployeeID)
                            select e2)
-                          .FirstOrDefault().FirstName
+                              .FirstOrDefault().FirstName
                     select e1,
                 entryCount: 1);
         }
@@ -1398,7 +1399,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where e1.FirstName ==
                           (from e2 in es.OrderBy(e => e.EmployeeID)
                            select new { Foo = e2 })
-                          .FirstOrDefault().Foo.FirstName
+                              .FirstOrDefault().Foo.FirstName
                     select e1,
                 entryCount: 1);
         }
@@ -1575,8 +1576,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     orderby c1.CustomerID
                     select c1,
                 cs => cs.SelectMany(
-                        c => (from c2 in (from c3 in cs select c3) select c2),
-                        (c, c1) => new { c, c1 }).OrderBy(t => t.c1.CustomerID, StringComparer.Ordinal)
+                    c => (from c2 in (from c3 in cs select c3) select c2),
+                    (c, c1) => new { c, c1 }).OrderBy(t => t.c1.CustomerID, StringComparer.Ordinal)
                     .Select(t => t.c1),
                 assertOrder: true,
                 entryCount: 91);
@@ -1984,8 +1985,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (os, cs) => os.Where(
                     o => o.OrderID <= 10250
                          && cs.OrderBy(
-                                 c => cs.Any(
-                                     c2 => c2.CustomerID == "ALFKI"))
+                             c => cs.Any(
+                                 c2 => c2.CustomerID == "ALFKI"))
                              .FirstOrDefault().City != "Nowhere"),
                 entryCount: 3);
         }
@@ -2447,8 +2448,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                where od.OrderID == o.OrderID
                                orderby o.OrderID
                                select o).First())
-                    .Take(2)
-                    .ToList();
+                        .Take(2)
+                        .ToList();
 
                 Assert.Equal(2, orderDetails.Count);
             }
@@ -2462,18 +2463,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orderDetails
                     = (from od in context.Set<OrderDetail>().Where(od => od.OrderID == 10344)
                        where (
-                                 from o in context.Set<Order>()
-                                 where od.OrderID == o.OrderID
-                                 select (
-                                     from c in context.Set<Customer>()
-                                     where o.CustomerID == c.CustomerID
-                                     select c
-                                 ).Single()
-                             ).Single()
-                             .City == "Seattle"
+                           from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in context.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
+                               ).Single()
+                           ).Single()
+                           .City == "Seattle"
                        select od)
-                    .Take(2)
-                    .ToList();
+                        .Take(2)
+                        .ToList();
 
                 Assert.Equal(2, orderDetails.Count);
             }
@@ -2487,18 +2488,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var orderDetails
                     = (from od in context.Set<OrderDetail>()
                        where (
-                                 from o in context.Set<Order>()
-                                 where od.OrderID == o.OrderID
-                                 select (
-                                     from c in context.Set<Customer>()
-                                     where o.CustomerID == c.CustomerID
-                                     select c
-                                 ).FirstOrDefault()
-                             ).FirstOrDefault()
-                             .City == "Seattle"
+                           from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in context.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
+                               ).FirstOrDefault()
+                           ).FirstOrDefault()
+                           .City == "Seattle"
                        select od)
-                    .Take(2)
-                    .ToList();
+                        .Take(2)
+                        .ToList();
 
                 Assert.Equal(2, orderDetails.Count);
             }
@@ -2536,12 +2537,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.ToList()).Message);
+                using (var synchronizationEvent = new ManualResetEventSlim(false))
+                {
+                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    {
+                        var blockingTask = Task.Run(() =>
+                            context.Customers.Select(
+                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+
+                        var throwingTask = Task.Run(() =>
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    Assert.Throws<InvalidOperationException>(
+                                        () => context.Customers.ToList()).Message);
+                            });
+
+                        throwingTask.Wait();
+
+                        blockingSemaphore.Release(1);
+
+                        blockingTask.Wait();
+                    }
+                }
             }
         }
 
@@ -2550,13 +2571,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                ((IInfrastructure<IServiceProvider>)context).Instance.GetService<IConcurrencyDetector>().EnterCriticalSection();
+                context.Database.EnsureCreated();
 
-                Assert.Equal(
-                    CoreStrings.ConcurrentMethodInvocation,
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.First()).Message);
+                using (var synchronizationEvent = new ManualResetEventSlim(false))
+                {
+                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    {
+                        var blockingTask = Task.Run(() =>
+                            context.Customers.Select(
+                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+
+                        var throwingTask = Task.Run(() =>
+                            {
+                                synchronizationEvent.Wait();
+                                Assert.Equal(
+                                    CoreStrings.ConcurrentMethodInvocation,
+                                    Assert.Throws<InvalidOperationException>(
+                                        () => context.Customers.First()).Message);
+                            });
+
+                        throwingTask.Wait();
+
+                        blockingSemaphore.Release(1);
+
+                        blockingTask.Wait();
+                    }
+                }
             }
+        }
+
+        private Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
+        {
+            e.Set();
+            s.Wait();
+            s.Release(1);
+            return c;
         }
 
         [ConditionalFact]

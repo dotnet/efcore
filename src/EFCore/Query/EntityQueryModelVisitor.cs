@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = Expression.Call(
                         LinqOperatorProvider.ToSequence
                             .MakeGenericMethod(type ?? _expression.Type),
-                        _expression);
+                        Expression.Lambda(_expression));
             }
         }
 

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
-        [Fact(Skip = "#9074")]
+        [Fact]
         public virtual Task Find_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.FindAsync(1));
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
-        [Fact(Skip = "#9074")]
+        [Fact]
         public virtual Task Count_logs_concurrent_access_async()
         {
             return ConcurrencyDetectorTest(c => c.Products.CountAsync());
