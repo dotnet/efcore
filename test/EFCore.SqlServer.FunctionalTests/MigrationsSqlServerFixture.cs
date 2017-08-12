@@ -9,6 +9,13 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
+        public MigrationsSqlServerFixture()
+        {
+            ((SqlServerTestStore)TestStore).ExecuteNonQuery(@"USE master
+IF EXISTS(select * from sys.databases where name='TransactionSuppressed')
+DROP DATABASE TransactionSuppressed");
+        }
+
         public override MigrationsContext CreateContext()
         {
             var options = AddOptions(
