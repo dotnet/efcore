@@ -3,8 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
-#pragma warning disable xUnit1013 // Public method should be marked as test
-
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsOwnedQueryTestBase<TFixture> : ComplexNavigationsQueryTestBase<TFixture>

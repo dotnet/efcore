@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 {
                     var migrations = executor.GetMigrations("Context1");
 
-                    Assert.Equal(1, migrations.Count());
+                    Assert.Single(migrations);
                 }
             }
         }

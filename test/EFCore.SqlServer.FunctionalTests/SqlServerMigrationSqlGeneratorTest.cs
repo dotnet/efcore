@@ -17,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        [Fact]
         public override void CreateIndexOperation_with_filter_where_clause()
         {
             base.CreateIndexOperation_with_filter_where_clause();
@@ -27,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
         public override void CreateIndexOperation_with_filter_where_clause_and_is_unique()
         {
             base.CreateIndexOperation_with_filter_where_clause_and_is_unique();
@@ -54,7 +52,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
         public override void AddColumnOperation_with_computed_column_SQL()
         {
             base.AddColumnOperation_with_computed_column_SQL();
@@ -130,7 +127,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
         public override void AddColumnOperation_with_ansi()
         {
             base.AddColumnOperation_with_ansi();
@@ -140,7 +136,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
         public override void AddColumnOperation_with_unicode_overridden()
         {
             base.AddColumnOperation_with_unicode_overridden();

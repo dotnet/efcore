@@ -42,7 +42,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [Fact]
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());

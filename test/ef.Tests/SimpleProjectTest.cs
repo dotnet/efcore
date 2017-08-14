@@ -99,14 +99,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public void GetContextTypes()
         {
             var contextTypes = _project.Executor.GetContextTypes();
-            Assert.Equal(1, contextTypes.Count());
+            Assert.Single(contextTypes);
         }
 
         [Fact]
         public void GetMigrations()
         {
             var migrations = _project.Executor.GetMigrations("SimpleContext");
-            Assert.Equal(1, migrations.Count());
+            Assert.Single(migrations);
         }
 
         [Fact]

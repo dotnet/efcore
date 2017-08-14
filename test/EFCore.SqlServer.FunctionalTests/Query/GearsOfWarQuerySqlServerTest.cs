@@ -594,7 +594,6 @@ FROM [Weapons] AS [w]
 WHERE [w].[AmmunitionType] IS NULL");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_and_enum()
         {
             base.Where_bitwise_and_enum();
@@ -609,7 +608,6 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_and_integral()
         {
             base.Where_bitwise_and_integral();
@@ -632,7 +630,6 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & 1) = 1)");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_and_nullable_enum_with_constant()
         {
             base.Where_bitwise_and_nullable_enum_with_constant();
@@ -643,7 +640,6 @@ FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & 1) > 0");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_and_nullable_enum_with_null_constant()
         {
             base.Where_bitwise_and_nullable_enum_with_null_constant();
@@ -654,7 +650,6 @@ FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & NULL) > 0");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_and_nullable_enum_with_non_nullable_parameter()
         {
             base.Where_bitwise_and_nullable_enum_with_non_nullable_parameter();
@@ -667,7 +662,6 @@ FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_and_nullable_enum_with_nullable_parameter()
         {
             base.Where_bitwise_and_nullable_enum_with_nullable_parameter();
@@ -686,7 +680,6 @@ FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
         }
 
-        [ConditionalFact]
         public override void Where_bitwise_or_enum()
         {
             base.Where_bitwise_or_enum();
@@ -697,7 +690,6 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] | 1) > 0)");
         }
 
-        [ConditionalFact]
         public override void Bitwise_projects_values_in_select()
         {
             base.Bitwise_projects_values_in_select();
