@@ -59,7 +59,6 @@ namespace Microsoft.EntityFrameworkCore
                 => (TEntity)await context.FindAsync(typeof(TEntity), keyValues);
         }
 
-        [Fact]
         public override void Find_int_key_tracked()
         {
             base.Find_int_key_tracked();
@@ -67,7 +66,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_int_key_from_store()
         {
             base.Find_int_key_from_store();
@@ -80,7 +78,6 @@ FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_int_key_not_in_store()
         {
             base.Returns_null_for_int_key_not_in_store();
@@ -93,7 +90,6 @@ FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_nullable_int_key_tracked()
         {
             base.Find_int_key_tracked();
@@ -101,7 +97,6 @@ WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_nullable_int_key_from_store()
         {
             base.Find_int_key_from_store();
@@ -114,7 +109,6 @@ FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_nullable_int_key_not_in_store()
         {
             base.Returns_null_for_int_key_not_in_store();
@@ -127,7 +121,6 @@ FROM [IntKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_string_key_tracked()
         {
             base.Find_string_key_tracked();
@@ -135,7 +128,6 @@ WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_string_key_from_store()
         {
             base.Find_string_key_from_store();
@@ -148,7 +140,6 @@ FROM [StringKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_string_key_not_in_store()
         {
             base.Returns_null_for_string_key_not_in_store();
@@ -161,7 +152,6 @@ FROM [StringKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_composite_key_tracked()
         {
             base.Find_composite_key_tracked();
@@ -169,7 +159,6 @@ WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_composite_key_from_store()
         {
             base.Find_composite_key_from_store();
@@ -183,7 +172,6 @@ FROM [CompositeKey] AS [e]
 WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_composite_key_not_in_store()
         {
             base.Returns_null_for_composite_key_not_in_store();
@@ -197,7 +185,6 @@ FROM [CompositeKey] AS [e]
 WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_base_type_tracked()
         {
             base.Find_base_type_tracked();
@@ -205,7 +192,6 @@ WHERE ([e].[Id1] = @__get_Item_0) AND ([e].[Id2] = @__get_Item_1)", Sql, ignoreL
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_base_type_from_store()
         {
             base.Find_base_type_from_store();
@@ -218,7 +204,6 @@ FROM [BaseType] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_base_type_not_in_store()
         {
             base.Returns_null_for_base_type_not_in_store();
@@ -231,7 +216,6 @@ FROM [BaseType] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_derived_type_tracked()
         {
             base.Find_derived_type_tracked();
@@ -239,7 +223,6 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_derived_type_from_store()
         {
             base.Find_derived_type_from_store();
@@ -252,7 +235,6 @@ FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_derived_type_not_in_store()
         {
             base.Returns_null_for_derived_type_not_in_store();
@@ -265,7 +247,6 @@ FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_base_type_using_derived_set_tracked()
         {
             base.Find_base_type_using_derived_set_tracked();
@@ -278,7 +259,6 @@ FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_base_type_using_derived_set_from_store()
         {
             base.Find_base_type_using_derived_set_from_store();
@@ -291,7 +271,6 @@ FROM [BaseType] AS [e]
 WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_derived_type_using_base_set_tracked()
         {
             base.Find_derived_type_using_base_set_tracked();
@@ -299,7 +278,6 @@ WHERE ([e].[Discriminator] = N'DerivedType') AND ([e].[Id] = @__get_Item_0)", Sq
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_derived_using_base_set_type_from_store()
         {
             base.Find_derived_using_base_set_type_from_store();
@@ -312,7 +290,6 @@ FROM [BaseType] AS [e]
 WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__get_Item_0)", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Find_shadow_key_tracked()
         {
             base.Find_shadow_key_tracked();
@@ -320,7 +297,6 @@ WHERE [e].[Discriminator] IN (N'DerivedType', N'BaseType') AND ([e].[Id] = @__ge
             Assert.Equal("", Sql);
         }
 
-        [Fact]
         public override void Find_shadow_key_from_store()
         {
             base.Find_shadow_key_from_store();
@@ -333,7 +309,6 @@ FROM [ShadowKey] AS [e]
 WHERE [e].[Id] = @__get_Item_0", Sql, ignoreLineEndingDifferences: true);
         }
 
-        [Fact]
         public override void Returns_null_for_shadow_key_not_in_store()
         {
             base.Returns_null_for_shadow_key_not_in_store();

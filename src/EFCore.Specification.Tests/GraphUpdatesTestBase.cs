@@ -14,7 +14,6 @@ using Xunit;
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToModifiedClosure
-#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>

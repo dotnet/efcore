@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class SqlServerSqlGeneratorTest : SqlGeneratorTestBase
     {
-        [Fact]
         public override void BatchSeparator_returns_separator()
         {
             Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);

@@ -235,7 +235,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
         public override void AddColumnOperation_with_computed_column_SQL()
         {
             base.AddColumnOperation_with_computed_column_SQL();

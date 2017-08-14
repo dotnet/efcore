@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Sql);
         }
 
-        [Fact]
         public override void AddColumnOperation_with_computed_column_SQL()
         {
             base.AddColumnOperation_with_computed_column_SQL();
