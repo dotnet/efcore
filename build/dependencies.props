@@ -15,8 +15,8 @@
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
     <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>
     <SystemInteractiveAsyncVersion>3.1.1</SystemInteractiveAsyncVersion>
-    <TestSdkVersion>15.3.0-*</TestSdkVersion>
-    <XunitVersion>2.3.0-*</XunitVersion>
+    <TestSdkVersion>15.3.0</TestSdkVersion>
+    <XunitVersion>2.3.0-beta3-build3705</XunitVersion>
     <XunitVersionInSpecProjects>2.2.0</XunitVersionInSpecProjects>
   </PropertyGroup>
 <!-- Following package versions must match with what is available on NuGet -->
