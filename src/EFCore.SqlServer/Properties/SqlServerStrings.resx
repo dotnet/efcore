@@ -171,25 +171,9 @@
     <value>Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
     <comment>Debug SqlServerEventId.ForeignKeyColumnFound string string string string string string string int?</comment>
   </data>
-  <data name="LogColumnNameEmptyOnIndex" xml:space="preserve">
-    <value>Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.</value>
-    <comment>Warning SqlServerEventId.IndexColumnNotNamedWarning string string</comment>
-  </data>
   <data name="LogColumnNotInSelectionSet" xml:space="preserve">
     <value>Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.</value>
     <comment>Debug SqlServerEventId.ColumnSkipped string string</comment>
-  </data>
-  <data name="LogForeignKeyColumnNotInSelectionSet" xml:space="preserve">
-    <value>Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Warning SqlServerEventId.ForeignKeyColumnMissingWarning string string string</comment>
-  </data>
-  <data name="LogForeignKeyNameEmpty" xml:space="preserve">
-    <value>Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.</value>
-    <comment>Warning SqlServerEventId.ForeignKeyNotNamedWarning string</comment>
-  </data>
-  <data name="LogForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.</value>
-    <comment>Warning SqlServerEventId.ForeignKeyColumnsNotMappedWarning string string</comment>
   </data>
   <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
     <value>For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.</value>
@@ -198,18 +182,6 @@
   <data name="LogFoundIndexColumn" xml:space="preserve">
     <value>Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.</value>
     <comment>Debug SqlServerEventId.IndexColumnFound string string string int?</comment>
-  </data>
-  <data name="LogIndexColumnNotInSelectionSet" xml:space="preserve">
-    <value>Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Warning SqlServerEventId.IndexColumnSkipped string string string</comment>
-  </data>
-  <data name="LogUnableToScaffoldIndexMissingProperty" xml:space="preserve">
-    <value>Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.</value>
-    <comment>Warning SqlServerEventId.IndexColumnsNotMappedWarning string string</comment>
-  </data>
-  <data name="LogIndexNameEmpty" xml:space="preserve">
-    <value>Found an index on table {tableName} with an empty or null name. Skipping index.</value>
-    <comment>Warning SqlServerEventId.IndexNotNamedWarning string</comment>
   </data>
   <data name="LogUnableToFindTableForIndex" xml:space="preserve">
     <value>For index {indexName}. Unable to find parent table {tableName}. Skipping index.</value>
@@ -227,10 +199,6 @@
     <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
     <comment>Debug SqlServerEventId.SequenceFound string string bool? int? long? long? long?</comment>
   </data>
-  <data name="LogSequencesRequireName" xml:space="preserve">
-    <value>Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.</value>
-    <comment>Warning SqlServerEventId.SequenceNotNamedWarning</comment>
-  </data>
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: {name}.</value>
     <comment>Debug SqlServerEventId.TableFound string</comment>
@@ -238,14 +206,6 @@
   <data name="LogTableNotInSelectionSet" xml:space="preserve">
     <value>Table {tableName} is not included in the selection set. Skipping.</value>
     <comment>Debug SqlServerEventId.TableSkipped string</comment>
-  </data>
-  <data name="LogColumnNameEmptyOnTable" xml:space="preserve">
-    <value>Found a column on table {tableName} with an empty or null name. Skipping column.</value>
-    <comment>Warning SqlServerEventId.ColumnNotNamedWarning string</comment>
-  </data>
-  <data name="LogColumnNameEmptyOnForeignKey" xml:space="preserve">
-    <value>Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key</value>
-    <comment>Warning SqlServerEventId.ForeignKeyColumnNotNamedWarning string string</comment>
   </data>
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.</value>

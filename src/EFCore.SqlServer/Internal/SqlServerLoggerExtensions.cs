@@ -203,17 +203,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void IndexColumnNotNamedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string indexName,
-                [CanBeNull] string tableName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogColumnNameEmptyOnIndex.Log(diagnostics, indexName, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static void ColumnSkipped(
                 [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
                 [CanBeNull] string tableName,
@@ -225,48 +214,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void ForeignKeyColumnMissingWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string columnName,
-                [CanBeNull] string foreignKeyName,
-                [CanBeNull] string tableName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogForeignKeyColumnNotInSelectionSet.Log(diagnostics, columnName, foreignKeyName, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static void ForeignKeyTableMissingWarning(
                 [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
                 [CanBeNull] string foreignKeyName,
                 [CanBeNull] string tableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogForeignKeyTableNotInSelectionSet.Log(diagnostics, foreignKeyName, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void ForeignKeyNotNamedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string tableName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogForeignKeyNameEmpty.Log(diagnostics, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void ForeignKeyColumnsNotMappedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string foreignKeyName,
-                [NotNull] IList<string> unmappedColumnNames)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogForeignKeyScaffoldErrorPropertyNotFound.Log(
-                diagnostics,
-                foreignKeyName,
-                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -293,42 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 int? ordinal)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundIndexColumn.Log(diagnostics, indexName, tableName, columnName, ordinal);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void IndexColumnSkipped(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string tableName,
-                [CanBeNull] string indexName,
-                [CanBeNull] string columnName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogIndexColumnNotInSelectionSet.Log(diagnostics, columnName, indexName, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void IndexColumnsNotMappedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string indexName,
-                [NotNull] IList<string> unmappedColumnNames)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogUnableToScaffoldIndexMissingProperty.Log(
-                diagnostics,
-                indexName,
-                string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnNames));
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void IndexNotNamedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string tableName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogIndexNameEmpty.Log(diagnostics, tableName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -402,15 +319,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static void SequenceNotNamedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogSequencesRequireName.Log(diagnostics);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public static void TableFound(
                 [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
                 [CanBeNull] string tableName)
@@ -426,26 +334,5 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 [CanBeNull] string tableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogTableNotInSelectionSet.Log(diagnostics, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void ColumnNotNamedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string tableName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogColumnNameEmptyOnTable.Log(diagnostics, tableName);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public static void ForeignKeyColumnNotNamedWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string foreignKeyName,
-                [CanBeNull] string tableName)
-            // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogColumnNameEmptyOnForeignKey.Log(diagnostics, tableName, foreignKeyName);
     }
 }

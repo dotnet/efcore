@@ -157,18 +157,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _resourceManager.GetString("LogFoundForeignKeyColumn"));
 
         /// <summary>
-        ///     Found a column on index {indexName} on table {tableName} with an empty or null name. Not including column in index.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogColumnNameEmptyOnIndex
-            = new EventDefinition<string, string>(
-                SqlServerEventId.IndexColumnNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.IndexColumnNotNamedWarning,
-                    _resourceManager.GetString("LogColumnNameEmptyOnIndex")));
-
-        /// <summary>
         ///     Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.
         /// </summary>
         public static readonly EventDefinition<string, string> LogColumnNotInSelectionSet
@@ -179,42 +167,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Debug,
                     SqlServerEventId.ColumnSkipped,
                     _resourceManager.GetString("LogColumnNotInSelectionSet")));
-
-        /// <summary>
-        ///     Foreign key column {columnName} belongs to foreign key {fkName} on table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string> LogForeignKeyColumnNotInSelectionSet
-            = new EventDefinition<string, string, string>(
-                SqlServerEventId.ForeignKeyColumnMissingWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.ForeignKeyColumnMissingWarning,
-                    _resourceManager.GetString("LogForeignKeyColumnNotInSelectionSet")));
-
-        /// <summary>
-        ///     Found a foreign key on table {tableName} with an empty or null name. Skipping foreign key.
-        /// </summary>
-        public static readonly EventDefinition<string> LogForeignKeyNameEmpty
-            = new EventDefinition<string>(
-                SqlServerEventId.ForeignKeyNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.ForeignKeyNotNamedWarning,
-                    _resourceManager.GetString("LogForeignKeyNameEmpty")));
-
-        /// <summary>
-        ///     Could not scaffold the foreign key '{foreignKeyName}'.  The following columns in the foreign key could not be scaffolded: {columnNames}.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogForeignKeyScaffoldErrorPropertyNotFound
-            = new EventDefinition<string, string>(
-                SqlServerEventId.ForeignKeyColumnsNotMappedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.ForeignKeyColumnsNotMappedWarning,
-                    _resourceManager.GetString("LogForeignKeyScaffoldErrorPropertyNotFound")));
 
         /// <summary>
         ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
@@ -239,42 +191,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Debug,
                     SqlServerEventId.IndexColumnFound,
                     _resourceManager.GetString("LogFoundIndexColumn")));
-
-        /// <summary>
-        ///     Index column {columnName} belongs to index {indexName} on table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string> LogIndexColumnNotInSelectionSet
-            = new EventDefinition<string, string, string>(
-                SqlServerEventId.IndexColumnSkipped,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.IndexColumnSkipped,
-                    _resourceManager.GetString("LogIndexColumnNotInSelectionSet")));
-
-        /// <summary>
-        ///     Unable to scaffold the index '{indexName}'. The following columns could not be scaffolded: {columnNames}.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogUnableToScaffoldIndexMissingProperty
-            = new EventDefinition<string, string>(
-                SqlServerEventId.IndexColumnsNotMappedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.IndexColumnsNotMappedWarning,
-                    _resourceManager.GetString("LogUnableToScaffoldIndexMissingProperty")));
-
-        /// <summary>
-        ///     Found an index on table {tableName} with an empty or null name. Skipping index.
-        /// </summary>
-        public static readonly EventDefinition<string> LogIndexNameEmpty
-            = new EventDefinition<string>(
-                SqlServerEventId.IndexNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.IndexNotNamedWarning,
-                    _resourceManager.GetString("LogIndexNameEmpty")));
 
         /// <summary>
         ///     For index {indexName}. Unable to find parent table {tableName}. Skipping index.
@@ -322,18 +238,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _resourceManager.GetString("LogFoundSequence"));
 
         /// <summary>
-        ///     Sequence name cannot be null or empty. Entity Framework cannot model a sequence that does not have a name.
-        /// </summary>
-        public static readonly EventDefinition LogSequencesRequireName
-            = new EventDefinition(
-                SqlServerEventId.SequenceNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define(
-                    LogLevel.Warning,
-                    SqlServerEventId.SequenceNotNamedWarning,
-                    _resourceManager.GetString("LogSequencesRequireName")));
-
-        /// <summary>
         ///     Found table with name: {name}.
         /// </summary>
         public static readonly EventDefinition<string> LogFoundTable
@@ -356,30 +260,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Debug,
                     SqlServerEventId.TableSkipped,
                     _resourceManager.GetString("LogTableNotInSelectionSet")));
-
-        /// <summary>
-        ///     Found a column on table {tableName} with an empty or null name. Skipping column.
-        /// </summary>
-        public static readonly EventDefinition<string> LogColumnNameEmptyOnTable
-            = new EventDefinition<string>(
-                SqlServerEventId.ColumnNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.ColumnNotNamedWarning,
-                    _resourceManager.GetString("LogColumnNameEmptyOnTable")));
-
-        /// <summary>
-        ///     Found a column on foreign key {tableName}.{fkName} with an empty or null name. Not including column in foreign key
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogColumnNameEmptyOnForeignKey
-            = new EventDefinition<string, string>(
-                SqlServerEventId.ForeignKeyColumnNotNamedWarning,
-                LogLevel.Warning,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Warning,
-                    SqlServerEventId.ForeignKeyColumnNotNamedWarning,
-                    _resourceManager.GetString("LogColumnNameEmptyOnForeignKey")));
 
         /// <summary>
         ///     The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.

@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var eventIdFields = eventIdType.GetTypeInfo()
                 .DeclaredFields
-                .Where(p => p.FieldType == typeof(EventId))
+                .Where(p => p.FieldType == typeof(EventId) && p.GetCustomAttribute<ObsoleteAttribute>() == null)
                 .ToList();
 
             var declaredMethods = loggerExtensionsType.GetTypeInfo()

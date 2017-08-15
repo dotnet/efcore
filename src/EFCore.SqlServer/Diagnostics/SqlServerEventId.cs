@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
@@ -126,12 +127,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The database has an unnamed sequence.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId SequenceNotNamedWarning = MakeScaffoldingId(Id.SequenceNotNamedWarning);
 
         /// <summary>
         ///     Columns in an index were not mapped.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId IndexColumnsNotMappedWarning = MakeScaffoldingId(Id.IndexColumnsNotMappedWarning);
 
         /// <summary>
@@ -144,36 +147,42 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Columns in a foreign key were not mapped.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ForeignKeyColumnsNotMappedWarning = MakeScaffoldingId(Id.ForeignKeyColumnsNotMappedWarning);
 
         /// <summary>
         ///     A foreign key is not named.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ForeignKeyNotNamedWarning = MakeScaffoldingId(Id.ForeignKeyNotNamedWarning);
 
         /// <summary>
         ///     A foreign key column was not found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ForeignKeyColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyColumnMissingWarning);
 
         /// <summary>
         ///     A foreign key column was not named.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ForeignKeyColumnNotNamedWarning = MakeScaffoldingId(Id.ForeignKeyColumnNotNamedWarning);
 
         /// <summary>
         ///     A column is not named.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ColumnNotNamedWarning = MakeScaffoldingId(Id.ColumnNotNamedWarning);
 
         /// <summary>
         ///     An index is not named.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId IndexNotNamedWarning = MakeScaffoldingId(Id.IndexNotNamedWarning);
 
         /// <summary>
@@ -186,6 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     An index column was not named.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId IndexColumnNotNamedWarning = MakeScaffoldingId(Id.IndexColumnNotNamedWarning);
 
         /// <summary>
@@ -216,6 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A column of an index was skipped.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId IndexColumnSkipped = MakeScaffoldingId(Id.IndexColumnSkipped);
 
         /// <summary>
