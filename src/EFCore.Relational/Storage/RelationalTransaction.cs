@@ -62,6 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _transactionOwned = transactionOwned;
         }
 
+        /// <summary>
+        ///     A correlation ID that allows this transaction to be identified and
+        ///     correlated across multiple database calls.
+        /// </summary>
         public virtual Guid TransactionId { get; } = Guid.NewGuid();
 
         /// <summary>

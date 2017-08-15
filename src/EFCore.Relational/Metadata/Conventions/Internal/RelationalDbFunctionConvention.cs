@@ -36,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return annotation;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ApplyCustomizations([NotNull] InternalModelBuilder modelBuilder, [NotNull] string name, [NotNull] Annotation annotation)
         {
             var dbFunctionBuilder = new InternalDbFunctionBuilder((DbFunction)annotation.Value);

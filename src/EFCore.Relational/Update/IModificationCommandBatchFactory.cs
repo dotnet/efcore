@@ -3,8 +3,20 @@
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
+    /// <summary>
+    ///     <para>
+    ///         A service for creating <see cref="ModificationCommandBatch" /> instances.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers; it is generally not used in application code.
+    ///     </para>
+    /// </summary>
     public interface IModificationCommandBatchFactory
     {
+        /// <summary>
+        ///     Creates a new <see cref="ModificationCommandBatch" /> instance.
+        /// </summary>
+        /// <returns> The new instance. </returns>
         ModificationCommandBatch Create();
     }
 }

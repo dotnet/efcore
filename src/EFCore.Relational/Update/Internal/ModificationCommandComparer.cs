@@ -84,6 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly ConcurrentDictionary<Type, Func<object, object, int>> _comparers =
             new ConcurrentDictionary<Type, Func<object, object, int>>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Func<object, object, int> GetComparer([NotNull] Type type)
             => _comparers.GetOrAdd(
                 type, t =>

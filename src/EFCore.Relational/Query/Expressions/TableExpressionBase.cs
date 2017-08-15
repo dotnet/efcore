@@ -92,6 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _querySource == PreProcessQuerySource(querySource);
         }
 
+        /// <summary>
+        ///     Pre-processes the given <see cref="IQuerySource" />.
+        /// </summary>
+        /// <param name="querySource"> The query source. </param>
+        /// <returns> The query source after pre-processing. </returns>
         protected virtual IQuerySource PreProcessQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));

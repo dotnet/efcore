@@ -1830,6 +1830,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (property, qs) => BindMemberOrMethod(memberBinder, qs, property, bindSubQueries));
         }
 
+        /// <summary>
+        ///     Bind a member to a parameter from the outer query.
+        /// </summary>
+        /// <param name="memberExpression"> The expression to bind. </param>
+        /// <returns> The bound expression. </returns>
         public virtual Expression BindMemberToOuterQueryParameter(
             [NotNull] MemberExpression memberExpression)
             => base.BindMemberExpression(
@@ -1900,6 +1905,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
+        /// <summary>
+        ///     Bind a method call  to a parameter from the outer query.
+        /// </summary>
+        /// <param name="methodCallExpression"> The expression to bind. </param>
+        /// <returns> The bound expression. </returns>
         public virtual Expression BindMethodToOuterQueryParameter(
             [NotNull] MethodCallExpression methodCallExpression)
         {
