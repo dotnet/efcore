@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Design\Internal\DbContextOperationsTest.cs" />
     <Compile Include="Design\Internal\OperationLoggerTest.cs" />
     <Compile Include="TestUtilities\TestOperationReporter.cs" />
     <None Include="App.config">
