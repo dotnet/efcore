@@ -171,6 +171,50 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        private void Multiple_command_executes_works()
+        {
+            const int INSERTS = 3;
+
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Data (ID integer PRIMARY KEY, Value integer);");
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "INSERT INTO Data (Value) VALUES (@value);";
+                    var valueParam = command.Parameters.AddWithValue("@value", -1);
+
+                    Assert.Equal(1, command.ExecuteNonQuery());
+
+                    for (var i = 0; i < INSERTS; i++)
+                    {
+                        valueParam.Value = i;
+                        Assert.Equal(1, command.ExecuteNonQuery());
+                    }
+                    
+                    Assert.Equal(1, command.ExecuteNonQuery());
+
+                    command.CommandText = "SELECT Value FROM Data ORDER BY ID";
+                    using (var reader = command.ExecuteReader())
+                    {
+                        Assert.True(reader.Read());
+                        Assert.Equal(-1, reader.GetInt32(0));
+
+                        for (var i = 0; i < INSERTS; i++)
+                        {
+                            Assert.True(reader.Read());
+                            Assert.Equal(i, reader.GetInt32(0));
+                        }
+
+                        Assert.True(reader.Read());
+                        Assert.Equal(INSERTS - 1, reader.GetInt32(0));
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void ExecuteReader_throws_when_no_connection()
         {
             var ex = Assert.Throws<InvalidOperationException>(() => new SqliteCommand().ExecuteReader());
