@@ -6644,6 +6644,61 @@ END",
                 Sql);
         }
 
+        public override void Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result()
+        {
+            base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+
+@_outer_CustomerID2: ALFKI (Size = 4000)
+@_outer_CustomerID: ALFKI (Size = 450)
+
+SELECT @_outer_CustomerID2
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]
+
+SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o2]",
+                Sql);
+        }
+
+        public override void Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result()
+        {
+            base.Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o1]
+    WHERE ((
+        SELECT COUNT(*)
+        FROM [Orders] AS [o2]
+        WHERE [c].[CustomerID] = [o2].[CustomerID]
+    ) > 0) AND ([c].[CustomerID] = [o1].[CustomerID])
+)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'",
+                Sql);
+        }
+
         private const string FileLineEnding = @"
 ";
 
