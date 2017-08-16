@@ -736,8 +736,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return null;
             }
 
-            return binder(queryModelVisitor)
-                   ?? TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder);
+            var result = binder(queryModelVisitor);
+            if (result != null)
+            {
+                return result;
+            }
+
+            var oldQueryModelStreamedDataInfo = CurrentQueryModelStreamedDataInfo;
+            CurrentQueryModelStreamedDataInfo = queryModelVisitor.QueryModelOutputDataInfo;
+
+            try
+            {
+                return TryBindParentExpression(queryModelVisitor.ParentQueryModelVisitor, binder);
+            }
+            finally
+            {
+                CurrentQueryModelStreamedDataInfo = oldQueryModelStreamedDataInfo;
+            }
         }
 
         private AliasExpression CreateAliasedColumnExpression(

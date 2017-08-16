@@ -6654,6 +6654,52 @@ namespace Microsoft.EntityFrameworkCore.Specification.Tests
                      entryCount: 1);
         }
 
+        [ConditionalFact]
+        public virtual void Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result()
+        {
+            AssertQuery<Customer>(cs => 
+                cs.Where(c => c.CustomerID == "ALFKI")
+                .Select(c => new
+                {
+                    c.CustomerID,
+                    OuterOrders = c.Orders.Select(
+                            o => new
+                            {
+                                InnerOrder = c.Orders.Count(),
+                                Id = c.CustomerID
+                            }).ToList()
+                }),
+                asserter: (e, a) =>
+                {
+                    Assert.Equal(1, e.Count);
+                    Assert.Equal(1, a.Count);
+
+                    dynamic expected = e[0];
+                    dynamic actual = a[0];
+
+                    Assert.Equal(expected.CustomerID, actual.CustomerID);
+                    Assert.Equal(expected.OuterOrders.Count, actual.OuterOrders.Count);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => c.CustomerID == "ALFKI")
+                .Select(c => new
+                {
+                    c.CustomerID,
+                    OuterOrders = c.Orders.Count(o => c.Orders.Count() > 0)
+                }),
+                asserter: (e, a) =>
+                {
+                    Assert.Equal(1, e.Count);
+                    Assert.Equal(1, a.Count);
+                    Assert.Equal(e[0], a[0]);
+                });
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected QueryTestBase(TFixture fixture)
