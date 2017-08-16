@@ -3,7 +3,7 @@ Entity Framework Core
 
 Documentation on using EF Core is available at <https://docs.microsoft.com/ef/>.
 
-[![Travis build status](https://img.shields.io/travis/aspnet/EntityFramework.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFramework/branches)
+[![Travis build status](https://img.shields.io/travis/aspnet/EntityFrameworkCore.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFrameworkCore/branches)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/EntityFramework/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
 
 ## EF Core here, EF6 elsewhere
@@ -28,4 +28,4 @@ SQLite                 | `Microsoft.EntityFrameworkCore.SQLite`    | [![NuGet](h
 InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.InMemory/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.InMemory)
 
 ## Roadmap
-For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFramework/wiki/Roadmap) article in the wiki.
+For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFrameworkCore/wiki/Roadmap) article in the wiki.
