@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
                 }
 
-                throw new NotImplementedException();
+                throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
             }
 
             private IQueryable<Level1> GetExpectedLevelOne()

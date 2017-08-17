@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Assert.Equal(e.Id, a.Id);
                             Assert.Equal(e.Name, a.Name);
-                        }
+                }
                 },
                 {
                     typeof(InheritanceBase2),
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
                 }
 
-                throw new NotImplementedException();
+                throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
             }
         }
     }

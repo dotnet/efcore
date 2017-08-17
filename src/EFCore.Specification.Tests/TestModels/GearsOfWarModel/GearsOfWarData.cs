@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 return (IQueryable<TEntity>)LocustLeaders.AsQueryable();
             }
 
-            throw new NotImplementedException();
+            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         public static IReadOnlyList<Squad> CreateSquads()

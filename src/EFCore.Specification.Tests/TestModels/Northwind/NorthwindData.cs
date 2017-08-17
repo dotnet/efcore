@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 return new AsyncEnumerable<TEntity>(_products.Cast<TEntity>());
             }
 
-            throw new NotImplementedException();
+            throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
         }
 
         public static void Seed(NorthwindContext context)
