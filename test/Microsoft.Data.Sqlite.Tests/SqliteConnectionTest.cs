@@ -381,8 +381,8 @@ namespace Microsoft.Data.Sqlite
                     });
 
                 Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
-                Assert.Equal(1, list.Count);
-                Assert.Equal("Invoked", list[0]);
+                var item = Assert.Single(list);
+                Assert.Equal("Invoked", item);
             }
         }
 
