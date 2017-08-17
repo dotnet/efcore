@@ -17,7 +17,7 @@ Console.WriteLine("Hello World!");
 ```
 
 ### Further technical details
-EF Core version: (found in project.json or packages.config)
+EF Core version: (found in project.csproj or packages.config)
 Database Provider: (e.g. Microsoft.EntityFrameworkCore.SqlServer)
 Operating system: 
 IDE: (e.g. Visual Studio 2015)
