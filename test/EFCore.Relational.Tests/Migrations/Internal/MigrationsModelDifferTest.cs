@@ -4,10 +4,13 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -758,6 +761,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("BuffaloId", operation.Name);
                         Assert.Equal("Id", operation.NewName);
                     });
+        }
+
+        [Fact]
+        public void Rename_property_and_column_when_snapshot()
+        {
+            // NB: No conventions to simulate the snapshot.
+            var sourceModelBuilder = new ModelBuilder(new ConventionSet());
+            sourceModelBuilder.Entity(
+                typeof(Crab).FullName,
+                x =>
+                {
+                    x.ToTable("Crab");
+
+                    x.Property<string>("CrabId")
+                        .ValueGeneratedOnAdd();
+
+                    x.HasKey("CrabId");
+                });
+
+            var targetModelBuilder = CreateModelBuilder();
+            targetModelBuilder.Entity<Crab>();
+
+            // NB: Call Validate() so ModelBuilt conventions are applied.
+            targetModelBuilder.GetInfrastructure().Metadata.Validate();
+
+            var modelDiffer = RelationalTestHelpers.Instance.CreateContextServices()
+                .GetRequiredService<IMigrationsModelDiffer>();
+            var operations = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
+
+            Assert.Equal(1, operations.Count);
+
+            var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+            Assert.Equal("Crab", operation.Table);
+            Assert.Equal("CrabId", operation.Name);
+            Assert.Equal("Id", operation.NewName);
+        }
+
+        private class Crab
+        {
+            public string Id { get; set; }
         }
 
         [Fact]

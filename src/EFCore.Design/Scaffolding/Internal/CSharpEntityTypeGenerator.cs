@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void GenerateColumnAttribute(IProperty property)
         {
             var columnName = property.Relational().ColumnName;
-            var columnType = property.Relational().ColumnType;
+            var columnType = property.GetConfiguredColumnType();
 
             var delimitedColumnName = columnName != null && columnName != property.Name ? CSharpUtilities.DelimitString(columnName) : null;
             var delimitedColumnType = columnType != null ? CSharpUtilities.DelimitString(columnType) : null;
