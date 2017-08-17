@@ -1,24 +1,25 @@
 ﻿<Project>
   <PropertyGroup>
-    <AspNetCoreVersion>2.0.0-*</AspNetCoreVersion>
-    <CoreFxVersion>4.4.0-*</CoreFxVersion>
-    <DiagnosticSourceVersion>4.4.1-*</DiagnosticSourceVersion>
-    <DependencyModelVersion>2.0.0-*</DependencyModelVersion>
+    <AspNetCoreVersion>2.0.0</AspNetCoreVersion>
+    <CoreFxVersion>4.4.0</CoreFxVersion>
+    <DiagnosticSourceVersion>4.4.1</DiagnosticSourceVersion>
+    <DependencyModelVersion>2.0.0</DependencyModelVersion>
     <EF6Version>6.1.3</EF6Version>
-    <InternalAspNetCoreSdkVersion>2.0.1-*</InternalAspNetCoreSdkVersion>
+    <InternalAspNetCoreSdkVersion>2.0.1-rtm-15400</InternalAspNetCoreSdkVersion>
     <JsonNetVersion>10.0.1</JsonNetVersion>
     <MoqVersion>4.7.49</MoqVersion>
-    <NETFrameworkPackageVersion>2.0.0-*</NETFrameworkPackageVersion>
-    <NETStandardImplicitPackageVersion>2.0.0-*</NETStandardImplicitPackageVersion>
+    <NETFrameworkPackageVersion>2.0.0</NETFrameworkPackageVersion>
+    <NETStandardImplicitPackageVersion>2.0.0</NETStandardImplicitPackageVersion>
     <RelinqVersion>2.1.1</RelinqVersion>
     <RoslynVersion>2.3.1</RoslynVersion>
-    <RuntimeFrameworkVersion Condition="'$(TargetFramework)'=='netcoreapp2.0'">2.0.0-*</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion Condition="'$(TargetFramework)'=='netcoreapp2.0'">2.0.0</RuntimeFrameworkVersion>
     <SQLitePCLRawVersion>1.1.7</SQLitePCLRawVersion>
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
-    <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>
+    <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
     <SystemInteractiveAsyncVersion>3.1.1</SystemInteractiveAsyncVersion>
-    <TestSdkVersion>15.3.0-*</TestSdkVersion>
-    <XunitVersion>2.3.0-*</XunitVersion>
+    <TestSdkVersion>15.3.0</TestSdkVersion>
+    <XunitVersion>2.3.0-beta2-build3683</XunitVersion>
+    <XunitRunnerVisualStudioVersion>2.3.0-beta2-build1317</XunitRunnerVisualStudioVersion>
     <XunitVersionInSpecProjects>2.2.0</XunitVersionInSpecProjects>
   </PropertyGroup>
 </Project>
