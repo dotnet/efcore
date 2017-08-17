@@ -31,22 +31,70 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [ConditionalFact]
-        public virtual async Task ToList_on_nav_in_projection_is_async()
+        public virtual async Task ToArray_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
             {
                 var results
-                    = await context.Customers
-                        .Where(c => c.CustomerID == "ALFKI")
-                        .Select(
-                            c => new
-                            {
-                                c,
-                                Orders = ((IAsyncEnumerable<Order>)(from o in c.Orders select o)).ToList().Result
-                            })
+                    = await context.Customers.Select(c => new
+                        {
+                            Orders = c.Orders.ToArray()
+                        })
                         .ToListAsync();
 
-                Assert.Equal(1, results.Count);
+                Assert.Equal(830, results.SelectMany(a => a.Orders).ToList().Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task ToArray_on_nav_subquery_in_projection_nested()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = await context.Customers.Select(c => new
+                        {
+                            Orders = c.Orders.Select(o => new
+                            {
+                                OrderDetails = o.OrderDetails.ToArray()
+                            })
+                            .ToArray()
+                        })
+                        .ToListAsync();
+
+                Assert.Equal(2155, results.SelectMany(a => a.Orders.SelectMany(o => o.OrderDetails)).ToList().Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task ToList_on_nav_subquery_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = await context.Customers.Select(c => new
+                    {
+                        Orders = c.Orders.ToList()
+                    })
+                    .ToListAsync();
+
+                Assert.Equal(830, results.SelectMany(a => a.Orders).ToList().Count);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Average_on_nav_subquery_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = await context.Customers.Select(c => new
+                        {
+                            Ave = c.Orders.Average(o => o.Freight)
+                        })
+                        .ToListAsync();
+
+                Assert.Equal(91, results.ToList().Count);
             }
         }
 
