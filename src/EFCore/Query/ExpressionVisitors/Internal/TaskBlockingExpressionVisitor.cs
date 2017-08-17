@@ -4,7 +4,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -25,22 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var typeInfo = expression.Type.GetTypeInfo();
 
                 if (typeInfo.IsGenericType
-                    && (typeInfo.GetGenericTypeDefinition() == typeof(Task<>)))
+                    && typeInfo.GetGenericTypeDefinition() == typeof(Task<>))
                 {
-                    return Expression.Call(
-                        _resultMethodInfo.MakeGenericMethod(typeInfo.GenericTypeArguments[0]),
-                        expression);
+                    return Expression.Property(expression, nameof(Task<object>.Result));
                 }
             }
 
             return expression;
         }
-
-        private static readonly MethodInfo _resultMethodInfo
-            = typeof(TaskBlockingExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(Result));
-
-        [UsedImplicitly]
-        private static T Result<T>(Task<T> task) => task.GetAwaiter().GetResult();
     }
 }
