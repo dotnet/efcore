@@ -2343,7 +2343,7 @@ BEGIN
             Action<TContext> contextInitializer)
             where TContext : DbContext, IDisposable
         {
-            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest");
+            var testStore = SqlServerTestStore.CreateInitialized("QueryBugsTest", multipleActiveResultSets: true);
 
             _options = Fixture.CreateOptions(testStore);
 

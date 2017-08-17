@@ -74,6 +74,74 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual Task First_logs_concurrent_access_nonasync()
+        {
+            return ConcurrencyDetectorTest(
+                c =>
+                {
+                    var result = c.Products.First();
+                    return Task.FromResult(false);
+                });
+        }
+
+        [Fact]
+        public virtual Task First_logs_concurrent_access_async()
+        {
+            return ConcurrencyDetectorTest(c => c.Products.FirstAsync());
+        }
+
+        [Fact]
+        public virtual Task Last_logs_concurrent_access_nonasync()
+        {
+            return ConcurrencyDetectorTest(
+                c =>
+                {
+                    var result = c.Products.Last();
+                    return Task.FromResult(false);
+                });
+        }
+
+        [Fact]
+        public virtual Task Last_logs_concurrent_access_async()
+        {
+            return ConcurrencyDetectorTest(c => c.Products.LastAsync());
+        }
+
+        [Fact]
+        public virtual Task Single_logs_concurrent_access_nonasync()
+        {
+            return ConcurrencyDetectorTest(
+                c =>
+                {
+                    var result = c.Products.Single(p => p.ProductID == 1);
+                    return Task.FromResult(false);
+                });
+        }
+
+        [Fact]
+        public virtual Task Single_logs_concurrent_access_async()
+        {
+            return ConcurrencyDetectorTest(c => c.Products.SingleAsync(p => p.ProductID == 1));
+        }
+
+        [Fact]
+        public virtual Task Any_logs_concurrent_access_nonasync()
+        {
+            return ConcurrencyDetectorTest(
+                c =>
+                {
+                    var result = c.Products.Any(p => p.ProductID < 10);
+                    return Task.FromResult(false);
+                });
+        }
+
+        [Fact]
+        public virtual Task Any_logs_concurrent_access_async()
+        {
+            return ConcurrencyDetectorTest(c => c.Products.AnyAsync(p => p.ProductID < 10));
+        }
+
+        [Fact]
         public virtual Task ToList_logs_concurrent_access_nonasync()
         {
             return ConcurrencyDetectorTest(

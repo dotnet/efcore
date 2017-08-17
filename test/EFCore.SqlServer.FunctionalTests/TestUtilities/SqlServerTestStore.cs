@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
-                MultipleActiveResultSets = multipleActiveResultSets ?? true, // #9404
+                MultipleActiveResultSets = multipleActiveResultSets ?? new Random().Next(0, 2) == 1,
                 InitialCatalog = name
             };
             if (fileName != null)

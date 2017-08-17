@@ -128,12 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private sealed class EnumeratorExceptionInterceptor : IAsyncEnumerator<T>
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
-                private readonly IAsyncEnumerator<T> _innerEnumerator;
+                private IAsyncEnumerator<T> _innerEnumerator;
 
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
-                    _innerEnumerator = _exceptionInterceptor._innerAsyncEnumerable.GetEnumerator();
                 }
 
                 public T Current => _innerEnumerator.Current;
@@ -145,6 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         try
                         {
+                            if (_innerEnumerator == null)
+                            {
+                                _innerEnumerator = _exceptionInterceptor._innerAsyncEnumerable.GetEnumerator();
+                            }
                             return await _innerEnumerator.MoveNext(cancellationToken);
                         }
                         catch (Exception exception)
@@ -158,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 public void Dispose()
                 {
-                    _innerEnumerator.Dispose();
+                    _innerEnumerator?.Dispose();
                     _exceptionInterceptor._queryContext.Dispose();
                 }
             }

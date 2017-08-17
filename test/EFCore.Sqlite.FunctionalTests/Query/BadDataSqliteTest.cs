@@ -193,12 +193,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     public override RelationalDataReader ExecuteReader(
                         IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
-                        => new BadDataRelationalDataReader(_values);
+                    {
+                        var command = connection.DbConnection.CreateCommand();
+                        command.CommandText = CommandText;
+                        return new BadDataRelationalDataReader(command, _values, Logger);
+                    }
 
                     private class BadDataRelationalDataReader : RelationalDataReader
                     {
-                        public BadDataRelationalDataReader(object[] values)
-                            : base(new BadDataDataReader(values))
+                        public BadDataRelationalDataReader(
+                            DbCommand command,
+                            object[] values,
+                            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+                            : base(command, new BadDataDataReader(values), logger)
                         {
                         }
 
@@ -248,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             public override bool IsClosed => throw new NotImplementedException();
 
-                            public override int RecordsAffected => throw new NotImplementedException();
+                            public override int RecordsAffected => 0;
 
                             public override bool NextResult()
                             {

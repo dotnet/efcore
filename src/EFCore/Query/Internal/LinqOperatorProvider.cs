@@ -110,12 +110,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private sealed class EnumeratorExceptionInterceptor : IEnumerator<T>
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
-                private readonly IEnumerator<T> _innerEnumerator;
+                private IEnumerator<T> _innerEnumerator;
 
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
-                    _innerEnumerator = _exceptionInterceptor._innerEnumerable.GetEnumerator();
+
                 }
 
                 public T Current => _innerEnumerator.Current;
@@ -128,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         try
                         {
+                            if (_innerEnumerator == null)
+                            {
+                                _innerEnumerator = _exceptionInterceptor._innerEnumerable.GetEnumerator();
+                            }
                             return _innerEnumerator.MoveNext();
                         }
                         catch (Exception exception)
@@ -139,11 +143,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                public void Reset() => _innerEnumerator.Reset();
+                public void Reset() => _innerEnumerator?.Reset();
 
                 public void Dispose()
                 {
-                    _innerEnumerator.Dispose();
+                    _innerEnumerator?.Dispose();
                     _exceptionInterceptor._queryContext.Dispose();
                 }
             }
@@ -288,7 +292,67 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IEnumerable<T> _ToSequence<T>(Func<T> getElement) => new[] { getElement() };
+        private static IEnumerable<T> _ToSequence<T>(Func<T> getElement)
+            => new ResultEnumerable<T>(getElement);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        private sealed class ResultEnumerable<T> : IEnumerable<T>
+        {
+            private readonly Func<T> _getElement;
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public ResultEnumerable(Func<T> getElement)
+            {
+                _getElement = getElement;
+            }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public IEnumerator<T> GetEnumerator() => new ResultEnumerator(_getElement());
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            private sealed class ResultEnumerator : IEnumerator<T>
+            {
+                private readonly T _value;
+                private bool _moved;
+
+                public ResultEnumerator(T value) => _value = value;
+
+                public bool MoveNext()
+                {
+                    if (!_moved)
+                    {
+                        _moved = true;
+
+                        return _moved;
+                    }
+
+                    return false;
+                }
+
+                public void Reset()
+                {
+                    _moved = false;
+                }
+
+                object IEnumerator.Current => Current;
+
+                public T Current => !_moved ? default(T) : _value;
+
+                void IDisposable.Dispose()
+                {
+                }
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

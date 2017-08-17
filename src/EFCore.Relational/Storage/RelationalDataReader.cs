@@ -71,10 +71,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected RelationalDataReader([NotNull] DbDataReader reader)
         {
             // For testing
-
             Check.NotNull(reader, nameof(reader));
 
             _reader = reader;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected RelationalDataReader(
+            [NotNull] DbCommand command,
+            [NotNull] DbDataReader reader,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+        {
+            // For testing
+            Check.NotNull(command, nameof(command));
+            Check.NotNull(reader, nameof(reader));
+            Check.NotNull(logger, nameof(logger));
+
+            _command = command;
+            _reader = reader;
+            _logger = logger;
+            _startTime = DateTimeOffset.UtcNow;
+            _stopwatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -111,7 +131,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
+                _reader.Dispose();
+                _command.Parameters.Clear();
+                _command.Dispose();
+                _connection?.Close();
+
                 _logger.DataReaderDisposing(
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    // TODO: See issue#9456
                     _connection,
                     _command,
                     _reader,
@@ -121,10 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _startTime,
                     _stopwatch.Elapsed);
 
-                _reader.Dispose();
-                _command.Parameters.Clear();
-                _command.Dispose();
-                _connection?.Close();
 
                 _disposed = true;
             }

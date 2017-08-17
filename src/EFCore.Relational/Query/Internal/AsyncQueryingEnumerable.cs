@@ -96,51 +96,41 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private async Task<bool> BufferlessMoveNext(bool buffer, CancellationToken cancellationToken)
             {
-                try
+                if (_dataReader == null)
                 {
-                    if (_dataReader == null)
-                    {
-                        await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
+                    await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
 
-                        var relationalCommand
-                            = _shaperCommandContext
-                                .GetRelationalCommand(_relationalQueryContext.ParameterValues);
+                    var relationalCommand
+                        = _shaperCommandContext
+                            .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
-                        await _relationalQueryContext.Connection
-                            .RegisterBufferableAsync(this, cancellationToken);
+                    await _relationalQueryContext.Connection
+                        .RegisterBufferableAsync(this, cancellationToken);
 
-                        _dataReader
-                            = await relationalCommand.ExecuteReaderAsync(
-                                _relationalQueryContext.Connection,
-                                _relationalQueryContext.ParameterValues,
-                                cancellationToken);
+                    _dataReader
+                        = await relationalCommand.ExecuteReaderAsync(
+                            _relationalQueryContext.Connection,
+                            _relationalQueryContext.ParameterValues,
+                            cancellationToken);
 
-                        _dbDataReader = _dataReader.DbDataReader;
-                        _shaperCommandContext.NotifyReaderCreated(_dbDataReader);
-                        _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
-                    }
-
-                    var hasNext = await _dataReader.ReadAsync(cancellationToken);
-
-                    Current
-                        = hasNext
-                            ? _shaper.Shape(_relationalQueryContext, _valueBufferFactory.Create(_dbDataReader))
-                            : default(T);
-
-                    if (buffer)
-                    {
-                        await BufferAllAsync(cancellationToken);
-                    }
-
-                    return hasNext;
+                    _dbDataReader = _dataReader.DbDataReader;
+                    _shaperCommandContext.NotifyReaderCreated(_dbDataReader);
+                    _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
                 }
-                catch (Exception)
+
+                var hasNext = await _dataReader.ReadAsync(cancellationToken);
+
+                Current
+                    = hasNext
+                        ? _shaper.Shape(_relationalQueryContext, _valueBufferFactory.Create(_dbDataReader))
+                        : default(T);
+
+                if (buffer)
                 {
-                    _dataReader = null;
-                    _dbDataReader = null;
-
-                    throw;
+                    await BufferAllAsync(cancellationToken);
                 }
+
+                return hasNext;
             }
 
             public T Current { get; private set; }
