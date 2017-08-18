@@ -638,7 +638,8 @@ CREATE TABLE TypeAlias (
 
                         // ReSharper disable once PossibleNullReferenceException
                         Assert.Equal("TestTypeAlias", column.StoreType);
-                        Assert.Equal("nvarchar", column.GetUnderlyingStoreType());
+                        // TODO: Following should be nvarchar(max) See issue#9473
+                        Assert.Equal("nvarchar(4000)", column.GetUnderlyingStoreType());
                     },
                 @"
 DROP TABLE TypeAlias;
@@ -754,6 +755,178 @@ CREATE TABLE LengthColumns (
         }
 
         [Fact]
+        public void Default_max_length_are_added_to_binary_varbinary()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthBinaryColumns (
+    Id int,
+    binaryColumn binary(8000),
+    binaryVaryingColumn binary varying(8000),
+    varbinaryColumn varbinary(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("binary(8000)", columns.Single(c => c.Name == "binaryColumn").StoreType);
+                        Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "binaryVaryingColumn").StoreType);
+                        Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "varbinaryColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthBinaryColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_char_1()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthCharColumns (
+    Id int,
+    charColumn char(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("char(8000)", columns.Single(c => c.Name == "charColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthCharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_char_2()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthCharColumns (
+    Id int,
+    characterColumn character(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("char(8000)", columns.Single(c => c.Name == "characterColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthCharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_varchar()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthVarcharColumns (
+    Id int,
+    charVaryingColumn char varying(8000),
+    characterVaryingColumn character varying(8000),
+    varcharColumn varchar(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "charVaryingColumn").StoreType);
+                        Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "characterVaryingColumn").StoreType);
+                        Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "varcharColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthVarcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nchar_1()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNcharColumns (
+    Id int,
+    natioanlCharColumn national char(4000),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "natioanlCharColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthNcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nchar_2()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNcharColumns (
+    Id int,
+    nationalCharacterColumn national character(4000),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharacterColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthNcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nchar_3()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNcharColumns (
+    Id int,
+    ncharColumn nchar(4000),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                    {
+                        var columns = dbModel.Tables.Single().Columns;
+
+                        Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "ncharColumn").StoreType);
+                    },
+                @"DROP TABLE DefaultRequiredLengthNcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nvarchar()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNvarcharColumns (
+    Id int,
+    nationalCharVaryingColumn national char varying(4000),
+    nationalCharacterVaryingColumn national character varying(4000),
+    nvarcharColumn nvarchar(4000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nationalCharVaryingColumn").StoreType);
+                    Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nationalCharacterVaryingColumn").StoreType);
+                    Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nvarcharColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthNvarcharColumns;");
+        }
+
+        [Fact]
         public void Datetime_types_have_precision_if_non_null_scale()
         {
             Test(
@@ -790,6 +963,7 @@ CREATE TABLE OneLengthColumns (
     characterVaryingColumn character varying NULL,
     charColumn char NULL,
     charVaryingColumn char varying NULL,
+    nationalCharColumn national char NULL,
     nationalCharacterColumn national character NULL,
     nationalCharacterVaryingColumn national char varying NULL,
     nationalCharVaryingColumn national char varying NULL,
@@ -810,6 +984,7 @@ CREATE TABLE OneLengthColumns (
                         Assert.Equal("varchar(1)", columns.Single(c => c.Name == "characterVaryingColumn").StoreType);
                         Assert.Equal("char(1)", columns.Single(c => c.Name == "charColumn").StoreType);
                         Assert.Equal("varchar(1)", columns.Single(c => c.Name == "charVaryingColumn").StoreType);
+                        Assert.Equal("nchar(1)", columns.Single(c => c.Name == "nationalCharColumn").StoreType);
                         Assert.Equal("nchar(1)", columns.Single(c => c.Name == "nationalCharacterColumn").StoreType);
                         Assert.Equal("nvarchar(1)", columns.Single(c => c.Name == "nationalCharacterVaryingColumn").StoreType);
                         Assert.Equal("nvarchar(1)", columns.Single(c => c.Name == "nationalCharVaryingColumn").StoreType);

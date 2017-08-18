@@ -46,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static string ColumnKey(DatabaseTable table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
         private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
+        private static readonly ISet<string> _maxLengthRequiredTypes = new HashSet<string> { "binary", "varbinary", "char", "varchar", "nchar", "nvarchar" };
 
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
@@ -511,6 +512,12 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
 
         private string GetStoreType(string dataTypeName, int? precision, int? scale, int? maxLength)
         {
+            if (_maxLengthRequiredTypes.Contains(dataTypeName)
+                && maxLength == null)
+            {
+                maxLength = 8000;
+            }
+
             if ((dataTypeName == "nvarchar"
                  || dataTypeName == "nchar")
                 && maxLength != -1)
