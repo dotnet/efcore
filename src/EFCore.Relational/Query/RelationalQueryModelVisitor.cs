@@ -25,6 +25,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -1335,8 +1336,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return base.VisitTypeBinary(typeBinaryExpression);
                 }
 
-                var entityType = _model.FindEntityType(typeBinaryExpression.TypeOperand);
+                if (!(typeBinaryExpression.Expression is QuerySourceReferenceExpression qsre))
+                {
+                    return base.VisitTypeBinary(typeBinaryExpression);
+                }
 
+                var entityType = _model.FindEntityType(typeBinaryExpression.TypeOperand);
                 if (entityType == null)
                 {
                     return base.VisitTypeBinary(typeBinaryExpression);
@@ -1352,7 +1357,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         = concreteEntityTypes[0].Relational().DiscriminatorProperty;
 
                     var discriminatorPropertyExpression
-                        = typeBinaryExpression.Expression.CreateEFPropertyExpression(discriminatorProperty);
+                        = qsre.CreateEFPropertyExpression(discriminatorProperty);
 
                     var discriminatorPredicate
                         = concreteEntityTypes
@@ -1363,7 +1368,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                         Expression.Constant(concreteEntityType.Relational().DiscriminatorValue, discriminatorPropertyExpression.Type)))
                             .Aggregate((current, next) => Expression.OrElse(next, current));
 
-                    return discriminatorPredicate;
+                    return new DiscriminatorPredicateExpression(discriminatorPredicate, qsre.TryGetReferencedQuerySource());
                 }
 
                 return Expression.Constant(true, typeof(bool));
@@ -1568,6 +1573,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return false;
             }
 
+            var discriminatorPredicateOptimizer = new DiscriminatorPredicateOptimizingVisitor();
+            predicate = discriminatorPredicateOptimizer.Visit(predicate);
+
             QueriesBySource.Remove(joinClause);
 
             outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
@@ -1700,6 +1708,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Equal(joinClause.OuterKeySelector, joinClause.InnerKeySelector));
             }
 
+            var discriminatorPredicateOptimizer = new DiscriminatorPredicateOptimizingVisitor();
+            predicate = discriminatorPredicateOptimizer.Visit(predicate);
+
             QueriesBySource.Remove(joinClause);
 
             outerSelectExpression.RemoveRangeFromProjection(previousProjectionCount);
@@ -1776,6 +1787,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                     groupJoinMethodCallExpression.Arguments[4]);
 
             return true;
+        }
+
+        private class DiscriminatorPredicateOptimizingVisitor : RelinqExpressionVisitor
+        {
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    && binaryExpression.Left.RemoveConvert() is ConditionalExpression conditionalExpression
+                    && conditionalExpression.Test is DiscriminatorPredicateExpression discriminatorPredicateExpression
+                    && conditionalExpression.IfFalse.IsNullConstantExpression())
+                {
+                    return Expression.AndAlso(
+                        discriminatorPredicateExpression.Reduce(),
+                        Expression.Equal(
+                            conditionalExpression.IfTrue.Type == binaryExpression.Right.Type
+                                ? conditionalExpression.IfTrue
+                                : Expression.Convert(conditionalExpression.IfTrue, binaryExpression.Right.Type),
+                            binaryExpression.Right));
+                }
+
+                return base.VisitBinary(binaryExpression);
+            }
         }
 
         private bool IsFlattenableGroupJoinDefaultIfEmpty(

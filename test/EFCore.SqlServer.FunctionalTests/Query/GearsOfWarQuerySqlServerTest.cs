@@ -3558,10 +3558,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3577,10 +3574,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3596,10 +3590,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name]");
         }
@@ -3684,10 +3675,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name], [f].[Id]",
                 //
@@ -3700,10 +3688,7 @@ INNER JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
         WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
-    ) AS [t0] ON CASE
-        WHEN [f0].[Discriminator] = N'LocustHorde'
-        THEN [f0].[CommanderName] ELSE NULL
-    END = [t0].[Name]
+    ) AS [t0] ON ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[CommanderName] = [t0].[Name])
     WHERE ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[Discriminator] = N'LocustHorde')
 ) AS [t1] ON [f.Leaders].[LocustHordeId] = [t1].[Id]
 WHERE [f.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
@@ -3721,10 +3706,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
 ORDER BY [f].[Name], [f].[Id]",
                 //
@@ -3737,10 +3719,7 @@ INNER JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
         WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
-    ) AS [t0] ON CASE
-        WHEN [f0].[Discriminator] = N'LocustHorde'
-        THEN [f0].[CommanderName] ELSE NULL
-    END = [t0].[Name]
+    ) AS [t0] ON ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[CommanderName] = [t0].[Name])
     WHERE ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[Discriminator] = N'LocustHorde')
 ) AS [t1] ON [f.Leaders].[LocustHordeId] = [t1].[Id]
 WHERE [f.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
@@ -3758,10 +3737,7 @@ LEFT JOIN (
     SELECT [f2.Commander].*
     FROM [LocustLeaders] AS [f2.Commander]
     WHERE [f2.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f2].[Discriminator] = N'LocustHorde'
-    THEN [f2].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f2].[Discriminator] = N'LocustHorde') AND ([f2].[CommanderName] = [t].[Name])
 CROSS JOIN [Factions] AS [ff]
 LEFT JOIN [Cities] AS [ff.Capital] ON [ff].[CapitalName] = [ff.Capital].[Name]
 WHERE ([f2].[Discriminator] = N'LocustHorde') AND ([f2].[Discriminator] = N'LocustHorde')
@@ -3776,10 +3752,7 @@ INNER JOIN (
         SELECT [f2.Commander0].*
         FROM [LocustLeaders] AS [f2.Commander0]
         WHERE [f2.Commander0].[Discriminator] = N'LocustCommander'
-    ) AS [t0] ON CASE
-        WHEN [f20].[Discriminator] = N'LocustHorde'
-        THEN [f20].[CommanderName] ELSE NULL
-    END = [t0].[Name]
+    ) AS [t0] ON ([f20].[Discriminator] = N'LocustHorde') AND ([f20].[CommanderName] = [t0].[Name])
     CROSS JOIN [Factions] AS [ff0]
     LEFT JOIN [Cities] AS [ff.Capital0] ON [ff0].[CapitalName] = [ff.Capital0].[Name]
     WHERE ([f20].[Discriminator] = N'LocustHorde') AND ([f20].[Discriminator] = N'LocustHorde')
@@ -3834,10 +3807,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 LEFT JOIN (
     SELECT [f.Commander.DefeatedBy].*
     FROM [Gears] AS [f.Commander.DefeatedBy]
@@ -4000,10 +3970,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 LEFT JOIN (
     SELECT [f.Commander.DefeatedBy].*
     FROM [Gears] AS [f.Commander.DefeatedBy]
@@ -4021,10 +3988,7 @@ INNER JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
         WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
-    ) AS [t1] ON CASE
-        WHEN [f0].[Discriminator] = N'LocustHorde'
-        THEN [f0].[CommanderName] ELSE NULL
-    END = [t1].[Name]
+    ) AS [t1] ON ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[CommanderName] = [t1].[Name])
     LEFT JOIN (
         SELECT [f.Commander.DefeatedBy0].*
         FROM [Gears] AS [f.Commander.DefeatedBy0]
@@ -4047,13 +4011,7 @@ LEFT JOIN (
     SELECT [l.DefeatedBy].*
     FROM [Gears] AS [l.DefeatedBy]
     WHERE [l.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedByNickname] = [t].[Nickname])) AND (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedBySquadId] = [t].[SquadId]))
 WHERE [l].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
 
@@ -4068,13 +4026,7 @@ LEFT JOIN (
     SELECT [l.DefeatedBy].*
     FROM [Gears] AS [l.DefeatedBy]
     WHERE [l.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedByNickname] = [t].[Nickname])) AND (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedBySquadId] = [t].[SquadId]))
 LEFT JOIN [Squads] AS [l.DefeatedBy.Squad] ON [t].[SquadId] = [l.DefeatedBy.Squad].[Id]
 WHERE [l].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
@@ -4090,13 +4042,7 @@ LEFT JOIN (
     SELECT [l.DefeatedBy].*
     FROM [Gears] AS [l.DefeatedBy]
     WHERE [l.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedByNickname] = [t].[Nickname])) AND (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedBySquadId] = [t].[SquadId]))
 WHERE [l].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
 ORDER BY [t].[Nickname], [t].[SquadId]",
                 //
@@ -4110,13 +4056,7 @@ INNER JOIN (
         SELECT [l.DefeatedBy0].*
         FROM [Gears] AS [l.DefeatedBy0]
         WHERE [l.DefeatedBy0].[Discriminator] IN (N'Officer', N'Gear')
-    ) AS [t0] ON (CASE
-        WHEN [l0].[Discriminator] = N'LocustCommander'
-        THEN [l0].[DefeatedByNickname] ELSE NULL
-    END = [t0].[Nickname]) AND (CASE
-        WHEN [l0].[Discriminator] = N'LocustCommander'
-        THEN [l0].[DefeatedBySquadId] ELSE NULL
-    END = [t0].[SquadId])
+    ) AS [t0] ON (([l0].[Discriminator] = N'LocustCommander') AND ([l0].[DefeatedByNickname] = [t0].[Nickname])) AND (([l0].[Discriminator] = N'LocustCommander') AND ([l0].[DefeatedBySquadId] = [t0].[SquadId]))
     WHERE [l0].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
 ) AS [t1] ON ([l.DefeatedBy.Reports].[LeaderNickname] = [t1].[Nickname]) AND ([l.DefeatedBy.Reports].[LeaderSquadId] = [t1].[SquadId])
 WHERE [l.DefeatedBy.Reports].[Discriminator] IN (N'Officer', N'Gear')
@@ -4134,13 +4074,7 @@ LEFT JOIN (
     SELECT [ll.DefeatedBy].*
     FROM [Gears] AS [ll.DefeatedBy]
     WHERE [ll.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([ll].[Discriminator] = N'LocustCommander') AND ([ll].[DefeatedByNickname] = [t].[Nickname])) AND (([ll].[Discriminator] = N'LocustCommander') AND ([ll].[DefeatedBySquadId] = [t].[SquadId]))
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
 
@@ -4155,13 +4089,7 @@ LEFT JOIN (
     SELECT [ll.DefeatedBy].*
     FROM [Gears] AS [ll.DefeatedBy]
     WHERE [ll.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([ll].[Discriminator] = N'LocustCommander') AND ([ll].[DefeatedByNickname] = [t].[Nickname])) AND (([ll].[Discriminator] = N'LocustCommander') AND ([ll].[DefeatedBySquadId] = [t].[SquadId]))
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
 
@@ -4176,13 +4104,7 @@ LEFT JOIN (
     SELECT [l.DefeatedBy].*
     FROM [Gears] AS [l.DefeatedBy]
     WHERE [l.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [l].[Discriminator] = N'LocustCommander'
-    THEN [l].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedByNickname] = [t].[Nickname])) AND (([l].[Discriminator] = N'LocustCommander') AND ([l].[DefeatedBySquadId] = [t].[SquadId]))
 WHERE [l].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
 
@@ -4310,10 +4232,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 LEFT JOIN (
     SELECT [f.Commander.DefeatedBy].*
     FROM [Gears] AS [f.Commander.DefeatedBy]
@@ -4331,10 +4250,7 @@ INNER JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
         WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
-    ) AS [t1] ON CASE
-        WHEN [f0].[Discriminator] = N'LocustHorde'
-        THEN [f0].[CommanderName] ELSE NULL
-    END = [t1].[Name]
+    ) AS [t1] ON ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[CommanderName] = [t1].[Name])
     LEFT JOIN (
         SELECT [f.Commander.DefeatedBy0].*
         FROM [Gears] AS [f.Commander.DefeatedBy0]
@@ -4398,13 +4314,7 @@ LEFT JOIN (
     SELECT [l.DefeatedBy].*
     FROM [Gears] AS [l.DefeatedBy]
     WHERE [l.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [f.Leaders].[Discriminator] = N'LocustCommander'
-    THEN [f.Leaders].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [f.Leaders].[Discriminator] = N'LocustCommander'
-    THEN [f.Leaders].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([f.Leaders].[Discriminator] = N'LocustCommander') AND ([f.Leaders].[DefeatedByNickname] = [t].[Nickname])) AND (([f.Leaders].[Discriminator] = N'LocustCommander') AND ([f.Leaders].[DefeatedBySquadId] = [t].[SquadId]))
 INNER JOIN (
     SELECT [f0].[Id]
     FROM [Factions] AS [f0]
@@ -4425,10 +4335,7 @@ LEFT JOIN (
     SELECT [f.Commander].*
     FROM [LocustLeaders] AS [f.Commander]
     WHERE [f.Commander].[Discriminator] = N'LocustCommander'
-) AS [t] ON CASE
-    WHEN [f].[Discriminator] = N'LocustHorde'
-    THEN [f].[CommanderName] ELSE NULL
-END = [t].[Name]
+) AS [t] ON ([f].[Discriminator] = N'LocustHorde') AND ([f].[CommanderName] = [t].[Name])
 LEFT JOIN (
     SELECT [f.Commander.DefeatedBy].*
     FROM [Gears] AS [f.Commander.DefeatedBy]
@@ -4446,10 +4353,7 @@ INNER JOIN (
         SELECT [f.Commander0].*
         FROM [LocustLeaders] AS [f.Commander0]
         WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
-    ) AS [t1] ON CASE
-        WHEN [f0].[Discriminator] = N'LocustHorde'
-        THEN [f0].[CommanderName] ELSE NULL
-    END = [t1].[Name]
+    ) AS [t1] ON ([f0].[Discriminator] = N'LocustHorde') AND ([f0].[CommanderName] = [t1].[Name])
     LEFT JOIN (
         SELECT [f.Commander.DefeatedBy0].*
         FROM [Gears] AS [f.Commander.DefeatedBy0]
@@ -6010,13 +5914,7 @@ LEFT JOIN (
     SELECT [ll.DefeatedBy].*
     FROM [Gears] AS [ll.DefeatedBy]
     WHERE [ll.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
-) AS [t] ON (CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[DefeatedByNickname] ELSE NULL
-END = [t].[Nickname]) AND (CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[DefeatedBySquadId] ELSE NULL
-END = [t].[SquadId])
+) AS [t] ON (([ll].[Discriminator] = N'LocustCommander') AND ([ll].[DefeatedByNickname] = [t].[Nickname])) AND (([ll].[Discriminator] = N'LocustCommander') AND ([ll].[DefeatedBySquadId] = [t].[SquadId]))
 LEFT JOIN [Tags] AS [ll.DefeatedBy.Tag] ON (([t].[Nickname] = [ll.DefeatedBy.Tag].[GearNickName]) OR ([t].[Nickname] IS NULL AND [ll.DefeatedBy.Tag].[GearNickName] IS NULL)) AND (([t].[SquadId] = [ll.DefeatedBy.Tag].[GearSquadId]) OR ([t].[SquadId] IS NULL AND [ll.DefeatedBy.Tag].[GearSquadId] IS NULL))
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
 ORDER BY [ll.DefeatedBy.Tag].[Note], [t].[FullName]",
@@ -6034,13 +5932,7 @@ INNER JOIN (
             SELECT [ll.DefeatedBy0].*
             FROM [Gears] AS [ll.DefeatedBy0]
             WHERE [ll.DefeatedBy0].[Discriminator] IN (N'Officer', N'Gear')
-        ) AS [t0] ON (CASE
-            WHEN [ll0].[Discriminator] = N'LocustCommander'
-            THEN [ll0].[DefeatedByNickname] ELSE NULL
-        END = [t0].[Nickname]) AND (CASE
-            WHEN [ll0].[Discriminator] = N'LocustCommander'
-            THEN [ll0].[DefeatedBySquadId] ELSE NULL
-        END = [t0].[SquadId])
+        ) AS [t0] ON (([ll0].[Discriminator] = N'LocustCommander') AND ([ll0].[DefeatedByNickname] = [t0].[Nickname])) AND (([ll0].[Discriminator] = N'LocustCommander') AND ([ll0].[DefeatedBySquadId] = [t0].[SquadId]))
         LEFT JOIN [Tags] AS [ll.DefeatedBy.Tag0] ON (([t0].[Nickname] = [ll.DefeatedBy.Tag0].[GearNickName]) OR ([t0].[Nickname] IS NULL AND [ll.DefeatedBy.Tag0].[GearNickName] IS NULL)) AND (([t0].[SquadId] = [ll.DefeatedBy.Tag0].[GearSquadId]) OR ([t0].[SquadId] IS NULL AND [ll.DefeatedBy.Tag0].[GearSquadId] IS NULL))
         WHERE [ll0].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
         ORDER BY [ll.DefeatedBy.Tag0].[Note], [t0].[FullName]
@@ -6056,10 +5948,7 @@ ORDER BY [t2].[Note], [t2].[FullName]");
             AssertSql(
                 @"SELECT [ll.HighCommand].[Name]
 FROM [LocustLeaders] AS [ll]
-LEFT JOIN [LocustHighCommands] AS [ll.HighCommand] ON CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[HighCommandId] ELSE NULL
-END = [ll.HighCommand].[Id]
+LEFT JOIN [LocustHighCommands] AS [ll.HighCommand] ON ([ll].[Discriminator] = N'LocustCommander') AND ([ll].[HighCommandId] = [ll.HighCommand].[Id])
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
 
@@ -6070,10 +5959,7 @@ WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
             AssertSql(
                 @"SELECT [ll].[Name], [ll].[Discriminator], [ll].[LocustHordeId], [ll].[ThreatLevel], [ll].[DefeatedByNickname], [ll].[DefeatedBySquadId], [ll].[HighCommandId]
 FROM [LocustLeaders] AS [ll]
-LEFT JOIN [LocustHighCommands] AS [ll.HighCommand] ON CASE
-    WHEN [ll].[Discriminator] = N'LocustCommander'
-    THEN [ll].[HighCommandId] ELSE NULL
-END = [ll.HighCommand].[Id]
+LEFT JOIN [LocustHighCommands] AS [ll.HighCommand] ON ([ll].[Discriminator] = N'LocustCommander') AND ([ll].[HighCommandId] = [ll.HighCommand].[Id])
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader') AND ([ll.HighCommand].[IsOperational] = 1)");
         }
 
