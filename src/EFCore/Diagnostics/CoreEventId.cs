@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -19,24 +21,36 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class CoreEventId
     {
         /// <summary>
+        ///     <para>
+        ///         The name of the switch to use with <see cref="AppContext.SetSwitch"/> to use the event ID numbers
+        ///         that were shipped with EF Core 2.0.0. These IDs are too big for use in Windows EventLog, so smaller 
+        ///         numbers were used starting with EF Core 2.0.1.
+        ///     </para>
+        ///     <para>
+        ///         Only set this switch if a tool was compiled against 2.0.0 and is explicitly using the legacy IDs.
+        ///     </para>
+        /// </summary>
+        internal const string UseLegacyEventIdsSwitch = "Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds";
+
+        /// <summary>
         ///     The lower-bound for event IDs used by any Entity Framework or provider code.
         /// </summary>
-        public const int CoreBaseId = 100000;
+        public const int CoreBaseId = 10000;
 
         /// <summary>
         ///     The lower-bound for event IDs used by any relational database provider.
         /// </summary>
-        public const int RelationalBaseId = 200000;
+        public const int RelationalBaseId = 20000;
 
         /// <summary>
         ///     The lower-bound for event IDs used only by database providers.
         /// </summary>
-        public const int ProviderBaseId = 300000;
+        public const int ProviderBaseId = 30000;
 
         /// <summary>
         ///     The lower-bound for event IDs used only by database provider design-time and tooling.
         /// </summary>
-        public const int ProviderDesignBaseId = 350000;
+        public const int ProviderDesignBaseId = 35000;
 
         // Warning: These values must not change between releases.
         // Only add new values to the end of sections, never in the middle.
@@ -59,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             PossibleUnintendedCollectionNavigationNullComparisonWarning,
             PossibleUnintendedReferenceComparisonWarning,
 
-            // Infrastucture events
+            // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
             ServiceProviderCreated,
             ManyServiceProvidersCreatedWarning,
@@ -67,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
-        private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
+        private static EventId MakeUpdateId(Id id) => EventIdFactory.Create((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -89,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId DuplicateDependentEntityTypeInstanceWarning = MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-        private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
+        private static EventId MakeQueryId(Id id) => EventIdFactory.Create((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -224,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = MakeQueryId(Id.PossibleUnintendedReferenceComparisonWarning);
 
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
-        private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);
+        private static EventId MakeInfraId(Id id) => EventIdFactory.Create((int)id, _infraPrefix + id);
 
         /// <summary>
         ///     <para>
