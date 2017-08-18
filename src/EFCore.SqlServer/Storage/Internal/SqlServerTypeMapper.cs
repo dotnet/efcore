@@ -164,19 +164,31 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _disallowedMappings
                 = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
                 {
-                    "binary varying",
+                    // binary
                     "binary",
-                    "char varying",
+
+                    // varbinary
+                    "binary varying",
+                    "varbinary",
+
+                    // char
                     "char",
-                    "character varying",
                     "character",
-                    "national char varying",
-                    "national character varying",
+
+                    // varchar
+                    "char varying",
+                    "character varying",
+                    "varchar",
+
+                    // nchar
+                    "national char",
                     "national character",
                     "nchar",
-                    "nvarchar",
-                    "varbinary",
-                    "varchar"
+
+                    // nvarchar
+                    "national char varying",
+                    "national character varying",
+                    "nvarchar"
                 };
 
             ByteArrayMapper
