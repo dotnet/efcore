@@ -72,18 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 && properties[properties.Count - 1] is INavigation lastNavigation
                 && lastNavigation.IsCollection())
             {
-                // include doesn't handle navigations on derived class, so we can't leverage include pipeline for those cases
-                var expectedCallerType = querySource.ItemType;
-                foreach (var property in properties)
-                {
-                    if (expectedCallerType != property.DeclaringType.ClrType)
-                    {
-                        return expression;
-                    }
-
-                    expectedCallerType = property.ClrType;
-                }
-
                 var qsre = new QuerySourceReferenceExpression(querySource);
 
                 CollectionNavigationIncludeResultOperators.Add(

@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
-                CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
+                CoreStrings.InvalidIncludeLambdaExpression("Include", lambdaExpression.ToString()),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         {
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Parameter(typeof(Order), "o"));
 
             Assert.Equal(
-                CoreStrings.InvalidComplexPropertyExpression(lambdaExpression.ToString()),
+                CoreStrings.InvalidIncludeLambdaExpression("ThenInclude", lambdaExpression.ToString()),
                 Assert.Throws<ArgumentException>(
                     () =>
                         {
@@ -3148,7 +3148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.IncludeNotSpecifiedDirectlyOnEntityType(@"Include(""Item1.Orders"")", "Item1"),
-                    Assert.Throws<NotSupportedException>(
+                    Assert.Throws<InvalidOperationException>(
                         () => useString
                             ? context.Customers
                                 .Select(c => new Tuple<Customer, int>(c, 5))

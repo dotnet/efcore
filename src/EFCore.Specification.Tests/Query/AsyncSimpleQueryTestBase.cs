@@ -1680,9 +1680,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery<Product, OrderDetail>(
                 (pr, od) =>
-                    from p in pr
-                    where p.OrderDetails.Contains(od.FirstOrDefault(orderDetail => orderDetail.Discount == 0.1))
-                    select p);
+                    pr.Where(
+                        p => od
+                            .Where(o => o.ProductID == p.ProductID)
+                            .Select(odd => odd.Quantity).Contains<short>(5)),
+                entryCount: 43);
         }
 
         [ConditionalFact]
