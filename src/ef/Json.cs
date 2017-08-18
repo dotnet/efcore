@@ -11,7 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public static CommandOption ConfigureOption(CommandLineApplication command)
             => command.Option("--json", Resources.JsonDescription);
 
-        public static string Escape(string text)
-            => text.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        public static string Literal(string text)
+            => text != null
+                ? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+                : "null";
     }
 }

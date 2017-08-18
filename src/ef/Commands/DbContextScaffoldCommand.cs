@@ -47,13 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private void ReportJsonResults(IDictionary result)
         {
             Reporter.WriteData("{");
-            Reporter.WriteData("  \"contextFile\": \"" + Json.Escape(result["ContextFile"] as string) + "\",");
+            Reporter.WriteData("  \"contextFile\": " + Json.Literal(result["ContextFile"] as string) + ",");
             Reporter.WriteData("  \"entityTypeFiles\": [");
 
             var files = (IReadOnlyList<string>)result["EntityTypeFiles"];
             for (var i = 0; i < files.Count; i++)
             {
-                var line = "    \"" + Json.Escape(files[i]) + "\"";
+                var line = "    " + Json.Literal(files[i]);
                 if (i != files.Count - 1)
                 {
                     line += ",";

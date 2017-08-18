@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private void ReportJsonResults(IDictionary result)
         {
             Reporter.WriteData("{");
-            Reporter.WriteData("  \"migrationFile\": \"" + Json.Escape(result["MigrationFile"] as string) + "\",");
-            Reporter.WriteData("  \"metadataFile\": \"" + Json.Escape(result["MetadataFile"] as string) + "\",");
-            Reporter.WriteData("  \"snapshotFile\": \"" + Json.Escape(result["SnapshotFile"] as string) + "\"");
+            Reporter.WriteData("  \"migrationFile\": " + Json.Literal(result["MigrationFile"] as string) + ",");
+            Reporter.WriteData("  \"metadataFile\": " + Json.Literal(result["MetadataFile"] as string) + ",");
+            Reporter.WriteData("  \"snapshotFile\": " + Json.Literal(result["SnapshotFile"] as string));
             Reporter.WriteData("}");
         }
     }

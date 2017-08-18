@@ -244,7 +244,7 @@ function Remove-Migration
     $result = (EF $dteProject $dteStartupProject $params) -join "`n" | ConvertFrom-Json
 
     $files = $result.migrationFile, $result.metadataFile, $result.snapshotFile
-    $files | %{
+    $files | ?{ $_ -ne $null } | %{
         $projectItem = GetProjectItem $dteProject $_
         if ($projectItem)
         {

@@ -28,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private static void ReportJsonResult(IDictionary result)
         {
             Reporter.WriteData("{");
-            Reporter.WriteData("  \"providerName\": \"" + Json.Escape(result["ProviderName"] as string) + "\",");
-            Reporter.WriteData("  \"databaseName\": \"" + Json.Escape(result["DatabaseName"] as string) + "\",");
-            Reporter.WriteData("  \"dataSource\": \"" + Json.Escape(result["DataSource"] as string) + "\",");
-            Reporter.WriteData("  \"options\": \"" + Json.Escape(result["Options"] as string) + "\"");
+            Reporter.WriteData("  \"providerName\": " + Json.Literal(result["ProviderName"] as string) + ",");
+            Reporter.WriteData("  \"databaseName\": " + Json.Literal(result["DatabaseName"] as string) + ",");
+            Reporter.WriteData("  \"dataSource\": " + Json.Literal(result["DataSource"] as string) + ",");
+            Reporter.WriteData("  \"options\": " + Json.Literal(result["Options"] as string));
             Reporter.WriteData("}");
         }
 
