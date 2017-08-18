@@ -1,0 +1,6 @@
+<Project>
+    <!--
+        This file is intentionally included even though it is blank.
+        This prevent any Directory.Build.targets file imports above the repo root.
+    -->
+</Project>
