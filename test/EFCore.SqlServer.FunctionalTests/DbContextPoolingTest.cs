@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContextPool<TContext>(
                     ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
                     poolSize)
+                .AddDbContextPool<SecondContext>(
+                    ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
+                    poolSize)
                 .BuildServiceProvider();
 
         private class PooledContext : DbContext
@@ -71,6 +74,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 public string CustomerId { get; set; }
                 public string CompanyName { get; set; }
+            }
+        }
+
+        private class SecondContext : DbContext
+        {
+            public SecondContext(DbContextOptions options)
+                : base(options)
+            {
             }
         }
 
@@ -165,12 +176,15 @@ namespace Microsoft.EntityFrameworkCore
             var serviceScope1 = serviceProvider.CreateScope();
 
             var context1 = serviceScope1.ServiceProvider.GetService<PooledContext>();
+            var secondContext1 = serviceScope1.ServiceProvider.GetService<SecondContext>();
 
             var serviceScope2 = serviceProvider.CreateScope();
 
             var context2 = serviceScope2.ServiceProvider.GetService<PooledContext>();
+            var secondContext2 = serviceScope2.ServiceProvider.GetService<SecondContext>();
 
             Assert.NotSame(context1, context2);
+            Assert.NotSame(secondContext1, secondContext2);
 
             serviceScope1.Dispose();
             serviceScope2.Dispose();
@@ -178,14 +192,18 @@ namespace Microsoft.EntityFrameworkCore
             var serviceScope3 = serviceProvider.CreateScope();
 
             var context3 = serviceScope3.ServiceProvider.GetService<PooledContext>();
+            var secondContext3 = serviceScope3.ServiceProvider.GetService<SecondContext>();
 
             Assert.Same(context1, context3);
+            Assert.Same(secondContext1, secondContext3);
 
             var serviceScope4 = serviceProvider.CreateScope();
 
             var context4 = serviceScope4.ServiceProvider.GetService<PooledContext>();
+            var secondContext4 = serviceScope4.ServiceProvider.GetService<SecondContext>();
 
             Assert.Same(context2, context4);
+            Assert.Same(secondContext2, secondContext4);
         }
 
         [Fact]

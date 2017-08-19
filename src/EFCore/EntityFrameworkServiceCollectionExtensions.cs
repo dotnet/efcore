@@ -164,8 +164,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     },
                 ServiceLifetime.Singleton);
 
-            serviceCollection.TryAddSingleton<DbContextPool<TContext>>();
-            serviceCollection.AddScoped(p => p.GetService<DbContextPool<TContext>>().Rent());
+            serviceCollection.TryAddSingleton(sp => new DbContextPool<TContext>(sp.GetService<DbContextOptions<TContext>>()));
+            serviceCollection.AddScoped(sp => sp.GetService<DbContextPool<TContext>>().Rent());
 
             return serviceCollection;
         }
