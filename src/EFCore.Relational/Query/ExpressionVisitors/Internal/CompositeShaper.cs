@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource,
             [NotNull] Shaper outerShaper,
             [NotNull] Shaper innerShaper,
-            [NotNull] Delegate materializer)
+            [NotNull] LambdaExpression materializer)
         {
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(outerShaper, nameof(outerShaper));
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         outerShaper.Type,
                         innerShaper.GetType(),
                         innerShaper.Type,
-                        materializer.GetMethodInfo().ReturnType)
+                        materializer.ReturnType)
                     .Invoke(
                         null,
                         new object[]
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             querySource,
                             outerShaper,
                             innerShaper,
-                            materializer
+                            materializer.Compile()
                         });
 
             return compositeShaper;
