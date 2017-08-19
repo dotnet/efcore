@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         // ReSharper disable once SuggestBaseTypeForParameter
-        public DbContextPool([NotNull] DbContextOptions options)
+        public DbContextPool([NotNull] DbContextOptions<TContext> options)
         {
             _maxSize = options.FindExtension<CoreOptionsExtension>()?.MaxPoolSize ?? DefaultPoolSize;
 
