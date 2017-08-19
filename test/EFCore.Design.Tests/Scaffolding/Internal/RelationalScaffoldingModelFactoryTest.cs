@@ -82,6 +82,31 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Creates_entity_types_case_insensitive()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "TestTable",
+                        Columns = { IdColumn },
+                        PrimaryKey = IdPrimaryKey
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "TESTTABLE",
+                        Columns = { IdColumn },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+            var model = _factory.Create(info);
+            Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
+        }
+
+        [Fact]
         public void Loads_column_types()
         {
             var info = new DatabaseModel
