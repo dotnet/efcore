@@ -49,6 +49,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         public const int Lotus = 9;
         public const int Hispania = 10;
         public const int Sauber = 11;
-        public const int Virgin = 12;
+        public const int Vickers = 12;
     }
 }

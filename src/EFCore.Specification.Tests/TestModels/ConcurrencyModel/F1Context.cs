@@ -317,9 +317,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 },
                 new Team
                 {
-                    Id = Team.Virgin,
-                    Name = "Virgin Racing",
-                    Constructor = "Virgin",
+                    Id = Team.Vickers,
+                    Name = "Vickers Racing",
+                    Constructor = "Vickers",
                     Chassis = new Chassis
                     {
                         Name = "VR-01"
@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 new Driver
                 {
                     Name = "Timo Glock",
-                    TeamId = Team.Virgin,
+                    TeamId = Team.Vickers,
                     CarNumber = 24,
                     Championships = 0,
                     Races = 48,
@@ -812,7 +812,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 new Driver
                 {
                     Name = "Lucas di Grassi",
-                    TeamId = Team.Virgin,
+                    TeamId = Team.Vickers,
                     CarNumber = 25,
                     Championships = 0,
                     Races = 12,
@@ -824,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 new TestDriver
                 {
                     Name = "Andy Soucek",
-                    TeamId = Team.Virgin,
+                    TeamId = Team.Vickers,
                     CarNumber = null,
                     Championships = 0,
                     Races = 0,
@@ -836,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 new TestDriver
                 {
                     Name = "Luiz Razia",
-                    TeamId = Team.Virgin,
+                    TeamId = Team.Vickers,
                     CarNumber = null,
                     Championships = 0,
                     Races = 0,
