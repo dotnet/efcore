@@ -8,13 +8,25 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqliteConventionSetBuilder([NotNull] RelationalConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static ConventionSet Build()
         {
             var relationalTypeMapper = new SqliteTypeMapper(new RelationalTypeMapperDependencies());

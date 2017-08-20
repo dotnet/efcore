@@ -10,17 +10,25 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqliteMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
         /// <summary>
-        ///     Initializes a new instance of this class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public SqliteMigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
             : base(dependencies)
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override IEnumerable<IAnnotation> For(IProperty property)
         {
             if (property.ValueGenerated == ValueGenerated.OnAdd

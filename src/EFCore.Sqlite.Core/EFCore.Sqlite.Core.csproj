@@ -8,7 +8,6 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <Description>SQLite database provider for Entity Framework Core.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQLite</PackageTags>
     <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>

@@ -13,11 +13,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SnapshotModelProcessor : ISnapshotModelProcessor
     {
         private readonly IOperationReporter _operationReporter;
         private readonly HashSet<string> _relationalNames;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SnapshotModelProcessor([NotNull] IOperationReporter operationReporter)
         {
             _operationReporter = operationReporter;
@@ -29,6 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     .Select(p => ((string)p.GetValue(null)).Substring(RelationalAnnotationNames.Prefix.Length - 1)));
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IModel Process(IModel model)
         {
             if (model != null

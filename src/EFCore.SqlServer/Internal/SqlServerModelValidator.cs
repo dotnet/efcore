@@ -12,8 +12,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerModelValidator : RelationalModelValidator
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerModelValidator(
             [NotNull] ModelValidatorDependencies dependencies,
             [NotNull] RelationalModelValidatorDependencies relationalDependencies)
@@ -21,6 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override void Validate(IModel model)
         {
             base.Validate(model);
@@ -30,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             ValidateNonKeyValueGeneration(model);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ValidateDefaultDecimalMapping([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes()
@@ -42,6 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ValidateByteIdentityMapping([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes()
@@ -54,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void ValidateNonKeyValueGeneration([NotNull] IModel model)
         {
             foreach (var property in model.GetEntityTypes()
@@ -68,6 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void ValidateSharedTableCompatibility(
             IReadOnlyList<IEntityType> mappedTypes, string tableName)
         {
@@ -89,6 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
             base.ValidateSharedTableCompatibility(mappedTypes, tableName);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override void ValidateSharedColumnsCompatibility(IReadOnlyList<IEntityType> mappedTypes, string tableName)
         {
             base.ValidateSharedColumnsCompatibility(mappedTypes, tableName);

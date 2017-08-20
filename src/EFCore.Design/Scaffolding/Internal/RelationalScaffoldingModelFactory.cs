@@ -23,13 +23,31 @@ using ScaffoldingAnnotationNames = Microsoft.EntityFrameworkCore.Scaffolding.Met
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IOperationReporter Reporter { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IRelationalTypeMapper TypeMapper { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual ICandidateNamingService CandidateNamingService { get; }
 
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
@@ -42,6 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpUtilities _cSharpUtilities;
         private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public RelationalScaffoldingModelFactory(
             [NotNull] IOperationReporter reporter,
             [NotNull] IRelationalTypeMapper typeMapper,
@@ -68,6 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _scaffoldingTypeMapper = scaffoldingTypeMapper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IModel Create(
             string connectionString,
             IEnumerable<string> tables,
@@ -83,6 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return CreateFromDatabaseModel(databaseModel, useDatabaseNames);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel, bool useDatabaseNames)
         {
             Check.NotNull(databaseModel, nameof(databaseModel));
@@ -112,12 +142,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return modelBuilder.Model;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual string GetEntityTypeName([NotNull] DatabaseTable table)
             => _tableNamer.GetName(Check.NotNull(table, nameof(table)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual string GetDbSetName([NotNull] DatabaseTable table)
             => _dbSetNamer.GetName(Check.NotNull(table, nameof(table)));
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual string GetPropertyName([NotNull] DatabaseColumn column)
         {
             Check.NotNull(column, nameof(column));
@@ -144,6 +186,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return _columnNamers[table].GetName(column);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual ModelBuilder VisitDatabaseModel([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseModel databaseModel)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -168,6 +214,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual ModelBuilder VisitSequences([NotNull] ModelBuilder modelBuilder, [NotNull] ICollection<DatabaseSequence> sequences)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -181,6 +231,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual SequenceBuilder VisitSequence([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseSequence sequence)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -237,6 +291,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual ModelBuilder VisitTables([NotNull] ModelBuilder modelBuilder, [NotNull] ICollection<DatabaseTable> tables)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -250,6 +308,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual EntityTypeBuilder VisitTable([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseTable table)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -287,6 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual EntityTypeBuilder VisitColumns([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseColumn> columns)
         {
             Check.NotNull(builder, nameof(builder));
@@ -300,6 +366,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual PropertyBuilder VisitColumn([NotNull] EntityTypeBuilder builder, [NotNull] DatabaseColumn column)
         {
             Check.NotNull(builder, nameof(builder));
@@ -392,6 +462,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return property;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] DatabaseTable table)
         {
             Check.NotNull(builder, nameof(builder));
@@ -439,6 +513,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return keyBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual EntityTypeBuilder VisitUniqueConstraints([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseUniqueConstraint> uniqueConstraints)
         {
             Check.NotNull(builder, nameof(builder));
@@ -452,6 +530,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IndexBuilder VisitUniqueConstraint([NotNull] EntityTypeBuilder builder, [NotNull] DatabaseUniqueConstraint uniqueConstraint)
         {
             Check.NotNull(builder, nameof(builder));
@@ -483,6 +565,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return indexBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual EntityTypeBuilder VisitIndexes([NotNull] EntityTypeBuilder builder, [NotNull] ICollection<DatabaseIndex> indexes)
         {
             Check.NotNull(builder, nameof(builder));
@@ -496,6 +582,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return builder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IndexBuilder VisitIndex([NotNull] EntityTypeBuilder builder, [NotNull] DatabaseIndex index)
         {
             Check.NotNull(builder, nameof(builder));
@@ -534,6 +624,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return indexBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual ModelBuilder VisitForeignKeys([NotNull] ModelBuilder modelBuilder, [NotNull] IList<DatabaseForeignKey> foreignKeys)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -555,6 +649,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return modelBuilder;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual IMutableForeignKey VisitForeignKey([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseForeignKey foreignKey)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -689,6 +787,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return key;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void AddNavigationProperties([NotNull] IMutableForeignKey foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -733,6 +835,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         // Stores the names of the EntityType itself and its Properties, but does not include any Navigation Properties
         private readonly Dictionary<IEntityType, List<string>> _entityTypeAndPropertyIdentifiers = new Dictionary<IEntityType, List<string>>();
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual List<string> ExistingIdentifiers([NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -750,6 +856,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return existingIdentifiers;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual TypeScaffoldingInfo GetTypeScaffoldingInfo([NotNull] DatabaseColumn column)
         {
             if (column.StoreType == null)
