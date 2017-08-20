@@ -4,11 +4,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -205,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             DbCommand command,
                             object[] values,
                             IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-                            : base(command, new BadDataDataReader(values), logger)
+                            : base(new FakeConnection(), command, new BadDataDataReader(values), Guid.NewGuid(), logger)
                         {
                         }
 
@@ -351,6 +355,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             badDataCommandBuilderFactory.Values = values;
 
             return context;
+        }
+
+        private class FakeConnection : IRelationalConnection
+        {
+            public void ResetState() { }
+            public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            public void CommitTransaction() { }
+            public void RollbackTransaction() { }
+            public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
+            public SemaphoreSlim Semaphore { get; }
+            public void RegisterBufferable(IBufferable bufferable) { }
+            public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();
+            public string ConnectionString { get; }
+            public DbConnection DbConnection { get; }
+            public Guid ConnectionId { get; }
+            public int? CommandTimeout { get; set; }
+            public bool Open(bool errorsExpected = false) => true;
+            public Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false) => throw new NotImplementedException();
+            public bool Close() => true;
+            public bool IsMultipleActiveResultSetsEnabled { get; }
+            public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
+            public Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
+            public void Dispose() {}
         }
 
         public class BadDataSqliteFixture : NorthwindQuerySqliteFixture<NoopModelCustomizer>

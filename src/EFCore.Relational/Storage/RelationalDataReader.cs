@@ -45,12 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
         /// <param name="logger"> The diagnostic source. </param>
         public RelationalDataReader(
-            [CanBeNull] IRelationalConnection connection,
+            [NotNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
             Guid commandId,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
+            Check.NotNull(connection, nameof(connection));
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
             Check.NotNull(logger, nameof(logger));
@@ -68,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Use other constructor for testing.")]
         protected RelationalDataReader([NotNull] DbDataReader reader)
         {
             // For testing
@@ -80,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Use other constructor for testing, passing in a fake connection.")]
         protected RelationalDataReader(
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader,
@@ -134,11 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _reader.Dispose();
                 _command.Parameters.Clear();
                 _command.Dispose();
-                _connection?.Close();
+                _connection.Close();
 
                 _logger.DataReaderDisposing(
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    // TODO: See issue#9456
                     _connection,
                     _command,
                     _reader,
