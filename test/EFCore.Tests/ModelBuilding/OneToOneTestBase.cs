@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -287,6 +288,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<OrderDetails>().HasKey(d => d.OrderId);
                 modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithOne();
+
+                modelBuilder.Validate();
 
                 var fk = dependentType.GetForeignKeys().Single();
                 var principalKey = principalType.GetKeys().Single();
@@ -1896,17 +1899,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var dependentType = model.FindEntityType(typeof(CustomerDetails));
                 var principalType = model.FindEntityType(typeof(Customer));
 
-                var existingFk = dependentType.GetForeignKeys().SingleOrDefault();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
                 var expectedPrincipalProperties = principalType.GetProperties().ToList();
                 var expectedDependentProperties = dependentType.GetProperties().ToList();
 
                 modelBuilder
+                    .Entity<Customer>().HasOne(c => c.Details).WithOne(d => d.Customer)
+                    .HasForeignKey<CustomerDetails>(d => d.CustomerId);
+
+                modelBuilder
                     .Entity<Customer>().HasOne<CustomerDetails>().WithOne()
                     .HasPrincipalKey<Customer>(e => e.Id);
 
-                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != existingFk);
+                modelBuilder.Validate();
+
+                var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.DependentToPrincipal == null);
                 Assert.Same(principalKey.Properties.Single(), fk.PrincipalKey.Properties.Single());
                 Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey == fk));
                 Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey == fk));
@@ -3585,6 +3593,36 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
                 modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.OneToOnePrincipalEntityId); });
+
+                modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
+
+                Assert.Equal(
+                    CoreStrings.AmbiguousOneToOneRelationship(
+                        typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
+                        typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+            }
+
+            [Fact]
+            public virtual void Throws_for_one_to_one_relationship_if_both_sides_have_matching_PKs()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                    {
+                        b.Ignore(e => e.Id);
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                        b.Property<int>("Key");
+                        b.HasKey("Key");
+                    });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                    {
+                        b.Ignore(e => e.Id);
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                        b.Property<int>("Key");
+                        b.HasKey("Key");
+                    });
 
                 modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
 
