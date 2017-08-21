@@ -287,13 +287,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Override this method to configure the database (and other options) to be used for this context.
         ///         This method is called for each instance of the context that is created.
+        ///         The base implementation does nothing.
         ///     </para>
         ///     <para>
         ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
         ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured" /> to determine if
         ///         the options have already been set, and skip some or all of the logic in
         ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />.
-        ///     </para>
+        ///     </para>        
         /// </summary>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
