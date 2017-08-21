@@ -90,6 +90,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     else
                     {
                         foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
+                        if (foreignKeyProperties != null
+                            && foreignKey.GetPrincipalEndConfigurationSource() == null)
+                        {
+                            var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false, matchPk: true);
+                            if (candidatePropertiesOnPrincipal != null)
+                            {
+                                using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
+                                {
+                                    // Match 1.1.2 behavior when both ends can use the PK properties
+                                    var invertedRelationshipBuilder = relationshipBuilder
+                                        .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
+                                    return batch.Run(invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal, foreignKey.PrincipalEntityType, ConfigurationSource.Convention));
+                                }
+                            }
+                        }
                     }
                 }
             }
