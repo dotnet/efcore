@@ -866,6 +866,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Contains_with_local_tuple_array_closure()
+        {
+            var ids = new[] { Tuple.Create(1, 2), Tuple.Create(10248, 11) };
+
+            AssertQuery<OrderDetail>(
+                od => od.Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))), entryCount: 1);
+
+            ids = new[] { Tuple.Create(1, 2) };
+
+            AssertQuery<OrderDetail>(
+                od => od.Where(o => ids.Contains(new Tuple<int, int>(o.OrderID, o.ProductID))));
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_with_local_anonymous_type_array_closure()
+        {
+            var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
+
+            AssertQuery<OrderDetail>(
+                od => od.Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID})), entryCount: 1);
+
+            ids = new[] { new { Id1 = 1, Id2 = 2 } };
+
+            AssertQuery<OrderDetail>(
+                od => od.Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })));
+        }
+
+        [ConditionalFact]
         public virtual void OfType_Select()
         {
             using (var context = CreateContext())

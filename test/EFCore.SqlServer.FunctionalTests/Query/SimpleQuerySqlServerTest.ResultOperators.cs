@@ -886,6 +886,30 @@ SELECT CASE
 END");
         }
 
+        public override void Contains_with_local_tuple_array_closure()
+        {
+            base.Contains_with_local_tuple_array_closure();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]",
+                //
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]");
+        }
+
+        public override void Contains_with_local_anonymous_type_array_closure()
+        {
+            base.Contains_with_local_anonymous_type_array_closure();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]",
+                //
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]");
+        }
+
         public override void OfType_Select()
         {
             base.OfType_Select();

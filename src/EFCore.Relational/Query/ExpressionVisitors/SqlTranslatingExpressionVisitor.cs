@@ -907,7 +907,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     || fromExpression.NodeType == ExpressionType.NewArrayInit)
                 {
                     var containsItem = Visit(contains.Item)?.RemoveConvert();
-                    if (containsItem != null)
+                    if (containsItem != null && !containsItem.Type.Equals(typeof(Expression[])))
                     {
                         return new InExpression(containsItem, new[] { fromExpression });
                     }

@@ -1296,9 +1296,54 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]");
         }
 
-        public override void Where_compare_constructed()
+        public override void Where_compare_tuple_constructed_equal()
         {
-            base.Where_compare_constructed();
+            base.Where_compare_tuple_constructed_equal();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void Where_compare_tuple_constructed_multi_value_equal()
+        {
+            base.Where_compare_tuple_constructed_multi_value_equal();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void Where_compare_tuple_constructed_multi_value_not_equal()
+        {
+            base.Where_compare_tuple_constructed_multi_value_not_equal();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void Where_compare_tuple_create_constructed_equal()
+        {
+            base.Where_compare_tuple_create_constructed_equal();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void Where_compare_tuple_create_constructed_multi_value_equal()
+        {
+            base.Where_compare_tuple_create_constructed_multi_value_equal();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
+        public override void Where_compare_tuple_create_constructed_multi_value_not_equal()
+        {
+            base.Where_compare_tuple_create_constructed_multi_value_not_equal();
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

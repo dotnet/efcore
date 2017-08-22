@@ -823,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, es) =>
                     from c in cs
                     from e in es
-                    // ReSharper disable ArrangeRedundantParentheses
+                        // ReSharper disable ArrangeRedundantParentheses
                     where (c.City == "London" && c.Country == "UK")
                           && (e.City == "London" && e.Country == "UK")
                     select new { c, e },
@@ -1210,10 +1210,47 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_compare_constructed()
+        public virtual void Where_compare_tuple_constructed_equal()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => new { x = c.City } == new { x = "London" }));
+                cs => cs.Where(c => new Tuple<string>(c.City) == new Tuple<string>("London")));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_compare_tuple_constructed_multi_value_equal()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => new Tuple<string, string> (c.City, c.Country) == new Tuple<string, string>("London", "UK")));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_compare_tuple_constructed_multi_value_not_equal()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => new Tuple<string, string>(c.City, c.Country) != new Tuple<string, string>("London", "UK")),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_compare_tuple_create_constructed_equal()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => Tuple.Create(c.City) == Tuple.Create("London")));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_compare_tuple_create_constructed_multi_value_equal()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => Tuple.Create(c.City, c.Country) == Tuple.Create("London", "UK")));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_compare_tuple_create_constructed_multi_value_not_equal()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => Tuple.Create(c.City, c.Country) != Tuple.Create("London", "UK")),
+                entryCount: 91);
         }
 
         [ConditionalFact]
