@@ -2166,6 +2166,131 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Bug9038
+
+        [Fact]
+        public virtual void Repro9038()
+        {
+            using (CreateDatabase9038())
+            {
+                using (var context = new MyContext9038(_options))
+                {
+                    var teachersTask = context.People.OfType<PersonTeacher9038>()
+                        .Include(m => m.Students)
+                        .ThenInclude(m => m.Family)
+                        .ThenInclude(m => m.Members)
+                        .ToListAsync();
+
+                    teachersTask.Wait();
+
+                    var result = teachersTask.Result;
+
+                    Assert.Equal(2, result.Count);
+                    Assert.Equal(true, result.All(r => r.Students.Any()));
+                }
+            }
+        }
+
+        public abstract class Person9038
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
+
+            public int? TeacherId { get; set; }
+
+            public PersonFamily9038 Family { get; set; }
+        }
+
+        public class PersonKid9038 : Person9038
+        {
+            public int Grade { get; set; }
+
+            public PersonTeacher9038 Teacher { get; set; }
+        }
+
+        public class PersonTeacher9038 : Person9038
+        {
+            public ICollection<PersonKid9038> Students { get; set; }
+        }
+
+        public class PersonFamily9038
+        {
+            public int Id { get; set; }
+
+            public string LastName { get; set; }
+
+            public ICollection<Person9038> Members { get; set; }
+        }
+
+        public class MyContext9038 : DbContext
+        {
+            public MyContext9038(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Person9038> People { get; set; }
+
+            public DbSet<PersonFamily9038> Families { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<PersonTeacher9038>().HasBaseType<Person9038>();
+                modelBuilder.Entity<PersonKid9038>().HasBaseType<Person9038>();
+                modelBuilder.Entity<PersonFamily9038>();
+
+                modelBuilder.Entity<PersonKid9038>(entity =>
+                    {
+                        entity.Property("Discriminator")
+                            .HasMaxLength(63);
+                        entity.HasIndex("Discriminator");
+
+                        entity.HasOne(m => m.Teacher)
+                            .WithMany(m => m.Students)
+                            .HasForeignKey(m => m.TeacherId)
+                            .HasPrincipalKey(m => m.Id)
+                            .OnDelete(DeleteBehavior.Restrict);
+                    });
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9038()
+            => CreateTestStore(
+                () => new MyContext9038(_options),
+                context =>
+                    {
+                        var famalies = new List<PersonFamily9038>
+                        {
+                            new PersonFamily9038
+                            {
+                                LastName = "Garrison",
+                            },
+                            new PersonFamily9038
+                            {
+                                LastName = "Cartman",
+                            }
+                        };
+                        var teachers = new List<PersonTeacher9038>
+                        {
+                            new PersonTeacher9038 {Name = "Ms. Frizzle"},
+                            new PersonTeacher9038 {Name = "Mr. Garrison", Family = famalies[0]},
+                        };
+                        var students = new List<PersonKid9038>
+                        {
+                            new PersonKid9038 {Name = "Arnold", Grade = 2, Teacher = teachers[0]},
+                            new PersonKid9038 {Name = "Eric", Grade = 4, Teacher = teachers[1], Family = famalies[1]},
+                        };
+
+                        context.People.AddRange(teachers);
+                        context.People.AddRange(students);
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
