@@ -380,7 +380,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestNullableInt64 = -1234567890123456789L,
                         TestNullableDouble = -1.23456789,
                         TestNullableDecimal = -1234567890.01M,
-                        TestNullableDateTime = Fixture.DefaultDateTime,
+                        TestNullableDateTime = new DateTime(2017, 8, 17, 3, 42, 15),
                         TestNullableDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
                         TestNullableTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                         TestNullableSingle = -1.234F,
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDecimal == -1234567890.01M));
 
-                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDateTime == Fixture.DefaultDateTime));
+                Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableDateTime == new DateTime(2017, 8, 17, 3, 42, 15)));
 
                 if (entityType.FindProperty("TestNullableDateTimeOffset") != null)
                 {
