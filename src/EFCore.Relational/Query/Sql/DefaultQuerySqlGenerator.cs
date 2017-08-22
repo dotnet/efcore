@@ -165,6 +165,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         /// <summary>
+        /// Whether schemas should be generated when generating identifiers.
+        /// </summary>
+        protected virtual bool SupportsSchemas { get; } = true;
+
+        /// <summary>
         ///     Visit a top-level SelectExpression.
         /// </summary>
         /// <param name="selectExpression"> The select expression. </param>
@@ -604,7 +609,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            if (tableExpression.Schema != null)
+            if (SupportsSchemas
+                && tableExpression.Schema != null)
             {
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(tableExpression.Schema))
                     .Append(".");
@@ -1310,7 +1316,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotEmpty(functionName, nameof(functionName));
             Check.NotNull(arguments, nameof(arguments));
 
-            if (!string.IsNullOrWhiteSpace(schema))
+            if (SupportsSchemas
+                && !string.IsNullOrWhiteSpace(schema))
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))

@@ -448,11 +448,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ws => ws
                     .Include(w => w.Owner)
                     .Where(w => w.Owner.Nickname != "Paduk")
-                    .OrderBy(e => e.Owner.CityOfBirth.Name),
+                    .OrderBy(e => e.Owner.CityOfBirth.Name).ThenBy(e => e.Id),
                 ws => ws
                     .Include(w => w.Owner)
                     .Where(w => Maybe(w.Owner, () => w.Owner.Nickname) != "Paduk")
-                    .OrderBy(e => Maybe(e.Owner, () => Maybe(e.Owner.CityOfBirth, () => e.Owner.CityOfBirth.Name))),
+                    .OrderBy(e => Maybe(e.Owner, () => Maybe(e.Owner.CityOfBirth, () => e.Owner.CityOfBirth.Name)))
+                    .ThenBy(e => e.Id),
                 expectedIncludes,
                 assertOrder: true);
         }

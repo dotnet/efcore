@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.AutoTransactionsEnabled = false;
 
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
-                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 try
                 {
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
-                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 Assert.Throws<DbUpdateException>(() => context.SaveChanges());
             }
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
-                context.Entry(context.Set<TransactionCustomer>().Last()).State = EntityState.Added;
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
                 try
                 {
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
                     firstEntry.State = EntityState.Deleted;
-                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().Last());
+                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
                     lastEntry.State = EntityState.Added;
 
                     try
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var firstEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First());
                     firstEntry.State = EntityState.Deleted;
-                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().Last());
+                    var lastEntry = context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last());
                     lastEntry.State = EntityState.Added;
 
                     try

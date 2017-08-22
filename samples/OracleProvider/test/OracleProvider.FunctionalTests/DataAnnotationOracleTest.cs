@@ -1,0 +1,356 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Xunit;
+using Xunit.Abstractions;
+
+// ReSharper disable InconsistentNaming
+namespace Microsoft.EntityFrameworkCore
+{
+    public class DataAnnotationOracleTest : DataAnnotationTestBase<DataAnnotationOracleTest.DataAnnotationOracleFixture>
+    {
+        public DataAnnotationOracleTest(DataAnnotationOracleFixture fixture, ITestOutputHelper testOutputHelper)
+            : base(fixture)
+        {
+            fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        }
+
+        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+            => facade.UseTransaction(transaction.GetDbTransaction());
+
+        [Fact]
+        public virtual ModelBuilder Default_for_key_string_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login1>().Property(l => l.UserName).HasDefaultValue("default");
+            modelBuilder.Ignore<Profile1>();
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    RelationalEventId.ModelValidationKeyDefaultValueWarning,
+                    RelationalStrings.LogKeyHasDefaultValue.GenerateMessage(nameof(Login1.UserName), nameof(Login1))),
+                Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder Non_public_annotations_are_enabled()
+        {
+            var modelBuilder = base.Non_public_annotations_are_enabled();
+
+            var relational = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder Field_annotations_are_enabled()
+        {
+            var modelBuilder = base.Field_annotations_are_enabled();
+
+            var relational = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder Key_and_column_work_together()
+        {
+            var modelBuilder = base.Key_and_column_work_together();
+
+            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName").Relational();
+            Assert.Equal("dsdsd", relational.ColumnName);
+            Assert.Equal("nvarchar(128)", relational.ColumnType);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
+        {
+            var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
+
+            var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
+            Assert.Equal("NVARCHAR2(64)", new OracleTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
+        {
+            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
+
+            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
+            Assert.Equal("RAW(8)", new OracleTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength_with_value()
+        {
+            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
+
+            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp");
+            Assert.Equal("RAW(8)", new OracleTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
+        {
+            var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
+
+            var relational = modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).Relational();
+            Assert.Equal("A", relational.TableName);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
+        {
+            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
+
+            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
+            Assert.Equal(OracleValueGenerationStrategy.IdentityColumn, identity.Oracle().ValueGenerationStrategy);
+
+            return modelBuilder;
+        }
+
+        public override ModelBuilder DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties()
+        {
+            var modelBuilder = base.DatabaseGeneratedOption_Identity_does_not_throw_on_noninteger_properties();
+
+            var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
+
+            var stringProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.String));
+            Assert.Null(stringProperty.Oracle().ValueGenerationStrategy);
+
+            var dateTimeProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.DateTime));
+            Assert.Null(dateTimeProperty.Oracle().ValueGenerationStrategy);
+
+            var guidProperty = entity.FindProperty(nameof(GeneratedEntityNonInteger.Guid));
+            Assert.Null(guidProperty.Oracle().ValueGenerationStrategy);
+
+            return modelBuilder;
+        }
+
+        public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+        {
+            base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
+
+            Assert.Equal(
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+FROM ""Sample"" ""r""
+WHERE ""r"".""UniqueNo"" = 1
+FETCH FIRST 1 ROWS ONLY
+
+SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+FROM ""Sample"" ""r""
+WHERE ""r"".""UniqueNo"" = 1
+FETCH FIRST 1 ROWS ONLY
+
+:p2='1'
+:p0='ModifiedData' (Nullable = false) (Size = 2000)
+:p1='0x00000000000000000003000000000001' (Nullable = false)
+:p3='0x01000000000000000000000000000001' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_RowCount INTEGER;
+BEGIN
+UPDATE ""Sample"" SET ""Name"" = :p0, ""RowVersion"" = :p1
+WHERE ""UniqueNo"" = :p2 AND ""RowVersion"" = :p3;
+v_RowCount := SQL%ROWCOUNT;
+OPEN :cur FOR SELECT v_RowCount FROM DUAL;
+END;
+
+:p2='1'
+:p0='ChangedData' (Nullable = false) (Size = 2000)
+:p1='0x00000000000000000002000000000001' (Nullable = false)
+:p3='0x01000000000000000000000000000001' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_RowCount INTEGER;
+BEGIN
+UPDATE ""Sample"" SET ""Name"" = :p0, ""RowVersion"" = :p1
+WHERE ""UniqueNo"" = :p2 AND ""RowVersion"" = :p3;
+v_RowCount := SQL%ROWCOUNT;
+OPEN :cur FOR SELECT v_RowCount FROM DUAL;
+END;",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
+        {
+            base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
+
+            Assert.Equal(
+                @":p0='' (Size = 10) (DbType = String)
+:p1='Third' (Nullable = false) (Size = 2000)
+:p2='0x00000000000000000000000000000003' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_UniqueNo NUMBER(10);
+BEGIN
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
+VALUES (:p0, :p1, :p2)
+RETURN ""UniqueNo"" INTO v_UniqueNo;
+OPEN :cur FOR
+SELECT v_UniqueNo FROM DUAL;
+END;",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+        {
+            base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
+
+            Assert.Equal(
+                @":p0='Short' (Size = 10)
+:p1='ValidString' (Nullable = false) (Size = 2000)
+:p2='0x00000000000000000000000000000001' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_UniqueNo NUMBER(10);
+BEGIN
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
+VALUES (:p0, :p1, :p2)
+RETURN ""UniqueNo"" INTO v_UniqueNo;
+OPEN :cur FOR
+SELECT v_UniqueNo FROM DUAL;
+END;
+
+:p0='VeryVeryVeryVeryVeryVeryLongString'
+:p1='ValidString' (Nullable = false) (Size = 2000)
+:p2='0x00000000000000000000000000000002' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_UniqueNo NUMBER(10);
+BEGIN
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
+VALUES (:p0, :p1, :p2)
+RETURN ""UniqueNo"" INTO v_UniqueNo;
+OPEN :cur FOR
+SELECT v_UniqueNo FROM DUAL;
+END;",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
+        {
+            base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
+
+            Assert.Contains(
+                @":p1='1'" + EOL,
+                Sql);
+
+            Assert.Contains(
+                @":p1='' (Nullable = false) (DbType = Int32)" + EOL,
+                Sql);
+        }
+
+        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
+        {
+            base.RequiredAttribute_for_property_throws_while_inserting_null_value();
+
+            Assert.Equal(
+                @":p0='' (Size = 10) (DbType = String)
+:p1='ValidString' (Nullable = false) (Size = 2000)
+:p2='0x00000000000000000000000000000001' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_UniqueNo NUMBER(10);
+BEGIN
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
+VALUES (:p0, :p1, :p2)
+RETURN ""UniqueNo"" INTO v_UniqueNo;
+OPEN :cur FOR
+SELECT v_UniqueNo FROM DUAL;
+END;
+
+:p0='' (Size = 10) (DbType = String)
+:p1='' (Nullable = false) (Size = 2000) (DbType = String)
+:p2='0x00000000000000000000000000000002' (Nullable = false)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_UniqueNo NUMBER(10);
+BEGIN
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
+VALUES (:p0, :p1, :p2)
+RETURN ""UniqueNo"" INTO v_UniqueNo;
+OPEN :cur FOR
+SELECT v_UniqueNo FROM DUAL;
+END;",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+        {
+            base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
+
+            Assert.Equal(
+                @":p0='ValidString' (Size = 16)
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_Id NUMBER(10);
+v_Timestamp RAW(8);
+BEGIN
+INSERT INTO ""Two"" (""Data"")
+VALUES (:p0)
+RETURN ""Id"", ""Timestamp"" INTO v_Id, v_Timestamp;
+OPEN :cur FOR
+SELECT v_Id, v_Timestamp FROM DUAL;
+END;
+
+:p0='ValidButLongString'
+cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+
+DECLARE
+v_Id NUMBER(10);
+v_Timestamp RAW(8);
+BEGIN
+INSERT INTO ""Two"" (""Data"")
+VALUES (:p0)
+RETURN ""Id"", ""Timestamp"" INTO v_Id, v_Timestamp;
+OPEN :cur FOR
+SELECT v_Id, v_Timestamp FROM DUAL;
+END;",
+                Sql,
+                ignoreLineEndingDifferences: true);
+        }
+
+        private static readonly string EOL = Environment.NewLine;
+
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+
+        public class DataAnnotationOracleFixture : DataAnnotationFixtureBase
+        {
+            protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        }
+    }
+}

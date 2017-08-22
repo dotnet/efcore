@@ -533,7 +533,7 @@ LEFT JOIN (
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
 LEFT JOIN [Cities] AS [w.Owner.CityOfBirth] ON [t].[CityOrBirthName] = [w.Owner.CityOfBirth].[Name]
 WHERE ([t].[Nickname] <> N'Paduk') OR [t].[Nickname] IS NULL
-ORDER BY [w.Owner.CityOfBirth].[Name]");
+ORDER BY [w.Owner.CityOfBirth].[Name], [w].[Id]");
         }
 
         public override void Where_enum()

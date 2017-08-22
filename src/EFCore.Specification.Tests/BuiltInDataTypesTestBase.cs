@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var shortString = "Sky";
             var shortBinary = new byte[] { 8, 8, 7, 8, 7 };
-            var longString = new string('X', 9000);
-            var longBinary = new byte[9000];
+            var longString = new string('X', Fixture.LongStringLength);
+            var longBinary = new byte[Fixture.LongStringLength];
             for (var i = 0; i < longBinary.Length; i++)
             {
                 longBinary[i] = (byte)i;
@@ -59,10 +59,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual void Can_perform_query_with_ansi_strings_test(bool supportsAnsi)
+        protected virtual void Can_perform_query_with_ansi_strings_test(
+            bool supportsAnsi, bool supportsUnicodeToAnsiConversion = true, bool supportsLargeStringComparisons = true)
         {
-            var shortString = "Ϩky";
-            var longString = new string('Ϩ', 9000);
+            var shortString = supportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
+            var longString = new string('Ϩ', Fixture.LongStringLength);
 
             using (var context = CreateContext())
             {
@@ -85,7 +86,12 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringDefault == shortString));
                 Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi == shortString));
                 Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi3 == shortString));
-                Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi9000 == longString));
+                
+                if (supportsLargeStringComparisons)
+                {
+                    Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringAnsi9000 == longString));
+                }
+                    
                 Assert.NotNull(context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799 && e.StringUnicode == shortString));
 
                 var entity = context.Set<UnicodeDataTypes>().SingleOrDefault(e => e.Id == 799);
@@ -93,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(shortString, entity.StringDefault);
                 Assert.Equal(shortString, entity.StringUnicode);
 
-                if (supportsAnsi)
+                if (supportsAnsi && supportsUnicodeToAnsiConversion)
                 {
                     Assert.NotEqual(shortString, entity.StringAnsi);
                     Assert.NotEqual(shortString, entity.StringAnsi3);
@@ -656,8 +662,8 @@ namespace Microsoft.EntityFrameworkCore
             const string shortString = "Sky";
             var shortBinary = new byte[] { 8, 8, 7, 8, 7 };
 
-            var longString = new string('X', 9000);
-            var longBinary = new byte[9000];
+            var longString = new string('X', Fixture.LongStringLength);
+            var longBinary = new byte[Fixture.LongStringLength];
             for (var i = 0; i < longBinary.Length; i++)
             {
                 longBinary[i] = (byte)i;
@@ -928,6 +934,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
 
+            public virtual int LongStringLength => 9000;
+
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 modelBuilder.Entity<BuiltInDataTypes>();
@@ -947,8 +955,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.Property(e => e.ByteArray5).HasMaxLength(5);
                         b.Property(e => e.String3).HasMaxLength(3);
-                        b.Property(e => e.ByteArray9000).HasMaxLength(9000);
-                        b.Property(e => e.String9000).HasMaxLength(9000);
+                        b.Property(e => e.ByteArray9000).HasMaxLength(LongStringLength);
+                        b.Property(e => e.String9000).HasMaxLength(LongStringLength);
                     });
 
                 modelBuilder.Entity<UnicodeDataTypes>(b =>
@@ -956,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.Property(e => e.StringAnsi).IsUnicode(false);
                         b.Property(e => e.StringAnsi3).HasMaxLength(3).IsUnicode(false);
-                        b.Property(e => e.StringAnsi9000).IsUnicode(false).HasMaxLength(9000);
+                        b.Property(e => e.StringAnsi9000).IsUnicode(false).HasMaxLength(LongStringLength);
                         b.Property(e => e.StringUnicode).IsUnicode();
                     });
             }

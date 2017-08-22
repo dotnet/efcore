@@ -1780,7 +1780,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from c in cs
                             from e2 in es
                             select new { e1, c, e2.FirstName },
-                elementSorter: e => e.e1.EmployeeID + " " + e.c.CustomerID,
+                elementSorter: e => e.e1.EmployeeID + " " + e.c.CustomerID + " " + e.FirstName,
                 entryCount: 100);
         }
 

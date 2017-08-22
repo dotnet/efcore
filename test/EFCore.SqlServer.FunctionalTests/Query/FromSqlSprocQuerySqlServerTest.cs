@@ -117,12 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 EOL +
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + EOL +
                 @"FROM (" + EOL +
-                @"    SELECT * FROM Products" + EOL +
+                @"    SELECT * FROM ""Products""" + EOL +
                 @") AS [p]" + EOL +
                 EOL +
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + EOL +
                 @"FROM (" + EOL +
-                @"    SELECT * FROM Products" + EOL +
+                @"    SELECT * FROM ""Products""" + EOL +
                 @") AS [p]",
                 Sql);
         }
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.StartsWith(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]" + EOL +
                 @"FROM (" + EOL +
-                @"    SELECT * FROM Products" + EOL +
+                @"    SELECT * FROM ""Products""" + EOL +
                 @") AS [p]" + EOL +
                 EOL +
                 @"[dbo].[Ten Most Expensive Products]" + EOL +
