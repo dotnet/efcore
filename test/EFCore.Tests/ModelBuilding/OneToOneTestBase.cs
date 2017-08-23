@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -3544,6 +3545,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         typeof(OneToOnePrincipalEntity).Name + "." + OneToOnePrincipalEntity.NavigationProperty.Name,
                         typeof(OneToOneDependentEntity).Name + "." + OneToOneDependentEntity.NavigationProperty.Name),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+            }
+
+            [Fact]
+            public virtual void Creates_identifying_FK_on_second_type_configured()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b =>
+                    {
+                        b.Ignore(e => e.Id);
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                        b.Property<int>("Key");
+                        b.HasKey("Key");
+                    });
+                modelBuilder.Entity<OneToOneDependentEntity>(b =>
+                    {
+                        b.Ignore(e => e.Id);
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                        b.Property<int>("Key");
+                        b.HasKey("Key");
+                    });
+
+                modelBuilder.Entity<OneToOnePrincipalEntity>().HasOne(e => e.NavOneToOneDependentEntity).WithOne(e => e.NavOneToOnePrincipalEntity);
+
+                modelBuilder.Validate();
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(OneToOnePrincipalEntity))
+                    .FindNavigation(nameof(OneToOnePrincipalEntity.NavOneToOneDependentEntity))
+                    .ForeignKey;
+
+                Assert.Equal(typeof(OneToOneDependentEntity), fk.DeclaringEntityType.ClrType);
+                Assert.Equal(typeof(OneToOnePrincipalEntity), fk.PrincipalEntityType.ClrType);
+                Assert.Equal("Key", fk.Properties.First().Name);
             }
 
             [Fact]
