@@ -1,0 +1,22 @@
+  [
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
+      "MemberId": "public const System.Int32 CoreBaseId = 100000",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
+      "MemberId": "public const System.Int32 ProviderBaseId = 300000",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
+      "MemberId": "public const System.Int32 ProviderDesignBaseId = 350000",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
+      "MemberId": "public const System.Int32 RelationalBaseId = 200000",
+      "Kind": "Removal"
+    }
+  ]
