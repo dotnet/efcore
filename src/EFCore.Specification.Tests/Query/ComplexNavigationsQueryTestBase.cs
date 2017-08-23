@@ -2697,7 +2697,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select subquery.Id);
         }
 
-        [ConditionalFact(Skip = "#9340")]
+        [ConditionalFact]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer()
         {
             AssertQuery<Level1, Level2>(
@@ -2710,10 +2710,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select l1).Take(2)
                     join l2_outer in l2s on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
                     from l2_outer in grouping_outer.DefaultIfEmpty()
-                    select l2_outer.Name);
+                    select l2_outer.Name,
+                (l1s, l2s) =>
+                    from x in
+                    (from l1 in l1s
+                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                     from l2 in grouping.DefaultIfEmpty()
+                     orderby l1.Id
+                     select l1).Take(2)
+                    join l2_outer in l2s on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select Maybe(l2_outer, () => l2_outer.Name));
         }
 
-        [ConditionalFact(Skip = "#9340")]
+        [ConditionalFact]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method()
         {
             AssertQuery<Level1, Level2>(
@@ -2726,7 +2736,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select ClientLevel1(l1)).Take(2)
                     join l2_outer in l2s on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
                     from l2_outer in grouping_outer.DefaultIfEmpty()
-                    select l2_outer.Name);
+                    select l2_outer.Name,
+                (l1s, l2s) =>
+                    from x in
+                    (from l1 in l1s
+                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                     from l2 in grouping.DefaultIfEmpty()
+                     orderby l1.Id
+                     select ClientLevel1(l1)).Take(2)
+                    join l2_outer in l2s on x.Id equals l2_outer.Level1_Optional_Id into grouping_outer
+                    from l2_outer in grouping_outer.DefaultIfEmpty()
+                    select Maybe(l2_outer, () => l2_outer.Name));
         }
 
         private Level1 ClientLevel1(Level1 arg)
@@ -2734,7 +2754,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return arg;
         }
 
-        [ConditionalFact(Skip = "#9340")]
+        [ConditionalFact]
         public virtual void GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner()
         {
             AssertQuery<Level1, Level2>(
@@ -2747,7 +2767,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select l2).Take(2)
                     join l1_outer in l1s on x.Level1_Optional_Id equals l1_outer.Id into grouping_outer
                     from l1_outer in grouping_outer.DefaultIfEmpty()
-                    select l1_outer.Name);
+                    select l1_outer.Name,
+                (l1s, l2s) =>
+                    from x in
+                    (from l1 in l1s
+                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
+                     from l2 in grouping.DefaultIfEmpty()
+                     orderby l1.Id
+                     select l2).Take(2)
+                    join l1_outer in l1s on MaybeScalar(x, () => x.Level1_Optional_Id) equals l1_outer.Id into grouping_outer
+                    from l1_outer in grouping_outer.DefaultIfEmpty()
+                    select Maybe(l1_outer, () => l1_outer.Name));
         }
 
         [ConditionalFact]
