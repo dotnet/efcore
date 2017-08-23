@@ -99,7 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 foreach (var fk in entityType.FindForeignKeys(pk.Properties))
                 {
-                    if (!fk.PrincipalKey.IsPrimaryKey())
+                    if (!fk.PrincipalKey.IsPrimaryKey()
+                        || fk.PrincipalKey == pk)
                     {
                         continue;
                     }
