@@ -593,7 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                && s.GetMaxLength() == t.GetMaxLength()
                                && s.IsColumnNullable() == t.IsColumnNullable()
                                && s.IsUnicode() == t.IsUnicode()
-                               && sAnnotations.ColumnType == tAnnotations.ColumnType
+                               && s.GetConfiguredColumnType() == t.GetConfiguredColumnType()
                                && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
                                && Equals(sAnnotations.DefaultValue, tAnnotations.DefaultValue)
                                && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
@@ -713,7 +713,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             bool inline = false)
         {
             columnOperation.ClrType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-            columnOperation.ColumnType = annotations.ColumnType;
+            columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();
             columnOperation.IsUnicode = property.IsUnicode();
             columnOperation.IsRowVersion = property.ClrType == typeof(byte[])

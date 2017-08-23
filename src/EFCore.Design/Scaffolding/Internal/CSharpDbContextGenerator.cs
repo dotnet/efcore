@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}({_cSharpUtilities.DelimitString(columnName)})");
                 }
 
-                var columnType = property.Relational().ColumnType;
+                var columnType = property.GetConfiguredColumnType();
 
                 if (columnType != null)
                 {

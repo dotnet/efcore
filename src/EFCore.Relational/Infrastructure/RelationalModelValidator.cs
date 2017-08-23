@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var dataType = property.Relational().ColumnType;
+                    var dataType = property.GetConfiguredColumnType();
                     if (dataType != null)
                     {
                         TypeMapper.ValidateTypeName(dataType);
