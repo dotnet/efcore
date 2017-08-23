@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.All(c => c.CustomerID != "Foo" || c.IsLondon));
         }
 
-        [ConditionalFact(Skip = "#9341")]
+        [ConditionalFact]
         public virtual void Projection_when_arithmetic_expressions()
         {
             AssertQuery<Order>(
@@ -752,10 +752,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Literal = 42,
                         o
                     }),
+                elementSorter: e => e.OrderID,
                 entryCount: 830);
         }
 
-        [ConditionalFact(Skip = "#9341")]
+        [ConditionalFact]
         public virtual void Projection_when_arithmetic_mixed()
         {
             AssertQuery<Order, Employee>(
@@ -770,10 +771,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Literal = 42,
                         e.EmployeeID,
                         e
-                    });
+                    },
+                elementSorter: e => e.OrderID + " " + e.EmployeeID,
+                entryCount: 15);
         }
 
-        [ConditionalFact(Skip = "#9341")]
+        [ConditionalFact]
         public virtual void Projection_when_arithmetic_mixed_subqueries()
         {
             AssertQuery<Order, Employee>(
@@ -788,7 +791,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Literal = 42,
                         o.o2,
                         o.Mod
-                    });
+                    },
+                elementSorter: e => e.e2.EmployeeID + " " + e.o2.OrderID,
+                // issue #8956
+                entryCount: 3);
         }
 
         [ConditionalFact]
