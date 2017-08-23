@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -20,18 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public static class CoreEventId
     {
-        /// <summary>
-        ///     <para>
-        ///         The name of the switch to use with <see cref="AppContext.SetSwitch"/> to use the event ID numbers
-        ///         that were shipped with EF Core 2.0.0. These IDs are too big for use in Windows EventLog, so smaller 
-        ///         numbers were used starting with EF Core 2.0.1.
-        ///     </para>
-        ///     <para>
-        ///         Only set this switch if a tool was compiled against 2.0.0 and is explicitly using the legacy IDs.
-        ///     </para>
-        /// </summary>
-        internal const string UseLegacyEventIdsSwitch = "Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds";
-
         /// <summary>
         ///     The lower-bound for event IDs used by any Entity Framework or provider code.
         /// </summary>
@@ -81,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
-        private static EventId MakeUpdateId(Id id) => EventIdFactory.Create((int)id, _updatePrefix + id);
+        private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -103,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId DuplicateDependentEntityTypeInstanceWarning = MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-        private static EventId MakeQueryId(Id id) => EventIdFactory.Create((int)id, _queryPrefix + id);
+        private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -211,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Possible uninteded comparison of collection navigation to null.
+        ///         Possible unintended comparison of collection navigation to null.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
@@ -225,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Possible uninteded reference comparison.
+        ///         Possible unintended reference comparison.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
@@ -238,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             = MakeQueryId(Id.PossibleUnintendedReferenceComparisonWarning);
 
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
-        private static EventId MakeInfraId(Id id) => EventIdFactory.Create((int)id, _infraPrefix + id);
+        private static EventId MakeInfraId(Id id) => new EventId((int)id, _infraPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -268,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Many service proviers were created in a single app domain.
+        ///         Many service providers were created in a single app domain.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
