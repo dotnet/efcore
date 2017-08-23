@@ -2484,6 +2484,33 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Creates_self_referencing_FK_on_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<SelfRef>(
+                    eb =>
+                        {
+                            eb.HasKey(e => e.Id);
+                        });
+
+                var entityType = modelBuilder.Model.FindEntityType(typeof(SelfRef));
+
+                modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef2).HasForeignKey<SelfRef>(e => e.Id);
+
+                modelBuilder.Validate();
+
+                var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
+
+                Assert.Equal(fk.Properties, entityType.FindPrimaryKey().Properties);
+                Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
+                Assert.Equal(nameof(SelfRef.SelfRef1), fk.DependentToPrincipal?.Name);
+                Assert.Equal(nameof(SelfRef.SelfRef2), fk.PrincipalToDependent?.Name);
+                Assert.Equal(2, entityType.GetNavigations().Count());
+                Assert.Equal(0, fk.DeclaringEntityType.GetIndexes().Count());
+                Assert.Equal(1, fk.DeclaringEntityType.GetForeignKeys().Count());
+            }
+
+            [Fact]
             public virtual void Principal_and_dependent_can_be_flipped_when_self_referencing_with_navigation_to_principal()
             {
                 var modelBuilder = CreateModelBuilder();
