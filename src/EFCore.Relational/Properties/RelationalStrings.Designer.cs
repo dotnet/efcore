@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     An ambient transaction has been detected. Entity Framework Core does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142
+        ///     An ambient transaction has been detected. The current provider does not support ambient transactions. See http://go.microsoft.com/fwlink/?LinkId=800142
         /// </summary>
         public static readonly EventDefinition LogAmbientTransaction
             = new EventDefinition(
@@ -871,6 +871,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DbFunctionExpressionIsNotMethodCall", nameof(expression)),
                 expression);
+
+        /// <summary>
+        ///     An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.
+        /// </summary>
+        public static string ConflictingAmbientTransaction
+            => GetString("ConflictingAmbientTransaction");
+
+        /// <summary>
+        ///     The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a transaction.
+        /// </summary>
+        public static string ConflictingEnlistedTransaction
+            => GetString("ConflictingEnlistedTransaction");
 
         private static string GetString(string name, params string[] formatterNames)
         {

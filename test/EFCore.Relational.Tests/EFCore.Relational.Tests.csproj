@@ -25,6 +25,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs">
       <SubType>Component</SubType>

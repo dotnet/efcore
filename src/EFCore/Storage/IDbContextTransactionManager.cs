@@ -3,6 +3,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -47,5 +49,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the current transaction.
         /// </summary>
         IDbContextTransaction CurrentTransaction { get; }
+
+        /// <summary>
+        ///     The currently enlisted transaction.
+        /// </summary>
+        Transaction EnlistedTransaction { get; }
+
+        /// <summary>
+        ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
+        /// </summary>
+        /// <param name="transaction"> The transaction to be used. </param>
+        void EnlistTransaction([CanBeNull] Transaction transaction);
+
     }
 }

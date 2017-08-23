@@ -1,4 +1,4 @@
-  [
+﻿  [
     {
       "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
       "MemberId": "public const System.Int32 CoreBaseId = 100000",
@@ -18,5 +18,15 @@
       "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
       "MemberId": "public const System.Int32 RelationalBaseId = 200000",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDbContextTransactionManager : Microsoft.EntityFrameworkCore.Infrastructure.IResettableService",
+      "MemberId": "System.Transactions.Transaction get_EnlistedTransaction()",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDbContextTransactionManager : Microsoft.EntityFrameworkCore.Infrastructure.IResettableService",
+      "MemberId": "System.Void EnlistTransaction(System.Transactions.Transaction transaction)",
+      "Kind": "Addition"
     }
   ]

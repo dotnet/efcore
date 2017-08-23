@@ -72,6 +72,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public void Dispose() => TestStore.Dispose();
+        public virtual void Dispose() => TestStore.Dispose();
     }
 }

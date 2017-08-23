@@ -19,6 +19,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -123,8 +124,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         {
                             try
                             {
-                                _connection.Open(errorsExpected: true);
-                                _connection.Close();
+                                using (new TransactionScope(TransactionScopeOption.Suppress))
+                                {
+                                    _connection.Open(errorsExpected: true);
+                                    _connection.Close();
+                                }
                                 return true;
                             }
                             catch (SqlException e)
@@ -161,9 +165,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         {
                             try
                             {
-                                await _connection.OpenAsync(ct, errorsExpected: true);
+                                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
+                                {
+                                    await _connection.OpenAsync(ct, errorsExpected: true);
 
-                                _connection.Close();
+                                    _connection.Close();
+                                }
                                 return true;
                             }
                             catch (SqlException e)

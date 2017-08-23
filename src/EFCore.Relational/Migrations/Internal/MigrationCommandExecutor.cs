@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,43 +27,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
-            connection.Open();
-
-            try
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                IDbContextTransaction transaction = null;
+                connection.Open();
 
                 try
                 {
-                    foreach (var command in migrationCommands)
+                    IDbContextTransaction transaction = null;
+
+                    try
                     {
-                        if (transaction == null
-                            && !command.TransactionSuppressed)
+                        foreach (var command in migrationCommands)
                         {
-                            transaction = connection.BeginTransaction();
+                            if (transaction == null
+                                && !command.TransactionSuppressed)
+                            {
+                                transaction = connection.BeginTransaction();
+                            }
+
+                            if (transaction != null
+                                && command.TransactionSuppressed)
+                            {
+                                transaction.Commit();
+                                transaction.Dispose();
+                                transaction = null;
+                            }
+
+                            command.ExecuteNonQuery(connection);
                         }
 
-                        if (transaction != null
-                            && command.TransactionSuppressed)
-                        {
-                            transaction.Commit();
-                            transaction.Dispose();
-                            transaction = null;
-                        }
-
-                        command.ExecuteNonQuery(connection);
+                        transaction?.Commit();
                     }
-
-                    transaction?.Commit();
+                    finally
+                    {
+                        transaction?.Dispose();
+                    }
                 }
                 finally
                 {
-                    transaction?.Dispose();
+                    connection.Close();
                 }
-            }
-            finally
-            {
-                connection.Close();
             }
         }
 
@@ -78,43 +82,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
-            await connection.OpenAsync(cancellationToken);
-
-            try
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                IDbContextTransaction transaction = null;
+                await connection.OpenAsync(cancellationToken);
 
                 try
                 {
-                    foreach (var command in migrationCommands)
+                    IDbContextTransaction transaction = null;
+
+                    try
                     {
-                        if (transaction == null
-                            && !command.TransactionSuppressed)
+                        foreach (var command in migrationCommands)
                         {
-                            transaction = await connection.BeginTransactionAsync(cancellationToken);
+                            if (transaction == null
+                                && !command.TransactionSuppressed)
+                            {
+                                transaction = await connection.BeginTransactionAsync(cancellationToken);
+                            }
+
+                            if (transaction != null
+                                && command.TransactionSuppressed)
+                            {
+                                transaction.Commit();
+                                transaction.Dispose();
+                                transaction = null;
+                            }
+
+                            await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken);
                         }
 
-                        if (transaction != null
-                            && command.TransactionSuppressed)
-                        {
-                            transaction.Commit();
-                            transaction.Dispose();
-                            transaction = null;
-                        }
-
-                        await command.ExecuteNonQueryAsync(connection, cancellationToken: cancellationToken);
+                        transaction?.Commit();
                     }
-
-                    transaction?.Commit();
+                    finally
+                    {
+                        transaction?.Dispose();
+                    }
                 }
                 finally
                 {
-                    transaction?.Dispose();
+                    connection.Close();
                 }
-            }
-            finally
-            {
-                connection.Close();
             }
         }
     }

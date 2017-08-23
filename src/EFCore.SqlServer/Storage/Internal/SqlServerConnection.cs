@@ -60,5 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => (bool)(_multipleActiveResultSetsEnabled
                       ?? (_multipleActiveResultSetsEnabled
                           = new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets));
+
+        /// <summary>
+        ///     Indicates whether the store connection supports ambient transactions
+        /// </summary>
+        protected override bool SupportsAmbientTransactions => true;
     }
 }

@@ -365,6 +365,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             public void CommitTransaction() { }
             public void RollbackTransaction() { }
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
+            public System.Transactions.Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(System.Transactions.Transaction transaction) => throw new NotImplementedException();
             public SemaphoreSlim Semaphore { get; }
             public void RegisterBufferable(IBufferable bufferable) { }
             public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();

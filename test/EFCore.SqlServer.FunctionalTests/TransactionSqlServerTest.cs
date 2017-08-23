@@ -18,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override bool SnapshotSupported => true;
 
+#if NET461
+        protected override bool AmbientTransactionsSupported => true;
+#endif
+
         public virtual void Dispose()
         {
             TestSqlServerRetryingExecutionStrategy.Suspended = false;

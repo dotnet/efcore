@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -13,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public class TestInMemoryTransactionManager : InMemoryTransactionManager
     {
         private IDbContextTransaction _currentTransaction;
+        private Transaction _enlistedTransaction;
 
         public TestInMemoryTransactionManager(
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger)
@@ -22,21 +24,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override IDbContextTransaction CurrentTransaction => _currentTransaction;
 
-        public override IDbContextTransaction BeginTransaction()
-        {
-            _currentTransaction = new TestInMemoryTransaction(this);
-            return _currentTransaction;
-        }
+        public override Transaction EnlistedTransaction => _enlistedTransaction;
+
+        public override IDbContextTransaction BeginTransaction() => _currentTransaction = new TestInMemoryTransaction(this);
 
         public override Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            _currentTransaction = new TestInMemoryTransaction(this);
-            return Task.FromResult(_currentTransaction);
-        }
+            => Task.FromResult(_currentTransaction = new TestInMemoryTransaction(this));
 
         public override void CommitTransaction() => CurrentTransaction.Commit();
 
         public override void RollbackTransaction() => CurrentTransaction.Rollback();
+
+        public override void EnlistTransaction(Transaction transaction) => _enlistedTransaction = transaction;
 
         private class TestInMemoryTransaction : IDbContextTransaction
         {
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 TransactionManager = transactionManager;
             }
 
-            public virtual Guid TransactionId { get; } = Guid.NewGuid();
+            public Guid TransactionId { get; } = Guid.NewGuid();
 
             private TestInMemoryTransactionManager TransactionManager { get; }
 

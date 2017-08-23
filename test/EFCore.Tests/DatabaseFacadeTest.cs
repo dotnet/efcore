@@ -144,6 +144,8 @@ namespace Microsoft.EntityFrameworkCore
             public void CommitTransaction() => CommitCalls++;
             public void RollbackTransaction() => RollbackCalls++;
             public IDbContextTransaction CurrentTransaction => _transaction;
+            public System.Transactions.Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(System.Transactions.Transaction transaction) => throw new NotImplementedException();
 
             public void ResetState() => throw new NotImplementedException();
         }

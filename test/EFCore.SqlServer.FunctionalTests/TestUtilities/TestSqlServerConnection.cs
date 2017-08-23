@@ -43,6 +43,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public virtual IDbContextTransaction CurrentTransaction { get; private set; }
+        public System.Transactions.Transaction EnlistedTransaction { get; }
+        public void EnlistTransaction(System.Transactions.Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
 
         public SemaphoreSlim Semaphore => new SemaphoreSlim(1);
 

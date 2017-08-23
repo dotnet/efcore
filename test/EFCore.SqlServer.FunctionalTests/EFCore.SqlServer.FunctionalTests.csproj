@@ -28,6 +28,10 @@
     <ProjectReference Include="..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
   </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <Reference Include="System.Transactions" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
