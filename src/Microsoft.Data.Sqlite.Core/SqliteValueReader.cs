@@ -25,7 +25,19 @@ namespace Microsoft.Data.Sqlite
             => (byte)GetInt64(ordinal);
 
         public virtual char GetChar(int ordinal)
-            => (char)GetInt64(ordinal);
+        {
+            var sqliteType = GetSqliteType(ordinal);
+            if (sqliteType == raw.SQLITE_TEXT)
+            {
+                var val = GetString(ordinal);
+                if (val.Length == 1)
+                {
+                    return val[0];
+                }
+            }
+
+            return (char)GetInt64(ordinal);
+        }
 
         public virtual DateTime GetDateTime(int ordinal)
         {

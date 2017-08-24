@@ -82,6 +82,13 @@ namespace Microsoft.Data.Sqlite
                 (char)1);
 
         [Fact]
+        public void GetChar_works_with_text()
+            => GetX_works(
+                "SELECT 'A';",
+                r => r.GetChar(0),
+                'A');        
+
+        [Fact]
         public void GetChars_not_supported()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
