@@ -2338,29 +2338,6 @@ BEGIN
 
         #region Bug9038
 
-        [Fact]
-        public virtual void Repro9038()
-        {
-            using (CreateDatabase9038())
-            {
-                using (var context = new MyContext9038(_options))
-                {
-                    var teachersTask = context.People.OfType<PersonTeacher9038>()
-                        .Include(m => m.Students)
-                        .ThenInclude(m => m.Family)
-                        .ThenInclude(m => m.Members)
-                        .ToListAsync();
-
-                    teachersTask.Wait();
-
-                    var result = teachersTask.Result;
-
-                    Assert.Equal(2, result.Count);
-                    Assert.Equal(true, result.All(r => r.Students.Any()));
-                }
-            }
-        }
-
         public abstract class Person9038
         {
             public int Id { get; set; }
