@@ -303,7 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.Block(
                             blockType,
                             blockExpressions),
-                        blockType == typeof(Task)
+                        blockType == typeof(Task) 
+                            && (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Query.UseLegacyAsyncInclude", out var isEnabled) || !isEnabled)
                             ? Expression.Constant(Task.CompletedTask)
                             : (Expression)Expression.Default(blockType),
                         blockType);
