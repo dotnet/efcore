@@ -53,6 +53,43 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return compositeShaper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        [Obsolete]
+        public static Shaper Create(
+            [NotNull] IQuerySource querySource,
+            [NotNull] Shaper outerShaper,
+            [NotNull] Shaper innerShaper,
+            [NotNull] Delegate materializer)
+        {
+            Check.NotNull(querySource, nameof(querySource));
+            Check.NotNull(outerShaper, nameof(outerShaper));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+            Check.NotNull(materializer, nameof(materializer));
+
+            var compositeShaper
+                = (Shaper)_createCompositeShaperMethodInfo
+                    .MakeGenericMethod(
+                        outerShaper.GetType(),
+                        outerShaper.Type,
+                        innerShaper.GetType(),
+                        innerShaper.Type,
+                        materializer.GetMethodInfo().ReturnType)
+                    .Invoke(
+                        null,
+                        new object[]
+                        {
+                            querySource,
+                            outerShaper,
+                            innerShaper,
+                            materializer
+                        });
+
+            return compositeShaper;
+        }
+
         private static readonly MethodInfo _createCompositeShaperMethodInfo
             = typeof(CompositeShaper).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateCompositeShaperMethod));
@@ -133,8 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             public override Shaper Unwrap(IQuerySource querySource)
             {
-                return _outerShaper.Unwrap(querySource) 
-                    ?? _innerShaper.Unwrap(querySource) 
+                return _outerShaper.Unwrap(querySource)
+                    ?? _innerShaper.Unwrap(querySource)
                     ?? base.Unwrap(querySource);
             }
         }

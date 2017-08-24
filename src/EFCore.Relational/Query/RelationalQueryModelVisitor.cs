@@ -1350,7 +1350,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             var materializerLambda = (LambdaExpression)selectManyMethodCallExpression.Arguments.Last();
 
             var compositeShaper
-                = CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializerLambda);
+                = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyCompositeShaperCreate", out var isEnabled)
+                  && isEnabled
+#pragma warning disable CS0612 // Type or member is obsolete
+                    ? CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializerLambda.Compile())
+#pragma warning restore CS0612 // Type or member is obsolete
+                    : CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializerLambda);
 
             compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
@@ -1457,7 +1462,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var materializerLambda = (LambdaExpression)joinMethodCallExpression.Arguments.Last();
 
                 var compositeShaper
-                    = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
+                    = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyCompositeShaperCreate", out var isEnabled)
+                      && isEnabled
+#pragma warning disable CS0612 // Type or member is obsolete
+                        ? CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda.Compile())
+#pragma warning restore CS0612 // Type or member is obsolete
+                        : CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
 
                 compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
@@ -1717,7 +1727,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 innerItemParameter);
 
             var compositeShaper
-                = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
+                = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyCompositeShaperCreate", out var isEnabled)
+                  && isEnabled
+#pragma warning disable CS0612 // Type or member is obsolete
+                    ? CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda.Compile())
+#pragma warning restore CS0612 // Type or member is obsolete
+                    : CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
 
             IntroduceTransparentScope(joinClause, queryModel, index, transparentIdentifierType);
 
