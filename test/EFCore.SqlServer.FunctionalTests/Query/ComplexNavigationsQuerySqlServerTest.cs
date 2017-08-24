@@ -2774,11 +2774,11 @@ INNER JOIN [LevelTwo] AS [l2] ON (([l1].[OneToMany_Optional_Self_InverseId] = [l
             AssertSql(
                 @"@__level1Id_0='1'
 
-SELECT [l20].[Id], [l20].[Date], [l20].[Level1_Optional_Id], [l20].[Level1_Required_Id], [l20].[Name], [l20].[OneToMany_Optional_InverseId], [l20].[OneToMany_Optional_Self_InverseId], [l20].[OneToMany_Required_InverseId], [l20].[OneToMany_Required_Self_InverseId], [l20].[OneToOne_Optional_PK_InverseId], [l20].[OneToOne_Optional_SelfId], [l2.OneToMany_Required_Self_Inverse0].[Name]
-FROM [LevelTwo] AS [l20]
-INNER JOIN [LevelTwo] AS [l2.OneToMany_Required_Self_Inverse0] ON [l20].[OneToMany_Required_Self_InverseId] = [l2.OneToMany_Required_Self_Inverse0].[Id]
-WHERE [l20].[OneToMany_Required_InverseId] = @__level1Id_0
-ORDER BY [l2.OneToMany_Required_Self_Inverse0].[Name]");
+SELECT [l2].[Id], [l2].[Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Name], [l2].[OneToMany_Optional_InverseId], [l2].[OneToMany_Optional_Self_InverseId], [l2].[OneToMany_Required_InverseId], [l2].[OneToMany_Required_Self_InverseId], [l2].[OneToOne_Optional_PK_InverseId], [l2].[OneToOne_Optional_SelfId], [l2.OneToMany_Required_Self_Inverse].[Name]
+FROM [LevelTwo] AS [l2]
+INNER JOIN [LevelTwo] AS [l2.OneToMany_Required_Self_Inverse] ON [l2].[OneToMany_Required_Self_InverseId] = [l2.OneToMany_Required_Self_Inverse].[Id]
+WHERE [l2].[OneToMany_Required_InverseId] = @__level1Id_0
+ORDER BY [l2.OneToMany_Required_Self_Inverse].[Name]");
         }
 
         public override void Nested_group_join_with_take()

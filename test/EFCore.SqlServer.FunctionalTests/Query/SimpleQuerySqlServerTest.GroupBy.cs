@@ -38,9 +38,9 @@ ORDER BY [c].[City]");
             base.GroupBy_nested_order_by_enumerable();
 
             AssertSql(
-                @"SELECT [c0].[Country], [c0].[CustomerID]
-FROM [Customers] AS [c0]
-ORDER BY [c0].[Country]");
+                @"SELECT [c].[Country], [c].[CustomerID]
+FROM [Customers] AS [c]
+ORDER BY [c].[Country]");
         }
 
         public override void GroupBy_join_default_if_empty_anonymous()
@@ -59,9 +59,9 @@ ORDER BY [order0].[OrderID]");
             base.GroupBy_SelectMany();
 
             AssertSql(
-                @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-FROM [Customers] AS [c0]
-ORDER BY [c0].[City]");
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]");
         }
 
         public override void GroupBy_simple()
@@ -100,9 +100,9 @@ ORDER BY [o].[CustomerID]");
             base.GroupBy_Sum();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_Count()
@@ -110,9 +110,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_Count();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_LongCount()
@@ -120,9 +120,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_LongCount();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_Shadow()
@@ -130,10 +130,10 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_Shadow();
 
             AssertSql(
-                @"SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-WHERE ([e0].[Title] = N'Sales Representative') AND ([e0].[EmployeeID] = 1)
-ORDER BY [e0].[Title]");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ([e].[Title] = N'Sales Representative') AND ([e].[EmployeeID] = 1)
+ORDER BY [e].[Title]");
         }
 
         public override void GroupBy_Shadow2()
@@ -141,10 +141,10 @@ ORDER BY [e0].[Title]");
             base.GroupBy_Shadow2();
 
             AssertSql(
-                @"SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-WHERE ([e0].[Title] = N'Sales Representative') AND ([e0].[EmployeeID] = 1)
-ORDER BY [e0].[Title]");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ([e].[Title] = N'Sales Representative') AND ([e].[EmployeeID] = 1)
+ORDER BY [e].[Title]");
         }
 
         public override void GroupBy_Shadow3()
@@ -152,10 +152,10 @@ ORDER BY [e0].[Title]");
             base.GroupBy_Shadow3();
 
             AssertSql(
-                @"SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-WHERE [e0].[EmployeeID] = 1
-ORDER BY [e0].[EmployeeID]");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[EmployeeID] = 1
+ORDER BY [e].[EmployeeID]");
         }
 
         public override void GroupBy_Sum_Min_Max_Avg()
@@ -163,9 +163,9 @@ ORDER BY [e0].[EmployeeID]");
             base.GroupBy_Sum_Min_Max_Avg();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_result_selector()
@@ -173,9 +173,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_result_selector();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_element_selector_sum()
@@ -183,9 +183,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_element_selector_sum();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_element_selector()
@@ -193,9 +193,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_element_selector();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_element_selector2()
@@ -203,9 +203,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_element_selector2();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_element_selector3()
@@ -213,9 +213,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_element_selector3();
 
             AssertSql(
-                @"SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-ORDER BY [e0].[EmployeeID]");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]");
         }
 
         public override void GroupBy_with_element_selector_sum_max()
@@ -223,9 +223,9 @@ ORDER BY [e0].[EmployeeID]");
             base.GroupBy_with_element_selector_sum_max();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_anonymous_element()
@@ -233,9 +233,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_anonymous_element();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_two_part_key()
@@ -243,9 +243,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_two_part_key();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID], [o0].[OrderDate]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID], [o].[OrderDate]");
         }
 
         public override void GroupBy_DateTimeOffset_Property()
@@ -264,9 +264,9 @@ ORDER BY DATEPART(month, [o].[OrderDate])");
             base.OrderBy_GroupBy();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID], [o0].[OrderID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID], [o].[OrderID]");
         }
 
         public override void OrderBy_GroupBy_SelectMany()
@@ -274,9 +274,9 @@ ORDER BY [o0].[CustomerID], [o0].[OrderID]");
             base.OrderBy_GroupBy_SelectMany();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID], [o0].[OrderID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID], [o].[OrderID]");
         }
 
         public override void OrderBy_GroupBy_SelectMany_shadow()
@@ -284,9 +284,9 @@ ORDER BY [o0].[CustomerID], [o0].[OrderID]");
             base.OrderBy_GroupBy_SelectMany_shadow();
 
             AssertSql(
-                @"SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
-FROM [Employees] AS [e0]
-ORDER BY [e0].[EmployeeID]");
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]");
         }
 
         public override void GroupBy_with_orderby()
@@ -294,9 +294,9 @@ ORDER BY [e0].[EmployeeID]");
             base.GroupBy_with_orderby();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID], [o0].[OrderID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID], [o].[OrderID]");
         }
 
         public override void GroupBy_with_orderby_and_anonymous_projection()
@@ -304,9 +304,9 @@ ORDER BY [o0].[CustomerID], [o0].[OrderID]");
             base.GroupBy_with_orderby_and_anonymous_projection();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_with_orderby_take_skip_distinct()
@@ -314,9 +314,9 @@ ORDER BY [o0].[CustomerID]");
             base.GroupBy_with_orderby_take_skip_distinct();
 
             AssertSql(
-                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]");
         }
 
         public override void GroupBy_join_anonymous()
@@ -355,9 +355,9 @@ ORDER BY [o].[CustomerID]");
             base.Select_GroupBy_SelectMany();
 
             AssertSql(
-                @"SELECT [o0].[OrderID] AS [Order], [o0].[CustomerID] AS [Customer]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[OrderID]");
+                @"SELECT [o].[OrderID] AS [Order], [o].[CustomerID] AS [Customer]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]");
         }
 
         public override void Distinct_GroupBy()
@@ -365,9 +365,12 @@ ORDER BY [o0].[OrderID]");
             base.Distinct_GroupBy();
 
             AssertSql(
-                @"SELECT DISTINCT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM [Orders] AS [o0]
-ORDER BY [o0].[CustomerID]");
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT DISTINCT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+) AS [t]
+ORDER BY [t].[CustomerID]");
         }
 
         public override void GroupBy_Distinct()
@@ -404,33 +407,97 @@ ORDER BY [o0].[CustomerID]");
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')",
                 //
-                @"@_outer_CustomerID1='ALFKI' (Size = 5)
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+ORDER BY [o1].[OrderID]",
                 //
-                @"@_outer_CustomerID1='ANATR' (Size = 5)
+                @"@_outer_CustomerID='ANATR' (Size = 5)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+ORDER BY [o1].[OrderID]",
                 //
-                @"@_outer_CustomerID1='ANTON' (Size = 5)
+                @"@_outer_CustomerID='ANTON' (Size = 5)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]",
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+ORDER BY [o1].[OrderID]",
                 //
-                @"@_outer_CustomerID1='AROUT' (Size = 5)
+                @"@_outer_CustomerID='AROUT' (Size = 5)
 
-SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-FROM [Orders] AS [o2]
-WHERE @_outer_CustomerID1 = [o2].[CustomerID]
-ORDER BY [o2].[OrderID]");
+SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
+FROM [Orders] AS [o1]
+WHERE @_outer_CustomerID = [o1].[CustomerID]
+ORDER BY [o1].[OrderID]");
+        }
+
+        public override void OrderBy_Skip_GroupBy()
+        {
+            base.OrderBy_Skip_GroupBy();
+
+            AssertSql(
+                @"@__p_0='800'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderDate]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override void OrderBy_Take_GroupBy()
+        {
+            base.OrderBy_Take_GroupBy();
+
+            AssertSql(
+                @"@__p_0='50'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderDate]
+) AS [t]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override void OrderBy_Skip_Take_GroupBy()
+        {
+            base.OrderBy_Skip_Take_GroupBy();
+
+            AssertSql(
+                @"@__p_0='450'
+@__p_1='50'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderDate]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override void Select_Distinct_GroupBy()
+        {
+            base.Select_Distinct_GroupBy();
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[EmployeeID]
+FROM (
+    SELECT DISTINCT [o].[CustomerID], [o].[EmployeeID]
+    FROM [Orders] AS [o]
+) AS [t]
+ORDER BY [t].[CustomerID]");
         }
     }
 }
