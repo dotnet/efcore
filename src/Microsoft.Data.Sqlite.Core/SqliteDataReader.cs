@@ -5,10 +5,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -17,12 +15,11 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public class SqliteDataReader : DbDataReader
     {
-        private static readonly byte[] _emptyByteArray = new byte[0];
-
         private readonly SqliteCommand _command;
         private readonly bool _closeConnection;
         private readonly Queue<(sqlite3_stmt stmt, bool)> _stmtQueue;
         private sqlite3_stmt _stmt;
+        private SqliteDataRecord _record;
         private bool _hasRows;
         private bool _stepped;
         private bool _done;
@@ -37,6 +34,7 @@ namespace Microsoft.Data.Sqlite
             if (stmtQueue.Count != 0)
             {
                 (_stmt, _hasRows) = stmtQueue.Dequeue();
+                _record = new SqliteDataRecord(_stmt);
             }
 
             _command = command;
@@ -59,7 +57,7 @@ namespace Microsoft.Data.Sqlite
         public override int FieldCount
             => _closed
                 ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(FieldCount)))
-                : raw.sqlite3_column_count(_stmt);
+                : _record.FieldCount;
 
         /// <summary>
         /// Gets a handle to underlying prepared statement.
@@ -95,7 +93,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">The name of the column. The value is case-sensitive.</param>
         /// <returns>The value.</returns>
         public override object this[string name]
-            => GetValue(GetOrdinal(name));
+            => _record[name];
 
         /// <summary>
         /// Gets the value of the specified column.
@@ -103,7 +101,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value.</returns>
         public override object this[int ordinal]
-            => GetValue(ordinal);
+            => _record[ordinal];
 
         /// <summary>
         /// Gets an enumerator that can be used to iterate through the rows in the data reader.
@@ -152,6 +150,7 @@ namespace Microsoft.Data.Sqlite
             raw.sqlite3_reset(_stmt);
 
             (_stmt, _hasRows) = _stmtQueue.Dequeue();
+            _record = new SqliteDataRecord(_stmt);
             _stepped = false;
             _done = false;
 
@@ -183,6 +182,7 @@ namespace Microsoft.Data.Sqlite
             {
                 raw.sqlite3_reset(_stmt);
                 _stmt = null;
+                _record = null;
             }
 
             while (_stmtQueue.Count != 0)
@@ -210,15 +210,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetName)));
             }
 
-            var name = raw.sqlite3_column_name(_stmt, ordinal);
-            if (name == null
-                && (ordinal < 0 || ordinal >= FieldCount))
-            {
-                // NB: Message is provided by the framework
-                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
-            }
-
-            return name;
+            return _record.GetName(ordinal);
         }
 
         /// <summary>
@@ -227,18 +219,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">The name of the column.</param>
         /// <returns>The zero-based column ordinal.</returns>
         public override int GetOrdinal(string name)
-        {
-            for (var i = 0; i < FieldCount; i++)
-            {
-                if (GetName(i) == name)
-                {
-                    return i;
-                }
-            }
-
-            // NB: Message is provided by framework
-            throw new ArgumentOutOfRangeException(nameof(name), name, message: null);
-        }
+            => _record.GetOrdinal(name);
 
         /// <summary>
         /// Gets the declared data type name of the specified column. The storage class is returned for computed
@@ -255,38 +236,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetDataTypeName)));
             }
 
-            var typeName = raw.sqlite3_column_decltype(_stmt, ordinal);
-            if (typeName != null)
-            {
-                var i = typeName.IndexOf('(');
-
-                return i == -1
-                    ? typeName
-                    : typeName.Substring(0, i);
-            }
-
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
-            {
-                case raw.SQLITE_INTEGER:
-                    return "INTEGER";
-
-                case raw.SQLITE_FLOAT:
-                    return "REAL";
-
-                case raw.SQLITE_TEXT:
-                    return "TEXT";
-
-                case raw.SQLITE_BLOB:
-                    return "BLOB";
-
-                case raw.SQLITE_NULL:
-                    return "INTEGER";
-
-                default:
-                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
-                    return "INTEGER";
-            }
+            return _record.GetDataTypeName(ordinal);
         }
 
         /// <summary>
@@ -301,41 +251,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetFieldType)));
             }
 
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
-            {
-                case raw.SQLITE_INTEGER:
-                    return typeof(long);
-
-                case raw.SQLITE_FLOAT:
-                    return typeof(double);
-
-                case raw.SQLITE_TEXT:
-                    return typeof(string);
-
-                case raw.SQLITE_BLOB:
-                    return typeof(byte[]);
-
-                case raw.SQLITE_NULL:
-                    return typeof(int);
-
-                default:
-                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
-                    return typeof(int);
-            }
-        }
-
-        private int GetSqliteType(int ordinal)
-        {
-            var type = raw.sqlite3_column_type(_stmt, ordinal);
-            if (type == raw.SQLITE_NULL
-                && (ordinal < 0 || ordinal >= FieldCount))
-            {
-                // NB: Message is provided by the framework
-                throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, message: null);
-            }
-
-            return type;
+            return _record.GetFieldType(ordinal);
         }
 
         /// <summary>
@@ -348,7 +264,7 @@ namespace Microsoft.Data.Sqlite
                 ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(IsDBNull)))
                 : !_stepped || _done
                     ? throw new InvalidOperationException(Resources.NoData)
-                    : GetSqliteType(ordinal) == raw.SQLITE_NULL;
+                    : _record.IsDBNull(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="bool" />.
@@ -356,7 +272,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override bool GetBoolean(int ordinal)
-            => ValueConversion.GetBoolean(() => GetInt64(ordinal));
+            => _record.GetBoolean(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="byte" />.
@@ -364,7 +280,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override byte GetByte(int ordinal)
-            => ValueConversion.GetByte(() => GetInt64(ordinal));
+            => _record.GetByte(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="char" />.
@@ -372,7 +288,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override char GetChar(int ordinal)
-            => ValueConversion.GetChar(() => GetInt64(ordinal));
+            => _record.GetChar(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="DateTime" />.
@@ -380,21 +296,15 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override DateTime GetDateTime(int ordinal)
-            => ValueConversion.GetDateTime(
-                () => GetSqliteType(ordinal),
-                () => GetDouble(ordinal),
-                () => GetString(ordinal));
+            => _record.GetDateTime(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="DateTimeOffset" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
-        public DateTimeOffset GetDateTimeOffset(int ordinal)
-            => ValueConversion.GetDateTimeOffset(
-                () => GetSqliteType(ordinal),
-                () => GetDouble(ordinal),
-                () => GetString(ordinal));
+        public virtual DateTimeOffset GetDateTimeOffset(int ordinal)
+            => _record.GetDateTimeOffset(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="decimal" />.
@@ -402,7 +312,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override decimal GetDecimal(int ordinal)
-            => ValueConversion.GetDecimal(() => GetString(ordinal));
+            => _record.GetDecimal(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="double" />.
@@ -410,9 +320,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override double GetDouble(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_double(_stmt, ordinal);
+            => _record.GetDouble(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="float" />.
@@ -420,7 +328,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override float GetFloat(int ordinal)
-            => ValueConversion.GetFloat(() => GetDouble(ordinal));
+            => _record.GetFloat(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="Guid" />.
@@ -428,10 +336,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override Guid GetGuid(int ordinal)
-            => ValueConversion.GetGuid(
-                () => GetSqliteType(ordinal),
-                () => GetBlob(ordinal),
-                () => GetString(ordinal));
+            => _record.GetGuid(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="short" />.
@@ -439,7 +344,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override short GetInt16(int ordinal)
-            => ValueConversion.GetInt16(() => GetInt64(ordinal));
+            => _record.GetInt16(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="int" />.
@@ -447,7 +352,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override int GetInt32(int ordinal)
-            => ValueConversion.GetInt32(() => GetInt64(ordinal));
+            => _record.GetInt32(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="long" />.
@@ -455,9 +360,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override long GetInt64(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_int64(_stmt, ordinal);
+            => _record.GetInt64(ordinal);
 
         /// <summary>
         /// Gets the value of the specified column as a <see cref="string" />.
@@ -465,9 +368,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override string GetString(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_text(_stmt, ordinal);
+            => _record.GetString(ordinal);
 
         /// <summary>
         /// Reads a stream of bytes from the specified column. Not supported.
@@ -479,7 +380,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="length">The maximum number of bytes to read.</param>
         /// <returns>The actual number of bytes read.</returns>
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+            => _record.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
 
         /// <summary>
         /// Reads a stream of characters from the specified column. Not supported.
@@ -491,7 +392,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="length">The maximum number of characters to read.</param>
         /// <returns>The actual number of characters read.</returns>
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
-            => throw new NotSupportedException();
+            => _record.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
 
         /// <summary>
         /// Gets the value of the specified column.
@@ -501,25 +402,12 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The value of the column.</returns>
         public override T GetFieldValue<T>(int ordinal)
         {
-            var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
-            if (type == typeof(DBNull))
+            if (typeof(T) == typeof(DBNull) && (!_stepped || _done))
             {
-                if (!_stepped || _done)
-                {
-                    throw new InvalidOperationException(Resources.NoData);
-                }
-
-                return (T)(object)DBNull.Value;
+                throw new InvalidOperationException(Resources.NoData);
             }
 
-            return ValueConversion.GetValue<T>(
-                type,
-                () => GetSqliteType(ordinal),
-                () => GetInt64(ordinal),
-                () => GetDouble(ordinal),
-                () => GetString(ordinal),
-                () => GetBlob(ordinal),
-                () => base.GetFieldValue<T>(ordinal));
+            return _record.GetFieldValue<T>(ordinal);
         }
 
         /// <summary>
@@ -533,34 +421,12 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetValue)));
             }
-
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
+            if (!_stepped || _done)
             {
-                case raw.SQLITE_INTEGER:
-                    return GetInt64(ordinal);
-
-                case raw.SQLITE_FLOAT:
-                    return GetDouble(ordinal);
-
-                case raw.SQLITE_TEXT:
-                    return GetString(ordinal);
-
-                case raw.SQLITE_BLOB:
-                    return GetBlob(ordinal);
-
-                case raw.SQLITE_NULL:
-                    if (!_stepped || _done)
-                    {
-                        throw new InvalidOperationException(Resources.NoData);
-                    }
-
-                    return DBNull.Value;
-
-                default:
-                    Debug.Assert(false, "Unexpected column type: " + sqliteType);
-                    return GetInt32(ordinal);
+                throw new InvalidOperationException(Resources.NoData);
             }
+
+            return _record.GetValue(ordinal);
         }
 
         /// <summary>
@@ -569,19 +435,6 @@ namespace Microsoft.Data.Sqlite
         /// <param name="values">An array into which the values are copied.</param>
         /// <returns>The number of values copied into the array.</returns>
         public override int GetValues(object[] values)
-        {
-            int i;
-            for (i = 0; i < FieldCount; i++)
-            {
-                values[i] = GetValue(i);
-            }
-
-            return i;
-        }
-
-        private byte[] GetBlob(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_blob(_stmt, ordinal) ?? _emptyByteArray;
+            => _record.GetValues(values);
     }
 }

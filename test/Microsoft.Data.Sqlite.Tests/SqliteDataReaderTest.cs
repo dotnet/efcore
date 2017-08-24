@@ -121,6 +121,10 @@ namespace Microsoft.Data.Sqlite
                 new DateTime(2013, 10, 7, 12, 0, 0));
 
         [Fact]
+        public void GetDateTime_throws_when_null()
+            => GetX_throws_when_null(r => r.GetDateTime(0));
+
+        [Fact]
         public void GetDateTimeOffset_works_with_text()
             => GetX_works(
                 "SELECT '2014-04-15 10:47:16';",
@@ -140,6 +144,10 @@ namespace Microsoft.Data.Sqlite
                 "SELECT CAST(julianday('2013-10-07 12:00') AS INTEGER);",
                 r => ((SqliteDataReader)r).GetDateTimeOffset(0),
                 new DateTimeOffset(new DateTime(2013, 10, 7, 12, 0, 0)));
+
+        [Fact]
+        public void GetDateTimeOffset_throws_when_null()
+            => GetX_throws_when_null(r => ((SqliteDataReader)r).GetDateTimeOffset(0));
 
         [Theory]
         [InlineData("SELECT 1;", "INTEGER")]
@@ -204,6 +212,10 @@ namespace Microsoft.Data.Sqlite
                 "SELECT '" + input + "';",
                 r => r.GetDecimal(0),
                 expected);
+
+        [Fact]
+        public void GetDecimal_throws_when_null()
+            => GetX_throws_when_null(r => r.GetDecimal(0));
 
         [Fact]
         public void GetDouble_throws_when_null()
@@ -293,6 +305,23 @@ namespace Microsoft.Data.Sqlite
                 DBNull.Value);
 
         [Fact]
+        public void GetFieldValue_of_DBNull_throws_when_not_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 1;"))
+                {
+                    var hasData = reader.Read();
+
+                    Assert.True(hasData);
+                    Assert.Throws<InvalidCastException>(() => reader.GetFieldValue<DBNull>(0));
+                }
+            }
+        }
+
+        [Fact]
         public void GetFieldValue_of_decimal_works()
             => GetFieldValue_works(
                 "SELECT '3.14';",
@@ -321,6 +350,10 @@ namespace Microsoft.Data.Sqlite
             => GetFieldValue_works(
                 "SELECT '12:06:29';",
                 new TimeSpan(12, 6, 29));
+
+        [Fact]
+        public void GetFieldValue_of_TimeSpan_throws_when_null()
+            => GetX_throws_when_null(r => r.GetFieldValue<TimeSpan>(0));
 
         [Fact]
         public void GetFieldValue_throws_before_read()
@@ -412,6 +445,10 @@ namespace Microsoft.Data.Sqlite
                 "SELECT 'dc0d7e0e-365d-4948-ab9b-8ca8056bf93a';",
                 r => r.GetGuid(0),
                 new Guid("dc0d7e0e-365d-4948-ab9b-8ca8056bf93a"));
+
+        [Fact]
+        public void GetGuid_throws_when_null()
+            => GetX_throws_when_null(r => r.GetGuid(0));
 
         [Fact]
         public void GetInt16_works()

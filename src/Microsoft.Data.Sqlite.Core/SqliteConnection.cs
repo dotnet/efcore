@@ -10,8 +10,6 @@ using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
-using System.Globalization;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -322,343 +320,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Create user defined function.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the function result.</typeparam>
-        /// <param name="name">Name of the function.</param>
-        /// <param name="function">User defined function.</param>
-        public virtual void CreateFunction<TResult>(
-            string name, Func<TResult> function)
-            => CreateFunction(name, null, (function != null) ? (_) => function() : (Func<object, TResult>)null);
-
-        /// <summary>
-        /// Create user defined function.
-        /// </summary>
-        /// <typeparam name="TState">The type of the state object.</typeparam>
-        /// <typeparam name="TResult">The type of the function result.</typeparam>
-        /// <param name="name">Name of the function.</param>
-        /// <param name="state">State object passed to each invokation of the function.</param>
-        /// <param name="function">User defined function.</param>
-        public virtual void CreateFunction<TState, TResult>(
-            string name, TState state, Func<TState, TResult> function)
-        {
-            delegate_function_scalar scalarFunction = null;
-            if (function != null)
-            {
-                scalarFunction = (ctx, data, args) =>
-                    SetFunctionResult(function((TState)data), ctx);
-            }
-
-            CreateScalarFunction(name, 0, state, scalarFunction);
-        }
-
-        /// <summary>
-        /// Create user defined function.
-        /// </summary>
-        /// <typeparam name="T1">The type of first function argument.</typeparam>
-        /// <typeparam name="TResult">The type of the function result.</typeparam>
-        /// <param name="name">Name of the function.</param>
-        /// <param name="function">User defined function.</param>
-        public virtual void CreateFunction<T1, TResult>(
-            string name,
-            Func<T1, TResult> function)
-            => CreateFunction(name, null, (function != null) ? (_, p1) => function(p1) : (Func<object, T1, TResult>)null);
-
-        /// <summary>
-        /// Create user defined function.
-        /// </summary>
-        /// <typeparam name="TState">The type of the state object.</typeparam>
-        /// <typeparam name="T1">The type of first function argument.</typeparam>
-        /// <typeparam name="TResult">The type of the function result.</typeparam>
-        /// <param name="name">Name of the function.</param>
-        /// <param name="state">State object passed to each invokation of the function.</param>
-        /// <param name="function">User defined function.</param>
-        public virtual void CreateFunction<TState, T1, TResult>(
-            string name,
-            TState state,
-            Func<TState, T1, TResult> function)
-        {
-            delegate_function_scalar scalarFunction = null;
-            var numberOfArguments = 1;
-            if (function != null)
-            {
-                if (typeof(T1).UnwrapNullableType().UnwrapEnumType() == typeof(object[]))
-                {
-                    scalarFunction = (ctx, data, args) =>
-                        SetFunctionResult(function((TState)data, (T1)GetArgumentsArray(args)), ctx);
-                    numberOfArguments = -1;
-                }
-                else
-                {
-                    scalarFunction = (ctx, data, args) =>
-                    {
-                        if (args.Length < 1)
-                        {
-                            throw new ArgumentOutOfRangeException(); // TODO: add error message
-                        }
-
-                        SetFunctionResult(function((TState)data, GetArgument<T1>(args[0])), ctx);
-                    };
-                }
-            }
-
-            CreateScalarFunction(name, numberOfArguments, state, scalarFunction);
-        }
-
-        private void CreateScalarFunction(
-            string name, int numberOfArguments, object state, delegate_function_scalar scalarFunction, [CallerMemberName] string callerName = "")
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (State != ConnectionState.Open)
-            {
-                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(callerName));
-            }
-
-            var rc = raw.sqlite3_create_function(_db, name, numberOfArguments, state, scalarFunction);
-            SqliteException.ThrowExceptionForRC(rc, _db);
-        }
-
-        /// <summary>
-        /// Create user defined aggregate.
-        /// </summary>
-        /// <typeparam name="TContext">Type of the state buffer.</typeparam>
-        /// <param name="name">Name of the aggregate.</param>
-        /// <param name="function">The user defined aggregate.</param>
-        /// <returns>The seed value for the state buffer.</returns>
-        public virtual TContext CreateAggregate<TContext>(
-            string name,
-            Func<TContext, TContext> function)
-            => CreateAggregate(name, default(TContext), function);
-
-        /// <summary>
-        /// Create user defined aggregate.
-        /// </summary>
-        /// <typeparam name="TContext">Type of the state buffer.</typeparam>
-        /// <param name="name">Name of the aggregate.</param>
-        /// <param name="seed">Seed for initializing the aggregate.</param>
-        /// <param name="function">The user defined aggregate.</param>
-        /// <returns>The seed value for the state buffer.</returns>
-        public virtual TContext CreateAggregate<TContext>(
-            string name,
-            TContext seed,
-            Func<TContext, TContext> function)
-            => CreateAggregate(name, seed, function, (state) => state);
-
-        /// <summary>
-        /// Create user defined aggregate.
-        /// </summary>
-        /// <typeparam name="TContext">Type of the state buffer.</typeparam>
-        /// <typeparam name="TResult">Type returned by the result selector.</typeparam>
-        /// <param name="name">Name of the aggregate.</param>
-        /// <param name="seed">Seed for initializing the aggregate.</param>
-        /// <param name="function">The user defined aggregate.</param>
-        /// <param name="resultSelector">The user defined result selector.</param>
-        /// <returns>The result based on the seed value for the state buffer.</returns>
-        public virtual TResult CreateAggregate<TContext, TResult>(
-            string name,
-            TContext seed,
-            Func<TContext, TContext> function,
-            Func<TContext, TResult> resultSelector)
-        {
-            delegate_function_aggregate_step stepFunction = null;
-            delegate_function_aggregate_final finalFunction = null;
-            if (function != null)
-            {
-                stepFunction = (ctx, _, args) =>
-                {
-                    if (ctx.state == null)
-                    {
-                        ctx.state = new StateValue<TContext> { Value = seed };
-                    }
-
-                    ((StateValue<TContext>)ctx.state).Value = function(((StateValue<TContext>)ctx.state).Value);
-                };
-
-                finalFunction = (ctx, _) =>
-                    SetFunctionResult(resultSelector(((StateValue<TContext>)ctx.state).Value), ctx);
-            }
-
-            CreateAggregateFunction(
-                name, 0, stepFunction, finalFunction);
-            return resultSelector(seed);
-        }
-
-        /// <summary>
-        /// Create user defined aggregate.
-        /// </summary>
-        /// <typeparam name="TContext">Type of the state buffer.</typeparam>
-        /// <typeparam name="T1">The type of the first function argument.</typeparam>
-        /// <param name="name">Name of the aggregate.</param>
-        /// <param name="function">The user defined aggregate.</param>
-        /// <returns>The seed value for the state buffer.</returns>
-        public virtual TContext CreateAggregate<TContext, T1>(
-            string name,
-            Func<TContext, T1, TContext> function)
-            => CreateAggregate(name, default(TContext), function);
-
-        /// <summary>
-        /// Create user defined aggregate.
-        /// </summary>
-        /// <typeparam name="TContext">Type of the state buffer.</typeparam>
-        /// <typeparam name="T1">The type of the first function argument.</typeparam>
-        /// <param name="name">Name of the aggregate.</param>
-        /// <param name="seed">Seed for initializing the aggregate.</param>
-        /// <param name="function">The user defined aggregate.</param>
-        /// <returns>The seed value for the state buffer.</returns>
-        public virtual TContext CreateAggregate<TContext, T1>(
-            string name,
-            TContext seed,
-            Func<TContext, T1, TContext> function)
-            => CreateAggregate(name, seed, function, (state) => state);
-
-        /// <summary>
-        /// Create user defined aggregate.
-        /// </summary>
-        /// <typeparam name="TContext">Type of the state buffer.</typeparam>
-        /// <typeparam name="T1">The type of the first function argument.</typeparam>
-        /// <typeparam name="TResult">Type returned by the result selector.</typeparam>
-        /// <param name="name">Name of the aggregate.</param>
-        /// <param name="seed">Seed for initializing the aggregate.</param>
-        /// <param name="function">The user defined aggregate.</param>
-        /// <param name="resultSelector">The user defined result selector.</param>
-        /// <returns>The seed value for the state buffer.</returns>
-        public virtual TResult CreateAggregate<TContext, T1, TResult>(
-            string name,
-            TContext seed,
-            Func<TContext, T1, TContext> function,
-            Func<TContext, TResult> resultSelector)
-        {
-            delegate_function_aggregate_step stepFunction = null;
-            delegate_function_aggregate_final finalFunction = null;
-            var numberOfArguments = 1;
-            if (function != null)
-            {
-                if (typeof(T1).UnwrapNullableType().UnwrapEnumType() == typeof(object[]))
-                {
-                    stepFunction = (ctx, _, args) =>
-                    {
-                        if (ctx.state == null)
-                        {
-                            ctx.state = new StateValue<TContext> { Value = seed };
-                        }
-
-                        ((StateValue<TContext>)ctx.state).Value = function(((StateValue<TContext>)ctx.state).Value, (T1)GetArgumentsArray(args));
-                    };
-
-                    numberOfArguments = -1;
-                }
-                else
-                {
-                    stepFunction = (ctx, _, args) =>
-                    {
-                        if (args.Length < 1)
-                        {
-                            throw new ArgumentOutOfRangeException(); // TODO: add error message
-                        }
-
-                        if (ctx.state == null)
-                        {
-                            ctx.state = new StateValue<TContext> { Value = seed };
-                        }
-
-                        ((StateValue<TContext>)ctx.state).Value = function(((StateValue<TContext>)ctx.state).Value, GetArgument<T1>(args[0]));
-                    };
-                }
-
-                finalFunction = (ctx, _) =>
-                    SetFunctionResult(resultSelector(((StateValue<TContext>)ctx.state).Value), ctx);
-            }
-
-            CreateAggregateFunction(
-                name, numberOfArguments, stepFunction, finalFunction);
-            return resultSelector(seed);
-        }
-
-        private void CreateAggregateFunction(
-            string name,
-            int numberOfArguments,
-            delegate_function_aggregate_step stepFunction,
-            delegate_function_aggregate_final finalFunction,
-            [CallerMemberName] string callerName = "")
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (State != ConnectionState.Open)
-            {
-                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(callerName));
-            }
-
-            var rc = raw.sqlite3_create_function(_db, name, numberOfArguments, null, stepFunction, finalFunction);
-            SqliteException.ThrowExceptionForRC(rc, _db);
-        }
-
-        private T GetArgument<T>(sqlite3_value value)
-        {
-            var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
-            if (type == typeof(DBNull))
-            {
-                return (T)(object)DBNull.Value;
-            }
-            if (type == typeof(object))
-            {
-                return (T)GetArgumentObject(value);
-            }
-
-            return ValueConversion.GetValue<T>(
-                type,
-                () => raw.sqlite3_value_type(value),
-                () => raw.sqlite3_value_int64(value),
-                () => raw.sqlite3_value_double(value),
-                () => raw.sqlite3_value_text(value),
-                () => raw.sqlite3_value_blob(value),
-                () => throw new InvalidCastException());
-        }
-
-        private static object GetArgumentObject(sqlite3_value value)
-        {
-            var sqliteType = raw.sqlite3_value_type(value);
-            switch (sqliteType)
-            {
-                case raw.SQLITE_INTEGER:
-                    return raw.sqlite3_value_int64(value);
-                case raw.SQLITE_FLOAT:
-                    return raw.sqlite3_value_double(value);
-                case raw.SQLITE_BLOB:
-                    return raw.sqlite3_value_blob(value);
-                case raw.SQLITE_TEXT:
-                    return raw.sqlite3_value_text(value);
-                default:
-                    throw new InvalidCastException();
-            }
-        }
-
-        private static object GetArgumentsArray(sqlite3_value[] args)
-        {
-            if (args == null)
-            {
-                throw new ArgumentNullException(nameof(args)); // unknown if this could ever happen
-            }
-
-            var array = new object[args.Length];
-            for (var i = 0; i < args.Length; i++)
-            {
-                array[i] = GetArgumentObject(args[i]);
-            }
-
-            return array;
-        }
-
-        private void SetFunctionResult(object result, sqlite3_context ctx)
-        {
-            new SqliteResultValueStore(ctx).StoreValue(result.GetType().UnwrapNullableType().UnwrapEnumType(), result);
-        }
-
-        /// <summary>
         /// Begins a transaction on the connection.
         /// </summary>
         /// <returns>The transaction.</returns>
@@ -717,9 +378,163 @@ namespace Microsoft.Data.Sqlite
             SqliteException.ThrowExceptionForRC(rc, _db);
         }
 
-        private class StateValue<T>
+        private void CreateFunctionCore<TState, TResult>(
+            string name,
+            int arity,
+            TState state,
+            Func<TState, SqliteValueReader, TResult> function)
         {
-            public T Value { get; set; }
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(CreateFunction)));
+            }
+
+            delegate_function_scalar func = null;
+            if (function != null)
+            {
+                func = (ctx, user_data, args) =>
+                {
+                    // TODO: Avoid allocation when niladic
+                    var values = new SqliteParameterReader(args);
+
+                    try
+                    {
+                        // TODO: Avoid closure by passing function via user_data
+                        var result = function((TState)user_data, values);
+
+                        new SqliteResultBinder(ctx, result).Bind();
+                    }
+                    catch (Exception ex)
+                    {
+                        raw.sqlite3_result_error(ctx, ex.Message);
+
+                        if (ex is SqliteException sqlEx)
+                        {
+                            // NB: This must be called after sqlite3_result_error()
+                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                        }
+                    }
+                };
+            }
+
+            var rc = raw.sqlite3_create_function(_db, name, arity, state, func);
+            SqliteException.ThrowExceptionForRC(rc, _db);
+        }
+
+        private void CreateAggregateCore<TAccumulate, TResult>(
+            string name,
+            int arity,
+            TAccumulate seed,
+            Func<TAccumulate, SqliteValueReader, TAccumulate> func,
+            Func<TAccumulate, TResult> resultSelector)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (State != ConnectionState.Open)
+            {
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(CreateAggregate)));
+            }
+
+            delegate_function_aggregate_step func_step = null;
+            if (func != null)
+            {
+                func_step = (ctx, user_data, args) =>
+                {
+                    var context = (AggregateContext<TAccumulate>)user_data;
+                    if (context.Exception != null)
+                    {
+                        return;
+                    }
+
+                    // TODO: Avoid allocation when niladic
+                    var reader = new SqliteParameterReader(args);
+
+                    try
+                    {
+                        // TODO: Avoid closure by passing func via user_data
+                        // NB: No need to set ctx.state since we just mutate the instance
+                        context.Accumulate = func(context.Accumulate, reader);
+                    }
+                    catch (Exception ex)
+                    {
+                        context.Exception = ex;
+                    }
+                };
+            }
+
+            delegate_function_aggregate_final func_final = null;
+            if (resultSelector != null)
+            {
+                func_final = (ctx, user_data) =>
+                {
+                    var context = (AggregateContext<TAccumulate>)user_data;
+
+                    if (context.Exception == null)
+                    {
+                        try
+                        {
+                            // TODO: Avoid closure by passing resultSelector via user_data
+                            var result = resultSelector(context.Accumulate);
+
+                            new SqliteResultBinder(ctx, result).Bind();
+                        }
+                        catch (Exception ex)
+                        {
+                            context.Exception = ex;
+                        }
+                    }
+
+                    if (context.Exception != null)
+                    {
+                        raw.sqlite3_result_error(ctx, context.Exception.Message);
+
+                        if (context.Exception is SqliteException sqlEx)
+                        {
+                            // NB: This must be called after sqlite3_result_error()
+                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                        }
+                    }
+                };
+            }
+
+            var rc = raw.sqlite3_create_function(
+                _db,
+                name,
+                arity,
+                new AggregateContext<TAccumulate>(seed),
+                func_step,
+                func_final);
+            SqliteException.ThrowExceptionForRC(rc, _db);
+        }
+
+        private static Func<TState, SqliteValueReader, TResult> IfNotNull<TState, TResult>(
+            object x,
+            Func<TState, SqliteValueReader, TResult> value)
+            => x != null ? value : null;
+
+        private static object[] GetValues(SqliteValueReader reader)
+        {
+            var values = new object[reader.FieldCount];
+            reader.GetValues(values);
+
+            return values;
+        }
+
+        private class AggregateContext<T>
+        {
+            public AggregateContext(T seed)
+                => Accumulate = seed;
+
+            public T Accumulate { get; set; }
+            public Exception Exception { get; set; }
         }
     }
 }

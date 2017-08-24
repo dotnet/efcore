@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
@@ -387,209 +388,393 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void CreateFunction_with_state_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("myrandom", new Random(42), r => r.Next());
-
-                Assert.Equal(1434747710L, connection.ExecuteScalar<long>("SELECT myrandom();"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_no_args_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("myconst", () => 42);
-
-                Assert.Equal(42L, connection.ExecuteScalar<long>("SELECT myconst();"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_one_arg_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("mylength", (string s) => s.Length);
-
-                Assert.Equal(5L, connection.ExecuteScalar<long>("SELECT mylength('abcde');"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_one_arg_with_state_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("mylength", 100, (int offset, string s) => s.Length + offset);
-
-                Assert.Equal(105L, connection.ExecuteScalar<long>("SELECT mylength('abcde');"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_two_args_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction<long, long, long>("mymax", Math.Max);
-
-                Assert.Equal(-2L, connection.ExecuteScalar<long>("SELECT mymax(-2,-3);"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_two_args_with_state_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction<long, long, long, long>("mymax", -1L, (state, val1, val2) => state * Math.Max(val1, val2));
-
-                Assert.Equal(2L, connection.ExecuteScalar<long>("SELECT mymax(-2,-3);"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_object_arg_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("mytype", (object o) => o.GetType().ToString());
-
-                Assert.Equal("System.String", connection.ExecuteScalar<string>("SELECT mytype('abcde');"));
-                Assert.Equal("System.Int64", connection.ExecuteScalar<string>("SELECT mytype(42);"));
-                Assert.Equal("System.Double", connection.ExecuteScalar<string>("SELECT mytype(4.2);"));
-                Assert.Equal("System.Byte[]", connection.ExecuteScalar<string>("SELECT mytype(X'7E57');"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_object_array_arg_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("myparams", (object[] o) => o.Length);
-
-                Assert.Equal(6L, connection.ExecuteScalar<long>("SELECT myparams(1,1,1,1,1,1);"));
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_with_state_with_null_function_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("myrandom", new Random(42), r => r.Next());
-                connection.CreateFunction("myrandom", new Random(42), (Func<Random, int>)null);
-
-                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT myrandom();"));
-                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_with_state_throws_when_closed()
+        public void CreateFunction_throws_when_closed()
         {
             var connection = new SqliteConnection();
 
-            var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateFunction("myrandom", new Random(42), r => r.Next()));
+            var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateFunction("test", () => 1L));
 
             Assert.Equal(Resources.CallRequiresOpenConnection("CreateFunction"), ex.Message);
         }
 
         [Fact]
-        public void CreateAggregate_one_arg_works()
+        public void CreateFunction_throws_when_no_name()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateFunction(null, () => 1L));
+
+                Assert.Equal("name", ex.ParamName);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", 1L, (long state, long x, int y) => $"{state} {x} {y}");
+
+                var result = connection.ExecuteScalar<string>("SELECT test(2, 3);");
+
+                Assert.Equal("1 2 3", result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_params()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction(
+                    "test",
+                    (object[] args) => string.Join(", ", args.Select(a => a?.GetType().FullName ?? "(null)")));
+
+                var result = connection.ExecuteScalar<string>("SELECT test(1, 3.1, 'A', X'7E57', NULL);");
+
+                Assert.Equal("System.Int64, System.Double, System.String, System.Byte[], (null)", result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_exception()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction<long>("test", () => throw new Exception("Test"));
+
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test();"));
+
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "Test"), ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_sqlite_exception()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction<long>("test", () => throw new SqliteException("Test", 200));
+
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test();"));
+
+                Assert.Equal(Resources.SqliteNativeError(200, "Test"), ex.Message);
+                Assert.Equal(200, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", () => 1L);
+                connection.CreateFunction("test", default(Func<long>));
+
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test();"));
+
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such function: test"), ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_result_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction<object>("test", () => null);
+
+                var result = connection.ExecuteScalar<object>("SELECT test();");
+
+                Assert.Equal(DBNull.Value, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_result_DBNull()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction<object>("test", () => DBNull.Value);
+
+                var result = connection.ExecuteScalar<object>("SELECT test();");
+
+                Assert.Equal(DBNull.Value, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_nullable()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (long? x) => x == null);
+
+                var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
+
+                Assert.Equal(1L, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_but_type_not_nullable()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (long x) => x);
+
+                var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
+
+                Assert.Equal(0L, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_string()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (string x) => x == null);
+
+                var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
+
+                Assert.Equal(1L, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_byteArray()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (byte[] x) => x == null);
+
+                var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
+
+                Assert.Equal(1L, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_DateTime()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (DateTime x) => x);
+
+                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
+
+                Assert.Equal("0001-01-01 00:00:00", result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_DateTimeOffset()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (DateTimeOffset x) => x);
+
+                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
+
+                Assert.Equal("0001-01-01 00:00:00+00:00", result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_decimal()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (decimal x) => x);
+
+                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
+
+                Assert.Equal("0.0", result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_Guid()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (Guid x) => x);
+
+                var result = connection.ExecuteScalar<byte[]>("SELECT test(NULL);");
+
+                Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_and_type_TimeSpan()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (TimeSpan x) => x);
+
+                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
+
+                Assert.Equal("00:00:00", result);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_empty_blob()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (byte[] x) => x?.Length == 0);
+
+                var result = connection.ExecuteScalar<long>("SELECT test(X'');");
+
+                Assert.Equal(1L, result);
+            }
+        }
+
+        [Fact]
+        public void CreateAggregate_throws_when_closed()
+        {
+            var connection = new SqliteConnection();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => connection.CreateAggregate("test", (string a) => "A"));
+
+            Assert.Equal(Resources.CallRequiresOpenConnection("CreateAggregate"), ex.Message);
+        }
+
+        [Fact]
+        public void CreateAggregate_throws_when_no_name()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.CreateAggregate(null, (string a) => "A"));
+
+                Assert.Equal("name", ex.ParamName);
+            }
+        }
+
+        [Fact]
+        public void CreateAggregate_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE dual2 (dummy1, dummy2); INSERT INTO dual2 (dummy1, dummy2) VALUES ('X', 1);");
                 connection.CreateAggregate(
-                    "mysum",
-                    (long sum, long i) => sum + i);
+                    "test",
+                    "A",
+                    (string a, string x, int y) => a + x + y,
+                    (string a) => a + "Z");
 
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1),(2),(3),(4);");
-                Assert.Equal(10L, connection.ExecuteScalar<long>("SELECT mysum(Value) FROM Data;"));
+                var result = connection.ExecuteScalar<string>("SELECT test(dummy1, dummy2) FROM dual2;");
+
+                Assert.Equal("AX1Z", result);
             }
         }
 
         [Fact]
-        public void CreateAggregate_one_arg_with_seed_works()
+        public void CreateAggregate_works_when_params()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1),(2),(3),(4);");
-                connection.CreateAggregate("mycount", -4L, (long count, object[] args) => ++count);
+                connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
+                connection.CreateAggregate("test", (string a, object[] args) => a + string.Join(", ", args) + "; ");
 
-                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT mycount(*) FROM Data;"));
+                var result = connection.ExecuteScalar<string>("SELECT test(dummy) FROM dual;");
+
+                Assert.Equal("X; ", result);
             }
         }
 
         [Fact]
-        public void CreateAggregate_no_arg_with_seed_works()
+        public void CreateAggregate_works_when_exception_during_step()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1),(2),(3),(4);");
-                connection.CreateAggregate("mycount", -4L, (long count) => ++count);
+                connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
+                connection.CreateAggregate("test", (string a) => throw new Exception("Test"));
 
-                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT mycount() FROM Data;"));
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
+
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "Test"), ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
         [Fact]
-        public void CreateAggregate_with_seed_and_result_Selector_works()
+        public void CreateAggregate_works_when_exception_during_final()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1),(2),(3),(4);");
-                connection.CreateAggregate("mycount", -4L, (long count, object[] args) => ++count, (c) => c.ToString());
+                connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
+                connection.CreateAggregate<string, string>("test", "A", a => "B", a => throw new Exception("Test"));
 
-                Assert.Equal("0", connection.ExecuteScalar<string>("SELECT mycount(*) FROM Data;"));
-            }
-        }
-        [Fact]
-        public void CreateAggregate_two_args_works()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateAggregate(
-                    "mygroupconcat",
-                    (string concat, string value, string sep) => concat + sep + value);
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
 
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1),(2),(3),(4);");
-                Assert.Equal(";1;2;3;4", connection.ExecuteScalar<string>("SELECT mygroupconcat(Value,';') FROM Data;"));
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "Test"), ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
         [Fact]
-        public void CreateAggregate_two_args_with_seed_works()
+        public void CreateAggregate_works_when_sqlite_exception()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
-                connection.CreateAggregate(
-                    "mygroupconcat",
-                    "0",
-                    (string concat, string value, string sep) => concat + sep + value);
+                connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
+                connection.CreateAggregate("test", (string a) => throw new SqliteException("Test", 200));
 
-                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (1),(2),(3),(4);");
-                Assert.Equal("0;1;2;3;4", connection.ExecuteScalar<string>("SELECT mygroupconcat(Value,';') FROM Data;"));
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteScalar<string>("SELECT test() FROM dual;"));
+
+                Assert.Equal(Resources.SqliteNativeError(200, "Test"), ex.Message);
+                Assert.Equal(200, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateAggregate_works_when_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
+                connection.CreateAggregate("test", (string a) => "A");
+                connection.CreateAggregate("test", default(Func<string, string>));
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection.ExecuteScalar<long>("SELECT test() FROM dual;"));
+
+                Assert.Equal(Resources.SqliteNativeError(raw.SQLITE_ERROR, "no such function: test"), ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 

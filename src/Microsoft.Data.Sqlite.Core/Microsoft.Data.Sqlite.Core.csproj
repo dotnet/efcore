@@ -25,14 +25,13 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </None>
-    <None Update="UserDefinedFunctions.tt">
+    <None Update="SqliteConnection.CreateAggregate.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>UserDefinedFunctions.cs</LastGenOutput>
+      <LastGenOutput>SqliteConnection.CreateAggregate.cs</LastGenOutput>
     </None>
-    <None Include="UserDefinedFunctions.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>UserDefinedFunctions.tt</DependentUpon>
+    <None Update="SqliteConnection.CreateFunction.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SqliteConnection.CreateFunction.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -53,15 +52,23 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <Compile Update="SqliteCommand.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Update="SqliteConnection.CreateAggregate.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SqliteConnection.CreateAggregate.tt</DependentUpon>
+    </Compile>
+    <Compile Update="SqliteConnection.CreateFunction.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SqliteConnection.CreateFunction.tt</DependentUpon>
+    </Compile>
     <Compile Update="SqliteConnection.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="UserDefinedFunctions.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>UserDefinedFunctions.tt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

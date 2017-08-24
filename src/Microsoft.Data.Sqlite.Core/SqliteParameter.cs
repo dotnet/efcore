@@ -4,10 +4,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-using Microsoft.Data.Sqlite.Utilities;
 
 namespace Microsoft.Data.Sqlite
 {
@@ -22,8 +20,6 @@ namespace Microsoft.Data.Sqlite
     {
         private string _parameterName = string.Empty;
         private object _value;
-        private SqliteParameterStore _store;
-        private bool _bindActionValid;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
@@ -171,7 +167,6 @@ namespace Microsoft.Data.Sqlite
             set
             {
                 _value = value;
-                _bindActionValid = false;
             }
         }
 
@@ -209,19 +204,11 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.RequiresSet(nameof(Value)));
             }
 
-            if (!_bindActionValid)
-            {
-                var type = Value.GetType().UnwrapNullableType().UnwrapEnumType();
-                _store = new SqliteParameterStore(type, _value);
-
-                _bindActionValid = true;
-            }
-
-            _store.BindParameter(stmt, index);
+            new SqliteParameterBinder(stmt, index, _value).Bind();
 
             return true;
         }
-        
+
         private readonly static char[] _parameterPrefixes = { '@', '$', ':' };
 
         private int FindPrefixedParameter(sqlite3_stmt stmt)
