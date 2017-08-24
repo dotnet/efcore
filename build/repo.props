@@ -5,6 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Only required when preparing to run the EFCore1 benchmarks project -->
+    <DotNetCoreRuntime Include="1.1.2" Condition=" '$(IsBuildingBenchmarks)' == 'true' " />
+
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.Benchmarks.EFCore\*.csproj" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.Design.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
