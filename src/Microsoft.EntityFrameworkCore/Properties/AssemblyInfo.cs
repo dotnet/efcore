@@ -9,7 +9,7 @@ using System.Resources;
 
 #if CSPROJ
 
-[assembly: AssemblyInformationalVersion("1.1.2-csproj")]
+[assembly: AssemblyInformationalVersion("1.1.3-csproj")]
 
 #endif
 
