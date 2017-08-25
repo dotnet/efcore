@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.1.2"
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.1.3"
   },
   "testRunner": "xunit",
   "frameworks": {
