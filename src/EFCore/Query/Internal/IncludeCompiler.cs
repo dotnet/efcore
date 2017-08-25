@@ -312,7 +312,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (entity != null)
             {
-                await fixup(queryContext, entity, included, cancellationToken);
+                var fixupTask = fixup(queryContext, entity, included, cancellationToken);
+                if (fixupTask != null)
+                {
+                    await fixupTask;
+                }
             }
 
             return entity;
