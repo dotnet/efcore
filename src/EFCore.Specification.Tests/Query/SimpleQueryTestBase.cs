@@ -3920,5 +3920,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => c.CustomerID),
                 assertOrder: true);
         }
+
+        [ConditionalFact]
+        public virtual void Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => c.CustomerID == "ALFKI")
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        OuterOrders = c.Orders.Select(
+                            o => new
+                            {
+                                InnerOrder = c.Orders.Count(),
+                                Id = c.CustomerID
+                            }).ToList()
+                    }),
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    Assert.Equal(e.OuterOrders.Count, a.OuterOrders.Count);
+                });
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result()
+        {
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => c.CustomerID == "ALFKI")
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        OuterOrders = c.Orders.Count(o => c.Orders.Count() > 0)
+                    }));
+        }
     }
 }

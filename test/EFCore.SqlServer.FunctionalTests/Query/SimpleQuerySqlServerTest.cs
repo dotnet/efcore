@@ -4129,6 +4129,46 @@ WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) =
 ORDER BY [c].[CustomerID] DESC");
         }
 
+        public override void Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result()
+        {
+            base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'",
+                //
+                @"@_outer_CustomerID1='ALFKI' (Size = 5)
+@_outer_CustomerID2='ALFKI' (Size = 4000)
+@_outer_CustomerID='ALFKI' (Size = 5)
+
+SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE @_outer_CustomerID1 = [o0].[CustomerID]
+) AS [InnerOrder], @_outer_CustomerID2 AS [Id]
+FROM [Orders] AS [o]
+WHERE @_outer_CustomerID = [o].[CustomerID]");
+        }
+
+        public override void Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result()
+        {
+            base.Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE ((
+        SELECT COUNT(*)
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ) > 0) AND ([c].[CustomerID] = [o].[CustomerID])
+) AS [OuterOrders]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
