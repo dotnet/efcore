@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Design-time Entity Framework Core Functionality for Microsoft SQL Server.",
   "packOptions": {
     "tags": [
@@ -20,8 +20,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.4",
-    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.4"
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.5",
+    "Microsoft.EntityFrameworkCore.Relational.Design": "1.0.5"
   },
   "frameworks": {
     "net451": {},
