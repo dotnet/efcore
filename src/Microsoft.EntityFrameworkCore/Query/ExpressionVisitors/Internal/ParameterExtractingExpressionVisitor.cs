@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (parameterExpression != null)
             {
-                return parameterExpression;
+                return ExtractParameters(parameterExpression);
             }
 
             if (parameterName == null)

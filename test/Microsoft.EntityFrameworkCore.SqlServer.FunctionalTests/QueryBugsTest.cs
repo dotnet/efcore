@@ -6,11 +6,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Specification.Tests;
 using Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests.Utilities;
+using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -1539,6 +1545,164 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         {
             public int Id { get; set; }
             public Post5456 Blog { get; set; }
+        }
+
+        [Fact]
+        public virtual void Variable_from_closure_is_parametrized()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var id = 1;
+                    context.Entities.Where(c => c.Id == id).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    id = 2;
+                    context.Entities.Where(c => c.Id == id).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    Assert.Contains(
+                        @"@__id_0: 1
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0",
+                        Sql);
+
+                    Assert.Contains(
+                        @"@__id_0: 2
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0", 
+                        Sql);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Variable_from_nested_closure_is_parametrized()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var id = 0;
+                    // ReSharper disable once AccessToModifiedClosure
+                    Expression<Func<Entity8909, bool>> whereExpression = c => c.Id == id;
+
+                    id = 1;
+                    context.Entities.Where(whereExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    id = 2;
+                    context.Entities.Where(whereExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    Assert.Contains(
+                        @"@__id_0: 1
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0",
+                        Sql);
+
+                    Assert.Contains(
+                        @"@__id_0: 2
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] = @__id_0", 
+                        Sql);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Variable_from_multi_level_nested_closure_is_parametrized()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var id = 0;
+                    // ReSharper disable once AccessToModifiedClosure
+                    Expression<Func<Entity8909, bool>> whereExpression = c => c.Id == id;
+                    Expression<Func<Entity8909, bool>> containsExpression = c => context.Entities.Where(whereExpression).Select(e => e.Id).Contains(c.Id);
+
+                    id = 1;
+                    context.Entities.Where(containsExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    id = 2;
+                    context.Entities.Where(containsExpression).ToList();
+                    Assert.Equal(1, context.Cache.Count);
+
+                    Assert.Contains(
+                        @"@__id_0: 1
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] IN (
+    SELECT [c0].[Id]
+    FROM [Entities] AS [c0]
+    WHERE [c0].[Id] = @__id_0
+)",
+                        Sql);
+
+                    Assert.Contains(
+                        @"@__id_0: 2
+
+SELECT [c].[Id], [c].[Name]
+FROM [Entities] AS [c]
+WHERE [c].[Id] IN (
+    SELECT [c0].[Id]
+    FROM [Entities] AS [c0]
+    WHERE [c0].[Id] = @__id_0
+)",
+                        Sql);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase8909()
+            => CreateTestStore(
+                () => new MyContext8909(_options),
+                context => { ClearLog(); });
+
+        public class MyContext8909 : DbContext
+        {
+            public MyContext8909(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Entity8909> Entities { get; set; }
+
+            public MemoryCache Cache
+            {
+                get
+                {
+                    var compiledQueryCache = this.GetService<ICompiledQueryCache>();
+
+                    return (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
+                        .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
+                        .GetValue(compiledQueryCache);
+                }
+            }
+        }
+
+        public class Entity8909
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         private DbContextOptions _options;
