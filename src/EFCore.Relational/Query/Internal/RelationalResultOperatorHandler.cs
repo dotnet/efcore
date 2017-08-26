@@ -164,6 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var sqlTranslatingVisitor
                 = handlerContext.CreateSqlTranslatingVisitor();
 
+            PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
+
             var predicate
                 = sqlTranslatingVisitor.Visit(
                     ((AllResultOperator)handlerContext.ResultOperator).Predicate);

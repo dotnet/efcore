@@ -542,7 +542,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Skip_Take_All()
         {
             AssertSingleResult<Customer>(
-                cs => cs.OrderBy(c => c.ContactName).Skip(5).Take(10).All(p => p.CustomerID.Length == 5));
+                cs => cs.OrderBy(c => c.CustomerID).Skip(4).Take(7).All(p => p.CustomerID.StartsWith("B")));
+        }
+
+        [ConditionalFact]
+        public virtual void Take_All()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(4).All(p => p.CustomerID.StartsWith("A")));
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_Take_Any_with_predicate()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Skip(5).Take(7).Any(p => p.CustomerID.StartsWith("C")));
+        }
+
+        [ConditionalFact]
+        public virtual void Take_Any_with_predicate()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(5).Any(p => p.CustomerID.StartsWith("B")));
         }
 
         [ConditionalFact]

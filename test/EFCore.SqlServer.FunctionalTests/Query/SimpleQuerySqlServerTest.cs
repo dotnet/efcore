@@ -1748,16 +1748,74 @@ ORDER BY [t].[CustomerID], [t].[OrderID]");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void Distinct_Skip() => base.Distinct_Skip();
+        public override void Distinct_Skip()
+        {
+            base.Distinct_Skip();
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+) AS [t]
+ORDER BY [t].[CustomerID]
+OFFSET @__p_0 ROWS");
+        }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void Distinct_Skip_Take() => base.Distinct_Skip_Take();
+        public override void Distinct_Skip_Take()
+        {
+            base.Distinct_Skip_Take();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='10'
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+) AS [t]
+ORDER BY [t].[ContactName]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
+        }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void Skip_Distinct() => base.Skip_Distinct();
+        public override void Skip_Distinct()
+        {
+            base.Skip_Distinct();
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactName]
+    OFFSET @__p_0 ROWS
+) AS [t]");
+        }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        public override void Skip_Take_Distinct() => base.Skip_Take_Distinct();
+        public override void Skip_Take_Distinct()
+        {
+            base.Skip_Take_Distinct();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='10'
+
+SELECT DISTINCT [t].*
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactName]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t]");
+        }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Skip_Take_Any()
@@ -1784,16 +1842,84 @@ END");
             base.Skip_Take_All();
 
             AssertSql(
-                @"@__p_0='5'
-@__p_1='10'
+                @"@__p_0='4'
+@__p_1='7'
 
 SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
-        FROM [Customers] AS [c]
-        WHERE CAST(LEN([c].[CustomerID]) AS int) <> 5
-        ORDER BY [c].[ContactName]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY)
+        FROM (
+            SELECT [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[CustomerID]
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        ) AS [t]
+        WHERE NOT ([t].[CustomerID] LIKE N'B' + N'%') OR (LEFT([t].[CustomerID], LEN(N'B')) <> N'B'))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Take_All()
+        {
+            base.Take_All();
+
+            AssertSql(
+                @"@__p_0='4'
+
+SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM (
+            SELECT TOP(@__p_0) [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[CustomerID]
+        ) AS [t]
+        WHERE NOT ([t].[CustomerID] LIKE N'A' + N'%') OR (LEFT([t].[CustomerID], LEN(N'A')) <> N'A'))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Skip_Take_Any_with_predicate()
+        {
+            base.Skip_Take_Any_with_predicate();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='7'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM (
+            SELECT [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[CustomerID]
+            OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+        ) AS [t]
+        WHERE [t].[CustomerID] LIKE N'C' + N'%' AND (LEFT([t].[CustomerID], LEN(N'C')) = N'C'))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Take_Any_with_predicate()
+        {
+            base.Take_Any_with_predicate();
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM (
+            SELECT TOP(@__p_0) [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[CustomerID]
+        ) AS [t]
+        WHERE [t].[CustomerID] LIKE N'B' + N'%' AND (LEFT([t].[CustomerID], LEN(N'B')) = N'B'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
