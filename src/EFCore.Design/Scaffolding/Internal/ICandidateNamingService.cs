@@ -6,11 +6,28 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public interface ICandidateNamingService
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         string GenerateCandidateIdentifier([NotNull] string originalIdentifier);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         string GetDependentEndCandidateNavigationPropertyName([NotNull] IForeignKey foreignKey);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         string GetPrincipalEndCandidateNavigationPropertyName(
             [NotNull] IForeignKey foreignKey,
             [NotNull] string dependentEndNavigationPropertyName);

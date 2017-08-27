@@ -17,6 +17,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class MigrationsOperations
     {
         private readonly IOperationReporter _reporter;
@@ -26,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly DbContextOperations _contextOperations;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public MigrationsOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
@@ -51,6 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,
             [CanBeNull] string outputDir,
@@ -93,6 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 : null;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<MigrationInfo> GetMigrations(
             [CanBeNull] string contextType)
         {
@@ -109,6 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string ScriptMigration(
             [CanBeNull] string fromMigration,
             [CanBeNull] string toMigration,
@@ -126,6 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void UpdateDatabase(
             [CanBeNull] string targetMigration,
             [CanBeNull] string contextType)
@@ -143,6 +167,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteInformation(DesignStrings.Done);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual MigrationFiles RemoveMigration(
             [CanBeNull] string contextType, bool force)
         {

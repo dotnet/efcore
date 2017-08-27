@@ -82,16 +82,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void TestEventLogging(
             Type eventIdType,
             Type loggerExtensionsType,
-            IDictionary<Type, Func<object>> fakeFactories,
-            bool useLegacyIds = false)
+            IDictionary<Type, Func<object>> fakeFactories)
         {
-            if (useLegacyIds)
-            {
-                // Note that we can't run the test in both modes at once because EventIds are cached.
-                // If making a change to the quirk behavior, change the default of useLegacyIds to true and re-run all tests.
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds", true);
-            }
-
             var eventIdFields = eventIdType.GetTypeInfo()
                 .DeclaredFields
                 .Where(p => p.FieldType == typeof(EventId) && p.GetCustomAttribute<ObsoleteAttribute>() == null)
@@ -124,14 +116,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var eventId = (EventId)eventIdField.GetValue(null);
 
-                if (useLegacyIds)
-                {
-                    Assert.InRange(eventId.Id, CoreEventId.CoreBaseId * 10, int.MaxValue);
-                }
-                else
-                {
-                    Assert.InRange(eventId.Id, CoreEventId.CoreBaseId, ushort.MaxValue);
-                }
+                Assert.InRange(eventId.Id, CoreEventId.CoreBaseId, ushort.MaxValue);
 
                 var categoryName = Activator.CreateInstance(category).ToString();
                 Assert.Equal(categoryName + "." + eventName, eventId.Name);

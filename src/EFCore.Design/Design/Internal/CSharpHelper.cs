@@ -12,6 +12,10 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class CSharpHelper : ICSharpHelper
     {
         private static readonly IReadOnlyDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
@@ -142,6 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 { typeof(ushort), (c, v) => c.Literal((ushort)v) }
             };
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Lambda(IReadOnlyList<string> properties)
         {
             Check.NotNull(properties, nameof(properties));
@@ -165,6 +173,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Reference(Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -213,6 +225,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Identifier(string name, ICollection<string> scope = null)
         {
             Check.NotEmpty(name, nameof(name));
@@ -265,6 +281,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return identifier;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Namespace(params string[] name)
         {
             Check.NotNull(name, nameof(name));
@@ -282,19 +302,44 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return @namespace.Length > 0 ? @namespace.Remove(@namespace.Length - 1, 1).ToString() : "_";
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(string value) =>
             value.Contains(Environment.NewLine)
                 ? "@\"" + value.Replace("\"", "\"\"") + "\""
                 : "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(bool value) => value ? "true" : "false";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(byte value) => "(byte)" + value;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(byte[] values) =>
             "new byte[] { " + string.Join(", ", values) + " }";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(DateTime value)
             => string.Format(
                 CultureInfo.InvariantCulture,
@@ -308,19 +353,67 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 value.Millisecond,
                 value.Kind);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(DateTimeOffset value) =>
             "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(decimal value) => value.ToString(CultureInfo.InvariantCulture) + "m";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(double value) => EnsureDecimalPlaces(value.ToString("R", CultureInfo.InvariantCulture));
+
         private string EnsureDecimalPlaces(string number) => number.IndexOf('.') >= 0 ? number : number + ".0";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(float value) => value.ToString(CultureInfo.InvariantCulture) + "f";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(Guid value) => "new Guid(\"" + value + "\")";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(int value) => value.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(long value) => value + "L";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(sbyte value) => "(sbyte)" + value;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(short value) => "(short)" + value;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(TimeSpan value)
             => string.Format(
                 CultureInfo.InvariantCulture,
@@ -331,20 +424,50 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 value.Seconds,
                 value.Milliseconds);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(uint value) => value + "u";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(ulong value) => value + "ul";
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(ushort value) => "(ushort)" + value;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal<T>(T? value)
             where T : struct =>
             UnknownLiteral(value);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal<T>(IReadOnlyList<T> values) =>
             "new[] { " + string.Join(", ", values.Cast<object>().Select(UnknownLiteral)) + " }";
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(IReadOnlyList<object> values)
             => Literal(values, vertical: false);
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(IReadOnlyList<object> values, bool vertical)
         {
             if (!vertical)
@@ -378,6 +501,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(object[,] values)
         {
             var builder = new IndentedStringBuilder();
@@ -420,8 +547,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return builder.ToString();
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string Literal(Enum value) => Reference(value.GetType()) + "." + value;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual string UnknownLiteral(object value)
         {
             if (value == null

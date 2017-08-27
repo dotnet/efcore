@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual List<Exception> ExceptionsEncountered { get; } = new List<Exception>();
 
         /// <summary>
-        ///     A pseudo-random number generater that can be used to vary the delay between retries.
+        ///     A pseudo-random number generator that can be used to vary the delay between retries.
         /// </summary>
         protected virtual Random Random { get; } = new Random();
 

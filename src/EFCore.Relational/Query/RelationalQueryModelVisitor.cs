@@ -785,6 +785,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
+            if ((subQueryModelVisitor.Expression as MethodCallExpression)?.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.GroupByMethod) == true
+                && !(querySource is AdditionalFromClause))
+            {
+                var subSelectExpression = subQueryModelVisitor.Queries.First();
+                AddQuery(querySource, subSelectExpression);
+
+                return subQueryModelVisitor.Expression;
+            }
+
             if (subQueryModelVisitor.IsLiftable)
             {
                 var subSelectExpression = subQueryModelVisitor.Queries.First();

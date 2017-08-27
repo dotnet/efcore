@@ -9,17 +9,29 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class AppServiceProviderFactory
     {
         private readonly Assembly _startupAssembly;
         private readonly IOperationReporter _reporter;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public AppServiceProviderFactory([NotNull] Assembly startupAssembly, [NotNull] IOperationReporter reporter)
         {
             _startupAssembly = startupAssembly;
             _reporter = reporter;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IServiceProvider Create([NotNull] string[] args)
         {
             _reporter.WriteVerbose(DesignStrings.FindingServiceProvider);
@@ -82,6 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual Type FindProgramClass()
             => _startupAssembly.EntryPoint?.DeclaringType;
 

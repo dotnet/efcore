@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -43,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
-        private static EventId MakeValidationId(Id id) => EventIdFactory.Create((int)id, _validationPrefix + id);
+        private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -72,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId SequenceConfiguredWarning = MakeValidationId(Id.SequenceConfiguredWarning);
 
         private static readonly string _scaffoldingPrefix = DbLoggerCategory.Scaffolding.Name + ".";
-        private static EventId MakeScaffoldingId(Id id) => EventIdFactory.Create((int)id, _scaffoldingPrefix + id);
+        private static EventId MakeScaffoldingId(Id id) => new EventId((int)id, _scaffoldingPrefix + id);
 
         /// <summary>
         ///     A column was found.
@@ -133,35 +131,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId UniqueConstraintFound = MakeScaffoldingId(Id.UniqueConstraintFound);
-        private static class EventIdFactory
-        {
-            public static EventId Create(int id, string name)
-            {
-                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds", out var isEnabled)
-                    && isEnabled)
-                {
-                    if (id >= CoreEventId.ProviderDesignBaseId)
-                    {
-                        id = MassageId(id, CoreEventId.ProviderDesignBaseId);
-                    }
-                    else if (id >= CoreEventId.ProviderBaseId)
-                    {
-                        id = MassageId(id, CoreEventId.ProviderBaseId);
-                    }
-                    else if (id >= CoreEventId.RelationalBaseId)
-                    {
-                        id = MassageId(id, CoreEventId.RelationalBaseId);
-                    }
-                    else if (id >= CoreEventId.CoreBaseId)
-                    {
-                        id = MassageId(id, CoreEventId.CoreBaseId);
-                    }
-                }
-
-                return new EventId(id, name);
-            }
-
-            private static int MassageId(int id, int baseId) => (id - baseId) + (baseId * 10);
-        }
     }
 }

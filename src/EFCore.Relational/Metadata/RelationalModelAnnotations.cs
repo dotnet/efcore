@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalModelAnnotations : IRelationalModelAnnotations
     {
         /// <summary>
-        ///     Constructs an instance for annotations of the given <see cref="IKey" />.
+        ///     Constructs an instance for annotations of the given <see cref="IModel" />.
         /// </summary>
         /// <param name="model"> The <see cref="IModel" /> to use. </param>
         public RelationalModelAnnotations([NotNull] IModel model)

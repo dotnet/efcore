@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqlServerTransientExceptionDetector
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static bool ShouldRetryOn([NotNull] Exception ex)
         {
             var sqlException = ex as SqlException;

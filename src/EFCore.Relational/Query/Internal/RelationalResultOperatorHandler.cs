@@ -164,6 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var sqlTranslatingVisitor
                 = handlerContext.CreateSqlTranslatingVisitor();
 
+            PrepareSelectExpressionForAggregate(handlerContext.SelectExpression);
+
             var predicate
                 = sqlTranslatingVisitor.Visit(
                     ((AllResultOperator)handlerContext.ResultOperator).Predicate);
@@ -455,10 +457,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (sqlExpression != null)
             {
+                var selectExpression = handlerContext.SelectExpression;
+
+                PrepareSelectExpressionForAggregate(selectExpression);
+
+                sqlExpression
+                    = sqlTranslatingExpressionVisitor.Visit(groupResultOperator.KeySelector);
+
                 var columns = (sqlExpression as ConstantExpression)?.Value as Expression[] ?? new[] { sqlExpression };
 
-                handlerContext.SelectExpression
-                    .PrependToOrderBy(columns.Select(c => new Ordering(c, OrderingDirection.Asc)));
+                selectExpression.PrependToOrderBy(columns.Select(c => new Ordering(c, OrderingDirection.Asc)));
             }
 
             var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
