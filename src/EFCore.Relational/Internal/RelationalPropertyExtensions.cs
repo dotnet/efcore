@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string GetConfiguredColumnType([NotNull] this IProperty property)
-            => (string)property[RelationalAnnotationNames.ColumnType];
+            => AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Metadata.UseTypeMappingAlways", out var isPresent)
+                && isPresent
+                ? property.Relational().ColumnType
+                : (string)property[RelationalAnnotationNames.ColumnType];
     }
 }
