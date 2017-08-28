@@ -314,9 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.Block(
                             blockType,
                             blockExpressions),
-                        blockType == typeof(Task)
-                            ? Expression.Constant(Task.CompletedTask)
-                            : (Expression)Expression.Default(blockType),
+                        Expression.Default(blockType),
                         blockType);
             }
 
