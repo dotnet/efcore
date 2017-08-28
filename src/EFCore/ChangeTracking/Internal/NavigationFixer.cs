@@ -383,6 +383,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     // Propagate principal key values into FKs
                     foreach (var foreignKey in key.GetReferencingForeignKeys())
                     {
+                        // Fix up dependents that have been added by propagating through different foreign key
+                        foreach (var dependentEntry in stateManager.GetDependents(entry, foreignKey).ToList())
+                        {
+                            var principalToDependent = foreignKey.PrincipalToDependent;
+                            if (principalToDependent != null)
+                            {
+                                var collectionAccessor = principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null;
+
+                                if (!entry.IsConceptualNull(property))
+                                {
+                                    // Add this entity to the collection of the new principal, or set the navigation for a 1:1
+                                    SetReferenceOrAddToCollection(entry, principalToDependent, collectionAccessor, dependentEntry.Entity);
+                                }
+                            }
+
+                            var dependentToPrincipal = foreignKey.DependentToPrincipal;
+                            if (dependentToPrincipal != null)
+                            {
+                                if (!entry.IsConceptualNull(property))
+                                {
+                                    SetNavigation(dependentEntry, dependentToPrincipal, entry.Entity);
+                                }
+                            }
+                        }
+
                         foreach (var dependentEntry in stateManager.GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                         {
                             SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true);

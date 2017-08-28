@@ -158,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
                     var keys = property.GetContainingKeys().ToList();
-                    var foreignKeys = property.GetContainingForeignKeys().ToList();
+                    var foreignKeys = property.GetContainingForeignKeys()
+                        .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType)).ToList();
 
                     entry.StateManager.Notify.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
                 }

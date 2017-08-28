@@ -715,8 +715,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (asProperty != null
                         && (!asProperty.ClrType.IsNullableType()
                             || asProperty.GetContainingForeignKeys().Any(
-                                p => p.DeleteBehavior == DeleteBehavior.Cascade
-                                     || p.DeleteBehavior == DeleteBehavior.Restrict)))
+                                fk => (fk.DeleteBehavior == DeleteBehavior.Cascade
+                                     || fk.DeleteBehavior == DeleteBehavior.Restrict)
+                                     && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
                     {
                         if (value == null)
                         {

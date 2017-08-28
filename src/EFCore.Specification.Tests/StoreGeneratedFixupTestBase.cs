@@ -3969,6 +3969,27 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+        [Fact]
+        public virtual void Remove_overlapping_principal()
+        {
+            using (var context = CreateContext())
+            {
+                var game = new Game { Id = Guid77 };
+                var level = new Level { Game = game };
+                var item = new Item { Level = level };
+
+                context.Add(item);
+
+                level.Items.Remove(item);
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Null(item.Level);
+                Assert.Empty(level.Items);
+                Assert.Empty(level.Actors);
+            }
+        }
+
         protected class Parent
         {
             public int Id1 { get; set; }
@@ -4124,17 +4145,26 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Game Game { get; set; }
 
             public virtual ICollection<Item> Items { get; } = new List<Item>();
+            public virtual ICollection<Actor> Actors { get; } = new List<Actor>();
         }
 
-        protected class Item
+        protected abstract class GameEntity
         {
             public int Id { get; set; }
 
-            public int LevelId { get; set; }
-            public Level Level { get; set; }
-
             public Guid GameId { get; set; }
             public Game Game { get; set; }
+
+            public int LevelId { get; set; }
+            public Level Level { get; set; }
+        }
+
+        protected class Item : GameEntity
+        {
+        }
+
+        protected class Actor : GameEntity
+        {
         }
 
         protected class Game
@@ -4142,6 +4172,8 @@ namespace Microsoft.EntityFrameworkCore
             public virtual Guid Id { get; set; }
 
             public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+
+            public virtual ICollection<Actor> Actors { get; set; } = new List<Actor>();
 
             public virtual ICollection<Level> Levels { get; set; } = new List<Level>();
         }
@@ -4280,11 +4312,22 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
 
+                modelBuilder.Entity<GameEntity>();
+
                 modelBuilder.Entity<Item>(
                     eb =>
                         {
                             eb.HasOne(i => i.Level)
                                 .WithMany(l => l.Items)
+                                .HasForeignKey(i => new { i.GameId, i.LevelId })
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
+
+                modelBuilder.Entity<Actor>(
+                    eb =>
+                        {
+                            eb.HasOne(i => i.Level)
+                                .WithMany(l => l.Actors)
                                 .HasForeignKey(i => new { i.GameId, i.LevelId })
                                 .OnDelete(DeleteBehavior.Restrict);
                         });
