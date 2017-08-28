@@ -177,7 +177,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
                 var innerRowNumberExpression = new AliasExpression(
                     RowNumberColumnName + (_counter != 0 ? $"{_counter}" : ""),
-                    new RowNumberExpression(subQuery.OrderBy));
+                    new RowNumberExpression(subQuery.OrderBy
+                        .Select(o => new Ordering(
+                            o.Expression is AliasExpression ae ? ae.Expression : o.Expression,
+                            o.OrderingDirection))
+                        .ToList()));
 
                 _counter++;
 

@@ -3975,5 +3975,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                         OuterOrders = c.Orders.Count(o => c.Orders.Count() > 0)
                     }));
         }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Dto_projection_skip_take()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .Select(c => new
+                    {
+                        Id = c.CustomerID
+                    })
+                    .Skip(5)
+                    .Take(10),
+                elementSorter: e => e.Id);
+        }
     }
 }

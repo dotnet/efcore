@@ -855,6 +855,22 @@ FROM (
 ) AS [t]");
         }
 
+        public override void OrderBy_Dto_projection_skip_take()
+        {
+            base.OrderBy_Dto_projection_skip_take();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='10'
+
+SELECT [t].[Id]
+FROM (
+    SELECT [c].[CustomerID] AS [Id], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

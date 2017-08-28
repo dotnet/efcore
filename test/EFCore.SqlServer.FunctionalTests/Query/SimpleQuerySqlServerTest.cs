@@ -4295,6 +4295,20 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
+        public override void OrderBy_Dto_projection_skip_take()
+        {
+            base.OrderBy_Dto_projection_skip_take();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='10'
+
+SELECT [c].[CustomerID] AS [Id]
+FROM [Customers] AS [c]
+ORDER BY [Id]
+OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
