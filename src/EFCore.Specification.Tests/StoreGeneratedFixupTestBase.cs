@@ -3922,6 +3922,22 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+        [Fact]
+        public void Temporary_value_equals_database_generated_value()
+        {
+            using (var context = CreateContext())
+            {
+                var entry = context.Add(new Game { Id = Guid77 });
+                entry.Property(g => g.Id).IsTemporary = true;
+                var internalEntry = ((IInfrastructure<ChangeTracking.Internal.InternalEntityEntry>)entry).Instance;
+                internalEntry.PrepareToSave();
+                internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77);
+                internalEntry.AcceptChanges();
+
+                Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
+            }
+        }
+
         private void AssertFixupAndSave(DbContext context, Game game, Level level, Item item)
         {
             AssertFixup(
