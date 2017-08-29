@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private readonly List<Ordering> _orderBy = new List<Ordering>();
         private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping = new Dictionary<MemberInfo, Expression>();
         private readonly List<Expression> _starProjection = new List<Expression>();
+        private readonly List<Expression> _groupBy = new List<Expression>();
 
         private Expression _limit;
         private Expression _offset;
@@ -217,6 +218,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The projection of this SelectExpression.
         /// </summary>
         public virtual IReadOnlyList<Expression> Projection => _projection;
+
+        /// <summary>
+        ///     The SQL GROUP BY of this SelectExpression.
+        /// </summary>
+        public virtual IReadOnlyList<Expression> GroupBy => _groupBy;
 
         /// <summary>
         ///     The SQL ORDER BY of this SelectExpression.
@@ -797,6 +803,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(predicate, nameof(predicate));
 
             Predicate = Predicate != null ? AndAlso(Predicate, predicate) : predicate;
+        }
+
+        /// <summary>
+        ///     d
+        /// </summary>
+        /// <param name="groupingExpressions">d</param>
+        public virtual void AddToGroupBy([NotNull] Expression[] groupingExpressions)
+        {
+            ClearProjection();
+            //_projection.AddRange(groupingExpressions);
+            _groupBy.AddRange(groupingExpressions);
         }
 
         /// <summary>

@@ -236,6 +236,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 GeneratePredicate(selectExpression.Predicate);
             }
 
+            if (selectExpression.GroupBy.Any())
+            {
+                _relationalCommandBuilder.AppendLine();
+
+                _relationalCommandBuilder.Append("GROUP BY ");
+                ProcessExpressionList(selectExpression.GroupBy);
+            }
+
             if (selectExpression.OrderBy.Any())
             {
                 _relationalCommandBuilder.AppendLine();
