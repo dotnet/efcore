@@ -556,7 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), this.DisplayName()));
                 }
 
-                if (property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
+                if (property.ValueGenerated != ValueGenerated.Never
+                    && property.GetContainingForeignKeys().Any(k => k.DeclaringEntityType != this))
                 {
                     throw new InvalidOperationException(CoreStrings.KeyPropertyInForeignKey(property.Name, this.DisplayName()));
                 }

@@ -876,6 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Explicit);
             var idProperty = dependentEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention).Metadata;
+            idProperty.ValueGenerated = ValueGenerated.OnAdd;
 
             derivedDependentEntityBuilder.Relationship(
                     principalEntityBuilder,

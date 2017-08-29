@@ -1331,7 +1331,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, key, baseEntityType);
 
         /// <summary>
-        ///     The property '{property}' cannot be part of a key on '{entityType}' because it is contained in a foreign key defined on a derived entity type.
+        ///     The property '{property}' cannot be part of a key on '{entityType}' because it has value generation enabled and is contained in a foreign key defined on a derived entity type.
         /// </summary>
         public static string KeyPropertyInForeignKey([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -1390,8 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string InvalidIncludeLambdaExpression([CanBeNull] object methodName, [CanBeNull] object includeLambdaExpression)
             => string.Format(
                 GetString("InvalidIncludeLambdaExpression", nameof(methodName), nameof(includeLambdaExpression)),
-                methodName,
-                includeLambdaExpression);
+                methodName, includeLambdaExpression);
 
         /// <summary>
         ///     The corresponding CLR type for entity type '{entityType}' is not instantiable and there is no derived entity type in the model that corresponds to a concrete CLR type.
