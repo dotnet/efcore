@@ -1012,9 +1012,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(selectClause, nameof(selectClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var sequenceType = _expression.Type.GetSequenceType();
-
-            if (selectClause.Selector.Type == sequenceType
+            if (selectClause.Selector.Type == _expression.Type.GetSequenceType()
                 && selectClause.Selector is QuerySourceReferenceExpression)
             {
                 return;
@@ -1027,7 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Visit(selectClause.Selector),
                     inProjection: true);
 
-            if ((selector.Type != sequenceType
+            if ((selector.Type != _expression.Type.GetSequenceType()
                  || !(selectClause.Selector is QuerySourceReferenceExpression))
                 && !queryModel.ResultOperators
                     .Select(ro => ro.GetType())
