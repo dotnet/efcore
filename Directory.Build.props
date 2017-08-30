@@ -1,8 +1,9 @@
-<Project>
-  <Import Project="dependencies.props" />
-  <Import Project="..\version.xml" />
+﻿<Project>
+  <Import Project="build\dependencies.props" />
+  <Import Project="version.xml" />
+
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>
@@ -11,15 +12,13 @@
     <SignAssembly>True</SignAssembly>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
     <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
-    <NoWarn>$(NoWarn);xUnit1004</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(InternalAspNetCoreSdkVersion)" PrivateAssets="All" />
-  </ItemGroup>
+
   <!-- TODO: Remove when TestDriven supports VS15.3+ -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
     <PackageReference Include="NETStandard.Library.NETFramework" Version="$(NETStandardLibraryNETFrameworkVersion)" PrivateAssets="All" />

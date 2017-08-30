@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
-
   <PropertyGroup>
     <Description>Shared Entity Framework Core components for relational database providers.</Description>
     <TargetFramework>netstandard2.0</TargetFramework>

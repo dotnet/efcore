@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
-
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>

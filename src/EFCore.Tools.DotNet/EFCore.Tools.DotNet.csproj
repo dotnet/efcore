@@ -2,8 +2,6 @@
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
-  <Import Project="..\..\build\common.props" />
-
   <UsingTask TaskName="Microsoft.NET.Build.Tasks.ResolvePackageDependencies" AssemblyFile="$(MicrosoftNETBuildTasksAssembly)" />
 
   <PropertyGroup>

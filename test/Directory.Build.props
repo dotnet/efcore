@@ -1,0 +1,17 @@
+﻿<Project>
+  <Import Project="..\Directory.Build.props" />
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);xUnit1004</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(InternalAspNetCoreSdkVersion)" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
+    <!-- Using xunit.core and .assert instead of the main package because compilation fails due to warnings triggered by xunit.analyzers. -->
+    <!-- <PackageReference Include="xunit" Version="$(XunitVersion)" /> -->
+    <PackageReference Include="xunit.core" Version="$(XunitVersion)" />
+    <PackageReference Include="xunit.assert" Version="$(XunitVersion)" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
+  </ItemGroup>
+</Project>
