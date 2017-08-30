@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCore2Version)" />
+    <PackageReference Include="xunit.assert" Version="$(XunitVersion)" />
   </ItemGroup>
 
 </Project>
