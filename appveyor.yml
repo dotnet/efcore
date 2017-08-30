@@ -14,9 +14,9 @@ branches:
     - master
     - release
     - dev
-    - /^rel\/.*/
-    - /^feature\/.*/
-    - /^(.*\/)?ci-.*$/
+    - /rel\/.*/
+    - /feature\/.*/
+    - /(.*\/)?ci-.*$/
 environment:
   global:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
