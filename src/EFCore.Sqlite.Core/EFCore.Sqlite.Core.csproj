@@ -20,8 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" />
+    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)" PrivateAssets="All">
+      <!-- Build-only assets are exempt from using a version from lineups. -->
+      <NoWarn>KRB4002</NoWarn>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
   <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">

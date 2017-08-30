@@ -13,7 +13,7 @@ This project is for Entity Framework Core. Entity Framework 6 is still under act
 
 Entity Framework (EF) Core is a lightweight and extensible version of the popular Entity Framework data access technology.
 
-EF Core is an object-relational mapper (O/RM) that enables .NET developers to work with a database using .NET objects. It eliminates the need for most of the data-access code that developers usually need to write. 
+EF Core is an object-relational mapper (O/RM) that enables .NET developers to work with a database using .NET objects. It eliminates the need for most of the data-access code that developers usually need to write.
 
 ## Database Providers
 
@@ -29,3 +29,12 @@ InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](h
 ## Project Wiki
 
 More details about our project, like our release [roadmap](https://github.com/aspnet/EntityFrameworkCore/wiki/roadmap), or [how to get and build our code](https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code), are located in our our [project wiki](https://github.com/aspnet/EntityFrameworkCore/wiki/).
+
+## Building from source
+
+To run a complete build on command line only, execute `build.cmd` or `build.sh` without arguments.
+
+Before opening this project in Visual Studio or VS Code, execute `build.cmd /t:Restore` (Windows) or `./build.sh /t:Restore` (Linux/macOS).
+This will execute only the part of the build script that downloads and initializes a few required build tools and packages.
+
+See [developer documentation](https://github.com/aspnet/EntityFrameworkCore/wiki/Getting-and-Building-the-Code) for more details.

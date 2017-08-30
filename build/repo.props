@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <PropertyGroup>
     <CoreOnly Condition="'$(CoreOnly)' == ''">False</CoreOnly>
@@ -12,6 +12,8 @@
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.Design.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Benchmarks.sln" />
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
+    <PackageLineup Include="Internal.AspNetCore.Universe.Lineup" Version="2.1.0-*" />
+    <PackageLineup Include="Internal.AspNetCore.Partners.Lineup" Version="2.1.0-*" />
   </ItemGroup>
 
 </Project>

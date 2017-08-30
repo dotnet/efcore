@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawVersion)">
+    <PackageReference Include="SQLitePCLRaw.bundle_green">
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
   </ItemGroup>
