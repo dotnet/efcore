@@ -19,18 +19,31 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class InMemoryStore : IInMemoryStore
     {
         private readonly IInMemoryTableFactory _tableFactory;
+        private readonly bool _useNameMatching;
 
         private readonly object _lock = new object();
 
-        private LazyRef<Dictionary<IEntityType, IInMemoryTable>> _tables = CreateTables();
+        private LazyRef<Dictionary<object, IInMemoryTable>> _tables = CreateTables();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryStore([NotNull] IInMemoryTableFactory tableFactory)
+            : this(tableFactory, useNameMatching: false)
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public InMemoryStore(
+            [NotNull] IInMemoryTableFactory tableFactory, 
+            bool useNameMatching)
         {
             _tableFactory = tableFactory;
+            _useNameMatching = useNameMatching;
         }
 
         /// <summary>
@@ -64,14 +77,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 }
 
                 _tables = CreateTables();
+
                 return true;
             }
         }
 
-        private static LazyRef<Dictionary<IEntityType, IInMemoryTable>> CreateTables()
+        private static LazyRef<Dictionary<object, IInMemoryTable>> CreateTables()
         {
-            return new LazyRef<Dictionary<IEntityType, IInMemoryTable>>(
-                () => new Dictionary<IEntityType, IInMemoryTable>());
+            return new LazyRef<Dictionary<object, IInMemoryTable>>(
+                () => new Dictionary<object, IInMemoryTable>());
         }
 
         /// <summary>
@@ -89,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     {
                         IInMemoryTable table;
 
-                        if (_tables.Value.TryGetValue(et, out table))
+                        var key = _useNameMatching ? (object)et.Name : et;
+                        if (_tables.Value.TryGetValue(key, out table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
                         }
@@ -117,10 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
                     Debug.Assert(!entityType.IsAbstract());
 
-                    IInMemoryTable table;
-                    if (!_tables.Value.TryGetValue(entityType, out table))
+                    var key = _useNameMatching ? (object)entityType.Name : entityType;
+                    if (!_tables.Value.TryGetValue(key, out var table))
                     {
-                        _tables.Value.Add(entityType, table = _tableFactory.Create(entityType));
+                        _tables.Value.Add(key, table = _tableFactory.Create(entityType));
                     }
 
                     switch (entry.EntityState)
