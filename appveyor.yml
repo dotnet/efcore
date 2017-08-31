@@ -14,9 +14,7 @@ branches:
     - master
     - release
     - dev
-    - /rel\/.*/
-    - /feature\/.*/
-    - /(.*\/)?ci-.*$/
+    - feature/2.0.1
 environment:
   global:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
