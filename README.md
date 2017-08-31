@@ -1,4 +1,4 @@
-Entity Framework Core
+Entity Framework Core 
 =====================
 
 Documentation on using EF Core is available at <https://docs.microsoft.com/ef/>.
