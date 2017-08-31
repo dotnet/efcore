@@ -528,16 +528,36 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
-        public void CreateFunction_works_when_parameter_null_but_type_not_nullable()
+        public void CreateFunction_works_when_parameter_null_but_type_long()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
                 connection.CreateFunction("test", (long x) => x);
 
-                var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test(NULL);"));
 
-                Assert.Equal(0L, result);
+                Assert.Equal(
+                    Resources.SqliteNativeError(raw.SQLITE_ERROR, new InvalidCastException().Message),
+                    ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
+            }
+        }
+
+        [Fact]
+        public void CreateFunction_works_when_parameter_null_but_type_double()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.CreateFunction("test", (double x) => x);
+
+                var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<double>("SELECT test(NULL);"));
+
+                Assert.Equal(
+                    Resources.SqliteNativeError(raw.SQLITE_ERROR, new InvalidCastException().Message),
+                    ex.Message);
+                Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
         }
 
@@ -566,76 +586,6 @@ namespace Microsoft.Data.Sqlite
                 var result = connection.ExecuteScalar<long>("SELECT test(NULL);");
 
                 Assert.Equal(1L, result);
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_works_when_parameter_null_and_type_DateTime()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("test", (DateTime x) => x);
-
-                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
-
-                Assert.Equal("0001-01-01 00:00:00", result);
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_works_when_parameter_null_and_type_DateTimeOffset()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("test", (DateTimeOffset x) => x);
-
-                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
-
-                Assert.Equal("0001-01-01 00:00:00+00:00", result);
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_works_when_parameter_null_and_type_decimal()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("test", (decimal x) => x);
-
-                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
-
-                Assert.Equal("0.0", result);
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_works_when_parameter_null_and_type_Guid()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("test", (Guid x) => x);
-
-                var result = connection.ExecuteScalar<byte[]>("SELECT test(NULL);");
-
-                Assert.Equal(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, result);
-            }
-        }
-
-        [Fact]
-        public void CreateFunction_works_when_parameter_null_and_type_TimeSpan()
-        {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
-                connection.CreateFunction("test", (TimeSpan x) => x);
-
-                var result = connection.ExecuteScalar<string>("SELECT test(NULL);");
-
-                Assert.Equal("00:00:00", result);
             }
         }
 
@@ -905,7 +855,8 @@ namespace Microsoft.Data.Sqlite
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 var list = new List<UpdateEventArgs>();
-                connection.Update += (sender, e) => {
+                connection.Update += (sender, e) =>
+                {
                     Assert.Equal(connection, sender);
                     list.Add(e);
                 };

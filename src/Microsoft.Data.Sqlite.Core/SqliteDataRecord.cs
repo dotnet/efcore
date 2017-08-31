@@ -25,20 +25,14 @@ namespace Microsoft.Data.Sqlite
         public override int FieldCount
             => raw.sqlite3_column_count(_stmt);
 
-        public override double GetDouble(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_double(_stmt, ordinal);
+        protected override double GetDoubleCore(int ordinal)
+            => raw.sqlite3_column_double(_stmt, ordinal);
 
-        public override long GetInt64(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_int64(_stmt, ordinal);
+        protected override long GetInt64Core(int ordinal)
+            => raw.sqlite3_column_int64(_stmt, ordinal);
 
-        public override string GetString(int ordinal)
-            => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
-                : raw.sqlite3_column_text(_stmt, ordinal);
+        protected override string GetStringCore(int ordinal)
+            => raw.sqlite3_column_text(_stmt, ordinal);
 
         protected override byte[] GetBlobCore(int ordinal)
             => raw.sqlite3_column_blob(_stmt, ordinal);

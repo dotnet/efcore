@@ -17,13 +17,13 @@ namespace Microsoft.Data.Sqlite
         public override int FieldCount
             => _values.Length;
 
-        public override double GetDouble(int ordinal)
+        protected override double GetDoubleCore(int ordinal)
             => raw.sqlite3_value_double(_values[ordinal]);
 
-        public override long GetInt64(int ordinal)
+        protected override long GetInt64Core(int ordinal)
             => raw.sqlite3_value_int64(_values[ordinal]);
 
-        public override string GetString(int ordinal)
+        protected override string GetStringCore(int ordinal)
             => raw.sqlite3_value_text(_values[ordinal]);
 
         protected override byte[] GetBlobCore(int ordinal)

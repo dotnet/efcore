@@ -32,9 +32,6 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_NULL:
-                    return GetNull<DateTime>();
-
                 case raw.SQLITE_FLOAT:
                 case raw.SQLITE_INTEGER:
                     return FromJulianDate(GetDouble(ordinal));
@@ -49,9 +46,6 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_NULL:
-                    return GetNull<DateTimeOffset>();
-
                 case raw.SQLITE_FLOAT:
                 case raw.SQLITE_INTEGER:
                     return new DateTimeOffset(FromJulianDate(GetDouble(ordinal)));
@@ -62,11 +56,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         public virtual decimal GetDecimal(int ordinal)
-            => IsDBNull(ordinal)
-                ? GetNull<decimal>()
-                : decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
+            => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
 
-        public abstract double GetDouble(int ordinal);
+        public virtual double GetDouble(int ordinal)
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : GetDoubleCore(ordinal);
+
+        protected abstract double GetDoubleCore(int ordinal);
 
         public virtual float GetFloat(int ordinal)
             => (float)GetDouble(ordinal);
@@ -76,9 +73,6 @@ namespace Microsoft.Data.Sqlite
             var sqliteType = GetSqliteType(ordinal);
             switch (sqliteType)
             {
-                case raw.SQLITE_NULL:
-                    return GetNull<Guid>();
-
                 case raw.SQLITE_BLOB:
                     var bytes = GetBlob(ordinal);
                     return bytes.Length == 16
@@ -91,9 +85,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         protected virtual TimeSpan GetTimeSpan(int ordinal)
-            => IsDBNull(ordinal)
-                ? GetNull<TimeSpan>()
-                : TimeSpan.Parse(GetString(ordinal));
+            => TimeSpan.Parse(GetString(ordinal));
 
         public virtual short GetInt16(int ordinal)
             => (short)GetInt64(ordinal);
@@ -101,9 +93,19 @@ namespace Microsoft.Data.Sqlite
         public virtual int GetInt32(int ordinal)
             => (int)GetInt64(ordinal);
 
-        public abstract long GetInt64(int ordinal);
+        public virtual long GetInt64(int ordinal)
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : GetInt64Core(ordinal);
 
-        public abstract string GetString(int ordinal);
+        protected abstract long GetInt64Core(int ordinal);
+
+        public virtual string GetString(int ordinal)
+            => IsDBNull(ordinal)
+                ? throw new InvalidCastException()
+                : GetStringCore(ordinal);
+
+        protected abstract string GetStringCore(int ordinal);
 
         public virtual T GetFieldValue<T>(int ordinal)
         {
