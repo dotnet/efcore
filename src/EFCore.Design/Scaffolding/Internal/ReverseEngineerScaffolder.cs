@@ -18,8 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ModelScaffolder : IModelScaffolder
+    public class ReverseEngineerScaffolder : IReverseEngineerScaffolder
     {
+        private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly IScaffoldingModelFactory _factory;
         private readonly ICSharpUtilities _cSharpUtilities;
         private static readonly char[] _directorySeparatorChars = { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
@@ -30,14 +31,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ModelScaffolder(
+        public ReverseEngineerScaffolder(
+            [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
             [NotNull] IScaffoldingCodeGenerator scaffoldingCodeGenerator,
             [NotNull] ICSharpUtilities cSharpUtilities)
         {
+            Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(scaffoldingCodeGenerator, nameof(scaffoldingCodeGenerator));
 
+            _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;
             ScaffoldingCodeGenerator = scaffoldingCodeGenerator;
             _cSharpUtilities = cSharpUtilities;
@@ -79,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
             }
 
-            var model = _factory.Create(connectionString, tables, schemas, useDatabaseNames);
+            var databaseModel = _databaseModelFactory.Create(connectionString, tables, schemas);
+            var model = _factory.Create(databaseModel, useDatabaseNames);
 
             if (model == null)
             {

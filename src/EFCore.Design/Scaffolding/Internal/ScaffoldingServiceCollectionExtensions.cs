@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
                 .AddSingleton<IFileService, FileSystemFileService>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
-                .AddSingleton<IModelScaffolder, ModelScaffolder>()
+                .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<ICandidateNamingService, CandidateNamingService>()
                 .AddSingleton<IPluralizer, NullPluralizer>()
                 .AddSingleton<ICSharpUtilities, CSharpUtilities>()

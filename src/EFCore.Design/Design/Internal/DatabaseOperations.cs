@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var services = _servicesBuilder.Build(provider);
 
-            var generator = services.GetRequiredService<IModelScaffolder>();
+            var generator = services.GetRequiredService<IReverseEngineerScaffolder>();
 
             return generator.Generate(
                 connectionString,
