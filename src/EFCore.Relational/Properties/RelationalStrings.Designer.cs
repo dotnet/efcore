@@ -849,14 +849,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 parameter, function, type);
 
         /// <summary>
-        ///     The DbFunction '{function}' must be a static method. Non-static methods are not supported.
-        /// </summary>
-        public static string DbFunctionMethodMustBeStatic([CanBeNull] object function)
-            => string.Format(
-                GetString("DbFunctionMethodMustBeStatic", nameof(function)),
-                function);
-
-        /// <summary>
         ///     The DbFunction '{function}' is generic. Generic methods are not supported.
         /// </summary>
         public static string DbFunctionGenericMethodNotSupported([CanBeNull] object function)
@@ -871,6 +863,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DbFunctionExpressionIsNotMethodCall", nameof(expression)),
                 expression);
+
+        /// <summary>
+        ///     The DbFunction '{function}' defined on type '{type}' must be either a static method or an instance method defined on a DbContext subclass. Instance methods on other types are not supported.
+        /// </summary>
+        public static string DbFunctionInvalidInstanceType([CanBeNull] object function, [CanBeNull] object type)
+            => string.Format(
+                GetString("DbFunctionInvalidInstanceType", nameof(function), nameof(type)),
+                function, type);
 
         /// <summary>
         ///     An ambient transaction has been detected. The ambient transaction needs to be completed before beginning a transaction on this connection.

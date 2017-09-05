@@ -72,10 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(context, nameof(context));
 
-            var functions = context.GetType().GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(
-                    mi => mi.IsStatic
-                          && mi.IsPublic
+            var functions = context.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                .Where(mi => mi.IsPublic
                           && mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
 
             foreach (var function in functions)
