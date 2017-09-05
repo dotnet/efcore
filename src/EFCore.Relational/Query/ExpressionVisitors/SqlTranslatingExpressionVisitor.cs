@@ -613,7 +613,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            var operand = Visit(methodCallExpression.Object);
+            var operand = _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
+                            ? methodCallExpression.Object
+                            : Visit(methodCallExpression.Object);
 
             if (operand != null
                 || methodCallExpression.Object == null)
