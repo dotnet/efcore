@@ -14,6 +14,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
