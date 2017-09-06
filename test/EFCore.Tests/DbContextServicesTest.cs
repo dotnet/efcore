@@ -20,6 +20,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public partial class DbContextTest
@@ -2082,8 +2085,9 @@ namespace Microsoft.EntityFrameworkCore
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                _ = context.Model;
+                var model = context.Model;
 
+                Assert.NotNull(model);
                 Assert.NotNull(context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
             }
 
@@ -2111,14 +2115,17 @@ namespace Microsoft.EntityFrameworkCore
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                _ = context.Model;
+                var model = context.Model;
 
+                Assert.NotNull(model);
                 Assert.NotNull(context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
 
+                // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal(1, loggerFactory.CreatedLoggers.Count(n => n == DbLoggerCategory.Infrastructure.Name));
             }
 
             Assert.NotNull(appServiceProivder.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>());
+            // ReSharper disable once PossibleNullReferenceException
             Assert.Equal(1, loggerFactory.CreatedLoggers.Count(n => n == DbLoggerCategory.Infrastructure.Name));
         }
 
@@ -2138,8 +2145,9 @@ namespace Microsoft.EntityFrameworkCore
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                _ = context.Model;
+                var model = context.Model;
 
+                Assert.NotNull(model);
                 Assert.Same(memoryCache, context.GetService<IMemoryCache>());
             }
 
@@ -2166,8 +2174,9 @@ namespace Microsoft.EntityFrameworkCore
                 .CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetService<DbContext>();
-                _ = context.Model;
+                var model = context.Model;
 
+                Assert.NotNull(model);
                 Assert.Same(replacecMemoryCache, context.GetService<IMemoryCache>());
             }
 
@@ -2747,7 +2756,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new ChangeSdlCacheContext(false))
             {
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var context = new ChangeSdlCacheContext(true))
@@ -2795,7 +2806,9 @@ namespace Microsoft.EntityFrameworkCore
                     .EnableSensitiveDataLogging()
                     .Options))
             {
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var context = new ConstructorTestContextWithOC3A(
@@ -2831,7 +2844,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var serviceScope = new ServiceCollection()
@@ -2862,7 +2877,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Default(WarningBehavior.Ignore)))
             {
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Default(WarningBehavior.Log)))
@@ -2884,7 +2901,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Throw(CoreEventId.QueryExecutionPlanned)))
             {
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var context = new ChangeWarningsCacheContext(serviceProvider, b => b.Log(CoreEventId.QueryExecutionPlanned)))
@@ -2931,7 +2950,9 @@ namespace Microsoft.EntityFrameworkCore
                     .ConfigureWarnings(b => b.Default(WarningBehavior.Throw))
                     .Options))
             {
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var context = new ConstructorTestContextWithOC3A(
@@ -2967,7 +2988,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
-                _ = context.Model;
+                var model = context.Model;
+
+                Assert.NotNull(model);
             }
 
             using (var serviceScope = new ServiceCollection()

@@ -3,11 +3,13 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class DatabaseInMemoryTest
@@ -18,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(new TestLoggerFactory())
-                .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
+                .AddSingleton<IAdditionalModelCustomizer>(new TestModelCustomizer(OnModelCreating))
                 .BuildServiceProvider();
 
             var options = new DbContextOptionsBuilder()
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var db = new SimpleContext())
             {
-                db.Artists.Any();
+                Assert.False(db.Artists.Any());
             }
         }
 
@@ -125,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class SimpleContext : DbContext
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Artist> Artists { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

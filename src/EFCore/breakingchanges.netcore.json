@@ -18,5 +18,10 @@
       "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
       "MemberId": "public const System.Int32 RelationalBaseId = 200000",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelSourceDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.ICoreConventionSetBuilder coreConventionSetBuilder, Microsoft.EntityFrameworkCore.Infrastructure.IModelCustomizer modelCustomizer, Microsoft.EntityFrameworkCore.Infrastructure.IModelCacheKeyFactory modelCacheKeyFactory)",
+      "Kind": "Removal"
     }
   ]

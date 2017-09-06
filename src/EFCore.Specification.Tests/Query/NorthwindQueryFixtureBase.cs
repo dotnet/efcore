@@ -7,11 +7,12 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IQueryFixtureBase
-        where TModelCustomizer : IModelCustomizer, new()
+        where TModelCustomizer : class, IAdditionalModelCustomizer, new()
     {
         protected NorthwindQueryFixtureBase()
         {
@@ -39,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public QueryAsserterBase QueryAsserter { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            => new TModelCustomizer().Customize(modelBuilder, context);
+        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+            => base.AddServices(serviceCollection).AddSingleton<IAdditionalModelCustomizer>(new TModelCustomizer());
 
         protected override void Seed(NorthwindContext context) => NorthwindData.Seed(context);
 

@@ -76,7 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var model = modelBuilder.GetInfrastructure().Metadata;
             model.SetProductVersion(ProductInfo.GetVersion());
 
-            Dependencies.ModelCustomizer.Customize(modelBuilder, context);
+            foreach (var customizer in Dependencies.ModelCustomizers.Items)
+            {
+                customizer.Customize(modelBuilder, context);
+            }
 
             model.Validate();
 

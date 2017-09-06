@@ -1,16 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="ModelSource" />
+    ///         Service dependencies parameter class for <see cref="ModelCustomizerCollection" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -25,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
-    public sealed class ModelSourceDependencies
+    public sealed class ModelCustomizerCollectionDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="ModelSource" />.
+        ///         Creates the service dependencies parameter object for a <see cref="ModelCustomizerCollection" />.
         ///     </para>
         ///     <para>
         ///         This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -44,87 +43,43 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        public ModelSourceDependencies(
-            [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IModelCustomizerCollection modelCustomizers,
+        public ModelCustomizerCollectionDependencies(
             [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+            [NotNull] IEnumerable<IAdditionalModelCustomizer> additionalModelCustomizers)
         {
-            Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
-            Check.NotNull(modelCustomizers, nameof(modelCustomizers));
             Check.NotNull(modelCustomizer, nameof(modelCustomizer));
-            Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
+            Check.NotNull(additionalModelCustomizers, nameof(additionalModelCustomizers));
 
-            CoreConventionSetBuilder = coreConventionSetBuilder;
-            ModelCustomizers = modelCustomizers;
-#pragma warning disable 618
             ModelCustomizer = modelCustomizer;
-#pragma warning restore 618
-            ModelCacheKeyFactory = modelCacheKeyFactory;
+            AdditionalModelCustomizers = additionalModelCustomizers;
         }
-
-        /// <summary>
-        ///     Gets the <see cref="ICoreConventionSetBuilder" /> that will build the conventions to be used
-        ///     to build the model.
-        /// </summary>
-        public ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
         /// <summary>
         ///     Gets the <see cref="IModelCustomizer" /> that will perform additional configuration of the model
         ///     in addition to what is discovered by convention.
         /// </summary>
-        [Obsolete("Use ModelCustomizers")]
         public IModelCustomizer ModelCustomizer { get; }
 
         /// <summary>
         ///     Gets the <see cref="IModelCustomizer" /> collection that will perform additional configuration of the model
         ///     in addition to what is discovered by convention.
         /// </summary>
-        public IModelCustomizerCollection ModelCustomizers { get; }
-
-        /// <summary>
-        ///     Gets the <see cref="IModelCacheKeyFactory" /> that will create keys used to store and lookup models
-        ///     the model cache.
-        /// </summary>
-        public IModelCacheKeyFactory ModelCacheKeyFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="coreConventionSetBuilder"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
-#pragma warning disable 618
-            => new ModelSourceDependencies(coreConventionSetBuilder, ModelCustomizers, ModelCustomizer, ModelCacheKeyFactory);
-#pragma warning restore 618
+        public IEnumerable<IAdditionalModelCustomizer> AdditionalModelCustomizers { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="modelCustomizer"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete]
-        public ModelSourceDependencies With([NotNull] IModelCustomizer modelCustomizer)
-            => new ModelSourceDependencies(CoreConventionSetBuilder, ModelCustomizers, modelCustomizer, ModelCacheKeyFactory);
+        public ModelCustomizerCollectionDependencies With([NotNull] IModelCustomizer modelCustomizer)
+            => new ModelCustomizerCollectionDependencies(modelCustomizer, AdditionalModelCustomizers);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="modelCustomizers"> A replacement for the current dependency of this type. </param>
+        /// <param name="additionalModelCustomizers"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] IModelCustomizerCollection modelCustomizers)
-#pragma warning disable 618
-            => new ModelSourceDependencies(CoreConventionSetBuilder, modelCustomizers, ModelCustomizer, ModelCacheKeyFactory);
-#pragma warning restore 618
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="modelCacheKeyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelSourceDependencies With([NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-#pragma warning disable 618
-            => new ModelSourceDependencies(CoreConventionSetBuilder, ModelCustomizers, ModelCustomizer, modelCacheKeyFactory);
-#pragma warning restore 618
+        public ModelCustomizerCollectionDependencies With([NotNull] IEnumerable<IAdditionalModelCustomizer> additionalModelCustomizers)
+            => new ModelCustomizerCollectionDependencies(ModelCustomizer, additionalModelCustomizers);
     }
 }
