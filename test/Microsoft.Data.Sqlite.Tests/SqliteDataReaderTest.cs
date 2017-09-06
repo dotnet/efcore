@@ -950,6 +950,125 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Fact]
+        public void GetSchemaTable_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(
+                    "CREATE TABLE Person (ID INTEGER PRIMARY KEY, FirstName TEXT, LastName TEXT NOT NULL, Code INT UNIQUE);");
+                connection.ExecuteNonQuery("INSERT INTO Person VALUES(101, 'John', 'Dee', 123);");
+                connection.ExecuteNonQuery("INSERT INTO Person VALUES(105, 'Jane', 'Doe', 456);");
+
+                using (var reader = connection.ExecuteReader("SELECT LastName, ID, Code, ID+1 AS IncID FROM Person;"))
+                {
+                    var schema = reader.GetSchemaTable();
+                    Assert.True(schema.Columns.Contains("ColumnName"));
+                    Assert.True(schema.Columns.Contains("ColumnOrdinal"));
+                    Assert.True(schema.Columns.Contains("ColumnSize"));
+                    Assert.True(schema.Columns.Contains("NumericPrecision"));
+                    Assert.True(schema.Columns.Contains("NumericScale"));
+                    Assert.True(schema.Columns.Contains("IsUnique"));
+                    Assert.True(schema.Columns.Contains("IsKey"));
+                    Assert.True(schema.Columns.Contains("BaseServerName"));
+                    Assert.True(schema.Columns.Contains("BaseCatalogName"));
+                    Assert.True(schema.Columns.Contains("BaseColumnName"));
+                    Assert.True(schema.Columns.Contains("BaseSchemaName"));
+                    Assert.True(schema.Columns.Contains("BaseTableName"));
+                    Assert.True(schema.Columns.Contains("DataType"));
+                    Assert.True(schema.Columns.Contains("DataTypeName"));
+                    Assert.True(schema.Columns.Contains("AllowDBNull"));
+                    Assert.True(schema.Columns.Contains("IsAliased"));
+                    Assert.True(schema.Columns.Contains("IsExpression"));
+                    Assert.True(schema.Columns.Contains("IsAutoIncrement"));
+                    Assert.True(schema.Columns.Contains("IsLong"));
+
+                    Assert.Equal(4, schema.Rows.Count);
+
+                    Assert.Equal("LastName", schema.Rows[0]["ColumnName"]);
+                    Assert.Equal(0, schema.Rows[0]["ColumnOrdinal"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[0]["ColumnSize"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[0]["NumericPrecision"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[0]["NumericScale"]);
+                    Assert.False((bool)schema.Rows[0]["IsUnique"]);
+                    Assert.False((bool)schema.Rows[0]["IsKey"]);
+                    Assert.Equal("", schema.Rows[0]["BaseServerName"]);
+                    Assert.Equal("main", schema.Rows[0]["BaseCatalogName"]);
+                    Assert.Equal("LastName", schema.Rows[0]["BaseColumnName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[0]["BaseSchemaName"]);
+                    Assert.Equal("Person", schema.Rows[0]["BaseTableName"]);
+                    Assert.Equal(typeof(String), schema.Rows[0]["DataType"]);
+                    Assert.Equal("TEXT", schema.Rows[0]["DataTypeName"]);
+                    Assert.False((bool)schema.Rows[0]["AllowDBNull"]);
+                    Assert.False((bool)schema.Rows[0]["IsAliased"]);
+                    Assert.False((bool)schema.Rows[0]["IsExpression"]);
+                    Assert.False((bool)schema.Rows[0]["IsAutoIncrement"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[0]["IsLong"]);
+
+                    Assert.Equal("ID", schema.Rows[1]["ColumnName"]);
+                    Assert.Equal(1, schema.Rows[1]["ColumnOrdinal"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[1]["ColumnSize"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[1]["NumericPrecision"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[1]["NumericScale"]);
+                    Assert.False((bool)schema.Rows[1]["IsUnique"]);
+                    Assert.True((bool)schema.Rows[1]["IsKey"]);
+                    Assert.Equal("", schema.Rows[1]["BaseServerName"]);
+                    Assert.Equal("main", schema.Rows[1]["BaseCatalogName"]);
+                    Assert.Equal("ID", schema.Rows[1]["BaseColumnName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[1]["BaseSchemaName"]);
+                    Assert.Equal("Person", schema.Rows[1]["BaseTableName"]);
+                    Assert.Equal(typeof(Int64), schema.Rows[1]["DataType"]);
+                    Assert.Equal("INTEGER", schema.Rows[1]["DataTypeName"]);
+                    Assert.True((bool)schema.Rows[1]["AllowDBNull"]);
+                    Assert.False((bool)schema.Rows[1]["IsAliased"]);
+                    Assert.False((bool)schema.Rows[1]["IsExpression"]);
+                    Assert.False((bool)schema.Rows[1]["IsAutoIncrement"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[1]["IsLong"]);
+
+                    Assert.Equal("Code", schema.Rows[2]["ColumnName"]);
+                    Assert.Equal(2, schema.Rows[2]["ColumnOrdinal"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[2]["ColumnSize"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[2]["NumericPrecision"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[2]["NumericScale"]);
+                    Assert.True((bool)schema.Rows[2]["IsUnique"]);
+                    Assert.False((bool)schema.Rows[2]["IsKey"]);
+                    Assert.Equal("", schema.Rows[2]["BaseServerName"]);
+                    Assert.Equal("main", schema.Rows[2]["BaseCatalogName"]);
+                    Assert.Equal("Code", schema.Rows[2]["BaseColumnName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[2]["BaseSchemaName"]);
+                    Assert.Equal("Person", schema.Rows[2]["BaseTableName"]);
+                    Assert.Equal(typeof(Int64), schema.Rows[2]["DataType"]);
+                    Assert.Equal("INT", schema.Rows[2]["DataTypeName"]);
+                    Assert.True((bool)schema.Rows[2]["AllowDBNull"]);
+                    Assert.False((bool)schema.Rows[2]["IsAliased"]);
+                    Assert.False((bool)schema.Rows[2]["IsExpression"]);
+                    Assert.False((bool)schema.Rows[2]["IsAutoIncrement"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[2]["IsLong"]);
+
+                    Assert.Equal("IncID", schema.Rows[3]["ColumnName"]);
+                    Assert.Equal(3, schema.Rows[3]["ColumnOrdinal"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["ColumnSize"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["NumericPrecision"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["NumericScale"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["IsUnique"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["IsKey"]);
+                    Assert.Equal("", schema.Rows[3]["BaseServerName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["BaseCatalogName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["BaseColumnName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["BaseSchemaName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["BaseTableName"]);
+                    Assert.Equal(typeof(Int64), schema.Rows[3]["DataType"]);
+                    Assert.Equal("INTEGER", schema.Rows[3]["DataTypeName"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["AllowDBNull"]);
+                    Assert.True((bool)schema.Rows[3]["IsAliased"]);
+                    Assert.True((bool)schema.Rows[3]["IsExpression"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["IsAutoIncrement"]);
+                    Assert.Equal(DBNull.Value, schema.Rows[3]["IsLong"]);
+                }
+            }
+        }
+
         private static void GetX_works<T>(string sql, Func<DbDataReader, T> action, T expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

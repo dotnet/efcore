@@ -4,7 +4,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
@@ -444,5 +446,115 @@ namespace Microsoft.Data.Sqlite
         /// <returns>The number of values copied into the array.</returns>
         public override int GetValues(object[] values)
             => _record.GetValues(values);
+
+        /// <summary>
+        /// Returns a System.Data.DataTable that describes the column metadata of the System.Data.Common.DbDataReader.
+        /// </summary>
+        /// <returns>A System.Data.DataTable that describes the column metadata.</returns>
+        public override DataTable GetSchemaTable()
+        {
+            var schemaTable = new DataTable("SchemaTable");
+
+            var ColumnName = new DataColumn(SchemaTableColumn.ColumnName, typeof(string));
+            var ColumnOrdinal = new DataColumn(SchemaTableColumn.ColumnOrdinal, typeof(int));
+            var ColumnSize = new DataColumn(SchemaTableColumn.ColumnSize, typeof(int));
+            var NumericPrecision = new DataColumn(SchemaTableColumn.NumericPrecision, typeof(short));
+            var NumericScale = new DataColumn(SchemaTableColumn.NumericScale, typeof(short));
+
+            var DataType = new DataColumn(SchemaTableColumn.DataType, typeof(Type));
+            var DataTypeName = new DataColumn("DataTypeName", typeof(string));
+
+            var IsLong = new DataColumn(SchemaTableColumn.IsLong, typeof(bool));
+            var AllowDBNull = new DataColumn(SchemaTableColumn.AllowDBNull, typeof(bool));
+
+            var IsUnique = new DataColumn(SchemaTableColumn.IsUnique, typeof(bool));
+            var IsKey = new DataColumn(SchemaTableColumn.IsKey, typeof(bool));
+            var IsAutoIncrement = new DataColumn(SchemaTableOptionalColumn.IsAutoIncrement, typeof(bool));
+
+            var BaseCatalogName = new DataColumn(SchemaTableOptionalColumn.BaseCatalogName, typeof(string));
+            var BaseSchemaName = new DataColumn(SchemaTableColumn.BaseSchemaName, typeof(string));
+            var BaseTableName = new DataColumn(SchemaTableColumn.BaseTableName, typeof(string));
+            var BaseColumnName = new DataColumn(SchemaTableColumn.BaseColumnName, typeof(string));
+
+            var BaseServerName = new DataColumn(SchemaTableOptionalColumn.BaseServerName, typeof(string));
+            var IsAliased = new DataColumn(SchemaTableColumn.IsAliased, typeof(bool));
+            var IsExpression = new DataColumn(SchemaTableColumn.IsExpression, typeof(bool));
+
+            var columns = schemaTable.Columns;
+
+            columns.Add(ColumnName);
+            columns.Add(ColumnOrdinal);
+            columns.Add(ColumnSize);
+            columns.Add(NumericPrecision);
+            columns.Add(NumericScale);
+            columns.Add(IsUnique);
+            columns.Add(IsKey);
+            columns.Add(BaseServerName);
+            columns.Add(BaseCatalogName);
+            columns.Add(BaseColumnName);
+            columns.Add(BaseSchemaName);
+            columns.Add(BaseTableName);
+            columns.Add(DataType);
+            columns.Add(DataTypeName);
+            columns.Add(AllowDBNull);
+            columns.Add(IsAliased);
+            columns.Add(IsExpression);
+            columns.Add(IsAutoIncrement);
+            columns.Add(IsLong);
+
+            for (var i = 0; i < FieldCount; i++)
+            {
+                var schemaRow = schemaTable.NewRow();
+                schemaRow[ColumnName] = GetName(i);
+                schemaRow[ColumnOrdinal] = i;
+                schemaRow[ColumnSize] = DBNull.Value;
+                schemaRow[NumericPrecision] = DBNull.Value;
+                schemaRow[NumericScale] = DBNull.Value;
+                schemaRow[BaseServerName] = _command.Connection.DataSource;
+                var databaseName = raw.sqlite3_column_database_name(_stmt, i);
+                schemaRow[BaseCatalogName] = databaseName;
+                var columnName = raw.sqlite3_column_origin_name(_stmt, i);
+                schemaRow[BaseColumnName] = columnName;
+                schemaRow[BaseSchemaName] = DBNull.Value;
+                var tableName = raw.sqlite3_column_table_name(_stmt, i);
+                schemaRow[BaseTableName] = tableName;
+                schemaRow[DataType] = GetFieldType(i);
+                schemaRow[DataTypeName] = GetDataTypeName(i);
+                schemaRow[IsAliased] = columnName != GetName(i);
+                schemaRow[IsExpression] = columnName == null;
+                schemaRow[IsLong] = DBNull.Value;
+
+                if (!string.IsNullOrEmpty(tableName) && !string.IsNullOrEmpty(columnName))
+                {
+                    using (var command = _command.Connection.CreateCommand())
+                    {
+                        command.CommandText = new StringBuilder()
+                            .AppendLine("SELECT COUNT(*)")
+                            .AppendLine("FROM pragma_index_list($table) i, pragma_index_info(i.name) c")
+                            .AppendLine("WHERE \"unique\" = 1 AND c.name = $column AND")
+                            .AppendLine("NOT EXISTS (SELECT * FROM pragma_index_info(i.name) c2 WHERE c2.name != c.name);").ToString();
+                        command.Parameters.AddWithValue("$table", tableName);
+                        command.Parameters.AddWithValue("$column", columnName);
+
+                        var cnt = (long)command.ExecuteScalar();
+                        schemaRow[IsUnique] = cnt != 0;
+                    }
+
+                    if (!string.IsNullOrEmpty(databaseName))
+                    {
+                        var rc = raw.sqlite3_table_column_metadata(_command.Connection.Handle, databaseName, tableName, columnName, out var dataType, out var collSeq, out var notNull, out var primaryKey, out var autoInc);
+                        SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+
+                        schemaRow[IsKey] = primaryKey != 0;
+                        schemaRow[AllowDBNull] = notNull == 0;
+                        schemaRow[IsAutoIncrement] = autoInc != 0;
+                    }
+                }
+
+                schemaTable.Rows.Add(schemaRow);
+            }
+
+            return schemaTable;
+        }
     }
 }
