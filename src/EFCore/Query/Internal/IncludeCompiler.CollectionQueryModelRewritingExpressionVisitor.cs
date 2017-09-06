@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -42,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public List<Ordering> ParentOrderings { get; } = new List<Ordering>();
+
+            public QueryModel ParentQueryModel { get; set; }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
@@ -104,14 +107,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var parentQuerySource = parentQuerySourceReferenceExpression.ReferencedQuerySource;
 
+                var qmFinder = new QueryModelFindingVisitor(parentQuerySourceReferenceExpression.ReferencedQuerySource);
+                qmFinder.VisitQueryModel(_parentQueryModel);
+
+                var realParentQueryModel = qmFinder.QueryModel ?? _parentQueryModel;
+                ParentQueryModel = realParentQueryModel;
+
                 BuildParentOrderings(
-                    _parentQueryModel,
+                    realParentQueryModel,
                     navigation,
                     parentQuerySourceReferenceExpression,
                     ParentOrderings);
 
                 var querySourceMapping = new QuerySourceMapping();
-                var clonedParentQueryModel = _parentQueryModel.Clone(querySourceMapping);
+
+                var clonedParentQueryModel = realParentQueryModel.Clone(querySourceMapping);
                 _queryCompilationContext.UpdateMapping(querySourceMapping);
 
                 _queryCompilationContext.CloneAnnotations(querySourceMapping, clonedParentQueryModel);

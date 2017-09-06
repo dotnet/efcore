@@ -96,7 +96,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             queryModel.TransformExpressions(collectionQueryModelRewritingExpressionVisitor.Visit);
 
-            ApplyParentOrderings(queryModel, collectionQueryModelRewritingExpressionVisitor.ParentOrderings);
+            if (collectionQueryModelRewritingExpressionVisitor.ParentQueryModel != null)
+            {
+                ApplyParentOrderings(
+                    collectionQueryModelRewritingExpressionVisitor.ParentQueryModel,
+                    collectionQueryModelRewritingExpressionVisitor.ParentOrderings);
+            }
         }
 
         /// <summary>
@@ -132,6 +137,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     || navigationPath == null)
                 {
                     continue;
+                }
+
+                if (querySourceReferenceExpression.Type.IsGrouping())
+                {
+                    var qmFinder = new QueryModelFindingVisitor(includeResultOperator.QuerySource);
+                    qmFinder.VisitQueryModel(queryModel);
+
+                    if (qmFinder.QueryModel != null
+                        && qmFinder.QueryModel != queryModel)
+                    {
+                        querySourceReferenceExpression
+                            = querySourceTracingExpressionVisitor
+                                .FindResultQuerySourceReferenceExpression(
+                                    qmFinder.QueryModel.GetOutputExpression(),
+                                    includeResultOperator.QuerySource);
+                    }
                 }
 
                 var includeLoadTree
