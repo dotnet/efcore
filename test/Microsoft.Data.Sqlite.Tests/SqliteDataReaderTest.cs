@@ -153,6 +153,27 @@ namespace Microsoft.Data.Sqlite
                 new DateTimeOffset(new DateTime(2013, 10, 7, 12, 0, 0)));
 
         [Fact]
+        public void GetTimeSpan_works_with_text()
+            => GetX_works(
+                "SELECT '12:06:29';",
+                r => ((SqliteDataReader)r).GetTimeSpan(0),
+                new TimeSpan(12, 06, 29));
+
+        [Fact]
+        public void GetTimeSpan_works_with_real()
+            => GetX_works(
+                "SELECT julianday('2013-10-12 09:25:22.120') - julianday('2013-10-07 08:23:19');",
+                r => ((SqliteDataReader)r).GetTimeSpan(0),
+                new TimeSpan(5, 1, 2, 3, 120));
+
+        [Fact]
+        public void GetTimeSpan_works_with_integer()
+            => GetX_works(
+                "SELECT CAST(julianday('2017-08-31') - julianday('1776-07-04') AS INTEGER);",
+                r => ((SqliteDataReader)r).GetTimeSpan(0),
+                new TimeSpan(88081, 0, 0, 0));
+
+        [Fact]
         public void GetDateTimeOffset_throws_when_null()
             => GetX_throws_when_null(r => ((SqliteDataReader)r).GetDateTimeOffset(0));
 

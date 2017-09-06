@@ -96,8 +96,18 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        protected virtual TimeSpan GetTimeSpan(int ordinal)
-            => TimeSpan.Parse(GetString(ordinal));
+        public virtual TimeSpan GetTimeSpan(int ordinal)
+        {
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case raw.SQLITE_FLOAT:
+                case raw.SQLITE_INTEGER:
+                    return TimeSpan.FromDays(GetDouble(ordinal));
+                default:
+                    return TimeSpan.Parse(GetString(ordinal));
+            }
+        }
 
         public virtual short GetInt16(int ordinal)
             => (short)GetInt64(ordinal);

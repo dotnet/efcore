@@ -307,6 +307,14 @@ namespace Microsoft.Data.Sqlite
             => _record.GetDateTimeOffset(ordinal);
 
         /// <summary>
+        /// Gets the value of the specified column as a <see cref="TimeSpan" />.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The value of the column.</returns>
+        public virtual TimeSpan GetTimeSpan(int ordinal)
+            => _record.GetTimeSpan(ordinal);
+
+        /// <summary>
         /// Gets the value of the specified column as a <see cref="decimal" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
