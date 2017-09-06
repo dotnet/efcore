@@ -36,13 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                          && !p.GetIndexParameters().Any()
                          && p.DeclaringType != typeof(DbContext)
                          && p.PropertyType.GetTypeInfo().IsGenericType
-                         && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+                         && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
+                            || p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
                 .OrderBy(p => p.Name)
                 .Select(
                     p => new DbSetProperty(
                         p.Name,
                         p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(),
-                        p.SetMethod == null ? null : factory.Create(p)))
+                        p.SetMethod == null ? null : factory.Create(p),
+                        p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
                 .ToArray();
         }
     }

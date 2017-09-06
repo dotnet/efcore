@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -30,6 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 modelBuilder.Entity<Animal>().HasQueryFilter(a => a.CountryId == 1);
             }
+
+            modelBuilder.Query<AnimalQuery>();
+            modelBuilder.Query<BirdQuery>();
+            modelBuilder.Query<KiwiQuery>();
         }
 
         protected override void Seed(InheritanceContext context) => InheritanceContext.SeedData(context);

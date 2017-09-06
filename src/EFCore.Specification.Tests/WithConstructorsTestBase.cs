@@ -86,6 +86,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Query_with_query_type()
+        {
+            using (var context = CreateContext())
+            {
+                var blogs = context.Query<BlogQuery>().ToList();
+
+                Assert.Equal(1, blogs.Count);
+                Assert.Equal("Puppies", blogs[0].Title);
+            }
+        }
+
+        [Fact]
         public virtual void Query_with_context_injected()
         {
             using (var context = CreateContext())
@@ -182,6 +194,20 @@ namespace Microsoft.EntityFrameworkCore
 
             public void AddPost(Post post)
                 => ((List<Post>)Posts).Add(post);
+        }
+
+        protected class BlogQuery
+        {
+            public BlogQuery(
+                string title,
+                int? monthlyRevenue)
+            {
+                Title = title;
+                MonthlyRevenue = monthlyRevenue;
+            }
+
+            public string Title { get; }
+            public int? MonthlyRevenue { get; set; }
         }
 
         protected class Post
@@ -344,6 +370,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasKey("_blogId");
                         b.Property(e => e.Title);
                     });
+
+                modelBuilder.Query<BlogQuery>(b =>
+                {
+                    b.Property(e => e.Title);
+                });
 
                 modelBuilder.Entity<Post>(
                     b =>

@@ -1420,6 +1420,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 navigationToTarget != null
                 || inverseNavigation != null);
 
+            if (targetEntityTypeBuilder.Metadata.IsQueryType())
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ErrorNavCannotTargetQueryType(targetEntityTypeBuilder.Metadata.DisplayName()));
+            }
+
             var navigationProperty = navigationToTarget?.Property;
             if (inverseNavigation == null
                 && navigationProperty != null

@@ -19,6 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override async Task Query_backed_by_database_view()
+        {
+            // Not present on SQLite
+        }
+
         public async Task Skip_when_no_order_by()
         {
             await Assert.ThrowsAsync<Exception>(async () => await AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));

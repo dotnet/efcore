@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        private readonly FilterApplyingExpressionVisitor _filterApplyingExpressionVisitor;
+        private readonly ModelExpressionApplyingExpressionVisitor _modelExpressionApplyingExpressionVisitor;
 
         private Expression _expression;
         private ParameterExpression _currentParameter;
@@ -102,9 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             LinqOperatorProvider = queryCompilationContext.LinqOperatorProvider;
 
-            _filterApplyingExpressionVisitor
-                = new FilterApplyingExpressionVisitor(
-                    _queryCompilationContext, dependencies.QueryModelGenerator);
+            _modelExpressionApplyingExpressionVisitor
+                = new ModelExpressionApplyingExpressionVisitor(
+                    _queryCompilationContext,
+                    dependencies.QueryModelGenerator);
         }
 
         /// <summary>
@@ -163,8 +164,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 _blockTaskExpressions = false;
 
-                ExtractQueryAnnotations(queryModel);
-
                 OptimizeQueryModel(queryModel, asyncQuery: false);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
@@ -198,8 +197,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryCompilationContext.Logger.QueryModelCompiling(queryModel);
 
                 _blockTaskExpressions = false;
-
-                ExtractQueryAnnotations(queryModel);
 
                 OptimizeQueryModel(queryModel, asyncQuery: true);
 
@@ -266,6 +263,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
+            ExtractQueryAnnotations(queryModel);
+
             new EagerLoadingExpressionVisitor(_queryCompilationContext, _querySourceTracingExpressionVisitorFactory)
                 .VisitQueryModel(queryModel);
 
@@ -298,14 +297,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             includeCompiler.LogIgnoredIncludes();
 
-            if (!_queryCompilationContext.IgnoreQueryFilters)
-            {
-                queryModel.TransformExpressions(_filterApplyingExpressionVisitor.Visit);
-
-                navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
-            }
+            queryModel.TransformExpressions(_modelExpressionApplyingExpressionVisitor.Visit);
 
             // Second pass of optimizations
+            
+            ExtractQueryAnnotations(queryModel);
+            
+            navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
@@ -579,7 +577,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OfType<TrackingResultOperator>()
                     .LastOrDefault();
 
-            return !(queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
+            return !_modelExpressionApplyingExpressionVisitor.IsViewTypeQuery
+                   && !(queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
                    && (QueryCompilationContext.TrackQueryResults || lastTrackingModifier != null)
                    && (lastTrackingModifier == null
                        || lastTrackingModifier.IsTracking);
@@ -657,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             contextVariableExpression = null;
 
-            if (_filterApplyingExpressionVisitor.ContextParameters.Count == 0)
+            if (_modelExpressionApplyingExpressionVisitor.ContextParameters.Count == 0)
             {
                 return null;
             }
@@ -678,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 };
 
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var keyValuePair in _filterApplyingExpressionVisitor.ContextParameters)
+            foreach (var keyValuePair in _modelExpressionApplyingExpressionVisitor.ContextParameters)
             {
                 blockExpressions.Add(
                     Expression.Call(

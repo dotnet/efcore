@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class NorthwindRelationalContext : NorthwindContext
@@ -22,6 +24,20 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
             modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
             modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
+
+            modelBuilder.Query<CustomerView>().ToTable("Customers");
+
+            modelBuilder
+                .Query<OrderQuery>()
+                .ToQuery(() => Orders
+                    .FromSql("select * from Orders")
+                    .Select(
+                        o => new OrderQuery
+                        {
+                            CustomerID = o.CustomerID
+                        }));
+
+            modelBuilder.Query<ProductQuery>().ToTable("Alphabetical list of products");
         }
     }
 }

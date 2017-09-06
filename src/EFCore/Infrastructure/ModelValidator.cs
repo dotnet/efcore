@@ -160,7 +160,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            var entityTypeWithNullPk = model.GetEntityTypes().FirstOrDefault(et => et.FindPrimaryKey() == null);
+            var entityTypeWithNullPk
+                = model.GetEntityTypes()
+                    .Where(et => !et.IsQueryType())
+                    .FirstOrDefault(et => et.FindPrimaryKey() == null);
+
             if (entityTypeWithNullPk != null)
             {
                 throw new InvalidOperationException(
@@ -396,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var identityMaps = new Dictionary<IKey, IIdentityMap>();
             var sensitiveDataLogged = Dependencies.Logger.ShouldLogSensitiveData();
 
-            foreach (var entityType in model.GetEntityTypes())
+            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType()))
             {
                 var key = entityType.FindPrimaryKey();
                 if (!identityMaps.TryGetValue(key, out var identityMap))

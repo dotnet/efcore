@@ -1996,6 +1996,70 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CoreEventId.LazyLoadOnDisposedContextWarning,
                     _resourceManager.GetString("LogLazyLoadOnDisposedContextWarning")));
 
+        /// <summary>
+        ///     Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.
+        /// </summary>
+        public static string InvalidSetTypeQuery([CanBeNull] object typeName)
+            => string.Format(
+                GetString("InvalidSetTypeQuery", nameof(typeName)),
+                typeName);
+
+        /// <summary>
+        ///     Cannot create a DbQuery for '{typeName}' because it is not a query type. Use the DbContext.Set method to create a DbSet instead.
+        /// </summary>
+        public static string InvalidSetTypeEntity([CanBeNull] object typeName)
+            => string.Format(
+                GetString("InvalidSetTypeEntity", nameof(typeName)),
+                typeName);
+
+        /// <summary>
+        ///     Unable to create a foreign key with the query type '{queryType}' as the principal type. Only entity types are allowed as foreign key principal types.
+        /// </summary>
+        public static string QueryTypeCannotBePrincipal([CanBeNull] object queryType)
+            => string.Format(
+                GetString("QueryTypeCannotBePrincipal", nameof(queryType)),
+                queryType);
+
+        /// <summary>
+        ///     Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.
+        /// </summary>
+        public static string QueryTypeNotValid([CanBeNull] object type)
+            => string.Format(
+                GetString("QueryTypeNotValid", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.
+        /// </summary>
+        public static string ErrorMixedQueryEntityTypeInheritance([CanBeNull] object baseType, [CanBeNull] object derivedType)
+            => string.Format(
+                GetString("ErrorMixedQueryEntityTypeInheritance", nameof(baseType), nameof(derivedType)),
+                baseType, derivedType);
+
+        /// <summary>
+        ///     Cannot access type '{type}' as a query type because it has already been declared as an entity type.
+        /// </summary>
+        public static string CannotAccessEntityAsQuery([CanBeNull] object type)
+            => string.Format(
+                GetString("CannotAccessEntityAsQuery", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     Cannot access type '{type}' as an entity type because it has already been declared as a query type.
+        /// </summary>
+        public static string CannotAccessQueryAsEntity([CanBeNull] object type)
+            => string.Format(
+                GetString("CannotAccessQueryAsEntity", nameof(type)),
+                type);
+
+        /// <summary>
+        ///     Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.
+        /// </summary>
+        public static string ErrorNavCannotTargetQueryType([CanBeNull] object type)
+            => string.Format(
+                GetString("ErrorNavCannotTargetQueryType", nameof(type)),
+                type);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

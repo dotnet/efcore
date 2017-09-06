@@ -64,6 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
                 }
 
+                if (_entityType.IsQueryType())
+                {
+                    _entityType = null;
+
+                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeQuery(typeof(TEntity).ShortDisplayName()));
+                }
+
                 return _entityType;
             }
         }

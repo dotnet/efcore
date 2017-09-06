@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
         IDbSetCache,
+        IDbQueryCache,
         IDbContextPoolable
     {
         private readonly IDictionary<Type, object> _sets = new Dictionary<Type, object>();
@@ -144,6 +145,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        IDbQuerySource IDbContextDependencies.QuerySource => DbContextDependencies.QuerySource;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
@@ -200,6 +207,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        object IDbQueryCache.GetOrAddQuery(IDbQuerySource source, Type type)
+        {
+            CheckDisposed();
+
+            if (!_sets.TryGetValue(type, out var set))
+            {
+                set = source.CreateQuery(this, type);
+                _sets[type] = set;
+            }
+
+            return set;
+        }
+
+        /// <summary>
         ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
@@ -208,12 +232,26 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
+        /// <summary>
+        ///     Creates a <see cref="DbQuery{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
+        /// </summary>
+        /// <typeparam name="TQuery"> The type of view for which a view should be returned. </typeparam>
+        /// <returns> A view for the given query type. </returns>
+        public virtual DbQuery<TQuery> Query<TQuery>()
+            where TQuery : class
+            => (DbQuery<TQuery>)((IDbQueryCache)this).GetOrAddQuery(DbContextDependencies.QuerySource, typeof(TQuery));
+
         private IEntityFinder Finder(Type type)
         {
             var entityType = Model.FindEntityType(type);
             if (entityType == null)
             {
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
+            }
+
+            if (entityType.IsQueryType())
+            {
+                throw new InvalidOperationException(CoreStrings.InvalidSetTypeQuery(type.ShortDisplayName()));
             }
 
             return DbContextDependencies.EntityFinderFactory.Create(entityType);

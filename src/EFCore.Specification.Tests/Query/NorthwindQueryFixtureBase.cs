@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var entitySorters = new Dictionary<Type, Func<dynamic, object>>
             {
                 { typeof(Customer), e => e.CustomerID },
+                { typeof(CustomerView), e => e.CompanyName },
                 { typeof(Order), e => e.OrderID },
+                { typeof(OrderQuery), e => e.CustomerID },
                 { typeof(Employee), e => e.EmployeeID },
                 { typeof(Product), e => e.ProductID },
                 { typeof(OrderDetail), e => e.OrderID.ToString() + " " + e.ProductID.ToString() }

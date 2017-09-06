@@ -863,4 +863,28 @@
     <value>An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.</value>
     <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning string string</comment>
   </data>
+  <data name="InvalidSetTypeQuery" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.</value>
+  </data>
+  <data name="InvalidSetTypeEntity" xml:space="preserve">
+    <value>Cannot create a DbQuery for '{typeName}' because it is not a query type. Use the DbContext.Set method to create a DbSet instead.</value>
+  </data>
+  <data name="QueryTypeCannotBePrincipal" xml:space="preserve">
+    <value>Unable to create a foreign key with the query type '{queryType}' as the principal type. Only entity types are allowed as foreign key principal types.</value>
+  </data>
+  <data name="QueryTypeNotValid" xml:space="preserve">
+    <value>Unable to track an instance of type '{type}' because it is a query type. Only entity types may be tracked.</value>
+  </data>
+  <data name="ErrorMixedQueryEntityTypeInheritance" xml:space="preserve">
+    <value>Cannot set '{baseType}' as the base type of '{derivedType}'. Inheritance hierarchies cannot contain a mix of entity types and query types.</value>
+  </data>
+  <data name="CannotAccessEntityAsQuery" xml:space="preserve">
+    <value>Cannot access type '{type}' as a query type because it has already been declared as an entity type.</value>
+  </data>
+  <data name="CannotAccessQueryAsEntity" xml:space="preserve">
+    <value>Cannot access type '{type}' as an entity type because it has already been declared as a query type.</value>
+  </data>
+  <data name="ErrorNavCannotTargetQueryType" xml:space="preserve">
+    <value>Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.</value>
+  </data>
 </root>

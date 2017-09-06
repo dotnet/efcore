@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
+// ReSharper disable StringStartsWithIsCultureSpecific
+
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class NorthwindContext : DbContext
@@ -15,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<Product> Products { get; set; }
+
+        public virtual DbQuery<CustomerView> CustomerQueries { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,11 +67,64 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                     });
 
             modelBuilder.Entity<OrderDetail>(e => { e.HasKey(od => new { od.OrderID, od.ProductID }); });
+
+            modelBuilder
+                .Query<CustomerView>()
+                .ToQuery(
+                    () => Customers
+                        .Select(
+                            c => new CustomerView
+                            {
+                                Address = c.Address,
+                                City = c.City,
+                                CompanyName = c.CompanyName,
+                                ContactName = c.ContactName,
+                                ContactTitle = c.ContactTitle
+                            }));
+
+            modelBuilder
+                .Query<OrderQuery>()
+                .ToQuery(() => Orders
+                    .Select(
+                        o => new OrderQuery
+                        {
+                            CustomerID = o.CustomerID
+                        }));
+
+            modelBuilder
+                .Query<ProductQuery>()
+                .ToQuery(
+                    () => Products
+                        .Where(p => !p.Discontinued)
+                        .Select(
+                            p => new ProductQuery
+                            {
+                                ProductID = p.ProductID,
+                                ProductName = p.ProductName,
+                                CategoryName = "Food"
+                            }));
+
+            modelBuilder
+                .Query<CustomerQuery>()
+                .HasQueryFilter(cq => cq.CompanyName.StartsWith(_searchTerm))
+                .ToQuery(
+                    () =>
+                        Customers
+                            .Include(c => c.Orders) // ignored
+                            .Select(
+                                c =>
+                                    new CustomerQuery
+                                    {
+                                        CompanyName = c.CompanyName,
+                                        OrderCount = c.Orders.Count(),
+                                        SearchTerm = _searchTerm
+                                    }));
         }
 
         public string TenantPrefix { get; set; } = "B";
 
         private readonly short _quantity = 50;
+        private string _searchTerm = "A";
 
         public void ConfigureFilters(ModelBuilder modelBuilder)
         {

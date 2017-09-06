@@ -16,6 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        public override void Query_backed_by_database_view()
+        {
+            // Not present on SQLite
+        }
+
         public override void Take_Skip()
         {
             base.Take_Skip();

@@ -17,9 +17,11 @@ namespace Microsoft.EntityFrameworkCore
         public void Initializes_all_entity_set_properties_with_setters()
         {
             var setFinder = new FakeSetFinder();
+            var setSource = new DbSetSource();
 
             var customServices = new ServiceCollection()
-                .AddSingleton<IDbSetInitializer>(new DbSetInitializer(setFinder, new DbSetSource()));
+                .AddSingleton<IDbSetInitializer>(
+                new DbSetInitializer(setFinder, setSource, setSource));
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(customServices);
 

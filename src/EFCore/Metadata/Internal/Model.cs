@@ -110,7 +110,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = new EntityType(type, this, configurationSource);
 
             _clrTypeMap[type] = entityType;
+
             return AddEntityType(entityType);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType AddQueryType([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            var queryType = new EntityType(type, this, ConfigurationSource.Explicit);
+
+            queryType.SetAnnotation(
+                CoreAnnotationNames.IsQueryTypeAnnotation,
+                new object(), 
+                ConfigurationSource.Explicit);
+
+            _clrTypeMap[type] = queryType;
+
+            return AddEntityType(queryType);
         }
 
         private EntityType AddEntityType(EntityType entityType)

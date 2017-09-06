@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     Dictionary<string, Key> Keys,
                     Dictionary<string, ForeignKey> ForeignKeys,
                     Dictionary<string, Index> Indexes)>();
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes().Where(et => !et.IsQueryType()))
             {
                 var tableName = FormatName(entityType.Relational());
 

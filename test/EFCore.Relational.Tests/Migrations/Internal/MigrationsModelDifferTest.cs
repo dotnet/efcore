@@ -21,6 +21,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
     {
+        private class TestQueryType
+        {
+            public string Something { get; set; }
+        }
+
+        [Fact]
+        public void Model_differ_does_not_detect_query_types()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Query<TestQueryType>();
+                },
+                result =>
+                {
+                    Assert.Equal(0, result.Count);
+                });
+        }
+
         [Fact]
         public void Model_differ_breaks_foreign_key_cycles_in_create_table_operations()
         {

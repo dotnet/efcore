@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.Expressions;
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class FilterApplyingExpressionVisitor : RelinqExpressionVisitor
+    public class ModelExpressionApplyingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IQueryModelGenerator _queryModelGenerator;
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public FilterApplyingExpressionVisitor(
+        public ModelExpressionApplyingExpressionVisitor(
             [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] IQueryModelGenerator queryModelGenerator)
         {
@@ -46,6 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _queryCompilationContext = queryCompilationContext;
             _queryModelGenerator = queryModelGenerator;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool IsViewTypeQuery { get; private set; }
 
         private static readonly MethodInfo _whereMethod
             = typeof(Queryable)
@@ -68,38 +75,71 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var type = ((IQueryable)constantExpression.Value).ElementType;
                 var entityType = _queryCompilationContext.Model.FindEntityType(type)?.RootType();
 
-                if (entityType?.QueryFilter != null)
+                if (entityType != null)
                 {
-                    var parameterizedFilter
-                        = (LambdaExpression)_queryModelGenerator
-                            .ExtractParameters(
-                                _queryCompilationContext.Logger,
-                                entityType.QueryFilter,
-                                _parameters,
-                                parameterize: false,
-                                generateContextAccessors: true);
+                    Expression newExpression = constantExpression;
 
-                    var oldParameterExpression = parameterizedFilter.Parameters[0];
-                    var newParameterExpression = Expression.Parameter(type, oldParameterExpression.Name);
+                    if (entityType.IsQueryType())
+                    {
+                        IsViewTypeQuery = true;
 
-                    var predicateExpression
-                        = ReplacingExpressionVisitor
-                            .Replace(
-                                oldParameterExpression,
-                                newParameterExpression,
-                                parameterizedFilter.Body);
-                    
-                    var whereExpression
-                        = Expression.Call(
-                            _whereMethod.MakeGenericMethod(type),
-                            constantExpression,
-                            Expression.Lambda(
-                                predicateExpression,
-                                newParameterExpression));
+                        var annotation = entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery);
 
-                    var subQueryModel = _queryModelGenerator.ParseQuery(whereExpression);
+                        if (annotation != null)
+                        {
+                            var query = (LambdaExpression)annotation.Value;
 
-                    return new SubQueryExpression(subQueryModel);
+                            var parameterizedQuery
+                                = _queryModelGenerator
+                                    .ExtractParameters(
+                                        _queryCompilationContext.Logger,
+                                        query.Body,
+                                        _parameters,
+                                        parameterize: false,
+                                        generateContextAccessors: true);
+
+                            var subQueryModel = _queryModelGenerator.ParseQuery(parameterizedQuery);
+
+                            newExpression = new SubQueryExpression(subQueryModel);
+                        }
+                    }
+
+                    if (!_queryCompilationContext.IgnoreQueryFilters
+                        && entityType.QueryFilter != null)
+                    {
+                        var parameterizedFilter
+                            = (LambdaExpression)_queryModelGenerator
+                                .ExtractParameters(
+                                    _queryCompilationContext.Logger,
+                                    entityType.QueryFilter,
+                                    _parameters,
+                                    parameterize: false,
+                                    generateContextAccessors: true);
+
+                        var oldParameterExpression = parameterizedFilter.Parameters[0];
+                        var newParameterExpression = Expression.Parameter(type, oldParameterExpression.Name);
+
+                        var predicateExpression
+                            = ReplacingExpressionVisitor
+                                .Replace(
+                                    oldParameterExpression,
+                                    newParameterExpression,
+                                    parameterizedFilter.Body);
+
+                        var whereExpression
+                            = Expression.Call(
+                                _whereMethod.MakeGenericMethod(type),
+                                newExpression,
+                                Expression.Lambda(
+                                    predicateExpression,
+                                    newParameterExpression));
+
+                        var subQueryModel = _queryModelGenerator.ParseQuery(whereExpression);
+
+                        newExpression = new SubQueryExpression(subQueryModel);
+                    }
+
+                    return newExpression;
                 }
             }
 

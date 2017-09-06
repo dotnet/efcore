@@ -24,6 +24,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
         }
+        [Fact]
+        public void Query_throws_when_entity_type()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.CannotAccessEntityAsQuery(nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Query(typeof(Customer))).Message);
+        }
 
         [Fact]
         public void Entity_returns_same_instance_for_entity_type_name()

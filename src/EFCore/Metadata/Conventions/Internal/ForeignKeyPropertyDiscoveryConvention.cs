@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             var foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true);
+
             if (foreignKeyProperties == null)
             {
                 if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType)
@@ -55,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 // Try to invert if one to one or can be converted to one to one
                 else if ((foreignKey.IsUnique
                           || foreignKey.PrincipalToDependent == null)
+                         && !foreignKey.DeclaringEntityType.IsQueryType()
                          && ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
                 {
                     var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);

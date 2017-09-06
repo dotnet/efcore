@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -37,6 +38,18 @@ namespace Microsoft.EntityFrameworkCore
                     yield return derivedType;
                 }
             }
+        }
+
+        /// <summary>
+        ///     Determine whether the provided entity type is a query type.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> true if the entity type is a query type; otherwise false. </returns>
+        public static bool IsQueryType([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType[CoreAnnotationNames.IsQueryTypeAnnotation] != null;
         }
 
         /// <summary>

@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         equalityExpression)
                                     : equalityExpression;
                             })
-                        .Aggregate((e1, e2) => Expression.AndAlso(e1, e2)),
+                        .Aggregate(Expression.AndAlso),
                     targetEntityParameter,
                     relatedEntityParameter);
             }

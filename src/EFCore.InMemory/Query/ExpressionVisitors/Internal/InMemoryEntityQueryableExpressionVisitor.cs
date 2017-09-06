@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -34,6 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
+            Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
 
             _model = model;
             _materializerFactory = materializerFactory;
@@ -65,7 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     Expression.Constant(entityType),
                     Expression.Constant(entityType.FindPrimaryKey()),
                     materializer,
-                    Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery));
+                    Expression.Constant(
+                        QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
+                        && !entityType.IsQueryType()));
             }
 
             return Expression.Call(

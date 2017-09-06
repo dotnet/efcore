@@ -57,13 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The added annotation. </returns>
         protected virtual Annotation AddAnnotation([NotNull] string name, [NotNull] Annotation annotation)
         {
-            var previousLength = _annotations.Value.Count;
-            SetAnnotation(name, annotation);
-
-            if (previousLength == _annotations.Value.Count)
+            if (FindAnnotation(name) != null)
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name));
             }
+
+            SetAnnotation(name, annotation);
 
             return annotation;
         }

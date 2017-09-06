@@ -153,7 +153,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 entity.GetType().ShortDisplayName(),
                                 "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry)));
                     }
+
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
+                }
+
+                if (entityType.IsQueryType())
+                {
+                    throw new InvalidOperationException(CoreStrings.QueryTypeNotValid(entityType.DisplayName()));
                 }
 
                 entry = _internalEntityEntryFactory.Create(this, entityType, entity);

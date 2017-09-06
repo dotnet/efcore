@@ -20,9 +20,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
     public partial class NorthwindData : IExpectedData
     {
         private readonly Customer[] _customers;
+        private readonly CustomerView[] _customerViews;
         private readonly Employee[] _employees;
         private readonly Product[] _products;
         private readonly Order[] _orders;
+        private readonly OrderQuery[] _orderQueries;
         private readonly OrderDetail[] _orderDetails;
 
         public NorthwindData()
@@ -33,15 +35,30 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             _orders = CreateOrders();
             _orderDetails = CreateOrderDetails();
 
+            var customerViews = new List<CustomerView>();
+
             foreach (var customer in _customers)
             {
                 customer.Orders = new List<Order>();
+
+                customerViews.Add(new CustomerView()
+                {
+                    Address = customer.Address,
+                    City = customer.City,
+                    CompanyName = customer.CompanyName,
+                    ContactName = customer.ContactName,
+                    ContactTitle = customer.ContactTitle
+                });
             }
+
+            _customerViews = customerViews.ToArray();
 
             foreach (var product in _products)
             {
                 product.OrderDetails = new List<OrderDetail>();
             }
+
+            var orderQueries = new List<OrderQuery>();
 
             foreach (var order in _orders)
             {
@@ -50,7 +67,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 var customer = _customers.First(c => c.CustomerID == order.CustomerID);
                 order.Customer = customer;
                 customer.Orders.Add(order);
+
+                orderQueries.Add(new OrderQuery
+                {
+                    CustomerID = order.CustomerID,
+                    Customer = order.Customer
+                });
             }
+
+            _orderQueries = orderQueries.ToArray();
 
             foreach (var orderDetail in _orderDetails)
             {
@@ -96,6 +121,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             if (typeof(TEntity) == typeof(Product))
             {
                 return new AsyncEnumerable<TEntity>(_products.Cast<TEntity>());
+            }
+
+            if (typeof(TEntity) == typeof(CustomerView))
+            {
+                return new AsyncEnumerable<TEntity>(_customerViews.Cast<TEntity>());
+            }
+
+            if (typeof(TEntity) == typeof(OrderQuery))
+            {
+                return new AsyncEnumerable<TEntity>(_orderQueries.Cast<TEntity>());
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

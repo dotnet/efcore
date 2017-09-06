@@ -20,6 +20,13 @@ namespace Microsoft.EntityFrameworkCore
         public class WithConstructorsSqlServerFixture : WithConstructorsFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Query<BlogQuery>().ToTable("Blog");
+            }
         }
     }
 }

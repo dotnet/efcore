@@ -180,10 +180,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var originalBaseType = _baseType;
+
             _baseType?._directlyDerivedTypes.Remove(this);
             _baseType = null;
+
             if (entityType != null)
             {
+                if (this.IsQueryType() != entityType.IsQueryType())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ErrorMixedQueryEntityTypeInheritance(entityType.DisplayName(), this.DisplayName()));
+                }
+
                 if (this.HasClrType())
                 {
                     if (!entityType.HasClrType())
@@ -810,24 +818,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (principalKey.ReferencingForeignKeys == null)
+            if (!this.IsQueryType())
             {
-                principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
-            }
-            else
-            {
-                var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
-                Debug.Assert(added);
-            }
+                if (principalKey.ReferencingForeignKeys == null)
+                {
+                    principalKey.ReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                }
+                else
+                {
+                    var added = principalKey.ReferencingForeignKeys.Add(foreignKey);
+                    Debug.Assert(added);
+                }
 
-            if (principalEntityType.DeclaredReferencingForeignKeys == null)
-            {
-                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
-            }
-            else
-            {
-                var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
-                Debug.Assert(added);
+                if (principalEntityType.DeclaredReferencingForeignKeys == null)
+                {
+                    principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<ForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                }
+                else
+                {
+                    var added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
+                    Debug.Assert(added);
+                }
             }
 
             PropertyMetadataChanged();

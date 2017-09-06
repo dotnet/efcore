@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDbSetFinder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDbSetInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDbSetSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IDbQuerySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityFinderSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityMaterializerSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICoreConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -196,6 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IDbSetFinder, DbSetFinder>();
             TryAdd<IDbSetInitializer, DbSetInitializer>();
             TryAdd<IDbSetSource, DbSetSource>();
+            TryAdd<IDbQuerySource, DbSetSource>();
             TryAdd<IEntityFinderSource, EntityFinderSource>();
             TryAdd<IEntityMaterializerSource, EntityMaterializerSource>();
             TryAdd<ICoreConventionSetBuilder, CoreConventionSetBuilder>();

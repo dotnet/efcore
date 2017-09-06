@@ -20,11 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public DbSetProperty(
             [NotNull] string name,
             [NotNull] Type clrType,
-            [CanBeNull] IClrPropertySetter setter)
+            [CanBeNull] IClrPropertySetter setter,
+            bool queryType = false)
         {
             Name = name;
             ClrType = clrType;
             Setter = setter;
+            IsQueryType = queryType;
         }
 
         /// <summary>
@@ -44,5 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IClrPropertySetter Setter { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public bool IsQueryType { get; }
     }
 }

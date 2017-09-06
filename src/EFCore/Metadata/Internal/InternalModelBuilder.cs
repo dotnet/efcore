@@ -37,19 +37,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityTypeBuilder Entity(
-            [NotNull] string name, ConfigurationSource configurationSource)
-            => Entity(new TypeIdentity(name), configurationSource);
+            [NotNull] string name, ConfigurationSource configurationSource, bool throwOnQuery = false)
+            => Entity(new TypeIdentity(name), configurationSource, throwOnQuery);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalEntityTypeBuilder Entity(
-            [NotNull] Type type, ConfigurationSource configurationSource)
-            => Entity(new TypeIdentity(type), configurationSource);
+            [NotNull] Type type, ConfigurationSource configurationSource, bool throwOnQuery = false)
+            => Entity(new TypeIdentity(type), configurationSource, throwOnQuery);
 
         private InternalEntityTypeBuilder Entity(
-            TypeIdentity type, ConfigurationSource configurationSource)
+            TypeIdentity type, ConfigurationSource configurationSource, bool throwOnQuery)
         {
             if (IsIgnored(type, configurationSource))
             {
@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = clrType == null
                 ? Metadata.FindEntityType(type.Name)
                 : Metadata.FindEntityType(clrType);
+
             if (entityType == null)
             {
                 if (clrType == null)
@@ -82,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             }
                         }
 
-                        return Entity(type, configurationSource);
+                        return Entity(type, configurationSource, throwOnQuery);
                     }
 
                     Metadata.Unignore(type.Name);
@@ -109,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             }
                         }
 
-                        return Entity(type, configurationSource);
+                        return Entity(type, configurationSource, throwOnQuery);
                     }
 
                     Metadata.Unignore(clrType);
@@ -119,10 +120,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
+                if (throwOnQuery && entityType.IsQueryType())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
+                }
+
                 entityType.UpdateConfigurationSource(configurationSource);
             }
 
             return entityType?.Builder;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityTypeBuilder Query([NotNull] Type clrType)
+        {
+            if (IsIgnored(clrType, ConfigurationSource.Explicit))
+            {
+                return null;
+            }
+
+            var entityType = Metadata.FindEntityType(clrType);
+
+            if (entityType == null)
+            {
+                Metadata.Unignore(clrType);
+
+                entityType = Metadata.AddQueryType(clrType);
+            }
+            else
+            {
+                if (!entityType.IsQueryType())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));
+                }
+            }
+
+            return entityType.Builder;
         }
 
         /// <summary>

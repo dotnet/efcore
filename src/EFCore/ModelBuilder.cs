@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit));
+            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit, throwOnQuery: true));
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit, throwOnQuery: true));
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit));
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit, throwOnQuery: true));
         }
 
         /// <summary>
@@ -185,6 +185,83 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(name));
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given query type in the model.
+        ///     If the query type is not already part of the model, it will be added to the model.
+        /// </summary>
+        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
+        /// <returns> An object that can be used to configure the query type. </returns>
+        public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
+            where TQuery : class
+        {
+            return new QueryTypeBuilder<TQuery>(Builder.Query(typeof(TQuery)));
+        }
+
+        /// <summary>
+        ///     Returns an object that can be used to configure a given query type in the model.
+        ///     If the query type is not already part of the model, it will be added to the model.
+        /// </summary>
+        /// <param name="type"> The query type to be configured. </param>
+        /// <returns> An object that can be used to configure the query type. </returns>
+        public virtual QueryTypeBuilder Query([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return new QueryTypeBuilder(Builder.Query(type));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Performs configuration of a given query type in the model. If the query type is not already part
+        ///         of the model, it will be added to the model.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the query type to be done in line in the method call rather
+        ///         than being chained after a call to <see cref="Query{TQuery}()" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the query type.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
+        /// <param name="buildAction"> An action that performs configuration of the query type. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder Query<TQuery>([NotNull] Action<QueryTypeBuilder<TQuery>> buildAction)
+            where TQuery : class
+        {
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(Query<TQuery>());
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Performs configuration of a given query type in the model. If the query type is not already part
+        ///         of the model, it will be added to the model.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the query type to be done in line in the method call rather
+        ///         than being chained after a call to <see cref="Query{TQuery}()" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the query type.
+        ///     </para>
+        /// </summary>
+        /// <param name="type"> The query type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the query type. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder Query([NotNull] Type type, [NotNull] Action<QueryTypeBuilder> buildAction)
+        {
+            Check.NotNull(type, nameof(type));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(Query(type));
 
             return this;
         }

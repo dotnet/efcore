@@ -67,6 +67,47 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Fact]
+        public void View_type_negative_cases()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var whoAmI = new WhoAmI();
+
+                Assert.Equal(
+                    CoreStrings.QueryTypeNotValid("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Add(whoAmI)).Message);
+
+                Assert.Equal(
+                    CoreStrings.QueryTypeNotValid("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Remove(whoAmI)).Message);
+
+                Assert.Equal(
+                    CoreStrings.QueryTypeNotValid("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Attach(whoAmI)).Message);
+
+                Assert.Equal(
+                    CoreStrings.QueryTypeNotValid("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Update(whoAmI)).Message);
+
+                Assert.Equal(
+                    CoreStrings.InvalidSetTypeQuery("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Find<WhoAmI>(1)).Message);
+
+                Assert.Equal(
+                    CoreStrings.InvalidSetTypeQuery("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Set<WhoAmI>().ToList()).Message);
+
+                Assert.Equal(
+                    CoreStrings.InvalidSetTypeEntity("Sweet"),
+                    Assert.Throws<InvalidOperationException>(() => context.Query<Sweet>().ToList()).Message);
+
+                Assert.Equal(
+                    CoreStrings.QueryTypeNotValid("WhoAmI"),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(whoAmI)).Message);
+            }
+        }
+
+        [Fact]
         public void Can_get_all_entries()
         {
             using (var context = new EarlyLearningCenter())
@@ -1570,6 +1611,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
         }
 
+        private class WhoAmI
+        {
+            public string ToDisagree { get; set; }
+        }
+
         private class EarlyLearningCenter : DbContext
         {
             private readonly IServiceProvider _serviceProvider;
@@ -1620,6 +1666,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             b.OwnsOne(e => e.AreMade);
                             b.OwnsOne(e => e.OfThis);
                         });
+
+                modelBuilder.Query<WhoAmI>();
 
                 modelBuilder
                     .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);

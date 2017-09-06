@@ -524,7 +524,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var builder = new StringBuilder();
 
-            builder.Append(indent).Append("EntityType: ").Append(entityType.DisplayName());
+            builder
+                .Append(indent)
+                .Append(!entityType.IsQueryType() ? "EntityType: " : "QueryType: ")
+                .Append(entityType.DisplayName());
 
             if (entityType.BaseType != null)
             {

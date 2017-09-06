@@ -210,6 +210,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (subQueryModel.ResultOperators.All(ro => ro is CastResultOperator)
                 && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause)
+                && subQueryModel.SelectClause.Selector.NodeType != ExpressionType.MemberInit
+                && subQueryModel.SelectClause.Selector.NodeType != ExpressionType.New
                 || queryModel.IsIdentityQuery()
                 && !queryModel.ResultOperators.Any()
                 || emptyQueryModelWithFlattenableResultOperatorInSubquery

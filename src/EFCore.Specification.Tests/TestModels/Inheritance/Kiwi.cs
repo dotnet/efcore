@@ -13,4 +13,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
         North,
         South
     }
+
+    public class KiwiQuery : BirdQuery
+    {
+        public Island FoundOn { get; set; }
+    }
 }

@@ -134,6 +134,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
+            public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
+                where TQuery : class
+                => ModelBuilder.Query<TQuery>();
+
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 

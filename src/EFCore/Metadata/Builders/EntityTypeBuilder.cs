@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,6 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public EntityTypeBuilder([NotNull] InternalEntityTypeBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
+
+            if (builder.Metadata.IsQueryType())
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CannotAccessQueryAsEntity(builder.Metadata.DisplayName()));
+            }
 
             Builder = builder;
         }

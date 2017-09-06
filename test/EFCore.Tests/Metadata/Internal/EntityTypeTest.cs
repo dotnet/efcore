@@ -555,6 +555,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Setting_base_type_throws_when_mixing_views_and_entities()
+        {
+            var model = new Model();
+
+            var a = model.AddEntityType(typeof(A));
+            var b = model.AddQueryType(typeof(B));
+            
+            Assert.Equal(
+                CoreStrings.ErrorMixedQueryEntityTypeInheritance(typeof(A).Name, typeof(B).Name),
+                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
+
+            Assert.Equal(
+                CoreStrings.ErrorMixedQueryEntityTypeInheritance(typeof(B).Name, typeof(A).Name),
+                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
+        }
+
+        [Fact]
         public void Navigations_on_base_type_should_be_inherited()
         {
             var model = new Model();

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -45,6 +46,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 return entityTypeBuilder;
             }
+        }
+
+        [Fact]
+        public void Entity_throws_when_called_for_view()
+        {
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder.Query<Customer>();
+
+            Assert.Equal(
+                CoreStrings.CannotAccessQueryAsEntity(nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<Customer>()).Message);
         }
 
         [Fact]

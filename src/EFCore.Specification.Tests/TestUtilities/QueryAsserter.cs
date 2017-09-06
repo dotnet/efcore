@@ -864,7 +864,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private class DefaultSetExtractor : ISetExtractor
         {
             public override IQueryable<TEntity> Set<TEntity>(DbContext context)
-                => context.Set<TEntity>();
+            {
+                var entityOrQueryType = context.Model.FindEntityType(typeof(TEntity));
+
+                return entityOrQueryType.IsQueryType()
+                        ? (IQueryable<TEntity>)context.Query<TEntity>()
+                        : context.Set<TEntity>();
+            }
         }
     }
 }

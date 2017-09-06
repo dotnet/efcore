@@ -184,6 +184,17 @@ FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
 ORDER BY [a].[Species]");
         }
+        
+        public override void Can_query_all_animal_views()
+        {
+            base.Can_query_all_animal_views();
+
+            AssertSql(
+                @"SELECT [av].[CountryId], [av].[Discriminator], [av].[Name], [av].[EagleId], [av].[IsFlightless], [av].[Group], [av].[FoundOn]
+FROM [Animal] AS [av]
+WHERE [av].[Discriminator] IN (N'Kiwi', N'Eagle')
+ORDER BY [av].[CountryId]");
+        }
 
         public override void Can_query_all_plants()
         {

@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected virtual void ValidateSharedTableCompatibility([NotNull] IModel model)
         {
             var tables = new Dictionary<string, List<IEntityType>>();
-            foreach (var entityType in model.GetEntityTypes())
+            foreach (var entityType in model.GetEntityTypes().Where(et => !et.IsQueryType()))
             {
                 var annotations = entityType.Relational();
                 var tableName = Format(annotations.Schema, annotations.TableName);

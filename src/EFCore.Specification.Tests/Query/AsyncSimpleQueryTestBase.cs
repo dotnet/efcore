@@ -30,6 +30,55 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
+
+        [ConditionalFact]
+        public virtual async Task Query_simple()
+        {
+            await AssertQuery<CustomerView>(cvs => cvs);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Query_where_simple()
+        {
+            await AssertQuery<CustomerView>(
+                cvs => cvs.Where(c => c.City == "London"));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Query_backed_by_database_view()
+        {
+            using (var context = CreateContext())
+            {
+                var results = await context.Query<ProductQuery>().ToArrayAsync();
+
+                Assert.Equal(69, results.Length);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Query_with_nav()
+        {
+            await AssertQuery<OrderQuery>(ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_query_where_navigation()
+        {
+            await AssertQuery<OrderQuery>(
+                ovs => from ov in ovs
+                       where ov.Customer.City == "Seattle"
+                       select ov);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_query_where_navigation_multi_level()
+        {
+            await AssertQuery<OrderQuery>(
+                ovs => from ov in ovs
+                       where ov.Customer.Orders.Any()
+                       select ov);
+        }
+
         [ConditionalFact]
         public virtual async Task Projection_when_client_evald_subquery()
         {

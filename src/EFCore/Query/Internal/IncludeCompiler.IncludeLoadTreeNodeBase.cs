@@ -56,6 +56,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var propertyExpressions = new List<Expression>();
                 var blockExpressions = new List<Expression>();
 
+                var entityType 
+                    = queryCompilationContext.FindEntityType(targetQuerySourceReferenceExpression.ReferencedQuerySource)
+                          ?? queryCompilationContext.Model.FindEntityType(entityParameter.Type);
+
+                if (entityType.IsQueryType())
+                {
+                    trackingQuery = false;
+                }
+
                 if (trackingQuery)
                 {
                     blockExpressions.Add(
@@ -65,9 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 nameof(QueryContext.QueryBuffer)),
                             _queryBufferStartTrackingMethodInfo,
                             entityParameter,
-                            Expression.Constant(
-                                queryCompilationContext.FindEntityType(targetQuerySourceReferenceExpression.ReferencedQuerySource)
-                                ?? queryCompilationContext.Model.FindEntityType(entityParameter.Type))));
+                            Expression.Constant(entityType)));
                 }
 
                 var includedIndex = 0;

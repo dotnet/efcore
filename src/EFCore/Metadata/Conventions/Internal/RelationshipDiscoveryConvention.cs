@@ -77,8 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 var navigationPropertyInfo = candidateTuple.Key;
                 var targetClrType = candidateTuple.Value;
-
-                if (entityTypeBuilder.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.Convention))
+                
+                if (entityTypeBuilder.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.Convention)
+                    || (entityTypeBuilder.Metadata.IsQueryType()
+                        && navigationPropertyInfo.PropertyType.TryGetSequenceType() != null))
                 {
                     continue;
                 }
@@ -105,7 +107,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 var candidateTargetEntityType = candidateTargetEntityTypeBuilder.Metadata;
+
+                if (candidateTargetEntityType.IsQueryType())
+                {
+                    continue;
+                }
+                
                 var entityType = entityTypeBuilder.Metadata;
+
                 if (relationshipCandidates.TryGetValue(candidateTargetEntityType, out var existingCandidate))
                 {
                     if (candidateTargetEntityType != entityType
@@ -120,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var navigations = new HashSet<PropertyInfo> { navigationPropertyInfo };
                 var inverseCandidates = GetNavigationCandidates(candidateTargetEntityType);
                 var inverseNavigationCandidates = new HashSet<PropertyInfo>();
+
                 foreach (var inverseCandidateTuple in inverseCandidates)
                 {
                     var inversePropertyInfo = inverseCandidateTuple.Key;
@@ -128,6 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (inverseTargetType != entityType.ClrType
                         || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
                         || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention)
+                        || entityType.IsQueryType()
                         || (entityType.HasDefiningNavigation()
                             && entityType.DefiningEntityType == candidateTargetEntityType
                             && entityType.DefiningNavigationName != inversePropertyInfo.Name))

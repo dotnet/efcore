@@ -23,8 +23,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
-            var sqlStatements
-                = _logger.SqlStatements;
+            var sqlStatements = _logger.SqlStatements;
 
             try
             {

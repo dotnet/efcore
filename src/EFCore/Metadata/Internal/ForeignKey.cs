@@ -50,6 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
+            if (principalEntityType.IsQueryType())
+            {
+                throw new InvalidOperationException(CoreStrings.QueryTypeCannotBePrincipal(principalEntityType.DisplayName()));
+            }
+
             Properties = dependentProperties;
             PrincipalKey = principalKey;
             DeclaringEntityType = dependentEntityType;
