@@ -1,14 +1,13 @@
-Entity Framework Core
-=====================
+# Entity Framework Core
 
-Documentation on using EF Core is available at <https://docs.microsoft.com/ef/>.
+Documentation on using EF Core is available at <https://docs.microsoft.com/en-us/ef/core/>.
 
 [![Travis build status](https://img.shields.io/travis/aspnet/EntityFrameworkCore.svg?label=travis-ci&branch=dev&style=flat-square)](https://travis-ci.org/aspnet/EntityFrameworkCore/branches)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/aspnetci/EntityFramework/dev.svg?label=appveyor&style=flat-square)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
 
 ## EF Core here, EF6 elsewhere
 
-This project is for Entity Framework Core. Entity Framework 6.x is still under active development at https://github.com/aspnet/EntityFramework6.
+This project is for Entity Framework Core. Entity Framework 6 is still under active development at https://github.com/aspnet/EntityFramework6.
 
 ## What is EF Core?
 
@@ -21,11 +20,12 @@ EF Core is an object-relational mapper (O/RM) that enables .NET developers to wo
 The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.
 For a complete list, see https://docs.microsoft.com/ef/core/providers/.
 
-Provider               | Package name                              | Stable (`master` branch)    | Nightly (`dev` branch)
+Provider               | Package name                              | Stable (master branch)    | Nightly (dev branch)
 -----------------------|-------------------------------------------|-----------------------------|-------------------------
 SQL Server             | `Microsoft.EntityFrameworkCore.SqlServer` | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.SqlServer)
 SQLite                 | `Microsoft.EntityFrameworkCore.SQLite`    | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.Sqlite.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.Sqlite)
 InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.InMemory/) | [![MyGet](https://img.shields.io/dotnet.myget/aspnetcore-dev/vpre/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=myget)](https://dotnet.myget.org/feed/aspnetcore-dev/package/nuget/Microsoft.EntityFrameworkCore.InMemory)
 
-## Roadmap
-For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFrameworkCore/wiki/Roadmap) article in the wiki.
+## Wiki
+
+For more details on the release roadmap, or how to get and build our code, see our [**wiki**](https://github.com/aspnet/EntityFrameworkCore/wiki/).
