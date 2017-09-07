@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindQueryInMemoryFixture<TModelCustomizer> : NorthwindQueryFixtureBase<TModelCustomizer>
-        where TModelCustomizer : IModelCustomizer, new()
+        where TModelCustomizer : class, IAdditionalModelCustomizer, new()
     {
         protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
     }

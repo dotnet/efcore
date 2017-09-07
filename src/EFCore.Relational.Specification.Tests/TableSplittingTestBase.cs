@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -105,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
             TestStore = TestStoreFactory.GetOrCreate(DatabaseName);
 
             ServiceProvider = AddServices(TestStoreFactory.AddProviderServices(new ServiceCollection()))
-                .AddSingleton(TestModelSource.GetFactory(onModelCreating))
+                .AddSingleton<IAdditionalModelCustomizer>(new TestModelCustomizer(onModelCreating))
                 .BuildServiceProvider(validateScopes: true);
 
             TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());

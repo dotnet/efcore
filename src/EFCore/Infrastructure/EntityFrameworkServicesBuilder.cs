@@ -67,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ICoreConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ITypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModelCustomizerCollection), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILoggerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -195,6 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICoreConventionSetBuilder, CoreConventionSetBuilder>();
             TryAdd<ITypeMapper, CoreTypeMapper>();
             TryAdd<IModelCustomizer, ModelCustomizer>();
+            TryAdd<IModelCustomizerCollection, ModelCustomizerCollection>();
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
             TryAdd<ILoggerFactory, LoggerFactory>();
             TryAdd<IModelSource, ModelSource>();
@@ -265,6 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<CoreConventionSetBuilderDependencies>()
                 .AddDependencySingleton<CoreTypeMapperDependencies>()
                 .AddDependencySingleton<ModelCustomizerDependencies>()
+                .AddDependencySingleton<ModelCustomizerCollectionDependencies>()
                 .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
                 .AddDependencyScoped<ExecutionStrategyDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()

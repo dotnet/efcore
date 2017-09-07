@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindFiltersCustomizer : IModelCustomizer
+    public class NorthwindFiltersCustomizer : IAdditionalModelCustomizer
     {
         public void Customize(ModelBuilder modelBuilder, DbContext context)
         {

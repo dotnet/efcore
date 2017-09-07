@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class NoopModelCustomizer : IModelCustomizer
+    public class NoopModelCustomizer : IAdditionalModelCustomizer
     {
         public void Customize(ModelBuilder modelBuilder, DbContext context)
         {

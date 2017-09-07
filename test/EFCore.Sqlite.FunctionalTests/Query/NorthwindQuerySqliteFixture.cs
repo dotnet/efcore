@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindQuerySqliteFixture<TModelCustomizer> : NorthwindQueryRelationalFixture<TModelCustomizer>
-        where TModelCustomizer : IModelCustomizer, new()
+        where TModelCustomizer : class, IAdditionalModelCustomizer, new()
     {
         protected override ITestStoreFactory TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
 

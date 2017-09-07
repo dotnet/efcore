@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class FixtureBase
     {
         protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton(TestModelSource.GetFactory(OnModelCreating));
+            => serviceCollection.AddSingleton<IAdditionalModelCustomizer>(new TestModelCustomizer(OnModelCreating));
 
         public virtual DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => builder
