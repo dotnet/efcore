@@ -281,9 +281,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             return clrType == typeof(string)
                 ? _unboundedUnicodeString
-                : (clrType == typeof(byte[])
+                : clrType == typeof(byte[])
                     ? _unboundedBinary
-                    : base.FindMapping(clrType));
+                    : base.FindMapping(clrType);
         }
 
         // Indexes in SQL Server have a max size of 900 bytes
