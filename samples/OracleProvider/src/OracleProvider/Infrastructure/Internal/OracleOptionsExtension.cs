@@ -23,13 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         protected override RelationalOptionsExtension Clone()
             => new OracleOptionsExtension(this);
 
-        public virtual OracleOptionsExtension WithRowNumberPaging(bool rowNumberPaging)
-        {
-            var clone = (OracleOptionsExtension)Clone();
-
-            return clone;
-        }
-
         public override bool ApplyServices(IServiceCollection services)
         {
             Check.NotNull(services, nameof(services));
