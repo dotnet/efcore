@@ -624,9 +624,9 @@ FROM ""Customers""")
                 var actual = context.Set<Product>()
                     .FromSql(
                         @"SELECT *
-FROM Products
-WHERE Discontinued <> 1
-AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
+FROM ""Products""
+WHERE ""Discontinued"" <> 1
+AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")")
                     .Select(p => p.ProductName)
                     .ToArray();
 

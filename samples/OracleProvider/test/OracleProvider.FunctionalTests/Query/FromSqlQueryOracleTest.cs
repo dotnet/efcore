@@ -106,24 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             // Not supported on Oracle
         }
 
-        [Fact]
-        public override void From_sql_queryable_simple_projection_composed()
-        {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Product>()
-                    .FromSql(
-                        @"SELECT *
-FROM ""Products""
-WHERE ""Discontinued"" <> 1
-AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")")
-                    .Select(p => p.ProductName)
-                    .ToArray();
-
-                Assert.Equal(2, actual.Length);
-            }
-        }
-
         public override void Bad_data_error_handling_invalid_cast_no_tracking()
         {
             using (var context = CreateContext())

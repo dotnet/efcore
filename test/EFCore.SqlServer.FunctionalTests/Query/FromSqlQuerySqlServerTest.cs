@@ -346,9 +346,9 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
                 @"SELECT [p].[ProductName]
 FROM (
     SELECT *
-    FROM Products
-    WHERE Discontinued <> 1
-    AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)
+    FROM ""Products""
+    WHERE ""Discontinued"" <> 1
+    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
 ) AS [p]");
         }
 
