@@ -115,11 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         {
             var aliasedProjection = projection as AliasExpression;
             var expressionToProcess = aliasedProjection?.Expression ?? projection;
-            var updatedExperssion = ExplicitCastToBool(expressionToProcess);
+            var updatedExpression = ExplicitCastToBool(expressionToProcess);
 
             expressionToProcess = aliasedProjection != null
-                ? new AliasExpression(aliasedProjection.Alias, updatedExperssion)
-                : updatedExperssion;
+                ? new AliasExpression(aliasedProjection.Alias, updatedExpression)
+                : updatedExpression;
 
             base.GenerateProjection(expressionToProcess);
         }
