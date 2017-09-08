@@ -930,11 +930,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private List<ForeignKey> FindConflictingRelationships(
+        private IEnumerable<ForeignKey> FindConflictingRelationships(
             EntityType baseEntityType,
             ConfigurationSource configurationSource)
         {
-            var relationshipsToBeDetached = new List<ForeignKey>();
+            var relationshipsToBeDetached = new HashSet<ForeignKey>();
             foreach (var navigation in Metadata.GetDerivedNavigationsInclusive())
             {
                 if (!navigation.ForeignKey.GetConfigurationSource().Overrides(
@@ -1739,16 +1739,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var existingNavigation = Metadata
                     .FindNavigationsInHierarchy(navigation.Name)
                     .SingleOrDefault(n => n.GetTargetType().Name == targetEntityType.Name && n.GetTargetType().HasDefiningNavigation());
-                
+
                 var builder = existingNavigation?.ForeignKey.Builder;
-                
+
                 if (builder != null)
                 {
                     builder = builder.RelatedEntityTypes(Metadata, existingNavigation.GetTargetType(), configurationSource);
                     builder = builder?.IsRequired(true, configurationSource);
                     builder = builder?.IsOwnership(true, configurationSource);
                     builder = builder?.Navigations(inverse, navigation, configurationSource);
-                    
+
                     return builder == null ? null : batch.Run(builder);
                 }
 
