@@ -2823,7 +2823,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
             base.DateTimeOffset_Date_works();
 
             AssertSql(
-                @"@__Date_0='01/01/0001 00:00:00'
+                @"@__Date_0='0001-01-01T00:00:00'
 
 SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
 FROM [Missions] AS [m]

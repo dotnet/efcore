@@ -625,7 +625,7 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
             base.Where_datetime_now();
 
             AssertSql(
-                @"@__myDatetime_0='04/10/2015 00:00:00'
+                @"@__myDatetime_0='2015-04-10T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -637,7 +637,7 @@ WHERE GETDATE() <> @__myDatetime_0");
             base.Where_datetime_utcnow();
 
             AssertSql(
-                @"@__myDatetime_0='04/10/2015 00:00:00'
+                @"@__myDatetime_0='2015-04-10T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -649,7 +649,7 @@ WHERE GETUTCDATE() <> @__myDatetime_0");
             base.Where_datetime_date_component();
 
             AssertSql(
-                @"@__myDatetime_0='05/04/1998 00:00:00'
+                @"@__myDatetime_0='1998-05-04T00:00:00'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

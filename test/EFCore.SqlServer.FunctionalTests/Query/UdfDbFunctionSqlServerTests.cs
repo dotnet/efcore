@@ -374,7 +374,7 @@ WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
                 Assert.Equal(custId, 2);
 
                 Assert.Equal(
-                    @"@__startDate_0='04/01/2000 00:00:00'
+                    @"@__startDate_0='2000-04-01T00:00:00'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]

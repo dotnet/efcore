@@ -349,10 +349,10 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3='True'
 @p4='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p5='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p6='01/02/2015 10:11:12' (DbType = Date)
-@p7='01/02/2019 14:11:12' (DbType = DateTime)
-@p8='01/02/2017 12:11:12'
-@p9='01/02/2016 11:11:12 +00:00'
+@p6='2015-01-02T10:11:12' (DbType = Date)
+@p7='2019-01-02T14:11:12' (DbType = DateTime)
+@p8='2017-01-02T12:11:12'
+@p9='2016-01-02T11:11:12.0000000+00:00'
 @p10='102.2'
 @p11='101.1'
 @p12='85.5'
@@ -365,7 +365,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3'
 @p20='" + entity.NvarcharMax + @"' (Nullable = false) (Size = -1)
 @p21='84.4'
-@p22='01/02/2018 13:11:12' (DbType = DateTime)
+@p22='2018-01-02T13:11:12' (DbType = DateTime)
 @p23='79'
 @p24='82.2'
 @p25='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
@@ -473,10 +473,10 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p3='True' (Nullable = true)
 @p4='Your' (Size = 8000) (DbType = AnsiString)
 @p5='strong' (Size = 8000) (DbType = AnsiString)
-@p6='01/02/2015 10:11:12' (Nullable = true) (DbType = Date)
-@p7='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
-@p8='01/02/2017 12:11:12' (Nullable = true)
-@p9='01/02/2016 11:11:12 +00:00' (Nullable = true)
+@p6='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
+@p7='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
+@p8='2017-01-02T12:11:12' (Nullable = true)
+@p9='2016-01-02T11:11:12.0000000+00:00' (Nullable = true)
 @p10='102.2' (Nullable = true)
 @p11='101.1' (Nullable = true)
 @p12='85.5' (Nullable = true)
@@ -489,7 +489,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3' (Nullable = true)
 @p20='don't' (Size = 4000)
 @p21='84.4' (Nullable = true)
-@p22='01/02/2018 13:11:12' (Nullable = true) (DbType = DateTime)
+@p22='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
 @p23='79' (Nullable = true)
 @p24='82.2' (Nullable = true)
 @p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
@@ -798,8 +798,8 @@ WHERE [e].[Time] = @__timeSpan_0",
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='77'
-@p1='01/02/2017 12:11:12'
-@p2='01/02/2016 11:11:12 +00:00'
+@p1='2017-01-02T12:11:12'
+@p2='2016-01-02T11:11:12.0000000+00:00'
 @p3='102.2'
 @p4='101.1'
 @p5='85.5'
@@ -898,10 +898,10 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2='True'
 @p3='Your' (Size = 8000) (DbType = AnsiString)
 @p4='strong' (Size = 8000) (DbType = AnsiString)
-@p5='01/02/2015 10:11:12' (DbType = Date)
-@p6='01/02/2019 14:11:12' (DbType = DateTime)
-@p7='01/02/2017 12:11:12'
-@p8='01/02/2016 11:11:12 +00:00'
+@p5='2015-01-02T10:11:12' (DbType = Date)
+@p6='2019-01-02T14:11:12' (DbType = DateTime)
+@p7='2017-01-02T12:11:12'
+@p8='2016-01-02T11:11:12.0000000+00:00'
 @p9='102.2'
 @p10='101.1'
 @p11='85.5'
@@ -915,7 +915,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3'
 @p20='don't' (Size = 4000)
 @p21='84.4'
-@p22='01/02/2018 13:11:12' (DbType = DateTime)
+@p22='2018-01-02T13:11:12' (DbType = DateTime)
 @p23='79'
 @p24='82.2'
 @p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
@@ -1018,10 +1018,10 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p2='True' (Nullable = true)
 @p3='Your' (Size = 8000) (DbType = AnsiString)
 @p4='strong' (Size = 8000) (DbType = AnsiString)
-@p5='01/02/2015 10:11:12' (Nullable = true) (DbType = Date)
-@p6='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
-@p7='01/02/2017 12:11:12' (Nullable = true)
-@p8='01/02/2016 11:11:12 +00:00' (Nullable = true)
+@p5='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
+@p6='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
+@p7='2017-01-02T12:11:12' (Nullable = true)
+@p8='2016-01-02T11:11:12.0000000+00:00' (Nullable = true)
 @p9='102.2' (Nullable = true)
 @p10='101.1' (Nullable = true)
 @p11='85.5' (Nullable = true)
@@ -1035,7 +1035,7 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3' (Nullable = true)
 @p20='don't' (Size = 4000)
 @p21='84.4' (Nullable = true)
-@p22='01/02/2018 13:11:12' (Nullable = true) (DbType = DateTime)
+@p22='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
 @p23='79' (Nullable = true)
 @p24='82.2' (Nullable = true)
 @p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
@@ -1344,8 +1344,8 @@ WHERE [e].[Time] = @__timeSpan_0",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='01/02/2017 12:11:12'
-@p1='01/02/2016 11:11:12 +00:00'
+                @"@p0='2017-01-02T12:11:12'
+@p1='2016-01-02T11:11:12.0000000+00:00'
 @p2='102.2'
 @p3='101.1'
 @p4='85.5'
