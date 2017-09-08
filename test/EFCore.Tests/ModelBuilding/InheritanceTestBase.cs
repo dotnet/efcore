@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -66,6 +67,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Same(baseType, derived.BaseType);
                 Assert.Same(derived, moreDerived.BaseType);
+            }
+
+            [Fact]
+            public virtual void Can_map_derived_self_ref_many_to_one()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<SelfRefManyToOneDerived>();
+                modelBuilder.Entity<SelfRefManyToOne>();
+
+                modelBuilder.Validate();
+
+                var model = modelBuilder.Model;
+                Assert.Equal(0, model.FindEntityType(typeof(SelfRefManyToOneDerived)).GetDeclaredProperties().Count());
+                Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef1)));
+                Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef2)));
             }
 
             [Fact]
