@@ -93,26 +93,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         _factory.GetType().ShortDisplayName()));
             }
 
-            projectPath = projectPath.TrimEnd(_directorySeparatorChars);
-
-            var fullProjectPath = Path.GetFullPath(projectPath);
-            var fullOutputPath = string.IsNullOrEmpty(outputPath)
-                ? fullProjectPath
-                : Path.GetFullPath(Path.Combine(projectPath, outputPath));
+            outputPath = string.IsNullOrWhiteSpace(outputPath) ? null : outputPath;
+            var subNamespace = SubnamespaceFromOutputPath(projectPath, outputPath);
 
             var @namespace = rootNamespace;
-            if (!string.Equals(fullOutputPath, fullProjectPath)
-                && fullOutputPath.StartsWith(fullProjectPath, StringComparison.Ordinal))
+
+            if (!string.IsNullOrEmpty(subNamespace))
             {
-                var relativeOutputPath = fullOutputPath.Substring(fullProjectPath.Length + 1);
-                @namespace += "." + string.Join(
-                                  ".", relativeOutputPath
-                                      .Split(_directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries)
-                                      .Select(
-                                          p => _cSharpUtilities.GenerateCSharpIdentifier(
-                                              p,
-                                              existingIdentifiers: null,
-                                              singularizePluralizer: null)));
+                @namespace += "." + subNamespace;
             }
 
             if (string.IsNullOrEmpty(contextName))
@@ -129,9 +117,27 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            CheckOutputFiles(fullOutputPath, contextName, model, overwriteFiles);
+            CheckOutputFiles(outputPath ?? projectPath, contextName, model, overwriteFiles);
 
-            return ScaffoldingCodeGenerator.WriteCode(model, fullOutputPath, @namespace, contextName, connectionString, useDataAnnotations);
+            return ScaffoldingCodeGenerator.WriteCode(model, outputPath ?? projectPath, @namespace, contextName, connectionString, useDataAnnotations);
+        }
+
+        // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+        // --output-dir $(projectFolder)/A/B/C
+        // => "namespace $(rootnamespace).A.B.C"
+        private string SubnamespaceFromOutputPath(string projectDir, string outputDir)
+        {
+            if (outputDir == null
+                || !outputDir.StartsWith(projectDir, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var subPath = outputDir.Substring(projectDir.Length);
+
+            return !string.IsNullOrWhiteSpace(subPath)
+                ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                : null;
         }
 
         private void CheckOutputFiles(

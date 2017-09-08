@@ -454,6 +454,13 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(schemaFilters, nameof(schemaFilters));
             Check.NotNull(tableFilters, nameof(tableFilters));
 
+            // In package manager console, relative outputDir is relative to project directory
+            if (!string.IsNullOrWhiteSpace(outputDir)
+                && !Path.IsPathRooted(outputDir))
+            {
+                outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+            }
+
             var files = _databaseOperations.Value.ScaffoldContext(
                 provider, connectionString, outputDir, dbContextClassName,
                 schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
