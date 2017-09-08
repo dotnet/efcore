@@ -130,11 +130,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             builder.Append('\'');
 
-            if (parameterValue?.GetType() != typeof(byte[]))
+            if (parameterValue == null)
             {
-                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
+                builder.Append('\'');
+                return;
             }
-            else
+            else if (parameterValue.GetType() == typeof(DateTime))
+            {
+                builder.Append(((DateTime)parameterValue).ToString("s"));
+            }
+            else if (parameterValue.GetType() == typeof(DateTimeOffset))
+            {
+                builder.Append(((DateTimeOffset)parameterValue).ToString("o"));
+            }
+            else if (parameterValue.GetType() == typeof(byte[]))
             {
                 var buffer = (byte[])parameterValue;
                 builder.Append("0x");
@@ -148,6 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
                     builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
+            }
+            else
+            {
+                builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));
             }
 
             builder.Append('\'');
