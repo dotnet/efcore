@@ -1,5 +1,5 @@
 {
-  "AssemblyIdentity": "Microsoft.Data.Sqlite, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.Data.Sqlite, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
       "Name": "Microsoft.Data.Sqlite.SqliteCacheMode",
@@ -531,7 +531,7 @@
           "Kind": "Method",
           "Name": "get_Handle",
           "Parameters": [],
-          "ReturnType": "System.IntPtr",
+          "ReturnType": "SQLitePCL.sqlite3",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -683,6 +683,52 @@
           "Override": true,
           "Visibility": "Protected",
           "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateCollation",
+          "Parameters": [
+            {
+              "Name": "name",
+              "Type": "System.String"
+            },
+            {
+              "Name": "comparison",
+              "Type": "System.Comparison<System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateCollation<T0>",
+          "Parameters": [
+            {
+              "Name": "name",
+              "Type": "System.String"
+            },
+            {
+              "Name": "state",
+              "Type": "T0"
+            },
+            {
+              "Name": "comparison",
+              "Type": "System.Func<T0, System.String, System.String, System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "T",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         },
         {
           "Kind": "Method",
@@ -1038,7 +1084,7 @@
           "Kind": "Method",
           "Name": "get_Handle",
           "Parameters": [],
-          "ReturnType": "System.IntPtr",
+          "ReturnType": "SQLitePCL.sqlite3_stmt",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -1134,6 +1180,17 @@
           "Name": "NextResult",
           "Parameters": [],
           "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Override": true,
+          "ImplementedInterface": "System.Data.IDataReader",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Close",
+          "Parameters": [],
+          "ReturnType": "System.Void",
           "Virtual": true,
           "Override": true,
           "ImplementedInterface": "System.Data.IDataReader",
@@ -1296,6 +1353,19 @@
           "Virtual": true,
           "Override": true,
           "ImplementedInterface": "System.Data.IDataRecord",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetDateTimeOffset",
+          "Parameters": [
+            {
+              "Name": "ordinal",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "System.DateTimeOffset",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -1560,6 +1630,24 @@
           "Parameters": [],
           "ReturnType": "System.Int32",
           "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ThrowExceptionForRC",
+          "Parameters": [
+            {
+              "Name": "rc",
+              "Type": "System.Int32"
+            },
+            {
+              "Name": "db",
+              "Type": "SQLitePCL.sqlite3"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -2705,27 +2793,6 @@
           "Parameters": [],
           "GenericParameter": [],
           "Literal": "4"
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.Data.Sqlite.Internal.SqliteEngine",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "Abstract": true,
-      "Static": true,
-      "Sealed": true,
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "UseWinSqlite3",
-          "Parameters": [],
-          "ReturnType": "System.Void",
-          "Static": true,
-          "Visibility": "Public",
-          "GenericParameter": []
         }
       ],
       "GenericParameters": []
