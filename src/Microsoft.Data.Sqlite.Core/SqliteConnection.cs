@@ -135,7 +135,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Opens a connection to the database using the value of <see cref="ConnectionString" />.
+        /// Opens a connection to the database using the value of <see cref="ConnectionString" />. If
+        /// <c>Mode=ReadWriteCreate</c> is used (the default) the file is created, if it doesn't already exist.
         /// </summary>
         /// <exception cref="SqliteException">A SQLite error occurs while opening the connection.</exception>
         public override void Open()
