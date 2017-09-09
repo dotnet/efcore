@@ -365,7 +365,7 @@ WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
         {
             using (var context = CreateContext())
             {
-                var startDate = DateTime.Parse("4/1/2000");
+                var startDate = new DateTime(2000, 4, 1);
 
                 var custId = (from c in context.Customers
                               where UDFSqlContext.GetCustomerWithMostOrdersAfterDate(startDate) == c.Id
@@ -863,7 +863,7 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
                                                     returns DateTime
                                                     as
                                                     begin
-	                                                    return '1/1/1998'
+	                                                    return '1998-01-01'
                                                     end");
 
                 context.Database.ExecuteSqlCommand(@"create function [dbo].[GetCustomerWithMostOrdersAfterDate] (@searchDate Date)
@@ -887,12 +887,12 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
 	                                                    return 0
                                                     end");
 
-                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = DateTime.Parse("1/20/2000") };
-                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = DateTime.Parse("2/21/2000") };
-                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = DateTime.Parse("3/20/2000") };
-                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = DateTime.Parse("4/21/2000") };
-                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = DateTime.Parse("5/20/2000") };
-                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = DateTime.Parse("6/21/2000") };
+                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = new DateTime(2000, 1, 20) };
+                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = new DateTime(2000, 2, 21) };
+                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = new DateTime(2000, 3, 20) };
+                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = new DateTime(2000, 4, 21) };
+                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = new DateTime(2000, 5, 20) };
+                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = new DateTime(2000, 6, 21) };
 
                 var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12, order13 } };
                 var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22 } };
