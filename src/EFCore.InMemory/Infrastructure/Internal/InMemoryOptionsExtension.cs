@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
     public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
         private string _storeName;
+        private bool _useGlobalDatabase;
         private string _logFragment;
 
         /// <summary>
@@ -63,6 +64,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool UseGlobalDatabase => _useGlobalDatabase;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InMemoryOptionsExtension WithGlobalDatabase(bool useGlobalDatabase = true)
+        {
+            var clone = Clone();
+
+            clone._useGlobalDatabase = useGlobalDatabase;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool ApplyServices(IServiceCollection services)
         {
             Check.NotNull(services, nameof(services));
@@ -76,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual long GetServiceProviderHashCode() => 0;
+        public virtual long GetServiceProviderHashCode() => _useGlobalDatabase.GetHashCode();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
