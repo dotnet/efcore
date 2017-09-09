@@ -66,8 +66,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IEntityQueryModelVisitorFactory, InMemoryQueryModelVisitorFactory>()
                 .TryAdd<IEntityQueryableExpressionVisitorFactory, InMemoryEntityQueryableExpressionVisitorFactory>()
                 .TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>()
+                .TryAdd<ISingletonOptions, IInMemorySingletonOptions>(p => p.GetService<IInMemorySingletonOptions>())
                 .TryAddProviderSpecificServices(
                     b => b
+                        .TryAddSingleton<IInMemorySingletonOptions, InMemorySingletonOptions>()
                         .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
                         .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
                         .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
