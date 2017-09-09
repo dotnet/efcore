@@ -3698,7 +3698,7 @@ ORDER BY (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <> N'VAFFE'
+WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ORDER BY [c].[City], [c].[CustomerID]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY",
                 //
@@ -3710,7 +3710,7 @@ FROM [Orders] AS [c.Orders]
 INNER JOIN (
     SELECT [c0].[CustomerID], [c0].[City]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] <> N'VAFFE'
+    WHERE [c0].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ORDER BY [c0].[City], [c0].[CustomerID]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]

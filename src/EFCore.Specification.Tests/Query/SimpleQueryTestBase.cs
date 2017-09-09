@@ -3543,8 +3543,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Include_with_orderby_skip_preserves_ordering()
         {
             AssertQuery<Customer>(
-                cs => cs.Include(c => c.Orders).Where(c => c.CustomerID != "VAFFE").OrderBy(c => c.City).Skip(40).Take(5),
-                entryCount: 53,
+                cs => cs.Include(c => c.Orders).Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD").OrderBy(c => c.City).Skip(40).Take(5),
+                entryCount: 48,
                 assertOrder: true);
         }
 

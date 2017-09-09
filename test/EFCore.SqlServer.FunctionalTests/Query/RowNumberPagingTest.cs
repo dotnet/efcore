@@ -554,7 +554,7 @@ SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[City], [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] <> N'VAFFE'
+    WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ) AS [t0]
 WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 //
@@ -568,7 +568,7 @@ INNER JOIN (
     FROM (
         SELECT [c0].[CustomerID], [c0].[City], ROW_NUMBER() OVER(ORDER BY [c0].[City], [c0].[CustomerID]) AS [__RowNumber__]
         FROM [Customers] AS [c0]
-        WHERE [c0].[CustomerID] <> N'VAFFE'
+        WHERE [c0].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ) AS [t1]
     WHERE ([t1].[__RowNumber__] > @__p_0) AND ([t1].[__RowNumber__] <= (@__p_0 + @__p_1))
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
@@ -586,7 +586,7 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] <> N'VAFFE'
+    WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ORDER BY [c].[City]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
