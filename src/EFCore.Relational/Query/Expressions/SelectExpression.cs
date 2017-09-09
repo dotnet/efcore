@@ -337,10 +337,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             var projectionsToAdd = IsProjectStar ? _starProjection : _projection;
             var outerProjections = new List<Expression>();
+            var aliasExpressionMap = new Dictionary<AliasExpression, Expression>();
 
             foreach (var expression in projectionsToAdd)
             {
                 var expressionToAdd = subquery.CreateUniqueProjection(expression);
+
+                if (expression is AliasExpression aliasExpression)
+                {
+                    aliasExpressionMap.Add(aliasExpression, expressionToAdd);
+                }
 
                 if (IsProjectStar)
                 {
@@ -366,8 +372,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             }
 
             subquery._tables.AddRange(_tables);
-            subquery._orderBy.AddRange(_orderBy);
 
+            foreach (var ordering in _orderBy)
+            {
+                subquery.AddToOrderBy(
+                    ordering.Expression is AliasExpression aliasExpression &&
+                    aliasExpressionMap.TryGetValue(aliasExpression, out var newExpression)
+                        ? new Ordering(newExpression, ordering.OrderingDirection)
+                        : ordering);
+            }
             subquery.Predicate = Predicate;
 
             subquery._limit = _limit;

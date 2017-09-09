@@ -1012,15 +1012,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         break;
                     }
 
-                    if (sqlOrderingExpression.IsComparisonOperation()
-                        || sqlOrderingExpression.IsLogicalOperation())
-                    {
-                        sqlOrderingExpression = Expression.Condition(
-                            sqlOrderingExpression,
-                            Expression.Constant(true, typeof(bool)),
-                            Expression.Constant(false, typeof(bool)));
-                    }
-
                     orderings.Add(
                         new Ordering(
                             sqlOrderingExpression,

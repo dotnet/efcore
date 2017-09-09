@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected SqlServerFixture Fixture { get; }
@@ -1177,7 +1177,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1198,7 +1198,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1219,7 +1219,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
                     var result = query.ToList();
@@ -2454,6 +2454,123 @@ BEGIN
 
                         ClearLog();
                     });
+
+        #endregion
+
+        #region Bug9735
+
+        [Fact]
+        // TODO: Convert to test in IncludeTestBase once issue #9742 is fixed
+        public virtual void Repro9735()
+        {
+            using (CreateDatabase9735())
+            {
+                using (var context = new MyContext9735(_options))
+                {
+                    var result = context.Customers
+                        .Include(b => b.Orders)
+                        .OrderBy(b => b.Address.Id > 0)
+                        .ThenBy(b => b.CustomerDetails != null ? b.CustomerDetails.Name : string.Empty)
+                        .Take(2)
+                        .ToList();
+
+                    Assert.Equal(1, result.Count);
+
+                    AssertSql(
+                        @"@__p_1='2'
+@__Empty_0='' (Size = 4000)
+
+SELECT TOP(@__p_1) [b].[Id], [b].[AddressId], [b].[CustomerDetailsId], [b].[Name]
+FROM [Customers] AS [b]
+LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails] ON [b].[CustomerDetailsId] = [b.CustomerDetails].[Id]
+ORDER BY CASE
+    WHEN [b].[AddressId] > 0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, CASE
+    WHEN [b].[CustomerDetailsId] IS NOT NULL
+    THEN [b.CustomerDetails].[Name] ELSE @__Empty_0
+END, [b].[Id]",
+                        //
+                        @"@__p_1='2'
+@__Empty_0='' (Size = 4000)
+
+SELECT [b.Orders].[Id], [b.Orders].[CustomerId], [b.Orders].[Name]
+FROM [Order9735] AS [b.Orders]
+INNER JOIN (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT TOP(@__p_1) [b0].[Id], CASE
+            WHEN [b0].[AddressId] > 0
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END AS [c], CASE
+            WHEN [b0].[CustomerDetailsId] IS NOT NULL
+            THEN [b.CustomerDetails0].[Name] ELSE @__Empty_0
+        END AS [c0], [b0].[AddressId], [b0].[CustomerDetailsId], [b.CustomerDetails0].[Name]
+        FROM [Customers] AS [b0]
+        LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails0] ON [b0].[CustomerDetailsId] = [b.CustomerDetails0].[Id]
+        ORDER BY [c], [c0], [b0].[Id]
+    ) AS [t]
+) AS [t0] ON [b.Orders].[CustomerId] = [t0].[Id]
+ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
+                }
+            }
+        }
+
+        public class Address9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class Customer9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int AddressId { get; set; }
+            public virtual Address9735 Address { get; set; }
+            public virtual List<Order9735> Orders { get; set; }
+            public virtual CustomerDetails9735 CustomerDetails { get; set; }
+        }
+
+        public class Order9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int CustomerId { get; set; }
+            public virtual Customer9735 Customer { get; set; }
+        }
+
+        public class CustomerDetails9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class MyContext9735 : DbContext
+        {
+            public MyContext9735(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Customer9735> Customers { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase9735()
+        {
+            return CreateTestStore(
+                () => new MyContext9735(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Address9735 {Name = "An A"},
+                        new Customer9735 {Name = "A B", AddressId = 1}
+                    );
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
 
         #endregion
 
