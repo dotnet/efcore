@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         Only set this switch if a tool was compiled against 2.0.0 and is explicitly using the legacy IDs.
         ///     </para>
         /// </summary>
-        internal const string UseLegacyEventIdsSwitch = "Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds";
+        internal const string UseLegacyEventIdsSwitch = "Microsoft.EntityFrameworkCore.Issue9437";
 
         /// <summary>
         ///     The lower-bound for event IDs used by any Entity Framework or provider code.

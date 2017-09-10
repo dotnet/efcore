@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             public static EventId Create(int id, string name)
             {
-                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds", out var isEnabled)
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9437", out var isEnabled)
                     && isEnabled)
                 {
                     if (id >= CoreEventId.ProviderDesignBaseId)

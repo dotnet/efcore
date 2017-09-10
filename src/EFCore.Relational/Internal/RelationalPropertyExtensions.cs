@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string GetConfiguredColumnType([NotNull] this IProperty property)
-            => AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Metadata.UseTypeMappingAlways", out var isPresent)
+            => AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9344", out var isPresent)
                 && isPresent
                 ? property.Relational().ColumnType
                 : (string)property[RelationalAnnotationNames.ColumnType];

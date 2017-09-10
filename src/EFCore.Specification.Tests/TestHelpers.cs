@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 // Note that we can't run the test in both modes at once because EventIds are cached.
                 // If making a change to the quirk behavior, change the default of useLegacyIds to true and re-run all tests.
-                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Diagnostics.UseLegacyEventIds", true);
+                AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue9437", true);
             }
 
             var eventIdFields = eventIdType.GetTypeInfo()
