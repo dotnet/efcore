@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -774,7 +775,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private static void ConditionallyNullForeignKeyProperties(
+        private void ConditionallyNullForeignKeyProperties(
             InternalEntityEntry dependentEntry,
             InternalEntityEntry principalEntry,
             IForeignKey foreignKey)
@@ -802,9 +803,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
+            var quirked = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9605", out var isEnabled)
+                          && isEnabled;
+
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                if (hasOnlyKeyProperties
+                if ((hasOnlyKeyProperties && quirked)
                     || !dependentProperties[i].IsKey())
                 {
                     dependentEntry[dependentProperties[i]] = null;
@@ -821,10 +825,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     case EntityState.Added:
                         dependentEntry.SetEntityState(EntityState.Detached);
+                        if (!quirked)
+                        {
+                            DeleteFixup(dependentEntry);
+                        }
                         break;
                     case EntityState.Unchanged:
                     case EntityState.Modified:
                         dependentEntry.SetEntityState(EntityState.Deleted);
+                        if (!quirked)
+                        {
+                            DeleteFixup(dependentEntry);
+                        }
                         break;
                 }
             }
