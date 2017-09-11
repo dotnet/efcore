@@ -4,7 +4,9 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.Serialization;
 using System.Text;
+using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -12,6 +14,7 @@ namespace Microsoft.Data.Sqlite
     internal abstract class SqliteValueReader
     {
         public abstract int FieldCount { get; }
+        protected abstract string OnNullErrorMsg { get; }
 
         protected abstract int GetSqliteType(int ordinal);
 
@@ -72,7 +75,7 @@ namespace Microsoft.Data.Sqlite
 
         public virtual double GetDouble(int ordinal)
             => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
+                ? throw new InvalidOperationException(Resources.CalledOnNullValue)
                 : GetDoubleCore(ordinal);
 
         protected abstract double GetDoubleCore(int ordinal);
@@ -117,24 +120,25 @@ namespace Microsoft.Data.Sqlite
 
         public virtual long GetInt64(int ordinal)
             => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
+                ? throw new InvalidOperationException(Resources.CalledOnNullValue)
                 : GetInt64Core(ordinal);
 
         protected abstract long GetInt64Core(int ordinal);
 
         public virtual string GetString(int ordinal)
             => IsDBNull(ordinal)
-                ? throw new InvalidCastException()
+                ? throw new InvalidOperationException(Resources.CalledOnNullValue)
                 : GetStringCore(ordinal);
 
         protected abstract string GetStringCore(int ordinal);
 
         public virtual T GetFieldValue<T>(int ordinal)
         {
-            if (IsDBNull(ordinal)
-                && typeof(T).IsNullable())
+            if (IsDBNull(ordinal))
             {
-                return GetNull<T>();
+                return typeof(T).IsNullable() ?
+                    GetNull<T>() :
+                    throw new InvalidOperationException(OnNullErrorMsg);
             }
 
             var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
@@ -173,7 +177,7 @@ namespace Microsoft.Data.Sqlite
             }
             if (type == typeof(double))
             {
-                return (T)(object)GetDouble(ordinal);
+                return (T)(object)GetDoubleCore(ordinal);
             }
             if (type == typeof(float))
             {
@@ -189,11 +193,11 @@ namespace Microsoft.Data.Sqlite
             }
             if (type == typeof(long))
             {
-                return (T)(object)GetInt64(ordinal);
+                return (T)(object)GetInt64Core(ordinal);
             }
             if (type == typeof(sbyte))
             {
-                return (T)(object)((sbyte)GetInt64(ordinal));
+                return (T)(object)((sbyte)GetInt64Core(ordinal));
             }
             if (type == typeof(short))
             {
@@ -201,7 +205,7 @@ namespace Microsoft.Data.Sqlite
             }
             if (type == typeof(string))
             {
-                return (T)(object)GetString(ordinal);
+                return (T)(object)GetStringCore(ordinal);
             }
             if (type == typeof(TimeSpan))
             {
@@ -209,15 +213,15 @@ namespace Microsoft.Data.Sqlite
             }
             if (type == typeof(uint))
             {
-                return (T)(object)((uint)GetInt64(ordinal));
+                return (T)(object)((uint)GetInt64Core(ordinal));
             }
             if (type == typeof(ulong))
             {
-                return (T)(object)((ulong)GetInt64(ordinal));
+                return (T)(object)((ulong)GetInt64Core(ordinal));
             }
             if (type == typeof(ushort))
             {
-                return (T)(object)((ushort)GetInt64(ordinal));
+                return (T)(object)((ushort)GetInt64Core(ordinal));
             }
 
             return (T)GetValue(ordinal);

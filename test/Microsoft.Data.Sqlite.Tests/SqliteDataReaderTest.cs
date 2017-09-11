@@ -1123,7 +1123,8 @@ namespace Microsoft.Data.Sqlite
                     var hasData = reader.Read();
 
                     Assert.True(hasData);
-                    Assert.Throws<InvalidCastException>(() => action(reader));
+                    var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
+                    Assert.Equal(Resources.CalledOnNullValue, ex.Message);
                 }
             }
         }

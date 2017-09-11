@@ -538,7 +538,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<long>("SELECT test(NULL);"));
 
                 Assert.Equal(
-                    Resources.SqliteNativeError(raw.SQLITE_ERROR, new InvalidCastException().Message),
+                    Resources.SqliteNativeError(raw.SQLITE_ERROR, Resources.UDFCalledWithNull("test")),
                     ex.Message);
                 Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Sqlite
                 var ex = Assert.Throws<SqliteException>(() => connection.ExecuteScalar<double>("SELECT test(NULL);"));
 
                 Assert.Equal(
-                    Resources.SqliteNativeError(raw.SQLITE_ERROR, new InvalidCastException().Message),
+                    Resources.SqliteNativeError(raw.SQLITE_ERROR, Resources.UDFCalledWithNull("test")),
                     ex.Message);
                 Assert.Equal(raw.SQLITE_ERROR, ex.SqliteErrorCode);
             }
