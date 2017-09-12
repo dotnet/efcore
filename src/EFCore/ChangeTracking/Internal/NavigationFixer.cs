@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private static void ConditionallyNullForeignKeyProperties(
+        private void ConditionallyNullForeignKeyProperties(
             InternalEntityEntry dependentEntry,
             InternalEntityEntry principalEntry,
             IForeignKey foreignKey)
@@ -830,8 +830,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
-                if (hasOnlyKeyProperties
-                    || !dependentProperties[i].IsKey())
+                if (!dependentProperties[i].IsKey())
                 {
                     dependentEntry[dependentProperties[i]] = null;
                     dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
@@ -847,10 +846,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     case EntityState.Added:
                         dependentEntry.SetEntityState(EntityState.Detached);
+                        DeleteFixup(dependentEntry);
                         break;
                     case EntityState.Unchanged:
                     case EntityState.Modified:
                         dependentEntry.SetEntityState(EntityState.Deleted);
+                        DeleteFixup(dependentEntry);
                         break;
                 }
             }
