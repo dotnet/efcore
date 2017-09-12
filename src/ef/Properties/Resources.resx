@@ -228,9 +228,6 @@
   <data name="MissingOption" xml:space="preserve">
     <value>Missing required option '--{option}'.</value>
   </data>
-  <data name="NoAppDomainDescription" xml:space="preserve">
-    <value>Don't use app domains. Always implied on .NET Core.</value>
-  </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
   </data>
