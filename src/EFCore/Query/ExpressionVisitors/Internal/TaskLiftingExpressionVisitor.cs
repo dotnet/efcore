@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
@@ -148,6 +149,44 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return base.VisitMember(memberExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9128", out var isEnabled)
+                && isEnabled)
+            {
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            if (methodCallExpression.Method
+                .MethodIsClosedFormOf(TaskBlockingExpressionVisitor.ResultMethodInfo))
+            {
+                _taskExpressions.Add(
+                    Expression.Lambda<Func<Task<object>>>(
+                        Expression.Call(
+                            _toObjectTask.MakeGenericMethod(
+                                methodCallExpression.Method.ReturnType),
+                            methodCallExpression.Arguments[0])));
+
+                if (CancellationTokenParameter == null)
+                {
+                    Visit(methodCallExpression.Arguments[0]);
+                }
+
+                return
+                    Expression.Convert(
+                        Expression.ArrayAccess(
+                            _resultsParameter,
+                            Expression.Constant(_taskExpressions.Count - 1)),
+                        methodCallExpression.Method.ReturnType);
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
         }
 
         // Prune nodes

@@ -41,6 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// </returns>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9128", out var isEnabled)
+                && isEnabled)
+            {
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
             var newExpression = base.VisitMethodCall(methodCallExpression);
 
             switch (newExpression)
