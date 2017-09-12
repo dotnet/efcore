@@ -18,12 +18,4 @@
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
   </ItemGroup>
-
-  <!-- TODO: Remove when TestDriven supports VS15.3+ -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
-    <PackageReference Include="NETStandard.Library.NETFramework" Version="2.0.0-preview2-25405-01" PrivateAssets="All">
-      <!-- This is reference temporary and won't be added to lineups. -->
-      <NoWarn>KRB4002</NoWarn>
-    </PackageReference>
-  </ItemGroup>
 </Project>
