@@ -15,12 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _dataDir;
         private CommandOption _projectDir;
         private CommandOption _rootNamespace;
-        private CommandOption _noAppDomain;
 
         public override void Configure(CommandLineApplication command)
         {
             _assembly = command.Option("-a|--assembly <PATH>", Resources.AssemblyDescription);
-            _noAppDomain = command.Option("--no-appdomain", Resources.NoAppDomainDescription);
             _startupAssembly = command.Option("-s|--startup-assembly <PATH>", Resources.StartupAssemblyDescription);
             _dataDir = command.Option("--data-dir <PATH>", Resources.DataDirDescription);
             _projectDir = command.Option("--project-dir <PATH>", Resources.ProjectDirDescription);
@@ -44,25 +42,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             try
             {
 #if NET461
-                if (!_noAppDomain.HasValue())
-                {
-                    return new AppDomainOperationExecutor(
-                        _assembly.Value(),
-                        _startupAssembly.Value(),
-                        _projectDir.Value(),
-                        _dataDir.Value(),
-                        _rootNamespace.Value());
-                }
+                return new AppDomainOperationExecutor(
+                    _assembly.Value(),
+                    _startupAssembly.Value(),
+                    _projectDir.Value(),
+                    _dataDir.Value(),
+                    _rootNamespace.Value());
 #elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
                 return new ReflectionOperationExecutor(
                     _assembly.Value(),
                     _startupAssembly.Value(),
                     _projectDir.Value(),
                     _dataDir.Value(),
                     _rootNamespace.Value());
+#else
+#error target frameworks need to be updated.
+#endif
             }
             catch (FileNotFoundException ex)
                 when (new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)
