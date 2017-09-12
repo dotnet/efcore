@@ -3271,7 +3271,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Take(15)
                     .Distinct()
                     .Take(5),
-                assertOrder: false,
+                elementAsserter: (_, __) =>
+                {
+                    /* non-deterministic */
+                },
                 entryCount: 5);
         }
 
