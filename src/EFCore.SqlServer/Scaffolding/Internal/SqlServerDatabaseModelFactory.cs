@@ -441,6 +441,15 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                         defaultValue = null;
                     }
 
+                    if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9627", out var isEnabled) || !isEnabled)
+                    {
+                        if (defaultValue == "((0))"
+                            && (underlyingStoreType ?? storeType) == "bit")
+                        {
+                            defaultValue = null;
+                        }
+                    }
+
                     if (computedValue == "(NULL)")
                     {
                         computedValue = null;

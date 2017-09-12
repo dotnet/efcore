@@ -176,6 +176,11 @@ CREATE TABLE NonNullBoolWithDefault
 (
      Id int NOT NULL PRIMARY KEY CLUSTERED,
      BoolWithDefaultValueSql bit NOT NULL DEFAULT (CONVERT(""bit"", GETDATE())),
+     BoolWithDefaultValueSqlFalse1 bit NOT NULL DEFAULT 0,
+     BoolWithDefaultValueSqlFalse2 bit NOT NULL DEFAULT (0),
+     BoolWithDefaultValueSqlFalse3 bit NOT NULL DEFAULT ((0)),
+     BoolWithDefaultValueSqlFalse4 bit NOT NULL DEFAULT ( 0),
+     BoolWithDefaultValueSqlFalse5 bit NOT NULL DEFAULT ( 0 ),
      BoolWithoutDefaultValueSql bit NOT NULL
 )");
 
