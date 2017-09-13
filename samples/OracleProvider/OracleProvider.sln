@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Relational", "..\..\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{57595541-E77D-477C-B48B-C69E061C11F9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider", "src\OracleProvider\OracleProvider.csproj", "{33FB559E-C3FC-4518-AC51-F92B53CCF580}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider", "src\OracleProvider\OracleProvider.csproj", "{9511216F-EC10-480D-AA8D-F72312C96962}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleProvider.FunctionalTests", "test\OracleProvider.FunctionalTests\OracleProvider.FunctionalTests.csproj", "{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}"
 EndProject
@@ -31,10 +31,10 @@ Global
 		{6A25DF99-2615-46D8-9532-821764647EE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A25DF99-2615-46D8-9532-821764647EE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A25DF99-2615-46D8-9532-821764647EE1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{33FB559E-C3FC-4518-AC51-F92B53CCF580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{33FB559E-C3FC-4518-AC51-F92B53CCF580}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{33FB559E-C3FC-4518-AC51-F92B53CCF580}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{33FB559E-C3FC-4518-AC51-F92B53CCF580}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9511216F-EC10-480D-AA8D-F72312C96962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9511216F-EC10-480D-AA8D-F72312C96962}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9511216F-EC10-480D-AA8D-F72312C96962}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9511216F-EC10-480D-AA8D-F72312C96962}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F3A8AA1-7E95-42DC-8A5D-FB71EEDB6105}.Release|Any CPU.ActiveCfg = Release|Any CPU
