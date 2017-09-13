@@ -91,16 +91,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     _relationalQueryContext.Connection.Open();
 
-                    var relationalCommand
-                        = _shaperCommandContext
-                            .GetRelationalCommand(_relationalQueryContext.ParameterValues);
+                    try
+                    {
+                        var relationalCommand
+                            = _shaperCommandContext
+                                .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
-                    _relationalQueryContext.Connection.RegisterBufferable(this);
+                        _relationalQueryContext.Connection.RegisterBufferable(this);
 
-                    _dataReader
-                        = relationalCommand.ExecuteReader(
-                            _relationalQueryContext.Connection,
-                            _relationalQueryContext.ParameterValues);
+                        _dataReader
+                            = relationalCommand.ExecuteReader(
+                                _relationalQueryContext.Connection,
+                                _relationalQueryContext.ParameterValues);
+                    }
+                    catch
+                    {
+                        // If failure happens creating the data reader, then it won't be available to
+                        // handle closing the connection, so do it explicitly here to preserve ref counting.
+                        _relationalQueryContext.Connection.Close();
+
+                        throw;
+                    }
 
                     _dbDataReader = _dataReader.DbDataReader;
                     _shaperCommandContext.NotifyReaderCreated(_dbDataReader);

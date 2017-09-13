@@ -1106,6 +1106,45 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Externally_closed_connections_are_handled_correctly(bool async)
+        {
+            DbConnection connection;
+            using (var context = CreateContextWithConnectionString())
+            {
+                var set = context.Set<TransactionCustomer>();
+
+                if (async)
+                {
+                    await context.Database.OpenConnectionAsync();
+                }
+                else
+                {
+                    context.Database.OpenConnection();
+                }
+
+                connection = context.Database.GetDbConnection();
+
+                connection.Close();
+
+                var _ = async ? await set.ToListAsync() : set.ToList();
+
+                Assert.Equal(ConnectionState.Open, connection.State);
+
+                context.Database.CloseConnection();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+
+                _ = async ? await set.ToListAsync() : set.ToList();
+
+                Assert.Equal(ConnectionState.Closed, connection.State);
+            }
+
+            Assert.Equal(ConnectionState.Closed, connection.State);
+        }
+
         protected virtual void AssertStoreInitialState()
         {
             using (var context = CreateContext())

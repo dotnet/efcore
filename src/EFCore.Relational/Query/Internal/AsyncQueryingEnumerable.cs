@@ -100,18 +100,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     await _relationalQueryContext.Connection.OpenAsync(cancellationToken);
 
-                    var relationalCommand
-                        = _shaperCommandContext
-                            .GetRelationalCommand(_relationalQueryContext.ParameterValues);
+                    try
+                    {
+                        var relationalCommand
+                            = _shaperCommandContext
+                                .GetRelationalCommand(_relationalQueryContext.ParameterValues);
 
-                    await _relationalQueryContext.Connection
-                        .RegisterBufferableAsync(this, cancellationToken);
+                        await _relationalQueryContext.Connection
+                            .RegisterBufferableAsync(this, cancellationToken);
 
-                    _dataReader
-                        = await relationalCommand.ExecuteReaderAsync(
-                            _relationalQueryContext.Connection,
-                            _relationalQueryContext.ParameterValues,
-                            cancellationToken);
+                        _dataReader
+                            = await relationalCommand.ExecuteReaderAsync(
+                                _relationalQueryContext.Connection,
+                                _relationalQueryContext.ParameterValues,
+                                cancellationToken);
+                    }
+                    catch
+                    {
+                        // If failure happens creating the data reader, then it won't be available to
+                        // handle closing the connection, so do it explicitly here to preserve ref counting.
+                        _relationalQueryContext.Connection.Close();
+
+                        throw;
+                    }
 
                     _dbDataReader = _dataReader.DbDataReader;
                     _shaperCommandContext.NotifyReaderCreated(_dbDataReader);

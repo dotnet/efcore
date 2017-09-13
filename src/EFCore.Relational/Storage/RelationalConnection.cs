@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var dbTransaction = DbConnection.BeginTransaction(isolationLevel);
 
             CurrentTransaction
-                = new RelationalTransaction(
+                = Dependencies.RelationalTransactionFactory.Create(
                     this,
                     dbTransaction,
                     Dependencies.TransactionLogger,
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Open();
 
-                CurrentTransaction = new RelationalTransaction(
+                CurrentTransaction = Dependencies.RelationalTransactionFactory.Create(
                     this,
                     transaction,
                     Dependencies.TransactionLogger,
@@ -339,10 +339,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 wasOpened = true;
                 ClearTransactions();
             }
-            else
-            {
-                _openedCount++;
-            }
+
+            _openedCount++;
 
             HandleAmbientTransactions();
 
@@ -375,10 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 wasOpened = true;
                 ClearTransactions();
             }
-            else
-            {
-                _openedCount++;
-            }
+
+            _openedCount++;
 
             HandleAmbientTransactions();
 
@@ -388,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void ClearTransactions()
         {
             var previousOpenedCount = _openedCount;
-            _openedCount++;
+            _openedCount += 2;
             CurrentTransaction?.Dispose();
             CurrentTransaction = null;
             EnlistedTransaction = null;
@@ -436,7 +432,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_openedCount == 0)
             {
                 _openedInternally = true;
-                _openedCount++;
             }
         }
 
@@ -476,7 +471,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_openedCount == 0)
             {
                 _openedInternally = true;
-                _openedCount++;
             }
         }
 

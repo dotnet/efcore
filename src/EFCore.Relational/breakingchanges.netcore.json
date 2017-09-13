@@ -20,5 +20,10 @@
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Storage.RelationalConnectionDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions contextOptions, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Database+Transaction> transactionLogger, Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Database+Connection> connectionLogger, Microsoft.EntityFrameworkCore.Storage.Internal.INamedConnectionStringResolver connectionStringResolver)",
+      "Kind": "Removal"
     }
   ]

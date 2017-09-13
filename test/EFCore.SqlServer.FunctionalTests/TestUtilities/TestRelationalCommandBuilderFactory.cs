@@ -132,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
+                    result.Dispose(); // Normally, in non-test case, reader is disposed by using in caller code
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
                 return result;
@@ -146,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (errorNumber.HasValue)
                 {
                     connection.DbConnection.Close();
+                    result.Dispose(); // Normally, in non-test case, reader is disposed by using in caller code
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
                 return result;

@@ -1,51 +1,37 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.Common;
-using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestRelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>
+    public class TestRelationalTransactionFactory : IRelationalTransactionFactory
     {
-        private readonly IDbContextTransaction _realTransaction;
+        public RelationalTransaction Create(
+            IRelationalConnection connection,
+            DbTransaction transaction,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
+            bool transactionOwned)
+            => new TestRelationalTransaction(connection, transaction, logger, transactionOwned);
+    }
+
+    public class TestRelationalTransaction : RelationalTransaction
+    {
         private readonly TestSqlServerConnection _testConnection;
-        private bool _connectionClosed;
 
         public TestRelationalTransaction(
-            TestSqlServerConnection connection, DbTransaction transaction, ILoggerFactory loggerFactory, DiagnosticSource diagnosticSource, bool transactionOwned)
-            : this(
-                connection,
-                new RelationalTransaction(
-                    connection,
-                    transaction,
-                    new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
-                        loggerFactory, new LoggingOptions(), diagnosticSource),
-                    transactionOwned))
+            IRelationalConnection connection, 
+            DbTransaction transaction, 
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger, 
+            bool transactionOwned)
+            : base(connection, transaction, logger, transactionOwned)
         {
+            _testConnection = (TestSqlServerConnection)connection;
         }
 
-        public virtual Guid TransactionId { get; } = Guid.NewGuid();
-
-        public TestRelationalTransaction(TestSqlServerConnection connection, IDbContextTransaction transaction)
-        {
-            _testConnection = connection;
-            _realTransaction = transaction;
-        }
-
-        public void Dispose()
-        {
-            _realTransaction.Dispose();
-
-            ClearTransaction();
-        }
-
-        public void Commit()
+        public override void Commit()
         {
             if (_testConnection.CommitFailures.Count > 0)
             {
@@ -54,41 +40,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     if (fail.Value)
                     {
-                        _realTransaction.GetDbTransaction().Rollback();
+                        this.GetDbTransaction().Rollback();
                     }
                     else
                     {
-                        _realTransaction.GetDbTransaction().Commit();
+                        this.GetDbTransaction().Commit();
                     }
                     _testConnection.DbConnection.Close();
                     throw SqlExceptionFactory.CreateSqlException(_testConnection.ErrorNumber);
                 }
             }
 
-            _realTransaction.Commit();
-
-            ClearTransaction();
+            base.Commit();
         }
-
-        public void Rollback()
-        {
-            _realTransaction.Rollback();
-
-            ClearTransaction();
-        }
-
-        private void ClearTransaction()
-        {
-            _testConnection.UseTransaction(null);
-
-            if (!_connectionClosed)
-            {
-                _connectionClosed = true;
-
-                _testConnection.Close();
-            }
-        }
-
-        public DbTransaction Instance => _realTransaction.GetDbTransaction();
     }
 }

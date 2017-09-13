@@ -77,6 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMemberTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICompositeMethodCallTranslator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQuerySqlGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalTransactionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -162,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>();
             TryAdd<INamedConnectionStringResolver, NamedConnectionStringResolver>();
             TryAdd<IEvaluatableExpressionFilter, RelationalEvaluatableExpressionFilter>();
+            TryAdd<IRelationalTransactionFactory, RelationalTransactionFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalCompositeMemberTranslatorDependencies>()
@@ -179,6 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<SelectExpressionDependencies>()
                 .AddDependencySingleton<RelationalValueBufferFactoryDependencies>()
                 .AddDependencySingleton<RelationalProjectionExpressionVisitorDependencies>()
+                .AddDependencySingleton<RelationalTransactionFactoryDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<RelationalDatabaseCreatorDependencies>()
                 .AddDependencyScoped<HistoryRepositoryDependencies>()
