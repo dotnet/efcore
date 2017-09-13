@@ -2406,18 +2406,19 @@ BEGIN
                 modelBuilder.Entity<PersonKid9038>().HasBaseType<Person9038>();
                 modelBuilder.Entity<PersonFamily9038>();
 
-                modelBuilder.Entity<PersonKid9038>(entity =>
-                    {
-                        entity.Property("Discriminator")
-                            .HasMaxLength(63);
-                        entity.HasIndex("Discriminator");
+                modelBuilder.Entity<PersonKid9038>(
+                    entity =>
+                        {
+                            entity.Property("Discriminator")
+                                .HasMaxLength(63);
+                            entity.HasIndex("Discriminator");
 
-                        entity.HasOne(m => m.Teacher)
-                            .WithMany(m => m.Students)
-                            .HasForeignKey(m => m.TeacherId)
-                            .HasPrincipalKey(m => m.Id)
-                            .OnDelete(DeleteBehavior.Restrict);
-                    });
+                            entity.HasOne(m => m.Teacher)
+                                .WithMany(m => m.Students)
+                                .HasForeignKey(m => m.TeacherId)
+                                .HasPrincipalKey(m => m.Id)
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
             }
         }
 
@@ -2430,22 +2431,22 @@ BEGIN
                         {
                             new PersonFamily9038
                             {
-                                LastName = "Garrison",
+                                LastName = "Garrison"
                             },
                             new PersonFamily9038
                             {
-                                LastName = "Cartman",
+                                LastName = "Cartman"
                             }
                         };
                         var teachers = new List<PersonTeacher9038>
                         {
-                            new PersonTeacher9038 {Name = "Ms. Frizzle"},
-                            new PersonTeacher9038 {Name = "Mr. Garrison", Family = famalies[0]},
+                            new PersonTeacher9038 { Name = "Ms. Frizzle" },
+                            new PersonTeacher9038 { Name = "Mr. Garrison", Family = famalies[0] }
                         };
                         var students = new List<PersonKid9038>
                         {
-                            new PersonKid9038 {Name = "Arnold", Grade = 2, Teacher = teachers[0]},
-                            new PersonKid9038 {Name = "Eric", Grade = 4, Teacher = teachers[1], Family = famalies[1]},
+                            new PersonKid9038 { Name = "Arnold", Grade = 2, Teacher = teachers[0] },
+                            new PersonKid9038 { Name = "Eric", Grade = 4, Teacher = teachers[1], Family = famalies[1] }
                         };
 
                         context.People.AddRange(teachers);

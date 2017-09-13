@@ -149,7 +149,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _startTime,
                     _stopwatch.Elapsed);
 
-
                 _disposed = true;
             }
         }

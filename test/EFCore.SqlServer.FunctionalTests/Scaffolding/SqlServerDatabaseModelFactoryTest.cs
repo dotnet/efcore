@@ -1108,6 +1108,36 @@ CREATE TABLE DefaultComputedValues (
         }
 
         [Fact]
+        public void Default_value_of_false_for_bit_is_not_stored()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultBoolValues (
+    Id int,
+    BoolTrue bit DEFAULT (1),
+    BoolFalseType1 BIT DEFAULT 0,
+    BoolFalseType2 BiT DEFAULT (0),
+    BoolFalseType3 bIt DEFAULT ((0)),
+    BoolFalseType4 biT DEFAULT (((0))),
+    BoolFalseType5 bIT DEFAULT ( 0),
+    BoolFalseType6 bit DEFAULT ( 0 ),
+    BoolFalseType7 bit DEFAULT (0 ),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    Assert.Equal("((1))", columns.Single(c => c.Name == "BoolTrue").DefaultValueSql);
+                    Assert.All(
+                        columns.Where(c => c.Name.StartsWith("BoolFalseType")),
+                        t => Assert.Null(t.DefaultValueSql));
+                },
+                @"DROP TABLE DefaultBoolValues;");
+        }
+
+        [Fact]
         public void ValueGenerated_is_set_for_identity_and_computed_column()
         {
             Test(

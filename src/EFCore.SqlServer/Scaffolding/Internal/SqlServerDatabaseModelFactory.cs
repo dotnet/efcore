@@ -482,6 +482,12 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                         defaultValue = null;
                     }
 
+                    if (defaultValue == "((0))"
+                        && (underlyingStoreType ?? storeType) == "bit")
+                    {
+                        defaultValue = null;
+                    }
+
                     var column = new DatabaseColumn
                     {
                         Table = table,
