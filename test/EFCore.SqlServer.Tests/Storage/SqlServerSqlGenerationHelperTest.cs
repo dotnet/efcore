@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public class SqlServerSqlGeneratorTest : SqlGeneratorTestBase
+    public class SqlServerSqlGenerationHelperTest : SqlGenerationHelperTestBase
     {
         public override void BatchSeparator_returns_separator()
         {

@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerSequenceValueGeneratorTest
@@ -74,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies())),
-                    new SqlServerTypeMapper(
-                        new RelationalTypeMapperDependencies())),
+                            new RelationalSqlGenerationHelperDependencies()),
+                        new SqlServerTypeMapper(
+                            new RelationalTypeMapperDependencies()))),
                 state,
                 CreateConnection());
 
@@ -126,8 +127,9 @@ namespace Microsoft.EntityFrameworkCore
             var sqlGenerator = new SqlServerUpdateSqlGenerator(
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies())),
-                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()));
+                        new RelationalSqlGenerationHelperDependencies()),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())));
 
             var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -173,8 +175,9 @@ namespace Microsoft.EntityFrameworkCore
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies())),
-                    new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
+                            new RelationalSqlGenerationHelperDependencies()),
+                        new SqlServerTypeMapper(
+                            new RelationalTypeMapperDependencies()))),
                 state,
                 CreateConnection());
 

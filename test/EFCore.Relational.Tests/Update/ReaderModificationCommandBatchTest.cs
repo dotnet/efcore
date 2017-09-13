@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Update

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ImplicitlyCapturedClosure
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -102,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
+            public IEnumerable<IDictionary<string, object>> GetSeedData() => throw new NotImplementedException();
         }
 
         [Fact]

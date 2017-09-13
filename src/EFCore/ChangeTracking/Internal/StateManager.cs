@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -150,6 +151,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 _entityReferenceMap[entity] = entry;
             }
+            return entry;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityEntry GetOrCreateEntry(IDictionary<string, object> values, IEntityType entityType)
+        {
+            var entry = TryGetEntry(values);
+            if (entry == null)
+            {
+                object entity;
+                _trackingQueryMode = TrackingQueryMode.Multiple;
+
+                if (entityType.HasClrType())
+                {
+                    // Remove when issue #749 is fixed
+                    entity = Activator.CreateInstance(entityType.ClrType);
+                    entry = _factory.Create(this, entityType, entity);
+                }
+                else
+                {
+                    entry = new InternalShadowEntityEntry(this, entityType);
+                    entity = entry;
+                }
+
+                _entityReferenceMap[entity] = entry;
+            }
+
+            entry.ToEntityEntry().CurrentValues.SetValues(values);
             return entry;
         }
 
@@ -504,6 +536,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void ResetState()
         {
             Unsubscribe();
+            ChangedCount = 0;
             _entityReferenceMap.Clear();
             _dependentTypeReferenceMap.Clear();
 
@@ -687,7 +720,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return 0;
             }
 
-            var entriesToSave = GetEntriesToSave();
+            var entriesToSave = GetInternalEntriesToSave();
             if (!entriesToSave.Any())
             {
                 return 0;
@@ -714,7 +747,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private List<InternalEntityEntry> GetEntriesToSave()
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<IUpdateEntry> GetEntriesToSave()
+            => GetInternalEntriesToSave();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<InternalEntityEntry> GetInternalEntriesToSave()
         {
             foreach (var entry in Entries.Where(
                 e => (e.EntityState == EntityState.Modified
@@ -750,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return 0;
             }
 
-            var entriesToSave = GetEntriesToSave();
+            var entriesToSave = GetInternalEntriesToSave();
             if (!entriesToSave.Any())
             {
                 return 0;

@@ -27,7 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry> _comparer;
-
         private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
         private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
@@ -46,15 +45,35 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             [CanBeNull] IComparer<IUpdateEntry> comparer)
+        : this(
+            Check.NotEmpty(name, nameof(name)),
+            schema,
+            null)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
-            TableName = name;
-            Schema = schema;
             _generateParameterName = generateParameterName;
             _comparer = comparer;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
+        }
+
+
+        /// <summary>
+        ///     Initializes a new <see cref="ModificationCommand" /> instance.
+        /// </summary>
+        /// <param name="name"> The name of the table containing the data to be modified. </param>
+        /// <param name="schema"> The schema containing the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
+        public ModificationCommand(
+            [NotNull] string name,
+            [CanBeNull] string schema,
+            [CanBeNull] IReadOnlyList<ColumnModification> columnModifications)
+        {
+            Check.NotNull(name, nameof(name));
+
+            TableName = name;
+            Schema = schema;
+            _columnModifications = columnModifications;
         }
 
         /// <summary>

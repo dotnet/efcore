@@ -25,11 +25,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
+        public int CreateCount { get; private set; }
+
         public virtual ModificationCommandBatch Create()
-            => new SingularModificationCommandBatch(
+        {
+            CreateCount++;
+
+            return new SingularModificationCommandBatch(
                 _commandBuilderFactory,
                 _sqlGenerationHelper,
                 _updateSqlGenerator,
                 _valueBufferFactoryFactory);
+        }
     }
 }

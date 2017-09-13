@@ -8,6 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class ComplexNavigationsOwnedQueryInMemoryTest :
         ComplexNavigationsOwnedQueryTestBase<ComplexNavigationsOwnedQueryInMemoryFixture>
     {
+        // ReSharper disable once UnusedParameter.Local
         public ComplexNavigationsOwnedQueryInMemoryTest(ComplexNavigationsOwnedQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

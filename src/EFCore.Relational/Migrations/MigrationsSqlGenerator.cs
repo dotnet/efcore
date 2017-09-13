@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -1001,51 +1002,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.Values.Length == 0)
+            var sqlBuilder = new StringBuilder();
+            foreach (var modificationCommand in operation.ModificationCommands)
             {
-                return;
+                Dependencies.UpdateSqlGenerator.AppendInsertOperation(
+                    sqlBuilder,
+                    modificationCommand,
+                    0);
             }
 
-            builder
-                .Append("INSERT INTO ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" (")
-                .Append(ColumnList(operation.Columns))
-                .AppendLine(")")
-                .Append("VALUES ");
-
-            var rowCount = operation.Values.GetLength(0);
-            var valueCount = operation.Values.GetLength(1);
-            for (var i = 0; i < rowCount; i++)
-            {
-                if (i != 0)
-                {
-                    builder
-                        .AppendLine(",")
-                        .Append("       ");
-                }
-
-                builder.Append("(");
-                for (var j = 0; j < valueCount; j++)
-                {
-                    if (j != 0)
-                    {
-                        builder.Append(", ");
-                    }
-
-                    var value = operation.Values[i, j];
-                    var typeMapping = Dependencies.TypeMapper.GetMappingForValue(value);
-                    builder.Append(typeMapping.GenerateSqlLiteral(value));
-                }
-
-                builder.Append(")");
-            }
-
-            if (terminate)
-            {
-                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-                EndStatement(builder);
-            }
+            builder.Append(sqlBuilder.ToString());
+            EndStatement(builder);
         }
 
         /// <summary>
@@ -1063,56 +1030,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.KeyValues.Length == 0)
+            var sqlBuilder = new StringBuilder();
+            foreach (var modificationCommand in operation.ModificationCommands)
             {
-                return;
+                Dependencies.UpdateSqlGenerator.AppendDeleteOperation(
+                    sqlBuilder,
+                    modificationCommand,
+                    0);
             }
 
-            builder
-                .Append("DELETE FROM ")
-                .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
-
-            builder.Append("WHERE ");
-
-            var rowCount = operation.KeyValues.GetLength(0);
-            var valueCount = operation.KeyValues.GetLength(1);
-            for (var i = 0; i < rowCount; i++)
-            {
-                if (i != 0)
-                {
-                    builder
-                        .AppendLine(" OR")
-                        .Append("      ");
-                }
-
-                builder.Append("(");
-                for (var j = 0; j < valueCount; j++)
-                {
-                    if (j != 0)
-                    {
-                        builder.Append(" AND ");
-                    }
-
-                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]));
-
-                    var value = operation.KeyValues[i, j];
-                    if (value == null)
-                    {
-                        builder.Append(" IS NULL");
-                    }
-                    else
-                    {
-                        var typeMapping = Dependencies.TypeMapper.GetMappingForValue(value);
-                        builder
-                            .Append(" = ")
-                            .Append(typeMapping.GenerateSqlLiteral(value));
-                    }
-                }
-
-                builder.Append(")");
-            }
-
-            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            builder.Append(sqlBuilder.ToString());
             EndStatement(builder);
         }
 
@@ -1131,72 +1058,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            if (operation.Values.Length == 0)
+            var sqlBuilder = new StringBuilder();
+            foreach (var modificationCommand in operation.ModificationCommands)
             {
-                return;
+                Dependencies.UpdateSqlGenerator.AppendUpdateOperation(
+                    sqlBuilder,
+                    modificationCommand,
+                    0);
             }
 
-            var rowCount = operation.Values.GetLength(0);
-            var valueCount = operation.Values.GetLength(1);
-            var keyValueCount = operation.KeyValues.GetLength(1);
-            for (var i = 0; i < rowCount; i++)
-            {
-                builder
-                    .Append("UPDATE ")
-                    .AppendLine(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .Append("SET ");
-
-                for (var j = 0; j < valueCount; j++)
-                {
-                    if (j != 0)
-                    {
-                        builder
-                            .AppendLine(",")
-                            .Append("    ");
-                    }
-
-                    var value = operation.Values[i, j];
-                    var typeMapping = Dependencies.TypeMapper.GetMappingForValue(value);
-
-                    builder.Append(
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[j]) +
-                        " = " +
-                        typeMapping.GenerateSqlLiteral(value));
-                }
-
-                builder
-                    .AppendLine()
-                    .Append("WHERE (");
-                for (var j = 0; j < keyValueCount; j++)
-                {
-                    if (j != 0)
-                    {
-                        builder.Append(" AND ");
-                    }
-
-                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.KeyColumns[j]));
-
-                    var value = operation.KeyValues[i, j];
-                    if (value == null)
-                    {
-                        builder.Append(" IS NULL");
-                    }
-                    else
-                    {
-                        var typeMapping = Dependencies.TypeMapper.GetMappingForValue(value);
-
-                        builder
-                            .Append(" = ")
-                            .Append(typeMapping.GenerateSqlLiteral(value));
-                    }
-                }
-
-                builder
-                    .Append(")")
-                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-
-                EndStatement(builder);
-            }
+            builder.Append(sqlBuilder.ToString());
+            EndStatement(builder);
         }
 
         /// <summary>

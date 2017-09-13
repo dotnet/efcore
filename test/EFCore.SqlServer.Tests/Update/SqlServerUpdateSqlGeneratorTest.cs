@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update
 {
     public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
@@ -17,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             => new SqlServerUpdateSqlGenerator(
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies())),
-                new SqlServerTypeMapper(
-                    new RelationalTypeMapperDependencies()));
+                        new RelationalSqlGenerationHelperDependencies()),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())));
 
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 

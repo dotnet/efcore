@@ -27,7 +27,6 @@ using Xunit;
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedTypeParameter
-
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class ModelSnapshotSqlServerTest
@@ -2011,6 +2010,101 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                         Assert.Equal(2, entityType.GetKeys().Count());
                         Assert.Equal("Value", entityType.FindKey(entityType.FindProperty("AlternateId"))["Name"]);
                     });
+        }
+
+        #endregion
+
+        #region SeedData
+
+        [Fact]
+        public virtual void SeedData_annotations_are_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>()
+                        .Ignore(e => e.EntityWithTwoProperties)
+                        .SeedData(
+                            new EntityWithOneProperty { Id = 42 });
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
+               GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.SeedData(new[]
+        {
+            new { Id = 42 }
+        });
+    });
+",
+                o => Assert.Collection(
+                    o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
+                    seed => Assert.Equal(42, seed["Id"])));
+        }
+
+        [Fact]
+        public virtual void SeedData_for_multiple_entities_are_stored_in_model_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>()
+                        .Ignore(e => e.EntityWithTwoProperties)
+                        .SeedData(
+                            new EntityWithOneProperty { Id = 27 });
+                    builder.Entity<EntityWithTwoProperties>()
+                        .Ignore(e => e.EntityWithOneProperty)
+                        .SeedData(
+                            new EntityWithTwoProperties { Id = 42, AlternateId = 43 });
+                },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithOneProperty"");
+
+        b.SeedData(new[]
+        {
+            new { Id = 27 }
+        });
+    });
+
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int>(""AlternateId"");
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithTwoProperties"");
+
+        b.SeedData(new[]
+        {
+            new { Id = 42, AlternateId = 43 }
+        });
+    });
+",
+                o => Assert.Collection(
+                    o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
+                    seed => Assert.Equal(27, seed["Id"]),
+                    seed =>
+                    {
+                        Assert.Equal(42, seed["Id"]);
+                        Assert.Equal(43, seed["AlternateId"]);
+                    }));
         }
 
         #endregion

@@ -1066,10 +1066,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
-            base.Generate(operation, model, builder, terminate: false);
+            base.Generate(operation, model, builder);
 
             builder
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'");
 
             if (operation.Schema != null)

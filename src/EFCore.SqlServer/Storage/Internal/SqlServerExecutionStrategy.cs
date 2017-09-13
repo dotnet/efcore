@@ -45,14 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 return operation(Dependencies.CurrentDbContext.Context, state);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
             {
-                if (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
-                {
-                    throw new InvalidOperationException(SqlServerStrings.TransientExceptionDetected, ex);
-                }
-
-                throw;
+                throw new InvalidOperationException(SqlServerStrings.TransientExceptionDetected, ex);
             }
         }
 
@@ -70,14 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 return await operation(Dependencies.CurrentDbContext.Context, state, cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
             {
-                if (ExecutionStrategy.CallOnWrappedException(ex, SqlServerTransientExceptionDetector.ShouldRetryOn))
-                {
-                    throw new InvalidOperationException(SqlServerStrings.TransientExceptionDetected, ex);
-                }
-
-                throw;
+                throw new InvalidOperationException(SqlServerStrings.TransientExceptionDetected, ex);
             }
         }
     }

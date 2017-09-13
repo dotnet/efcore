@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public abstract class InternalEntityEntryTestBase

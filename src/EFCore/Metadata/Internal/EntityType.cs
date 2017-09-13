@@ -36,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
+        private readonly HashSet<object> _seedData
+            = new HashSet<object>();
+
         private Key _primaryKey;
         private EntityType _baseType;
         private LambdaExpression _queryFilter;
@@ -385,15 +388,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var oldPrimaryKey = _primaryKey;
+            var propertiesNullOrEmpty = (properties?.Count ?? 0) == 0;
             if (oldPrimaryKey == null
-                && (properties?.Count ?? 0) == 0)
+                && propertiesNullOrEmpty)
             {
                 return null;
             }
 
             Key newKey = null;
-            if ((properties?.Count ?? 0) != 0)
+            if (!propertiesNullOrEmpty)
             {
+                // ReSharper disable once AssignNullToNotNullAttribute
                 newKey = GetOrAddKey(properties);
                 if (oldPrimaryKey == newKey)
                 {
@@ -418,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if ((properties?.Count ?? 0) != 0)
+            if (!propertiesNullOrEmpty)
             {
                 foreach (var property in newKey.Properties)
                 {
@@ -1786,6 +1791,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override void OnTypeMemberIgnored(string name)
             => Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
+
+        #endregion
+
+        #region SeedData
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEnumerable<IDictionary<string, object>> GetSeedData()
+            => _seedData.Select(seed =>
+                GetProperties() // we'll ignore navigations and invalid properties on the seeds
+                    .Select(p => seed.GetType().GetRuntimeProperty(p.Name))
+                    .Where(p => p != null)
+                    .ToDictionary(p => p.Name, p => p.GetValue(seed)));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void AddSeedData([NotNull] params object[] data) => _seedData.UnionWith(data);
 
         #endregion
 

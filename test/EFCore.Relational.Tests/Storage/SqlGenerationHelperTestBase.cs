@@ -7,7 +7,7 @@ using Xunit;
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 namespace Microsoft.EntityFrameworkCore.Storage
 {
-    public abstract class SqlGeneratorTestBase
+    public abstract class SqlGenerationHelperTestBase
     {
         [Fact]
         public virtual void GenerateParameterName_returns_parameter_name()

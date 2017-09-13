@@ -309,7 +309,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var principalToDependent = foreignKey.PrincipalToDependent;
                     if (principalToDependent != null)
                     {
-                        var collectionAccessor = principalToDependent.IsCollection() ? principalToDependent.GetCollectionAccessor() : null;
+                        // Remove when issue #749 is fixed
+                        var collectionAccessor = principalToDependent.IsCollection() && !principalToDependent.IsShadowProperty
+                            ? principalToDependent.GetCollectionAccessor()
+                            : null;
 
                         if (oldPrincipalEntry != null
                             && oldPrincipalEntry.EntityState != EntityState.Deleted)
@@ -577,14 +580,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                         else
                         {
-                            var collectionAccessor = principalToDependent?.GetCollectionAccessor();
+                            // Remove when issue #749 is fixed
+                            var collectionAccessor = principalToDependent?.IsShadowProperty ?? true
+                                ? null
+                                : principalToDependent.GetCollectionAccessor();
 
                             foreach (var dependentEntry in dependents)
                             {
                                 var dependentEntity = dependentEntry.Entity;
 
                                 // Add to collection on principal indicated by FK and set inverse navigation
-                                AddToCollection(entry, principalToDependent, collectionAccessor, dependentEntity);
+                                if (collectionAccessor != null)
+                                {
+                                    AddToCollection(entry, principalToDependent, collectionAccessor, dependentEntity);
+                                }
 
                                 SetNavigation(dependentEntry, dependentToPrincipal, entry.Entity);
                             }

@@ -339,8 +339,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             if (result.Sum(b => b.Count) != _vertices.Count)
             {
-                // TODO: Support cycle-breaking?
-
                 var currentCycleVertex = _vertices.First(
                     v =>
                         {

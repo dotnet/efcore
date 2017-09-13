@@ -20,18 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     /// </summary>
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
-        private readonly IRelationalTypeMapper _typeMapper;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public SqlServerUpdateSqlGenerator(
-            [NotNull] UpdateSqlGeneratorDependencies dependencies,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] UpdateSqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
-            _typeMapper = typeMapper;
         }
 
         /// <summary>
@@ -355,21 +351,21 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     if (property.ClrType == typeof(string))
                     {
-                        typeName = _typeMapper.StringMapper?.FindMapping(
+                        typeName = Dependencies.RelationalTypeMapper.StringMapper?.FindMapping(
                             property.IsUnicode() ?? principalProperty?.IsUnicode() ?? true,
                             keyOrIndex: false,
                             maxLength: null).StoreType;
                     }
                     else if (property.ClrType == typeof(byte[]))
                     {
-                        typeName = _typeMapper.ByteArrayMapper?.FindMapping(
+                        typeName = Dependencies.RelationalTypeMapper.ByteArrayMapper?.FindMapping(
                             rowVersion: false,
                             keyOrIndex: false,
                             size: null).StoreType;
                     }
                     else
                     {
-                        typeName = _typeMapper.FindMapping(property.ClrType).StoreType;
+                        typeName = Dependencies.RelationalTypeMapper.FindMapping(property.ClrType).StoreType;
                     }
                 }
             }

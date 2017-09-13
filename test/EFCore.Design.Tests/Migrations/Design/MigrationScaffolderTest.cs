@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class MigrationScaffolderTest
@@ -57,7 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         idGenerator),
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
-                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies())),
+                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                        new FakeStateManager(),
+                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer()),
                     idGenerator,
                     new CSharpMigrationsGenerator(
                         new MigrationsCodeGeneratorDependencies(),
@@ -72,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     new SnapshotModelProcessor(reporter)));
         }
 
+        // ReSharper disable once UnusedTypeParameter
         private class GenericContext<T> : DbContext
         {
         }

@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -11,8 +12,10 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
@@ -364,10 +367,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
-        protected override MigrationsModelDiffer CreateModelDiffer()
+        protected override MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
             => new MigrationsModelDiffer(
                 new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()));
+                new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                ctx.GetService<IStateManager>(),
+                ctx.GetService<ICommandBatchPreparer>());
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;

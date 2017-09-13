@@ -1,4 +1,4 @@
-﻿  [
+  [
     {
       "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
       "MemberId": "public const System.Int32 CoreBaseId = 100000",

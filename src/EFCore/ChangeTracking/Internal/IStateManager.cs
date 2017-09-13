@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -29,6 +30,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         InternalEntityEntry GetOrCreateEntry([NotNull] object entity, [NotNull] IEntityType entityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        InternalEntityEntry GetOrCreateEntry([NotNull] IDictionary<string, object> values, [NotNull] IEntityType entityType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -166,6 +173,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(
             [NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        IReadOnlyList<IUpdateEntry> GetEntriesToSave();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

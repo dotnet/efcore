@@ -679,9 +679,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                return _storeGeneratedValues.TryGetValue(propertyBase, out var value)
-                    ? value
-                    : ReadPropertyValue(propertyBase);
+                return propertyBase is INavigation && propertyBase.IsShadowProperty // Remove when issue #749 is fixed
+                    ? null
+                    : _storeGeneratedValues.TryGetValue(propertyBase, out var value)
+                        ? value
+                        : ReadPropertyValue(propertyBase);
             }
             [param: CanBeNull] set { SetProperty(propertyBase, value); }
         }
@@ -779,8 +781,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var property in EntityType.GetProperties())
                 {
-                    object value;
-                    if (storeGeneratedValues.TryGetValue(property, out value))
+                    if (storeGeneratedValues.TryGetValue(property, out var value))
                     {
                         this[property] = value;
                     }
@@ -971,8 +972,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var property in EntityType.GetProperties())
                 {
-                    object value;
-                    if (storeGeneratedValues.TryGetValue(property, out value))
+                    if (storeGeneratedValues.TryGetValue(property, out var value))
                     {
                         var isTemp = HasTemporaryValue(property);
 

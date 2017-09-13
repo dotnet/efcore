@@ -149,6 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (builderName.StartsWith("b", StringComparison.Ordinal))
             {
+                // ReSharper disable once InlineOutVariableDeclaration
                 var counter = 1;
                 if (builderName.Length > 1
                     && int.TryParse(builderName.Substring(1, builderName.Length - 1), out counter))
@@ -191,6 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         GenerateRelationships(builderName, entityType, stringBuilder);
                     }
+
+                    GenerateSeedData(entityType.GetProperties(), entityType.GetSeedData(), stringBuilder);
                 }
 
                 stringBuilder
@@ -937,6 +940,80 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(", ")
                 .Append(Code.UnknownLiteral(annotation.Value))
                 .Append(")");
+        }
+
+        /// <summary>
+        ///     Generates code for data seeding.
+        /// </summary>
+        /// <param name="properties"> The properties to generate. </param>
+        /// <param name="data"> The data to be seeded. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateSeedData(
+            [NotNull] IEnumerable<IProperty> properties,
+            [NotNull] IEnumerable<IDictionary<string, object>> data,
+            [NotNull] IndentedStringBuilder stringBuilder)
+        {
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(data, nameof(data));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
+            var dataList = data.ToList();
+            if (dataList.Count == 0)
+            {
+                return;
+            }
+
+            var propertiesToOutput = properties.ToList();
+
+            stringBuilder
+                .AppendLine()
+                .AppendLine($"b.{nameof(EntityTypeBuilder.SeedData)}(new[]")
+                .AppendLine("{");
+
+            using (stringBuilder.Indent())
+            {
+                var firstDatum = true;
+                foreach (var o in dataList)
+                {
+                    if (!firstDatum)
+                    {
+                        stringBuilder.AppendLine(",");
+                    }
+                    else
+                    {
+                        firstDatum = false;
+                    }
+
+                    stringBuilder.Append("new { ");
+
+                    var firstProperty = true;
+                    foreach (var property in propertiesToOutput)
+                    {
+                        if (o.TryGetValue(property.Name, out var value) && value != null)
+                        {
+                            if (!firstProperty)
+                            {
+                                stringBuilder.Append(", ");
+                            }
+                            else
+                            {
+                                firstProperty = false;
+                            }
+
+                            stringBuilder
+                                .Append(Code.Identifier(property.Name))
+                                .Append(" = ")
+                                .Append(Code.UnknownLiteral(value));
+                        }
+                    }
+
+                    stringBuilder.Append(" }");
+                }
+            }
+
+            stringBuilder
+                .AppendLine()
+                .AppendLine("});");
         }
     }
 }

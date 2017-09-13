@@ -489,6 +489,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static IEnumerable<IDictionary<string, object>> GetSeedData([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetSeedData();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static string ToDebugString([NotNull] this IEntityType entityType, bool singleLine = true, [NotNull] string indent = "")
         {
             var builder = new StringBuilder();

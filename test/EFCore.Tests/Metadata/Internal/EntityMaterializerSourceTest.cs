@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable InconsistentNaming
 // ReSharper disable ConvertPropertyToExpressionBody
 // ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -45,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
+            public IEnumerable<IDictionary<string, object>> GetSeedData() => throw new NotImplementedException();
         }
 
         [Fact]
