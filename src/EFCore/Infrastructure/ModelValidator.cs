@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -288,25 +287,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            var detectChangesNeeded = false;
             foreach (var entityType in model.GetEntityTypes())
             {
-                var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
-                if (changeTrackingStrategy == ChangeTrackingStrategy.Snapshot)
-                {
-                    detectChangesNeeded = true;
-                }
-
-                var errorMessage = entityType.CheckChangeTrackingStrategy(changeTrackingStrategy);
+                var errorMessage = entityType.CheckChangeTrackingStrategy(entityType.GetChangeTrackingStrategy());
                 if (errorMessage != null)
                 {
                     throw new InvalidOperationException(errorMessage);
                 }
-            }
-
-            if (!detectChangesNeeded)
-            {
-                (model as IMutableModel)?.GetOrAddAnnotation(ChangeDetector.SkipDetectChangesAnnotation, "true");
             }
         }
 
