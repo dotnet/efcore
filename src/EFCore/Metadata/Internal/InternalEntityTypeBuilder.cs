@@ -934,7 +934,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EntityType baseEntityType,
             ConfigurationSource configurationSource)
         {
-            var relationshipsToBeDetached = new HashSet<ForeignKey>();
+            var relationshipsToBeDetached = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9704", out var isEnabled) && isEnabled
+                ? (ICollection<ForeignKey>)new List<ForeignKey>()
+                : new HashSet<ForeignKey>();
             foreach (var navigation in Metadata.GetDerivedNavigationsInclusive())
             {
                 if (!navigation.ForeignKey.GetConfigurationSource().Overrides(
