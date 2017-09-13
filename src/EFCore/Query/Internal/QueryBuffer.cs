@@ -36,11 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryBuffer(
-            [NotNull] QueryContextDependencies dependencies)
-        {
-            _dependencies = dependencies;
-        }
+        public QueryBuffer([NotNull] QueryContextDependencies dependencies) 
+            => _dependencies = dependencies;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -151,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void IncludeCollection(
+        public virtual void IncludeCollection<TEntity, TRelated>(
             int includeId,
             INavigation navigation,
             INavigation inverseNavigation,
@@ -159,11 +156,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IClrCollectionAccessor clrCollectionAccessor,
             IClrPropertySetter inverseClrPropertySetter,
             bool tracking,
-            object entity,
-            Func<IEnumerable<object>> relatedEntitiesFactory)
+            TEntity entity,
+            Func<IEnumerable<TRelated>> relatedEntitiesFactory,
+            Func<TEntity, TRelated, bool> joinPredicate)
         {
             IDisposable untypedEnumerator = null;
-            IEnumerator<object> enumerator = null;
+            IEnumerator<TRelated> enumerator = null;
 
             if (includeId == -1
                 || !_includedCollections.TryGetValue(includeId, out untypedEnumerator))
@@ -191,29 +189,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return;
                 }
 
-                enumerator = (IEnumerator<object>)untypedEnumerator;
+                enumerator = (IEnumerator<TRelated>)untypedEnumerator;
             }
 
             var relatedEntities = new List<object>();
 
-            // TODO: This should be done at query compile time and not require a VB unless there are shadow props
-            var keyComparer = CreateIncludeKeyComparer(entity, navigation);
+            IIncludeKeyComparer keyComparer = null;
+
+            if (joinPredicate == null)
+            {
+                keyComparer = CreateIncludeKeyComparer(entity, navigation);
+            }
 
             while (true)
             {
                 bool shouldInclude;
 
-                if (_valueBuffers.TryGetValue(enumerator.Current, out var relatedValueBuffer))
+                if (joinPredicate == null)
                 {
-                    shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
+                    if (_valueBuffers.TryGetValue(enumerator.Current, out var relatedValueBuffer))
+                    {
+                        shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
+                    }
+                    else
+                    {
+                        var entry = _dependencies.StateManager.TryGetEntry(enumerator.Current);
+
+                        Debug.Assert(entry != null);
+
+                        shouldInclude = keyComparer.ShouldInclude(entry);
+                    }
                 }
                 else
                 {
-                    var entry = _dependencies.StateManager.TryGetEntry(enumerator.Current);
-
-                    Debug.Assert(entry != null);
-
-                    shouldInclude = keyComparer.ShouldInclude(entry);
+                    shouldInclude = joinPredicate(entity, enumerator.Current);
                 }
 
                 if (shouldInclude)
@@ -276,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual async Task IncludeCollectionAsync(
+        public virtual async Task IncludeCollectionAsync<TEntity, TRelated>(
             int includeId,
             INavigation navigation,
             INavigation inverseNavigation,
@@ -284,12 +293,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IClrCollectionAccessor clrCollectionAccessor,
             IClrPropertySetter inverseClrPropertySetter,
             bool tracking,
-            object entity,
-            Func<IAsyncEnumerable<object>> relatedEntitiesFactory,
+            TEntity entity,
+            Func<IAsyncEnumerable<TRelated>> relatedEntitiesFactory,
+            Func<TEntity, TRelated, bool> joinPredicate,
             CancellationToken cancellationToken)
         {
             IDisposable untypedAsyncEnumerator = null;
-            IAsyncEnumerator<object> asyncEnumerator = null;
+            IAsyncEnumerator<TRelated> asyncEnumerator = null;
 
             if (includeId == -1
                 || !_includedCollections.TryGetValue(includeId, out untypedAsyncEnumerator))
@@ -317,29 +327,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return;
                 }
 
-                asyncEnumerator = (IAsyncEnumerator<object>)untypedAsyncEnumerator;
+                asyncEnumerator = (IAsyncEnumerator<TRelated>)untypedAsyncEnumerator;
             }
 
             var relatedEntities = new List<object>();
 
-            // TODO: This should be done at query compile time and not require a VB unless there are shadow props
-            var keyComparer = CreateIncludeKeyComparer(entity, navigation);
+            IIncludeKeyComparer keyComparer = null;
+
+            if (joinPredicate == null)
+            {
+                keyComparer = CreateIncludeKeyComparer(entity, navigation);
+            }
 
             while (true)
             {
                 bool shouldInclude;
 
-                if (_valueBuffers.TryGetValue(asyncEnumerator.Current, out var relatedValueBuffer))
+                if (joinPredicate == null)
                 {
-                    shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
+                    if (_valueBuffers.TryGetValue(asyncEnumerator.Current, out var relatedValueBuffer))
+                    {
+                        shouldInclude = keyComparer.ShouldInclude((ValueBuffer)relatedValueBuffer);
+                    }
+                    else
+                    {
+                        var entry = _dependencies.StateManager.TryGetEntry(asyncEnumerator.Current);
+
+                        Debug.Assert(entry != null);
+
+                        shouldInclude = keyComparer.ShouldInclude(entry);
+                    }
                 }
                 else
                 {
-                    var entry = _dependencies.StateManager.TryGetEntry(asyncEnumerator.Current);
-
-                    Debug.Assert(entry != null);
-
-                    shouldInclude = keyComparer.ShouldInclude(entry);
+                    shouldInclude = joinPredicate(entity, asyncEnumerator.Current);
                 }
 
                 if (shouldInclude)

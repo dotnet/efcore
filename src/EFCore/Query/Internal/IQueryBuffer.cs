@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        void IncludeCollection(
+        void IncludeCollection<TEntity, TRelated>(
             int includeId,
             [NotNull] INavigation navigation,
             [CanBeNull] INavigation inverseNavigation,
@@ -63,14 +63,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IClrCollectionAccessor clrCollectionAccessor,
             [CanBeNull] IClrPropertySetter inverseClrPropertySetter,
             bool tracking,
-            [NotNull] object instance,
-            [NotNull] Func<IEnumerable<object>> valuesFactory);
+            [NotNull] TEntity instance,
+            [NotNull] Func<IEnumerable<TRelated>> valuesFactory,
+            [CanBeNull] Func<TEntity, TRelated, bool> joinPredicate);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Task IncludeCollectionAsync(
+        Task IncludeCollectionAsync<TEntity, TRelated>(
             int includeId,
             [NotNull] INavigation navigation,
             [CanBeNull] INavigation inverseNavigation,
@@ -78,8 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IClrCollectionAccessor clrCollectionAccessor,
             [CanBeNull] IClrPropertySetter inverseClrPropertySetter,
             bool tracking,
-            [NotNull] object instance,
-            [NotNull] Func<IAsyncEnumerable<object>> valuesFactory,
+            [NotNull] TEntity instance,
+            [NotNull] Func<IAsyncEnumerable<TRelated>> valuesFactory,
+            [CanBeNull] Func<TEntity, TRelated, bool> joinPredicate,
             CancellationToken cancellationToken);
     }
 }
