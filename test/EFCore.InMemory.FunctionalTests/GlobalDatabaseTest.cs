@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new ChangeSdlCacheContext(false))
             {
-                _ = context.Model;
+                Assert.NotNull(context.Model);
             }
 
             using (var context = new ChangeSdlCacheContext(true))

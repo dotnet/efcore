@@ -76,15 +76,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void Any_returns_false_for_empty_sets()
-        {
-            using (var db = new SimpleContext())
-            {
-                Assert.False(db.Artists.Any());
-            }
-        }
-
         private class Customer
         {
             // ReSharper disable once UnusedMember.Local
