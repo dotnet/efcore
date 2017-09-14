@@ -714,8 +714,9 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     if (IsUWP $startupProject)
     {
         throw "Startup project '$($startupProject.ProjectName)' is a Universal Windows Platform app. This version of " +
-            'the Entity Framework Core Package Manager Console Tools doesn''t support this type of project. Consider ' +
-            'using a .NET Standard class library.'
+            'the Entity Framework Core Package Manager Console Tools doesn''t support this type of project. For more ' +
+            'information on using the EF Core Tools with UWP projects, see ' +
+            'https://go.microsoft.com/fwlink/?linkid=858496'
     }
 
     Write-Verbose "Using project '$($project.ProjectName)'."

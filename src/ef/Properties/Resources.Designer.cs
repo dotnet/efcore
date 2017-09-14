@@ -250,6 +250,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 option);
 
         /// <summary>
+        ///     Don't use app domains. Always implied on .NET Core.
+        /// </summary>
+        public static string NoAppDomainDescription
+            => GetString("NoAppDomainDescription");
+
+        /// <summary>
         ///     Don't colorize output.
         /// </summary>
         public static string NoColorDescription
