@@ -421,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Added);
 
-            var commandBatches = RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext).BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
+            var commandBatches = RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager).BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry.SetEntityState(EntityState.Modified);
             entry.SetPropertyModified(entry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
 
-            var commandBatches = RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext).BatchCommands(new[] { entry }).ToArray();
+            var commandBatches = RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager).BatchCommands(new[] { entry }).ToArray();
             Assert.Equal(1, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
 
@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var secondEntry = stateManager.GetOrCreateEntry(second);
             secondEntry.SetEntityState(EntityState.Deleted);
 
-            var commandBatches = RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext)
+            var commandBatches = RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager)
                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray();
 
             Assert.Equal(1, commandBatches.Length);
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(RelatedFakeEntity), "Id:42", EntityState.Deleted,
                         nameof(FakeEntity), "Id:42", EntityState.Added),
                     Assert.Throws<InvalidOperationException>(
-                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: true)
+                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
             else
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(RelatedFakeEntity), EntityState.Deleted,
                         nameof(FakeEntity), EntityState.Added),
                     Assert.Throws<InvalidOperationException>(
-                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: false)
+                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }
@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity), "Id:42",
                             "RelatedId:2", "RelatedId:1", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
                 else
@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
             }
@@ -654,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity), "Id:42",
                             "RelatedId:2", "RelatedId:1", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
                 else
@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             nameof(RelatedFakeEntity), nameof(FakeEntity),
                             "{'RelatedId'}", "{'RelatedId'}", "{'RelatedId'}"),
                         Assert.Throws<InvalidOperationException>(
-                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                            () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                                 .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
                 }
             }
@@ -694,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.SharedRowEntryCountMismatchSensitive(
                         nameof(RelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), "Id:42", state),
                     Assert.Throws<InvalidOperationException>(
-                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry }).ToArray()).Message);
             }
             else
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.SharedRowEntryCountMismatch(
                         nameof(RelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
-                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.SharedRowEntryCountMismatchSensitive(
                         nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(AnotherFakeEntity), "Id:42", state),
                     Assert.Throws<InvalidOperationException>(
-                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
             else
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.SharedRowEntryCountMismatch(
                         nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(AnotherFakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
-                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: sensitiveLogging)
+                        () => RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }
@@ -771,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "Id:42", state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
-                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: true)
+                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
             else
@@ -780,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     RelationalStrings.SharedRowEntryCountMismatch(
                         nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
                     Assert.Throws<InvalidOperationException>(() =>
-                    RelationalTestHelpers.Instance.CreateCommandBatchPreparer(currentDbContext: currentDbContext, sensitiveLogging: false)
+                    RelationalTestHelpers.Instance.CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
                             .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }

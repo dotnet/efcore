@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
-        private readonly ICurrentDbContext _currentContext;
+        private IStateManager _stateManager;
         private readonly bool _sensitiveLoggingEnabled;
 
         private IReadOnlyDictionary<IEntityType, ModificationCommandIdentityMapFactory> _tableSharingIdentityMapFactories;
@@ -37,25 +36,23 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CommandBatchPreparer(
-            [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] ILoggingOptions loggingOptions)
+        public CommandBatchPreparer([NotNull] CommandBatchPreparerDependencies dependencies)
         {
-            _modificationCommandBatchFactory = modificationCommandBatchFactory;
-            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
-            _modificationCommandComparer = modificationCommandComparer;
-            _keyValueIndexFactorySource = keyValueIndexFactorySource;
-            _currentContext = currentContext;
+            _modificationCommandBatchFactory = dependencies.ModificationCommandBatchFactory;
+            _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
+            _modificationCommandComparer = dependencies.ModificationCommandComparer;
+            _keyValueIndexFactorySource = dependencies.KeyValueIndexFactorySource;
+            Dependencies = dependencies;
 
-            if (loggingOptions.IsSensitiveDataLoggingEnabled)
+            if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
             {
                 _sensitiveLoggingEnabled = true;
             }
         }
+
+        private CommandBatchPreparerDependencies Dependencies { get; }
+
+        private IStateManager StateManager => _stateManager ?? (_stateManager = Dependencies.StateManager());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -203,15 +200,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         principals[entityType] = principalList;
                     }
 
-                    var stateManager = _currentContext.GetDependencies().StateManager;
-
                     ModificationCommandIdentityMap CommandIdentityMapFactory(
                         string name,
                         string schema,
                         Func<string> generateParameterName,
                         bool sensitiveLoggingEnabled)
                         => new ModificationCommandIdentityMap(
-                            stateManager,
+                            StateManager,
                             principals,
                             dependents,
                             name,

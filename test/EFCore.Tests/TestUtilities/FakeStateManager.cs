@@ -137,9 +137,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public int ChangedCount { get; set; }
 
-        public IInternalEntityEntryNotifier Notify => throw new NotImplementedException();
+        public IInternalEntityEntryNotifier InternalEntityEntryNotifier => throw new NotImplementedException();
 
-        public IValueGenerationManager ValueGeneration => throw new NotImplementedException();
+        public IValueGenerationManager ValueGenerationManager => throw new NotImplementedException();
 
         public IEntityMaterializerSource EntityMaterializerSource { get; }
 

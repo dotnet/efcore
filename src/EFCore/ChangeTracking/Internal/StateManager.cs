@@ -43,8 +43,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Update> _updateLogger;
-        private readonly IInternalEntityEntryFactory _factory;
-        private readonly IInternalEntityEntrySubscriber _subscriber;
+        private readonly IInternalEntityEntryFactory _internalEntityEntryFactory;
+        private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
         private readonly IModel _model;
         private readonly IDatabase _database;
         private readonly IConcurrencyDetector _concurrencyDetector;
@@ -53,38 +53,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public StateManager(
-            [NotNull] IInternalEntityEntryFactory factory,
-            [NotNull] IInternalEntityEntrySubscriber subscriber,
-            [NotNull] IInternalEntityEntryNotifier notifier,
-            [NotNull] IValueGenerationManager valueGeneration,
-            [NotNull] IModel model,
-            [NotNull] IDatabase database,
-            [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IEntityFinderSource entityFinderSource,
-            [NotNull] IDbSetSource setSource,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+        public StateManager([NotNull] StateManagerDependencies dependencies)
         {
-            _factory = factory;
-            _subscriber = subscriber;
-            Notify = notifier;
-            ValueGeneration = valueGeneration;
-            _model = model;
-            _database = database;
-            _concurrencyDetector = concurrencyDetector;
-            Context = currentContext.Context;
-            EntityFinderFactory = new EntityFinderFactory(entityFinderSource, this, setSource, currentContext.Context);
-            EntityMaterializerSource = entityMaterializerSource;
+            _internalEntityEntryFactory = dependencies.InternalEntityEntryFactory;
+            _internalEntityEntrySubscriber = dependencies.InternalEntityEntrySubscriber;
+            InternalEntityEntryNotifier = dependencies.InternalEntityEntryNotifier;
+            ValueGenerationManager = dependencies.ValueGenerationManager;
+            _model = dependencies.Model;
+            _database = dependencies.Database;
+            _concurrencyDetector = dependencies.ConcurrencyDetector;
+            Context = dependencies.CurrentContext.Context;
+            EntityFinderFactory = new EntityFinderFactory(dependencies.EntityFinderSource, this, dependencies.SetSource, dependencies.CurrentContext.Context);
+            EntityMaterializerSource = dependencies.EntityMaterializerSource;
 
-            if (loggingOptions.IsSensitiveDataLoggingEnabled)
+            if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
             {
                 _sensitiveLoggingEnabled = true;
             }
 
-            _updateLogger = updateLogger;
+            _updateLogger = dependencies.UpdateLogger;
         }
 
         /// <summary>
@@ -119,13 +106,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IInternalEntityEntryNotifier Notify { get; }
+        public virtual IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IValueGenerationManager ValueGeneration { get; }
+        public virtual IValueGenerationManager ValueGenerationManager { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -170,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
                 }
 
-                entry = _factory.Create(this, entityType, entity);
+                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
                 _entityReferenceMap[entity] = entry;
             }
@@ -193,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     // Remove when issue #749 is fixed
                     entity = Activator.CreateInstance(entityType.ClrType);
-                    entry = _factory.Create(this, entityType, entity);
+                    entry = _internalEntityEntryFactory.Create(this, entityType, entity);
                 }
                 else
                 {
@@ -217,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
-                entry = _factory.Create(this, entityType, entity);
+                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
                 AddToReferenceMap(entry);
             }
@@ -284,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var clrType = entity.GetType();
 
-            var newEntry = _factory.Create(
+            var newEntry = _internalEntityEntryFactory.Create(
                 this,
                 baseEntityType.ClrType == clrType
                     ? baseEntityType
@@ -300,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             newEntry.MarkUnchangedFromQuery(handledForeignKeys);
 
-            if (_subscriber.SnapshotAndSubscribe(newEntry))
+            if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(newEntry))
             {
                 _needsUnsubscribe = true;
             }
@@ -473,7 +460,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 GetOrCreateIdentityMap(key).Add(entry);
             }
 
-            if (_subscriber.SnapshotAndSubscribe(entry))
+            if (_internalEntityEntrySubscriber.SnapshotAndSubscribe(entry))
             {
                 _needsUnsubscribe = true;
             }
@@ -489,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_needsUnsubscribe)
             {
-                _subscriber.Unsubscribe(entry);
+                _internalEntityEntrySubscriber.Unsubscribe(entry);
             }
 
             var entityType = entry.EntityType;
@@ -547,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var entry in Entries)
                 {
-                    _subscriber.Unsubscribe(entry);
+                    _internalEntityEntrySubscriber.Unsubscribe(entry);
                 }
             }
         }

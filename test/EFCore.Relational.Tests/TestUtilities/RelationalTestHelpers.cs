@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,15 +22,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public ICommandBatchPreparer CreateCommandBatchPreparer(
             IModificationCommandBatchFactory modificationCommandBatchFactory = null,
-            ICurrentDbContext currentDbContext = null,
+            IStateManager stateManager = null,
             bool sensitiveLogging = false)
         {
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory
                 ?? Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
 
-            currentDbContext = currentDbContext
-                ?? Instance.CreateContextServices().GetRequiredService<ICurrentDbContext>();
+            stateManager = stateManager
+                ?? Instance.CreateContextServices().GetRequiredService<IStateManager>();
 
             var loggingOptions = new LoggingOptions();
             if (sensitiveLogging)
@@ -37,12 +38,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 loggingOptions.Initialize(new DbContextOptionsBuilder<DbContext>().EnableSensitiveDataLogging().Options);
             }
 
-            return new CommandBatchPreparer(modificationCommandBatchFactory,
+            return new CommandBatchPreparer(new CommandBatchPreparerDependencies(
+                modificationCommandBatchFactory,
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
                 new ModificationCommandComparer(),
                 new KeyValueIndexFactorySource(),
-                currentDbContext,
-                loggingOptions);
+                () => stateManager,
+                loggingOptions));
         }
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)

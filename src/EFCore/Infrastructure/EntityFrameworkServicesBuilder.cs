@@ -92,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILocalViewListener), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IStateManager), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(Func<IStateManager>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IConcurrencyDetector), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IInternalEntityEntryNotifier), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IValueGenerationManager), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -251,6 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityStateListener, ILocalViewListener>(p => p.GetService<ILocalViewListener>());
             TryAdd<IResettableService, IStateManager>(p => p.GetService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetService<IDbContextTransactionManager>());
+            TryAdd<Func<IStateManager>>(p => p.GetService<IStateManager>);
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
 
             ServiceCollectionMap
@@ -266,6 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<CoreTypeMapperDependencies>()
                 .AddDependencySingleton<ModelCustomizerDependencies>()
                 .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
+                .AddDependencyScoped<StateManagerDependencies>()
                 .AddDependencyScoped<ExecutionStrategyDependencies>()
                 .AddDependencyScoped<CompiledQueryCacheKeyGeneratorDependencies>()
                 .AddDependencyScoped<QueryContextDependencies>()

@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var foreignKeys = property.GetContainingForeignKeys()
                         .Where(fk => fk.DeclaringEntityType.IsAssignableFrom(entry.EntityType)).ToList();
 
-                    entry.StateManager.Notify.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
+                    entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
                 }
             }
         }
@@ -191,14 +191,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (added.Any()
                     || removed.Any())
                 {
-                    stateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
+                    stateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(entry, navigation, added, removed);
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue)
                      && (!navigation.ForeignKey.IsOwnership
                          || !navigation.IsDependentToPrincipal()))
             {
-                stateManager.Notify.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
+                stateManager.InternalEntityEntryNotifier.NavigationReferenceChanged(entry, navigation, snapshotValue, currentValue);
             }
         }
     }

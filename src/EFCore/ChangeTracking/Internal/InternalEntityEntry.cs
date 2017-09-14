@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (adding)
             {
-                StateManager.ValueGeneration.Generate(this);
+                StateManager.ValueGenerationManager.Generate(this);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (adding)
             {
-                await StateManager.ValueGeneration.GenerateAsync(this, cancellationToken);
+                await StateManager.ValueGenerationManager.GenerateAsync(this, cancellationToken);
             }
 
             SetEntityState(oldState, entityState, acceptChanges);
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 || (oldState == EntityState.Detached
                     && keyUnknown))
             {
-                var principalEntry = StateManager.ValueGeneration.Propagate(this);
+                var principalEntry = StateManager.ValueGenerationManager.Propagate(this);
 
                 if (forceStateWhenUnknownKey
                     && keyUnknown
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified, flagged: false);
             }
 
-            StateManager.Notify.StateChanging(this, newState);
+            StateManager.InternalEntityEntryNotifier.StateChanging(this, newState);
 
             if (newState == EntityState.Unchanged
                 && oldState == EntityState.Modified)
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.ChangedCount--;
             }
 
-            StateManager.Notify.StateChanged(this, oldState, fromQuery: false);
+            StateManager.InternalEntityEntryNotifier.StateChanged(this, oldState, fromQuery: false);
         }
 
         /// <summary>
@@ -264,14 +264,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void MarkUnchangedFromQuery([CanBeNull] ISet<IForeignKey> handledForeignKeys)
         {
-            StateManager.Notify.StateChanging(this, EntityState.Unchanged);
+            StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
             _stateData.EntityState = EntityState.Unchanged;
-            StateManager.Notify.StateChanged(this, EntityState.Detached, fromQuery: true);
+            StateManager.InternalEntityEntryNotifier.StateChanged(this, EntityState.Detached, fromQuery: true);
 
             var trackingQueryMode = StateManager.GetTrackingQueryMode(EntityType);
             if (trackingQueryMode != TrackingQueryMode.Simple)
             {
-                StateManager.Notify.TrackedFromQuery(
+                StateManager.InternalEntityEntryNotifier.TrackedFromQuery(
                     this,
                     trackingQueryMode == TrackingQueryMode.Single
                         ? handledForeignKeys
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (changeState)
                 {
-                    StateManager.Notify.StateChanging(this, EntityState.Modified);
+                    StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Modified);
                     _stateData.EntityState = EntityState.Modified;
                 }
 
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (changeState)
                 {
                     StateManager.ChangedCount++;
-                    StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
+                    StateManager.InternalEntityEntryNotifier.StateChanged(this, currentState, fromQuery: false);
                 }
             }
             else if (currentState == EntityState.Modified
@@ -382,10 +382,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                      && !isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
             {
-                StateManager.Notify.StateChanging(this, EntityState.Unchanged);
+                StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
                 StateManager.ChangedCount--;
-                StateManager.Notify.StateChanged(this, currentState, fromQuery: false);
+                StateManager.InternalEntityEntryNotifier.StateChanged(this, currentState, fromQuery: false);
             }
         }
 
@@ -696,9 +696,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.CanStoreValue(propertyBase))
             {
-                StateManager.Notify.PropertyChanging(this, propertyBase);
+                StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
                 _storeGeneratedValues.SetValue(propertyBase, value);
-                StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
+                StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
             }
             else
             {
@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (writeValue)
                     {
-                        StateManager.Notify.PropertyChanging(this, propertyBase);
+                        StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
                         WritePropertyValue(propertyBase, value);
 
                         if (propertyIndex.HasValue)
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                         }
 
-                        StateManager.Notify.PropertyChanged(this, propertyBase, setModified);
+                        StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
                     }
                 }
             }
@@ -976,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         var isTemp = HasTemporaryValue(property);
 
-                        StateManager.Notify.PropertyChanged(this, property, setModified: false);
+                        StateManager.InternalEntityEntryNotifier.PropertyChanged(this, property, setModified: false);
 
                         if (isTemp)
                         {
@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
             {
-                StateManager.Notify.PropertyChanging(this, propertyBase);
+                StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
             }
         }
 
@@ -1047,7 +1047,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
             {
-                StateManager.Notify.PropertyChanged(this, propertyBase, setModified: true);
+                StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified: true);
             }
         }
 
@@ -1063,21 +1063,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 switch (eventArgs.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
-                        StateManager.Notify.NavigationCollectionChanged(
+                        StateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(
                             this,
                             navigation,
                             eventArgs.NewItems.OfType<object>(),
                             Enumerable.Empty<object>());
                         break;
                     case NotifyCollectionChangedAction.Remove:
-                        StateManager.Notify.NavigationCollectionChanged(
+                        StateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(
                             this,
                             navigation,
                             Enumerable.Empty<object>(),
                             eventArgs.OldItems.OfType<object>());
                         break;
                     case NotifyCollectionChangedAction.Replace:
-                        StateManager.Notify.NavigationCollectionChanged(
+                        StateManager.InternalEntityEntryNotifier.NavigationCollectionChanged(
                             this,
                             navigation,
                             eventArgs.NewItems.OfType<object>(),
