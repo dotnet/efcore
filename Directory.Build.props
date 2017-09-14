@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
-    <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM</PackageTags>
+    <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
     <Product>Microsoft Entity Framework Core</Product>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>
     <RepositoryType>git</RepositoryType>
