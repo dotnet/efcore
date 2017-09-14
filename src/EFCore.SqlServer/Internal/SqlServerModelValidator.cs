@@ -125,10 +125,40 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             base.ValidateSharedColumnsCompatibility(mappedTypes, tableName);
 
-            var identityColumns = mappedTypes.SelectMany(et => et.GetDeclaredProperties())
-                .Where(p => p.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
-                .Distinct((p1, p2) => p1.Name == p2.Name)
-                .ToList();
+            var identityColumns = new List<IProperty>();
+            var propertyMappings = new Dictionary<string, IProperty>();
+
+            foreach (var property in mappedTypes.SelectMany(et => et.GetDeclaredProperties()))
+            {
+                var propertyAnnotations = property.Relational();
+                var columnName = propertyAnnotations.ColumnName;
+                if (propertyMappings.TryGetValue(columnName, out var duplicateProperty))
+                {
+                    var propertyStrategy = property.SqlServer().ValueGenerationStrategy;
+                    var duplicatePropertyStrategy = duplicateProperty.SqlServer().ValueGenerationStrategy;
+                    if (propertyStrategy != duplicatePropertyStrategy
+                        && (propertyStrategy == SqlServerValueGenerationStrategy.IdentityColumn
+                            || duplicatePropertyStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                    {
+                        throw new InvalidOperationException(
+                            SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
+                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.Name,
+                                property.DeclaringEntityType.DisplayName(),
+                                property.Name,
+                                columnName,
+                                tableName));
+                    }
+                }
+                else
+                {
+                    propertyMappings[columnName] = property;
+                    if (property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+                    {
+                        identityColumns.Add(property);
+                    }
+                }
+            }
 
             if (identityColumns.Count > 1)
             {

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerModelValidatorTest : RelationalModelValidatorTest
@@ -70,12 +71,33 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).IsUnicode(false);
-            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).IsUnicode();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).IsUnicode(false);
+            modelBuilder.Entity<Dog>().Property(d => d.Breed).IsUnicode();
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>(cb =>
+                {
+                    cb.Property(c => c.Identity).UseSqlServerIdentityColumn();
+                    cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
+                });
+            modelBuilder.Entity<Dog>(db =>
+                {
+                    db.Property(d => d.Identity).ValueGeneratedNever();
+                    db.Property(c => c.Identity).HasColumnName(nameof(Dog.Identity));
+                });
+
+            VerifyError(
+                SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
+                    nameof(Cat), nameof(Cat.Identity), nameof(Dog), nameof(Dog.Identity), nameof(Cat.Identity), nameof(Animal)), modelBuilder.Model);
         }
 
         [Fact]

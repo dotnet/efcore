@@ -133,11 +133,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var relationalProperty = Property.Relational();
             if (!fallbackToModel
-                || Property.ValueGenerated != ValueGenerated.OnAdd
                 || relationalProperty.DefaultValue != null
                 || relationalProperty.DefaultValueSql != null
                 || relationalProperty.ComputedColumnSql != null)
             {
+                return null;
+            }
+
+            if (Property.ValueGenerated != ValueGenerated.OnAdd)
+            {
+                var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTablePrincipalPrimaryKeyProperty();
+                if (sharedTablePrincipalPrimaryKeyProperty != null
+                    && sharedTablePrincipalPrimaryKeyProperty.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
+                {
+                    return SqlServerValueGenerationStrategy.IdentityColumn;
+                }
+
                 return null;
             }
 

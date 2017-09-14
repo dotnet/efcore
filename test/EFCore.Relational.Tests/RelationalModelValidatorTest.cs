@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalModelValidatorTest : ModelValidatorTest
@@ -764,6 +765,8 @@ namespace Microsoft.EntityFrameworkCore
 
             [NotMapped]
             public string Type { get; set; }
+
+            public int Identity { get; set; }
         }
 
         protected class Dog : Animal
@@ -772,6 +775,8 @@ namespace Microsoft.EntityFrameworkCore
 
             [NotMapped]
             public int Type { get; set; }
+
+            public int Identity { get; set; }
         }
 
         protected class Person
