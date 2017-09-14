@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for updating seed data in an existing table.
     /// </summary>
-    public class UpdateDataOperation : ModificationOperation
+    public class UpdateDataOperation : MigrationOperation
     {
         /// <summary>
         ///     The name of the table in which data will be updated.
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     Generates the commands that correspond to this operation.
         /// </summary>
         /// <returns> The commands that correspond to this operation. </returns>
-        protected override IEnumerable<ModificationCommand> GenerateModificationCommands()
+        public virtual IEnumerable<ModificationCommand> GenerateModificationCommands()
         {
             Debug.Assert(KeyColumns.Length == KeyValues.GetLength(1),
                 $"The number of key values doesn't match the number of keys (${KeyColumns.Length})");

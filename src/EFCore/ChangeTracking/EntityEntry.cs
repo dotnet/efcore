@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    [DebuggerDisplay("{InternalEntry,nq}")]
+    [DebuggerDisplay("{" + nameof(InternalEntry) + ",nq}")]
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private static readonly int _maxEntityState = Enum.GetValues(typeof(EntityState)).Cast<int>().Max();
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalEntityEntry InternalEntry { get; }
+        protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual EntityState State
         {
-            get { return InternalEntry.EntityState; }
+            get => InternalEntry.EntityState;
             set
             {
                 if (value < 0
@@ -258,14 +258,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Gets the current property values for this entity.
         /// </summary>
         /// <value> The current values. </value>
-        public virtual PropertyValues CurrentValues => new CurrentPropertyValues(InternalEntry);
+        public virtual PropertyValues CurrentValues
+        {
+            [DebuggerStepThrough] get => new CurrentPropertyValues(InternalEntry);
+        }
 
         /// <summary>
         ///     Gets the original property values for this entity. The original values are the property
         ///     values as they were when the entity was retrieved from the database.
         /// </summary>
         /// <value> The original values. </value>
-        public virtual PropertyValues OriginalValues => new OriginalPropertyValues(InternalEntry);
+        public virtual PropertyValues OriginalValues
+        {
+            [DebuggerStepThrough] get => new OriginalPropertyValues(InternalEntry);
+        }
 
         /// <summary>
         ///     <para>

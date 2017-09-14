@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual InternalEntityEntry InternalEntry { get; }
+        protected virtual InternalEntityEntry InternalEntry { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     Creates an instance of the entity type and sets all its properties using the
@@ -95,8 +96,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             foreach (var property in Properties)
             {
-                object value;
-                if (values.TryGetValue(property.Name, out value))
+                if (values.TryGetValue(property.Name, out var value))
                 {
                     this[property] = value;
                 }
@@ -112,7 +112,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the underlying entity type for which this object is storing values.
         /// </summary>
-        public virtual IEntityType EntityType => InternalEntry.EntityType;
+        public virtual IEntityType EntityType
+        {
+            [DebuggerStepThrough] get => InternalEntry.EntityType;
+        }
 
         /// <summary>
         ///     Gets or sets the value of the property with the specified property name.

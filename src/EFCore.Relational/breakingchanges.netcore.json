@@ -1,17 +1,5 @@
   [
     {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Operations.DeleteDataOperation : Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Operations.InsertDataOperation : Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation",
-      "Kind": "Removal"
-    },
-    {
-      "TypeId": "public class Microsoft.EntityFrameworkCore.Migrations.Operations.UpdateDataOperation : Microsoft.EntityFrameworkCore.Migrations.Operations.MigrationOperation",
-      "Kind": "Removal"
-    },
-    {
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Migrations.MigrationsSqlGeneratorDependencies",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper)",
       "Kind": "Removal"

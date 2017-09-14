@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class NavigationEntryTest

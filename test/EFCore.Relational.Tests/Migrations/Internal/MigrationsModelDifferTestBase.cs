@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -65,8 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => new MigrationsModelDiffer(
                 new ConcreteTypeMapper(new RelationalTypeMapperDependencies()),
                 new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
-                ctx.GetService<IStateManager>(),
-                ctx.GetService<ICommandBatchPreparer>());
+                ctx.GetService<IChangeDetector>(),
+                ctx.GetService<StateManagerDependencies>(),
+                ctx.GetService<CommandBatchPreparerDependencies>());
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {

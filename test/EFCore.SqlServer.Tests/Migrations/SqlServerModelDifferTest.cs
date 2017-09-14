@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -406,8 +407,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => new MigrationsModelDiffer(
                 new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
                 new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
-                ctx.GetService<IStateManager>(),
-                ctx.GetService<ICommandBatchPreparer>());
+                ctx.GetService<IChangeDetector>(),
+                ctx.GetService<StateManagerDependencies>(),
+                ctx.GetService<CommandBatchPreparerDependencies>());
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;

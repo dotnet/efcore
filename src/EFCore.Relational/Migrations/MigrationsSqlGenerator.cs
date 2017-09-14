@@ -124,8 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var operationType = operation.GetType();
-            Action<MigrationsSqlGenerator, MigrationOperation, IModel, MigrationCommandListBuilder> generateAction;
-            if (!_generateActions.TryGetValue(operationType, out generateAction))
+            if (!_generateActions.TryGetValue(operationType, out var generateAction))
             {
                 throw new InvalidOperationException(RelationalStrings.UnknownOperation(GetType().ShortDisplayName(), operationType));
             }
@@ -1003,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.ModificationCommands)
+            foreach (var modificationCommand in operation.GenerateModificationCommands())
             {
                 Dependencies.UpdateSqlGenerator.AppendInsertOperation(
                     sqlBuilder,
@@ -1031,7 +1030,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.ModificationCommands)
+            foreach (var modificationCommand in operation.GenerateModificationCommands())
             {
                 Dependencies.UpdateSqlGenerator.AppendDeleteOperation(
                     sqlBuilder,
@@ -1059,7 +1058,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             var sqlBuilder = new StringBuilder();
-            foreach (var modificationCommand in operation.ModificationCommands)
+            foreach (var modificationCommand in operation.GenerateModificationCommands())
             {
                 Dependencies.UpdateSqlGenerator.AppendUpdateOperation(
                     sqlBuilder,

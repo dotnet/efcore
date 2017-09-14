@@ -52,13 +52,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEntityType EntityType { get; }
+        public virtual IEntityType EntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IStateManager StateManager { get; }
+        public virtual IStateManager StateManager { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -527,24 +527,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetCurrentValue(IPropertyBase propertyBase)
-        {
-            var property = propertyBase as IProperty;
-            return property == null || !IsConceptualNull(property)
+            => !(propertyBase is IProperty property) || !IsConceptualNull(property)
                 ? this[propertyBase]
                 : null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual object GetPreStoreGeneratedCurrentValue([NotNull] IPropertyBase propertyBase)
-        {
-            var property = propertyBase as IProperty;
-            return property == null || !IsConceptualNull(property)
+            => !(propertyBase is IProperty property) || !IsConceptualNull(property)
                 ? ReadPropertyValue(propertyBase)
                 : null;
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

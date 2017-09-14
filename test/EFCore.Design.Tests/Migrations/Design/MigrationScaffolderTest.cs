@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -12,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -48,6 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var code = new CSharpHelper();
             var reporter = new TestOperationReporter();
 
+            var services = RelationalTestHelpers.Instance.CreateContextServices();
+
             return new MigrationsScaffolder(
                 new MigrationsScaffolderDependencies(
                     currentContext,
@@ -59,8 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
-                        new FakeStateManager(),
-                        RelationalTestHelpers.Instance.CreateCommandBatchPreparer()),
+                        services.GetRequiredService<IChangeDetector>(),
+                        services.GetRequiredService<StateManagerDependencies>(),
+                        services.GetRequiredService<CommandBatchPreparerDependencies>()),
                     idGenerator,
                     new CSharpMigrationsGenerator(
                         new MigrationsCodeGeneratorDependencies(),
