@@ -1798,6 +1798,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
                     _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance")));
 
+        /// <summary>
+        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the parent first. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+        /// </summary>
+        public static string IdentityConflictOwned([CanBeNull] object entityType, [CanBeNull] object keyProperties)
+            => string.Format(
+                GetString("IdentityConflictOwned", nameof(entityType), nameof(keyProperties)),
+                entityType, keyProperties);
+
+        /// <summary>
+        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the parent first..
+        /// </summary>
+        public static string IdentityConflictOwnedSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue)
+            => string.Format(
+                GetString("IdentityConflictOwnedSensitive", nameof(entityType), nameof(keyValue)),
+                entityType, keyValue);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
