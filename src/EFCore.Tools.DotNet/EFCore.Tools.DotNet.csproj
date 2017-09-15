@@ -8,6 +8,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PackageId>Microsoft.EntityFrameworkCore.Tools.DotNet</PackageId>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <IncludeBuildOutput>false</IncludeBuildOutput>
@@ -30,6 +31,7 @@
     </ResolvePackageDependencies>
     <PropertyGroup>
       <NuspecProperties>
+        id=$(PackageId);
         version=$(PackageVersion);
         configuration=$(Configuration);
         runtimeFrameworkVersion=@(_PackageDefinitions-&gt;WithMetadataValue('Name', 'Microsoft.NETCore.App')-&gt;Metadata('Version'));
