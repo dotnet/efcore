@@ -8,7 +8,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <developmentDependency>true</developmentDependency>
     <description>Entity Framework Core Package Manager Console Tools. Includes Scaffold-DbContext, Add-Migration, and Update-Database.</description>
-    <tags>Entity Framework Core,entity-framework-core,EF,Data,O/RM</tags>
+    <tags>Entity Framework Core entity-framework-core EF Data O/RM EntityFramework EntityFrameworkCore EFCore</tags>
     <serviceable>true</serviceable>
     <repository type="git" url="https://github.com/aspnet/EntityFramework.Tools.git" />
     <dependencies>
