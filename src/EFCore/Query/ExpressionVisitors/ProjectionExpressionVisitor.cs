@@ -42,20 +42,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9128", out var isEnabled)
+                || AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9570", out isEnabled)
                 && isEnabled)
             {
                 return base.VisitMethodCall(methodCallExpression);
             }
-
+            
             var newExpression = base.VisitMethodCall(methodCallExpression);
-
+            
             switch (newExpression)
             {
-                case MethodCallExpression newMethodCallExpression
-                when newMethodCallExpression.Arguments.Count > 0
-                     && newMethodCallExpression.Arguments[0] is MethodCallExpression innerMethodCallExpression
-                     && innerMethodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToEnumerable)
-                     && TryFindAsyncMethod(newMethodCallExpression.Method.Name, out var asyncMethodInfo):
+                case MethodCallExpression sequenceMaterializingLinqMethodCallExpression
+                when sequenceMaterializingLinqMethodCallExpression.Arguments.Count > 0
+                     && sequenceMaterializingLinqMethodCallExpression.Arguments[0] is MethodCallExpression toEnumerableMethodCallExpression
+                     && toEnumerableMethodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToEnumerable)
+                     && TryFindAsyncMethod(sequenceMaterializingLinqMethodCallExpression.Method.Name, out var asyncMethodInfo):
                 {
                     // Transforms a sync method inside an async projector into the corresponding async version (if one exists).
                     // We call .Result here so that the types still line up (we remove the .Result in TaskLiftingExpressionVisitor).
@@ -64,51 +65,86 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         Expression.Property(
                             ResultOperatorHandler.CallWithPossibleCancellationToken(
                                 asyncMethodInfo.MakeGenericMethod(
-                                    newMethodCallExpression.Method.GetGenericArguments()),
-                                innerMethodCallExpression.Arguments.ToArray()),
+                                    sequenceMaterializingLinqMethodCallExpression.Method.GetGenericArguments()),
+                                toEnumerableMethodCallExpression.Arguments.ToArray()),
                             nameof(Task<object>.Result));
                 }
-                case MethodCallExpression newMethodCallExpression2
-                when newMethodCallExpression2.Method
+                case MethodCallExpression materializeCollectionNavigationMethodCallExpression
+                when materializeCollectionNavigationMethodCallExpression.Method
                          .MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
-                     && newMethodCallExpression2.Arguments[1] is MethodCallExpression innerMethodCallExpression2
-                     && innerMethodCallExpression2.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToQueryable):
+                     && materializeCollectionNavigationMethodCallExpression.Arguments[1] is MethodCallExpression toQueryableMethodCallExpression
+                     && toQueryableMethodCallExpression.Method.MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToQueryable):
                 {
                     // Transforms a sync method inside a MaterializeCollectionNavigation call into a corresponding async version.
                     // We call .Result here so that the types still line up (we remove the .Result in TaskLiftingExpressionVisitor).
 
                     return
-                        innerMethodCallExpression2.Arguments[0].Type.IsGenericType
-                        && innerMethodCallExpression2.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
+                        toQueryableMethodCallExpression.Arguments[0].Type.IsGenericType
+                        && toQueryableMethodCallExpression.Arguments[0].Type.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>)
                             ? (Expression) Expression.Property(
                                 ResultOperatorHandler.CallWithPossibleCancellationToken(
-                                    MaterializeCollectionNavigationAsyncMethodInfo.MakeGenericMethod(
-                                        newMethodCallExpression2.Method.GetGenericArguments()[0]),
-                                    newMethodCallExpression2.Arguments[0],
-                                    innerMethodCallExpression2.Arguments[0]),
+                                    _materializeCollectionNavigationAsyncMethodInfo
+                                        .MakeGenericMethod(materializeCollectionNavigationMethodCallExpression.Method.GetGenericArguments()[0]),
+                                    materializeCollectionNavigationMethodCallExpression.Arguments[0],
+                                    toQueryableMethodCallExpression.Arguments[0]),
                                 nameof(Task<object>.Result))
                             : Expression.Call(
-                                newMethodCallExpression2.Method,
-                                newMethodCallExpression2.Arguments[0],
-                                innerMethodCallExpression2.Arguments[0]);
+                                materializeCollectionNavigationMethodCallExpression.Method,
+                                materializeCollectionNavigationMethodCallExpression.Arguments[0],
+                                toQueryableMethodCallExpression.Arguments[0]);
+                }
+                case MethodCallExpression newMethodCallExpression
+                when newMethodCallExpression.Method.Equals(methodCallExpression.Method)
+                    && newMethodCallExpression.Arguments.Count > 0:
+                {
+                    // Transforms a sync sequence argument to an async buffered version
+                    // We call .Result here so that the types still line up (we remove the .Result in TaskLiftingExpressionVisitor).
+
+                    var newArguments = newMethodCallExpression.Arguments.ToList();
+
+                    for (var i = 0; i < newArguments.Count; i++)
+                    {
+                        var argument = newArguments[i];
+
+                        if (argument is MethodCallExpression argumentMethodCallExpression
+                            && argumentMethodCallExpression.Method
+                                .MethodIsClosedFormOf(QueryModelVisitor.LinqOperatorProvider.ToEnumerable))
+                        {
+                            newArguments[i]
+                                = Expression.Property(
+                                    ResultOperatorHandler.CallWithPossibleCancellationToken(
+                                        _toArrayAsync.MakeGenericMethod(
+                                            argumentMethodCallExpression.Method.GetGenericArguments()),
+                                        argumentMethodCallExpression.Arguments.ToArray()),
+                                    nameof(Task<object>.Result));
+                        }
+                    }
+
+                    return newMethodCallExpression.Update(newMethodCallExpression.Object, newArguments);
                 }
             }
 
             return newExpression;
         }
 
-        private static readonly MethodInfo MaterializeCollectionNavigationAsyncMethodInfo
+        private static readonly MethodInfo _toArrayAsync
+            = typeof(AsyncEnumerable).GetTypeInfo()
+                .GetDeclaredMethods(nameof(AsyncEnumerable.ToArray))
+                .Single(mi => mi.GetParameters().Length == 2);
+
+        private static readonly MethodInfo _materializeCollectionNavigationAsyncMethodInfo
             = typeof(ProjectionExpressionVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(MaterializeCollectionNavigationAsync));
 
         [UsedImplicitly]
         private static async Task<ICollection<TEntity>> MaterializeCollectionNavigationAsync<TEntity>(
             INavigation navigation,
-            IAsyncEnumerable<object> elements)
+            IAsyncEnumerable<object> elements,
+            CancellationToken cancellationToken)
         {
             var collection = (ICollection<TEntity>) navigation.GetCollectionAccessor().Create();
 
-            await elements.ForEachAsync(e => collection.Add((TEntity) e));
+            await elements.ForEachAsync(e => collection.Add((TEntity) e), cancellationToken);
 
             return collection;
         }

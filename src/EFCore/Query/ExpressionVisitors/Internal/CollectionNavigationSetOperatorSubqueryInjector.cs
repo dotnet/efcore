@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -30,7 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            expression.QueryModel.TransformExpressions(Visit);
+            bool shouldInject;
+
+            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9570", out var isEnabled)
+                && isEnabled)
+            {
+                expression.QueryModel.TransformExpressions(Visit);
+            }
+            else
+            {
+                shouldInject = ShouldInject;
+                ShouldInject = false;
+
+                expression.QueryModel.TransformExpressions(Visit);
+
+                ShouldInject = shouldInject;
+            }
 
             foreach (var resultOperator in expression.QueryModel.ResultOperators.Where(
                 ro => ro is ConcatResultOperator
@@ -38,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                       || ro is IntersectResultOperator
                       || ro is ExceptResultOperator))
             {
-                var shouldInject = ShouldInject;
+                shouldInject = ShouldInject;
                 ShouldInject = true;
 
                 resultOperator.TransformExpressions(Visit);
