@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,12 +44,14 @@ namespace Microsoft.EntityFrameworkCore
                 .AddScoped<IStateManager, FakeStateManager>()
                 .AddScoped<IChangeDetector, FakeChangeDetector>();
 
+            var model = new ModelBuilder(new ConventionSet()).Entity<User>().Metadata.Model;
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
             using (var context = new DbContext(
                 new DbContextOptionsBuilder()
                     .UseInternalServiceProvider(serviceProvider)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .UseModel(model)
                     .Options))
             {
                 var changeDetector = (FakeChangeDetector)context.GetService<IChangeDetector>();

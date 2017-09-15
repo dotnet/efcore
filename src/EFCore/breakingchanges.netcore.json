@@ -28,5 +28,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IDbContextTransactionManager : Microsoft.EntityFrameworkCore.Infrastructure.IResettableService",
       "MemberId": "System.Void EnlistTransaction(System.Transactions.Transaction transaction)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.DbContext context)",
+      "Kind": "Removal"
     }
   ]

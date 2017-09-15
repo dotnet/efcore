@@ -7,7 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -20,18 +20,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     public class ChangeTracker : IInfrastructure<IStateManager>
     {
-        private IEntityEntryGraphIterator _graphIterator;
+        private readonly IModel _model;
         private QueryTrackingBehavior _queryTrackingBehavior;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ChangeTracker([NotNull] DbContext context)
+        public ChangeTracker(
+            [NotNull] DbContext context,
+            [NotNull] IStateManager stateManager,
+            [NotNull] IChangeDetector changeDetector,
+            [NotNull] IModel model,
+            [NotNull] IEntityEntryGraphIterator graphIterator)
         {
             Check.NotNull(context, nameof(context));
+            Check.NotNull(stateManager, nameof(stateManager));
+            Check.NotNull(changeDetector, nameof(changeDetector));
 
+#pragma warning disable 612
             Context = context;
+#pragma warning restore 612
             _queryTrackingBehavior = context
                                          .GetService<IDbContextOptions>()
                                          .Extensions
@@ -39,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                                          .FirstOrDefault()
                                          ?.QueryTrackingBehavior
                                      ?? QueryTrackingBehavior.TrackAll;
+            StateManager = stateManager;
+            ChangeDetector = changeDetector;
+            _model = model;
+            GraphIterator = graphIterator;
         }
 
         /// <summary>
@@ -76,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual QueryTrackingBehavior QueryTrackingBehavior
         {
-            get { return _queryTrackingBehavior; }
-            set { _queryTrackingBehavior = value; }
+            get => _queryTrackingBehavior;
+            set => _queryTrackingBehavior = value;
         }
 
         /// <summary>
@@ -147,6 +160,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
+        [Obsolete]
         IStateManager IInfrastructure<IStateManager>.Instance => StateManager;
 
         /// <summary>
@@ -160,7 +174,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     <see cref="DbContext.SaveChanges()" /> and when returning change tracking information). You typically only need to
         ///     call this method if you have disabled <see cref="AutoDetectChangesEnabled" />.
         /// </summary>
-        public virtual void DetectChanges() => ChangeDetector.DetectChanges(StateManager);
+        public virtual void DetectChanges()
+        {
+            if (_model[Internal.ChangeDetector.SkipDetectChangesAnnotation] == null)
+            {
+                ChangeDetector.DetectChanges(StateManager);
+            }
+        }
 
         /// <summary>
         ///     Accepts all changes made to entities in the context. It will be assumed that the tracked entities
@@ -218,13 +238,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     });
         }
 
-        private IStateManager StateManager
-            => Context.GetDependencies().StateManager;
+        private IStateManager StateManager { get; }
 
-        private IChangeDetector ChangeDetector
-            => Context.GetDependencies().ChangeDetector;
+        private IChangeDetector ChangeDetector { get; }
 
-        private IEntityEntryGraphIterator GraphIterator
-            => _graphIterator ?? (_graphIterator = Context.GetService<IEntityEntryGraphIterator>());
+        private IEntityEntryGraphIterator GraphIterator { get; }
     }
 }

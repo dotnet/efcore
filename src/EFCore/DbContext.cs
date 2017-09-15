@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IEntityFinderSource IDbContextDependencies.EntityFinderSource => DbContextDependencies.EntityFinderSource;
+        IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 
-            return DbContextDependencies.EntityFinderSource.Create(this, entityType);
+            return DbContextDependencies.EntityFinderFactory.Create(entityType);
         }
 
         private IServiceProvider InternalServiceProvider
@@ -276,6 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextDependencies DbContextDependencies
             => _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<IDbContextDependencies>());
 
+        [DebuggerStepThrough]
         internal void CheckDisposed()
         {
             if (_disposed)
@@ -295,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured" /> to determine if
         ///         the options have already been set, and skip some or all of the logic in
         ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />.
-        ///     </para>        
+        ///     </para>
         /// </summary>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)

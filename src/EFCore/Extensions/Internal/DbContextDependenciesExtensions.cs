@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
 {
     /// <summary>
@@ -15,6 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        /// <remarks>
+        ///     This should only be called from <see cref="InternalDbSet{TEntity}"/> as it is created
+        ///     before the context is initialized
+        /// </remarks>
         public static IDbContextDependencies GetDependencies([NotNull] this IDbContextDependencies context)
             => context;
 

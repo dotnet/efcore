@@ -366,7 +366,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder Finder
-            => InternalEntry.StateManager.Context.GetDependencies().EntityFinderSource
-                .Create(InternalEntry.StateManager.Context, InternalEntry.EntityType);
+            => InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
     }
 }

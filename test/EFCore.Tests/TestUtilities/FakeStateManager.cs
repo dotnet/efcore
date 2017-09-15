@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -18,6 +20,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IEnumerable<InternalEntityEntry> InternalEntries { get; set; }
         public bool SaveChangesCalled { get; set; }
         public bool SaveChangesAsyncCalled { get; set; }
+
+        public IEntityFinder CreateEntityFinder(IEntityType entityType)
+        {
+            throw new NotImplementedException();
+        }
 
         public TrackingQueryMode GetTrackingQueryMode(IEntityType entityType) => TrackingQueryMode.Multiple;
 
@@ -130,15 +137,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public int ChangedCount { get; set; }
 
-        public IInternalEntityEntryNotifier Notify
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public IInternalEntityEntryNotifier Notify => throw new NotImplementedException();
 
-        public IValueGenerationManager ValueGeneration
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public IValueGenerationManager ValueGeneration => throw new NotImplementedException();
+
+        public IEntityMaterializerSource EntityMaterializerSource { get; }
 
         public InternalEntityEntry StartTracking(InternalEntityEntry entry)
         {

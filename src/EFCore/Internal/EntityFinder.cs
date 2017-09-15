@@ -24,19 +24,27 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         where TEntity : class
     {
-        private readonly IModel _model;
         private readonly IStateManager _stateManager;
+        private readonly IDbSetSource _setSource;
+        private readonly IDbSetCache _setCache;
+        private readonly IModel _model;
         private readonly IQueryable<TEntity> _queryRoot;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityFinder([NotNull] DbContext context, [NotNull] IEntityType entityType)
+        public EntityFinder(
+            [NotNull] IStateManager stateManager,
+            [NotNull] IDbSetSource setSource,
+            [NotNull] IDbSetCache setCache,
+            [NotNull] IEntityType entityType)
         {
-            _model = context.Model;
-            _stateManager = context.GetDependencies().StateManager;
-            _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(context, entityType);
+            _stateManager = stateManager;
+            _setSource = setSource;
+            _setCache = setCache;
+            _model = entityType.Model;
+            _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(entityType);
         }
 
         /// <summary>
@@ -277,20 +285,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 BuildPredicate(keyProperties, keyValues, entityParameter), entityParameter);
         }
 
-        private static IQueryable BuildQueryRoot(DbContext context, IEntityType entityType)
+        private IQueryable BuildQueryRoot(IEntityType entityType)
         {
             var definingEntityType = entityType.DefiningEntityType;
             if (definingEntityType == null)
             {
-                return (IQueryable)((IDbSetCache)context).GetOrAddSet(context.GetDependencies().SetSource, entityType.ClrType);
+                return (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
             }
 
-            return BuildQueryRoot(context, definingEntityType, entityType);
+            return BuildQueryRoot(definingEntityType, entityType);
         }
 
-        private static IQueryable BuildQueryRoot(DbContext context, IEntityType definingEntityType, IEntityType entityType)
+        private IQueryable BuildQueryRoot(IEntityType definingEntityType, IEntityType entityType)
         {
-            var queryRoot = BuildQueryRoot(context, definingEntityType);
+            var queryRoot = BuildQueryRoot(definingEntityType);
 
             return (IQueryable)_selectMethod.MakeGenericMethod(definingEntityType.ClrType, entityType.ClrType)
                 .Invoke(null, new object[] { queryRoot, entityType.DefiningNavigationName });

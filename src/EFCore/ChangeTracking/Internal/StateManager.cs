@@ -62,6 +62,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IDatabase database,
             [NotNull] IConcurrencyDetector concurrencyDetector,
             [NotNull] ICurrentDbContext currentContext,
+            [NotNull] IEntityFinderSource entityFinderSource,
+            [NotNull] IDbSetSource setSource,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ILoggingOptions loggingOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
@@ -73,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _database = database;
             _concurrencyDetector = concurrencyDetector;
             Context = currentContext.Context;
+            EntityFinderFactory = new EntityFinderFactory(entityFinderSource, this, setSource, currentContext.Context);
+            EntityMaterializerSource = entityMaterializerSource;
 
             if (loggingOptions.IsSensitiveDataLoggingEnabled)
             {
@@ -121,6 +126,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IValueGenerationManager ValueGeneration { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual DbContext Context { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEntityFinderFactory EntityFinderFactory { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -707,6 +730,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IEntityFinder CreateEntityFinder(IEntityType entityType)
+            => EntityFinderFactory.Create(entityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual int ChangedCount { get; set; }
 
         /// <summary>
@@ -871,11 +901,5 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 entry.AcceptChanges();
             }
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual DbContext Context { get; }
     }
 }

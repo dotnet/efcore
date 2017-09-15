@@ -47,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return;
             }
 
-            var property = propertyBase as IProperty;
-            if (property != null)
+            if (propertyBase is IProperty property)
             {
                 entry.SetPropertyModified(property, setModified);
 
@@ -57,16 +56,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     DetectKeyChange(entry, property);
                 }
             }
-            else
+            else if (propertyBase.GetRelationshipIndex() != -1
+                     && propertyBase is INavigation navigation)
             {
-                if (propertyBase.GetRelationshipIndex() != -1)
-                {
-                    var navigation = propertyBase as INavigation;
-                    if (navigation != null)
-                    {
-                        DetectNavigationChange(entry, navigation);
-                    }
-                }
+                DetectNavigationChange(entry, navigation);
             }
         }
 
@@ -83,8 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (!entry.EntityType.UseEagerSnapshots())
             {
-                var asProperty = propertyBase as IProperty;
-                if (asProperty != null
+                if (propertyBase is IProperty asProperty
                     && asProperty.GetOriginalValueIndex() != -1)
                 {
                     entry.EnsureOriginalValues();
@@ -103,14 +95,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void DetectChanges(IStateManager stateManager)
         {
-            if (stateManager.Context.Model[SkipDetectChangesAnnotation] == null)
+            foreach (var entry in stateManager.Entries.Where(
+                e => e.EntityState != EntityState.Detached
+                     && e.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot).ToList())
             {
-                foreach (var entry in stateManager.Entries.Where(
-                    e => e.EntityState != EntityState.Detached
-                         && e.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot).ToList())
-                {
-                    DetectChanges(entry);
-                }
+                DetectChanges(entry);
             }
         }
 
