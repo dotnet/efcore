@@ -14,6 +14,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeSymbols>false</IncludeSymbols>
     <EnableApiCheck>false</EnableApiCheck>
+    <PackageType>DotnetCliTool</PackageType>
   </PropertyGroup>
 
   <ItemGroup>
