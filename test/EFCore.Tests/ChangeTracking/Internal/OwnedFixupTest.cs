@@ -358,6 +358,52 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
+        [Theory] // Remove when #7340 is fixed
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Replacing_owned_entity_throws(EntityState entityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent1 = new ChildPN { Name = "1" };
+                principal.Child1 = dependent1;
+                var dependent2 = new ChildPN { Name = "2" };
+
+                context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
+
+                principal.Child1 = dependent2;
+
+                Assert.Equal(
+                    CoreStrings.IdentityConflictOwned("ParentPN.Child1#ChildPN", "{'ParentId'}"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.ChangeTracker.DetectChanges()).Message);
+            }
+        }
+
+        [Theory] // Remove when #7340 is fixed
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Replacing_owned_entity_throws_sensitive(EntityState entityState)
+        {
+            using (var context = new SensitiveFixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent1 = new ChildPN { Name = "1" };
+                principal.Child1 = dependent1;
+                var dependent2 = new ChildPN { Name = "2" };
+
+                context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
+
+                principal.Child1 = dependent2;
+
+                Assert.Equal(
+                    CoreStrings.IdentityConflictOwnedSensitive("ParentPN.Child1#ChildPN", "ParentId:77"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.ChangeTracker.DetectChanges()).Message);
+            }
+        }
+
         [Theory(Skip = "See issue#7340")]
         [InlineData(EntityState.Added)]
         [InlineData(EntityState.Modified)]
@@ -936,6 +982,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     optionsBuilder.ConfigureWarnings(w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
                 }
+            }
+        }
+
+        private class SensitiveFixupContext : FixupContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.EnableSensitiveDataLogging();
+
+                base.OnConfiguring(optionsBuilder);
             }
         }
 

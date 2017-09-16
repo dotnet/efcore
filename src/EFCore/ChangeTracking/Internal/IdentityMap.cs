@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -196,23 +196,41 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual void Add([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
         {
-            InternalEntityEntry existingEntry;
-            if (_identityMap.TryGetValue(key, out existingEntry))
+            if (_identityMap.TryGetValue(key, out var existingEntry))
             {
                 if (existingEntry != entry)
                 {
-                    if (_sensitiveLoggingEnabled)
+                    if (entry.EntityType.IsOwned())
                     {
-                        throw new InvalidOperationException(
-                            CoreStrings.IdentityConflictSensitive(
-                                entry.EntityType.DisplayName(),
-                                entry.BuildCurrentValuesString(Key.Properties)));
-                    }
+                        if (_sensitiveLoggingEnabled)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.IdentityConflictOwnedSensitive(
+                                    entry.EntityType.DisplayName(),
+                                    entry.BuildCurrentValuesString(Key.Properties)));
 
-                    throw new InvalidOperationException(
-                        CoreStrings.IdentityConflict(
-                            entry.EntityType.DisplayName(),
-                            Property.Format(Key.Properties)));
+                        }
+
+                        throw new InvalidOperationException(
+                            CoreStrings.IdentityConflictOwned(
+                                entry.EntityType.DisplayName(),
+                                Property.Format(Key.Properties)));
+                    }
+                    else
+                    {
+                        if (_sensitiveLoggingEnabled)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.IdentityConflictSensitive(
+                                    entry.EntityType.DisplayName(),
+                                    entry.BuildCurrentValuesString(Key.Properties)));
+
+                        }
+                        throw new InvalidOperationException(
+                            CoreStrings.IdentityConflict(
+                                entry.EntityType.DisplayName(),
+                                Property.Format(Key.Properties)));
+                    }
                 }
             }
             else

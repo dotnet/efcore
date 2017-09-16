@@ -30,7 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
+            var shouldInject = ShouldInject;
+            ShouldInject = false;
+
             expression.QueryModel.TransformExpressions(Visit);
+
+            ShouldInject = shouldInject;
 
             foreach (var resultOperator in expression.QueryModel.ResultOperators.Where(
                 ro => ro is ConcatResultOperator
@@ -38,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                       || ro is IntersectResultOperator
                       || ro is ExceptResultOperator))
             {
-                var shouldInject = ShouldInject;
+                shouldInject = ShouldInject;
                 ShouldInject = true;
 
                 resultOperator.TransformExpressions(Visit);
