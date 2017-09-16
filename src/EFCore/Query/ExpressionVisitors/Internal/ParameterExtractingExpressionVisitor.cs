@@ -294,60 +294,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return newExpression;
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
-        {
-            if (!binaryExpression.IsLogicalOperation())
-            {
-                return base.VisitBinary(binaryExpression);
-            }
-
-            var newLeftExpression = TryOptimize(binaryExpression.Left) ?? Visit(binaryExpression.Left);
-
-            if (newLeftExpression is ConstantExpression leftConstantExpression)
-            {
-                var constantValue = (bool)leftConstantExpression.Value;
-                if (constantValue && binaryExpression.NodeType == ExpressionType.OrElse
-                    || !constantValue && binaryExpression.NodeType == ExpressionType.AndAlso)
-                {
-                    return newLeftExpression;
-                }
-            }
-
-            var newRightExpression = TryOptimize(binaryExpression.Right) ?? Visit(binaryExpression.Right);
-
-            if (newRightExpression is ConstantExpression rightConstantExpression)
-            {
-                var constantValue = (bool)rightConstantExpression.Value;
-                if (constantValue && binaryExpression.NodeType == ExpressionType.OrElse
-                    || !constantValue && binaryExpression.NodeType == ExpressionType.AndAlso)
-                {
-                    return newRightExpression;
-                }
-            }
-
-            return binaryExpression.Update(newLeftExpression, binaryExpression.Conversion, newRightExpression);
-        }
-
-        private Expression TryOptimize(Expression expression)
-        {
-            if (_partialEvaluationInfo.IsEvaluatableExpression(expression)
-                && !_queryableTypeInfo.IsAssignableFrom(expression.Type.GetTypeInfo()))
-            {
-                var value = Evaluate(expression, out _);
-
-                if (value is bool)
-                {
-                    return Expression.Constant(value, typeof(bool));
-                }
-            }
-
-            return null;
-        }
-
         private Expression TryExtractParameter(Expression expression)
         {
             var parameterValue = Evaluate(expression, out var parameterName);
@@ -476,6 +422,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         Expression.Convert(expression, typeof(object)))
                     .Compile()
                     .Invoke();
+            }
+            catch (NullReferenceException)    // null compensation
+            {
+                return null;
+            }
+            catch (InvalidOperationException) // null compensation (nullable type .Value)
+            {
+                return null;
             }
             catch (Exception exception)
             {

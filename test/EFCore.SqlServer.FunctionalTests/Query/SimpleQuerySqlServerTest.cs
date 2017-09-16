@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Shaper_command_caching_when_parameter_names_different();
 
             AssertSql(
-                @"SELECT COUNT(*)
+                @"SELECT [e].[CustomerID]
 FROM [Customers] AS [e]
 WHERE [e].[CustomerID] = N'ALFKI'",
                 //
-                @"SELECT COUNT(*)
+                @"SELECT [e].[CustomerID]
 FROM [Customers] AS [e]
 WHERE [e].[CustomerID] = N'ALFKI'");
         }
@@ -2866,16 +2866,19 @@ ORDER BY [c].[CustomerID]");
             base.Parameter_extraction_short_circuits_1();
 
             AssertSql(
-                @"@__dateFilter_Value_Month_0='7'
-@__dateFilter_Value_Year_1='1996'
+                @"@__dateFilter_0='1996-07-15T00:00:00' (Nullable = true)
+@__dateFilter_Value_Month_1='7'
+@__dateFilter_Value_Year_2='1996'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10400) AND (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1))",
+WHERE ([o].[OrderID] < 10400) AND (@__dateFilter_0 IS NULL OR (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_1)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_2)))",
                 //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"@__dateFilter_0='' (DbType = DateTime2)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] < 10400");
+WHERE ([o].[OrderID] < 10400) AND (@__dateFilter_0 IS NULL OR (([o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) IS NULL) AND DATEPART(year, [o].[OrderDate]) IS NULL))");
         }
 
         public override void Parameter_extraction_short_circuits_2()
@@ -2883,16 +2886,19 @@ WHERE [o].[OrderID] < 10400");
             base.Parameter_extraction_short_circuits_2();
 
             AssertSql(
-                @"@__dateFilter_Value_Month_0='7'
-@__dateFilter_Value_Year_1='1996'
+                @"@__dateFilter_HasValue_0='True'
+@__dateFilter_Value_Month_1='7'
+@__dateFilter_Value_Year_2='1996'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10400) AND (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1))",
+WHERE (([o].[OrderID] < 10400) AND (@__dateFilter_HasValue_0 = 1)) AND (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_1)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_2))",
                 //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                @"@__dateFilter_HasValue_0='False'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE 0 = 1");
+WHERE (([o].[OrderID] < 10400) AND (@__dateFilter_HasValue_0 = 1)) AND (([o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) IS NULL) AND DATEPART(year, [o].[OrderDate]) IS NULL)");
         }
 
         public override void Parameter_extraction_short_circuits_3()
@@ -2900,15 +2906,19 @@ WHERE 0 = 1");
             base.Parameter_extraction_short_circuits_3();
 
             AssertSql(
-                @"@__dateFilter_Value_Month_0='7'
-@__dateFilter_Value_Year_1='1996'
+                @"@__dateFilter_0='1996-07-15T00:00:00' (Nullable = true)
+@__dateFilter_Value_Month_1='7'
+@__dateFilter_Value_Year_2='1996'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] < 10400) OR (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_0)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_1))",
+WHERE (([o].[OrderID] < 10400) OR @__dateFilter_0 IS NULL) OR (([o].[OrderDate] IS NOT NULL AND (DATEPART(month, [o].[OrderDate]) = @__dateFilter_Value_Month_1)) AND (DATEPART(year, [o].[OrderDate]) = @__dateFilter_Value_Year_2))",
                 //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]");
+                @"@__dateFilter_0='' (DbType = DateTime2)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE (([o].[OrderID] < 10400) OR @__dateFilter_0 IS NULL) OR (([o].[OrderDate] IS NOT NULL AND DATEPART(month, [o].[OrderDate]) IS NULL) AND DATEPART(year, [o].[OrderDate]) IS NULL)");
         }
 
         public override void Subquery_member_pushdown_does_not_change_original_subquery_model()

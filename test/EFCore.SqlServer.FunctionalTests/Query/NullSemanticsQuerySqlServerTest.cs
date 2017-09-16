@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public NullSemanticsQuerySqlServerTest(NullSemanticsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Compare_bool_with_bool_equal()
@@ -993,9 +994,11 @@ WHERE [e].[NullableBoolA] = @__prm_0");
             base.Where_equal_using_relational_null_semantics_complex_with_parameter();
 
             AssertSql(
-                @"SELECT [e].[Id]
+                @"@__prm_0='False'
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = [e].[NullableBoolB]");
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR (@__prm_0 = 1)");
         }
 
         public override void Where_not_equal_using_relational_null_semantics()
@@ -1025,9 +1028,11 @@ WHERE [e].[NullableBoolA] <> @__prm_0");
             base.Where_not_equal_using_relational_null_semantics_complex_with_parameter();
 
             AssertSql(
-                @"SELECT [e].[Id]
+                @"@__prm_0='False'
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
+WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB]) OR (@__prm_0 = 1)");
         }
 
         public override void Where_comparison_null_constant_and_null_parameter()
@@ -1084,9 +1089,11 @@ FROM [Entities1] AS [e]");
             base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
 
             AssertSql(
-                @"SELECT [e].[Id]
+                @"@__prm_0='' (Size = 4000) (DbType = String)
+
+SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] IS NULL");
+WHERE @__prm_0 IS NULL AND [e].[NullableStringA] IS NULL");
         }
 
         public override void Switching_null_semantics_produces_different_cache_entry()
