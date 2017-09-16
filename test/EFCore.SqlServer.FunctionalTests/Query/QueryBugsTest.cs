@@ -2575,6 +2575,204 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #endregion
 
+        #region Bug9791
+
+        [Fact]
+        public virtual void Context_bound_variable_works_correctly()
+        {
+            using (CreateDatabase9791())
+            {
+                using (var context = new MyContext9791(_options))
+                {
+                    // This throws because the default value of TenantIds is null which is NRE
+                    Assert.Throws<NullReferenceException>(() => context.Blogs.ToList());
+                }
+
+                using (var context = new MyContext9791(_options))
+                {
+                    context.TenantIds = new List<int>();
+                    var query = context.Blogs.ToList();
+
+                    Assert.Empty(query);
+                }
+
+                using (var context = new MyContext9791(_options))
+                {
+                    context.TenantIds = new List<int> { 1 };
+                    var query = context.Blogs.ToList();
+
+                    Assert.Single(query);
+                }
+
+                using (var context = new MyContext9791(_options))
+                {
+                    context.TenantIds = new List<int> { 1, 2 };
+                    var query = context.Blogs.ToList();
+
+                    Assert.Equal(2, query.Count);
+                }
+
+                AssertSql(
+                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
+FROM [Blogs] AS [b]
+WHERE [b].[IsDeleted] = 0",
+                    //
+                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
+FROM [Blogs] AS [b]
+WHERE [b].[IsDeleted] = 0",
+                    //
+                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
+FROM [Blogs] AS [b]
+WHERE [b].[IsDeleted] = 0");
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9791()
+            => CreateTestStore(
+                () => new MyContext9791(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new Blog9791 { IsDeleted = false, TenantId = 1 },
+                            new Blog9791 { IsDeleted = false, TenantId = 2 },
+                            new Blog9791 { IsDeleted = false, TenantId = 3 },
+                            new Blog9791 { IsDeleted = true, TenantId = 1 },
+                            new Blog9791 { IsDeleted = true, TenantId = 2 },
+                            new Blog9791 { IsDeleted = true, TenantId = 3 }
+                        );
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        public class MyContext9791 : DbContext
+        {
+            public MyContext9791(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public List<int> TenantIds { get; set; }
+
+            public DbSet<Blog9791> Blogs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Blog9791>()
+                    .HasQueryFilter(e => !e.IsDeleted && TenantIds.Contains(e.TenantId));
+            }
+        }
+
+        public class Blog9791
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+            public int TenantId { get; set; }
+        }
+
+        #endregion
+
+        #region Bug9825
+
+        [Fact]
+        public virtual void Context_bound_variable_works_correctly_in_short_circuit_optimization_9825()
+        {
+            using (CreateDatabase9825())
+            {
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = true;
+                    var query = context.Blogs.ToList();
+
+                    Assert.Single(query);
+                }
+
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = false;
+                    var query = context.Blogs.ToList();
+
+                    Assert.Single(query);
+                }
+
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = null;
+                    var query = context.Blogs.ToList();
+
+                    Assert.Equal(2, query.Count);
+                }
+
+                AssertSql(
+                    @"@__IsModerated_0='True' (Nullable = true)
+@__IsModerated_1='True' (Nullable = true)
+
+SELECT [b].[Id], [b].[IsDeleted], [b].[IsModerated]
+FROM [Blogs] AS [b]
+WHERE ([b].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR (@__IsModerated_1 = [b].[IsModerated]))",
+                    //
+                    @"@__IsModerated_0='False' (Nullable = true)
+@__IsModerated_1='False' (Nullable = true)
+
+SELECT [b].[Id], [b].[IsDeleted], [b].[IsModerated]
+FROM [Blogs] AS [b]
+WHERE ([b].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR (@__IsModerated_1 = [b].[IsModerated]))",
+                    //
+                    @"@__IsModerated_0='' (DbType = String)
+
+SELECT [b].[Id], [b].[IsDeleted], [b].[IsModerated]
+FROM [Blogs] AS [b]
+WHERE ([b].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR [b].[IsModerated] IS NULL)");
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9825()
+            => CreateTestStore(
+                () => new MyContext9825(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new Blog9825 { IsDeleted = false, IsModerated = false },
+                            new Blog9825 { IsDeleted = true, IsModerated = false },
+                            new Blog9825 { IsDeleted = false, IsModerated = true },
+                            new Blog9825 { IsDeleted = true, IsModerated = true }
+                        );
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        public class MyContext9825 : DbContext
+        {
+            public MyContext9825(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public bool? IsModerated { get; set; }
+
+            public DbSet<Blog9825> Blogs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Blog9825>()
+                    .HasQueryFilter(x => !x.IsDeleted && (IsModerated == null || IsModerated == x.IsModerated));
+            }
+        }
+
+        public class Blog9825
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsModerated { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
