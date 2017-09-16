@@ -13,7 +13,7 @@
     <RelinqVersion>2.1.1</RelinqVersion>
     <RoslynVersion>2.3.1</RoslynVersion>
     <RuntimeFrameworkVersion Condition="'$(TargetFramework)'=='netcoreapp2.0'">2.0.0</RuntimeFrameworkVersion>
-    <SQLitePCLRawVersion>1.1.7</SQLitePCLRawVersion>
+    <SQLitePCLRawVersion>1.1.8</SQLitePCLRawVersion>
     <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
     <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
     <SystemInteractiveAsyncVersion>3.1.1</SystemInteractiveAsyncVersion>

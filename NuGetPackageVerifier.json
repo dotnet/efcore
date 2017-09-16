@@ -4,6 +4,13 @@
             "AdxVerificationCompositeRule"
         ],
         "packages": {
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+                "Exclusions": {
+                    "WRONG_THIRDPARTY_DEPENDENCY_VERSION": {
+                        "Microsoft.EntityFrameworkCore.Sqlite; .NETStandard,Version=v2.0": "Need 2.0.1 branch of Coherence"
+                    }
+                }
+            },
             "Microsoft.EntityFrameworkCore.Tools.DotNet": {
                 "packageTypes": [
                     "DotnetCliTool"
