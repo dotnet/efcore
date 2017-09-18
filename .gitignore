@@ -291,4 +291,5 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+*.g.targets
 korebuild-lock.txt
