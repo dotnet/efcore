@@ -216,17 +216,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Where_nested_field_access_closure_via_query_cache_error_null()
+        public virtual void Where_nested_field_access_closure_via_query_cache_null()
         {
             var city = new City();
 
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        context.Set<Customer>()
-                            .Where(c => c.City == city.Nested.InstanceFieldValue)
-                            .ToList());
+                var results =
+                    context.Set<Customer>()
+                        .Where(c => c.City == city.Nested.InstanceFieldValue)
+                        .ToList();
+
+                Assert.Equal(0, results.Count);
             }
         }
 
