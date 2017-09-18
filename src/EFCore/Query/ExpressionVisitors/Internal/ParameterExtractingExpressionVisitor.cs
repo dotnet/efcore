@@ -203,6 +203,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9825", out var enabled) && enabled))
+            {
+                if (_generateContextAccessors
+                    && memberExpression.Expression != null
+                    && typeof(DbContext).IsAssignableFrom(memberExpression.Expression.Type)
+                    && !_queryableTypeInfo.IsAssignableFrom(memberExpression.Type.GetTypeInfo()))
+                {
+                    return TryExtractParameter(memberExpression);
+                }
+            }
+
             if (!_partialEvaluationInfo.IsEvaluatableExpression(memberExpression))
             {
                 return base.VisitMember(memberExpression);

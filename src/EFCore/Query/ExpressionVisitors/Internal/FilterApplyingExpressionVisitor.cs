@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -52,7 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     var visitor
                         = new ParameterExtractingExpressionVisitor(
-                            new EvaluatableExpressionFilter(),
+                            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9825", out var enabled)
+                            && enabled
+                                ? new EvaluatableExpressionFilter()
+                                : new ContextFilteredEvaluatableExpressionFilter(),
                             _parameters,
                             _queryCompilationContext.Logger,
                             parameterize: false,
@@ -85,6 +89,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return constantExpression;
+        }
+
+        private class ContextFilteredEvaluatableExpressionFilter : EvaluatableExpressionFilter
+        {
+            public override bool IsEvaluatableMember(MemberExpression memberExpression)
+            {
+                if (typeof(DbContext).IsAssignableFrom(memberExpression.Expression.Type))
+                {
+                    return false;
+                }
+
+                return base.IsEvaluatableMember(memberExpression);
+            }
         }
 
         private sealed class Parameters : IParameterValues
