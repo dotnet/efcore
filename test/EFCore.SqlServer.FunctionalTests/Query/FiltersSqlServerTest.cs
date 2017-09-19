@@ -217,7 +217,7 @@ WHERE (([c].[CompanyName] LIKE @__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyNa
         [ConditionalFact]
         public void FromSql_is_composed()
         {
-            using (var context = Fixture.CreateContext())
+            using (var context = Fixture.CreateContext(enableFilters: true))
             {
                 var results = context.Customers.FromSql("select * from Customers").ToList();
 

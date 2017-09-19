@@ -3127,6 +3127,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Parameter_extraction_can_throw_exception_from_user_code_2()
+        {
+            using (var context = CreateContext())
+            {
+                DateTime? dateFilter = null;
+
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Orders
+                            .Where(
+                                o => (o.OrderID < 10400)
+                                     && ((o.OrderDate.HasValue
+                                          && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                          && o.OrderDate.Value.Year == dateFilter.Value.Year)))
+                            .ToList());
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Subquery_member_pushdown_does_not_change_original_subquery_model()
         {
             AssertQuery<Order, Customer>(

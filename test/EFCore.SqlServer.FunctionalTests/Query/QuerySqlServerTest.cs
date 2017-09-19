@@ -30,7 +30,7 @@ WHERE [e].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT COUNT(*)
 FROM [Customers] AS [e]
-WHERE [e].[CustomerID] = N'ALFKI'");            
+WHERE [e].[CustomerID] = N'ALFKI'");
         }
 
         public override void Lifting_when_subquery_nested_order_by_anonymous()
