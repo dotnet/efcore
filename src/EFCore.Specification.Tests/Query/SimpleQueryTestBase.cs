@@ -2959,8 +2959,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        // ReSharper restore ArrangeRedundantParentheses
-
         [ConditionalFact]
         public virtual void Parameter_extraction_can_throw_exception_from_user_code()
         {
@@ -2971,6 +2969,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         context.Customers.Where(c => Equals(c.Orders.First(), customer.Orders.First())).ToList());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Parameter_extraction_can_throw_exception_from_user_code_2()
+        {
+            using (var context = CreateContext())
+            {
+                DateTime? dateFilter = null;
+
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        context.Orders
+                            .Where(
+                                o => (o.OrderID < 10400)
+                                     && ((o.OrderDate.HasValue
+                                          && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                          && o.OrderDate.Value.Year == dateFilter.Value.Year)))
+                            .ToList());
             }
         }
 
