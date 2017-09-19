@@ -1,46 +1,57 @@
 #!/usr/bin/env bash
-repoFolder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $repoFolder
 
-koreBuildZip="https://github.com/aspnet/KoreBuild/archive/rel/2.0.0.zip"
-if [ ! -z $KOREBUILD_ZIP ]; then
-    koreBuildZip=$KOREBUILD_ZIP
-fi
+set -euo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source $DIR/sdk/KoreBuild/KoreBuild.sh
 
-buildFolder=".build"
-buildFile="$buildFolder/KoreBuild.sh"
+__usage() {
+    echo "Usage: $0 [-v|--verbose] [-d|--dotnet-home <DIR>] [-s|--tools-source <URL>] [[--] <MSBUILD_ARG>...]"
+    echo ""
+    echo "Arguments:"
+    echo "    <MSBUILD_ARG>...         Arguments passed to MSBuild. Variable number of arguments allowed."
+    echo ""
+    echo "Options:"
+    echo "    -v|--verbose             Show verbose output."
+    echo "    -d|--dotnet-home <DIR>   The directory where .NET Core tools will be stored. Defaults to '$DOTNET_HOME'."
+    echo "    -s|--tools-source <URL>  The base url where build tools can be downloaded. Defaults to '$tools_source'."
+    exit 2
+}
 
-if test ! -d $buildFolder; then
-    echo "Downloading KoreBuild from $koreBuildZip"
+#
+# main
+#
 
-    tempFolder="/tmp/KoreBuild-$(uuidgen)"
-    mkdir $tempFolder
+[ -z "${DOTNET_HOME:-}"] && DOTNET_HOME="$HOME/.dotnet"
+tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
+verbose=false
+while [[ $# > 0 ]]; do
+    case $1 in
+        -\?|-h|--help)
+            __usage
+            ;;
+        -d|--dotnet-home)
+            shift
+            DOTNET_HOME=${1:-}
+            [ -z "$DOTNET_HOME" ] && __usage
+            ;;
+        -s|--tools-source)
+            shift
+            tools_source=${1:-}
+            [ -z "$tools_source" ] && __usage
+            ;;
+        -v|--verbose)
+            verbose=true
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            break
+            ;;
+    esac
+    shift
+done
 
-    localZipFile="$tempFolder/korebuild.zip"
-
-    retries=6
-    until (wget -O $localZipFile $koreBuildZip 2>/dev/null || curl -o $localZipFile --location $koreBuildZip 2>/dev/null)
-    do
-        echo "Failed to download '$koreBuildZip'"
-        if [ "$retries" -le 0 ]; then
-            exit 1
-        fi
-        retries=$((retries - 1))
-        echo "Waiting 10 seconds before retrying. Retries left: $retries"
-        sleep 10s
-    done
-
-    unzip -q -d $tempFolder $localZipFile
-
-    mkdir $buildFolder
-    cp -r $tempFolder/**/build/** $buildFolder
-
-    chmod +x $buildFile
-
-    # Cleanup
-    if test -d $tempFolder; then
-        rm -rf $tempFolder
-    fi
-fi
-
-$buildFile -r $repoFolder "$@"
+install_tools $tools_source $DOTNET_HOME
+invoke_repository_build $DIR $@
