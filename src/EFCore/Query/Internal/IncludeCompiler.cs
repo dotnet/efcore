@@ -220,12 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (entity != null)
             {
-                var fixupTask = fixup(queryContext, entity, included, cancellationToken);
-                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9038", out var isEnabled) && isEnabled
-                    || fixupTask != null)
-                {
-                    await fixupTask;
-                }
+                await fixup(queryContext, entity, included, cancellationToken);
             }
 
             return entity;

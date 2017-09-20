@@ -2171,7 +2171,7 @@ ORDER BY [t].[Id]");
         #region Bug9038
 
         [Fact]
-        public virtual async Task Repro9038()
+        public virtual async Task Include_collection_optional_reference_collection_9038()
         {
             using (CreateDatabase9038())
             {
@@ -2185,6 +2185,26 @@ ORDER BY [t].[Id]");
 
                     Assert.Equal(2, result.Count);
                     Assert.Equal(true, result.All(r => r.Students.Any()));
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Include_optional_reference_collection_another_collection()
+        {
+            using (CreateDatabase9038())
+            {
+                using (var context = new MyContext9038(_options))
+                {
+                    var result = await context.Set<PersonTeacher9038>()
+                        .Include(m => m.Family.Members)
+                        .Include(m => m.Students)
+                        .ToListAsync();
+
+                    Assert.Equal(2, result.Count);
+                    Assert.True(result.All(r => r.Students.Any()));
+                    Assert.Null(result.Single(t => t.Name == "Ms. Frizzle").Family);
+                    Assert.NotNull(result.Single(t => t.Name == "Mr. Garrison").Family);
                 }
             }
         }

@@ -293,18 +293,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var blockType = blockExpressions.Last().Type;
 
-                return
-                    Expression.Condition(
-                        Expression.Not(
-                            Expression.Call(
-                                _referenceEqualsMethodInfo,
-                                relatedArrayAccessExpression,
-                                Expression.Constant(null, typeof(object)))),
-                        Expression.Block(
-                            blockType,
-                            blockExpressions),
-                        Expression.Default(blockType),
-                        blockType);
+                if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9038", out var enabled) && enabled)
+                {
+                    return
+                        Expression.Condition(
+                            Expression.Not(
+                                Expression.Call(
+                                    _referenceEqualsMethodInfo,
+                                    relatedArrayAccessExpression,
+                                    Expression.Constant(null, typeof(object)))),
+                            Expression.Block(
+                                blockType,
+                                blockExpressions),
+                            Expression.Default(blockType),
+                            blockType);
+                }
+                else
+                {
+                    return
+                        Expression.Condition(
+                            Expression.Not(
+                                Expression.Call(
+                                    _referenceEqualsMethodInfo,
+                                    relatedArrayAccessExpression,
+                                    Expression.Constant(null, typeof(object)))),
+                            Expression.Block(
+                                blockType,
+                                blockExpressions),
+                            blockType == typeof(Task)
+                                ? Expression.Constant(Task.CompletedTask)
+                                : (Expression)Expression.Default(blockType),
+                            blockType);
+                }
             }
 
             private static readonly MethodInfo _setRelationshipSnapshotValueMethodInfo
