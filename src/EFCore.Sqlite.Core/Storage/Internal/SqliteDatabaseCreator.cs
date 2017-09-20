@@ -89,11 +89,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             try
             {
                 path = Dependencies.Connection.DbConnection.DataSource;
-                Dependencies.Connection.Close();
             }
             catch
             {
                 // any exceptions here can be ignored
+            }
+            finally
+            {
+                Dependencies.Connection.Close();
             }
 
             if (!string.IsNullOrEmpty(path))
