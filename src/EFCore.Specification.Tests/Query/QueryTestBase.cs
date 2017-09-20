@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
-        
+
         public virtual void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
@@ -142,6 +142,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<int>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(query, query, assertOrder);
+
+        public virtual void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<double>> query,
             bool assertOrder = false)
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
@@ -197,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false)
             where TItem1 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder);
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).Wait();
 
         public virtual void AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,
@@ -383,32 +389,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
-            {
-                Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
-                CollectionAsserter(elementSorter, elementAsserter)(e, a);
-            };
+                {
+                    Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
+                    CollectionAsserter(elementSorter, elementAsserter)(e, a);
+                };
         }
 
         public static Action<dynamic, dynamic> CollectionAsserter<TElement>(Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
-            {
-                var actual = elementSorter != null
-                    ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
-                    : ((IEnumerable<TElement>)a).ToList();
-
-                var expected = elementSorter != null
-                    ? ((IEnumerable<TElement>)e).OrderBy(elementSorter).ToList()
-                    : ((IEnumerable<TElement>)e).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                elementAsserter = elementAsserter ?? Assert.Equal;
-
-                for (var i = 0; i < expected.Count; i++)
                 {
-                    elementAsserter(expected[i], actual[i]);
-                }
-            };
+                    var actual = elementSorter != null
+                        ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
+                        : ((IEnumerable<TElement>)a).ToList();
+
+                    var expected = elementSorter != null
+                        ? ((IEnumerable<TElement>)e).OrderBy(elementSorter).ToList()
+                        : ((IEnumerable<TElement>)e).ToList();
+
+                    Assert.Equal(expected.Count, actual.Count);
+                    elementAsserter = elementAsserter ?? Assert.Equal;
+
+                    for (var i = 0; i < expected.Count; i++)
+                    {
+                        elementAsserter(expected[i], actual[i]);
+                    }
+                };
         }
 
         #endregion

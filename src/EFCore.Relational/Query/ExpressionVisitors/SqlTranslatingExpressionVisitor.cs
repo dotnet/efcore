@@ -110,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return Visit(translatedExpression);
             }
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (expression != null
                 && (expression.NodeType == ExpressionType.Convert
                     || expression.NodeType == ExpressionType.Negate
@@ -942,6 +943,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
                     subQueryModel.PopulateQueryModelMapping(queryModelMapping);
 
+                    var groupByTranslation = expression.QueryModel.MainFromClause.FromExpression.Type.IsGrouping();
+                    if (groupByTranslation)
+                    {
+                        var outerSelectExpression = _targetSelectExpression.Clone();
+                        subQueryModelVisitor.AddQuery(subQueryModel.MainFromClause, outerSelectExpression);
+                    }
+
                     subQueryModelVisitor.VisitSubQueryModel(subQueryModel);
 
                     if (subQueryModelVisitor.IsLiftable)
@@ -956,6 +964,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         }
 
                         _queryModelVisitor.LiftInjectedParameters(subQueryModelVisitor);
+
+                        if (groupByTranslation
+                            && selectExpression.Projection.Count == 1)
+                        {
+                            return selectExpression.Projection.Single();
+                        }
 
                         return selectExpression;
                     }

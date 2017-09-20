@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientProjection;
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
+        private ResultOperatorBase _groupResultOperatorInQueryModel;
 
         private readonly List<GroupJoinClause> _unflattenedGroupJoinClauses = new List<GroupJoinClause>();
 
@@ -169,6 +170,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether the query requires streaming group result operator.
+        /// </summary>
+        /// <value>
+        ///     true if the query requires streaming result operator, false if not.
+        /// </value>
+        public virtual bool RequiresStreamingGroupResultOperator { get; set; }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether this query model visitor will be
         ///     able to bind directly to properties from its parent query without requiring
         ///     parameter injection.
@@ -190,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                && !RequiresClientFilter
                && !RequiresClientProjection
                && !RequiresClientOrderBy
-               && !RequiresClientResultOperator;
+               && !RequiresClientResultOperator
+               && !RequiresStreamingGroupResultOperator;
 
         /// <summary>
         ///     Context for the query compilation.
@@ -264,6 +274,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryModel, nameof(queryModel));
 
             base.VisitQueryModel(queryModel);
+
+            if (RequiresStreamingGroupResultOperator)
+            {
+                WarnClientEval(queryModel, _groupResultOperatorInQueryModel);
+            }
 
             var joinEliminator = new JoinEliminator();
             var compositePredicateVisitor = _compositePredicateExpressionVisitorFactory.Create();
@@ -1131,6 +1146,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             base.VisitResultOperator(resultOperator, queryModel, index);
+
+            if (RequiresStreamingGroupResultOperator)
+            {
+                _groupResultOperatorInQueryModel = resultOperator;
+            }
 
             if (RequiresClientResultOperator)
             {

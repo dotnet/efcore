@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 projectionAdded = true;
             }
 
-            if (selectExpression.Projection.Any())
+            if (selectExpression.Projection.Count > 0)
             {
                 if (selectExpression.IsProjectStar)
                 {
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.Append("1");
             }
 
-            if (selectExpression.Tables.Any())
+            if (selectExpression.Tables.Count > 0)
             {
                 _relationalCommandBuilder.AppendLine()
                     .Append("FROM ");
@@ -250,7 +250,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 GeneratePredicate(selectExpression.Predicate);
             }
 
-            if (selectExpression.OrderBy.Any())
+            if (selectExpression.GroupBy.Count > 0)
+            {
+                _relationalCommandBuilder.AppendLine();
+
+                _relationalCommandBuilder.Append("GROUP BY ");
+                GenerateList(selectExpression.GroupBy);
+            }
+
+            if (selectExpression.OrderBy.Count > 0)
             {
                 _relationalCommandBuilder.AppendLine();
 

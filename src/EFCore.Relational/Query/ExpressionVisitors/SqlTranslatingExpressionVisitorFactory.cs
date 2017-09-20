@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="RelationalProjectionExpressionVisitorFactory" />
+        ///     Dependencies used to create a <see cref="SqlTranslatingExpressionVisitorFactory" />
         /// </summary>
         protected virtual SqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 

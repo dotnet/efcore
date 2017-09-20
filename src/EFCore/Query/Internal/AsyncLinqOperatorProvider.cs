@@ -480,11 +480,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector)
-            => source.GroupBy(keySelector, elementSelector);
+            => source.GroupBy(keySelector, elementSelector).Cast<IGrouping<TKey, TElement>>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

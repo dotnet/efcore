@@ -150,6 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || relationalQueryModelVisitor.RequiresClientFilter
                 || relationalQueryModelVisitor.RequiresClientOrderBy
                 || relationalQueryModelVisitor.RequiresClientResultOperator
+                || relationalQueryModelVisitor.RequiresStreamingGroupResultOperator
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out var resultHandler)
                 || selectExpression == null)
             {
@@ -467,9 +468,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var columns = (sqlExpression as ConstantExpression)?.Value as Expression[] ?? new[] { sqlExpression };
 
                 selectExpression.PrependToOrderBy(columns.Select(c => new Ordering(c, OrderingDirection.Asc)));
+
+                handlerContext.QueryModelVisitor.RequiresStreamingGroupResultOperator = true;
             }
 
-            var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
+            var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient(requiresClientResultOperator: sqlExpression == null);
 
             var newGroupByCall
                 = handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod;
@@ -680,6 +683,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static bool DetermineAggregateThrowingBehavior(HandlerContext handlerContext, Type maxExpressionType)
         {
+            if (handlerContext.QueryModel.MainFromClause.FromExpression.Type.IsGrouping())
+            {
+                return false;
+            }
+
             var throwOnNullResult = !maxExpressionType.IsNullableType();
 
             if (throwOnNullResult
