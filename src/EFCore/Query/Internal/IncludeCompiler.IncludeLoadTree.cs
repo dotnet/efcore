@@ -34,24 +34,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (querySourceReferenceExpression.ReferencedQuerySource is GroupJoinClause groupJoinClause)
                 {
-                    // GJs expand to 'from e in [g] select e' so we can rewrite the projector
+                    if (queryModel.GetOutputExpression() is SubQueryExpression subQueryExpression
+                        && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression qsre
+                        && (qsre.ReferencedQuerySource as MainFromClause)?.FromExpression == QuerySourceReferenceExpression)
+                    {
+                        querySourceReferenceExpression = qsre;
+                        queryModel = subQueryExpression.QueryModel;
+                    }
+                    else
+                    {
+                        // We expand GJs to 'from e in [g] select e' so we can rewrite the projector
 
-                    var joinClause = groupJoinClause.JoinClause;
+                        var joinClause = groupJoinClause.JoinClause;
 
-                    var mainFromClause
-                        = new MainFromClause(joinClause.ItemName, joinClause.ItemType, QuerySourceReferenceExpression);
+                        var mainFromClause
+                            = new MainFromClause(joinClause.ItemName, joinClause.ItemType, QuerySourceReferenceExpression);
 
-                    querySourceReferenceExpression = new QuerySourceReferenceExpression(mainFromClause);
+                        querySourceReferenceExpression = new QuerySourceReferenceExpression(mainFromClause);
 
-                    var subQueryModel
-                        = new QueryModel(
-                            mainFromClause,
-                            new SelectClause(querySourceReferenceExpression));
+                        var subQueryModel
+                            = new QueryModel(
+                                mainFromClause,
+                                new SelectClause(querySourceReferenceExpression));
 
-                    ApplyIncludeExpressionsToQueryModel(
-                        queryModel, QuerySourceReferenceExpression, new SubQueryExpression(subQueryModel));
+                        ApplyIncludeExpressionsToQueryModel(
+                            queryModel, QuerySourceReferenceExpression, new SubQueryExpression(subQueryModel));
 
-                    queryModel = subQueryModel;
+                        queryModel = subQueryModel;
+                    }
                 }
 
                 Compile(

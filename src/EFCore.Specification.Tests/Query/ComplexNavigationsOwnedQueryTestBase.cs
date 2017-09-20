@@ -374,6 +374,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Include_collection_with_groupby_in_subquery()
+        {
+        }
+
+        public override void Multi_include_with_groupby_in_subquery()
+        {
+        }
+
+        public override void Include_collection_with_groupby_in_subquery_and_filter_before_groupby()
+        {
+        }
+
+        public override void Include_collection_with_groupby_in_subquery_and_filter_after_groupby()
+        {
+        }
+
         protected override IQueryable<Level1> GetExpectedLevelOne()
             => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 

@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
-            includeCompiler.RewriteCollectionQueries(queryModel);
+            includeCompiler.RewriteCollectionQueries();
 
             includeCompiler.LogIgnoredIncludes();
 

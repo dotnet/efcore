@@ -41,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
         private readonly List<IncludeResultOperator> _includeResultOperators;
 
+        private QueryModel _targetQueryModel;
+
         private int _collectionIncludeId;
 
         /// <summary>
@@ -74,14 +76,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return;
             }
 
+            _targetQueryModel = _targetQueryModel ?? queryModel;
+
             foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel))
             {
                 includeLoadTree.Compile(
                     _queryCompilationContext,
-                    queryModel,
+                    _targetQueryModel,
                     trackingQuery,
                     asyncQuery,
                     ref _collectionIncludeId);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void RewriteCollectionQueries()
+        {
+            if (_targetQueryModel != null)
+            {
+                RewriteCollectionQueries(_targetQueryModel);
             }
         }
 
@@ -130,6 +146,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (querySourceReferenceExpression == null
                     || navigationPath == null)
+                {
+                    continue;
+                }
+
+                if (querySourceReferenceExpression.Type.IsGrouping()
+                    && querySourceTracingExpressionVisitor.OriginGroupByQueryModel != null)
+                {
+                    querySourceReferenceExpression
+                        = querySourceTracingExpressionVisitor
+                            .FindResultQuerySourceReferenceExpression(
+                                querySourceTracingExpressionVisitor.OriginGroupByQueryModel.GetOutputExpression(),
+                                includeResultOperator.QuerySource);
+
+                    _targetQueryModel = querySourceTracingExpressionVisitor.OriginGroupByQueryModel;
+                }
+
+                if (querySourceReferenceExpression == null
+                    || querySourceReferenceExpression.Type.IsGrouping())
                 {
                     continue;
                 }

@@ -3611,6 +3611,69 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Include_reference_with_groupby_in_subquery()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Include(l1 => l1.OneToOne_Optional_FK)
+                    .GroupBy(g => g.Name)
+                    .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK, "OneToOne_Optional_FK") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_groupby_in_subquery()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .GroupBy(g => g.Name)
+                    .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level1>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Multi_include_with_groupby_in_subquery()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK, "OneToOne_Optional_FK"),
+                new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional", "OneToOne_Optional_FK"),
+            };
+
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
+                    .GroupBy(g => g.Name)
+                    .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_groupby_in_subquery_and_filter_before_groupby()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .Where(l1 => l1.Id > 3)
+                    .GroupBy(g => g.Name)
+                    .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level1>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_with_groupby_in_subquery_and_filter_after_groupby()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Include(l1 => l1.OneToMany_Optional)
+                    .GroupBy(g => g.Name)
+                    .Where(g => g.Key != "Foo")
+                    .Select(g => g.OrderBy(e => e.Id).FirstOrDefault()),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level1>(e => e.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

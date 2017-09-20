@@ -1,12 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -18,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private IQuerySource _targetQuerySource;
         private QuerySourceReferenceExpression _originQuerySourceReferenceExpression;
+        private QueryModel _originGroupByQueryModel;
 
         private bool _reachable;
 
@@ -43,6 +47,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual QueryModel OriginGroupByQueryModel => _originGroupByQueryModel;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
             if (!_reachable)
@@ -62,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     {
                         Visit(fromClauseBase.FromExpression);
                     }
-                    
+
                     if (expression.ReferencedQuerySource is JoinClause joinClause)
                     {
                         Visit(joinClause.InnerSequence);
@@ -88,6 +98,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return expression;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            if (_reachable)
+            {
+                return subQueryExpression;
+            }
+
+            _originGroupByQueryModel
+                = subQueryExpression.QueryModel.ResultOperators
+                    .Any(ro => ro is GroupResultOperator)
+                    ? subQueryExpression.QueryModel
+                    : _originGroupByQueryModel;
+
+            return base.VisitSubQuery(subQueryExpression);
         }
 
         /// <summary>
