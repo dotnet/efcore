@@ -12,6 +12,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Parsing;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -120,8 +121,34 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     entityParameter,
                                     _includedParameter));
 
-                    ApplyIncludeExpressionsToQueryModel(
-                        queryModel, targetQuerySourceReferenceExpression, includeExpression);
+                    var includeApplyingVisitor = new IncludeApplyingQueryModelVisitor(
+                        targetQuerySourceReferenceExpression,
+                        includeExpression);
+
+                    includeApplyingVisitor.VisitQueryModel(queryModel);
+                }
+            }
+
+            private class IncludeApplyingQueryModelVisitor : QueryModelVisitorBase
+            {
+                public IncludeApplyingQueryModelVisitor(
+                    QuerySourceReferenceExpression querySourceReferenceExpression,
+                    Expression expression)
+                {
+                    _querySourceReferenceExpression = querySourceReferenceExpression;
+                    _expression = expression;
+                }
+
+                private readonly QuerySourceReferenceExpression _querySourceReferenceExpression;
+                private readonly Expression _expression;
+
+                public override void VisitQueryModel(QueryModel queryModel)
+                {
+                    queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<IncludeApplyingQueryModelVisitor>(this).Visit);
+
+                    ApplyIncludeExpressionsToQueryModel(queryModel, _querySourceReferenceExpression, _expression);
+
+                    base.VisitQueryModel(queryModel);
                 }
             }
 
