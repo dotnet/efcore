@@ -89,10 +89,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Invalid_pool_size()
         {
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => BuildServiceProvider<PooledContext>(0));
+                () => BuildServiceProvider<PooledContext>(poolSize: 0));
 
             Assert.Throws<ArgumentOutOfRangeException>(
-                () => BuildServiceProvider<PooledContext>(-1));
+                () => BuildServiceProvider<PooledContext>(poolSize: -1));
         }
 
         [Fact]
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                        Assert.Equal(1, context1.ChangeTracker.Entries().Count());
+                        Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
 
                         serviceScope.Dispose();
 
@@ -265,10 +265,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(weakRef.IsAlive);
         }
 
-        private static T Scoper<T>(Func<T> getter)
-        {
-            return getter();
-        }
+        private static T Scoper<T>(Func<T> getter) => getter();
 
         [Fact]
         public void Pool_disposes_context_when_context_not_pooled()
@@ -320,6 +317,24 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public void Double_dispose_does_not_enter_pool_twice()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>();
+
+            var contextPool = serviceProvider.GetService<DbContextPool<PooledContext>>();
+
+            var context = contextPool.Rent();
+
+            context.Dispose();
+            context.Dispose();
+
+            var context1 = contextPool.Rent();
+            var context2 = contextPool.Rent();
+
+            Assert.NotSame(context1, context2);
+        }
+
+        [Fact]
         public void Provider_services_are_reset()
         {
             var serviceProvider = BuildServiceProvider<PooledContext>();
@@ -353,6 +368,24 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(context2, context3);
             Assert.Null(context3.Database.CurrentTransaction);
+        }
+
+        [ConditionalFact]
+        public void Double_dispose_concurrency_test()
+        {
+            var serviceProvider = BuildServiceProvider<PooledContext>();
+
+            Parallel.For(
+                fromInclusive: 0, toExclusive: 100, body: s =>
+                    {
+                        using (var scope = serviceProvider.CreateScope())
+                        {
+                            var context = scope.ServiceProvider.GetService<PooledContext>();
+                            var _ = context.Customers.ToList();
+
+                            context.Dispose();
+                        }
+                    });
         }
 
         [ConditionalFact]
@@ -391,10 +424,10 @@ namespace Microsoft.EntityFrameworkCore
             await results;
 
             Assert.Equal(_requests, PooledContext.DisposedCount);
-            Assert.InRange(PooledContext.InstanceCount, 32, 64);
+            Assert.InRange(PooledContext.InstanceCount, low: 32, high: 64);
         }
 
-        private readonly TimeSpan _duration = TimeSpan.FromSeconds(10);
+        private readonly TimeSpan _duration = TimeSpan.FromSeconds(value: 10);
 
         private int _stopwatchStarted;
 
@@ -404,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private async Task WriteResults()
         {
-            if (Interlocked.Exchange(ref _stopwatchStarted, 1) == 0)
+            if (Interlocked.Exchange(ref _stopwatchStarted, value: 1) == 0)
             {
                 _stopwatch.Start();
             }
@@ -414,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore
 
             while (_stopwatch.IsRunning)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(value: 1));
 
                 var currentRequests = _requests - lastRequests;
                 lastRequests = _requests;
@@ -430,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 if (elapsed > _duration)
                 {
-                    _testOutputHelper?.WriteLine("");
+                    _testOutputHelper?.WriteLine(message: "");
                     _testOutputHelper?.WriteLine($"Average RPS: {Math.Round(_requests / elapsed.TotalSeconds)}");
 
                     _stopwatch.Stop();
