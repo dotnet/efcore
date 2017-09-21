@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using System;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -34,16 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (querySourceReferenceExpression.ReferencedQuerySource is GroupJoinClause groupJoinClause)
                 {
-                    if (queryModel.GetOutputExpression() is SubQueryExpression subQueryExpression
-                        && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression qsre
-                        && (qsre.ReferencedQuerySource as MainFromClause)?.FromExpression == QuerySourceReferenceExpression)
+                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9551", out var isEnabled)
+                        && isEnabled)
                     {
-                        querySourceReferenceExpression = qsre;
-                        queryModel = subQueryExpression.QueryModel;
-                    }
-                    else
-                    {
-                        // We expand GJs to 'from e in [g] select e' so we can rewrite the projector
+                        // GJs expand to 'from e in [g] select e' so we can rewrite the projector
 
                         var joinClause = groupJoinClause.JoinClause;
 
@@ -61,6 +56,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             queryModel, QuerySourceReferenceExpression, new SubQueryExpression(subQueryModel));
 
                         queryModel = subQueryModel;
+                    }
+                    else
+                    {
+                        if (queryModel.GetOutputExpression() is SubQueryExpression subQueryExpression
+                            && subQueryExpression.QueryModel.SelectClause.Selector is QuerySourceReferenceExpression qsre
+                            && (qsre.ReferencedQuerySource as MainFromClause)?.FromExpression == QuerySourceReferenceExpression)
+                        {
+                            querySourceReferenceExpression = qsre;
+                            queryModel = subQueryExpression.QueryModel;
+                        }
+                        else
+                        {
+                            // We expand GJs to 'from e in [g] select e' so we can rewrite the projector
+
+                            var joinClause = groupJoinClause.JoinClause;
+
+                            var mainFromClause
+                                = new MainFromClause(joinClause.ItemName, joinClause.ItemType, QuerySourceReferenceExpression);
+
+                            querySourceReferenceExpression = new QuerySourceReferenceExpression(mainFromClause);
+
+                            var subQueryModel
+                                = new QueryModel(
+                                    mainFromClause,
+                                    new SelectClause(querySourceReferenceExpression));
+
+                            ApplyIncludeExpressionsToQueryModel(
+                                queryModel, QuerySourceReferenceExpression, new SubQueryExpression(subQueryModel));
+
+                            queryModel = subQueryModel;
+                        }
                     }
                 }
 
