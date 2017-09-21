@@ -18,6 +18,134 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     {
+        #region Bug9849
+
+        [Fact]
+        public void Include_throw_when_empty_9849()
+        {
+            using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
+            {
+                using (var context = new DatabaseContext())
+                {
+                    var results = context.VehicleInspections.Include(_ => _.Motors).ToList();
+
+                    Assert.Empty(results);
+                }
+            }
+        }
+
+        [Fact]
+        public void Include_throw_when_empty_9849_2()
+        {
+            using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
+            {
+                using (var context = new DatabaseContext())
+                {
+                    var results = context.VehicleInspections.Include(_foo => _foo.Motors).ToList();
+
+                    Assert.Empty(results);
+                }
+            }
+        }
+
+        [Fact]
+        public void Include_throw_when_empty_9849_3()
+        {
+            using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
+            {
+                using (var context = new DatabaseContext())
+                {
+                    var results = context.VehicleInspections.Include(__ => __.Motors).ToList();
+
+                    Assert.Empty(results);
+                }
+            }
+        }
+
+        [Fact]
+        public void Include_throw_when_empty_9849_4()
+        {
+            using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
+            {
+                using (var context = new DatabaseContext())
+                {
+                    var results = context.VehicleInspections.Include(___ => ___.Motors).ToList();
+
+                    Assert.Empty(results);
+                }
+            }
+        }
+
+        [Fact]
+        public void Include_throw_when_empty_9849_5()
+        {
+            using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
+            {
+                using (var context = new DatabaseContext())
+                {
+                    var results
+                        = (from _ in context.VehicleInspections
+                           join _f in context.Motors on _.Id equals _f.Id
+                           join __ in context.VehicleInspections on _f.Id equals __.Id
+                           select _).ToList();
+
+                    Assert.Empty(results);
+                }
+            }
+        }
+
+        [Fact]
+        public void Include_throw_when_empty_9849_6()
+        {
+            using (CreateScratch<DatabaseContext>(_ => { }, "9849"))
+            {
+                using (var context = new DatabaseContext())
+                {
+                    var _ = 0L;
+                    var __ = 0L;
+                    var _f = 0L;
+
+                    var results
+                        = (from v in context.VehicleInspections
+                           where v.Id == _ || v.Id == __ || v.Id == _f
+                           select _).ToList();
+
+                    Assert.Empty(results);
+                }
+            }
+        }
+
+        public class DatabaseContext : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase("9849");
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var builder = modelBuilder.Entity<VehicleInspection>();
+
+                builder.HasMany(i => i.Motors).WithOne(a => a.Inspection).HasForeignKey(i => i.VehicleInspectionId);
+            }
+
+            public DbSet<VehicleInspection> VehicleInspections { get; set; }
+            public DbSet<Motor> Motors { get; set; }
+        }
+
+        public class VehicleInspection
+        {
+            public long Id { get; set; }
+            public ICollection<Motor> Motors { get; set; } = new HashSet<Motor>();
+        }
+
+        public class Motor
+        {
+            public long Id { get; set; }
+            public long VehicleInspectionId { get; set; }
+            public VehicleInspection Inspection { get; set; }
+        }
+
+        #endregion
+
         #region Bug3595
 
         [Fact]
