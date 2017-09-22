@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (!_parameterize)
                 {
-                    return Expression.Constant(parameterValue);
+                    return Expression.Constant(parameterValue, expression.Type);
                 }
             }
 
