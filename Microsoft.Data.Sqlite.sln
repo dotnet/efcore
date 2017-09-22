@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26815.3
-MinimumVisualStudioVersion = 10.0.40219.1
+MinimumVisualStudioVersion = 15.0.26730.03
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9396F8F4-299D-427C-B829-EF9A931DAA3C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Data.Sqlite.Core", "src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj", "{2D5D31C9-4BE6-432E-B3C3-351A7A65353D}"
