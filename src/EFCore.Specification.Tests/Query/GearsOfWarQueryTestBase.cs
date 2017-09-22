@@ -3049,6 +3049,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }).Message);
         }
 
+        [ConditionalFact]
+        public virtual void Projecting_nullable_bool_in_conditional_works()
+        {
+            AssertQuery<CogTag>(
+                cgs =>
+                    cgs.Select(
+                        cg =>
+                            new
+                            {
+                                Prop = cg.Gear != null ? cg.Gear.HasSoulPatch : false
+                            }),
+                e => e.Prop);
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

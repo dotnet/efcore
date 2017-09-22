@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         /// <summary>
-        /// Whether schemas should be generated when generating identifiers.
+        ///     Whether schemas should be generated when generating identifiers.
         /// </summary>
         protected virtual bool SupportsSchemas { get; } = true;
 
@@ -447,8 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="generationAction">The generation action.</param>
         /// <param name="joinAction">An optional join action.</param>
         protected virtual void GenerateList<T>(
-            [NotNull] IReadOnlyList<T> items, 
-            [NotNull] Action<T> generationAction, 
+            [NotNull] IReadOnlyList<T> items,
+            [NotNull] Action<T> generationAction,
             [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null)
         {
             Check.NotNull(items, nameof(items));
@@ -1066,8 +1066,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
 
-                if (conditionalExpression.IfTrue is ConstantExpression constantIfTrue
-                    && constantIfTrue.Type == typeof(bool))
+                if (conditionalExpression.IfTrue.RemoveConvert() is ConstantExpression constantIfTrue
+                    && constantIfTrue.Value != null
+                    && constantIfTrue.Type.UnwrapNullableType() == typeof(bool))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -1078,8 +1079,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 _relationalCommandBuilder.Append(" ELSE ");
 
-                if (conditionalExpression.IfFalse is ConstantExpression constantIfFalse
-                    && constantIfFalse.Type == typeof(bool))
+                if (conditionalExpression.IfFalse.RemoveConvert() is ConstantExpression constantIfFalse
+                    && constantIfFalse.Value != null
+                    && constantIfFalse.Type.UnwrapNullableType() == typeof(bool))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
