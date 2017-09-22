@@ -1449,7 +1449,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c);
         }
 
-        [ConditionalFact(Skip = "Test does not pass. See issue#4978")]
+        [ConditionalFact]
         public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
         {
             using (var context = CreateContext())

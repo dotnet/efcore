@@ -2020,7 +2020,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Nickname] = N'Marc
             AssertSql(
                 @"SELECT [c].[Name], [c].[Location]
 FROM [Cities] AS [c]
-WHERE CHARINDEX(N'Jacinto', [c].[Location]) > 0");
+WHERE CHARINDEX('Jacinto', [c].[Location]) > 0");
         }
 
         public override void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
@@ -2030,7 +2030,7 @@ WHERE CHARINDEX(N'Jacinto', [c].[Location]) > 0");
             AssertSql(
                 @"SELECT [c].[Name], [c].[Location]
 FROM [Cities] AS [c]
-WHERE CHARINDEX('Add', [c].[Location] + 'Added') > 0");
+WHERE CHARINDEX(N'Add', [c].[Location] + 'Added') > 0");
         }
 
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()

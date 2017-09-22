@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         /// <summary>
-        /// Whether schemas should be generated when generating identifiers.
+        ///     Whether schemas should be generated when generating identifiers.
         /// </summary>
         protected virtual bool SupportsSchemas { get; } = true;
 
@@ -447,8 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="generationAction">The generation action.</param>
         /// <param name="joinAction">An optional join action.</param>
         protected virtual void GenerateList<T>(
-            [NotNull] IReadOnlyList<T> items, 
-            [NotNull] Action<T> generationAction, 
+            [NotNull] IReadOnlyList<T> items,
+            [NotNull] Action<T> generationAction,
             [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null)
         {
             Check.NotNull(items, nameof(items));
@@ -1365,6 +1365,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.Append(functionName);
             _relationalCommandBuilder.Append("(");
+
+            if (functionName == "CHARINDEX")
+            {
+                _typeMapping = arguments.Select(InferTypeMappingFromColumn)
+                                   .FirstOrDefault(t => t != null)
+                               ?? parentTypeMapping;
+            }
 
             GenerateList(arguments);
 
