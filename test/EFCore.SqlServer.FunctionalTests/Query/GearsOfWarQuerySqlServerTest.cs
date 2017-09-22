@@ -4192,6 +4192,23 @@ INNER JOIN (
 ORDER BY [t1].[Nickname], [t1].[SquadId], [t1].[Id]");
         }
 
+        public override void Projecting_nullable_bool_in_conditional_works()
+        {
+            base.Projecting_nullable_bool_in_conditional_works();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [cg].[GearNickName] IS NOT NULL OR [cg].[GearSquadId] IS NOT NULL
+    THEN [t].[HasSoulPatch] ELSE CAST(0 AS BIT)
+END AS [Prop]
+FROM [Tags] AS [cg]
+LEFT JOIN (
+    SELECT [cg.Gear].*
+    FROM [Gears] AS [cg.Gear]
+    WHERE [cg.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON ([cg].[GearNickName] = [t].[Nickname]) AND ([cg].[GearSquadId] = [t].[SquadId])");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
