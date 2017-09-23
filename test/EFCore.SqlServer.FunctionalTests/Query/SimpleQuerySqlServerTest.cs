@@ -4309,6 +4309,30 @@ ORDER BY [Id]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
+        public override void Streaming_chained_sync_query()
+        {
+            base.Streaming_chained_sync_query();
+
+            AssertContainsSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]",
+                //
+                @"@_outer_CustomerID='ALFKI' (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @_outer_CustomerID",
+                //
+                @"SELECT [y.Customer].[CustomerID], [y.Customer].[Address], [y.Customer].[City], [y.Customer].[CompanyName], [y.Customer].[ContactName], [y.Customer].[ContactTitle], [y.Customer].[Country], [y.Customer].[Fax], [y.Customer].[Phone], [y.Customer].[PostalCode], [y.Customer].[Region]
+FROM [Customers] AS [y.Customer]",
+                //
+                @"@_outer_CustomerID='ANATR' (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @_outer_CustomerID");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
