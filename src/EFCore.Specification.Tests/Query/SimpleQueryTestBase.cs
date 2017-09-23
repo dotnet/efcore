@@ -4009,5 +4009,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Take(10),
                 elementSorter: e => e.Id);
         }
+
+        [ConditionalFact]
+        public virtual void Streaming_chained_sync_query()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (context.Customers
+                        .Select(
+                            c => new
+                            {
+                                c.CustomerID,
+                                Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
+                            }).ToList())
+                    .Select(
+                        x => new
+                        {
+                            Orders = x.Orders
+                                .GroupJoin(
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
+                                    {
+                                        h.Customer
+                                    })
+                        })
+                    .ToList();
+
+                Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
+            }
+        }
     }
 }

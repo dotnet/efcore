@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             })
                         .ToList();
 
-                Assert.Equal(546, results.SelectMany(r => r.Orders).ToList().Count);
+                Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
             }
         }
 
