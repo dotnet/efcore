@@ -19,15 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// </summary>
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     {
+        private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqliteMigrationsSqlGenerator([NotNull] MigrationsSqlGeneratorDependencies dependencies)
+        /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
+        public SqliteMigrationsSqlGenerator(
+            [NotNull] MigrationsSqlGeneratorDependencies dependencies,
+            [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
             : base(dependencies)
-        {
-        }
+            => _migrationsAnnotations = migrationsAnnotations;
 
         /// <summary>
         ///     Generates commands from a list of operations.
@@ -71,15 +75,78 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => Generate(operation, model, builder, terminate: true);
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="DropIndexOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
+        protected virtual void Generate(
+            [NotNull] DropIndexOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] MigrationCommandListBuilder builder,
+            bool terminate)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             builder
                 .Append("DROP INDEX ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .EndCommand();
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name));
+
+            if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand();
+            }
+        }
+
+        /// <summary>
+        ///     Builds commands for the given <see cref="RenameIndexOperation" />
+        ///     by making calls on the given <see cref="MigrationCommandListBuilder" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to build the commands. </param>
+        protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+        {
+            var index = FindEntityTypes(model, operation.Schema, operation.Table)
+                ?.SelectMany(t => t.GetDeclaredIndexes()).Where(i => i.Relational().Name == operation.NewName)
+                .FirstOrDefault();
+            if (index == null)
+            {
+                throw new NotSupportedException(
+                    SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
+            }
+
+            var dropOperation = new DropIndexOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name
+            };
+            dropOperation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
+
+            var createOperation = new CreateIndexOperation
+            {
+                IsUnique = index.IsUnique,
+                Name = operation.NewName,
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Columns = index.Properties.Select(p => p.Relational().ColumnName).ToArray(),
+                Filter = index.Relational().Filter
+            };
+            createOperation.AddAnnotations(_migrationsAnnotations.For(index));
+
+            Generate(dropOperation, model, builder, terminate: false);
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            Generate(createOperation, model, builder);
         }
 
         /// <summary>
@@ -298,18 +365,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RenameColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
-
-        /// <summary>
-        ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
-        ///     are not yet supported.
-        /// </summary>
-        /// <param name="operation"> The operation. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to build the commands. </param>
-        protected override void Generate(RenameIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
         }
