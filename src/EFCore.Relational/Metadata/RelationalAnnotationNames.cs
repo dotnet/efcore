@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
@@ -81,8 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string Filter = Prefix + "Filter";
 
         /// <summary>
-        ///     The name for filter annotations.
+        ///     The name for <see cref="RelationalTypeMapping"/> annotations.
         /// </summary>
+        [Obsolete("Use CoreAnnotationNames.TypeMapping")]
         public const string TypeMapping = Prefix + "TypeMapping";
 
         /// <summary>

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -27,5 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string GetConfiguredColumnType([NotNull] this IProperty property)
             => (string)property[RelationalAnnotationNames.ColumnType];
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static RelationalTypeMapping FindRelationalMapping(
+            [NotNull] this IProperty property) 
+            => property[CoreAnnotationNames.TypeMapping] as RelationalTypeMapping;
     }
 }

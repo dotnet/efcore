@@ -158,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ColumnType
         {
             get => (string)Annotations.Metadata[RelationalAnnotationNames.ColumnType]
-                   ?? ((RelationalTypeMapping)Annotations.Metadata[RelationalAnnotationNames.TypeMapping])?.StoreType;
+                   ?? Property.FindRelationalMapping()?.StoreType;
+
             [param: CanBeNull] set => SetColumnType(value);
         }
 

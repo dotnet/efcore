@@ -101,32 +101,4 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
     }
-
-    [Collection("SharedEndToEndCollection")]
-    public class SharedInMemoryEndToEndTest : EndToEndTest
-    {
-        public SharedInMemoryEndToEndTest(SharedCrossStoreFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
-    }
-
-    [Collection("SharedEndToEndCollection")]
-    [SqlServerConfiguredCondition]
-    public class SharedSqlServerEndToEndTest : EndToEndTest
-    {
-        public SharedSqlServerEndToEndTest(SharedCrossStoreFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-    }
-
-    [CollectionDefinition("SharedEndToEndCollection")]
-    public class EndToEndCollection : ICollectionFixture<SharedCrossStoreFixture>
-    {
-    }
 }

@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IgnoreAnnotations(
                 annotations,
                 CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
-                RelationalAnnotationNames.TypeMapping);
+                CoreAnnotationNames.TypeMapping);
 
             GenerateAnnotations(annotations, stringBuilder);
         }

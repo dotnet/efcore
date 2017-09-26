@@ -785,7 +785,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                         builder.Entity<EntityWithOneProperty>()
                             .Property<int>("Id")
                             .HasAnnotation("AnnotationName", "AnnotationValue")
-                            .HasAnnotation(RelationalAnnotationNames.TypeMapping, new IntTypeMapping("int"));
+                            .HasAnnotation(CoreAnnotationNames.TypeMapping, new IntTypeMapping("int"));
 
                         builder.Ignore<EntityWithTwoProperties>();
                     },

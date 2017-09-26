@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -17,6 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public static class PropertyExtensions
     {
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static CoreTypeMapping FindMapping(
+            [NotNull] this IProperty property) 
+            => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
