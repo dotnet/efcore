@@ -165,11 +165,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         /// <summary>
-        ///     Whether schemas should be generated when generating identifiers.
-        /// </summary>
-        protected virtual bool SupportsSchemas { get; } = true;
-
-        /// <summary>
         ///     The default alias separator.
         /// </summary>
         protected virtual string AliasSeparator { get; } = " AS ";
@@ -651,14 +646,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            if (SupportsSchemas
-                && tableExpression.Schema != null)
-            {
-                _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(tableExpression.Schema))
-                    .Append(".");
-            }
-
-            _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(tableExpression.Table))
+            _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(tableExpression.Table, tableExpression.Schema))
                 .Append(AliasSeparator)
                 .Append(SqlGenerator.DelimitIdentifier(tableExpression.Alias));
 
@@ -1360,8 +1348,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotEmpty(functionName, nameof(functionName));
             Check.NotNull(arguments, nameof(arguments));
 
-            if (SupportsSchemas
-                && !string.IsNullOrWhiteSpace(schema))
+            if (!string.IsNullOrWhiteSpace(schema))
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))

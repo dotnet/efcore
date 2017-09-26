@@ -37,6 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override string DelimitIdentifier(string identifier)
             => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
 
+        public override string DelimitIdentifier(string name, string schema)
+            => DelimitIdentifier(name);
+
         public override void DelimitIdentifier(StringBuilder builder, string identifier)
         {
             Check.NotEmpty(identifier, nameof(identifier));
@@ -45,5 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             EscapeIdentifier(builder, identifier);
             builder.Append('"');
         }
+
+        public override void DelimitIdentifier(StringBuilder builder, string name, string schema)
+            => DelimitIdentifier(builder, name);
     }
 }

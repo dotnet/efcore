@@ -597,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore
             base.CreateIndexOperation_unique();
 
             Assert.Equal(
-                "CREATE UNIQUE INDEX \"IX_People_Name\" ON \"dbo\".\"People\" (\"FirstName\", \"LastName\")",
+                "CREATE UNIQUE INDEX \"IX_People_Name\" ON \"People\" (\"FirstName\", \"LastName\")",
                 Sql);
         }
 
@@ -665,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore
             base.DropIndexOperation();
 
             Assert.Equal(
-                "DROP INDEX \"IX_People_Name\" ON \"dbo\".\"People\"",
+                "DROP INDEX \"IX_People_Name\" ON \"People\"",
                 Sql);
         }
 

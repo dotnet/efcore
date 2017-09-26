@@ -24,7 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
         protected override string TypedTrueLiteral => "1";
         protected override string TypedFalseLiteral => "0";
-        protected override bool SupportsSchemas => false;
         protected override string AliasSeparator => " ";
 
         protected override string GenerateOperator(Expression expression)
