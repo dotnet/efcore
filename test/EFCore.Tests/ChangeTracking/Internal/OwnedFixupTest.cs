@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class OwnedFixupTest
@@ -36,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var dependentEntry2 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
 
+                Assert.NotNull(dependentEntry2);
                 Assert.Equal(
                     CoreStrings.AmbiguousDependentEntity(
                         typeof(ChildPN).ShortDisplayName(),
@@ -878,8 +882,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public SubChild SubChild { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class SubChild
         {
+            // ReSharper disable once UnusedMember.Local
             public string Name { get; set; }
 
             public Child Child { get; set; }
@@ -897,6 +903,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public string Name { get; set; }
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public SubChildPN SubChild { get; set; }
         }
 
@@ -913,6 +920,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _ignoreDuplicates = ignoreDuplicates;
 
+                // ReSharper disable once VirtualMemberCallInConstructor
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
 

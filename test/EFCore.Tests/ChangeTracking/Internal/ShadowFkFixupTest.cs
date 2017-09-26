@@ -6,6 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class ShadowFkFixupTest
@@ -1694,6 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int Id { get; set; }
 
             public Category Category { get; set; }
+            // ReSharper disable once CollectionNeverUpdated.Local
             public ICollection<SpecialOffer> SpecialOffers { get; }
         }
 
@@ -1708,6 +1714,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public FixupContext()
             {
+                // ReSharper disable once VirtualMemberCallInConstructor
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
 

@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable AssignNullToNotNullAttribute
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -1296,6 +1298,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls()).Message);
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Root
         {
             public int Id { get; set; }
@@ -1303,6 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public FirstDependent First { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class FirstDependent
         {
             public int Id { get; set; }
@@ -1319,6 +1323,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public FirstDependent First { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class CompositeRoot
         {
             public int Id1 { get; set; }
@@ -1327,6 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public CompositeFirstDependent First { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class CompositeFirstDependent
         {
             public int Id1 { get; set; }
@@ -1334,6 +1340,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int RootId1 { get; set; }
             public string RootId2 { get; set; }
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public CompositeRoot Root { get; set; }
 
             public CompositeSecondDependent Second { get; set; }
@@ -1471,7 +1478,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -1485,7 +1492,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public string Name
             {
-                get { return _name; }
+                get => _name;
                 set
                 {
                     if (_name != value)
@@ -1514,7 +1521,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -1527,7 +1534,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public string Name
             {
-                get { return _name; }
+                get => _name;
                 set
                 {
                     if (_name != value)

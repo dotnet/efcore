@@ -178,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (entityType.HasClrType())
                 {
-                    // Remove when issue #749 is fixed
                     entity = Activator.CreateInstance(entityType.ClrType);
                     entry = _internalEntityEntryFactory.Create(this, entityType, entity);
                 }

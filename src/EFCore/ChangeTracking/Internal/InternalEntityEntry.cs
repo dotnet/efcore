@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -526,6 +526,50 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual object GetOrCreateCollection([NotNull] INavigation navigation)
+        {
+            Debug.Assert(!navigation.IsShadowProperty);
+
+            return navigation.GetCollectionAccessor().GetOrCreate(Entity);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool CollectionContains([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        {
+            Debug.Assert(!navigation.IsShadowProperty);
+
+            return navigation.GetCollectionAccessor().Contains(Entity, value.Entity);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool AddToCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        {
+            Debug.Assert(!navigation.IsShadowProperty);
+
+            return navigation.GetCollectionAccessor().Add(Entity, value.Entity);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
+        {
+            Debug.Assert(!navigation.IsShadowProperty);
+
+            navigation.GetCollectionAccessor().Remove(Entity, value.Entity);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual object GetCurrentValue(IPropertyBase propertyBase)
             => !(propertyBase is IProperty property) || !IsConceptualNull(property)
                 ? this[propertyBase]
@@ -673,9 +717,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             get
             {
-                return propertyBase is INavigation && propertyBase.IsShadowProperty // Remove when issue #749 is fixed
-                    ? null
-                    : _storeGeneratedValues.TryGetValue(propertyBase, out var value)
+                return _storeGeneratedValues.TryGetValue(propertyBase, out var value)
                         ? value
                         : ReadPropertyValue(propertyBase);
             }

@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
 
+// ReSharper disable UnassignedGetOnlyAutoProperty
+// ReSharper disable InconsistentNaming
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
 // ReSharper disable EmptyConstructor

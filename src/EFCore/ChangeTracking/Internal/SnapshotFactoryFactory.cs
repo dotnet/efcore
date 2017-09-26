@@ -107,9 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var propertyBase = propertyBases[i];
                 if (propertyBase.IsShadowProperty)
                 {
-                    arguments[i] = propertyBase is INavigation
-                        ? Expression.Constant(null) // Remove when issue #749 is fixed
-                        : CreateReadShadowValueExpression(parameter, propertyBase);
+                    arguments[i] = CreateReadShadowValueExpression(parameter, propertyBase);
                 }
                 else
                 {

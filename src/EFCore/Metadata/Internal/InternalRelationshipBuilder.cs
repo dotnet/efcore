@@ -169,11 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && dependentEntityType.HasClrType())
             {
                 var navigationProperty = Navigation.GetClrProperty(navigationToPrincipalName, dependentEntityType, principalEntityType, shouldThrow);
-                if (navigationProperty == null)
+                if (navigationProperty != null)
                 {
-                    return null;
+                    navigationToPrincipal = PropertyIdentity.Create(navigationProperty);
                 }
-                navigationToPrincipal = PropertyIdentity.Create(navigationProperty);
             }
 
             var navigationToDependentName = navigationToDependent?.Name;
@@ -182,11 +181,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && principalEntityType.HasClrType())
             {
                 var navigationProperty = Navigation.GetClrProperty(navigationToDependentName, principalEntityType, dependentEntityType, shouldThrow);
-                if (navigationProperty == null)
+                if (navigationProperty != null)
                 {
-                    return null;
+                    navigationToDependent = PropertyIdentity.Create(navigationProperty);
                 }
-                navigationToDependent = PropertyIdentity.Create(navigationProperty);
             }
 
             if (!CanSetNavigations(
@@ -317,12 +315,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Metadata.HasPrincipalToDependent((string)null, configurationSource.Value);
                         }
 
+                        var navigationProperty = navigationToPrincipal.Value.Property;
                         if (navigationToPrincipalName != null)
                         {
                             Metadata.DeclaringEntityType.Unignore(navigationToPrincipalName);
+
+                            if (Metadata.DeclaringEntityType.ClrType != null
+                                && navigationProperty == null)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.NoClrNavigation(navigationToPrincipalName, Metadata.DeclaringEntityType.DisplayName()));
+                            }
                         }
 
-                        var navigationProperty = navigationToPrincipal.Value.Property;
                         if (navigationProperty != null)
                         {
                             Metadata.HasDependentToPrincipal(navigationProperty, configurationSource.Value);
@@ -335,12 +340,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     if (navigationToDependent != null)
                     {
+                        var navigationProperty = navigationToDependent.Value.Property;
                         if (navigationToDependentName != null)
                         {
                             Metadata.PrincipalEntityType.Unignore(navigationToDependentName);
+
+                            if (Metadata.DeclaringEntityType.ClrType != null
+                                && navigationProperty == null)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.NoClrNavigation(navigationToDependentName, Metadata.PrincipalEntityType.DisplayName()));
+                            }
                         }
 
-                        var navigationProperty = navigationToDependent.Value.Property;
                         if (navigationProperty != null)
                         {
                             Metadata.HasPrincipalToDependent(navigationProperty, configurationSource.Value);

@@ -72,5 +72,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return target;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static TValue EnsureInitialized<TParam, TValue>(
+            [CanBeNull] ref TValue target,
+            [CanBeNull] TParam param,
+            [NotNull] Action<TParam> valueFactory)
+            where TValue : class
+        {
+            if (Volatile.Read(ref target) != null)
+            {
+                return target;
+            }
+
+            valueFactory(param);
+
+            return Volatile.Read(ref target);
+        }
     }
 }

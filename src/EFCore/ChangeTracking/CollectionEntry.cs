@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -117,6 +116,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void EnsureInitialized()
-            => Metadata.GetCollectionAccessor().GetOrCreate(InternalEntry.Entity);
+            => InternalEntry.GetOrCreateCollection(Metadata);
     }
 }

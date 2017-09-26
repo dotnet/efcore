@@ -1176,6 +1176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     !pointsToPrincipal && !foreignKey.IsUnique,
                     shouldThrow: true);
             }
+
             var navigation = new Navigation(name, propertyIdentity.Property, null, foreignKey);
 
             _navigations.Add(name, navigation);

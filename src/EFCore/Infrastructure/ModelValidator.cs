@@ -399,9 +399,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var propertyBase in entityType
                     .GetDeclaredProperties()
-                    .Where(e => !e.IsShadowProperty)
                     .Cast<IPropertyBase>()
-                    .Concat(entityType.GetDeclaredNavigations()))
+                    .Concat(entityType.GetDeclaredNavigations())
+                    .Where(e => !e.IsShadowProperty))
                 {
                     if (!propertyBase.TryGetMemberInfo(
                         forConstruction: true,

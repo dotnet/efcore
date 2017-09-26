@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+// ReSharper disable MemberHidesStaticFromOuterClass
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class FixupCompositeTest
@@ -3482,6 +3485,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public FixupContext()
             {
+                // ReSharper disable once VirtualMemberCallInConstructor
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
 

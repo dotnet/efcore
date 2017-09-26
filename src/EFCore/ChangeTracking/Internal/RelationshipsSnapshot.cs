@@ -32,8 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (value == null)
                 {
-                    var property = propertyBase as IProperty;
-                    if (property != null
+                    if (propertyBase is IProperty property
                         && !property.IsNullable)
                     {
                         return;

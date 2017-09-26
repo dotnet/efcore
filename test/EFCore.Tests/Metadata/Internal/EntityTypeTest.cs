@@ -2210,40 +2210,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_a_shadow_navigation_on_a_non_shadow_entity_type_throws()
-        {
-            var model = new Model();
-            var customerType = model.AddEntityType(typeof(Customer));
-            var customerKey = customerType.GetOrAddKey(customerType.AddProperty("Id", typeof(int)));
-
-            var orderType = model.AddEntityType(typeof(Order));
-            var foreignKeyProperty = orderType.AddProperty("CustomerId", typeof(int));
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-
-            Assert.Equal(
-                CoreStrings.NoClrNavigation("Navigation", typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("Navigation")).Message);
-        }
-
-        [Fact]
-        public void Adding_a_navigation_that_doesnt_match_a_CLR_property_throws()
-        {
-            var model = new Model();
-            var customerType = model.AddEntityType(typeof(Customer));
-            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
-
-            var orderType = model.AddEntityType(typeof(Order));
-            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-
-            Assert.Equal(
-                CoreStrings.NoClrNavigation("Snook", typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("Snook")).Message);
-        }
-
-        [Fact]
         public void Collection_navigation_properties_must_be_IEnumerables_of_the_target_type()
         {
             var model = new Model();

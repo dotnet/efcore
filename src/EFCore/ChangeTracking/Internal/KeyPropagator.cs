@@ -100,10 +100,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (property == foreignKey.Properties[propertyIndex])
                     {
-                        // Remove when issue #749 is fixed
-                        var principal = foreignKey.DependentToPrincipal?.IsShadowProperty ?? true
+                        var principal = foreignKey.DependentToPrincipal == null
                             ? null
-                            : foreignKey.DependentToPrincipal.GetGetter().GetClrValue(entry.Entity);
+                            : entry[foreignKey.DependentToPrincipal];
                         InternalEntityEntry principalEntry = null;
                         if (principal != null)
                         {
