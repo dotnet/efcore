@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     directly from your code. This API may change or be removed in future releases. 
         /// </summary>
         public virtual string WriteCode(IEntityType entityType, string @namespace, bool useDataAnnotations)
         {
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return _sb.ToString();
         }
 
-        private void GenerateClass(IEntityType entityType)
+        public virtual void GenerateClass(IEntityType entityType)
         {
             if (_useDataAnnotations)
             {
@@ -102,12 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("}");
         }
 
-        private void GenerateEntityTypeDataAnnotations(IEntityType entityType)
+        public virtual void GenerateEntityTypeDataAnnotations(IEntityType entityType)
         {
             GenerateTableAttribute(entityType);
         }
 
-        private void GenerateTableAttribute(IEntityType entityType)
+        public virtual void GenerateTableAttribute(IEntityType entityType)
         {
             var tableName = entityType.Relational().TableName;
             var schema = entityType.Relational().Schema;
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateConstructor(IEntityType entityType)
+        public virtual void GenerateConstructor(IEntityType entityType)
         {
             var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection()).ToList();
 
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateProperties(IEntityType entityType)
+        public virtual void GenerateProperties(IEntityType entityType)
         {
             foreach (var property in entityType.GetProperties().OrderBy(p => p.Scaffolding().ColumnOrdinal))
             {
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GeneratePropertyDataAnnotations(IProperty property)
+        public virtual void GeneratePropertyDataAnnotations(IProperty property)
         {
             GenerateKeyAttribute(property);
             GenerateRequiredAttribute(property);
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             GenerateMaxLengthAttribute(property);
         }
 
-        private void GenerateKeyAttribute(IProperty property)
+        public virtual void GenerateKeyAttribute(IProperty property)
         {
             var key = property.AsProperty().PrimaryKey;
 
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateColumnAttribute(IProperty property)
+        public virtual void GenerateColumnAttribute(IProperty property)
         {
             var columnName = property.Relational().ColumnName;
             var columnType = property.GetConfiguredColumnType();
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateMaxLengthAttribute(IProperty property)
+        public virtual void GenerateMaxLengthAttribute(IProperty property)
         {
             var maxLength = property.GetMaxLength();
 
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateRequiredAttribute(IProperty property)
+        public virtual void GenerateRequiredAttribute(IProperty property)
         {
             if (!property.IsNullable
                 && property.ClrType.IsNullableType()
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateNavigationProperties(IEntityType entityType)
+        public virtual void GenerateNavigationProperties(IEntityType entityType)
         {
             var sortedNavigations = entityType.GetNavigations()
                 .OrderBy(n => n.IsDependentToPrincipal() ? 0 : 1)
@@ -272,13 +272,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateNavigationDataAnnotations(INavigation navigation)
+        public virtual void GenerateNavigationDataAnnotations(INavigation navigation)
         {
             GenerateForeignKeyAttribute(navigation);
             GenerateInversePropertyAttribute(navigation);
         }
 
-        private void GenerateForeignKeyAttribute(INavigation navigation)
+        public virtual void GenerateForeignKeyAttribute(INavigation navigation)
         {
             if (navigation.IsDependentToPrincipal())
             {
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateInversePropertyAttribute(INavigation navigation)
+        public virtual void GenerateInversePropertyAttribute(INavigation navigation)
         {
             if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
             {
@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private class AttributeWriter
+        public virtual class AttributeWriter
         {
             private readonly string _attibuteName;
             private readonly List<string> _parameters = new List<string>();
