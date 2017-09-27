@@ -312,7 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        public virtual class AttributeWriter
+        public virtual class AttributeWriter 
         {
             private readonly string _attibuteName;
             private readonly List<string> _parameters = new List<string>();
