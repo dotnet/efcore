@@ -19,6 +19,7 @@
     <licenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</licenseUrl>
     <iconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</iconUrl>
     <projectUrl>https://asp.net</projectUrl>
+    <minClientVersion>3.6</minClientVersion>
   </metadata>
   <files>
     <file src="lib/**/*" target="" />
