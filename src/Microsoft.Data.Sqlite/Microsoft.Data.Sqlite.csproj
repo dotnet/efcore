@@ -15,6 +15,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnableApiCheck>false</EnableApiCheck>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <MinClientVersion>3.6</MinClientVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +26,13 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="lib\**\*">
+      <Pack>True</Pack>
+      <PackagePath>lib</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
