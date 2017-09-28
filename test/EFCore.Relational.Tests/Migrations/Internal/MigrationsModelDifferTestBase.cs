@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -76,8 +75,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 : base(dependencies)
             {
             }
-
-            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
             public override RelationalTypeMapping FindMapping(Type clrType)
                 => clrType == typeof(string)

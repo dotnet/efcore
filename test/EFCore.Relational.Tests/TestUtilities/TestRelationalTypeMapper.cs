@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -63,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             : base(dependencies)
         {
         }
-
-        protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>

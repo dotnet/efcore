@@ -63,5 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 .GetMapping(typeof(Guid)).GenerateSqlLiteral(value);
             Assert.Equal("X'9E3AF4C6E191EF45A320832EA23B7292'", literal);
         }
+
+        protected override DbContextOptions ContextOptions { get; } 
+            = new DbContextOptionsBuilder().UseSqlite("Filename=dummmy.db").Options;
     }
 }

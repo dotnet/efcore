@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -261,6 +263,45 @@ namespace Microsoft.EntityFrameworkCore.Storage
             literal = typeMapping.GenerateSqlLiteral(ulong.MaxValue);
             Assert.Equal("18446744073709551615", literal);
         }
+
+        [Fact]
+        public void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
+        {
+            using (var context = new FruityContext(ContextOptions))
+            {
+                Assert.Same(
+                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").FindMapping(),
+                    context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").FindMapping());
+            }
+        }
+
+        private class FruityContext : DbContext
+        {
+            public FruityContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Banana> Bananas { get; set; }
+            public DbSet<Kiwi> Kiwi { get; set; }
+        }
+
+        private class Banana
+        {
+            public int Id { get; set; }
+
+            public ICollection<Kiwi> Kiwis{ get; set; }
+        }
+
+        private class Kiwi
+        {
+            public int Id { get; set; }
+
+            public int BananaId { get; set; }
+            public Banana Banana { get; set; }
+        }
+
+        protected abstract DbContextOptions ContextOptions { get; }
 
         protected abstract DbCommand CreateTestCommand();
 

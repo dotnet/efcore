@@ -203,8 +203,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        protected override string GetColumnType(IProperty property) => property.Oracle().ColumnType;
-
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _clrTypeMappings;
 
