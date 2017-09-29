@@ -26,3 +26,4 @@ launchSettings.json
 *.nuget.targets
 sqlite3.dll
 global.json
+korebuild-lock.txt
