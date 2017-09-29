@@ -127,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;
 
+        [Obsolete("Override GetMultipleStoreTypeMappings instead.")] // Using the obsolete overload for testing
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _simpleNameMappings;
 

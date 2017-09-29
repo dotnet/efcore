@@ -178,11 +178,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("join Int32 i in __p_0 on [e1].EmployeeID equals [i]")),
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("join UInt32 i in __p_0 on [e1].EmployeeID equals [i]")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
-                             join i in new[] { 1, 2, 3 } on e1.EmployeeID equals i
+                             join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
                              select e1)
                             .ToList()).Message);
             }
@@ -196,11 +196,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         RelationalEventId.QueryClientEvaluationWarning,
-                        RelationalStrings.LogClientEvalWarning.GenerateMessage("join Int32 i in __p_0 on [e1].EmployeeID equals [i]")),
+                        RelationalStrings.LogClientEvalWarning.GenerateMessage("join UInt32 i in __p_0 on [e1].EmployeeID equals [i]")),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
-                             join i in new[] { 1, 2, 3 } on e1.EmployeeID equals i into g
+                             join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
                              select e1)
                             .ToList()).Message);
             }

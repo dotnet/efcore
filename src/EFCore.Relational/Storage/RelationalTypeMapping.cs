@@ -51,21 +51,34 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(storeType, clrType)
+            : this(storeType, clrType, null, dbType, unicode, size)
         {
-            DbType = dbType;
-            IsUnicode = unicode;
-            Size = size;
         }
 
-        private RelationalTypeMapping(
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
+        /// </summary>
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="clrType"> The .NET type. </param>
+        /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
+        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        protected RelationalTypeMapping(
             [NotNull] string storeType,
-            [NotNull] Type clrType)
-            : base(clrType)
+            [NotNull] Type clrType,
+            [NotNull] TypeConverter converter,
+            DbType? dbType = null,
+            bool unicode = false,
+            int? size = null)
+            : base(clrType, converter)
         {
             Check.NotEmpty(storeType, nameof(storeType));
 
             StoreType = storeType;
+            DbType = dbType;
+            IsUnicode = unicode;
+            Size = size;
         }
 
         /// <summary>
@@ -120,7 +133,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var parameter = command.CreateParameter();
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
-            parameter.Value = value ?? DBNull.Value;
+
+            parameter.Value = (Converter != null
+                                  ? Converter.ConvertToStore(value)
+                                  : value)
+                              ?? DBNull.Value;
 
             if (nullable.HasValue)
             {

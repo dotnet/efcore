@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
-        private int GetEmployeeID(Employee employee)
+        private uint GetEmployeeID(Employee employee)
         {
             return employee.EmployeeID;
         }
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Join_local_collection_int_closure_is_cached_correctly()
         {
-            var ids = new[] { 1, 2 };
+            var ids = new uint[] { 1, 2 };
 
             AssertQueryScalar<Employee>(
                 es =>
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join id in ids on e.EmployeeID equals id
                     select e.EmployeeID);
 
-            ids = new[] { 3 };
+            ids = new uint[] { 3 };
 
             AssertQueryScalar<Employee>(
                 es =>
