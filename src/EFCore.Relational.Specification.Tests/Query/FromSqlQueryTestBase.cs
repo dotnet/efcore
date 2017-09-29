@@ -516,7 +516,7 @@ FROM ""Customers""")
         [Fact]
         public virtual void From_sql_queryable_with_null_parameter()
         {
-            int? reportsTo = null;
+            uint? reportsTo = null;
 
             using (var context = CreateContext())
             {

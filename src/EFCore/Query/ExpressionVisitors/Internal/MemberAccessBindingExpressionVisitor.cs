@@ -238,16 +238,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static Expression TryCreateNullableAccessOperation(Expression accessOperation)
         {
-            if (accessOperation is MethodCallExpression methodCallExpression
-                && methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
+            if (accessOperation is MethodCallExpression methodCallExpression)
             {
-                var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
+                if (methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
+                {
+                    var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
 
-                return Expression.Call(
-                    tryReadValueMethodInfo,
-                    methodCallExpression.Arguments[0],
-                    methodCallExpression.Arguments[1],
-                    methodCallExpression.Arguments[2]);
+                    return Expression.Call(
+                        tryReadValueMethodInfo,
+                        methodCallExpression.Arguments[0],
+                        methodCallExpression.Arguments[1],
+                        methodCallExpression.Arguments[2]);
+                }
+
+                if (methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueWithConvertMethod))
+                {
+                    var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueWithConvertMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
+
+                    return Expression.Call(
+                        tryReadValueMethodInfo,
+                        methodCallExpression.Arguments[0],
+                        methodCallExpression.Arguments[1],
+                        methodCallExpression.Arguments[2],
+                        methodCallExpression.Arguments[3]);
+                }
             }
 
             return null;

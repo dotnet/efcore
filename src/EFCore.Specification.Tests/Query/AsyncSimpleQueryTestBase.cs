@@ -2109,7 +2109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery<Employee>(
                 es =>
-                    from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty()
+                    from e in es.Where(c => c.EmployeeID == uint.MaxValue).DefaultIfEmpty()
                     select e);
         }
 
@@ -2118,7 +2118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery<Employee>(
                 es =>
-                    from e in es.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
+                    from e in es.Where(c => c.EmployeeID == uint.MaxValue).DefaultIfEmpty(new Employee())
                     select e,
                 entryCount: 1);
         }
@@ -2138,7 +2138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQueryScalar<Employee>(
                 es =>
-                    from e in es.Where(e => e.EmployeeID == -1).Select(e => e.EmployeeID).DefaultIfEmpty()
+                    from e in es.Where(e => e.EmployeeID == uint.MaxValue).Select(e => e.EmployeeID).DefaultIfEmpty()
                     select e);
         }
 
@@ -2623,7 +2623,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static int ClientEvalSelectorStateless() => 42;
 
-        protected internal int ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
+        protected internal uint ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
 
         [ConditionalFact]
         public virtual async Task Distinct()

@@ -93,17 +93,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     { typeof(bool), new BoolTypeMapping("boolean") }
                 };
 
-            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-                = new Dictionary<string, RelationalTypeMapping>
+            private readonly IReadOnlyDictionary<string, IList<RelationalTypeMapping>> _simpleNameMappings
+                = new Dictionary<string, IList<RelationalTypeMapping>>
                 {
-                    { "varchar", new StringTypeMapping("varchar", dbType: null, unicode: false, size: null) },
-                    { "bigint", new LongTypeMapping("bigint") }
+                    { "varchar", new List<RelationalTypeMapping> { new StringTypeMapping("varchar") } },
+                    { "bigint", new List<RelationalTypeMapping> { new LongTypeMapping("bigint") } }
                 };
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _simpleMappings;
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+            protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
                 => _simpleNameMappings;
         }
     }

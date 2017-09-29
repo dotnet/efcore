@@ -49,20 +49,8 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_SQL_Server_mappings_to_unsupported_types()
         {
-            var ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(sbyte)).StoreType);
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "sbyte"), ex.Message);
-
-            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(ushort)).StoreType);
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "ushort"), ex.Message);
-
-            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(uint)).StoreType);
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "uint"), ex.Message);
-
-            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(char)).StoreType);
+            var ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(char)).StoreType);
             Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "char"), ex.Message);
-
-            ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(ulong)).StoreType);
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "ulong"), ex.Message);
         }
 
         [Fact]

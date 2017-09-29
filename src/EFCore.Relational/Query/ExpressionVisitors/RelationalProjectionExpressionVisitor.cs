@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
@@ -269,7 +270,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                             var readValueExpression
                                 = _entityMaterializerSource
-                                    .CreateReadValueCallExpression(targetExpression, index);
+                                    .CreateReadValueExpression(
+                                        targetExpression,
+                                        expression.Type.MakeNullable(),
+                                        index,
+                                        FindProperty(sqlExpression));
 
                             var outputDataInfo
                                 = (expression as SubQueryExpression)?.QueryModel
@@ -295,6 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             return base.Visit(expression);
         }
 
+<<<<<<< HEAD
         private class GroupByAggregateTranslatingExpressionVisitor : RelinqExpressionVisitor
         {
             private readonly RelationalProjectionExpressionVisitor _projectionExpressionVisitor;
@@ -547,6 +553,20 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 return false;
             }
+
+        private static IProperty FindProperty(Expression expression)
+        {
+            switch (expression)
+            {
+                case ColumnExpression columnExpression:
+                    return columnExpression.Property;
+                case ColumnReferenceExpression columnReferenceExpression:
+                    return FindProperty(columnReferenceExpression.Expression);
+                case UnaryExpression unaryExpression:
+                    return FindProperty(unaryExpression.Operand);
+            }
+
+            return null;
         }
     }
 }

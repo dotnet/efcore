@@ -35,8 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         RelationalTypeMapping FindMapping([NotNull] Type clrType);
 
         /// <summary>
-        ///     Gets the mapping that represents the given database type.
-        ///     Returns null if no mapping is found.
+        ///     <para>
+        ///         Gets the mapping that represents the given database type.
+        ///         Returns null if no mapping is found.
+        ///     </para>
+        ///     <para>
+        ///         Note that sometimes the same store type can have different mappings; this method returns the default.
+        ///     </para>
         /// </summary>
         /// <param name="storeType"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>

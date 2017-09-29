@@ -203,7 +203,7 @@ FROM (
 LEFT JOIN (
     SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
     FROM [Employees] AS [c]
-    WHERE [c].[EmployeeID] = -1
+    WHERE [c].[EmployeeID] = 4294967295
 ) AS [t] ON 1 = 1");
         }
 
@@ -230,7 +230,7 @@ LEFT JOIN (
             AssertSql(
                 @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE [c].[EmployeeID] = -1");
+WHERE [c].[EmployeeID] = 4294967295");
         }
 
         public override void Default_if_empty_top_level_projection()
@@ -245,7 +245,7 @@ FROM (
 LEFT JOIN (
     SELECT [e].[EmployeeID]
     FROM [Employees] AS [e]
-    WHERE [e].[EmployeeID] = -1
+    WHERE [e].[EmployeeID] = 4294967295
 ) AS [t] ON 1 = 1");
         }
 
@@ -2969,7 +2969,7 @@ WHERE [c2].[CustomerID] = @_outer_CustomerID1");
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(11), [o].[EmployeeID])) > 0)");
+WHERE [o].[OrderDate] IS NOT NULL AND (CHARINDEX(N'10', CONVERT(VARCHAR(10), [o].[EmployeeID])) > 0)");
         }
 
         public override void Select_expression_long_to_string()

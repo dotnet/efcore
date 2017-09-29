@@ -327,6 +327,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             => await AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder);
 
         public virtual async Task AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<uint>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => await AssertQueryScalar(query, query, assertOrder);
+
+        public virtual async Task AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<uint>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<uint>> expectedQuery,
+            bool assertOrder = false)
+            where TItem1 : class
+            => await AssertQueryScalar<TItem1, uint>(actualQuery, expectedQuery, assertOrder);
+
+        public virtual async Task AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<long>> query,
             bool assertOrder = false)
             where TItem1 : class

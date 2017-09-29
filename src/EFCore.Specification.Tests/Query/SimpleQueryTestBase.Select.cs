@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Employee>(
                 es => es.Where(e => e.EmployeeID == 1)
                     .Select(e => new[] { e.EmployeeID, e.ReportsTo }),
-                elementAsserter: (e, a) => AssertArrays<int?>(e, a, 2));
+                elementAsserter: (e, a) => AssertArrays<uint?>(e, a, 2));
         }
 
         private static void AssertArrays<T>(object e, object a, int count)
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
-                    .Select(o => (int)o.EmployeeID),
+                    .Select(o => (uint)o.EmployeeID),
                 assertOrder: true);
         }
 
