@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             throw new NotImplementedException();
         }
 
-        public InternalEntityEntry GetOrCreateEntry(IDictionary<string, object> values, IEntityType entityType)
+        public InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         {
             throw new NotImplementedException();
         }

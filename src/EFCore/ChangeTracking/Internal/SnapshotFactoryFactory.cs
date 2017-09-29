@@ -51,7 +51,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var propertyBase in entityType.GetPropertiesAndNavigations())
             {
                 var index = GetPropertyIndex(propertyBase);
-
                 if (index >= 0)
                 {
                     types[index] = (propertyBase as IProperty)?.ClrType ?? typeof(object);
@@ -105,7 +104,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             for (var i = 0; i < count; i++)
             {
                 var propertyBase = propertyBases[i];
-                if (propertyBase.IsShadowProperty)
+                if (propertyBase == null)
+                {
+                    arguments[i] = Expression.Constant(null);
+                    types[i] = typeof(object);
+                }
+                else if (propertyBase.IsShadowProperty)
                 {
                     arguments[i] = CreateReadShadowValueExpression(parameter, propertyBase);
                 }

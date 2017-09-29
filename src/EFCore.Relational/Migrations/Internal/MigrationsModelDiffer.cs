@@ -1295,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
-                    _targetStateManager.GetOrCreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
+                    _targetStateManager.CreateEntry(targetSeed, targetEntityType).SetEntityState(EntityState.Added);
                 }
             }
 
@@ -1402,7 +1402,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     if (!targetEntryFound)
                     {
-                        _sourceStateManager.GetOrCreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Deleted);
+                        _sourceStateManager.CreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Deleted);
                     }
                 }
             }

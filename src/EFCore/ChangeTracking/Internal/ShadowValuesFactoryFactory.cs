@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override int GetPropertyIndex(IPropertyBase propertyBase)
-            => propertyBase.GetShadowIndex();
+            // Navigations are not included in the supplied value buffer
+            => (propertyBase as IProperty)?.GetShadowIndex() ?? -1;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

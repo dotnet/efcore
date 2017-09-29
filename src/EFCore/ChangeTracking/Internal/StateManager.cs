@@ -144,7 +144,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _trackingQueryMode = TrackingQueryMode.Multiple;
 
                 var entityType = _model.FindEntityType(entity.GetType());
-
                 if (entityType == null)
                 {
                     if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
@@ -168,29 +167,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry GetOrCreateEntry(IDictionary<string, object> values, IEntityType entityType)
+        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
         {
-            var entry = TryGetEntry(values);
+            var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
-                object entity;
                 _trackingQueryMode = TrackingQueryMode.Multiple;
 
-                if (entityType.HasClrType())
-                {
-                    entity = Activator.CreateInstance(entityType.ClrType);
-                    entry = _internalEntityEntryFactory.Create(this, entityType, entity);
-                }
-                else
-                {
-                    entry = new InternalShadowEntityEntry(this, entityType);
-                    entity = entry;
-                }
+                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
-                _entityReferenceMap[entity] = entry;
+                AddToReferenceMap(entry);
             }
-
-            entry.ToEntityEntry().CurrentValues.SetValues(values);
             return entry;
         }
 
@@ -198,15 +185,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType entityType)
+        public virtual InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         {
-            var entry = TryGetEntry(entity, entityType);
-            if (entry == null)
-            {
-                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
+            _trackingQueryMode = TrackingQueryMode.Multiple;
 
-                AddToReferenceMap(entry);
+            var i = 0;
+            var valuesArray = new object[entityType.PropertyCount()];
+            foreach (var property in entityType.GetProperties())
+            {
+                valuesArray[i++] = values.TryGetValue(property.Name, out var value)
+                    ? value
+                    : property.ClrType.GetDefaultValue();
             }
+            var valueBuffer = new ValueBuffer(valuesArray);
+
+            var entity = entityType.HasClrType() ? EntityMaterializerSource.GetMaterializer(entityType)(valueBuffer) : null;
+            var entry = _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
+
+            AddToReferenceMap(entry);
+
             return entry;
         }
 

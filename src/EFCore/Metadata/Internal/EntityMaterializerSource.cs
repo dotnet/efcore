@@ -122,10 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Expression valueBufferExpression,
             int[] indexMap = null)
         {
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            var materializer = entityType as IEntityMaterializer;
-
-            if (materializer != null)
+            if (entityType is IEntityMaterializer materializer)
             {
                 return Expression.Call(
                     Expression.Constant(materializer),

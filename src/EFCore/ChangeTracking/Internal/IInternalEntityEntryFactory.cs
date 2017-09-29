@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         InternalEntityEntry Create(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityType entityType,
-            [NotNull] object entity,
+            [CanBeNull] object entity,
             ValueBuffer valueBuffer);
     }
 }

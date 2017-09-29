@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityClrType = propertyBase.DeclaringType.ClrType;
             var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
 
-            var shadowIndex = (propertyBase as IProperty)?.GetShadowIndex() ?? -1;
+            var shadowIndex = propertyBase.GetShadowIndex();
             Expression currentValueExpression;
             if (shadowIndex >= 0)
             {
