@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore
 
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
-        public IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
+        public override IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
         {
             foreach (var sequence in databaseModel.Sequences)
             {
@@ -1156,7 +1156,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            return CreateFromDatabaseModel(databaseModel, useDatabaseNames);
+            return base.Create(databaseModel, useDatabaseNames);
         }
 
         public FakeScaffoldingModelFactory(
@@ -1170,8 +1170,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] IPluralizer pluralizer)
             : base(
                 reporter,
-                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                new FakeDatabaseModelFactory(),
                 new CandidateNamingService(),
                 pluralizer,
                 new CSharpUtilities(),

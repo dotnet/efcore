@@ -165,6 +165,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string TypedFalseLiteral => "CAST(0 AS BIT)";
 
         /// <summary>
+        ///     Whether schemas should be generated when generating identifiers.
+        /// </summary>
+        protected virtual bool SupportsSchemas { get; } = true;
+
+        /// <summary>
+        ///     The default alias separator.
+        /// </summary>
+        protected virtual string AliasSeparator { get; } = " AS ";
+
+        /// <summary>
         ///     Visit a top-level SelectExpression.
         /// </summary>
         /// <param name="selectExpression"> The select expression. </param>
@@ -213,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     _relationalCommandBuilder.Append(", ");
                 }
 
-                ProcessExpressionList(selectExpression.Projection, GenerateProjection);
+                GenerateList(selectExpression.Projection, GenerateProjection);
 
                 projectionAdded = true;
             }
@@ -228,7 +238,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine()
                     .Append("FROM ");
 
-                ProcessExpressionList(selectExpression.Tables, sql => sql.AppendLine());
+                GenerateList(selectExpression.Tables, sql => sql.AppendLine());
+            }
+            else
+            {
+                GeneratorPseudoFromClause();
             }
 
             if (selectExpression.Predicate != null)
@@ -254,12 +268,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 if (selectExpression.Alias.Length > 0)
                 {
-                    _relationalCommandBuilder.Append(" AS ")
+                    _relationalCommandBuilder
+                        .Append(AliasSeparator)
                         .Append(SqlGenerator.DelimitIdentifier(selectExpression.Alias));
                 }
             }
 
             return selectExpression;
+        }
+
+        /// <summary>
+        ///     Generates a pseudo FROM clause. Required by some providers
+        ///     when a query has no actual FROM clause.
+        /// </summary>
+        protected virtual void GeneratorPseudoFromClause()
+        {
         }
 
         private Expression ApplyOptimizations(Expression expression, bool searchCondition, bool joinCondition = false)
@@ -373,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             _relationalCommandBuilder.Append("ORDER BY ");
 
-            ProcessExpressionList(orderings, GenerateOrdering);
+            GenerateList(orderings, GenerateOrdering);
         }
 
         /// <summary>
@@ -406,13 +429,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
         }
 
-        private void ProcessExpressionList(
-            IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
-            => ProcessExpressionList(expressions, e => Visit(e), joinAction);
+        /// <summary>
+        ///     Performs generation over a list of items by visiting each item.
+        /// </summary>
+        /// <param name="items">The list of items.</param>
+        /// <param name="joinAction">An optional join action.</param>
+        protected virtual void GenerateList(
+            [NotNull] IReadOnlyList<Expression> items, [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null)
+            => GenerateList(items, e => Visit(e), joinAction);
 
-        private void ProcessExpressionList<T>(
-            IReadOnlyList<T> items, Action<T> itemAction, Action<IRelationalCommandBuilder> joinAction = null)
+        /// <summary>
+        ///     Perform generation over a list of items using a provided generation action
+        ///     and optional join action.
+        /// </summary>
+        /// <typeparam name="T">The item type.</typeparam>
+        /// <param name="items">The list of items.</param>
+        /// <param name="generationAction">The generation action.</param>
+        /// <param name="joinAction">An optional join action.</param>
+        protected virtual void GenerateList<T>(
+            [NotNull] IReadOnlyList<T> items,
+            [NotNull] Action<T> generationAction,
+            [CanBeNull] Action<IRelationalCommandBuilder> joinAction = null)
         {
+            Check.NotNull(items, nameof(items));
+            Check.NotNull(generationAction, nameof(generationAction));
+
             joinAction = joinAction ?? (isb => isb.Append(", "));
 
             for (var i = 0; i < items.Count; i++)
@@ -422,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     joinAction(_relationalCommandBuilder);
                 }
 
-                itemAction(items[i]);
+                generationAction(items[i]);
             }
         }
 
@@ -604,14 +645,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
-            if (tableExpression.Schema != null)
+            if (SupportsSchemas
+                && tableExpression.Schema != null)
             {
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(tableExpression.Schema))
                     .Append(".");
             }
 
             _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(tableExpression.Table))
-                .Append(" AS ")
+                .Append(AliasSeparator)
                 .Append(SqlGenerator.DelimitIdentifier(tableExpression.Alias));
 
             return tableExpression;
@@ -726,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     _relationalCommandBuilder.Append(" IN (");
 
-                    ProcessExpressionList(inValuesNotNull);
+                    GenerateList(inValuesNotNull);
 
                     _relationalCommandBuilder.Append(")");
 
@@ -784,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                     _relationalCommandBuilder.Append(" NOT IN (");
 
-                    ProcessExpressionList(inValues);
+                    GenerateList(inValues);
 
                     _relationalCommandBuilder.Append(")");
                 }
@@ -1024,8 +1066,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AppendLine();
                 _relationalCommandBuilder.Append("THEN ");
 
-                if (conditionalExpression.IfTrue is ConstantExpression constantIfTrue
-                    && constantIfTrue.Type == typeof(bool))
+                if (conditionalExpression.IfTrue.RemoveConvert() is ConstantExpression constantIfTrue
+                    && constantIfTrue.Value != null
+                    && constantIfTrue.Type.UnwrapNullableType() == typeof(bool))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -1036,8 +1079,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 _relationalCommandBuilder.Append(" ELSE ");
 
-                if (conditionalExpression.IfFalse is ConstantExpression constantIfFalse
-                    && constantIfFalse.Type == typeof(bool))
+                if (conditionalExpression.IfFalse.RemoveConvert() is ConstantExpression constantIfFalse
+                    && constantIfFalse.Value != null
+                    && constantIfFalse.Type.UnwrapNullableType() == typeof(bool))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -1205,7 +1249,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             if (aliasExpression.Alias != null)
             {
-                _relationalCommandBuilder.Append(" AS ");
+                _relationalCommandBuilder.Append(AliasSeparator);
             }
 
             if (aliasExpression.Alias != null)
@@ -1310,7 +1354,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotEmpty(functionName, nameof(functionName));
             Check.NotNull(arguments, nameof(arguments));
 
-            if (!string.IsNullOrWhiteSpace(schema))
+            if (SupportsSchemas
+                && !string.IsNullOrWhiteSpace(schema))
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(schema))
@@ -1323,7 +1368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.Append(functionName);
             _relationalCommandBuilder.Append("(");
 
-            ProcessExpressionList(arguments);
+            GenerateList(arguments);
 
             _relationalCommandBuilder.Append(")");
 

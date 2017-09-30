@@ -42,6 +42,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Projection_when_client_evald_subquery()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Select(c => string.Join(", ", c.Orders.Select(o => o.CustomerID))));
+        }
+        
+        [ConditionalFact]
         public virtual void Project_to_object_array()
         {
             AssertQuery<Employee>(

@@ -135,8 +135,8 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
             base.From_sql_queryable_multiple_composed_with_closure_parameters();
 
             AssertSql(
-                @"@__8__locals1_startDate_1='01/01/1997 00:00:00'
-@__8__locals1_endDate_2='01/01/1998 00:00:00'
+                @"@__8__locals1_startDate_1='1997-01-01T00:00:00'
+@__8__locals1_endDate_2='1998-01-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -154,8 +154,8 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
 
             AssertSql(
                 @"@p0='London' (Size = 4000)
-@__8__locals1_startDate_1='01/01/1997 00:00:00'
-@__8__locals1_endDate_2='01/01/1998 00:00:00'
+@__8__locals1_startDate_1='1997-01-01T00:00:00'
+@__8__locals1_endDate_2='1998-01-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -167,8 +167,8 @@ CROSS JOIN (
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
                 @"@p0='Berlin' (Size = 4000)
-@__8__locals1_startDate_1='04/01/1998 00:00:00'
-@__8__locals1_endDate_2='05/01/1998 00:00:00'
+@__8__locals1_startDate_1='1998-04-01T00:00:00'
+@__8__locals1_endDate_2='1998-05-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -253,8 +253,8 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
 
             AssertSql(
                 @"@p0='London' (Size = 4000)
-@p1='01/01/1997 00:00:00'
-@p2='01/01/1998 00:00:00'
+@p1='1997-01-01T00:00:00'
+@p2='1998-01-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -266,8 +266,8 @@ CROSS JOIN (
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
                 @"@p0='Berlin' (Size = 4000)
-@p1='04/01/1998 00:00:00'
-@p2='05/01/1998 00:00:00'
+@p1='1998-04-01T00:00:00'
+@p2='1998-05-01T00:00:00'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -346,9 +346,9 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
                 @"SELECT [p].[ProductName]
 FROM (
     SELECT *
-    FROM Products
-    WHERE Discontinued <> 1
-    AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)
+    FROM ""Products""
+    WHERE ""Discontinued"" <> 1
+    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
 ) AS [p]");
         }
 

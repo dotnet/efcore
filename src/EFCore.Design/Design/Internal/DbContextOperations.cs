@@ -17,6 +17,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DbContextOperations
     {
         // TODO: Flow in from tools (issue #8332)
@@ -27,6 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly Assembly _startupAssembly;
         private readonly AppServiceProviderFactory _appServicesFactory;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         // NB: Used by Scaffolding. Break with care.
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
@@ -36,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected DbContextOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
@@ -52,6 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _appServicesFactory = appServicesFactory;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void DropDatabase([CanBeNull] string contextType)
         {
             using (var context = CreateContext(contextType))
@@ -69,6 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual DbContext CreateContext([CanBeNull] string contextType)
             => CreateContext(FindContextType(contextType).Value);
 
@@ -83,9 +103,17 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return context;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<Type> GetContextTypes()
             => FindContextTypes().Keys;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual Type GetContextType([CanBeNull] string name)
             => FindContextType(name).Key;
 
@@ -162,6 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return contexts;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ContextInfo GetContextInfo([CanBeNull] string contextType)
         {
             using (var context = CreateContext(contextType))

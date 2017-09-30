@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
@@ -14,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         private static readonly RelationalTypeMapping _int = new IntTypeMapping("int", DbType.Int32);
         private static readonly RelationalTypeMapping _long = new LongTypeMapping("DefaultLong", DbType.Int64);
         private static readonly RelationalTypeMapping _string = new StringTypeMapping("DefaultString", DbType.String);
-
-        protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
         public FakeRelationalTypeMapper(RelationalTypeMapperDependencies dependencies)
             : base(dependencies)

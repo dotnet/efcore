@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             foreach (var property in modelBuilder.Metadata.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
             {
                 property.Builder.HasAnnotation(
-                    RelationalAnnotationNames.TypeMapping,
+                    CoreAnnotationNames.TypeMapping,
                     _typeMapper.FindMapping(property),
                     ConfigurationSource.Convention);
             }

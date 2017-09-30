@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     throw new InvalidOperationException(
                         CoreStrings.NavigationIsProperty(
                             name, internalEntry.EntityType.DisplayName(),
-                            nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)));
+                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Property)));
                 }
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
             }
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 throw new InvalidOperationException(
                     CoreStrings.CollectionIsReference(
                         name, internalEntry.EntityType.DisplayName(),
-                        nameof(EntityEntry.Collection), nameof(EntityEntry.Reference)));
+                        nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Reference)));
             }
 
             if (!collection
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 throw new InvalidOperationException(
                     CoreStrings.ReferenceIsCollection(
                         name, internalEntry.EntityType.DisplayName(),
-                        nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)));
+                        nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection)));
             }
 
             return navigation;
@@ -161,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </value>
         public virtual bool IsLoaded
         {
-            get { return InternalEntry.IsLoaded(Metadata); }
-            set { InternalEntry.SetIsLoaded(Metadata, value); }
+            get => InternalEntry.IsLoaded(Metadata);
+            set => InternalEntry.SetIsLoaded(Metadata, value);
         }
 
         /// <summary>
@@ -170,8 +170,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         private IEntityFinder TargetFinder
-            => InternalEntry.StateManager.Context.GetDependencies().EntityFinderSource
-                .Create(InternalEntry.StateManager.Context, Metadata.GetTargetType());
+            => InternalEntry.StateManager.CreateEntityFinder(Metadata.GetTargetType());
 
         /// <summary>
         ///     Gets or sets a value indicating whether any of foreign key property values associated

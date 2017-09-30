@@ -12,10 +12,60 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ChangeTrackerTest
     {
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Can_remove_dependent_identifying_one_to_many(bool saveEntities)
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var product = new Product();
+                var order = new Order();
+                var orderDetails = new OrderDetails { Order = order, Product = product };
+
+                context.Add(orderDetails);
+                if (saveEntities)
+                {
+                    context.SaveChanges();
+                }
+
+                var expectedState = saveEntities ? EntityState.Unchanged : EntityState.Added;
+
+                Assert.Equal(expectedState, context.Entry(product).State);
+                Assert.Equal(expectedState, context.Entry(order).State);
+                Assert.Equal(expectedState, context.Entry(orderDetails).State);
+
+                Assert.Same(orderDetails, product.OrderDetails.Single());
+                Assert.Same(orderDetails, order.OrderDetails.Single());
+
+                order.OrderDetails.Remove(orderDetails);
+
+                Assert.Equal(expectedState, context.Entry(product).State);
+                Assert.Equal(expectedState, context.Entry(order).State);
+                Assert.Equal(saveEntities ? EntityState.Deleted : EntityState.Detached, context.Entry(orderDetails).State);
+
+                Assert.Empty(product.OrderDetails);
+                Assert.Empty(order.OrderDetails);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(order).State);
+                Assert.Equal(EntityState.Detached, context.Entry(orderDetails).State);
+
+                Assert.Empty(product.OrderDetails);
+                Assert.Empty(order.OrderDetails);
+            }
+        }
+
         [Fact]
         public void Can_get_all_entries()
         {
@@ -565,9 +615,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     category, e =>
                         {
                             traversal.Add(NodeString(e));
-                            var product = e.Entry.Entity as Product;
-                            if ((product == null)
-                                || (product.Id != 2))
+                            if (!(e.Entry.Entity is Product product)
+                                || product.Id != 2)
                             {
                                 e.Entry.State = EntityState.Unchanged;
                             }
@@ -645,8 +694,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                             e =>
                                 {
                                     traversal.Add(NodeString(e));
-                                    var product = e.Entry.Entity as Product;
-                                    e.Entry.State = (product != null) && (product.Id == 0) ? EntityState.Added : EntityState.Unchanged;
+                                    e.Entry.State = e.Entry.Entity is Product product && product.Id == 0
+                                        ? EntityState.Added : EntityState.Unchanged;
                                 });
 
                         Assert.Equal(
@@ -1435,6 +1484,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public ProductDetails Details { get; set; }
 
+            // ReSharper disable once CollectionNeverUpdated.Local
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public List<OrderDetails> OrderDetails { get; set; }
         }
 
@@ -1471,6 +1522,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             public int Id { get; set; }
 
+            // ReSharper disable once CollectionNeverUpdated.Local
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public List<OrderDetails> OrderDetails { get; set; }
         }
 
@@ -1491,11 +1544,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class NullbileCategoryInfo
         {
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public NullbileCategory Category { get; set; }
         }
 
         private class NullbileProduct
         {
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public NullbileCategory Category { get; set; }
         }
 

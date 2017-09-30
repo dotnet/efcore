@@ -81,9 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual TContext Rent()
         {
-            TContext context;
-
-            if (_pool.TryDequeue(out context))
+            if (_pool.TryDequeue(out var context))
             {
                 Interlocked.Decrement(ref _count);
 
@@ -141,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             _maxSize = 0;
 
-            TContext context;
-            while (_pool.TryDequeue(out context))
+            while (_pool.TryDequeue(out var context))
             {
                 context.Dispose();
             }

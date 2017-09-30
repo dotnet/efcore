@@ -24,6 +24,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalEventIdTest
@@ -89,6 +90,9 @@ namespace Microsoft.EntityFrameworkCore
             public int? CommandTimeout { get; set; }
             public bool IsMultipleActiveResultSetsEnabled => throw new NotImplementedException();
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
+            public System.Transactions.Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(System.Transactions.Transaction transaction) => throw new NotImplementedException();
+
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
             public void RegisterBufferable(IBufferable bufferable) => throw new NotImplementedException();
             public Task RegisterBufferableAsync(IBufferable bufferable, CancellationToken cancellationToken) => throw new NotImplementedException();

@@ -64,6 +64,8 @@ namespace Microsoft.EntityFrameworkCore
         private bool _initializing;
         private bool _disposed;
 
+        private AsyncLocal<bool> _leased;
+        
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="DbContext" /> class. The
@@ -143,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IEntityFinderSource IDbContextDependencies.EntityFinderSource => DbContextDependencies.EntityFinderSource;
+        IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -215,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 
-            return DbContextDependencies.EntityFinderSource.Create(this, entityType);
+            return DbContextDependencies.EntityFinderFactory.Create(entityType);
         }
 
         private IServiceProvider InternalServiceProvider
@@ -276,9 +278,10 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextDependencies DbContextDependencies
             => _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<IDbContextDependencies>());
 
+        [DebuggerStepThrough]
         internal void CheckDisposed()
         {
-            if (_disposed)
+            if (_disposed || _leased?.Value == false)
             {
                 throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
             }
@@ -295,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured" /> to determine if
         ///         the options have already been set, and skip some or all of the logic in
         ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />.
-        ///     </para>        
+        ///     </para>
         /// </summary>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
@@ -481,6 +484,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(contextPool, nameof(contextPool));
 
             _dbContextPool = contextPool;
+            _leased = new AsyncLocal<bool> { Value = true };
         }
 
         DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
@@ -488,10 +492,10 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
                 _database?.AutoTransactionsEnabled);
-
+        
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
-            _disposed = false;
+            _leased.Value = true;
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
@@ -511,7 +515,10 @@ namespace Microsoft.EntityFrameworkCore
 
         void IDbContextPoolable.ResetState()
         {
-            var resettableServices = _contextServices?.InternalServiceProvider?.GetService<IEnumerable<IResettableService>>()?.ToList();
+            var resettableServices 
+                = _contextServices?.InternalServiceProvider?
+                    .GetService<IEnumerable<IResettableService>>()?.ToList();
+
             if (resettableServices != null)
             {
                 foreach (var service in resettableServices)
@@ -520,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            _disposed = true;
+            _leased.Value = false;
         }
 
         /// <summary>
@@ -529,7 +536,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Dispose()
         {
             if (_dbContextPool == null
-                || !_dbContextPool.Return(this))
+                || _leased.Value
+                && !_dbContextPool.Return(this))
             {
                 if (!_disposed)
                 {

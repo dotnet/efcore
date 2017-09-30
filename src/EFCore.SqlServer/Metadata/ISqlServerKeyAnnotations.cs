@@ -3,8 +3,16 @@
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
+    /// <summary>
+    ///     Properties for relational-specific annotations accessed through
+    ///     <see cref="SqlServerMetadataExtensions.SqlServer(IKey)" />.
+    /// </summary>
     public interface ISqlServerKeyAnnotations : IRelationalKeyAnnotations
     {
+        /// <summary>
+        ///     Whether or not the key is clustered, or <c>null</c> if clustering has not
+        ///     been specified.
+        /// </summary>
         bool? IsClustered { get; }
     }
 }

@@ -70,8 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var newArguments = methodCallExpression.Arguments.ToArray();
 
-                    Expression newLambdaExpression
-                        = Expression.Lambda<Func<IEnumerable<object>>>(subQueryExpression);
+                    Expression newLambdaExpression = Expression.Lambda(subQueryExpression);
 
                     if (convertExpression != null)
                     {

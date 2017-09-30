@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => _context.UpdateRange(entities);
 
         private IEntityFinder<TEntity> Finder
-            => (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderSource.Create(_context, EntityType);
+            => (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => EntityQueryable.GetEnumerator();
 

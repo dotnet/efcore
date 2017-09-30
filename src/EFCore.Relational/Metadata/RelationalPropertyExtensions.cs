@@ -37,14 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return false;
             }
 
-            var pk = property.DeclaringEntityType.FindPrimaryKey();
-            return pk != null
-                   && property.DeclaringEntityType.FindForeignKeys(pk.Properties)
-                       .Any(
-                           fk => fk.PrincipalKey.IsPrimaryKey()
-                                 && fk.PrincipalEntityType.BaseType != null
-                                 && fk.DeclaringEntityType.Relational().TableName == fk.PrincipalEntityType.Relational().TableName
-                                 && fk.DeclaringEntityType.Relational().Schema == fk.PrincipalEntityType.Relational().Schema);
+            return property.DeclaringEntityType.FindPrimaryKey()?.Properties.First()
+                ?.FindSharedTableLink()?.PrincipalEntityType.BaseType != null;
         }
     }
 }

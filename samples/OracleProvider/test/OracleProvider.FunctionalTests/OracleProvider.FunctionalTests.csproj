@@ -1,0 +1,115 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT' OR '$(CoreOnly)' == 'True'">netcoreapp2.0</TargetFrameworks>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Oracle.FunctionalTests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Query\**" />
+    <Compile Remove="Scaffolding\**" />
+    <Compile Remove="TestUtilities\**" />
+    <EmbeddedResource Remove="Query\**" />
+    <EmbeddedResource Remove="Scaffolding\**" />
+    <EmbeddedResource Remove="SqlAzure\**" />
+    <EmbeddedResource Remove="TestUtilities\**" />
+    <None Remove="Query\**" />
+    <None Remove="Scaffolding\**" />
+    <None Remove="TestUtilities\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="BatchingTest.cs" />
+    <Compile Remove="ExecutionStrategyTest.cs" />
+    <Compile Remove="MemoryOptimizedTablesTest.cs" />
+    <Compile Remove="MigrationsOracleTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="config.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Query\AsNoTrackingOracleTest.cs" />
+    <Compile Include="Query\AsTrackingOracleTest.cs" />
+    <Compile Include="Query\AsyncFromSqlQueryOracleTest.cs" />
+    <Compile Include="Query\AsyncFromSqlSprocQueryOracleTest.cs" />
+    <Compile Include="Query\AsyncIncludeOracleTest.cs" />
+    <Compile Include="Query\AsyncQueryNavigationsOracleTests.cs" />
+    <Compile Include="Query\AsyncSimpleQueryOracleTest.cs" />
+    <Compile Include="Query\ChangeTrackingOracleTest.cs" />
+    <Compile Include="Query\CompiledQueryOracleTest.cs" />
+    <Compile Include="Query\ComplexNavigationsOwnedQueryOracleFixture.cs" />
+    <Compile Include="Query\ComplexNavigationsOwnedQueryOracleTest.cs" />
+    <Compile Include="Query\ComplexNavigationsQueryOracleFixture.cs" />
+    <Compile Include="Query\ComplexNavigationsQueryOracleTest.cs" />
+    <Compile Include="Query\DbFunctionsOracleTest.cs" />
+    <Compile Include="Query\FiltersInheritanceOracleFixture.cs" />
+    <Compile Include="Query\FiltersInheritanceOracleTest.cs" />
+    <Compile Include="Query\FiltersOracleTest.cs" />
+    <Compile Include="Query\FromSqlQueryOracleTest.cs" />
+    <Compile Include="Query\FromSqlSprocQueryOracleTest.cs" />
+    <Compile Include="Query\FunkyDataQueryOracleFixture.cs" />
+    <Compile Include="Query\FunkyDataQueryOracleTest.cs" />
+    <Compile Include="Query\GearsOfWarFromSqlQueryOracleTest.cs" />
+    <Compile Include="Query\GearsOfWarQueryOracleFixture.cs" />
+    <Compile Include="Query\GearsOfWarQueryOracleTest.cs" />
+    <Compile Include="Query\IncludeOneToOneOracleTest.cs" />
+    <Compile Include="Query\IncludeOracleFixture.cs" />
+    <Compile Include="Query\IncludeOracleTest.cs" />
+    <Compile Include="Query\InheritanceOracleFixture.cs" />
+    <Compile Include="Query\InheritanceRelationshipsQueryOracleFixture.cs" />
+    <Compile Include="Query\InheritanceRelationshipsQueryOracleTest.cs" />
+    <Compile Include="Query\InheritanceOracleTest.cs" />
+    <Compile Include="Query\MappingQueryOracleTest.cs" />
+    <Compile Include="Query\NavigationTest.cs" />
+    <Compile Include="Query\NorthwindQueryOracleFixture.cs" />
+    <Compile Include="Query\NullKeysOracleTest.cs" />
+    <Compile Include="Query\NullSemanticsQueryOracleFixture.cs" />
+    <Compile Include="Query\NullSemanticsQueryOracleTest.cs" />
+    <Compile Include="Query\OwnedQueryOracleTest.cs" />
+    <Compile Include="Query\QueryLoggingOracleTest.cs" />
+    <Compile Include="Query\QueryNavigationsOracleTest.cs" />
+    <Compile Include="Query\QueryNoClientEvalOracleFixture.cs" />
+    <Compile Include="Query\QueryNoClientEvalOracleTest.cs" />
+    <Compile Include="Query\SimpleQueryOracleTest.cs" />
+    <Compile Include="Query\SqlExecutorOracleTest.cs" />
+    <Compile Include="Query\UdfDbFunctionOracleTests.cs" />
+    <Compile Include="Query\WarningsOracleTest.cs" />
+    <Compile Include="TestUtilities\DbContextOptionsBuilderExtensions.cs" />
+    <Compile Include="TestUtilities\OracleNorthwindTestStoreFactory.cs" />
+    <Compile Include="TestUtilities\OracleTestStore.cs" />
+    <Compile Include="TestUtilities\OracleTestStoreFactory.cs" />
+    <Compile Include="TestUtilities\OracleTestHelpers.cs" />
+    <Compile Include="TestUtilities\TestEnvironment.cs" />
+    <Compile Include="TestUtilities\TestOracleRetryingExecutionStrategy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\test\xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\EFCore.Relational.Specification.Tests\EFCore.Relational.Specification.Tests.csproj" />
+    <ProjectReference Include="..\..\src\OracleProvider\OracleProvider.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Update="Northwind.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

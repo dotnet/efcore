@@ -214,4 +214,7 @@
     <value>Foreign key {fkName} is defined on table {tableName} which is not included in the selection set. Skipping.</value>
     <comment>Debug SqlServerEventId.ForeignKeyTableMissingWarning string string</comment>
   </data>
+  <data name="DuplicateColumnNameValueGenerationStrategyMismatch" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different value generation strategies.</value>
+  </data>
 </root>

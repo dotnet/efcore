@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
@@ -94,21 +95,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var includeExpression
                         = blockExpressions.Last().Type == typeof(Task)
-                            ? (Expression)Expression.Property(
-                                Expression.Call(
-                                    _includeAsyncMethodInfo
-                                        .MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
-                                    EntityQueryModelVisitor.QueryContextParameter,
-                                    targetQuerySourceReferenceExpression,
-                                    Expression.NewArrayInit(typeof(object), propertyExpressions),
-                                    Expression.Lambda(
-                                        Expression.Block(blockExpressions),
+                            ? new TaskBlockingExpressionVisitor()
+                                .Visit(
+                                    Expression.Call(
+                                        _includeAsyncMethodInfo
+                                            .MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
                                         EntityQueryModelVisitor.QueryContextParameter,
-                                        entityParameter,
-                                        _includedParameter,
-                                        _cancellationTokenParameter),
-                                    _cancellationTokenParameter),
-                                nameof(Task<object>.Result))
+                                        targetQuerySourceReferenceExpression,
+                                        Expression.NewArrayInit(typeof(object), propertyExpressions),
+                                        Expression.Lambda(
+                                            Expression.Block(blockExpressions),
+                                            EntityQueryModelVisitor.QueryContextParameter,
+                                            entityParameter,
+                                            _includedParameter,
+                                            _cancellationTokenParameter),
+                                        _cancellationTokenParameter))
                             : Expression.Call(
                                 _includeMethodInfo.MakeGenericMethod(targetQuerySourceReferenceExpression.Type),
                                 EntityQueryModelVisitor.QueryContextParameter,

@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Transactions;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -65,6 +68,69 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual void Dispose()
         {
+        }
+
+        public static IDisposable CreateTransactionScope(bool useTransaction = true)
+        {
+            if (useTransaction)
+            {
+                var transaction = new CommittableTransaction(TimeSpan.FromMinutes(10));
+                return new CompositeDisposable(
+                    new DistributedTransactionListener(),
+                    transaction,
+                    new TransactionScope(transaction, TimeSpan.FromMinutes(10), TransactionScopeAsyncFlowOption.Enabled));
+            }
+
+            return new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
+        }
+
+        private class DistributedTransactionListener : IDisposable
+        {
+            public DistributedTransactionListener()
+            {
+                TransactionManager.DistributedTransactionStarted += DistributedTransactionStarted;
+            }
+
+            private void DistributedTransactionStarted(object sender, TransactionEventArgs e)
+            {
+                Assert.False(true, "Distributed transaction started");
+            }
+
+            public void Dispose()
+            {
+                TransactionManager.DistributedTransactionStarted -= DistributedTransactionStarted;
+            }
+        }
+
+        private class CompositeDisposable : IDisposable
+        {
+            private readonly IDisposable[] _disposables;
+            public CompositeDisposable(params IDisposable[] disposables)
+            {
+                _disposables = disposables;
+            }
+
+            public void Dispose()
+            {
+                var exceptions = new List<Exception>();
+                // ReSharper disable once ForCanBeConvertedToForeach
+                for (var i = _disposables.Length - 1; i >= 0; i--)
+                {
+                    try
+                    {
+                        _disposables[i].Dispose();
+                    }
+                    catch (Exception e)
+                    {
+                        exceptions.Add(e);
+                    }
+                }
+
+                if (exceptions.Count > 0)
+                {
+                    throw new AggregateException(exceptions);
+                }
+            }
         }
     }
 }

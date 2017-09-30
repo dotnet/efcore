@@ -93,66 +93,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private string GetDefaultColumnName()
         {
-            var entityType = Property.DeclaringEntityType;
-            var pk = Property.GetContainingPrimaryKey();
-            if (pk != null)
+            var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTablePrincipalPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
-                foreach (var fk in entityType.FindForeignKeys(pk.Properties))
-                {
-                    if (!fk.PrincipalKey.IsPrimaryKey())
-                    {
-                        continue;
-                    }
-
-                    var principalEntityType = fk.PrincipalEntityType;
-                    var entityTypeAnnotations = GetAnnotations(entityType);
-                    var principalTypeAnnotations = GetAnnotations(principalEntityType);
-                    if (entityTypeAnnotations.TableName == principalTypeAnnotations.TableName
-                        && entityTypeAnnotations.Schema == principalTypeAnnotations.Schema)
-                    {
-                        return GetAnnotations(principalEntityType.FindPrimaryKey().Properties[pk.IndexOf(Property)]).ColumnName;
-                    }
-                }
+                return GetAnnotations(sharedTablePrincipalPrimaryKeyProperty).ColumnName;
             }
-            else
+
+            var entityType = Property.DeclaringEntityType;
+            StringBuilder builder = null;
+            do
             {
-                StringBuilder builder = null;
-                do
+                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                if (ownership == null)
                 {
-                    var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                    if (ownership == null)
+                    entityType = null;
+                }
+                else
+                {
+                    var ownerType = ownership.PrincipalEntityType;
+                    var entityTypeAnnotations = GetAnnotations(entityType);
+                    var ownerTypeAnnotations = GetAnnotations(ownerType);
+                    if (entityTypeAnnotations.TableName == ownerTypeAnnotations.TableName
+                        && entityTypeAnnotations.Schema == ownerTypeAnnotations.Schema)
                     {
-                        entityType = null;
+                        if (builder == null)
+                        {
+                            builder = new StringBuilder();
+                        }
+                        builder.Insert(0, "_");
+                        builder.Insert(0, ownership.PrincipalToDependent.Name);
+                        entityType = ownerType;
                     }
                     else
                     {
-                        var ownerType = ownership.PrincipalEntityType;
-                        var entityTypeAnnotations = GetAnnotations(entityType);
-                        var ownerTypeAnnotations = GetAnnotations(ownerType);
-                        if (entityTypeAnnotations.TableName == ownerTypeAnnotations.TableName
-                            && entityTypeAnnotations.Schema == ownerTypeAnnotations.Schema)
-                        {
-                            if (builder == null)
-                            {
-                                builder = new StringBuilder();
-                            }
-                            builder.Insert(0, "_");
-                            builder.Insert(0, ownership.PrincipalToDependent.Name);
-                            entityType = ownerType;
-                        }
-                        else
-                        {
-                            entityType = null;
-                        }
+                        entityType = null;
                     }
                 }
-                while (entityType != null);
+            }
+            while (entityType != null);
 
-                if (builder != null)
-                {
-                    builder.Append(Property.Name);
-                    return builder.ToString();
-                }
+            if (builder != null)
+            {
+                builder.Append(Property.Name);
+                return builder.ToString();
             }
 
             return Property.Name;
@@ -175,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ColumnType
         {
             get => (string)Annotations.Metadata[RelationalAnnotationNames.ColumnType]
-                   ?? ((RelationalTypeMapping)Annotations.Metadata[RelationalAnnotationNames.TypeMapping])?.StoreType;
+                   ?? Property.FindRelationalMapping()?.StoreType;
+
             [param: CanBeNull] set => SetColumnType(value);
         }
 

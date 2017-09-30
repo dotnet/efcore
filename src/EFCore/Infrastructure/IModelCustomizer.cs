@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This interface is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///         When replacing this service consider deriving the implementation from <see cref="ModelCustomizer"/> or
+    ///         'RelationalModelCustomizer' to preserve the default behavior.
+    ///     </para>
     /// </summary>
     public interface IModelCustomizer
     {

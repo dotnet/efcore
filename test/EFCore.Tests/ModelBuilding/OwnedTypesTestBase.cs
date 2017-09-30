@@ -1,9 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -223,6 +226,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
+            }
+
+            [Fact]
+            public virtual void Reconfiguring_entity_type_as_owned_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CustomerDetails>();
+
+                Assert.Equal(CoreStrings.ClashingNonDependentEntityType(
+                    nameof(Customer) + "." + nameof(Customer.Details) + "#" + nameof(CustomerDetails)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)).Message);
             }
         }
     }

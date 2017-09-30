@@ -59,5 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 .GetMapping("varchar(max)").GenerateSqlLiteral("A Non-Unicode String");
             Assert.Equal("'A Non-Unicode String'", literal);
         }
+
+        protected override DbContextOptions ContextOptions { get; }
+            = new DbContextOptionsBuilder().UseSqlServer("Server=Dummy").Options;
     }
 }

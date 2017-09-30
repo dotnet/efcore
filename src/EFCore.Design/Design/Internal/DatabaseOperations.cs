@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class DatabaseOperations
     {
         private readonly IOperationReporter _reporter;
@@ -17,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public DatabaseOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly startupAssembly,
@@ -35,6 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual ReverseEngineerFiles ScaffoldContext(
             [NotNull] string provider,
             [NotNull] string connectionString,
@@ -53,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var services = _servicesBuilder.Build(provider);
 
-            var generator = services.GetRequiredService<IModelScaffolder>();
+            var generator = services.GetRequiredService<IReverseEngineerScaffolder>();
 
             return generator.Generate(
                 connectionString,

@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var property = new Model().AddEntityType("MyType").AddProperty("MyProp", typeof(string));
             property.IsNullable = nullable;
+            property[CoreAnnotationNames.TypeMapping] = typeMapper.GetMapping(property);
 
             var parameterBuilder = new RelationalParameterBuilder(typeMapper);
 

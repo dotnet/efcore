@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -121,8 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     querySourceReferenceExpression);
 
                 Expression collectionLambdaExpression
-                    = Expression.Lambda<Func<IEnumerable<object>>>(
-                        new SubQueryExpression(collectionQueryModel));
+                    = Expression.Lambda(new SubQueryExpression(collectionQueryModel));
 
                 var includeCollectionMethodInfo = _queryBufferIncludeCollectionMethodInfo;
 
@@ -130,10 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (asyncQuery)
                 {
+                    var asyncEnumerableType 
+                        = typeof(IAsyncEnumerable<>).MakeGenericType(targetType);
+
                     collectionLambdaExpression
                         = Expression.Convert(
                             collectionLambdaExpression,
-                            typeof(Func<IAsyncEnumerable<object>>));
+                            typeof(Func<>).MakeGenericType(asyncEnumerableType));
 
                     includeCollectionMethodInfo = _queryBufferIncludeCollectionAsyncMethodInfo;
                     cancellationTokenExpression = _cancellationTokenParameter;
@@ -171,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Constant(inverseNavigation?.GetSetter(), typeof(IClrPropertySetter)),
                     Expression.Constant(trackingQuery),
                     targetEntityExpression,
-                    relatedCollectionFuncExpression
+                    relatedCollectionFuncExpression,
+                    TryCreateJoinPredicate(targetEntityExpression.Type, navigation)
                 };
 
                 if (cancellationTokenExpression != null)
@@ -179,12 +183,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     arguments.Add(cancellationTokenExpression);
                 }
 
-                var includeCollectionMethodCall =
-                    Expression.Call(
+                var includeCollectionMethodCall
+                    = Expression.Call(
                         Expression.Property(
                             EntityQueryModelVisitor.QueryContextParameter,
                             nameof(QueryContext.QueryBuffer)),
-                        includeCollectionMethodInfo,
+                        includeCollectionMethodInfo
+                            .MakeGenericMethod(targetEntityExpression.Type, navigation.GetTargetType().ClrType),
                         arguments);
 
                 return
@@ -196,6 +201,84 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             includeCollectionMethodCall,
                             Expression.Default(includeCollectionMethodInfo.ReturnType))
                         : (Expression)includeCollectionMethodCall;
+            }
+
+            private static Expression TryCreateJoinPredicate(Type targetType, INavigation navigation)
+            {
+                var foreignKey = navigation.ForeignKey;
+                var primaryKeyProperties = foreignKey.PrincipalKey.Properties;
+                var foreignKeyProperties = foreignKey.Properties;
+                var relatedType = navigation.GetTargetType().ClrType;
+
+                if (primaryKeyProperties.Any(p => p.IsShadowProperty)
+                    || foreignKeyProperties.Any(p => p.IsShadowProperty))
+                {
+                    return
+                        Expression.Default(typeof(Func<,,>)
+                            .MakeGenericType(targetType, relatedType, typeof(bool)));
+                }
+
+                var targetEntityParameter = Expression.Parameter(targetType, "p");
+                var relatedEntityParameter = Expression.Parameter(relatedType, "d");
+
+                return Expression.Lambda(
+                    primaryKeyProperties.Zip(foreignKeyProperties,
+                            (pk, fk) =>
+                            {
+                                Expression pkMemberAccess 
+                                    = Expression.MakeMemberAccess(
+                                        targetEntityParameter,
+                                        pk.GetMemberInfo(forConstruction: false, forSet: false));
+
+                                Expression fkMemberAccess
+                                    = Expression.MakeMemberAccess(
+                                        relatedEntityParameter,
+                                        fk.GetMemberInfo(forConstruction: false, forSet: false));
+                                
+                                if (pkMemberAccess.Type != fkMemberAccess.Type)
+                                {
+                                    if (pkMemberAccess.Type.IsNullableType())
+                                    {
+                                        fkMemberAccess = Expression.Convert(fkMemberAccess, pkMemberAccess.Type);
+                                    }
+                                    else
+                                    {
+                                        pkMemberAccess = Expression.Convert(pkMemberAccess, fkMemberAccess.Type);
+                                    }
+                                }
+                                
+                                Expression equalityExpression;
+
+                                if (typeof(IStructuralEquatable).GetTypeInfo()
+                                    .IsAssignableFrom(pkMemberAccess.Type.GetTypeInfo()))
+                                {
+                                    equalityExpression
+                                        = Expression.Call(_structuralEqualsMethod, pkMemberAccess, fkMemberAccess);
+                                }
+                                else
+                                {
+                                    equalityExpression = Expression.Equal(pkMemberAccess, fkMemberAccess);
+                                }
+
+                                return fk.ClrType.IsNullableType()
+                                    ? Expression.Condition(
+                                        Expression.Equal(fkMemberAccess, Expression.Default(fk.ClrType)),
+                                        Expression.Constant(false),
+                                        equalityExpression)
+                                    : equalityExpression;
+                            })
+                        .Aggregate((e1, e2) => Expression.AndAlso(e1, e2)),
+                    targetEntityParameter,
+                    relatedEntityParameter);
+            }
+
+            private static readonly MethodInfo _structuralEqualsMethod
+                = typeof(IncludeLoadTreeNode).GetTypeInfo()
+                    .GetDeclaredMethod(nameof(StructuralEquals));
+
+            private static bool StructuralEquals(object x, object y)
+            {
+                return StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
             }
 
             private Expression CompileReferenceInclude(

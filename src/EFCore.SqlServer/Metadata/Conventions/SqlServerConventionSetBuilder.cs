@@ -9,10 +9,18 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
+    /// <summary>
+    ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+    ///     directly from your code. This API may change or be removed in future releases.
+    /// </summary>
     public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
     {
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public SqlServerConventionSetBuilder(
             [NotNull] RelationalConventionSetBuilderDependencies dependencies,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper)
@@ -21,6 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             _sqlGenerationHelper = sqlGenerationHelper;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override ConventionSet AddConventions(ConventionSet conventionSet)
         {
             Check.NotNull(conventionSet, nameof(conventionSet));
@@ -62,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return conventionSet;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static ConventionSet Build()
         {
             var sqlServerTypeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());

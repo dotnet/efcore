@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override int GetPropertyIndex(IPropertyBase propertyBase)
-            => (propertyBase as IProperty)?.GetOriginalValueIndex() ?? -1;
+            => propertyBase.GetOriginalValueIndex();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

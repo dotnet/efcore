@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -213,17 +214,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual bool EnsureCreated()
         {
-            if (!Exists())
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                Create();
-                CreateTables();
-                return true;
-            }
+                if (!Exists())
+                {
+                    Create();
+                    CreateTables();
+                    return true;
+                }
 
-            if (!HasTables())
-            {
-                CreateTables();
-                return true;
+                if (!HasTables())
+                {
+                    CreateTables();
+                    return true;
+                }
             }
 
             return false;
@@ -241,19 +245,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (!await ExistsAsync(cancellationToken))
+            using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAsync(cancellationToken);
-                await CreateTablesAsync(cancellationToken);
+                if (!await ExistsAsync(cancellationToken))
+                {
+                    await CreateAsync(cancellationToken);
+                    await CreateTablesAsync(cancellationToken);
 
-                return true;
-            }
+                    return true;
+                }
 
-            if (!await HasTablesAsync(cancellationToken))
-            {
-                await CreateTablesAsync(cancellationToken);
+                if (!await HasTablesAsync(cancellationToken))
+                {
+                    await CreateTablesAsync(cancellationToken);
 
-                return true;
+                    return true;
+                }
             }
 
             return false;

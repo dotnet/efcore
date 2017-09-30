@@ -533,7 +533,7 @@ LEFT JOIN (
 ) AS [t] ON [w].[OwnerFullName] = [t].[FullName]
 LEFT JOIN [Cities] AS [w.Owner.CityOfBirth] ON [t].[CityOrBirthName] = [w.Owner.CityOfBirth].[Name]
 WHERE ([t].[Nickname] <> N'Paduk') OR [t].[Nickname] IS NULL
-ORDER BY [w.Owner.CityOfBirth].[Name]");
+ORDER BY [w.Owner.CityOfBirth].[Name], [w].[Id]");
         }
 
         public override void Where_enum()
@@ -2823,7 +2823,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
             base.DateTimeOffset_Date_works();
 
             AssertSql(
-                @"@__Date_0='01/01/0001 00:00:00'
+                @"@__Date_0='0001-01-01T00:00:00'
 
 SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
 FROM [Missions] AS [m]
@@ -4190,6 +4190,23 @@ INNER JOIN (
     WHERE [g.Reports0].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t1] ON [g.Squad.Missions].[SquadId] = [t1].[Id]
 ORDER BY [t1].[Nickname], [t1].[SquadId], [t1].[Id]");
+        }
+
+        public override void Projecting_nullable_bool_in_conditional_works()
+        {
+            base.Projecting_nullable_bool_in_conditional_works();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [cg].[GearNickName] IS NOT NULL OR [cg].[GearSquadId] IS NOT NULL
+    THEN [t].[HasSoulPatch] ELSE CAST(0 AS BIT)
+END AS [Prop]
+FROM [Tags] AS [cg]
+LEFT JOIN (
+    SELECT [cg.Gear].*
+    FROM [Gears] AS [cg.Gear]
+    WHERE [cg.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON ([cg].[GearNickName] = [t].[Nickname]) AND ([cg].[GearSquadId] = [t].[SquadId])");
         }
 
         private void AssertSql(params string[] expected)

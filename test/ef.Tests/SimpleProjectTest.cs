@@ -130,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     TargetDir = TargetDir,
                     References =
                     {
+                        BuildReference.ByName("System.Collections.Immutable", true),
                         BuildReference.ByName("System.Diagnostics.DiagnosticSource", true),
                         BuildReference.ByName("System.Interactive.Async", true),
                         BuildReference.ByName("System.Data.SqlClient", true),

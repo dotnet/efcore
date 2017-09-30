@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -55,7 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             _model = new LazyRef<IModel>(
                 () =>
                     {
-                        var modelBuilder = new ModelBuilder(new ConventionSet());
+                        var modelBuilder = new ModelBuilder(
+                            Dependencies.ConventionSetBuilder.AddConventions(
+                                Dependencies.CoreConventionSetBuilder.CreateConventionSet()));
                         modelBuilder.Entity<HistoryRow>(
                             x =>
                                 {

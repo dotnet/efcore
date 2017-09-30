@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -11,8 +12,11 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
@@ -276,6 +280,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [Fact]
+        public void Create_shared_table_with_two_entity_types()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity("Order", eb =>
+                            {
+                                eb.Property<int>("Id");
+                                eb.ToTable("Orders");
+                            });
+                        modelBuilder.Entity("Details", eb =>
+                            {
+                                eb.Property<int>("Id");
+                                eb.Property<DateTime>("Time");
+                                eb.HasOne("Order").WithOne().HasForeignKey("Details", "Id");
+                                eb.ToTable("Orders");
+                            });
+                    },
+                operations =>
+                    {
+                        Assert.Equal(1, operations.Count);
+
+                        var createTableOperation = Assert.IsType<CreateTableOperation>(operations[0]);
+                        Assert.Equal(2, createTableOperation.Columns.Count);
+                        var idColumn = createTableOperation.Columns[0];
+                        Assert.Equal("Id", idColumn.Name);
+                        Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, idColumn["SqlServer:ValueGenerationStrategy"]);
+                        var timeColumn = createTableOperation.Columns[1];
+                        Assert.Equal("Time", timeColumn.Name);
+                        Assert.False(timeColumn.IsNullable);
+                    });
+        }
+
+        [Fact]
         public void Alter_index_clustering()
         {
             Execute(
@@ -364,10 +403,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
-        protected override MigrationsModelDiffer CreateModelDiffer()
+        protected override MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
             => new MigrationsModelDiffer(
                 new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()));
+                new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                ctx.GetService<IChangeDetector>(),
+                ctx.GetService<StateManagerDependencies>(),
+                ctx.GetService<CommandBatchPreparerDependencies>());
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;

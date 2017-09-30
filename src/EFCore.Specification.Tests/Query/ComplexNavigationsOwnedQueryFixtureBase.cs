@@ -21,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Ignore<Level2>();
+            modelBuilder.Ignore<Level3>();
+            modelBuilder.Ignore<Level4>();
+
             modelBuilder.Entity<Level1>().Property(e => e.Id).ValueGeneratedNever();
 
             modelBuilder.Entity<Level1>()

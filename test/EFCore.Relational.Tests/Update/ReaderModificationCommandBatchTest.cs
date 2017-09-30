@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Update
@@ -506,8 +507,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             nonKey.Relational().ColumnName = "Col2";
             nonKey.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnAddOrUpdate : ValueGenerated.Never;
 
+            GenerateMapping(key);
+            GenerateMapping(nonKey);
+
             return model;
         }
+
+        private static void GenerateMapping(IMutableProperty property)
+            => property[CoreAnnotationNames.TypeMapping] = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
 
         private static InternalEntityEntry CreateEntry(
             EntityState entityState,

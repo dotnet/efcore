@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalModelValidatorTest : ModelValidatorTest
@@ -156,6 +157,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().ToTable("Table");
             modelBuilder.Entity<B>().ToTable("Table");
 
+            GenerateMapping(modelBuilder.Entity<A>().Property(b => b.P0).Metadata);
+            GenerateMapping(modelBuilder.Entity<B>().Property(d => d.P0).Metadata);
+
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "default_int_mapping"), modelBuilder.Model);
@@ -204,7 +208,9 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Detects_duplicate_column_names()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
-            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
+
+            GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
+            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -218,8 +224,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().Property(c => c.Type);
+
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Type).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -231,8 +238,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasMaxLength(30);
-            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasMaxLength(15);
+
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasMaxLength(30).Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasMaxLength(15).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -738,6 +746,9 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Model);
         }
 
+        private static void GenerateMapping(IMutableProperty property)
+            => property[CoreAnnotationNames.TypeMapping] = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
         {
             base.SetBaseType(entityType, baseEntityType);
@@ -764,6 +775,8 @@ namespace Microsoft.EntityFrameworkCore
 
             [NotMapped]
             public string Type { get; set; }
+
+            public int Identity { get; set; }
         }
 
         protected class Dog : Animal
@@ -772,6 +785,8 @@ namespace Microsoft.EntityFrameworkCore
 
             [NotMapped]
             public int Type { get; set; }
+
+            public int Identity { get; set; }
         }
 
         protected class Person

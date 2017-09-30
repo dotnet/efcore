@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable ArgumentsStyleOther
+// ReSharper disable ArgumentsStyleNamedExpression
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -265,36 +267,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static PropertyCounts CalculateCounts([NotNull] this IEntityType entityType)
         {
-            var properties = entityType.GetDeclaredProperties().ToList();
-            var navigations = entityType.GetDeclaredNavigations();
+            var index = 0;
+            var navigationIndex = 0;
+            var originalValueIndex = 0;
+            var shadowIndex = 0;
+            var relationshipIndex = 0;
+            var storeGenerationIndex = 0;
+
+            var baseCounts = entityType.BaseType?.GetCounts();
+            if (baseCounts != null)
+            {
+                index = baseCounts.PropertyCount;
+                navigationIndex = baseCounts.NavigationCount;
+                originalValueIndex = baseCounts.OriginalValueCount;
+                shadowIndex = baseCounts.ShadowCount;
+                relationshipIndex = baseCounts.RelationshipCount;
+                storeGenerationIndex = baseCounts.StoreGeneratedCount;
+            }
+
+            foreach (var property in entityType.GetDeclaredProperties())
+            {
+                var indexes = new PropertyIndexes(
+                    index: index++,
+                    originalValueIndex: property.RequiresOriginalValue() ? originalValueIndex++ : -1,
+                    shadowIndex: property.IsShadowProperty ? shadowIndex++ : -1,
+                    relationshipIndex: property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
+                    storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
+
+                property.SetIndexes(indexes);
+            }
 
             var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;
 
-            var propertyCount = properties.Count;
-            var navigationCount = navigations.Count();
-            var originalValueCount = properties.Count(p => p.RequiresOriginalValue());
-            var shadowCount = properties.Count(p => p.IsShadowProperty);
-            var relationshipCount = (isNotifying ? navigations.Count(n => !n.IsCollection()) : navigationCount)
-                                    + properties.Count(p => p.IsKeyOrForeignKey());
-            var storeGeneratedCount = properties.Count(p => p.MayBeStoreGenerated());
+            foreach (var navigation in entityType.GetDeclaredNavigations())
+            {
+                var indexes = new PropertyIndexes(
+                    index: navigationIndex++,
+                    originalValueIndex: -1,
+                    shadowIndex: navigation.IsShadowProperty ? shadowIndex++ : -1,
+                    relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
+                    storeGenerationIndex: -1);
 
-            var baseCounts = entityType.BaseType?.CalculateCounts();
+                navigation.SetIndexes(indexes);
+            }
 
-            return baseCounts == null
-                ? new PropertyCounts(
-                    propertyCount,
-                    navigationCount,
-                    originalValueCount,
-                    shadowCount,
-                    relationshipCount,
-                    storeGeneratedCount)
-                : new PropertyCounts(
-                    baseCounts.PropertyCount + propertyCount,
-                    baseCounts.NavigationCount + navigationCount,
-                    baseCounts.OriginalValueCount + originalValueCount,
-                    baseCounts.ShadowCount + shadowCount,
-                    baseCounts.RelationshipCount + relationshipCount,
-                    baseCounts.StoreGeneratedCount + storeGeneratedCount);
+            return new PropertyCounts(
+                index,
+                navigationIndex,
+                originalValueIndex,
+                shadowIndex,
+                relationshipIndex,
+                storeGenerationIndex);
         }
 
         /// <summary>
@@ -476,6 +499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
+                // ReSharper disable once AssignNullToNotNullAttribute
                 var property = (IPropertyBase)entityType.FindProperty(propertyName)
                                ?? entityType.FindNavigation(propertyName);
                 if (property != null)
@@ -484,6 +508,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<IDictionary<string, object>> GetSeedData([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetSeedData();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -19,87 +19,75 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    // Tests are split into classes to enable parralel execution
-    public class SqlServerDatabaseCreatorExistsTest
+    // Tests are split into classes to enable parallel execution
+    // Some combinations are skipped to reduce run time
+    public class SqlServerDatabaseCreatorExistsTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public Task Returns_false_when_database_does_not_exist()
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        public Task Returns_false_when_database_does_not_exist(bool async, bool ambientTransaction)
         {
-            return Returns_false_when_database_does_not_exist_test(async: false, file: false);
+            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Returns_false_when_database_with_filename_does_not_exist()
+        public Task Returns_false_when_database_with_filename_does_not_exist(bool async, bool ambientTransaction)
         {
-            return Returns_false_when_database_does_not_exist_test(async: false, file: true);
+            return Returns_false_when_database_does_not_exist_test(async, ambientTransaction, file: true);
         }
 
-        [ConditionalFact]
-        public Task Async_returns_false_when_database_does_not_exist()
-        {
-            return Returns_false_when_database_does_not_exist_test(async: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_returns_false_when_database_with_filename_does_not_exist()
-        {
-            return Returns_false_when_database_does_not_exist_test(async: true, file: true);
-        }
-
-        private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool file)
+        private static async Task Returns_false_when_database_does_not_exist_test(bool async, bool ambientTransaction, bool file)
         {
             using (var testDatabase = SqlServerTestStore.Create("NonExisting", file))
             {
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
+                    var creator = GetDatabaseCreator(context);
 
-                    Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
+                    using (CreateTransactionScope(ambientTransaction))
+                    {
+                        Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
+                    }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
             }
         }
 
-        [ConditionalFact]
-        public Task Returns_true_when_database_exists()
+        [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public Task Returns_true_when_database_exists(bool async, bool ambientTransaction)
         {
-            return Returns_true_when_database_exists_test(async: false, file: false);
+            return Returns_true_when_database_exists_test(async, ambientTransaction, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Returns_true_when_database_with_filename_exists()
+        public Task Returns_true_when_database_with_filename_exists(bool async, bool ambientTransaction)
         {
-            return Returns_true_when_database_exists_test(async: false, file: true);
+            return Returns_true_when_database_exists_test(async, ambientTransaction, file: true);
         }
 
-        [ConditionalFact]
-        public Task Async_returns_true_when_database_exists()
-        {
-            return Returns_true_when_database_exists_test(async: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_returns_true_when_database_with_filename_exists()
-        {
-            return Returns_true_when_database_exists_test(async: true, file: true);
-        }
-
-        private static async Task Returns_true_when_database_exists_test(bool async, bool file)
+        private static async Task Returns_true_when_database_exists_test(bool async, bool ambientTransaction, bool file)
         {
             using (var testDatabase = file
                 ? SqlServerTestStore.CreateInitialized("ExistingBloggingFile", useFileName: true)
                 : SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging"))
             {
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
-
-                    Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
+                    var creator = GetDatabaseCreator(context);
+                    using (CreateTransactionScope(ambientTransaction))
+                    {
+                        Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
+                    }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
@@ -107,61 +95,30 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    public class SqlServerDatabaseCreatorEnsureDeletedTest
+    public class SqlServerDatabaseCreatorEnsureDeletedTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public Task Deletes_database()
+        [ConditionalTheory]
+        [InlineData(true, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(false, false, true)]
+        public Task Deletes_database(bool async, bool open, bool ambientTransaction)
         {
-            return Delete_database_test(async: false, open: false, file: false);
+            return Delete_database_test(async, open, ambientTransaction, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true, true, false)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(false, false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Deletes_database_with_filename()
+        public Task Deletes_database_with_filename(bool async, bool open, bool ambientTransaction)
         {
-            return Delete_database_test(async: false, open: false, file: true);
+            return Delete_database_test(async, open, ambientTransaction, file: true);
         }
 
-        [ConditionalFact]
-        public Task Async_deletes_database()
-        {
-            return Delete_database_test(async: true, open: false, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_deletes_database_with_filename()
-        {
-            return Delete_database_test(async: true, open: false, file: true);
-        }
-
-        [ConditionalFact]
-        public Task Deletes_database_with_opened_connections()
-        {
-            return Delete_database_test(async: false, open: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Deletes_database_with_filename_with_opened_connections()
-        {
-            return Delete_database_test(async: false, open: true, file: true);
-        }
-
-        [ConditionalFact]
-        public Task Async_deletes_database_with_opened_connections()
-        {
-            return Delete_database_test(async: true, open: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_deletes_database_with_filename_with_opened_connections()
-        {
-            return Delete_database_test(async: true, open: true, file: true);
-        }
-
-        private static async Task Delete_database_test(bool async, bool open, bool file)
+        private static async Task Delete_database_test(bool async, bool open, bool ambientTransaction, bool file)
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized("EnsureDeleteBlogging" + (file ? "File" : ""), file))
             {
@@ -170,19 +127,22 @@ namespace Microsoft.EntityFrameworkCore
                     testDatabase.CloseConnection();
                 }
 
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
+                    var creator = GetDatabaseCreator(context);
 
                     Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    if (async)
+                    using (CreateTransactionScope(ambientTransaction))
                     {
-                        Assert.True(await context.Database.EnsureDeletedAsync());
-                    }
-                    else
-                    {
-                        Assert.True(context.Database.EnsureDeleted());
+                        if (async)
+                        {
+                            Assert.True(await context.Database.EnsureDeletedAsync());
+                        }
+                        else
+                        {
+                            Assert.True(context.Database.EnsureDeleted());
+                        }
                     }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
@@ -194,39 +154,30 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public Task Noop_when_database_does_not_exist()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public Task Noop_when_database_does_not_exist(bool async)
         {
-            return Noop_when_database_does_not_exist_test(async: false, file: false);
+            return Noop_when_database_does_not_exist_test(async, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Noop_when_database_with_filename_does_not_exist()
+        public Task Noop_when_database_with_filename_does_not_exist(bool async)
         {
-            return Noop_when_database_does_not_exist_test(async: false, file: true);
-        }
-
-        [ConditionalFact]
-        public Task Async_is_noop_when_database_does_not_exist()
-        {
-            return Noop_when_database_does_not_exist_test(async: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_is_noop_when_database_with_filename_does_not_exist()
-        {
-            return Noop_when_database_does_not_exist_test(async: true, file: true);
+            return Noop_when_database_does_not_exist_test(async, file: true);
         }
 
         private static async Task Noop_when_database_does_not_exist_test(bool async, bool file)
         {
             using (var testDatabase = SqlServerTestStore.Create("NonExisting", file))
             {
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
+                    var creator = GetDatabaseCreator(context);
 
                     Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
 
@@ -249,81 +200,62 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    public class SqlServerDatabaseCreatorEnsureCreatedTest
+    public class SqlServerDatabaseCreatorEnsureCreatedTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public Task Creates_schema_in_existing_database()
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        public Task Creates_schema_in_existing_database(bool async, bool ambientTransaction)
         {
-            return Creates_schema_in_existing_database_test(async: false, file: false);
+            return Creates_schema_in_existing_database_test(async, ambientTransaction, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Creates_schema_in_existing_database_with_filename()
+        public Task Creates_schema_in_existing_database_with_filename(bool async, bool ambientTransaction)
         {
-            return Creates_schema_in_existing_database_test(async: false, file: true);
+            return Creates_schema_in_existing_database_test(async, ambientTransaction, file: true);
         }
 
-        [ConditionalFact]
-        public Task Async_creates_schema_in_existing_database()
-        {
-            return Creates_schema_in_existing_database_test(async: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_creates_schema_in_existing_database_with_filename()
-        {
-            return Creates_schema_in_existing_database_test(async: true, file: true);
-        }
-
-        private static Task Creates_schema_in_existing_database_test(bool async, bool file)
+        private static Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction, bool file)
             => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
-                    (true, async, file), Creates_physical_database_and_schema_test)
-                : Creates_physical_database_and_schema_test((true, async, file));
+                    (true, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
+                : Creates_physical_database_and_schema_test((true, async, ambientTransaction, file));
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
         [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-        public Task Creates_physical_database_and_schema()
+        public Task Creates_physical_database_and_schema(bool async, bool ambientTransaction)
         {
-            return Creates_new_physical_database_and_schema_test(async: false, file: false);
+            return Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Creates_physical_database_with_filename_and_schema()
+        public Task Creates_physical_database_with_filename_and_schema(bool async, bool ambientTransaction)
         {
-            return Creates_new_physical_database_and_schema_test(async: false, file: true);
+            return Creates_new_physical_database_and_schema_test(async, ambientTransaction, file: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-        public Task Async_creates_physical_database_and_schema()
-        {
-            return Creates_new_physical_database_and_schema_test(async: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_creates_physical_database_with_filename_and_schema()
-        {
-            return Creates_new_physical_database_and_schema_test(async: true, file: true);
-        }
-
-        private static Task Creates_new_physical_database_and_schema_test(bool async, bool file)
+        private static Task Creates_new_physical_database_and_schema_test(bool async, bool ambientTransaction, bool file)
             => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
-                    (false, async, file), Creates_physical_database_and_schema_test)
-                : Creates_physical_database_and_schema_test((false, async, file));
+                    (false, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
+                : Creates_physical_database_and_schema_test((false, async, ambientTransaction, file));
 
         private static async Task Creates_physical_database_and_schema_test(
-            (bool CreateDatabase, bool Async, bool File) options)
+            (bool CreateDatabase, bool Async, bool ambientTransaction, bool File) options)
         {
-            (bool createDatabase, bool async, bool file) = options;
+            (bool createDatabase, bool async, bool ambientTransaction, bool file) = options;
             using (var testDatabase = SqlServerTestStore.Create("EnsureCreatedTest" + (file ? "File" : ""), file))
             {
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
                     if (createDatabase)
                     {
@@ -334,17 +266,20 @@ namespace Microsoft.EntityFrameworkCore
                         testDatabase.DeleteDatabase();
                     }
 
-                    var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
+                    var creator = GetDatabaseCreator(context);
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
-                    if (async)
+                    using (CreateTransactionScope(ambientTransaction))
                     {
-                        Assert.True(await creator.EnsureCreatedAsync());
-                    }
-                    else
-                    {
-                        Assert.True(creator.EnsureCreated());
+                        if (async)
+                        {
+                            Assert.True(await creator.EnsureCreatedAsync());
+                        }
+                        else
+                        {
+                            Assert.True(creator.EnsureCreated());
+                        }
                     }
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
@@ -386,37 +321,28 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public Task Noop_when_database_exists_and_has_schema()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public Task Noop_when_database_exists_and_has_schema(bool async)
         {
-            return Noop_when_database_exists_and_has_schema_test(async: false, file: false);
+            return Noop_when_database_exists_and_has_schema_test(async, file: false);
         }
 
-        [ConditionalFact]
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
         [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Noop_when_database_with_filename_exists_and_has_schema()
+        public Task Noop_when_database_with_filename_exists_and_has_schema(bool async)
         {
-            return Noop_when_database_exists_and_has_schema_test(async: false, file: true);
-        }
-
-        [ConditionalFact]
-        public Task Async_is_noop_when_database_exists_and_has_schema()
-        {
-            return Noop_when_database_exists_and_has_schema_test(async: true, file: false);
-        }
-
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsAttach)]
-        public Task Async_is_noop_when_database_with_filename_exists_and_has_schema()
-        {
-            return Noop_when_database_exists_and_has_schema_test(async: true, file: true);
+            return Noop_when_database_exists_and_has_schema_test(async, file: true);
         }
 
         private static async Task Noop_when_database_exists_and_has_schema_test(bool async, bool file)
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized("InitializedBlogging" + (file ? "File" : ""), file))
             {
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
                     context.Database.EnsureCreated();
 
@@ -435,25 +361,16 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    public class SqlServerDatabaseCreatorHasTablesTest
+    public class SqlServerDatabaseCreatorHasTablesTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public Task Throws_when_database_does_not_exist()
-        {
-            return Throws_when_database_does_not_exist_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_throws_when_database_does_not_exist()
-        {
-            return Throws_when_database_does_not_exist_test(async: true);
-        }
-
-        private static async Task Throws_when_database_does_not_exist_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Throws_when_database_does_not_exist(bool async)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting"))
             {
-                var databaseCreator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
+                var databaseCreator = GetDatabaseCreator(testDatabase);
                 await databaseCreator.ExecutionStrategyFactory.Create().ExecuteAsync(
                     databaseCreator,
                     async creator =>
@@ -472,104 +389,77 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public Task Returns_false_when_database_exists_but_has_no_tables()
-        {
-            return Returns_false_when_database_exists_but_has_no_tables_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_returns_false_when_database_exists_but_has_no_tables()
-        {
-            return Returns_false_when_database_exists_but_has_no_tables_test(async: true);
-        }
-
-        private static async Task Returns_false_when_database_exists_but_has_no_tables_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public async Task Returns_false_when_database_exists_but_has_no_tables(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("Empty"))
             {
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
-                Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                var creator = GetDatabaseCreator(testDatabase);
+                using (CreateTransactionScope(ambientTransaction))
+                {
+                    Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                }
             }
         }
 
-        [ConditionalFact]
-        public Task Returns_true_when_database_exists_and_has_any_tables()
-        {
-            return Returns_true_when_database_exists_and_has_any_tables_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_returns_true_when_database_exists_and_has_any_tables()
-        {
-            return Returns_true_when_database_exists_and_has_any_tables_test(async: true);
-        }
-
-        private static async Task Returns_true_when_database_exists_and_has_any_tables_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        public async Task Returns_true_when_database_exists_and_has_any_tables(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreate("ExistingTables")
-                .InitializeSqlServer(null, t => new SqlServerDatabaseCreatorTest.BloggingContext(t), null))
+                .InitializeSqlServer(null, t => new BloggingContext(t), null))
             {
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
-                Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                var creator = GetDatabaseCreator(testDatabase);
+                using (CreateTransactionScope(ambientTransaction))
+                {
+                    Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                }
             }
         }
     }
 
-    public class SqlServerDatabaseCreatorDeleteTest
+    public class SqlServerDatabaseCreatorDeleteTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public async Task Deletes_database()
-        {
-            await Deletes_database_test(async: false);
-        }
-
-        [ConditionalFact]
-        public async Task Async_deletes_database()
-        {
-            await Deletes_database_test(async: true);
-        }
-
-        private static async Task Deletes_database_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        public static async Task Deletes_database(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.CreateInitialized("DeleteBlogging"))
             {
                 testDatabase.CloseConnection();
 
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
+                var creator = GetDatabaseCreator(testDatabase);
 
                 Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
-                if (async)
+                using (CreateTransactionScope(ambientTransaction))
                 {
-                    await creator.DeleteAsync();
-                }
-                else
-                {
-                    creator.Delete();
+                    if (async)
+                    {
+                        await creator.DeleteAsync();
+                    }
+                    else
+                    {
+                        creator.Delete();
+                    }
                 }
 
                 Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
             }
         }
 
-        [ConditionalFact]
-        public Task Throws_when_database_does_not_exist()
-        {
-            return Throws_when_database_does_not_exist_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_throws_when_database_does_not_exist()
-        {
-            return Throws_when_database_does_not_exist_test(async: true);
-        }
-
-        private static async Task Throws_when_database_does_not_exist_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Throws_when_database_does_not_exist(bool async)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExistingBlogging"))
             {
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
+                var creator = GetDatabaseCreator(testDatabase);
 
                 if (async)
                 {
@@ -588,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore
             var connectionStringBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
             connectionStringBuilder.Remove("Initial Catalog");
 
-            var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(connectionStringBuilder.ToString());
+            var creator = GetDatabaseCreator(connectionStringBuilder.ToString());
 
             var ex = Assert.Throws<InvalidOperationException>(() => creator.Delete());
 
@@ -596,35 +486,29 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    public class SqlServerDatabaseCreatorCreateTablesTest
+    public class SqlServerDatabaseCreatorCreateTablesTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public Task Creates_schema_in_existing_database()
-        {
-            return Creates_schema_in_existing_database_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_creates_schema_in_existing_database()
-        {
-            return Creates_schema_in_existing_database_test(async: true);
-        }
-
-        private static async Task Creates_schema_in_existing_database_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        public async Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging" + (async ? "Async" : "")))
             {
-                using (var context = new SqlServerDatabaseCreatorTest.BloggingContext(testDatabase))
+                using (var context = new BloggingContext(testDatabase))
                 {
-                    var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(context);
+                    var creator = GetDatabaseCreator(context);
 
-                    if (async)
+                    using (CreateTransactionScope(ambientTransaction))
                     {
-                        await creator.CreateTablesAsync();
-                    }
-                    else
-                    {
-                        creator.CreateTables();
+                        if (async)
+                        {
+                            await creator.CreateTablesAsync();
+                        }
+                        else
+                        {
+                            creator.CreateTables();
+                        }
                     }
 
                     if (testDatabase.ConnectionState != ConnectionState.Open)
@@ -658,23 +542,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public Task Throws_if_database_does_not_exist()
-        {
-            return Throws_if_database_does_not_exist_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_throws_if_database_does_not_exist()
-        {
-            return Throws_if_database_does_not_exist_test(async: true);
-        }
-
-        private static async Task Throws_if_database_does_not_exist_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Throws_if_database_does_not_exist(bool async)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreate("NonExisting"))
             {
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
+                var creator = GetDatabaseCreator(testDatabase);
 
                 var errorNumber
                     = async
@@ -691,35 +566,29 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 
-    public class SqlServerDatabaseCreatorCreateTest
+    public class SqlServerDatabaseCreatorCreateTest : SqlServerDatabaseCreatorTest
     {
-        [ConditionalFact]
-        public Task Creates_physical_database_but_not_tables()
-        {
-            return Creates_physical_database_but_not_tables_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_creates_physical_database_but_not_tables()
-        {
-            return Creates_physical_database_but_not_tables_test(async: true);
-        }
-
-        private static async Task Creates_physical_database_but_not_tables_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        public async Task Creates_physical_database_but_not_tables(bool async, bool ambientTransaction)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreate("CreateTest"))
             {
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
+                var creator = GetDatabaseCreator(testDatabase);
 
                 creator.EnsureDeleted();
 
-                if (async)
+                using (CreateTransactionScope(ambientTransaction))
                 {
-                    await creator.CreateAsync();
-                }
-                else
-                {
-                    creator.Create();
+                    if (async)
+                    {
+                        await creator.CreateAsync();
+                    }
+                    else
+                    {
+                        creator.Create();
+                    }
                 }
 
                 Assert.True(creator.Exists());
@@ -742,23 +611,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
-        public Task Throws_if_database_already_exists()
-        {
-            return Throws_if_database_already_exists_test(async: false);
-        }
-
-        [ConditionalFact]
-        public Task Async_throws_if_database_already_exists()
-        {
-            return Throws_if_database_already_exists_test(async: true);
-        }
-
-        private static async Task Throws_if_database_already_exists_test(bool async)
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Throws_if_database_already_exists(bool async)
         {
             using (var testDatabase = SqlServerTestStore.GetOrCreateInitialized("ExistingBlogging"))
             {
-                var creator = SqlServerDatabaseCreatorTest.GetDatabaseCreator(testDatabase);
+                var creator = GetDatabaseCreator(testDatabase);
 
                 var ex = async
                     ? await Assert.ThrowsAsync<SqlException>(() => creator.CreateAsync())
@@ -772,6 +632,15 @@ namespace Microsoft.EntityFrameworkCore
 
     public class SqlServerDatabaseCreatorTest
     {
+
+#if NET461
+        public static IDisposable CreateTransactionScope(bool useTransaction)
+            => TestStore.CreateTransactionScope(useTransaction);
+#else
+        public static IDisposable CreateTransactionScope(bool useTransaction)
+            => TestStore.CreateTransactionScope(useTransaction: false);
+#endif
+
         public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
             => GetDatabaseCreator(testStore.ConnectionString);
 

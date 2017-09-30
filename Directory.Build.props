@@ -1,0 +1,20 @@
+﻿<Project>
+  <Import Project="version.xml" />
+
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
+    <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM;EntityFramework;EntityFrameworkCore;EFCore</PackageTags>
+    <Product>Microsoft Entity Framework Core</Product>
+    <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
+    <SignAssembly>True</SignAssembly>
+    <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <StyleCopAnalyzersVersion>1.0.0</StyleCopAnalyzersVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="**\*.rd.xml" />
+  </ItemGroup>
+</Project>

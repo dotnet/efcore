@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -90,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual List<Exception> ExceptionsEncountered { get; } = new List<Exception>();
 
         /// <summary>
-        ///     A pseudo-random number generater that can be used to vary the delay between retries.
+        ///     A pseudo-random number generator that can be used to vary the delay between retries.
         /// </summary>
         protected virtual Random Random { get; } = new Random();
 
@@ -303,7 +304,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual void OnFirstExecution()
         {
-            if (Dependencies.CurrentDbContext.Context.Database.CurrentTransaction != null)
+            if (Dependencies.CurrentDbContext.Context.Database.CurrentTransaction != null
+                || Dependencies.CurrentDbContext.Context.Database.GetEnlistedTransaction() != null
+                || Transaction.Current != null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ExecutionStrategyExistingTransaction(

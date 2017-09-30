@@ -66,8 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (node.Name
-                .StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
+            if (node.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
             {
                 return Expression.Call(
                     GetParameterValueMethodInfo.MakeGenericMethod(node.Type),
@@ -84,8 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression node)
         {
-            var nullConditionalExpression = node as NullConditionalExpression;
-            if (nullConditionalExpression != null)
+            if (node is NullConditionalExpression nullConditionalExpression)
             {
                 var newCaller = Visit(nullConditionalExpression.Caller);
                 var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -84,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new TypeMappedRelationalParameter(
                     invariantName,
                     name,
-                    TypeMapper.GetMapping(property),
+                    property.FindRelationalMapping(),
                     property.IsNullable));
         }
 
@@ -131,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new TypeMappedPropertyRelationalParameter(
                     invariantName,
                     name,
-                    TypeMapper.GetMapping(property),
+                    property.FindRelationalMapping(),
                     property));
         }
 

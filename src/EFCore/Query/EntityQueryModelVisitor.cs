@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -540,16 +541,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class IncludeRemovingExpressionVisitor : RelinqExpressionVisitor
         {
-            protected override Expression VisitMethodCall(MethodCallExpression node)
-                => IncludeCompiler.IsIncludeMethod(node)
-                    ? node.Arguments[1]
-                    : base.VisitMethodCall(node);
-
-            protected override Expression VisitMember(MemberExpression node)
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                var newExpression = Visit(node.Expression);
+                if (IncludeCompiler.IsIncludeMethod(methodCallExpression))
+                {
+                    return methodCallExpression.Arguments[1];
+                }
 
-                return newExpression != node.Expression ? newExpression : node;
+                if (methodCallExpression.Method
+                    .MethodIsClosedFormOf(TaskBlockingExpressionVisitor.ResultMethodInfo))
+                {
+                    var newArguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
+
+                    if (newArguments != methodCallExpression.Arguments)
+                    {
+                        return newArguments[0];
+                    }
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
             }
         }
 

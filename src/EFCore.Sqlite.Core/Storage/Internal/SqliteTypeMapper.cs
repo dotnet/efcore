@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -62,12 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(Guid), new SqliteGuidTypeMapping(_blobTypeName) }
                 };
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected override string GetColumnType(IProperty property) => property.Relational().ColumnType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

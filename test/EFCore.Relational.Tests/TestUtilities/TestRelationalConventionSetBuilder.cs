@@ -17,7 +17,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static ConventionSet Build()
             => new TestRelationalConventionSetBuilder(
                     new RelationalConventionSetBuilderDependencies(
-                        new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()), null, null))
-                .AddConventions(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
+                        new TestRelationalTypeMapper(
+                            new RelationalTypeMapperDependencies()), null, null))
+                .AddConventions(
+                    new CoreConventionSetBuilder(
+                            new CoreConventionSetBuilderDependencies(
+                                new CoreTypeMapper(
+                                    new CoreTypeMapperDependencies())))
+                        .CreateConventionSet());
     }
 }

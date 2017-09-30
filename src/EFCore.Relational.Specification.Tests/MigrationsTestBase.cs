@@ -272,10 +272,17 @@ namespace Microsoft.EntityFrameworkCore
 
                 await db.Database.OpenConnectionAsync();
 
-                await ExecuteAsync(services, BuildFirstMigration);
-                await AssertFirstMigrationAsync(connection);
-                await ExecuteAsync(services, BuildSecondMigration);
-                await AssertSecondMigrationAsync(connection);
+                try
+                {
+                    await ExecuteAsync(services, BuildFirstMigration);
+                    await AssertFirstMigrationAsync(connection);
+                    await ExecuteAsync(services, BuildSecondMigration);
+                    await AssertSecondMigrationAsync(connection);
+                }
+                finally
+                {
+                    db.Database.CloseConnection();
+                }
             }
         }
 

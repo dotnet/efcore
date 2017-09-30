@@ -93,8 +93,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     b => b
                         .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                         .TryAddSingleton<ISqlServerOptions, SqlServerOptions>()
-                        .TryAddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
-                        .TryAddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+                        .TryAddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
+                        .TryAddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                         .TryAddScoped<ISqlServerConnection, SqlServerConnection>());
 
             builder.TryAddCoreServices();

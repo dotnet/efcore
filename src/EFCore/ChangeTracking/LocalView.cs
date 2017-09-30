@@ -284,8 +284,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 if (entry.EntityState != EntityState.Deleted)
                 {
-                    var entity = entry.Entity as TEntity;
-                    if (entity != null)
+                    if (entry.Entity is TEntity entity)
                     {
                         array[arrayIndex++] = entity;
                     }
@@ -349,8 +348,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 return;
             }
 
-            var entity = entry.Entity as TEntity;
-            if (entity != null)
+            if (entry.Entity is TEntity entity)
             {
                 var wasIn = previousState != EntityState.Detached
                             && previousState != EntityState.Deleted;

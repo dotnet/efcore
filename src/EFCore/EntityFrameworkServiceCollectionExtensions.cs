@@ -30,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///          public void ConfigureServices(IServiceCollection services)
         ///          {
         ///              var connectionString = "connection string to database";
-        /// 
+        ///
         ///              services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
         ///          }
         ///      </code>
@@ -180,7 +180,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///          public void ConfigureServices(IServiceCollection services)
         ///          {
         ///              var connectionString = "connection string to database";
-        /// 
+        ///
         ///              services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
         ///          }
         ///      </code>
@@ -219,7 +219,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///          public void ConfigureServices(IServiceCollection services)
         ///          {
         ///              var connectionString = "connection string to database";
-        /// 
+        ///
         ///              services
         ///                  .AddEntityFrameworkSqlServer()
         ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>

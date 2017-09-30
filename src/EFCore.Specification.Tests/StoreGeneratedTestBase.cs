@@ -456,6 +456,27 @@ namespace Microsoft.EntityFrameworkCore
                         id = entry.Entity.Id;
 
                         Assert.Equal("Banana Joe", entry.Entity.Identity);
+                        Assert.False(entry.Property(e => e.Identity).IsTemporary);
+                    },
+                context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
+        }
+
+        [Fact]
+        public virtual void Identity_property_on_Added_entity_with_temporary_value_gets_value_from_store_even_if_same()
+        {
+            var id = 0;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                    {
+                        var entry = context.Add(new Gumball { Identity = "Banana Joe" });
+                        entry.Property(e => e.Identity).IsTemporary = true;
+
+                        context.SaveChanges();
+                        id = entry.Entity.Id;
+
+                        Assert.Equal("Banana Joe", entry.Entity.Identity);
+                        Assert.False(entry.Property(e => e.Identity).IsTemporary);
                     },
                 context => { Assert.Equal("Banana Joe", context.Set<Gumball>().Single(e => e.Id == id).Identity); });
         }

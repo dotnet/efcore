@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -323,6 +324,46 @@ namespace Microsoft.EntityFrameworkCore
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterSequenceOperation_without_minValue_and_maxValue());
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
+        }
+
+        [Fact]
+        public virtual void RenameIndexOperation()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity(
+                    "Person",
+                    x =>
+                    {
+                        x.Property<string>("FullName");
+                        x.HasIndex("FullName").IsUnique().HasFilter(@"""Id"" > 2");
+                    }),
+                new RenameIndexOperation
+                {
+                    Table = "Person",
+                    Name = "IX_Person_Name",
+                    NewName = "IX_Person_FullName"
+                });
+
+            Assert.Equal(
+                @"DROP INDEX ""IX_Person_Name"";" + EOL +
+                @"CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void RenameIndexOperations_throws_when_no_model()
+        {
+            var migrationBuilder = new MigrationBuilder("Sqlite");
+
+            migrationBuilder.RenameIndex(
+                table: "Person",
+                name: "IX_Person_Name",
+                newName: "IX_Person_FullName");
+
+            var ex = Assert.Throws<NotSupportedException>(
+                () => Generate(migrationBuilder.Operations.ToArray()));
+
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation("RenameIndexOperation"), ex.Message);
         }
 
         public override void RenameTableOperation_within_schema()

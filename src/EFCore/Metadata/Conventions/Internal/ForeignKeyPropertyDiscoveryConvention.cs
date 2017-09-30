@@ -80,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     && !foreignKey.IsSelfReferencing()
                     && foreignKey.DeclaringEntityType.BaseType == null)
                 {
-                    if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource()))
+                    if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
+                        || foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType)
                     {
                         foreignKeyProperties = GetCompatiblePrimaryKeyProperties(
                             foreignKey.DeclaringEntityType,
@@ -90,6 +91,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     else
                     {
                         foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
+                        var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false, matchPk: true);
+                        if (candidatePropertiesOnPrincipal != null)
+                        {
+                            if (foreignKeyProperties == null)
+                            {
+                                using (var batch = foreignKey.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
+                                {
+                                    var invertedRelationshipBuilder = relationshipBuilder
+                                        .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
+                                    return batch.Run(invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal, foreignKey.PrincipalEntityType, ConfigurationSource.Convention));
+                                }
+                            }
+
+                            foreignKeyProperties = null;
+                        }
                     }
                 }
             }
@@ -179,14 +195,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 : foreignKey.DeclaringEntityType;
             baseNames.Add(entityTypeToReference.ShortName());
 
-            baseNames.Add("");
+            if (!matchPk)
+            {
+                baseNames.Add("");
+            }
 
             foreach (var baseName in baseNames)
             {
                 var match = FindMatchingProperties(foreignKey, baseName, onDependent, matchPk);
                 if (match != null)
                 {
-                    return match;
+                    // Stop searching if match found, but is incompatible
+                    return match.Count == 0 ? null : match;
                 }
             }
 
@@ -274,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 dependentEntityType,
                 false))
             {
-                return null;
+                return new Property[0];
             }
 
             foreach (var key in dependentEntityType.GetKeys())
@@ -283,15 +303,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     && (!foreignKey.IsUnique
                         || (key.IsPrimaryKey() && !matchPK)))
                 {
-                    return null;
+                    return new Property[0];
                 }
-            }
-
-            // Don't match with only Id since it is ambiguous. PK in dependent entity used as FK is matched elsewhere
-            if (foreignKeyProperties.Length == 1
-                && foreignKeyProperties[0].Name == "Id")
-            {
-                return null;
             }
 
             return foreignKeyProperties;

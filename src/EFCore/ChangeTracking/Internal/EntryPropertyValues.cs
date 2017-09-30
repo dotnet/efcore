@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -98,7 +99,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IReadOnlyList<IProperty> Properties
-            => _properties ?? (_properties = EntityType.GetProperties().ToList());
+        {
+            [DebuggerStepThrough] get => _properties ?? (_properties = EntityType.GetProperties().ToList());
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -106,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override object this[string propertyName]
         {
-            get { return GetValueInternal(EntityType.GetProperty(propertyName)); }
-            set { SetValueInternal(EntityType.GetProperty(propertyName), value); }
+            get => GetValueInternal(EntityType.GetProperty(propertyName));
+            set => SetValueInternal(EntityType.GetProperty(propertyName), value);
         }
 
         /// <summary>
@@ -116,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override object this[IProperty property]
         {
-            get { return GetValueInternal(EntityType.CheckPropertyBelongsToType(property)); }
-            set { SetValueInternal(EntityType.CheckPropertyBelongsToType(property), value); }
+            get => GetValueInternal(EntityType.CheckPropertyBelongsToType(property));
+            set => SetValueInternal(EntityType.CheckPropertyBelongsToType(property), value);
         }
 
         /// <summary>

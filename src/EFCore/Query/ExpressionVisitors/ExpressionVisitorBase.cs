@@ -56,15 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             var newBody = Visit(node.Body);
-            var newParameters = VisitAndConvert(node.Parameters, callerName: "VisitLambda");
-
-            if (newBody == node.Body
-                && newParameters == node.Parameters)
-            {
-                return node;
-            }
-
-            return Expression.Lambda(newBody, node.Name, node.TailCall, newParameters);
+            
+            return newBody == node.Body 
+                ? node 
+                : Expression.Lambda(newBody, node.Name, node.TailCall, node.Parameters);
         }
     }
 }

@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -31,5 +34,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     value in the array corresponds to a column in the <see cref="KeyColumns" /> property.
         /// </summary>
         public virtual object[,] KeyValues { get; [param: NotNull] set; }
+
+        /// <summary>
+        ///     Generates the commands that correspond to this operation.
+        /// </summary>
+        /// <returns> The commands that correspond to this operation. </returns>
+        public virtual IEnumerable<ModificationCommand> GenerateModificationCommands()
+        {
+            Debug.Assert(KeyColumns.Length == KeyValues.GetLength(1),
+                $"The number of key values doesn't match the number of keys (${KeyColumns.Length})");
+
+            for (var i = 0; i < KeyValues.GetLength(0); i++)
+            {
+                var modifications = new ColumnModification[KeyColumns.Length];
+                for (var j = 0; j < KeyColumns.Length; j++)
+                {
+                    modifications[j] = new ColumnModification(
+                        KeyColumns[j], originalValue: null, value: KeyValues[i, j],
+                        isRead: false, isWrite: true, isKey: true, isCondition: true);
+                }
+
+                yield return new ModificationCommand(Table, Schema, modifications);
+            }
+        }
     }
 }

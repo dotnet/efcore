@@ -459,18 +459,85 @@ END");
             base.Skip_Take_All();
 
             AssertSql(
-                @"@__p_0='5'
-@__p_1='10'
+                @"@__p_0='4'
+@__p_1='7'
 
 SELECT CASE
     WHEN NOT EXISTS (
-        SELECT [t].[c]
+        SELECT 1
         FROM (
-            SELECT 1 AS [c], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
-            FROM [Customers] AS [c]
-            WHERE CAST(LEN([c].[CustomerID]) AS int) <> 5
+            SELECT [t0].*
+            FROM (
+                SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
+                FROM [Customers] AS [c]
+            ) AS [t0]
+            WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
         ) AS [t]
-        WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1)))
+        WHERE NOT ([t].[CustomerID] LIKE N'B' + N'%') OR (LEFT([t].[CustomerID], LEN(N'B')) <> N'B'))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Take_All()
+        {
+            base.Take_All();
+
+            AssertSql(
+                @"@__p_0='4'
+
+SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM (
+            SELECT TOP(@__p_0) [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[CustomerID]
+        ) AS [t]
+        WHERE NOT ([t].[CustomerID] LIKE N'A' + N'%') OR (LEFT([t].[CustomerID], LEN(N'A')) <> N'A'))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Skip_Take_Any_with_predicate()
+        {
+            base.Skip_Take_Any_with_predicate();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='7'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM (
+            SELECT [t0].*
+            FROM (
+                SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
+                FROM [Customers] AS [c]
+            ) AS [t0]
+            WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))
+        ) AS [t]
+        WHERE [t].[CustomerID] LIKE N'C' + N'%' AND (LEFT([t].[CustomerID], LEN(N'C')) = N'C'))
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Take_Any_with_predicate()
+        {
+            base.Take_Any_with_predicate();
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM (
+            SELECT TOP(@__p_0) [c].*
+            FROM [Customers] AS [c]
+            ORDER BY [c].[CustomerID]
+        ) AS [t]
+        WHERE [t].[CustomerID] LIKE N'B' + N'%' AND (LEFT([t].[CustomerID], LEN(N'B')) = N'B'))
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END");
         }
@@ -487,7 +554,7 @@ SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[City], [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] <> N'VAFFE'
+    WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
 ) AS [t0]
 WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))",
                 //
@@ -501,7 +568,7 @@ INNER JOIN (
     FROM (
         SELECT [c0].[CustomerID], [c0].[City], ROW_NUMBER() OVER(ORDER BY [c0].[City], [c0].[CustomerID]) AS [__RowNumber__]
         FROM [Customers] AS [c0]
-        WHERE [c0].[CustomerID] <> N'VAFFE'
+        WHERE [c0].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ) AS [t1]
     WHERE ([t1].[__RowNumber__] > @__p_0) AND ([t1].[__RowNumber__] <= (@__p_0 + @__p_1))
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
@@ -519,7 +586,7 @@ SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[Cont
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE [c].[CustomerID] <> N'VAFFE'
+    WHERE [c].[CustomerID] NOT IN (N'VAFFE', N'DRACD')
     ORDER BY [c].[City]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
@@ -786,6 +853,22 @@ FROM (
     ) AS [t0]
     WHERE [t0].[__RowNumber__] > @__p_0
 ) AS [t]");
+        }
+
+        public override void OrderBy_Dto_projection_skip_take()
+        {
+            base.OrderBy_Dto_projection_skip_take();
+
+            AssertSql(
+                @"@__p_0='5'
+@__p_1='10'
+
+SELECT [t].[Id]
+FROM (
+    SELECT [c].[CustomerID] AS [Id], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
+    FROM [Customers] AS [c]
+) AS [t]
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
         private void AssertSql(params string[] expected)

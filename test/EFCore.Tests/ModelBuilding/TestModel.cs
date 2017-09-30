@@ -222,6 +222,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int SelfRefId { get; set; }
         }
 
+        protected class SelfRefManyToOne
+        {
+            public int Id { get; set; }
+            public SelfRefManyToOne SelfRef1 { get; set; }
+            public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
+            public int SelfRefId { get; set; }
+        }
+
+        protected class SelfRefManyToOneDerived : SelfRefManyToOne
+        {
+        }
+
         protected class Book
         {
             public static readonly PropertyInfo BookDetailsNavigation = typeof(Book).GetProperty("Details");

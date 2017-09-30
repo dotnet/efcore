@@ -1,7 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
-
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
     <Description>Entity Framework Core Command Line Tools</Description>
@@ -42,8 +40,8 @@
     </Compile>
   </ItemGroup>
 
-  <Target Name="BuildX86" AfterTargets="Build">
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="Platform=x86;Configuration=$(Configuration)" Targets="Build" />
+  <Target Name="BuildX86" AfterTargets="Build" Condition=" '$(Platform)' != 'x86' ">
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="Platform=x86;Configuration=$(Configuration);BuildNumber=$(BuildNumber)" Targets="Build" />
   </Target>
 
 </Project>

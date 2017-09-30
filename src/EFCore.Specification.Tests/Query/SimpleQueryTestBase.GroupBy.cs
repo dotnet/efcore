@@ -505,5 +505,45 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(expected.Count, result.Count);
             }
         }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Skip_GroupBy()
+        {
+            AssertQuery<Order>(
+                os => os.OrderBy(o => o.OrderDate).Skip(800).GroupBy(o => o.CustomerID),
+                elementSorter: GroupingSorter<string, object>(),
+                elementAsserter: GroupingAsserter<string, dynamic>(d => d.OrderDate),
+                entryCount: 30);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Take_GroupBy()
+        {
+            AssertQuery<Order>(
+                os => os.OrderBy(o => o.OrderDate).Take(50).GroupBy(o => o.CustomerID),
+                elementSorter: GroupingSorter<string, object>(),
+                elementAsserter: GroupingAsserter<string, dynamic>(d => d.OrderDate),
+                entryCount: 50);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Skip_Take_GroupBy()
+        {
+            AssertQuery<Order>(
+                os => os.OrderBy(o => o.OrderDate).Skip(450).Take(50).GroupBy(o => o.CustomerID),
+                elementSorter: GroupingSorter<string, object>(),
+                elementAsserter: GroupingAsserter<string, dynamic>(d => d.OrderDate),
+                entryCount: 50);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Select_Distinct_GroupBy()
+        {
+            AssertQuery<Order>(
+                os => os.Select(o => new { o.CustomerID, o.EmployeeID }).OrderBy(a => a.EmployeeID).Distinct().GroupBy(o => o.CustomerID),
+                elementSorter: GroupingSorter<string, object>(),
+                elementAsserter: GroupingAsserter<string, dynamic>(d => d.EmployeeID));
+        }
     }
 }

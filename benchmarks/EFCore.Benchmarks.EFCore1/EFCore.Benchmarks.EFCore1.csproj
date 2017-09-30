@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
-
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp1.1</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EFCore1</RootNamespace>
     <OutputType>Exe</OutputType>
+    <!-- Sets the exact version of Microsoft.NETCore.App to be used -->
+    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp1.1'">1.1.2</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCore1Version)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.2" />
+    <PackageReference Include="xunit.assert" Version="2.2.0" />
   </ItemGroup>
 
 </Project>

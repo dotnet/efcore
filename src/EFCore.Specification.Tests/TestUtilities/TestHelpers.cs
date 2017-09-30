@@ -116,6 +116,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var eventId = (EventId)eventIdField.GetValue(null);
 
+                Assert.InRange(eventId.Id, CoreEventId.CoreBaseId, ushort.MaxValue);
+
                 var categoryName = Activator.CreateInstance(category).ToString();
                 Assert.Equal(categoryName + "." + eventName, eventId.Name);
 

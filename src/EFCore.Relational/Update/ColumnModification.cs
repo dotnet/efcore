@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         private string _parameterName;
         private string _originalParameterName;
         private readonly Func<string> _generateParameterName;
+        private readonly object _originalValue;
+        private object _value;
+        private readonly bool _useParameters;
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
@@ -45,21 +48,54 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool isKey,
             bool isCondition,
             bool isConcurrencyToken)
+            : this(
+                Check.NotNull(propertyAnnotations, nameof(propertyAnnotations)).ColumnName,
+                originalValue: null,
+                value: null,
+                isRead: isRead,
+                isWrite: isWrite,
+                isKey: isKey,
+                isCondition: isCondition)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(property, nameof(property));
-            Check.NotNull(propertyAnnotations, nameof(propertyAnnotations));
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
             Entry = entry;
             Property = property;
-            ColumnName = propertyAnnotations.ColumnName;
+            IsConcurrencyToken = isConcurrencyToken;
             _generateParameterName = generateParameterName;
+            _useParameters = true;
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="ColumnModification" /> instance.
+        /// </summary>
+        /// <param name="columnName"> The name of the column. </param>
+        /// <param name="originalValue"> The original value of the property mapped to this column. </param>
+        /// <param name="value"> Gets or sets the current value of the property mapped to this column. </param>
+        /// <param name="isRead"> Indicates whether or not a value must be read from the database for the column. </param>
+        /// <param name="isWrite"> Indicates whether or not a value must be written to the database for the column. </param>
+        /// <param name="isKey"> Indicates whether or not the column part of a primary or alternate key.</param>
+        /// <param name="isCondition"> Indicates whether or not the column is used in the <c>WHERE</c> clause when updating. </param>
+        public ColumnModification(
+            [NotNull] string columnName,
+            [CanBeNull] object originalValue,
+            [CanBeNull] object value,
+            bool isRead,
+            bool isWrite,
+            bool isKey,
+            bool isCondition)
+        {
+            Check.NotNull(columnName, nameof(columnName));
+
+            ColumnName = columnName;
+            _originalValue = originalValue;
+            _value = value;
             IsRead = isRead;
             IsWrite = isWrite;
             IsKey = isKey;
             IsCondition = isCondition;
-            IsConcurrencyToken = isConcurrencyToken;
         }
 
         /// <summary>
@@ -100,12 +136,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseOriginalValueParameter => IsCondition && IsConcurrencyToken;
+        public virtual bool UseOriginalValueParameter => _useParameters && IsCondition && IsConcurrencyToken;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseCurrentValueParameter => IsWrite || IsCondition && !IsConcurrencyToken;
+        public virtual bool UseCurrentValueParameter => _useParameters && (IsWrite || IsCondition && !IsConcurrencyToken);
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
@@ -127,15 +163,26 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The original value of the property mapped to this column.
         /// </summary>
-        public virtual object OriginalValue => Entry.GetOriginalValue(Property);
+        public virtual object OriginalValue => Entry == null ? _originalValue : Entry.GetOriginalValue(Property);
 
         /// <summary>
         ///     Gets or sets the current value of the property mapped to this column.
         /// </summary>
         public virtual object Value
         {
-            get { return Entry.GetCurrentValue(Property); }
-            [param: CanBeNull] set { Entry.SetCurrentValue(Property, value); }
+            get { return Entry == null ? _value : Entry.GetCurrentValue(Property); }
+            [param: CanBeNull]
+            set
+            {
+                if (Entry == null)
+                {
+                    _value = value;
+                }
+                else
+                {
+                    Entry.SetCurrentValue(Property, value);
+                }
+            }
         }
     }
 }

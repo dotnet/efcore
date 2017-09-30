@@ -5,12 +5,15 @@ using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerModelValidatorTest : RelationalModelValidatorTest
@@ -18,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore
         public override void Detects_duplicate_column_names()
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
-            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
+
+            GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
+            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -31,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Property(c => c.Type);
-            modelBuilder.Entity<Dog>().Property(c => c.Type);
+            
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(c => c.Type).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -48,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<A>().ToTable("Table");
             modelBuilder.Entity<B>().ToTable("Table");
 
+            GenerateMapping(modelBuilder.Entity<A>().Property(b => b.P0).Metadata);
+            GenerateMapping(modelBuilder.Entity<B>().Property(d => d.P0).Metadata);
+
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "int"), modelBuilder.Model);
@@ -57,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).HasMaxLength(30);
-            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).HasMaxLength(15);
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasMaxLength(30).Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasMaxLength(15).Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
@@ -70,12 +79,34 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity<Animal>();
-            modelBuilder.Entity<Cat>().Ignore(e => e.Type).Property(c => c.Breed).IsUnicode(false);
-            modelBuilder.Entity<Dog>().Ignore(e => e.Type).Property(d => d.Breed).IsUnicode();
+
+            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).IsUnicode(false).Metadata);
+            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).IsUnicode().Metadata);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), "varchar(max)", "nvarchar(max)"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
+        {
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>(cb =>
+                {
+                    cb.Property(c => c.Identity).UseSqlServerIdentityColumn();
+                    cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
+                });
+            modelBuilder.Entity<Dog>(db =>
+                {
+                    db.Property(d => d.Identity).ValueGeneratedNever();
+                    db.Property(c => c.Identity).HasColumnName(nameof(Dog.Identity));
+                });
+
+            VerifyError(
+                SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
+                    nameof(Cat), nameof(Cat.Identity), nameof(Dog), nameof(Dog.Identity), nameof(Cat.Identity), nameof(Animal)), modelBuilder.Model);
         }
 
         [Fact]
@@ -219,6 +250,9 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder.Model);
         }
+
+        private static void GenerateMapping(IMutableProperty property)
+            => property[CoreAnnotationNames.TypeMapping] = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
 
         private class Cheese
         {

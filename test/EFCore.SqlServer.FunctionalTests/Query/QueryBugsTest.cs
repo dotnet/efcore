@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public QueryBugsTest(SqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected SqlServerFixture Fixture { get; }
@@ -1177,7 +1177,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1198,7 +1198,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1219,7 +1219,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
                     var result = query.ToList();
@@ -2339,24 +2339,40 @@ BEGIN
         #region Bug9038
 
         [Fact]
-        public virtual void Repro9038()
+        public virtual async Task Include_collection_optional_reference_collection_9038()
         {
             using (CreateDatabase9038())
             {
                 using (var context = new MyContext9038(_options))
                 {
-                    var teachersTask = context.People.OfType<PersonTeacher9038>()
+                    var result = await context.People.OfType<PersonTeacher9038>()
                         .Include(m => m.Students)
                         .ThenInclude(m => m.Family)
                         .ThenInclude(m => m.Members)
                         .ToListAsync();
 
-                    teachersTask.Wait();
-
-                    var result = teachersTask.Result;
-
                     Assert.Equal(2, result.Count);
                     Assert.Equal(true, result.All(r => r.Students.Any()));
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Include_optional_reference_collection_another_collection()
+        {
+            using (CreateDatabase9038())
+            {
+                using (var context = new MyContext9038(_options))
+                {
+                    var result = await context.Set<PersonTeacher9038>()
+                        .Include(m => m.Family.Members)
+                        .Include(m => m.Students)
+                        .ToListAsync();
+
+                    Assert.Equal(2, result.Count);
+                    Assert.True(result.All(r => r.Students.Any()));
+                    Assert.Null(result.Single(t => t.Name == "Ms. Frizzle").Family);
+                    Assert.NotNull(result.Single(t => t.Name == "Mr. Garrison").Family);
                 }
             }
         }
@@ -2410,18 +2426,19 @@ BEGIN
                 modelBuilder.Entity<PersonKid9038>().HasBaseType<Person9038>();
                 modelBuilder.Entity<PersonFamily9038>();
 
-                modelBuilder.Entity<PersonKid9038>(entity =>
-                    {
-                        entity.Property("Discriminator")
-                            .HasMaxLength(63);
-                        entity.HasIndex("Discriminator");
+                modelBuilder.Entity<PersonKid9038>(
+                    entity =>
+                        {
+                            entity.Property("Discriminator")
+                                .HasMaxLength(63);
+                            entity.HasIndex("Discriminator");
 
-                        entity.HasOne(m => m.Teacher)
-                            .WithMany(m => m.Students)
-                            .HasForeignKey(m => m.TeacherId)
-                            .HasPrincipalKey(m => m.Id)
-                            .OnDelete(DeleteBehavior.Restrict);
-                    });
+                            entity.HasOne(m => m.Teacher)
+                                .WithMany(m => m.Students)
+                                .HasForeignKey(m => m.TeacherId)
+                                .HasPrincipalKey(m => m.Id)
+                                .OnDelete(DeleteBehavior.Restrict);
+                        });
             }
         }
 
@@ -2434,22 +2451,22 @@ BEGIN
                         {
                             new PersonFamily9038
                             {
-                                LastName = "Garrison",
+                                LastName = "Garrison"
                             },
                             new PersonFamily9038
                             {
-                                LastName = "Cartman",
+                                LastName = "Cartman"
                             }
                         };
                         var teachers = new List<PersonTeacher9038>
                         {
-                            new PersonTeacher9038 {Name = "Ms. Frizzle"},
-                            new PersonTeacher9038 {Name = "Mr. Garrison", Family = famalies[0]},
+                            new PersonTeacher9038 { Name = "Ms. Frizzle" },
+                            new PersonTeacher9038 { Name = "Mr. Garrison", Family = famalies[0] }
                         };
                         var students = new List<PersonKid9038>
                         {
-                            new PersonKid9038 {Name = "Arnold", Grade = 2, Teacher = teachers[0]},
-                            new PersonKid9038 {Name = "Eric", Grade = 4, Teacher = teachers[1], Family = famalies[1]},
+                            new PersonKid9038 { Name = "Arnold", Grade = 2, Teacher = teachers[0] },
+                            new PersonKid9038 { Name = "Eric", Grade = 4, Teacher = teachers[1], Family = famalies[1] }
                         };
 
                         context.People.AddRange(teachers);
@@ -2458,6 +2475,421 @@ BEGIN
 
                         ClearLog();
                     });
+
+        #endregion
+
+        #region Bug9735
+
+        [Fact]
+        // TODO: Convert to test in IncludeTestBase once issue #9742 is fixed
+        public virtual void Repro9735()
+        {
+            using (CreateDatabase9735())
+            {
+                using (var context = new MyContext9735(_options))
+                {
+                    var result = context.Customers
+                        .Include(b => b.Orders)
+                        .OrderBy(b => b.Address.Id > 0)
+                        .ThenBy(b => b.CustomerDetails != null ? b.CustomerDetails.Name : string.Empty)
+                        .Take(2)
+                        .ToList();
+
+                    Assert.Equal(1, result.Count);
+
+                    AssertSql(
+                        @"@__p_1='2'
+@__Empty_0='' (Size = 4000)
+
+SELECT TOP(@__p_1) [b].[Id], [b].[AddressId], [b].[CustomerDetailsId], [b].[Name]
+FROM [Customers] AS [b]
+LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails] ON [b].[CustomerDetailsId] = [b.CustomerDetails].[Id]
+ORDER BY CASE
+    WHEN [b].[AddressId] > 0
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, CASE
+    WHEN [b].[CustomerDetailsId] IS NOT NULL
+    THEN [b.CustomerDetails].[Name] ELSE @__Empty_0
+END, [b].[Id]",
+                        //
+                        @"@__p_1='2'
+@__Empty_0='' (Size = 4000)
+
+SELECT [b.Orders].[Id], [b.Orders].[CustomerId], [b.Orders].[Name]
+FROM [Order9735] AS [b.Orders]
+INNER JOIN (
+    SELECT DISTINCT [t].*
+    FROM (
+        SELECT TOP(@__p_1) [b0].[Id], CASE
+            WHEN [b0].[AddressId] > 0
+            THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+        END AS [c], CASE
+            WHEN [b0].[CustomerDetailsId] IS NOT NULL
+            THEN [b.CustomerDetails0].[Name] ELSE @__Empty_0
+        END AS [c0], [b0].[AddressId], [b0].[CustomerDetailsId], [b.CustomerDetails0].[Name]
+        FROM [Customers] AS [b0]
+        LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails0] ON [b0].[CustomerDetailsId] = [b.CustomerDetails0].[Id]
+        ORDER BY [c], [c0], [b0].[Id]
+    ) AS [t]
+) AS [t0] ON [b.Orders].[CustomerId] = [t0].[Id]
+ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
+                }
+            }
+        }
+
+        public class Address9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class Customer9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int AddressId { get; set; }
+            public virtual Address9735 Address { get; set; }
+            public virtual List<Order9735> Orders { get; set; }
+            public virtual CustomerDetails9735 CustomerDetails { get; set; }
+        }
+
+        public class Order9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int CustomerId { get; set; }
+            public virtual Customer9735 Customer { get; set; }
+        }
+
+        public class CustomerDetails9735
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class MyContext9735 : DbContext
+        {
+            public MyContext9735(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Customer9735> Customers { get; set; }
+        }
+
+        private SqlServerTestStore CreateDatabase9735()
+        {
+            return CreateTestStore(
+                () => new MyContext9735(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Address9735 {Name = "An A"},
+                        new Customer9735 {Name = "A B", AddressId = 1}
+                    );
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        #endregion
+
+        #region Bug9791
+
+        [Fact]
+        public virtual void Context_bound_variable_works_correctly()
+        {
+            using (CreateDatabase9791())
+            {
+                using (var context = new MyContext9791(_options))
+                {
+                    // This throws because the default value of TenantIds is null which is NRE
+                    Assert.Throws<NullReferenceException>(() => context.Blogs.ToList());
+                }
+
+                using (var context = new MyContext9791(_options))
+                {
+                    context.TenantIds = new List<int>();
+                    var query = context.Blogs.ToList();
+
+                    Assert.Empty(query);
+                }
+
+                using (var context = new MyContext9791(_options))
+                {
+                    context.TenantIds = new List<int> { 1 };
+                    var query = context.Blogs.ToList();
+
+                    Assert.Single(query);
+                }
+
+                using (var context = new MyContext9791(_options))
+                {
+                    context.TenantIds = new List<int> { 1, 2 };
+                    var query = context.Blogs.ToList();
+
+                    Assert.Equal(2, query.Count);
+                }
+
+                AssertSql(
+                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
+FROM [Blogs] AS [b]
+WHERE [b].[IsDeleted] = 0",
+                    //
+                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
+FROM [Blogs] AS [b]
+WHERE [b].[IsDeleted] = 0",
+                    //
+                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
+FROM [Blogs] AS [b]
+WHERE [b].[IsDeleted] = 0");
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9791()
+            => CreateTestStore(
+                () => new MyContext9791(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new Blog9791 { IsDeleted = false, TenantId = 1 },
+                            new Blog9791 { IsDeleted = false, TenantId = 2 },
+                            new Blog9791 { IsDeleted = false, TenantId = 3 },
+                            new Blog9791 { IsDeleted = true, TenantId = 1 },
+                            new Blog9791 { IsDeleted = true, TenantId = 2 },
+                            new Blog9791 { IsDeleted = true, TenantId = 3 }
+                        );
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        public class MyContext9791 : DbContext
+        {
+            public MyContext9791(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public List<int> TenantIds { get; set; }
+
+            public DbSet<Blog9791> Blogs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<Blog9791>()
+                    .HasQueryFilter(e => !e.IsDeleted && TenantIds.Contains(e.TenantId));
+            }
+        }
+
+        public class Blog9791
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+            public int TenantId { get; set; }
+        }
+
+        #endregion
+
+        #region Bug9825
+
+        [Fact]
+        public virtual void Context_bound_variable_works_correctly_in_short_circuit_optimization_9825()
+        {
+            using (CreateDatabase9825())
+            {
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = true;
+                    var query = context.Users.ToList();
+
+                    Assert.Single(query);
+                }
+
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = false;
+                    var query = context.Users.ToList();
+
+                    Assert.Single(query);
+                }
+
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = null;
+                    var query = context.Users.ToList();
+
+                    Assert.Equal(2, query.Count);
+                }
+
+                AssertSql(
+                    @"@__IsModerated_0='True' (Nullable = true)
+@__IsModerated_1='True' (Nullable = true)
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
+FROM [Users] AS [e]
+WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR (@__IsModerated_1 = [e].[IsModerated]))",
+                    //
+                    @"@__IsModerated_0='False' (Nullable = true)
+@__IsModerated_1='False' (Nullable = true)
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
+FROM [Users] AS [e]
+WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR (@__IsModerated_1 = [e].[IsModerated]))",
+                    //
+                    @"@__IsModerated_0='' (DbType = String)
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
+FROM [Users] AS [e]
+WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)");
+            }
+        }
+
+        [Fact]
+        public virtual void Context_bound_variable_with_member_chain_works_correctly_9825()
+        {
+            using (CreateDatabase9825())
+            {
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IndirectionFlag = new Indirection { Enabled = true };
+                    var query = context.Chains.ToList();
+
+                    Assert.Equal(2, query.Count);
+                }
+
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IndirectionFlag = new Indirection { Enabled = false };
+                    var query = context.Chains.ToList();
+
+                    Assert.Equal(2, query.Count);
+                }
+
+                using (var context = new MyContext9825(_options))
+                {
+                        context.IndirectionFlag = null;
+                    var exception = Assert.Throws<NullReferenceException>(() => context.Chains.ToList());
+                    Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
+                    Assert.StartsWith(
+                        @"   at lambda_method(Closure , QueryContext )", exception.StackTrace);
+
+                }
+
+                AssertSql(
+                    @"@__Enabled_0='True'
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
+FROM [Chains] AS [e]
+WHERE @__Enabled_0 = [e].[IsDeleted]",
+                    //
+                    @"@__Enabled_0='False'
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
+FROM [Chains] AS [e]
+WHERE @__Enabled_0 = [e].[IsDeleted]");
+            }
+        }
+
+        [Fact]
+        public virtual void Local_variable_in_query_filter_throws_if_cannot_be_evaluated_9825()
+        {
+            using (CreateDatabase9825())
+            {
+                using (var context = new MyContext9825(_options))
+                {
+                    context.IsModerated = true;
+                    var exception = Assert.Throws<InvalidOperationException>(() => context.Locals.ToList());
+                    Assert.Equal(CoreStrings.ExpressionParameterizationExceptionSensitive("value(Microsoft.EntityFrameworkCore.Query.QueryBugsTest+MyContext9825+<>c__DisplayClass21_0).local.Enabled"), exception.Message);
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9825()
+            => CreateTestStore(
+                () => new MyContext9825(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = false, IsModerated = false },
+                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = true, IsModerated = false },
+                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = false, IsModerated = true },
+                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = true, IsModerated = true },
+
+                            new EntityWithContextBoundMemberChain9825 { IsDeleted = false, IsModerated = false },
+                            new EntityWithContextBoundMemberChain9825 { IsDeleted = true, IsModerated = false },
+                            new EntityWithContextBoundMemberChain9825 { IsDeleted = false, IsModerated = true },
+                            new EntityWithContextBoundMemberChain9825 { IsDeleted = true, IsModerated = true },
+
+                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = false },
+                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = false },
+                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = true },
+                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = true }
+                        );
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        public class MyContext9825 : DbContext
+        {
+            public MyContext9825(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public bool? IsModerated { get; set; }
+            public Indirection IndirectionFlag { get; set; }
+
+            public DbSet<EntityWithContextBoundComplexExpression9825> Users { get; set; }
+            public DbSet<EntityWithContextBoundMemberChain9825> Chains { get; set; }
+            public DbSet<EntityWithLocalVariableAccessInFilter9825> Locals { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<EntityWithContextBoundComplexExpression9825>()
+                    .HasQueryFilter(x => !x.IsDeleted && (IsModerated == null || IsModerated == x.IsModerated));
+
+                modelBuilder.Entity<EntityWithContextBoundMemberChain9825>()
+                    .HasQueryFilter(x => IndirectionFlag.Enabled == x.IsDeleted);
+
+                var local = new Indirection();
+                local = null;
+                modelBuilder.Entity<EntityWithLocalVariableAccessInFilter9825>()
+                    .HasQueryFilter(x => local.Enabled == x.IsDeleted);
+            }
+        }
+
+        public class Indirection
+        {
+            public bool Enabled { get; set; }
+        }
+
+        public class EntityWithContextBoundComplexExpression9825
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsModerated { get; set; }
+        }
+
+        public class EntityWithContextBoundMemberChain9825
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsModerated { get; set; }
+        }
+
+        public class EntityWithLocalVariableAccessInFilter9825
+        {
+            public int Id { get; set; }
+            public bool IsDeleted { get; set; }
+            public bool IsModerated { get; set; }
+        }
 
         #endregion
 

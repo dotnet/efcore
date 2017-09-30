@@ -45,21 +45,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transactionLogger"> The logger to which transaction messages will be written. </param>
         /// <param name="connectionLogger"> The logger to which connection messages will be written. </param>
         /// <param name="connectionStringResolver"> A service for resolving a connection string from a name. </param>
+        /// <param name="relationalTransactionFactory"> A service for creating <see cref="RelationalTransaction"/> instances. </param>
         public RelationalConnectionDependencies(
             [NotNull] IDbContextOptions contextOptions,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger,
-            [NotNull] INamedConnectionStringResolver connectionStringResolver)
+            [NotNull] INamedConnectionStringResolver connectionStringResolver,
+            [NotNull] IRelationalTransactionFactory relationalTransactionFactory)
         {
             Check.NotNull(contextOptions, nameof(contextOptions));
             Check.NotNull(transactionLogger, nameof(transactionLogger));
             Check.NotNull(connectionLogger, nameof(connectionLogger));
             Check.NotNull(connectionStringResolver, nameof(connectionStringResolver));
+            Check.NotNull(relationalTransactionFactory, nameof(relationalTransactionFactory));
 
             ContextOptions = contextOptions;
             TransactionLogger = transactionLogger;
             ConnectionLogger = connectionLogger;
             ConnectionStringResolver = connectionStringResolver;
+            RelationalTransactionFactory = relationalTransactionFactory;
         }
 
         /// <summary>
@@ -83,6 +87,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public INamedConnectionStringResolver ConnectionStringResolver { get; }
 
         /// <summary>
+        ///     A service for creating <see cref="RelationalTransaction"/> instances.
+        /// </summary>
+        public IRelationalTransactionFactory RelationalTransactionFactory { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="contextOptions">
@@ -90,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] IDbContextOptions contextOptions)
-            => new RelationalConnectionDependencies(contextOptions, TransactionLogger, ConnectionLogger, ConnectionStringResolver);
+            => new RelationalConnectionDependencies(contextOptions, TransactionLogger, ConnectionLogger, ConnectionStringResolver, RelationalTransactionFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -100,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Connection> connectionLogger)
-            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, connectionLogger, ConnectionStringResolver);
+            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, connectionLogger, ConnectionStringResolver, RelationalTransactionFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -110,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> transactionLogger)
-            => new RelationalConnectionDependencies(ContextOptions, transactionLogger, ConnectionLogger, ConnectionStringResolver);
+            => new RelationalConnectionDependencies(ContextOptions, transactionLogger, ConnectionLogger, ConnectionStringResolver, RelationalTransactionFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -120,6 +129,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConnectionDependencies With([NotNull] INamedConnectionStringResolver connectionStringResolver)
-            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, ConnectionLogger, connectionStringResolver);
+            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, ConnectionLogger, connectionStringResolver, RelationalTransactionFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="relationalTransactionFactory">
+        ///     A replacement for the current dependency of this type.
+        /// </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConnectionDependencies With([NotNull] IRelationalTransactionFactory relationalTransactionFactory)
+            => new RelationalConnectionDependencies(ContextOptions, TransactionLogger, ConnectionLogger, ConnectionStringResolver, relationalTransactionFactory);
+
     }
 }

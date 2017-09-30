@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class InternalRelationalMetadataBuilderExtensionsTest
@@ -315,6 +317,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
                 .HasDiscriminator("Splotted", typeof(string));
+
+            Assert.NotNull(discriminatorBuilder);
             Assert.Equal("4", typeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Equal(
                 "5", typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)
@@ -324,6 +328,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     .Metadata.Relational().DiscriminatorValue);
 
             discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(int));
+
+            Assert.NotNull(discriminatorBuilder);
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Null(
                 typeBuilder.ModelBuilder.Entity("Splow", ConfigurationSource.Convention)

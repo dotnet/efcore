@@ -251,6 +251,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Query_with_closure_null()
+        {
+            string customerID = null;
+
+            var query = EF.CompileQuery(
+                (NorthwindContext context)
+                    => context.Customers.Where(c => c.CustomerID == customerID));
+
+            using (var context = CreateContext())
+            {
+                Assert.Null(query(context).FirstOrDefault());
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task DbSet_query_async()
         {
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.Customers);
@@ -424,6 +439,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal("ALFKI", (await query(context).ToListAsync()).First().CustomerID);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Query_with_closure_async_null()
+        {
+            string customerID = null;
+
+            var query = EF.CompileAsyncQuery(
+                (NorthwindContext context)
+                    => context.Customers.Where(c => c.CustomerID == customerID));
+
+            using (var context = CreateContext())
+            {
+                Assert.Empty(await query(context).ToListAsync());
             }
         }
 

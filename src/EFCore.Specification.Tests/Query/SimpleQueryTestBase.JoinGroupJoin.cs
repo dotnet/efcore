@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Customer, Order>(
                 (cs, os) =>
-                    from c in cs.Where(c => c.CustomerID != "VAFFE").OrderBy(c => c.City).Take(5)
+                    from c in cs.Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD").OrderBy(c => c.City).Take(5)
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     select new { cust = c, ords = orders.Count() },
                 assertOrder: true,

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Update
 {
     public class SqlServerModificationCommandBatchTest
@@ -17,15 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new SqlServerTypeMapper(new RelationalTypeMapperDependencies())),
+                    new SqlServerTypeMapper(
+                        new RelationalTypeMapperDependencies())),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
-                            new RelationalSqlGenerationHelperDependencies())),
-                    new SqlServerTypeMapper(
-                        new RelationalTypeMapperDependencies())),
+                            new RelationalSqlGenerationHelperDependencies()),
+                        new SqlServerTypeMapper(
+                            new RelationalTypeMapperDependencies()))),
                 new UntypedRelationalValueBufferFactoryFactory(
                     new RelationalValueBufferFactoryDependencies()),
                 1);

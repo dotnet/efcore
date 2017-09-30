@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalTypeMapping
+    public abstract class RelationalTypeMapping : CoreTypeMapping
     {
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private class NullTypeMapping : RelationalTypeMapping
         {
             public NullTypeMapping(string storeType)
-                : base(storeType)
+                : base(storeType, typeof(object))
             {
             }
 
@@ -51,17 +51,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(storeType)
+            : this(storeType, clrType)
         {
-            Check.NotNull(clrType, nameof(clrType));
-
-            ClrType = clrType;
             DbType = dbType;
             IsUnicode = unicode;
             Size = size;
         }
 
-        private RelationalTypeMapping([NotNull] string storeType)
+        private RelationalTypeMapping(
+            [NotNull] string storeType,
+            [NotNull] Type clrType)
+            : base(clrType)
         {
             Check.NotEmpty(storeType, nameof(storeType));
 
@@ -80,11 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the name of the database type.
         /// </summary>
         public virtual string StoreType { get; }
-
-        /// <summary>
-        ///     Gets the .NET type.
-        /// </summary>
-        public virtual Type ClrType { get; }
 
         /// <summary>
         ///     Gets the <see cref="System.Data.DbType" /> to be used.

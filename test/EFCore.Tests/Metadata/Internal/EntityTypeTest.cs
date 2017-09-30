@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ImplicitlyCapturedClosure
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -102,6 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
+            public IEnumerable<IDictionary<string, object>> GetSeedData() => throw new NotImplementedException();
         }
 
         [Fact]
@@ -1503,12 +1505,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_a_key_throws_if_any_properties_are_part_of_derived_foreign_key()
+        public void Can_add_a_key_if_any_properties_are_part_of_derived_foreign_key()
         {
             var model = new Model();
             var baseType = model.AddEntityType(typeof(BaseType));
             var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
             var fkProperty = baseType.AddProperty("fk", typeof(int));
+            var key = baseType.GetOrAddKey(new[] { idProperty });
+            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            entityType.BaseType = baseType;
+            entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
+
+            Assert.NotNull(baseType.GetOrAddKey(new[] { fkProperty }));
+        }
+
+        [Fact]
+        public void Adding_a_key_with_value_generation_throws_if_any_properties_are_part_of_derived_foreign_key()
+        {
+            var model = new Model();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
+            var fkProperty = baseType.AddProperty("fk", typeof(int));
+            fkProperty.ValueGenerated = ValueGenerated.OnAdd;
             var key = baseType.GetOrAddKey(new[] { idProperty });
             IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
             entityType.BaseType = baseType;
@@ -1855,7 +1873,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Adding_a_foreign_key_throws_if_any_properties_are_part_of_inherited_key()
+        public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key()
+        {
+            var model = new Model();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var idProperty = baseType.GetOrAddProperty(Customer.IdProperty);
+            var idProperty2 = baseType.GetOrAddProperty("id2", typeof(int));
+            var key = baseType.GetOrAddKey(new[] { idProperty, idProperty2 });
+            IMutableEntityType entityType = model.AddEntityType(typeof(Customer));
+            entityType.BaseType = baseType;
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
+
+            Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
+        }
+
+        [Fact]
+        public void Adding_a_foreign_key_throws_if_any_properties_are_part_of_inherited_key_with_value_generation()
         {
             var model = new Model();
             var baseType = model.AddEntityType(typeof(BaseType));
@@ -2174,40 +2207,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 CoreStrings.NavigationToShadowEntity(nameof(Order.Customer), typeof(Order).Name, "Customer"),
                 Assert.Throws<InvalidOperationException>(
                     () => customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty)).Message);
-        }
-
-        [Fact]
-        public void Adding_a_shadow_navigation_on_a_non_shadow_entity_type_throws()
-        {
-            var model = new Model();
-            var customerType = model.AddEntityType(typeof(Customer));
-            var customerKey = customerType.GetOrAddKey(customerType.AddProperty("Id", typeof(int)));
-
-            var orderType = model.AddEntityType(typeof(Order));
-            var foreignKeyProperty = orderType.AddProperty("CustomerId", typeof(int));
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-
-            Assert.Equal(
-                CoreStrings.NoClrNavigation("Navigation", typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("Navigation")).Message);
-        }
-
-        [Fact]
-        public void Adding_a_navigation_that_doesnt_match_a_CLR_property_throws()
-        {
-            var model = new Model();
-            var customerType = model.AddEntityType(typeof(Customer));
-            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
-
-            var orderType = model.AddEntityType(typeof(Order));
-            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-
-            Assert.Equal(
-                CoreStrings.NoClrNavigation("Snook", typeof(Order).Name),
-                Assert.Throws<InvalidOperationException>(
-                    () => customerForeignKey.HasDependentToPrincipal("Snook")).Message);
         }
 
         [Fact]

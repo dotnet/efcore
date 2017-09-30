@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private readonly object[] _values;
         private IReadOnlyList<IProperty> _properties;
-        private IEntityMaterializerSource _materializerSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -112,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override object this[string propertyName]
         {
-            get { return _values[EntityType.GetProperty(propertyName).GetIndex()]; }
-            set { SetValue(EntityType.GetProperty(propertyName).GetIndex(), value); }
+            get => _values[EntityType.GetProperty(propertyName).GetIndex()];
+            set => SetValue(EntityType.GetProperty(propertyName).GetIndex(), value);
         }
 
         /// <summary>
@@ -122,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override object this[IProperty property]
         {
-            get { return _values[EntityType.CheckPropertyBelongsToType(property).GetIndex()]; }
-            set { SetValue(EntityType.CheckPropertyBelongsToType(property).GetIndex(), value); }
+            get => _values[EntityType.CheckPropertyBelongsToType(property).GetIndex()];
+            set => SetValue(EntityType.CheckPropertyBelongsToType(property).GetIndex(), value);
         }
 
         /// <summary>
@@ -172,7 +170,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private IEntityMaterializerSource MaterializerSource
-            => _materializerSource
-               ?? (_materializerSource = InternalEntry.StateManager.Context.GetService<IEntityMaterializerSource>());
+            => InternalEntry.StateManager.EntityMaterializerSource;
     }
 }

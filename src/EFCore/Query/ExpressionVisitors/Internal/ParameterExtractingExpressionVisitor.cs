@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
         private static readonly TypeInfo _queryableTypeInfo = typeof(IQueryable).GetTypeInfo();
+        private static ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
 
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
         private readonly IParameterValues _parameterValues;
@@ -48,6 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             _logger = logger;
             _parameterize = parameterize;
             _generateContextAccessors = generateContextAccessors;
+
+            if (_generateContextAccessors)
+            {
+                _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor();
+            }
         }
 
         /// <summary>
@@ -352,30 +358,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var parameterValue = Evaluate(expression, out var parameterName);
 
-            if (parameterValue is Expression valueExpression)
+            if (!_generateContextAccessors)
             {
-                return ExtractParameters(valueExpression);
-            }
-
-            if (!_parameterize)
-            {
-                if (_generateContextAccessors
-                    && expression is MemberExpression memberExpression
-                    && memberExpression.Expression != null
-                    && typeof(DbContext).GetTypeInfo()
-                        .IsAssignableFrom(memberExpression.Expression.Type.GetTypeInfo()))
+                if (parameterValue is Expression valueExpression)
                 {
-                    var contextParameterExpression
-                        = Expression.Parameter(memberExpression.Expression.Type, "context");
-
-                    parameterValue
-                        = Expression.Lambda(
-                            memberExpression.Update(contextParameterExpression),
-                            contextParameterExpression);
+                    return ExtractParameters(valueExpression);
                 }
-                else
+
+                if (!_parameterize)
                 {
-                    return Expression.Constant(parameterValue);
+                    return Expression.Constant(parameterValue, expression.Type);
                 }
             }
 
@@ -403,6 +395,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return Expression.Parameter(expression.Type, parameterName);
         }
 
+        private sealed class ContextParameterReplacingExpressionVisitor : ExpressionVisitor
+        {
+            public ParameterExpression ContextParameterExpression;
+
+            protected override Expression VisitConstant(ConstantExpression constantExpression)
+            {
+                if (typeof(DbContext).GetTypeInfo()
+                    .IsAssignableFrom(constantExpression.Type.GetTypeInfo()))
+                {
+                    return ContextParameterExpression ?? (ContextParameterExpression = Expression.Parameter(constantExpression.Type, "context"));
+                }
+
+                return constantExpression;
+            }
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -414,6 +422,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (expression == null)
             {
                 return null;
+            }
+
+            if (_generateContextAccessors)
+            {
+                var newExpression = _contextParameterReplacingExpressionVisitor.Visit(expression);
+
+                if (newExpression != expression)
+                {
+                    parameterName = newExpression is MemberExpression memberExpression
+                        ? memberExpression.Member.Name
+                        : "_queryFilter";
+
+                    return Expression.Lambda(
+                        newExpression,
+                        _contextParameterReplacingExpressionVisitor.ContextParameterExpression);
+                }
             }
 
             // ReSharper disable once SwitchStatementMissingSomeCases

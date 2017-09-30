@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void ValidateContextNameInReverseEngineerGenerator(string contextName)
         {
             var cSharpUtilities = new CSharpUtilities();
-            var reverseEngineer = new ModelScaffolder(
+            var reverseEngineer = new ReverseEngineerScaffolder(
+                new FakeDatabaseModelFactory(),
                 new FakeScaffoldingModelFactory(new TestOperationReporter()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),

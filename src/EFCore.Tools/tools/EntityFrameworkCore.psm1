@@ -114,12 +114,6 @@ function Drop-Database
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
-    if (IsUWP $dteProject)
-    {
-        throw 'Drop-Database shouldn''t be used with Universal Windows Platform apps. Instead, call ' +
-            'DbContext.Database.EnsureDeleted() at runtime.'
-    }
-
     $info = Get-DbContext -Context $Context -Project $Project -StartupProject $StartupProject
 
     if ($PSCmdlet.ShouldProcess("database '$($info.databaseName)' on server '$($info.dataSource)'"))
@@ -225,11 +219,6 @@ function Remove-Migration
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
-
-    if (IsUWP $dteStartupProject)
-    {
-        $Force = [switch]::Present
-    }
 
     $params = 'migrations', 'remove', '--json'
 
@@ -520,12 +509,6 @@ function Update-Database
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
-    if (IsUWP $dteStartupProject)
-    {
-        throw 'Update-Database shouldn''t be used with Universal Windows Platform apps. Instead, call ' +
-            'DbContext.Database.Migrate() at runtime.'
-    }
-
     $params = 'database', 'update'
 
     if ($Migration)
@@ -722,17 +705,6 @@ function WriteErrorLine($message)
 
 function EF($project, $startupProject, $params, [switch] $skipBuild)
 {
-    if (IsUWP $project)
-    {
-        $outputType = GetProperty $project.Properties 'OutputType'
-        $outputTypeEx = GetProperty $project.Properties 'OutputTypeEx'
-        if ($outputType -eq 2 -and $outputTypeEx -eq 3)
-        {
-            throw "Project '$($project.ProjectName)' is a Windows Runtime component. The Entity Framework Core " +
-                'Package Manager Console Tools don''t support this type of project.'
-        }
-    }
-
     if (IsXproj $startupProject)
     {
         throw "Startup project '$($startupProject.ProjectName)' is an ASP.NET Core or .NET Core project for Visual " +
@@ -746,28 +718,10 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
     if (IsUWP $startupProject)
     {
-        $useDotNetNative = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'ProjectN.UseDotNetNativeToolchain'
-        if ($useDotNetNative -eq 'True')
-        {
-            throw "Startup project '$($startupProject.ProjectName)' compiles with the .NET Native tool chan. Uncheck " +
-                'this option in the project settings or use a different configuration and try again.'
-        }
-
-        $outputType = GetProperty $startupProject.Properties 'OutputType'
-        if ($outputType -eq 2)
-        {
-            $outputTypeEx = GetProperty $startupProject.Properties 'OutputTypeEx'
-            if ($outputTypeEx -eq 2)
-            {
-                throw "Startup project '$($startupProject.ProjectName)' is a class library. Select a Universal " +
-                    'Windows Platform app as your startup project and try again.'
-            }
-            if ($outputTypeEx -eq 3)
-            {
-                throw "Startup project '$($startupProject.ProjectName)' is a Windows Runtime component. The Entity " +
-                    'Framework Core Package Manager Console Tools don''t support this type of project.'
-            }
-        }
+        throw "Startup project '$($startupProject.ProjectName)' is a Universal Windows Platform app. This version of " +
+            'the Entity Framework Core Package Manager Console Tools doesn''t support this type of project. For more ' +
+            'information on using the EF Core Tools with UWP projects, see ' +
+            'https://go.microsoft.com/fwlink/?linkid=858496'
     }
 
     Write-Verbose "Using project '$($project.ProjectName)'."
@@ -797,7 +751,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     $frameworkName = New-Object 'System.Runtime.Versioning.FrameworkName' $targetFrameworkMoniker
     $targetFramework = $frameworkName.Identifier
 
-    if ($targetFramework -in '.NETFramework', '.NETCore')
+    if ($targetFramework -in '.NETFramework')
     {
         $platformTarget = GetPlatformTarget $startupProject
         if ($platformTarget -eq 'x86')
@@ -878,10 +832,6 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     if (IsWeb $startupProject)
     {
         $params += '--data-dir', (Join-Path $startupProjectDir 'App_Data')
-    }
-    elseif (IsUWP $startupProject)
-    {
-        $params += '--no-appdomain'
     }
 
     if ($rootNamespace)

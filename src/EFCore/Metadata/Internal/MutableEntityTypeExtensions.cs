@@ -33,5 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IEnumerable<IMutableProperty> GetDeclaredProperties([NotNull] this IMutableEntityType entityType)
             => ((IEntityType)entityType).GetDeclaredProperties().Cast<IMutableProperty>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void AddSeedData([NotNull] this IMutableEntityType entityType, [NotNull] params object[] data)
+            => entityType.AsEntityType().AddSeedData(data);
     }
 }

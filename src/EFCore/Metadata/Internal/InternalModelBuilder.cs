@@ -127,7 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                Ignore(entityType, configurationSource);
+                if (entityType.GetConfigurationSource() != ConfigurationSource.Explicit)
+                {
+                    Ignore(entityType, configurationSource);
+                }
             }
 
             if (clrType == null)

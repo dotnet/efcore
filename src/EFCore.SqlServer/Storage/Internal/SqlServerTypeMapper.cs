@@ -253,12 +253,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override string GetColumnType(IProperty property) => property.SqlServer().ColumnType;
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _clrTypeMappings;
 
@@ -281,9 +275,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             return clrType == typeof(string)
                 ? _unboundedUnicodeString
-                : (clrType == typeof(byte[])
+                : clrType == typeof(byte[])
                     ? _unboundedBinary
-                    : base.FindMapping(clrType));
+                    : base.FindMapping(clrType);
         }
 
         // Indexes in SQL Server have a max size of 900 bytes

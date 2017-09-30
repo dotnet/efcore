@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -90,8 +91,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var notifyingCollection = navigation.GetCollectionAccessor().GetOrCreate(entry.Entity) as INotifyCollectionChanged;
-            if (notifyingCollection == null)
+            if (!(navigation.GetCollectionAccessor()?.GetOrCreate(entry.Entity) is INotifyCollectionChanged notifyingCollection))
             {
                 throw new InvalidOperationException(
                     CoreStrings.NonNotifyingCollection(navigation.Name, entityType.DisplayName(), changeTrackingStrategy));
@@ -105,8 +105,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var changed = entry.Entity as INotifyPropertyChanged;
-            if (changed == null)
+            if (!(entry.Entity is INotifyPropertyChanged changed))
             {
                 throw new InvalidOperationException(
                     CoreStrings.ChangeTrackingInterfaceMissing(
@@ -121,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            var changing = entry.Entity as INotifyPropertyChanging;
-            if (changing == null)
+            if (!(entry.Entity is INotifyPropertyChanging changing))
             {
                 throw new InvalidOperationException(
                     CoreStrings.ChangeTrackingInterfaceMissing(

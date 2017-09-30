@@ -379,9 +379,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var transactionManager = database.GetTransactionManager();
 
-                        var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
-
-                        return relationalTransactionManager != null
+                        return transactionManager is IRelationalTransactionManager relationalTransactionManager
                             ? relationalTransactionManager.BeginTransaction(isolationLevel)
                             : transactionManager.BeginTransaction();
                     });
@@ -405,9 +403,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var transactionManager = database.GetTransactionManager();
 
-                        var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
-
-                        return relationalTransactionManager != null
+                        return transactionManager is IRelationalTransactionManager relationalTransactionManager
                             ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
                             : transactionManager.BeginTransactionAsync(ct);
                     }, cancellationToken);
@@ -423,9 +419,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var transactionManager = GetTransactionManager(databaseFacade);
 
-            var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
-
-            if (relationalTransactionManager == null)
+            if (!(transactionManager is IRelationalTransactionManager relationalTransactionManager))
             {
                 throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
             }

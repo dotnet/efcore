@@ -21,22 +21,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The lower-bound for event IDs used by any Entity Framework or provider code.
         /// </summary>
-        public const int CoreBaseId = 100000;
+        public const int CoreBaseId = 10000;
 
         /// <summary>
         ///     The lower-bound for event IDs used by any relational database provider.
         /// </summary>
-        public const int RelationalBaseId = 200000;
+        public const int RelationalBaseId = 20000;
 
         /// <summary>
         ///     The lower-bound for event IDs used only by database providers.
         /// </summary>
-        public const int ProviderBaseId = 300000;
+        public const int ProviderBaseId = 30000;
 
         /// <summary>
         ///     The lower-bound for event IDs used only by database provider design-time and tooling.
         /// </summary>
-        public const int ProviderDesignBaseId = 350000;
+        public const int ProviderDesignBaseId = 35000;
 
         // Warning: These values must not change between releases.
         // Only add new values to the end of sections, never in the middle.
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             PossibleUnintendedCollectionNavigationNullComparisonWarning,
             PossibleUnintendedReferenceComparisonWarning,
 
-            // Infrastucture events
+            // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
             ServiceProviderCreated,
             ManyServiceProvidersCreatedWarning,
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Possible uninteded comparison of collection navigation to null.
+        ///         Possible unintended comparison of collection navigation to null.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Possible uninteded reference comparison.
+        ///         Possible unintended reference comparison.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Many service proviers were created in a single app domain.
+        ///         Many service providers were created in a single app domain.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.

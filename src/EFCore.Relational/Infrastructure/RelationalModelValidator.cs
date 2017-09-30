@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var dataType = property.Relational().ColumnType;
+                    var dataType = property.GetConfiguredColumnType();
                     if (dataType != null)
                     {
                         TypeMapper.ValidateTypeName(dataType);
@@ -304,10 +304,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var previousAnnotations = duplicateProperty.Relational();
                     var currentTypeString = propertyAnnotations.ColumnType
-                                            ?? TypeMapper.GetMapping(property).StoreType;
+                                            ?? property.FindRelationalMapping()?.StoreType;
                     var previousTypeString = previousAnnotations.ColumnType
-                                             ?? TypeMapper.GetMapping(duplicateProperty).StoreType;
-                    if (!currentTypeString.Equals(previousTypeString, StringComparison.OrdinalIgnoreCase))
+                                             ?? duplicateProperty.FindRelationalMapping()?.StoreType;
+                    if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DuplicateColumnNameDataTypeMismatch(

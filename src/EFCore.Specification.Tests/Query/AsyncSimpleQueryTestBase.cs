@@ -31,6 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [ConditionalFact]
+        public virtual async Task Projection_when_client_evald_subquery()
+        {
+            await AssertQuery<Customer>(
+                cs => cs.Select(c => string.Join(", ", c.Orders.Select(o => o.CustomerID))));
+        }
+
+        [ConditionalFact]
         public virtual async Task ToArray_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
@@ -1780,7 +1787,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from c in cs
                             from e2 in es
                             select new { e1, c, e2.FirstName },
-                elementSorter: e => e.e1.EmployeeID + " " + e.c.CustomerID,
+                elementSorter: e => e.e1.EmployeeID + " " + e.c.CustomerID + " " + e.FirstName,
                 entryCount: 100);
         }
 
@@ -2387,7 +2394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        // TODO: Need to figure out how to do this 
+        // TODO: Need to figure out how to do this
         //        [ConditionalFact]
         //        public virtual async Task GroupBy_anonymous()
         //        {

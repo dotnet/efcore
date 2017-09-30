@@ -163,6 +163,11 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public IDbContextTransaction CurrentTransaction { get; }
+
+            public System.Transactions.Transaction EnlistedTransaction { get; }
+            public void EnlistTransaction(System.Transactions.Transaction transaction)
+            {
+            }
         }
 
         [Fact]

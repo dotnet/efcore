@@ -10,6 +10,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class OwnedFixupTest
@@ -36,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var dependentEntry2 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
 
+                Assert.NotNull(dependentEntry2);
                 Assert.Equal(
                     CoreStrings.AmbiguousDependentEntity(
                         typeof(ChildPN).ShortDisplayName(),
@@ -355,6 +359,52 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(principal.Id, dependentEntry.Property("ParentId").CurrentValue);
                 Assert.Equal(EntityState.Added, dependentEntry.State);
                 Assert.Equal(nameof(Parent.Child1), dependentEntry.Metadata.DefiningNavigationName);
+            }
+        }
+
+        [Theory] // Remove when #7340 is fixed
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Replacing_owned_entity_throws(EntityState entityState)
+        {
+            using (var context = new FixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent1 = new ChildPN { Name = "1" };
+                principal.Child1 = dependent1;
+                var dependent2 = new ChildPN { Name = "2" };
+
+                context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
+
+                principal.Child1 = dependent2;
+
+                Assert.Equal(
+                    CoreStrings.IdentityConflictOwned("ParentPN.Child1#ChildPN", "{'ParentId'}"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.ChangeTracker.DetectChanges()).Message);
+            }
+        }
+
+        [Theory] // Remove when #7340 is fixed
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Unchanged)]
+        public void Replacing_owned_entity_throws_sensitive(EntityState entityState)
+        {
+            using (var context = new SensitiveFixupContext())
+            {
+                var principal = new ParentPN { Id = 77 };
+                var dependent1 = new ChildPN { Name = "1" };
+                principal.Child1 = dependent1;
+                var dependent2 = new ChildPN { Name = "2" };
+
+                context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
+
+                principal.Child1 = dependent2;
+
+                Assert.Equal(
+                    CoreStrings.IdentityConflictOwnedSensitive("ParentPN.Child1#ChildPN", "ParentId:77"),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.ChangeTracker.DetectChanges()).Message);
             }
         }
 
@@ -832,8 +882,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public SubChild SubChild { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class SubChild
         {
+            // ReSharper disable once UnusedMember.Local
             public string Name { get; set; }
 
             public Child Child { get; set; }
@@ -851,6 +903,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public string Name { get; set; }
 
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public SubChildPN SubChild { get; set; }
         }
 
@@ -867,6 +920,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _ignoreDuplicates = ignoreDuplicates;
 
+                // ReSharper disable once VirtualMemberCallInConstructor
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
 
@@ -936,6 +990,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     optionsBuilder.ConfigureWarnings(w => w.Default(WarningBehavior.Throw).Log(CoreEventId.ManyServiceProvidersCreatedWarning));
                 }
+            }
+        }
+
+        private class SensitiveFixupContext : FixupContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.EnableSensitiveDataLogging();
+
+                base.OnConfiguring(optionsBuilder);
             }
         }
 

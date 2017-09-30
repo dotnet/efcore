@@ -1116,13 +1116,93 @@ namespace Microsoft.EntityFrameworkCore
                 "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'People'))" + EOL +
                 "    SET IDENTITY_INSERT [People] ON;" + EOL +
                 "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (0, NULL)," + EOL +
-                "       (1, N'Daenerys Targaryen')," + EOL +
-                "       (2, N'John Snow')," + EOL +
-                "       (3, N'Arya Stark')," + EOL +
-                "       (4, N'Harry Strickland');" + EOL +
+                "VALUES (0, NULL);" + EOL +
+                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
+                "VALUES (1, N'Daenerys Targaryen');" + EOL +
+                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
+                "VALUES (2, N'John Snow');" + EOL +
+                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
+                "VALUES (3, N'Arya Stark');" + EOL +
+                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
+                "VALUES (4, N'Harry Strickland');" + EOL +
+                "GO" + EOL + EOL +
                 "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'People'))" + EOL +
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
+                Sql);
+        }
+
+        public override void DeleteDataOperation_simple_key()
+        {
+            base.DeleteDataOperation_simple_key();
+
+            // TODO remove rowcount
+            Assert.Equal(
+                "DELETE FROM [People]" + EOL +
+                "WHERE [Id] = 2;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL +
+                "DELETE FROM [People]" + EOL +
+                "WHERE [Id] = 4;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL,
+                Sql);
+        }
+
+        public override void DeleteDataOperation_composite_key()
+        {
+            base.DeleteDataOperation_composite_key();
+
+            // TODO remove rowcount
+            Assert.Equal(
+                "DELETE FROM [People]" + EOL +
+                "WHERE [First Name] = N'Hodor' AND [Last Name] IS NULL;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL +
+                "DELETE FROM [People]" + EOL +
+                "WHERE [First Name] = N'Daenerys' AND [Last Name] = N'Targaryen';" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL,
+                Sql);
+        }
+
+        public override void UpdateDataOperation_simple_key()
+        {
+            base.UpdateDataOperation_simple_key();
+
+            // TODO remove rowcount
+            Assert.Equal(
+                "UPDATE [People] SET [Full Name] = N'Daenerys Stormborn'" + EOL +
+                "WHERE [Id] = 1;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL +
+                "UPDATE [People] SET [Full Name] = N'Homeless Harry Strickland'" + EOL +
+                "WHERE [Id] = 4;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL,
+                Sql);
+        }
+
+        public override void UpdateDataOperation_composite_key()
+        {
+            base.UpdateDataOperation_composite_key();
+
+            // TODO remove rowcount
+            Assert.Equal(
+                "UPDATE [People] SET [First Name] = N'Hodor'" + EOL +
+                "WHERE [Id] = 0 AND [Last Name] IS NULL;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL +
+                "UPDATE [People] SET [First Name] = N'Harry'" + EOL +
+                "WHERE [Id] = 4 AND [Last Name] = N'Strickland';" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL,
+                Sql);
+        }
+
+        public override void UpdateDataOperation_multiple_columns()
+        {
+            base.UpdateDataOperation_multiple_columns();
+
+            // TODO remove rowcount
+            Assert.Equal(
+                "UPDATE [People] SET [First Name] = N'Daenerys', [Nickname] = N'Dany'" + EOL +
+                "WHERE [Id] = 1;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL +
+                "UPDATE [People] SET [First Name] = N'Harry', [Nickname] = N'Homeless'" + EOL +
+                "WHERE [Id] = 4;" + EOL +
+                "SELECT @@ROWCOUNT;" + EOL + EOL,
                 Sql);
         }
 

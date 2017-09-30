@@ -2,49 +2,169 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class UdfDbFunctionSqlServerTests : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    public class UdfDbFunctionSqlServerTests : IClassFixture<UdfDbFunctionSqlServerTests.SqlServerUDFFixture>
     {
-        public UdfDbFunctionSqlServerTests(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
-        {
-            Fixture = fixture;
+        public UdfDbFunctionSqlServerTests(SqlServerUDFFixture fixture) => Fixture = fixture;
 
-            Fixture.TestSqlLoggerFactory.Clear();
+        private SqlServerUDFFixture Fixture { get; }
+
+        protected UDFSqlContext CreateContext() => (UDFSqlContext)Fixture.CreateContext();
+
+        private string Sql => Fixture.TestSqlLoggerFactory.SqlStatements.Last();
+
+        public class Customer
+        {
+            public int Id { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public List<Order> Orders { get; set; }
         }
 
-        protected NorthwindQuerySqlServerFixture<NoopModelCustomizer> Fixture { get; }
+        public class Order
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int ItemCount { get; set; }
+            public DateTime OrderDate { get; set; }
+            public Customer Customer { get; set; }
+        }
 
-        protected NorthwindRelationalContext CreateContext() => Fixture.CreateContext() as NorthwindRelationalContext;
+        protected class UDFSqlContext : DbContext
+        {
+            #region DbSets
+
+            public DbSet<Customer> Customers { get; set; }
+            public DbSet<Order> Orders { get; set; }
+
+            #endregion
+
+            #region Function Stubs
+
+            public enum ReportingPeriod
+            {
+                Winter = 0,
+                Spring,
+                Summer,
+                Fall
+            }
+
+            public static long MyCustomLength(string s)
+            {
+                throw new Exception();
+            }
+
+            public static bool IsDate(string date)
+            {
+                throw new Exception();
+            }
+
+            public static int AddOne(int num)
+            {
+                return num + 1;
+            }
+
+            public static int AddFive(int number)
+            {
+                return number + 5;
+            }
+
+            public static int CustomerOrderCount(int customerId)
+            {
+                throw new NotImplementedException();
+            }
+
+            public static int CustomerOrderCountWithClient(int customerId)
+            {
+                switch (customerId)
+                {
+                    case 1:
+                        return 3;
+                    case 2:
+                        return 2;
+                    case 3:
+                        return 1;
+                    case 4:
+                        return 0;
+                    default:
+                        throw new Exception();
+                }
+            }
+
+            public static string StarValue(int starCount, int value)
+            {
+                throw new NotImplementedException();
+            }
+
+            public static bool IsTopCustomer(int customerId)
+            {
+                throw new NotImplementedException();
+            }
+
+            public static int GetCustomerWithMostOrdersAfterDate(DateTime? startDate)
+            {
+                throw new NotImplementedException();
+            }
+
+            public static DateTime? GetReportingPeriodStartDate(ReportingPeriod periodId)
+            {
+                throw new NotImplementedException();
+            }
+
+            #endregion
+
+            public UDFSqlContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCount)));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountWithClient))).HasName("CustomerOrderCount");
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StarValue)));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsTopCustomer)));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerWithMostOrdersAfterDate)));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDate)));
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsDate))).HasSchema("");
+
+                var methodInfo = typeof(UDFSqlContext).GetMethod(nameof(MyCustomLength));
+
+                modelBuilder.HasDbFunction(methodInfo)
+                    .HasTranslation(args => new SqlFunctionExpression("len", methodInfo.ReturnType, args));
+            }
+        }
 
         #region Scalar Tests
-
-        private static int AddFive(int number)
-        {
-            return number + 5;
-        }
 
         [Fact]
         private void Scalar_Function_Extension_Method()
         {
             using (var context = CreateContext())
             {
-                var len = context.Employees.Count(e => NorthwindRelationalContext.IsDate(e.FirstName) == false);
+                var len = context.Customers.Count(c => UDFSqlContext.IsDate(c.FirstName) == false);
 
-                Assert.Equal(9, len);
+                Assert.Equal(3, len);
 
-                AssertSql(
+                Assert.Equal(
                     @"SELECT COUNT(*)
-FROM [Employees] AS [e]
+FROM [Customers] AS [c]
 WHERE CASE
-    WHEN IsDate([e].[FirstName]) = 1
+    WHEN IsDate([c].[FirstName]) = 1
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END = 0");
+END = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
             }
         }
 
@@ -53,18 +173,21 @@ END = 0");
         {
             using (var context = CreateContext())
             {
-                var employeeId = 5;
+                var customerId = 3;
 
-                var len = context.Employees.Where(e => e.EmployeeID == employeeId).Select(e => NorthwindRelationalContext.MyCustomLength(e.FirstName)).Single();
+                var len = context.Customers.Where(c => c.Id == customerId)
+                    .Select(c => UDFSqlContext.MyCustomLength(c.LastName)).Single();
 
-                Assert.Equal(6, len);
+                Assert.Equal(5, len);
 
-                AssertSql(
-                    @"@__employeeId_0='5'
+                Assert.Equal(
+                    @"@__customerId_0='3'
 
-SELECT TOP(2) len([e].[FirstName])
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__employeeId_0");
+SELECT TOP(2) len([c].[LastName])
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customerId_0",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -74,12 +197,12 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
             using (var context = CreateContext())
             {
                 Assert.Throws<NotImplementedException>(
-                    () => (from e in context.Employees
-                           where e.EmployeeID == 5
+                    () => (from c in context.Customers
+                           where c.Id == 1
                            select new
                            {
-                               e.FirstName,
-                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(AddFive(e.EmployeeID - 5))
+                               c.FirstName,
+                               OrderCount = UDFSqlContext.CustomerOrderCount(UDFSqlContext.AddFive(c.Id - 5))
                            }).Single());
             }
         }
@@ -89,17 +212,19 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
         {
             using (var context = CreateContext())
             {
-                var employeeId = 5;
+                var customerId = 1;
 
-                var emps = context.Employees.Select(e => NorthwindRelationalContext.EmployeeOrderCount(employeeId)).ToList();
+                var custs = context.Customers.Select(c => UDFSqlContext.CustomerOrderCount(customerId)).ToList();
 
-                Assert.Equal(9, emps.Count);
+                Assert.Equal(3, custs.Count);
 
-                AssertSql(
-                    @"@__employeeId_0='5'
+                Assert.Equal(
+                    @"@__customerId_0='1'
 
-SELECT [dbo].EmployeeOrderCount(@__employeeId_0)
-FROM [Employees] AS [e]");
+SELECT [dbo].CustomerOrderCount(@__customerId_0)
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -108,21 +233,23 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == 5
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(e.EmployeeID)
-                           }).Single();
+                var cust = (from c in context.Customers
+                            where c.Id == 1
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = UDFSqlContext.CustomerOrderCount(c.Id)
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal(42, emp.OrderCount);
+                Assert.Equal("One", cust.LastName);
+                Assert.Equal(3, cust.OrderCount);
 
-                AssertSql(
-                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount([e].[EmployeeID]) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = 5");
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount([c].[Id]) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = 1",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -131,21 +258,23 @@ WHERE [e].[EmployeeID] = 5");
         {
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == 5
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(5)
-                           }).Single();
+                var cust = (from c in context.Customers
+                            where c.Id == 1
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = UDFSqlContext.CustomerOrderCount(1)
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal(42, emp.OrderCount);
+                Assert.Equal("One", cust.LastName);
+                Assert.Equal(3, cust.OrderCount);
 
-                AssertSql(
-                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(5) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = 5");
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(1) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = 1",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -154,26 +283,28 @@ WHERE [e].[EmployeeID] = 5");
         {
             using (var context = CreateContext())
             {
-                var employeeId = 5;
+                var customerId = 1;
 
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == employeeId
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = NorthwindRelationalContext.EmployeeOrderCount(employeeId)
-                           }).Single();
+                var cust = (from c in context.Customers
+                            where c.Id == customerId
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = UDFSqlContext.CustomerOrderCount(customerId)
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal(42, emp.OrderCount);
+                Assert.Equal("One", cust.LastName);
+                Assert.Equal(3, cust.OrderCount);
 
-                AssertSql(
-                    @"@__employeeId_1='5'
-@__employeeId_0='5'
+                Assert.Equal(
+                    @"@__customerId_1='1'
+@__customerId_0='1'
 
-SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(@__employeeId_1) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__employeeId_0");
+SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(@__customerId_1) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customerId_0",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -182,28 +313,30 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
         {
             using (var context = CreateContext())
             {
-                var employeeId = 5;
+                var customerId = 3;
                 var starCount = 3;
 
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == employeeId
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = NorthwindRelationalContext.StarValue(starCount, NorthwindRelationalContext.EmployeeOrderCount(employeeId))
-                           }).Single();
+                var cust = (from c in context.Customers
+                            where c.Id == customerId
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = UDFSqlContext.StarValue(starCount, UDFSqlContext.CustomerOrderCount(customerId))
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal("***42", emp.OrderCount);
+                Assert.Equal("Three", cust.LastName);
+                Assert.Equal("***1", cust.OrderCount);
 
-                AssertSql(
+                Assert.Equal(
                     @"@__starCount_1='3'
-@__employeeId_2='5'
-@__employeeId_0='5'
+@__customerId_2='3'
+@__customerId_0='3'
 
-SELECT TOP(2) [e].[FirstName], [dbo].StarValue(@__starCount_1, [dbo].EmployeeOrderCount(@__employeeId_2)) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__employeeId_0");
+SELECT TOP(2) [c].[LastName], [dbo].StarValue(@__starCount_1, [dbo].CustomerOrderCount(@__customerId_2)) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customerId_0",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -212,16 +345,18 @@ WHERE [e].[EmployeeID] = @__employeeId_0");
         {
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           where NorthwindRelationalContext.IsTopEmployee(e.EmployeeID)
-                           select e.EmployeeID.ToString().ToLower()).ToList();
+                var cust = (from c in context.Customers
+                            where UDFSqlContext.IsTopCustomer(c.Id)
+                            select c.Id.ToString().ToLower()).ToList();
 
-                Assert.Equal(3, emp.Count);
+                Assert.Equal(1, cust.Count);
 
-                AssertSql(
-                    @"SELECT LOWER(CONVERT(VARCHAR(11), [e].[EmployeeID]))
-FROM [Employees] AS [e]
-WHERE [dbo].IsTopEmployee([e].[EmployeeID]) = 1");
+                Assert.Equal(
+                    @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
+FROM [Customers] AS [c]
+WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -230,21 +365,22 @@ WHERE [dbo].IsTopEmployee([e].[EmployeeID]) = 1");
         {
             using (var context = CreateContext())
             {
-                var startDate = DateTime.Parse("1/1/1998");
+                var startDate = new DateTime(2000, 4, 1);
 
-                var emp = (from e in context.Employees
-                           where NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(startDate) == e.EmployeeID
-                           select e).SingleOrDefault();
+                var custId = (from c in context.Customers
+                              where UDFSqlContext.GetCustomerWithMostOrdersAfterDate(startDate) == c.Id
+                              select c.Id).SingleOrDefault();
 
-                Assert.NotNull(emp);
-                Assert.True(emp.EmployeeID == 4);
+                Assert.Equal(custId, 2);
 
-                AssertSql(
-                    @"@__startDate_0='01/01/1998 00:00:00'
+                Assert.Equal(
+                    @"@__startDate_0='2000-04-01T00:00:00'
 
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE [dbo].GetEmployeeWithMostOrdersAfterDate(@__startDate_0) = [e].[EmployeeID]");
+SELECT TOP(2) [c].[Id]
+FROM [Customers] AS [c]
+WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_0) = [c].[Id]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -253,22 +389,23 @@ WHERE [dbo].GetEmployeeWithMostOrdersAfterDate(@__startDate_0) = [e].[EmployeeID
         {
             using (var context = CreateContext())
             {
-                var period = NorthwindRelationalContext.ReportingPeriod.Winter;
+                var period = UDFSqlContext.ReportingPeriod.Winter;
 
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(
-                                     NorthwindRelationalContext.GetReportingPeriodStartDate(period))
-                           select e).SingleOrDefault();
+                var custId = (from c in context.Customers
+                              where c.Id == UDFSqlContext.GetCustomerWithMostOrdersAfterDate(
+                                        UDFSqlContext.GetReportingPeriodStartDate(period))
+                              select c.Id).SingleOrDefault();
 
-                Assert.NotNull(emp);
-                Assert.True(emp.EmployeeID == 4);
+                Assert.Equal(custId, 1);
 
-                AssertSql(
+                Assert.Equal(
                     @"@__period_0='Winter'
 
-SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(@__period_0))");
+SELECT TOP(2) [c].[Id]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(@__period_0))",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -277,19 +414,20 @@ WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetRepor
         {
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           where e.EmployeeID == NorthwindRelationalContext.GetEmployeeWithMostOrdersAfterDate(
-                                     NorthwindRelationalContext.GetReportingPeriodStartDate(
-                                         NorthwindRelationalContext.ReportingPeriod.Winter))
-                           select e).SingleOrDefault();
+                var custId = (from c in context.Customers
+                              where c.Id == UDFSqlContext.GetCustomerWithMostOrdersAfterDate(
+                                        UDFSqlContext.GetReportingPeriodStartDate(
+                                            UDFSqlContext.ReportingPeriod.Winter))
+                              select c.Id).SingleOrDefault();
 
-                Assert.NotNull(emp);
-                Assert.True(emp.EmployeeID == 4);
+                Assert.Equal(custId, 1);
 
-                AssertSql(
-                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))");
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[Id]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -298,22 +436,24 @@ WHERE [e].[EmployeeID] = [dbo].GetEmployeeWithMostOrdersAfterDate([dbo].GetRepor
         {
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           let orderCount = NorthwindRelationalContext.EmployeeOrderCount(e.EmployeeID)
-                           where e.EmployeeID == 5
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = orderCount
-                           }).Single();
+                var cust = (from c in context.Customers
+                            let orderCount = UDFSqlContext.CustomerOrderCount(c.Id)
+                            where c.Id == 2
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = orderCount
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal(42, emp.OrderCount);
+                Assert.Equal("Two", cust.LastName);
+                Assert.Equal(2, cust.OrderCount);
 
-                AssertSql(
-                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount([e].[EmployeeID]) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = 5");
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount([c].[Id]) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = 2",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -322,90 +462,89 @@ WHERE [e].[EmployeeID] = 5");
         {
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           let orderCount = NorthwindRelationalContext.EmployeeOrderCount(5)
-                           where e.EmployeeID == 5
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = orderCount
-                           }).Single();
+                var cust = (from c in context.Customers
+                            let orderCount = UDFSqlContext.CustomerOrderCount(2)
+                            where c.Id == 2
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = orderCount
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal(42, emp.OrderCount);
+                Assert.Equal("Two", cust.LastName);
+                Assert.Equal(2, cust.OrderCount);
 
-                AssertSql(
-                    @"SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(5) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = 5");
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(2) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = 2",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
         [Fact]
         public void Scalar_Function_Let_Not_Parameter()
         {
-            var employeeId = 5;
+            var customerId = 2;
 
             using (var context = CreateContext())
             {
-                var emp = (from e in context.Employees
-                           let orderCount = NorthwindRelationalContext.EmployeeOrderCount(employeeId)
-                           where e.EmployeeID == employeeId
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = orderCount
-                           }).Single();
+                var cust = (from c in context.Customers
+                            let orderCount = UDFSqlContext.CustomerOrderCount(customerId)
+                            where c.Id == customerId
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = orderCount
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal(42, emp.OrderCount);
+                Assert.Equal("Two", cust.LastName);
+                Assert.Equal(2, cust.OrderCount);
 
-                AssertSql(
-                    @"@__employeeId_0='5'
-@__employeeId_1='5'
+                Assert.Equal(
+                    @"@__customerId_0='2'
+@__customerId_1='2'
 
-SELECT TOP(2) [e].[FirstName], [dbo].EmployeeOrderCount(@__employeeId_0) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__employeeId_1");
+SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(@__customerId_0) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customerId_1",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
-
-        #endregion
 
         [Fact]
         public void Scalar_Function_Let_Nested()
         {
             using (var context = CreateContext())
             {
-                var employeeId = 5;
+                var customerId = 1;
                 var starCount = 3;
 
-                var emp = (from e in context.Employees
-                           let orderCount = NorthwindRelationalContext.StarValue(starCount, NorthwindRelationalContext.EmployeeOrderCount(employeeId))
-                           where e.EmployeeID == employeeId
-                           select new
-                           {
-                               e.FirstName,
-                               OrderCount = orderCount
-                           }).Single();
+                var cust = (from c in context.Customers
+                            let orderCount = UDFSqlContext.StarValue(starCount, UDFSqlContext.CustomerOrderCount(customerId))
+                            where c.Id == customerId
+                            select new
+                            {
+                                c.LastName,
+                                OrderCount = orderCount
+                            }).Single();
 
-                Assert.Equal("Steven", emp.FirstName);
-                Assert.Equal("***42", emp.OrderCount);
+                Assert.Equal("One", cust.LastName);
+                Assert.Equal("***3", cust.OrderCount);
 
-                AssertSql(
+                Assert.Equal(
                     @"@__starCount_0='3'
-@__employeeId_1='5'
-@__employeeId_2='5'
+@__customerId_1='1'
+@__customerId_2='1'
 
-SELECT TOP(2) [e].[FirstName], [dbo].StarValue(@__starCount_0, [dbo].EmployeeOrderCount(@__employeeId_1)) AS [OrderCount]
-FROM [Employees] AS [e]
-WHERE [e].[EmployeeID] = @__employeeId_2");
+SELECT TOP(2) [c].[LastName], [dbo].StarValue(@__starCount_0, [dbo].CustomerOrderCount(@__customerId_1)) AS [OrderCount]
+FROM [Customers] AS [c]
+WHERE [c].[Id] = @__customerId_2",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
-        }
-
-        public static int AddOne(int num)
-        {
-            return num + 1;
         }
 
         [Fact]
@@ -413,14 +552,16 @@ WHERE [e].[EmployeeID] = @__employeeId_2");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 2 == AddOne(e.EmployeeID)
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 2 == UDFSqlContext.AddOne(c.Id)
+                               select c.Id).Single();
 
                 Assert.Equal(1, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -429,16 +570,18 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               orderby AddOne(e.EmployeeID)
-                               select e.EmployeeID).ToList();
+                var results = (from c in context.Customers
+                               orderby UDFSqlContext.AddOne(c.Id)
+                               select c.Id).ToList();
 
-                Assert.Equal(9, results.Count);
-                Assert.True(results.SequenceEqual(Enumerable.Range(1, 9)));
+                Assert.Equal(3, results.Count);
+                Assert.True(results.SequenceEqual(Enumerable.Range(1, 3)));
 
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -447,17 +590,19 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               orderby e.EmployeeID
-                               select AddOne(e.EmployeeID)).ToList();
+                var results = (from c in context.Customers
+                               orderby c.Id
+                               select UDFSqlContext.AddOne(c.Id)).ToList();
 
-                Assert.Equal(9, results.Count);
-                Assert.True(results.SequenceEqual(Enumerable.Range(2, 9)));
+                Assert.Equal(3, results.Count);
+                Assert.True(results.SequenceEqual(Enumerable.Range(2, 3)));
 
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]
-ORDER BY [e].[EmployeeID]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]
+ORDER BY [c].[Id]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -466,14 +611,16 @@ ORDER BY [e].[EmployeeID]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 128 == AddOne(Math.Abs(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID)))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 2 == UDFSqlContext.AddOne(Math.Abs(UDFSqlContext.CustomerOrderCountWithClient(c.Id)))
+                               select c.Id).Single();
 
                 Assert.Equal(3, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -482,14 +629,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 128 == AddOne(NorthwindRelationalContext.EmployeeOrderCountWithClient(Math.Abs(e.EmployeeID)))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 2 == UDFSqlContext.AddOne(UDFSqlContext.CustomerOrderCountWithClient(Math.Abs(c.Id)))
+                               select c.Id).Single();
 
                 Assert.Equal(3, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -498,14 +647,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 128 == Math.Abs(AddOne(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID)))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 2 == Math.Abs(UDFSqlContext.AddOne(UDFSqlContext.CustomerOrderCountWithClient(c.Id)))
+                               select c.Id).Single();
 
                 Assert.Equal(3, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -514,14 +665,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 127 == Math.Abs(NorthwindRelationalContext.EmployeeOrderCountWithClient(AddOne(e.EmployeeID)))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 1 == Math.Abs(UDFSqlContext.CustomerOrderCountWithClient(UDFSqlContext.AddOne(c.Id)))
+                               select c.Id).Single();
 
                 Assert.Equal(2, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -530,14 +683,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(Math.Abs(AddOne(e.EmployeeID)))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 1 == UDFSqlContext.CustomerOrderCountWithClient(Math.Abs(UDFSqlContext.AddOne(c.Id)))
+                               select c.Id).Single();
 
                 Assert.Equal(2, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -546,14 +701,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(AddOne(Math.Abs(e.EmployeeID)))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 1 == UDFSqlContext.CustomerOrderCountWithClient(UDFSqlContext.AddOne(Math.Abs(c.Id)))
+                               select c.Id).Single();
 
                 Assert.Equal(2, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -562,14 +719,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 3 == AddOne(Math.Abs(e.EmployeeID))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 3 == UDFSqlContext.AddOne(Math.Abs(c.Id))
+                               select c.Id).Single();
 
                 Assert.Equal(2, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -578,14 +737,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 128 == AddOne(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 2 == UDFSqlContext.AddOne(UDFSqlContext.CustomerOrderCountWithClient(c.Id))
+                               select c.Id).Single();
 
                 Assert.Equal(3, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -594,14 +755,16 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 3 == Math.Abs(AddOne(e.EmployeeID))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 3 == Math.Abs(UDFSqlContext.AddOne(c.Id))
+                               select c.Id).Single();
 
                 Assert.Equal(2, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -610,31 +773,36 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 127 == Math.Abs(NorthwindRelationalContext.EmployeeOrderCountWithClient(e.EmployeeID))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 3 == Math.Abs(UDFSqlContext.CustomerOrderCount(c.Id))
+                               select c.Id).Single();
 
-                Assert.Equal(3, results);
-                AssertSql(
-                    @"SELECT TOP(2) [e].[EmployeeID]
-FROM [Employees] AS [e]
-WHERE 127 = ABS([dbo].EmployeeOrderCount([e].[EmployeeID]))");
+                Assert.Equal(1, results);
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[Id]
+FROM [Customers] AS [c]
+WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
+
 
         [Fact]
         public void Scalar_Nested_Function_UDF_Client()
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(AddOne(e.EmployeeID))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 2 == UDFSqlContext.CustomerOrderCountWithClient(UDFSqlContext.AddOne(c.Id))
+                               select c.Id).Single();
 
-                Assert.Equal(2, results);
-                AssertSql(
-                    @"SELECT [e].[EmployeeID]
-FROM [Employees] AS [e]");
+                Assert.Equal(1, results);
+                Assert.Equal(
+                    @"SELECT [c].[Id]
+FROM [Customers] AS [c]",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
@@ -643,19 +811,97 @@ FROM [Employees] AS [e]");
         {
             using (var context = CreateContext())
             {
-                var results = (from e in context.Employees
-                               where 127 == NorthwindRelationalContext.EmployeeOrderCountWithClient(Math.Abs(e.EmployeeID))
-                               select e.EmployeeID).Single();
+                var results = (from c in context.Customers
+                               where 3 == UDFSqlContext.CustomerOrderCount(Math.Abs(c.Id))
+                               select c.Id).Single();
 
-                Assert.Equal(3, results);
-                AssertSql(
-                    @"SELECT TOP(2) [e].[EmployeeID]
-FROM [Employees] AS [e]
-WHERE 127 = [dbo].EmployeeOrderCount(ABS([e].[EmployeeID]))");
+                Assert.Equal(1, results);
+                Assert.Equal(
+                    @"SELECT TOP(2) [c].[Id]
+FROM [Customers] AS [c]
+WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
+                    Sql,
+                    ignoreLineEndingDifferences: true);
             }
         }
 
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+        #endregion
+
+        public class SqlServerUDFFixture : SharedStoreFixtureBase<DbContext>
+        {
+            protected override string StoreName { get; } = "UDFDbFunctionSqlServerTests";
+            protected override Type ContextType { get; } = typeof(UDFSqlContext);
+            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            {
+                base.AddOptions(builder);
+                return builder.ConfigureWarnings(w => w.Ignore(RelationalEventId.QueryClientEvaluationWarning));
+            }
+
+            protected override void Seed(DbContext context)
+            {
+                context.Database.EnsureCreated();
+
+                context.Database.ExecuteSqlCommand(@"create function [dbo].[CustomerOrderCount] (@customerId int)
+                                                    returns int
+                                                    as
+                                                    begin
+	                                                    return (select count(id) from orders where customerId = @customerId);
+                                                    end");
+
+                context.Database.ExecuteSqlCommand(@"create function[dbo].[StarValue] (@starCount int, @value nvarchar(max))
+                                                    returns nvarchar(max)
+                                                        as
+                                                        begin
+                                                    return replicate('*', @starCount) + @value
+                                                    end");
+
+                context.Database.ExecuteSqlCommand(@"create function [dbo].[GetReportingPeriodStartDate] (@period int)
+                                                    returns DateTime
+                                                    as
+                                                    begin
+	                                                    return '1998-01-01'
+                                                    end");
+
+                context.Database.ExecuteSqlCommand(@"create function [dbo].[GetCustomerWithMostOrdersAfterDate] (@searchDate Date)
+                                                    returns int
+                                                    as
+                                                    begin
+	                                                    return (select top 1 customerId
+			                                                    from orders
+			                                                    where orderDate > @searchDate
+			                                                    group by CustomerId
+			                                                    order by count(id) desc)
+                                                    end");
+
+                context.Database.ExecuteSqlCommand(@"create function [dbo].[IsTopCustomer] (@customerId int)
+                                                    returns bit
+                                                    as
+                                                    begin
+	                                                    if(@customerId = 1)
+		                                                    return 1
+		
+	                                                    return 0
+                                                    end");
+
+                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = new DateTime(2000, 1, 20) };
+                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = new DateTime(2000, 2, 21) };
+                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = new DateTime(2000, 3, 20) };
+                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = new DateTime(2000, 4, 21) };
+                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = new DateTime(2000, 5, 20) };
+                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = new DateTime(2000, 6, 21) };
+
+                var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12, order13 } };
+                var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22 } };
+                var customer3 = new Customer { FirstName = "Customer", LastName = "Three", Orders = new List<Order> { order31 } };
+
+                ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3);
+                ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
+                context.SaveChanges();
+            }
+        }
     }
 }

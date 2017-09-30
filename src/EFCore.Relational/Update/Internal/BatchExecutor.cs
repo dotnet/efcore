@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -59,6 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             try
             {
                 if (connection.CurrentTransaction == null
+                    && connection.EnlistedTransaction == null
+                    && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
                     startedTransaction = connection.BeginTransaction();
@@ -114,6 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             try
             {
                 if (connection.CurrentTransaction == null
+                    && connection.EnlistedTransaction == null
+                    && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
                     startedTransaction = await connection.BeginTransactionAsync(cancellationToken);

@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from mep in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
-                       from p in context.Set<Product>().FromSql("SELECT * FROM Products")
+                       from p in context.Set<Product>().FromSql("SELECT * FROM \"Products\"")
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new { mep, p })
                     .ToArray();
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = (from p in context.Set<Product>().FromSql("SELECT * FROM Products")
+                    = (from p in context.Set<Product>().FromSql("SELECT * FROM \"Products\"")
                        from mep in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new { mep, p })
