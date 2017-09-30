@@ -1,0 +1,4 @@
+﻿<Project>
+  <Import Project="build\dependencies.props" />
+</Project>
+
