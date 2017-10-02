@@ -3,10 +3,10 @@
     <AspNetCoreVersion>2.0.0</AspNetCoreVersion>
     <CoreFxVersion>4.4.0</CoreFxVersion>
     <DiagnosticSourceVersion>4.4.1</DiagnosticSourceVersion>
-    <DependencyModelVersion>2.0.0</DependencyModelVersion>
     <EF6Version>6.1.3</EF6Version>
     <InternalAspNetCoreSdkVersion>2.0.1-rtm-15400</InternalAspNetCoreSdkVersion>
     <JsonNetVersion>10.0.1</JsonNetVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>2.0.2-servicing-25728-02</MicrosoftExtensionsDependencyModelPackageVersion>
     <MoqVersion>4.7.49</MoqVersion>
     <NETFrameworkPackageVersion>2.0.0</NETFrameworkPackageVersion>
     <NETStandardImplicitPackageVersion>2.0.0</NETStandardImplicitPackageVersion>
