@@ -33,8 +33,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var converter = property?.FindMapping()?.Converter;
             if (converter != null)
             {
+                // If the type is an exact match, then use the generic converter directly to
+                // avoid additional boxing and conversions. This should be the common case.
+                if (type == converter.ModelType)
+                {
+                    return Expression.Call(
+                        TryReadValueWithConvertMethod.MakeGenericMethod(converter.ModelType, converter.StoreType),
+                        valueBuffer,
+                        Expression.Constant(index),
+                        Expression.Constant(converter.RawConvertFromStore),
+                        Expression.Constant(property, typeof(IPropertyBase)));
+                }
+
                 return Expression.Call(
-                    TryReadValueWithConvertMethod.MakeGenericMethod(type),
+                    TryReadValueWithObjectConvertMethod.MakeGenericMethod(type),
                     valueBuffer,
                     Expression.Constant(index),
                     Expression.Constant(converter.ConvertFromStore),
@@ -82,8 +94,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = typeof(EntityMaterializerSource).GetTypeInfo()
                 .GetDeclaredMethod(nameof(TryReadValueWithConvert));
 
-        // TODO.TM Generic non-boxing
-        private static TValue TryReadValueWithConvert<TValue>(
+        private static TModel TryReadValueWithConvert<TModel, TStore>(
+            ValueBuffer valueBuffer,
+            int index,
+            Func<TStore, TModel> converter,
+            IPropertyBase property = null)
+        {
+            var untypedValue = valueBuffer[index];
+            try
+            {
+                return converter((TStore)untypedValue);
+            }
+            catch (Exception e)
+            {
+                ThrowReadValueException<TModel>(e, untypedValue, property);
+            }
+
+            return default;
+        }
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly MethodInfo TryReadValueWithObjectConvertMethod
+            = typeof(EntityMaterializerSource).GetTypeInfo()
+                .GetDeclaredMethod(nameof(TryReadValueWithObjectConvert));
+
+        private static TValue TryReadValueWithObjectConvert<TValue>(
             ValueBuffer valueBuffer,
             int index,
             Func<object, object> converter,
