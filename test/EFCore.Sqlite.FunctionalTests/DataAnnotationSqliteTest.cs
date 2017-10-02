@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"LIMIT 1" + EOL +
                 EOL +
                 @"@p2='1' (DbType = String)" + EOL +
-                @"@p0='ModifiedData' (Nullable = false)" + EOL +
+                @"@p0='ModifiedData' (Nullable = false) (Size = 12)" + EOL +
                 @"@p1='00000000-0000-0000-0003-000000000001' (DbType = String)" + EOL +
                 @"@p3='00000001-0000-0000-0000-000000000001' (DbType = String)" + EOL +
                 EOL +
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"SELECT changes();" + EOL +
                 EOL +
                 @"@p2='1' (DbType = String)" + EOL +
-                @"@p0='ChangedData' (Nullable = false)" + EOL +
+                @"@p0='ChangedData' (Nullable = false) (Size = 11)" + EOL +
                 @"@p1='00000000-0000-0000-0002-000000000001' (DbType = String)" + EOL +
                 @"@p3='00000001-0000-0000-0000-000000000001' (DbType = String)" + EOL +
                 EOL +
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Contains(
                 @"@p0='' (DbType = String)" + EOL +
-                @"@p1='Third' (Nullable = false)" + EOL +
+                @"@p1='Third' (Nullable = false) (Size = 5)" + EOL +
                 @"@p2='00000000-0000-0000-0000-000000000003' (DbType = String)" + EOL +
                 EOL +
                 @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Contains(
                 @"@p0='' (DbType = String)" + EOL +
-                @"@p1='ValidString' (Nullable = false)" + EOL +
+                @"@p1='ValidString' (Nullable = false) (Size = 11)" + EOL +
                 @"@p2='00000000-0000-0000-0000-000000000001' (DbType = String)" + EOL +
                 EOL +
                 @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
