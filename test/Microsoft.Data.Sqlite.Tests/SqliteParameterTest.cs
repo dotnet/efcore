@@ -274,6 +274,38 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Fact]
+        public void Bind_with_restricted_size_works_on_string_values()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Text;";
+                command.Parameters.AddWithValue("@Text", "ABCDE").Size = 3;
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal("ABC", result);
+            }
+        }
+
+        [Fact]
+        public void Bind_with_restricted_size_works_on_blob_values()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Blob;";
+                command.Parameters.AddWithValue("@Blob", new byte[] { 1, 2, 3, 4, 5 }).Size = 3;
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal(new byte[] { 1, 2, 3 }, result);
+            }
+        }
+
         [Theory]
         [InlineData("@Parameter")]
         [InlineData("$Parameter")]

@@ -20,6 +20,7 @@ namespace Microsoft.Data.Sqlite
     {
         private string _parameterName = string.Empty;
         private object _value;
+        private int? _size;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
@@ -141,7 +142,14 @@ namespace Microsoft.Data.Sqlite
         /// Gets or sets the maximum size, in bytes, of the parameter.
         /// </summary>
         /// <value>The maximum size, in bytes, of the parameter.</value>
-        public override int Size { get; set; }
+        public override int Size
+        {
+            get => _size ?? (
+                _value is string stringValue ? stringValue.Length :
+                _value is byte[] byteArray ? byteArray.Length :
+                0);
+            set => _size = value;
+        }
 
         /// <summary>
         /// Gets or sets the source column used for loading the value.
@@ -204,7 +212,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.RequiresSet(nameof(Value)));
             }
 
-            new SqliteParameterBinder(stmt, index, _value).Bind();
+            new SqliteParameterBinder(stmt, index, _value, _size).Bind();
 
             return true;
         }
