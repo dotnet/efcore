@@ -78,6 +78,62 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(_uIntToInt.ConvertFromStore(null));
         }
 
+        private static readonly ValueConverter<uint, long> _uIntToLong
+            = new ValueConverter<uint, long>(v => v, v => (uint)v);
+
+        [Fact]
+        public void Can_convert_exact_types_with_non_nullable_uint_long_converter()
+        {
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((uint)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((long)1));
+
+            Assert.Equal((long)uint.MaxValue, _uIntToLong.ConvertToStore(uint.MaxValue));
+            Assert.Equal(uint.MaxValue, _uIntToLong.ConvertFromStore((long)uint.MaxValue));
+        }
+
+        [Fact]
+        public void Can_convert_nullable_types_with_non_nullable_uint_long_converter()
+        {
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((uint?)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((long?)1));
+
+            Assert.Equal((long)uint.MaxValue, _uIntToLong.ConvertToStore((uint?)uint.MaxValue));
+            Assert.Equal(uint.MaxValue, _uIntToLong.ConvertFromStore((long?)-1));
+        }
+
+        [Fact]
+        public void Can_convert_non_exact_types_with_non_nullable_uint_long_converter()
+        {
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((ushort)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((short)1));
+
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((ulong)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((long)1));
+
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore(1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore(1));
+        }
+
+        [Fact]
+        public void Can_convert_non_exact_nullable_types_with_non_nullable_uint_long_converter()
+        {
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((ushort?)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((short?)1));
+
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((ulong?)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((long?)1));
+
+            Assert.Equal((long)1, _uIntToLong.ConvertToStore((int?)1));
+            Assert.Equal((uint)1, _uIntToLong.ConvertFromStore((int?)1));
+        }
+
+        [Fact]
+        public void Can_handle_nulls_with_non_nullable_uint_long_converter()
+        {
+            Assert.Null(_uIntToLong.ConvertToStore(null));
+            Assert.Null(_uIntToLong.ConvertFromStore(null));
+        }
+
         private static readonly ValueConverter<uint?, int?> _nullableUIntToInt
             = new ValueConverter<uint?, int?>(v => (int?)v, v => (uint?)v);
 
@@ -150,6 +206,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Null(_stringConverter.ConvertToStore("<null>"));
             Assert.Equal("<null>", _stringConverter.ConvertFromStore(null));
+        }
+
+        private static readonly ValueConverter<ulong, decimal> _ulongToDecimnalConverter
+            = new ValueConverter<ulong, decimal>(v => v, v => (ulong)v);
+
+        [Fact]
+        public void Can_convert_exact_types_with_ulong_decimal_converter()
+        {
+            Assert.Equal((decimal)1, _ulongToDecimnalConverter.ConvertToStore((ulong)1));
+            Assert.Equal((ulong)1, _ulongToDecimnalConverter.ConvertFromStore((decimal)1));
+
+            Assert.Equal((decimal)ulong.MaxValue, _ulongToDecimnalConverter.ConvertToStore(ulong.MaxValue));
+            Assert.Equal(ulong.MaxValue, _ulongToDecimnalConverter.ConvertFromStore((decimal)ulong.MaxValue));
         }
     }
 }

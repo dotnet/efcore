@@ -47,24 +47,44 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("tinyint", DbType.Byte);
 
         private readonly UIntTypeMapping _uint = new UIntTypeMapping(
-            "int",
-            new ValueConverter<uint, int>(v => (int)v, v => (uint)v),
-            DbType.Int32);
+            "bigint",
+            new ValueConverter<uint, long>(v => (long)v, v => (uint)v),
+            DbType.Int64);
 
         private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
             "bigint",
             new ValueConverter<ulong, long>(v => (long)v, v => (ulong)v),
             DbType.Int64);
 
-        private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
+        private readonly UShortTypeMapping _ushort32 = new UShortTypeMapping(
+            "int",
+            new ValueConverter<ushort, int>(v => v, v => (ushort)v),
+            DbType.Int32);
+
+        private readonly SByteTypeMapping _sbyte16 = new SByteTypeMapping(
+            "smallint",
+            new ValueConverter<sbyte, short>(v => v, v => (sbyte)v),
+            DbType.Int16);
+
+        private readonly UIntTypeMapping _uint32 = new UIntTypeMapping(
+            "int",
+            new ValueConverter<uint, int>(v => (int)v, v => (uint)v),
+            DbType.Int32);
+
+        private readonly UShortTypeMapping _ushort16 = new UShortTypeMapping(
             "smallint",
             new ValueConverter<ushort, short>(v => (short)v, v => (ushort)v),
             DbType.Int16);
 
-        private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
+        private readonly SByteTypeMapping _sbyte8 = new SByteTypeMapping(
             "tinyint",
             new ValueConverter<sbyte, byte>(v => (byte)v, v => (sbyte)v),
             DbType.Byte);
+
+        private readonly ULongTypeMapping _ulongDecimal = new ULongTypeMapping(
+            "decimal(20, 0)",
+            new ValueConverter<ulong, decimal>(v => v, v => (ulong)v),
+            DbType.Decimal);
 
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit");
 
@@ -118,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _storeTypeMappings
                 = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "bigint", new List<RelationalTypeMapping> { _long, _ulong } },
+                    { "bigint", new List<RelationalTypeMapping> { _long, _uint, _ulong } },
                     { "binary varying", new List<RelationalTypeMapping> { _variableLengthBinary } },
                     { "binary", new List<RelationalTypeMapping> { _fixedLengthBinary } },
                     { "bit", new List<RelationalTypeMapping> { _bool } },
@@ -131,10 +151,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "datetime2", new List<RelationalTypeMapping> { _datetime2 } },
                     { "datetimeoffset", new List<RelationalTypeMapping> { _datetimeoffset } },
                     { "dec", new List<RelationalTypeMapping> { _decimal } },
-                    { "decimal", new List<RelationalTypeMapping> { _decimal } },
+                    { "decimal", new List<RelationalTypeMapping> { _decimal, _ulongDecimal } },
                     { "float", new List<RelationalTypeMapping> { _double } },
                     { "image", new List<RelationalTypeMapping> { _variableLengthBinary } },
-                    { "int", new List<RelationalTypeMapping> { _int, _uint } },
+                    { "int", new List<RelationalTypeMapping> { _int, _ushort32, _uint32 } },
                     { "money", new List<RelationalTypeMapping> { _decimal } },
                     { "national char varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
                     { "national character varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
@@ -146,12 +166,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "real", new List<RelationalTypeMapping> { _real } },
                     { "rowversion", new List<RelationalTypeMapping> { _rowversion } },
                     { "smalldatetime", new List<RelationalTypeMapping> { _datetime } },
-                    { "smallint", new List<RelationalTypeMapping> { _short, _ushort } },
+                    { "smallint", new List<RelationalTypeMapping> { _short, _sbyte16, _ushort16 } },
                     { "smallmoney", new List<RelationalTypeMapping> { _decimal } },
                     { "text", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
                     { "time", new List<RelationalTypeMapping> { _time } },
                     { "timestamp", new List<RelationalTypeMapping> { _rowversion } },
-                    { "tinyint", new List<RelationalTypeMapping> { _byte, _sbyte } },
+                    { "tinyint", new List<RelationalTypeMapping> { _byte, _sbyte8 } },
                     { "uniqueidentifier", new List<RelationalTypeMapping> { _uniqueidentifier } },
                     { "varbinary", new List<RelationalTypeMapping> { _variableLengthBinary } },
                     { "varchar", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
@@ -166,16 +186,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(int), _int },
                     { typeof(long), _long },
                     { typeof(uint), _uint },
-                    { typeof(ulong), _ulong },
+                    { typeof(ulong), _ulongDecimal },
                     { typeof(DateTime), _datetime2 },
                     { typeof(Guid), _uniqueidentifier },
                     { typeof(bool), _bool },
                     { typeof(byte), _byte },
-                    { typeof(sbyte), _sbyte },
+                    { typeof(sbyte), _sbyte16 },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
-                    { typeof(ushort), _ushort },
+                    { typeof(ushort), _ushort32 },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }
