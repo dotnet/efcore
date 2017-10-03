@@ -236,36 +236,35 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return base.VisitExtension(node);
         }
 
-        private static Expression TryCreateNullableAccessOperation(Expression accessOperation)
+        private static bool TryMakeNullable(
+            MethodInfo method, 
+            Type type,
+            out MethodInfo convertedMethod)
         {
-            if (accessOperation is MethodCallExpression methodCallExpression)
+            foreach (var candidate in _readValueMethods)
             {
-                if (methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
+                if (method.MethodIsClosedFormOf(candidate))
                 {
-                    var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
-
-                    return Expression.Call(
-                        tryReadValueMethodInfo,
-                        methodCallExpression.Arguments[0],
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2]);
-                }
-
-                if (methodCallExpression.Method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueWithConvertMethod))
-                {
-                    var tryReadValueMethodInfo = EntityMaterializerSource.TryReadValueWithConvertMethod.MakeGenericMethod(accessOperation.Type.MakeNullable());
-
-                    return Expression.Call(
-                        tryReadValueMethodInfo,
-                        methodCallExpression.Arguments[0],
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2],
-                        methodCallExpression.Arguments[3]);
+                    convertedMethod = candidate.MakeGenericMethod(type.MakeNullable());
+                    return true;
                 }
             }
-
-            return null;
+            convertedMethod = null;
+            return false;
         }
+
+        private static readonly MethodInfo[] _readValueMethods =
+        {
+            EntityMaterializerSource.TryReadValueMethod,
+            EntityMaterializerSource.TryReadValueWithConvertMethod,
+            EntityMaterializerSource.TryReadValueWithObjectConvertMethod
+        };
+
+        private static Expression TryCreateNullableAccessOperation(Expression accessOperation)
+            => accessOperation is MethodCallExpression methodCallExpression
+               && TryMakeNullable(methodCallExpression.Method, accessOperation.Type, out var convertedMethod)
+                ? Expression.Call(convertedMethod, methodCallExpression.Arguments)
+                : null;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -46,33 +46,24 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("tinyint", DbType.Byte);
 
-        // TODO.TM Less burden on handle nulls/nullables/non-exact matches
         private readonly UIntTypeMapping _uint = new UIntTypeMapping(
             "int",
-            new TypeConverter(
-                v => v == null ? null : (object)(int)Convert.ToUInt32(v), 
-                v => v == null ? null : (object)(uint)Convert.ToInt32(v)),
+            new TypeConverter<uint, int>(v => (int)v, v => (uint)v),
             DbType.Int32);
 
         private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
             "bigint",
-            new TypeConverter(
-                v => v == null ? null : (object)(long)Convert.ToUInt64(v), 
-                v => v == null ? null : (object)(ulong)Convert.ToInt64(v)),
+            new TypeConverter<ulong, long>(v => (long)v, v => (ulong)v),
             DbType.Int64);
 
         private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
             "smallint",
-            new TypeConverter(
-                v => v == null ? null : (object)(short)Convert.ToUInt16(v), 
-                v => v == null ? null : (object)(ushort)Convert.ToInt16(v)),
+            new TypeConverter<ushort, short>(v => (short)v, v => (ushort)v),
             DbType.Int16);
 
         private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
             "tinyint",
-            new TypeConverter(
-                v => v == null ? null : (object)(byte)Convert.ToSByte(v),
-                v => v == null ? null : (object)(sbyte)Convert.ToByte(v)),
+            new TypeConverter<sbyte, byte>(v => (byte)v, v => (sbyte)v),
             DbType.Byte);
 
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit");
