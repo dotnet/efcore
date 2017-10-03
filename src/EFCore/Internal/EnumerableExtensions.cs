@@ -128,8 +128,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static int IndexOf<T>([NotNull] this IEnumerable<T> source, [NotNull] T item)
+            => IndexOf(source, item, EqualityComparer<T>.Default);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static int IndexOf<T>([NotNull] this IEnumerable<T> source, [NotNull] T item,
+            [NotNull] IEqualityComparer<T> comparer)
             => source.Select((x, index) =>
-                EqualityComparer<T>.Default.Equals(item, x) ? index : -1)
+                comparer.Equals(item, x) ? index : -1)
                 .FirstOr(x => x != -1, -1);
 
         /// <summary>

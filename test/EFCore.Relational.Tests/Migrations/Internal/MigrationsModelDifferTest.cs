@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using System.Collections.Generic;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable ClassNeverInstantiated.Local
@@ -141,6 +140,348 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             var operation = Assert.IsType<DropTableOperation>(o);
                             Assert.Equal("Node", operation.Name);
                         }));
+        }
+
+        class CreateTableEntity1
+        {
+            public int Id { get; set; }
+            public int C { get; set; }
+            public int B { get; set; }
+            public int A { get; set; }
+        }
+
+        class CreateTableEntity2
+        {
+            public int Id { get; set; }
+            public int E { get; set; }
+            public CreateTableEntity2B D { get; set; }
+            public int A { get; set; }
+        }
+
+        class CreateTableEntity2B
+        {
+            public int B { get; set; }
+            public int C { get; set; }
+        }
+
+        [Fact]
+        public void Create_table_columns_use_property_order()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<CreateTableEntity1>(),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("C", x.Name),
+                        x => Assert.Equal("B", x.Name),
+                        x => Assert.Equal("A", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_use_dependent_to_principal_and_key_order_when_shadow_fk()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity<CreateTableEntity2>();
+                    modelBuilder.Entity<CreateTableEntity2B>().HasKey(e => new { e.C, e.B });
+                },
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    Assert.IsType<CreateTableOperation>(operations[0]);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("CreateTableEntity2", operation.Name);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("E", x.Name),
+                        x => Assert.Equal("DC", x.Name),
+                        x => Assert.Equal("DB", x.Name),
+                        x => Assert.Equal("A", x.Name));
+
+                    Assert.IsType<CreateIndexOperation>(operations[2]);
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_uses_defining_navigation_order()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<CreateTableEntity2>().OwnsOne(e => e.D),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("E", x.Name),
+                        x => Assert.Equal("D_B", x.Name),
+                        x => Assert.Equal("D_C", x.Name),
+                        x => Assert.Equal("A", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_uses_principal_to_dependent_order_when_splitting()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<CreateTableEntity2B>().ToTable("CreateTableEntity2")
+                    .HasOne<CreateTableEntity2>().WithOne(x => x.D).HasForeignKey<CreateTableEntity2B>("Id"),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("E", x.Name),
+                        x => Assert.Equal("B", x.Name),
+                        x => Assert.Equal("C", x.Name),
+                        x => Assert.Equal("A", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_groups_and_sorts_type_hierarchy()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("D").Property<int>("Id");
+                    modelBuilder.Entity("C").HasBaseType("D").Property<int>("C");
+                    modelBuilder.Entity("B").HasBaseType("D").Property<int>("B");
+                    modelBuilder.Entity("A").HasBaseType("B").Property<int>("A");
+                },
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("Discriminator", x.Name),
+                        x => Assert.Equal("B", x.Name),
+                        x => Assert.Equal("A", x.Name),
+                        x => Assert.Equal("C", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_aliased_columns()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<CreateTableEntity1>().Property(e => e.A).HasColumnName("C"),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("C", x.Name),
+                        x => Assert.Equal("B", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_shadow_defining_navigation()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity(
+                        "X",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.OwnsOne("Y", "Y").Property<int>("A");
+                        }),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("Y_A", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_shadow_principal_to_dependent_when_splitting()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity("X", x => x.Property<int>("Id"))
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.ToTable("X");
+                            x.Property<int>("A");
+                            x.HasOne("X").WithOne("Y").HasForeignKey("Y", "Id");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("A", x.Name));
+
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_no_principal_to_dependent_when_splitting()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity("X", x => x.Property<int>("Id"))
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.ToTable("X");
+                            x.Property<int>("A");
+                            x.HasOne("X").WithOne().HasForeignKey("Y", "Id");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("A", x.Name));
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_shadow_dependent_to_principal()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity("X", x => x.Property<int>("Id"))
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("X", "X").WithMany("Ys").HasForeignKey("XId");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    Assert.IsType<CreateTableOperation>(operations[0]);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("XId", x.Name));
+
+                    Assert.IsType<CreateIndexOperation>(operations[2]);
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_no_dependent_to_principal()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity("X", x => x.Property<int>("Id"))
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("X").WithMany().HasForeignKey("XId");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    Assert.IsType<CreateTableOperation>(operations[0]);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("XId", x.Name));
+
+                    Assert.IsType<CreateIndexOperation>(operations[2]);
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_self_referencing_one_to_many()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "X",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("X").WithMany();
+                        }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("XId", x.Name));
+
+                    Assert.IsType<CreateIndexOperation>(operations[1]);
+                });
+        }
+
+        [Fact]
+        public void Create_table_columns_handles_self_referencing_one_to_one()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "X",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.HasOne("X").WithOne();
+                        }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation = Assert.IsType<CreateTableOperation>(operations[0]);
+                    Assert.Collection(
+                        operation.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("XId", x.Name));
+
+                    Assert.IsType<CreateIndexOperation>(operations[1]);
+                });
         }
 
         [Fact]
@@ -409,16 +750,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Can_split_entity_in_two_using_shared_table_with_seed_data()
         {
             Execute(
-                modelBuilder => {
-                         modelBuilder.Entity(
-                             "Animal",
-                             x =>
-                                 {
-                                     x.Property<int>("Id");
-                                     x.Property<string>("MouseId");
-                                     x.Property<string>("BoneId");
-                                     x.SeedData(new { Id = 42, MouseId = "1", BoneId = "2" });
-                                 });
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                            {
+                                x.Property<int>("Id");
+                                x.Property<string>("MouseId");
+                                x.Property<string>("BoneId");
+                                x.SeedData(new { Id = 42, MouseId = "1", BoneId = "2" });
+                            });
                 },
                 modelBuilder =>
                     {
@@ -5547,7 +5889,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void SeedData_with_shadow_navigation_properties()
         {
             SeedData_with_navigation_properties(
-                target => {
+                target =>
+                {
                     target.Entity(
                         "Blog",
                         x =>
@@ -5581,7 +5924,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void SeedData_with_CLR_navigation_properties()
         {
             SeedData_with_navigation_properties(
-                target => {
+                target =>
+                {
                     target.Entity<Blog>(
                         x =>
                         {
@@ -5613,7 +5957,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 _ => { },
-                source => {
+                source =>
+                {
                     source.Entity(
                         "Blog",
                         x =>

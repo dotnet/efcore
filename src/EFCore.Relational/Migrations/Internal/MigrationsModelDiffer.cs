@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -566,7 +567,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             createTableOperation.AddAnnotations(MigrationsAnnotations.For(target.EntityTypes[0]));
 
             createTableOperation.Columns.AddRange(
-                target.GetProperties().SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
+                GetSortedProperties(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
             var primaryKey = target.EntityTypes[0].FindPrimaryKey();
             createTableOperation.PrimaryKey = Add(primaryKey, diffContext).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
@@ -603,6 +604,126 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             diffContext.AddDrop(source, operation);
 
             yield return operation;
+        }
+
+        private static IEnumerable<IProperty> GetSortedProperties(TableMapping target)
+            => target.EntityTypes
+                .Where(
+                    t => t.BaseType == null
+                        && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
+                            .All(fk => t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName))
+                .SelectMany(GetSortedProperties)
+                .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);
+
+        private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType)
+        {
+            var shadowProperties = new List<IProperty>();
+            var groups = new Dictionary<PropertyInfo, List<IProperty>>();
+            var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<int, IProperty>>();
+            var types = new Dictionary<Type, SortedDictionary<int, PropertyInfo>>();
+
+            foreach (var property in entityType.GetDeclaredProperties())
+            {
+                var clrProperty = property.PropertyInfo;
+                if (clrProperty == null)
+                {
+                    var foreignKey = property.GetContainingForeignKeys()
+                        .FirstOrDefault(fk => fk.DependentToPrincipal?.PropertyInfo != null);
+                    if (foreignKey == null)
+                    {
+                        shadowProperties.Add(property);
+
+                        continue;
+                    }
+
+                    clrProperty = foreignKey.DependentToPrincipal.PropertyInfo;
+                    var groupIndex = foreignKey.Properties.IndexOf(property);
+
+                    unorderedGroups.GetOrAddNew(clrProperty).Add(groupIndex, property);
+                }
+                else
+                {
+                    groups.Add(clrProperty, new List<IProperty> { property });
+                }
+
+                var clrType = clrProperty.DeclaringType;
+                var index = clrType.GetTypeInfo().DeclaredProperties
+                    .IndexOf(clrProperty, new PropertyInfoEuqlityComparer());
+
+                types.GetOrAddNew(clrType)[index] = clrProperty;
+            }
+
+            foreach (var group in unorderedGroups)
+            {
+                groups.Add(group.Key, group.Value.Values.ToList());
+            }
+
+            foreach (var definingForeignKey in entityType.GetDeclaredReferencingForeignKeys()
+                .Where(fk => fk.DeclaringEntityType.RootType() != entityType.RootType()
+                    && fk.DeclaringEntityType.Relational().TableName == entityType.Relational().TableName
+                    && fk == fk.DeclaringEntityType
+                        .FindForeignKey(
+                            fk.DeclaringEntityType.FindDeclaredPrimaryKey().Properties,
+                            entityType.FindPrimaryKey(),
+                            entityType)))
+            {
+                var clrProperty = definingForeignKey.PrincipalToDependent?.PropertyInfo;
+                var properties = GetSortedProperties(definingForeignKey.DeclaringEntityType).ToList();
+                if (clrProperty == null)
+                {
+                    shadowProperties.AddRange(properties);
+
+                    continue;
+                }
+
+                groups.Add(clrProperty, properties);
+
+                var clrType = clrProperty.DeclaringType;
+                var index = clrType.GetTypeInfo().DeclaredProperties
+                    .IndexOf(clrProperty, new PropertyInfoEuqlityComparer());
+
+                types.GetOrAddNew(clrType)[index] = clrProperty;
+            }
+
+            var graph = new Multigraph<Type, object>();
+            graph.AddVertices(types.Keys);
+
+            foreach (var left in types.Keys)
+            {
+                var found = false;
+                foreach (var baseType in left.GetBaseTypes())
+                {
+                    foreach (var right in types.Keys)
+                    {
+                        if (right == baseType
+                            && baseType != left)
+                        {
+                            graph.AddEdge(right, left, null);
+                            found = true;
+
+                            break;
+                        }
+                    }
+
+                    if (found)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return graph.TopologicalSort().SelectMany(t => types[t].Values).SelectMany(p => groups[p])
+                .Concat(shadowProperties)
+                .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(GetSortedProperties));
+        }
+
+        private class PropertyInfoEuqlityComparer : IEqualityComparer<PropertyInfo>
+        {
+            public bool Equals(PropertyInfo x, PropertyInfo y)
+                => x.IsSameAs(y);
+
+            public int GetHashCode(PropertyInfo obj)
+                => throw new NotImplementedException();
         }
 
         #endregion
