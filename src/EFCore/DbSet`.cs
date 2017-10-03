@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual Task<EntityEntry<TEntity>> AddAsync(
             [NotNull] TEntity entity,
-            CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
         /// <summary>
         ///     <para>
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A task that represents the asynchronous operation. </returns>
         public virtual Task AddRangeAsync(
             [NotNull] IEnumerable<TEntity> entities,
-            CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
         /// <summary>
         ///     <para>

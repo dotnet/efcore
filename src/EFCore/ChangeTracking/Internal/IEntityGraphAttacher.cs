@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] InternalEntityEntry rootEntry,
             EntityState entityState,
             bool forceStateWhenUnknownKey,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

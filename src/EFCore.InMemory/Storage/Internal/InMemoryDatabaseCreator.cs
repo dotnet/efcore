@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(EnsureDeleted());
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(_database.EnsureDatabaseCreated(_model));
     }
 }

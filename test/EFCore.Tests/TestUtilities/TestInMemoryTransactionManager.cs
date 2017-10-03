@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override IDbContextTransaction BeginTransaction() => _currentTransaction = new TestInMemoryTransaction(this);
 
-        public override Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => Task.FromResult(_currentTransaction = new TestInMemoryTransaction(this));
 
         public override void CommitTransaction() => CurrentTransaction.Commit();

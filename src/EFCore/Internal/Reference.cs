@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual void Dispose()
         {
             _root?.Release(this);
-            Object = default(T);
+            Object = default;
         }
     }
 }

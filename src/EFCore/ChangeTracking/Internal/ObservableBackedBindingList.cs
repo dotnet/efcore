@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && Equals(base[itemIndex], _addNewInstance))
             {
                 _cancelNewInstance = _addNewInstance;
-                _addNewInstance = default(T);
+                _addNewInstance = default;
                 _addingNewInstance = false;
             }
             base.CancelNew(itemIndex);
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && Equals(base[itemIndex], _addNewInstance))
             {
                 AddToObservableCollection(_addNewInstance);
-                _addNewInstance = default(T);
+                _addNewInstance = default;
                 _addingNewInstance = false;
             }
             base.EndNew(itemIndex);
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && index < Count
                 && Equals(base[index], _cancelNewInstance))
             {
-                _cancelNewInstance = default(T);
+                _cancelNewInstance = default;
             }
             else
             {
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 // that is being passed in.
                 if (Equals(entity, _addNewInstance))
                 {
-                    _addNewInstance = default(T);
+                    _addNewInstance = default;
                     _addingNewInstance = false;
                 }
                 else

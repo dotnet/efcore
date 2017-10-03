@@ -9,4 +9,8 @@
     -->
     <DisablePackageReferenceVersionRestrictions>true</DisablePackageReferenceVersionRestrictions>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>7.1</LangVersion>
+  </PropertyGroup>
 </Project>

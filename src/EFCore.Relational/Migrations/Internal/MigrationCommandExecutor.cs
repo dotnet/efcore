@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public virtual async Task ExecuteNonQueryAsync(
             IEnumerable<MigrationCommand> migrationCommands,
             IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));

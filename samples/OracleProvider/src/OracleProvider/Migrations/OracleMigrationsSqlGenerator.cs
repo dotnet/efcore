@@ -686,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.Sql,
                     @"\\\r?\n",
                     string.Empty,
-                    default(RegexOptions),
+                    default,
                     TimeSpan.FromMilliseconds(1000.0)),
                 @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
                 RegexOptions.IgnoreCase | RegexOptions.Multiline,
@@ -705,7 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var match = Regex.Match(
                         batches[i + 1], "([0-9]+)",
-                        default(RegexOptions),
+                        default,
                         TimeSpan.FromMilliseconds(1000.0));
                     if (match.Success)
                     {

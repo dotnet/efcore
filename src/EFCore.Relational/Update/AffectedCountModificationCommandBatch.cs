@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A task that represents the asynchronous operation. </returns>
         protected override async Task ConsumeAsync(
             RelationalDataReader reader,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Debug.Assert(CommandResultSet.Count == ModificationCommands.Count);
             var commandIndex = 0;

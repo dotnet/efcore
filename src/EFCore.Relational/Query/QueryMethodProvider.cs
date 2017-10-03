@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            return default(TResult);
+            return default;
         }
 
         /// <summary>
@@ -224,11 +224,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 while (hasNext)
                 {
                     var outer
+#pragma warning disable IDE0034 // Simplify 'default' expression - Equals(object, object) causes default(object)
                         = Equals(nextOuter, default(TOuter))
+#pragma warning restore IDE0034 // Simplify 'default' expression
                             ? outerShaper.Shape(queryContext, sourceEnumerator.Current)
                             : nextOuter;
 
-                    nextOuter = default(TOuter);
+                    nextOuter = default;
 
                     var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
                     var inners = new List<TInner>();
@@ -261,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 break;
                             }
 
-                            nextOuter = default(TOuter);
+                            nextOuter = default;
 
                             inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 

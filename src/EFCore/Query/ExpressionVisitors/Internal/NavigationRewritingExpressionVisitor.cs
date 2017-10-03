@@ -733,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return navigationResultExpression;
             }
 
-            return default(Expression);
+            return default;
         }
 
         private class QsreWithNavigationFindingExpressionVisitor : ExpressionVisitorBase

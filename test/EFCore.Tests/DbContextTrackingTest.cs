@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore
                 if (attachFirst)
                 {
                     context.Entry(gu1).State = EntityState.Unchanged;
-                    Assert.Equal(default(Guid), gu1.Id);
+                    Assert.Equal(default, gu1.Id);
                     Assert.Equal(EntityState.Unchanged, context.Entry(gu1).State);
                 }
 
@@ -724,8 +724,8 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                Assert.NotEqual(default(Guid), gu1.Id);
-                Assert.NotEqual(default(Guid), gu2.Id);
+                Assert.NotEqual(default, gu1.Id);
+                Assert.NotEqual(default, gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
 
                 var categoryEntry = context.Entry(gu1);

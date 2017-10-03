@@ -743,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    value = default(TValue);
+                    value = default;
 
                     return false;
                 }

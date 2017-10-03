@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual async Task TraverseGraphAsync(
             EntityEntryGraphNode node,
             Func<EntityEntryGraphNode, CancellationToken, Task<bool>> handleNode,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             if (!await handleNode(node, cancellationToken))
             {

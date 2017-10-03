@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            return default(TResult);
+            return default;
         }
 
         /// <summary>
@@ -338,18 +338,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
                         _hasNext = await _sourceEnumerator.MoveNext(cancellationToken);
-                        _nextOuter = default(TOuter);
+                        _nextOuter = default;
                     }
 
                     if (_hasNext)
                     {
                         var outer
+#pragma warning disable IDE0034 // Simplify 'default' expression - Equals(object, object) causes default(object)
                             = Equals(_nextOuter, default(TOuter))
+#pragma warning restore IDE0034 // Simplify 'default' expression
                                 ? _groupJoinAsyncEnumerable._outerShaper
                                     .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current)
                                 : _nextOuter;
 
-                        _nextOuter = default(TOuter);
+                        _nextOuter = default;
 
                         var inner
                             = _groupJoinAsyncEnumerable._innerShaper
@@ -392,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     break;
                                 }
 
-                                _nextOuter = default(TOuter);
+                                _nextOuter = default;
                             }
 
                             inner

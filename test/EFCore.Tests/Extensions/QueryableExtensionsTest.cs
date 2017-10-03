@@ -54,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             var cancellationTokenSource = new CancellationTokenSource();
 
             VerifyProducedExpression<int, bool>(value => value.AllAsync(e => true, cancellationTokenSource.Token));
-            VerifyProducedExpression<int, bool>(value => value.AnyAsync(default(CancellationToken)));
+            VerifyProducedExpression<int, bool>(value => value.AnyAsync(default));
             VerifyProducedExpression<int, bool>(value => value.AnyAsync(cancellationTokenSource.Token));
-            VerifyProducedExpression<int, bool>(value => value.AnyAsync(e => true, default(CancellationToken)));
+            VerifyProducedExpression<int, bool>(value => value.AnyAsync(e => true, default));
             VerifyProducedExpression<int, bool>(value => value.AnyAsync(e => true, cancellationTokenSource.Token));
             VerifyProducedExpression<int, double>(value => value.AverageAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<int, double>(value => value.AverageAsync(e => e, cancellationTokenSource.Token));
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             VerifyProducedExpression<decimal?, decimal?>(value => value.AverageAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<decimal?, decimal?>(value => value.AverageAsync(e => e, cancellationTokenSource.Token));
             VerifyProducedExpression<int, bool>(value => value.ContainsAsync(0, cancellationTokenSource.Token));
-            VerifyProducedExpression<int, int>(value => value.CountAsync(default(CancellationToken)));
+            VerifyProducedExpression<int, int>(value => value.CountAsync(default));
             VerifyProducedExpression<int, int>(value => value.CountAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<int, int>(value => value.CountAsync(e => true, cancellationTokenSource.Token));
             VerifyProducedExpression<int, int>(value => value.FirstAsync(cancellationTokenSource.Token));
@@ -92,15 +92,15 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             VerifyProducedExpression<int, int>(value => value.MaxAsync(e => e, cancellationTokenSource.Token));
             VerifyProducedExpression<int, int>(value => value.MinAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<int, int>(value => value.MinAsync(e => e, cancellationTokenSource.Token));
-            VerifyProducedExpression<int, int>(value => value.SingleAsync(default(CancellationToken)));
+            VerifyProducedExpression<int, int>(value => value.SingleAsync(default));
             VerifyProducedExpression<int, int>(value => value.SingleAsync(cancellationTokenSource.Token));
-            VerifyProducedExpression<int, int>(value => value.SingleAsync(e => true, default(CancellationToken)));
+            VerifyProducedExpression<int, int>(value => value.SingleAsync(e => true, default));
             VerifyProducedExpression<int, int>(value => value.SingleAsync(e => true, cancellationTokenSource.Token));
-            VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(default(CancellationToken)));
+            VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(default));
             VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(cancellationTokenSource.Token));
-            VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(e => true, default(CancellationToken)));
+            VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(e => true, default));
             VerifyProducedExpression<int, int>(value => value.SingleOrDefaultAsync(e => true, cancellationTokenSource.Token));
-            VerifyProducedExpression<int, int>(value => value.SumAsync(default(CancellationToken)));
+            VerifyProducedExpression<int, int>(value => value.SumAsync(default));
             VerifyProducedExpression<int, int>(value => value.SumAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<int, int>(value => value.SumAsync(e => e, cancellationTokenSource.Token));
             VerifyProducedExpression<int?, int?>(value => value.SumAsync(cancellationTokenSource.Token));
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             VerifyProducedExpression<double, double>(value => value.SumAsync(e => e, cancellationTokenSource.Token));
             VerifyProducedExpression<double?, double?>(value => value.SumAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<double?, double?>(value => value.SumAsync(e => e, cancellationTokenSource.Token));
-            VerifyProducedExpression<decimal, decimal>(value => value.SumAsync(default(CancellationToken)));
+            VerifyProducedExpression<decimal, decimal>(value => value.SumAsync(default));
             VerifyProducedExpression<decimal, decimal>(value => value.SumAsync(cancellationTokenSource.Token));
             VerifyProducedExpression<decimal, decimal>(value => value.SumAsync(e => e, cancellationTokenSource.Token));
             VerifyProducedExpression<decimal?, decimal?>(value => value.SumAsync(cancellationTokenSource.Token));

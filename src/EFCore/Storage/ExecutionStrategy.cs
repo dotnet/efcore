@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             TState state,
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
             Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(operation, nameof(operation));
 

@@ -49,6 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A task that represents the asynchronous save operation. </returns>
         public abstract Task ExecuteAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

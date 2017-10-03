@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<int> ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Executes the command with a single scalar result.
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<object> ExecuteScalarAsync(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Executes the command with a <see cref="RelationalDataReader" /> result.
@@ -99,6 +99,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

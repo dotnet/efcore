@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return false;
                 }
 
-                public T Current => !_moved ? default(T) : _task.Result;
+                public T Current => !_moved ? default : _task.Result;
 
                 void IDisposable.Dispose()
                 {

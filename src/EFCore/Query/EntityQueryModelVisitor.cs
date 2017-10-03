@@ -1486,7 +1486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         return property != null
                             ? memberBinder(property, qs)
-                            : default(TResult);
+                            : default;
                     });
         }
 
@@ -1516,7 +1516,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                         return property != null
                             ? methodCallBinder(property, qs)
-                            : default(TResult);
+                            : default;
                     });
         }
 
@@ -1544,7 +1544,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     null);
             }
 
-            return default(TResult);
+            return default;
         }
 
         /// <summary>

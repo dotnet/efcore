@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     IRelationalConnection connection,
                     DbCommandMethod executeMethod,
                     IReadOnlyDictionary<string, object> parameterValues,
-                    CancellationToken cancellationToken = default(CancellationToken))
+                    CancellationToken cancellationToken = default)
                 {
                     Check.NotNull(connection, nameof(connection));
 

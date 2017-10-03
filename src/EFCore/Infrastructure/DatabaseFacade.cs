@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
         ///     false if it already existed.
         /// </returns>
-        public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             => DatabaseCreator.EnsureCreatedAsync(cancellationToken);
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
         ///     false if it did not exist.
         /// </returns>
-        public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
-        public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => TransactionManager.BeginTransactionAsync(cancellationToken);
 
         /// <summary>

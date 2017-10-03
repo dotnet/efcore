@@ -1170,7 +1170,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <returns>An object to replace <paramref name="unhandledItem" /> in the expression tree. Alternatively, the method can throw any exception.</returns>
         protected override TResult VisitUnhandledItem<TItem, TResult>(
             TItem unhandledItem, string visitMethod, Func<TItem, TResult> baseBehavior)
-            => default(TResult);
+            => default;
 
         /// <summary>
         ///     Creates an unhandled item exception.

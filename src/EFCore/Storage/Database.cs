@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public abstract Task<int> SaveChangesAsync(
             IReadOnlyList<IUpdateEntry> entries,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Translates a query model into a function that can be executed to get query results from the database.

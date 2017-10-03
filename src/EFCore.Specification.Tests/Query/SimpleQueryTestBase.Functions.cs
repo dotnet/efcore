@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_guid_newguid()
         {
             AssertQuery<OrderDetail>(
-                ods => ods.Where(od => Guid.NewGuid() != default(Guid)),
+                ods => ods.Where(od => Guid.NewGuid() != default),
                 entryCount: 2155);
         }
 

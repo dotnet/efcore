@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected virtual TResult ExecuteCore(
             [NotNull] TContext context,
             [NotNull] params object[] parameters)
-            => ExecuteCore(context, default(CancellationToken), parameters);
+            => ExecuteCore(context, default, parameters);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

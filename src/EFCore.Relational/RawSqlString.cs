@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Implicitly converts a <see cref="FormattableString" /> to a <see cref="RawSqlString" />
         /// </summary>
         /// <param name="fs"> The string format. </param>
-        public static implicit operator RawSqlString([NotNull] FormattableString fs) => default(RawSqlString);
+        public static implicit operator RawSqlString([NotNull] FormattableString fs) => default;
 
         /// <summary>
         ///     Constructs a <see cref="RawSqlString" /> from a see <see cref="string" />

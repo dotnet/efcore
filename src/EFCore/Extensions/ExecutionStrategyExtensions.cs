@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         await operationScoped();
                         return true;
-                    }, default(CancellationToken));
+                    }, default);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(operation, (operationScoped, ct) => operationScoped(), default(CancellationToken));
+            return strategy.ExecuteAsync(operation, (operationScoped, ct) => operationScoped(), default);
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         await t.operation(t.state);
                         return true;
-                    }, default(CancellationToken));
+                    }, default);
         }
 
         /// <summary>
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(operation, nameof(operation));
 
-            return strategy.ExecuteAsync(new { operation, state }, (t, ct) => t.operation(t.state), default(CancellationToken));
+            return strategy.ExecuteAsync(new { operation, state }, (t, ct) => t.operation(t.state), default);
         }
 
         /// <summary>
@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] TState state,
             [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
             [CanBeNull] Func<TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => Check.NotNull(strategy, nameof(strategy)).ExecuteAsync(
                 state,
                 (c, s, ct) => operation(s, ct),
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync<object>(null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [NotNull] Func<CancellationToken, Task<TResult>> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync<object, TResult>(null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), cancellationToken);
 
         /// <summary>
@@ -566,7 +566,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] TState state,
             [NotNull] Func<TState, CancellationToken, Task> operation,
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync(
                 state, async (s, ct) =>
                     {
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] TState state,
             [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteInTransactionAsync(
                 strategy,
                 state,
@@ -718,7 +718,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             [NotNull] Func<DbContext, CancellationToken, Task<IDbContextTransaction>> beginTransaction,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteAsync(
                 new ExecutionStateAsync<TState, TResult>(
                     Check.NotNull(operation, nameof(operation)), Check.NotNull(verifySucceeded, nameof(verifySucceeded)), state),

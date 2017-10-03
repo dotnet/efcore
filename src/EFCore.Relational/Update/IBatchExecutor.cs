@@ -42,6 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         Task<int> ExecuteAsync(
             [NotNull] IEnumerable<ModificationCommandBatch> commandBatches,
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

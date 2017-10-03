@@ -63,6 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] TState state,
             [NotNull] Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
             [CanBeNull] Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

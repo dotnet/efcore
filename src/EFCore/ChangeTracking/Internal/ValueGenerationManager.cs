@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual async Task GenerateAsync(
             InternalEntityEntry entry,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             var entityEntry = new EntityEntry(entry);
 

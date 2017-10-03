@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     A task that represents the asynchronous save operation.
         /// </returns>
-        public override Task LoadAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override Task LoadAsync(CancellationToken cancellationToken = default)
         {
             EnsureInitialized();
 

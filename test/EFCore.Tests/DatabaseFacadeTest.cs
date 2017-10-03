@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             {
                 EnsureDeletedAsyncCount++;
                 return Task.FromResult(true);
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
                 return true;
             }
 
-            public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             {
                 EnsureCreatedAsyncCount++;
                 return Task.FromResult(true);
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
             public IDbContextTransaction BeginTransaction()
                 => _transaction;
 
-            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
                 => Task.FromResult<IDbContextTransaction>(_transaction);
 
             public void CommitTransaction() => CommitCalls++;

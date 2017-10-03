@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The task result contains a <see cref="List{T}" /> that contains elements from the input sequence.
         /// </returns>
         public async Task<List<TResult>> ToListAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             var list = new List<TResult>();
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
         public async Task<TResult[]> ToArrayAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => (await ToListAsync(cancellationToken)).ToArray();
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         public async Task LoadAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             using (var enumerator = _asyncEnumerable.GetEnumerator())
             {
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </returns>
         public Task<Dictionary<TKey, TResult>> ToDictionaryAsync<TKey>(
             [NotNull] Func<TResult, TKey> keySelector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(keySelector, nameof(keySelector));
 
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Task<Dictionary<TKey, TResult>> ToDictionaryAsync<TKey>(
             [NotNull] Func<TResult, TKey> keySelector,
             [NotNull] IEqualityComparer<TKey> comparer,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(comparer, nameof(comparer));
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TKey, TElement>(
             [NotNull] Func<TResult, TKey> keySelector,
             [NotNull] Func<TResult, TElement> elementSelector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] Func<TResult, TKey> keySelector,
             [NotNull] Func<TResult, TElement> elementSelector,
             [NotNull] IEqualityComparer<TKey> comparer,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(keySelector, nameof(keySelector));
             Check.NotNull(elementSelector, nameof(elementSelector));
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> A task that represents the asynchronous operation. </returns>
         public async Task ForEachAsync(
             [NotNull] Action<TResult> action,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(action, nameof(action));
 

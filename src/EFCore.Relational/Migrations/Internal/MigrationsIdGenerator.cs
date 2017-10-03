@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => Regex.IsMatch(
                 value,
                 string.Format(CultureInfo.InvariantCulture, "[0-9]{{{0}}}_.+", Format.Length),
-                default(RegexOptions),
+                default,
                 TimeSpan.FromMilliseconds(1000.0));
 
         /// <summary>

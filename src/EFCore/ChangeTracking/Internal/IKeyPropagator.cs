@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         Task<InternalEntityEntry> PropagateValueAsync(
             [NotNull] InternalEntityEntry entry,
             [NotNull] IProperty property,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

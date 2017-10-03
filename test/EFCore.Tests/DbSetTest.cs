@@ -533,8 +533,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(gu2, context.Gus.Add(gu2).Entity);
                 }
 
-                Assert.NotEqual(default(Guid), gu1.Id);
-                Assert.NotEqual(default(Guid), gu2.Id);
+                Assert.NotEqual(default, gu1.Id);
+                Assert.NotEqual(default, gu2.Id);
                 Assert.NotEqual(gu1.Id, gu2.Id);
 
                 var categoryEntry = context.Entry(gu1);

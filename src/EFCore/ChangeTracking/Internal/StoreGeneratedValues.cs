@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return value == null
                     ? currentValue
                     : value == _nullSentinel
-                        ? default(T)
+                        ? default
                         : (T)value;
             }
 
