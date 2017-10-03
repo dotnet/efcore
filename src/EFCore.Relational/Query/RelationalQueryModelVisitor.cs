@@ -1959,7 +1959,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     querySource);
             }
 
-            return default(TResult);
+            return default;
         }
 
         #endregion

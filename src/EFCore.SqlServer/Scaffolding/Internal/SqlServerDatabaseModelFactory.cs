@@ -500,7 +500,9 @@ ORDER BY schema_name(t.schema_id), t.name, c.column_id";
                             ? ValueGenerated.OnAdd
                             : (underlyingStoreType ?? storeType) == "rowversion"
                                 ? ValueGenerated.OnAddOrUpdate
+#pragma warning disable IDE0034 // Simplify 'default' expression - Ternary expression causes default(ValueGenerated) which is non-nullable
                                 : default(ValueGenerated?)
+#pragma warning restore IDE0034 // Simplify 'default' expression
                     };
 
                     if ((underlyingStoreType ?? storeType) == "rowversion")

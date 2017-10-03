@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 using (var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetEnumerator())
                 {
-                    while (await asyncEnumerator.MoveNext(default(CancellationToken)))
+                    while (await asyncEnumerator.MoveNext(default))
                     {
                         if (!context.GetService<IRelationalConnection>().IsMultipleActiveResultSetsEnabled)
                         {

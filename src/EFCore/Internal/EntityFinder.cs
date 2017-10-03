@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
             Check.NotNull(keyValues, nameof(keyValues));
 
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual async Task LoadAsync(
             INavigation navigation,
             InternalEntityEntry entry,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Task<object[]> GetDatabaseValuesAsync(
-            InternalEntityEntry entry, CancellationToken cancellationToken = default(CancellationToken))
+            InternalEntityEntry entry, CancellationToken cancellationToken = default)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
 
         private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)

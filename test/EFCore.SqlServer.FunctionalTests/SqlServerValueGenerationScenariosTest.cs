@@ -683,8 +683,8 @@ END");
                     var beforeSave = blog.Id;
                     var beforeSaveNotId = blog.NotId;
 
-                    Assert.NotEqual(default(Guid), beforeSave);
-                    Assert.NotEqual(default(Guid), beforeSaveNotId);
+                    Assert.NotEqual(default, beforeSave);
+                    Assert.NotEqual(default, beforeSaveNotId);
 
                     context.SaveChanges();
 
@@ -730,7 +730,7 @@ END");
 
                     var blog = context.Add(new GuidBlog { Name = "One Unicorn" }).Entity;
 
-                    Assert.Equal(default(Guid), blog.NotId);
+                    Assert.Equal(default, blog.NotId);
 
                     // No value set on a required column
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
@@ -764,16 +764,16 @@ END");
                     var beforeSave = blog.Id;
                     var beforeSaveNotId = blog.NotId;
 
-                    Assert.NotEqual(default(Guid), beforeSave);
-                    Assert.Equal(default(Guid), beforeSaveNotId);
+                    Assert.NotEqual(default, beforeSave);
+                    Assert.Equal(default, beforeSaveNotId);
 
                     context.SaveChanges();
 
                     afterSave = blog.Id;
                     var afterSaveNotId = blog.NotId;
 
-                    Assert.NotEqual(default(Guid), afterSave);
-                    Assert.NotEqual(default(Guid), afterSaveNotId);
+                    Assert.NotEqual(default, afterSave);
+                    Assert.NotEqual(default, afterSaveNotId);
                     Assert.NotEqual(beforeSave, afterSave);
                     Assert.NotEqual(beforeSaveNotId, afterSaveNotId);
                 }

@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                     pattern,
                     escapeRegexCharsPattern,
                     c => @"\" + c,
-                    default(RegexOptions),
+                    default,
                     _regexTimeout);
 
             var stringBuilder = new StringBuilder();

@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
         /// </exception>
-        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
@@ -681,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual async Task<EntityEntry<TEntity>> AddAsync<TEntity>(
             [NotNull] TEntity entity,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             where TEntity : class
         {
             CheckDisposed();
@@ -853,7 +853,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual async Task<EntityEntry> AddAsync(
             [NotNull] object entity,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
@@ -1129,7 +1129,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual async Task AddRangeAsync(
             [NotNull] IEnumerable<object> entities,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var value = _propertyAccessors.ValueBufferGetter(valueBuffer);
             if (value == null)
             {
-                key = default(TKey);
+                key = default;
                 return false;
             }
             key = (TKey)value;
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return true;
             }
 
-            key = default(TKey);
+            key = default;
             return false;
         }
     }

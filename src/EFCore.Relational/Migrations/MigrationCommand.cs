@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual async Task<int> ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => await _relationalCommand.ExecuteNonQueryAsync(
                 Check.NotNull(connection, nameof(connection)),
                 parameterValues,

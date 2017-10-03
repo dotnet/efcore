@@ -399,11 +399,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal((float)0.0, typeof(float).GetDefaultValue());
             Assert.Equal(0.0, typeof(double).GetDefaultValue());
             Assert.Equal((char)0, typeof(char).GetDefaultValue());
+#pragma warning disable IDE0034 // Simplify 'default' expression - GetDefaultValue returns object causing inference of default(object)
             Assert.Equal(default(Guid), typeof(Guid).GetDefaultValue());
             Assert.Equal(default(DateTime), typeof(DateTime).GetDefaultValue());
             Assert.Equal(default(DateTimeOffset), typeof(DateTimeOffset).GetDefaultValue());
             Assert.Equal(default(SomeStruct), typeof(SomeStruct).GetDefaultValue());
             Assert.Equal(default(SomeEnum), typeof(SomeEnum).GetDefaultValue());
+#pragma warning restore IDE0034 // Simplify 'default' expression
             Assert.Null(typeof(string).GetDefaultValue());
             Assert.Null(typeof(bool?).GetDefaultValue());
             Assert.Null(typeof(sbyte?).GetDefaultValue());

@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
                 return 0;
             }
 
-            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default)
                 => Task.FromResult(0);
 
             public RelationalDataReader ExecuteReader(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

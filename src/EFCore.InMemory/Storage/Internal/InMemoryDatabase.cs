@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<IUpdateEntry> entries,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => Task.FromResult(_store.ExecuteTransaction(Check.NotNull(entries, nameof(entries)), _updateLogger));
 
         /// <summary>

@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Current
                     = hasNext
                         ? _shaper.Shape(_relationalQueryContext, _valueBufferFactory.Create(_dbDataReader))
-                        : default(T);
+                        : default;
 
                 if (buffer)
                 {

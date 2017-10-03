@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ThrowReadValueException<TValue>(e, untypedValue, property);
             }
 
-            return default(TValue);
+            return default;
         }
 
         /// <summary>

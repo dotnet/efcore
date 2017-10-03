@@ -43,19 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static readonly long? DefaultMaxValue = default(long?);
+        public static readonly long? DefaultMaxValue = default;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static readonly long? DefaultMinValue = default(long?);
+        public static readonly long? DefaultMinValue = default;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static readonly bool DefaultIsCyclic = default(bool);
+        public static readonly bool DefaultIsCyclic = default;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

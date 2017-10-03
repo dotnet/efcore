@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
         [NotNull]
-        public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             await OpenAsync(cancellationToken);
 

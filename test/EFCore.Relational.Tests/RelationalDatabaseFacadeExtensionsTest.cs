@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new InMemoryTransaction();
             }
 
-            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             {
                 BeginAsyncCount++;
                 return Task.FromResult<IDbContextTransaction>(new InMemoryTransaction());
@@ -245,11 +245,11 @@ namespace Microsoft.EntityFrameworkCore
             public IReadOnlyList<HistoryRow> GetAppliedMigrations()
                 => AppliedMigrations;
 
-            public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default)
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(AppliedMigrations);
 
             public bool Exists() => throw new NotImplementedException();
-            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken)) => throw new NotImplementedException();
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
             public string GetCreateScript() => throw new NotImplementedException();
             public string GetCreateIfNotExistsScript() => throw new NotImplementedException();
             public string GetInsertScript(HistoryRow row) => throw new NotImplementedException();

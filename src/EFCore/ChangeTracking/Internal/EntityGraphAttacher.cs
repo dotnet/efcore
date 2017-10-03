@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             InternalEntityEntry rootEntry,
             EntityState entityState,
             bool forceStateWhenUnknownKey,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => _graphIterator.TraverseGraphAsync(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {

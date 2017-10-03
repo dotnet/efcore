@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var idx = reader.GetOrdinal(name);
             return reader.IsDBNull(idx)
-                ? default(T)
+                ? default
                 : reader.GetFieldValue<T>(idx);
         }
     }

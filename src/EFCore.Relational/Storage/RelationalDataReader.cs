@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Calls Read on the underlying DbDataReader.
         /// </summary>
         /// <returns>true if there are more rows; otherwise false.</returns>
-        public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<bool> ReadAsync(CancellationToken cancellationToken = default)
         {
             _readCount++;
 

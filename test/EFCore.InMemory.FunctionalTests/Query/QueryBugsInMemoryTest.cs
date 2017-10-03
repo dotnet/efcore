@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var result = q0.ToList();
 
-                    Assert.Equal(default(DateTime), result.Single().MaxDate);
+                    Assert.Equal(default, result.Single().MaxDate);
                 }
             }
         }

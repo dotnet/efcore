@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         /// </summary>
         public virtual async Task MigrateAsync(
             string targetMigration = null,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             _logger.MigrateUsingConnection(this, _connection);
 

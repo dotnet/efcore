@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 object IEnumerator.Current => Current;
 
-                public T Current => !_moved ? default(T) : _value;
+                public T Current => !_moved ? default : _value;
 
                 void IDisposable.Dispose()
                 {

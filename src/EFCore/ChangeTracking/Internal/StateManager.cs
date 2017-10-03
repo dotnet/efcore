@@ -803,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual async Task<int> SaveChangesAsync(
-            bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+            bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
         {
             if (ChangedCount == 0)
             {
@@ -856,7 +856,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual async Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             using (_concurrencyDetector.EnterCriticalSection())
             {

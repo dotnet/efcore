@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<bool> AnyAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<bool> AllAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<int> CountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<long> LongCountAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> FirstAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> FirstOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> LastAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -499,7 +499,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> LastOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -607,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> SingleAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -678,7 +678,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TSource> SingleOrDefaultAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, bool>> predicate,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
@@ -714,7 +714,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> MinAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -750,7 +750,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TResult> MinAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, TResult>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -786,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource> MaxAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -822,7 +822,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<TResult> MaxAsync<TSource, TResult>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, TResult>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -855,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<decimal> SumAsync(
             [NotNull] this IQueryable<decimal> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<decimal?> SumAsync(
             [NotNull] this IQueryable<decimal?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<decimal> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<decimal?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -975,7 +975,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<int> SumAsync(
             [NotNull] this IQueryable<int> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1003,7 +1003,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<int?> SumAsync(
             [NotNull] this IQueryable<int?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<int> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1066,7 +1066,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<int?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1095,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<long> SumAsync(
             [NotNull] this IQueryable<long> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1123,7 +1123,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<long?> SumAsync(
             [NotNull] this IQueryable<long?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1154,7 +1154,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<long> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1186,7 +1186,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<long?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1215,7 +1215,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double> SumAsync(
             [NotNull] this IQueryable<double> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1243,7 +1243,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double?> SumAsync(
             [NotNull] this IQueryable<double?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1274,7 +1274,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1306,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1335,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<float> SumAsync(
             [NotNull] this IQueryable<float> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1363,7 +1363,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<float?> SumAsync(
             [NotNull] this IQueryable<float?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1394,7 +1394,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<float> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1426,7 +1426,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<float?> SumAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1470,7 +1470,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<decimal> AverageAsync(
             [NotNull] this IQueryable<decimal> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1498,7 +1498,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<decimal?> AverageAsync(
             [NotNull] this IQueryable<decimal?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1530,7 +1530,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<decimal> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1563,7 +1563,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<decimal?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, decimal?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1592,7 +1592,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<int> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1620,7 +1620,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<int?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1652,7 +1652,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1685,7 +1685,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, int?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1714,7 +1714,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<long> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1742,7 +1742,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<long?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1774,7 +1774,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1807,7 +1807,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, long?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1836,7 +1836,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double> AverageAsync(
             [NotNull] this IQueryable<double> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1864,7 +1864,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<double?> AverageAsync(
             [NotNull] this IQueryable<double?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1896,7 +1896,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1929,7 +1929,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<double?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, double?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -1958,7 +1958,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<float> AverageAsync(
             [NotNull] this IQueryable<float> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -1986,7 +1986,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<float?> AverageAsync(
             [NotNull] this IQueryable<float?> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -2018,7 +2018,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<float> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -2051,7 +2051,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<float?> AverageAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Expression<Func<TSource, float?>> selector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
@@ -2089,7 +2089,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<bool> ContainsAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] TSource item,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -2127,7 +2127,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<List<TSource>> ToListAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => source.AsAsyncEnumerable().ToList(cancellationToken);
 
         /// <summary>
@@ -2152,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task<TSource[]> ToArrayAsync<TSource>(
             [NotNull] this IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => source.AsAsyncEnumerable().ToArray(cancellationToken);
 
         #endregion
@@ -2718,7 +2718,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         public static async Task LoadAsync<TSource>(
-            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+            [NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
 
@@ -2765,7 +2765,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
@@ -2806,7 +2806,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] IEqualityComparer<TKey> comparer,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
@@ -2850,7 +2850,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IQueryable<TSource> source,
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
@@ -2898,7 +2898,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] Func<TSource, TKey> keySelector,
             [NotNull] Func<TSource, TElement> elementSelector,
             [NotNull] IEqualityComparer<TKey> comparer,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(source, nameof(source));
             Check.NotNull(keySelector, nameof(keySelector));
@@ -2933,7 +2933,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task ForEachAsync<T>(
             [NotNull] this IQueryable<T> source,
             [NotNull] Action<T> action,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => source.AsAsyncEnumerable().ForEachAsync(action, cancellationToken);
 
         #endregion
@@ -2943,7 +2943,7 @@ namespace Microsoft.EntityFrameworkCore
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             if (source.Provider is IAsyncQueryProvider provider)
             {
@@ -2967,7 +2967,7 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             LambdaExpression expression,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteAsync<TSource, TResult>(
                 operatorMethodInfo, source, Expression.Quote(expression), cancellationToken);
 
@@ -2975,7 +2975,7 @@ namespace Microsoft.EntityFrameworkCore
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
             Expression expression,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             if (source.Provider is IAsyncQueryProvider provider)
             {

@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Func<CancellationToken, Task> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync<object>(null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Func<CancellationToken, Task<TResult>> operation,
             [NotNull] Func<CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync<object, TResult>(
                 null, (s, ct) => operation(ct), (s, ct) => verifySucceeded(ct), isolationLevel, cancellationToken);
 
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Func<TState, CancellationToken, Task> operation,
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => strategy.ExecuteInTransactionAsync(
                 state,
                 async (s, ct) =>
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] Func<TState, CancellationToken, Task<TResult>> operation,
             [NotNull] Func<TState, CancellationToken, Task<bool>> verifySucceeded,
             IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecutionStrategyExtensions.ExecuteInTransactionAsync(
                 strategy, state, operation, verifySucceeded, (c, ct) => c.Database.BeginTransactionAsync(isolationLevel, ct), cancellationToken);
     }

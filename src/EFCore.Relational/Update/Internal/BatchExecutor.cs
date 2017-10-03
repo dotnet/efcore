@@ -101,14 +101,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual Task<int> ExecuteAsync(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => CurrentContext.Context.Database.AutoTransactionsEnabled
                 ? ExecutionStrategyFactory.Create().ExecuteAsync(Tuple.Create(commandBatches, connection), ExecuteAsync, cancellationToken)
                 : ExecuteAsync(Tuple.Create(commandBatches, connection), cancellationToken);
 
         private async Task<int> ExecuteAsync(
             Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             var commandBatches = parameters.Item1;
             var connection = parameters.Item2;

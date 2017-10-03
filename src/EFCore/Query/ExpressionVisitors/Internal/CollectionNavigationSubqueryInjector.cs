@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                             return collectionNavigation != null
                                 ? InjectSubquery(memberExpression, collectionNavigation)
-                                : default(Expression);
+                                : default;
                         });
             }
 
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                             return collectionNavigation != null
                                 ? InjectSubquery(methodCallExpression, collectionNavigation)
-                                : default(Expression);
+                                : default;
                         });
             }
 

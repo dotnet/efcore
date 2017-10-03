@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration.Internal
                 typeof(long),
                 CultureInfo.InvariantCulture);
 
-        protected override async Task<long> GetNewLowValueAsync(CancellationToken cancellationToken = default(CancellationToken))
+        protected override async Task<long> GetNewLowValueAsync(CancellationToken cancellationToken = default)
             => (long)Convert.ChangeType(
                 await _rawSqlCommandBuilder
                     .Build(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))

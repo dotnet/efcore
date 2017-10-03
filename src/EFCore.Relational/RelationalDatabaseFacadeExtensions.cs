@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A task that represents the asynchronous operation. </returns>
         public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => (await Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IHistoryRepository>()
                 .GetAppliedMigrationsAsync(cancellationToken)).Select(hr => hr.MigrationId);
 
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A task that represents the asynchronous operation. </returns>
         public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => GetMigrations(databaseFacade).Except(await GetAppliedMigrationsAsync(databaseFacade, cancellationToken));
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A task that represents the asynchronous migration operation. </returns>
         public static Task MigrateAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>()
                 .MigrateAsync(cancellationToken: cancellationToken);
 
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] FormattableString sql,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteSqlCommandAsync(databaseFacade, sql.Format, sql.GetArguments(), cancellationToken);
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<int> ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteSqlCommandAsync(databaseFacade, sql, Enumerable.Empty<object>(), cancellationToken);
 
         /// <summary>
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DatabaseFacade databaseFacade,
             RawSqlString sql,
             [NotNull] IEnumerable<object> parameters,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
             Check.NotNull(sql, nameof(sql));
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static Task OpenConnectionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
                     database.GetRelationalService<IRelationalConnection>().OpenAsync(cancellationToken), cancellationToken);
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Task<IDbContextTransaction> BeginTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
                 databaseFacade, (database, ct) =>
                     {

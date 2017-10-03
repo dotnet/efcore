@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task CreateAsync(CancellationToken cancellationToken = default)
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 _connection, connection
                     => Convert.ToInt32(CreateHasTablesCommand().ExecuteScalar(connection)) > 0);
 
-        protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        protected override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
                 async (connection, ct)
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public override async Task DeleteAsync(CancellationToken cancellationToken = default)
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {

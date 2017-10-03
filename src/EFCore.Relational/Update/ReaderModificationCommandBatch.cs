@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A task that represents the asynchronous operation. </returns>
         public override async Task ExecuteAsync(
             IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(connection, nameof(connection));
 
@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> A task that represents the asynchronous operation. </returns>
         protected abstract Task ConsumeAsync(
             [NotNull] RelationalDataReader reader,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Creates the <see cref="IRelationalValueBufferFactory" /> that will be used for creating a

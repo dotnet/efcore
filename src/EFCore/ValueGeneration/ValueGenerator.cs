@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public virtual Task<object> NextAsync(
             [NotNull] EntityEntry entry,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => NextValueAsync(entry, cancellationToken);
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The generated value. </returns>
         protected virtual Task<object> NextValueAsync(
             [NotNull] EntityEntry entry,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => Task.FromResult(NextValue(entry));
 
         /// <summary>

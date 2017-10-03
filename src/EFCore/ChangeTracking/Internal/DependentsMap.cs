@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (entry.IsConceptualNull(property))
                 {
-                    key = default(TKey);
+                    key = default;
                     return false;
                 }
             }

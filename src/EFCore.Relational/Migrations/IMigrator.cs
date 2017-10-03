@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> A task that represents the asynchronous operation </returns>
         Task MigrateAsync(
             [CanBeNull] string targetMigration = null,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Generates a SQL script to migrate a database either in its entirety, or starting and

@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null, default(int)));
+            var dbFuncBuilder = modelBuilder.HasDbFunction(() => TestMethods.MethodA(null, default));
             var dbFunc = dbFuncBuilder.Metadata;
 
             Assert.Equal("MethodA", dbFunc.FunctionName);

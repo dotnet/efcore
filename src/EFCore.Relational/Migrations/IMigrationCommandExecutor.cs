@@ -33,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         Task ExecuteNonQueryAsync(
             [NotNull] IEnumerable<MigrationCommand> migrationCommands,
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
     }
 }

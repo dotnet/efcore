@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public void Reset([NotNull] Func<T> initializer)
         {
             _initializer = initializer;
-            _value = default(T);
+            _value = default;
         }
     }
 }

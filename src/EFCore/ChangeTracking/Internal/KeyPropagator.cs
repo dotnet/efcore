@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual async Task<InternalEntityEntry> PropagateValueAsync(
             InternalEntityEntry entry,
             IProperty property,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Debug.Assert(property.IsForeignKey());
 

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static Task<int> ExecuteNonQueryAsync(
             [NotNull] this IRelationalCommand command,
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => command.ExecuteNonQueryAsync(connection, parameterValues: null, cancellationToken: cancellationToken);
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static Task<object> ExecuteScalarAsync(
             [NotNull] this IRelationalCommand command,
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => command.ExecuteScalarAsync(connection, parameterValues: null, cancellationToken: cancellationToken);
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] this IRelationalCommand command,
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => command.ExecuteReaderAsync(connection, parameterValues: null, cancellationToken: cancellationToken);
     }
 }

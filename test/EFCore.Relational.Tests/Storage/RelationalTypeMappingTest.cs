@@ -165,7 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteral_returns_NullableInt_literal_when_null()
         {
+#pragma warning disable IDE0034 // Simplify 'default' expression - Causes inference of default(object) due to parameter being object type
             var literal = new IntTypeMapping("int?", DbType.Int32).GenerateSqlLiteral(default(int?));
+#pragma warning restore IDE0034 // Simplify 'default' expression
             Assert.Equal("NULL", literal);
         }
 

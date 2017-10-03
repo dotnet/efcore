@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteNonQuery,
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteScalar,
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 DbCommandMethod.ExecuteReader,
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] IRelationalConnection connection,
             DbCommandMethod executeMethod,
             [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(connection, nameof(connection));
 

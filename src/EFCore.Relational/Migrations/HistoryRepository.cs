@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
         /// </returns>
-        public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
                && InterpretExistsResult(
                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
         public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             var rows = new List<HistoryRow>();
 

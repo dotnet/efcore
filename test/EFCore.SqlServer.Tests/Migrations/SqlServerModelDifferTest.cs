@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         public static int Function()
         {
-            return default(int);
+            return default;
         }
 
         [Fact]

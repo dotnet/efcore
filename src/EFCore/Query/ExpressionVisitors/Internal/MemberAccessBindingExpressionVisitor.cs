@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             if (entity == null)
             {
-                return default(T);
+                return default;
             }
 
             return (T)queryContext.QueryBuffer.GetPropertyValue(entity, property);
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             if (entity == null)
             {
-                return default(T);
+                return default;
             }
 
             return (T)clrPropertyGetter.GetClrValue(entity);

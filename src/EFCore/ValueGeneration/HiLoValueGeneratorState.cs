@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <returns> The value to be assigned to a property. </returns>
         public virtual async Task<TValue> NextAsync<TValue>(
             [NotNull] Func<CancellationToken, Task<long>> getNewLowValue,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             Check.NotNull(getNewLowValue, nameof(getNewLowValue));
 

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
         /// </returns>
-        Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Queries the history table for all migrations that have been applied.
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     Generates a SQL script that will create the history table.
