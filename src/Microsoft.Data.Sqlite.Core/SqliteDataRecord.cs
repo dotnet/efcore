@@ -144,6 +144,31 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        public static Type GetFieldType(string type)
+        {
+            switch (type)
+            {
+                case "integer":
+                    return typeof(long);
+
+                case "real":
+                    return typeof(double);
+
+                case "text":
+                    return typeof(string);
+
+                case "blob":
+                    return typeof(byte[]);
+
+                case null:
+                    return typeof(int);
+
+                default:
+                    Debug.Assert(false, "Unexpected column type: " + type);
+                    return typeof(int);
+            }
+        }
+
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
             => throw new NotSupportedException();
 

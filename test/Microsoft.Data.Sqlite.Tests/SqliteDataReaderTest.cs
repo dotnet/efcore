@@ -1072,6 +1072,30 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Theory]
+        [InlineData("(0), (1), ('A')", typeof(long))]
+        [InlineData("('Z'), (1), ('A')", typeof(string))]
+        [InlineData("(0.1), (0.01), ('A')", typeof(double))]
+        [InlineData("(X'7E57'), (X'577E'), ('A')", typeof(byte[]))]
+        [InlineData("(NULL), (NULL), (NULL)", typeof(int))]
+        [InlineData("(NULL), ('A'), ('B')", typeof(string))]
+        public void GetSchemaTable_DataType_works(string values, Type expectedType)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+                connection.ExecuteNonQuery($"INSERT INTO Test VALUES {values};");
+
+                using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
+                {
+                    var schema = reader.GetSchemaTable();
+                    Assert.True(schema.Columns.Contains("DataType"));                    
+                    Assert.Equal(expectedType, schema.Rows[0]["DataType"]);
+                }
+            }
+        }
+
         private static void GetX_works<T>(string sql, Func<DbDataReader, T> action, T expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
