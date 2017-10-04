@@ -10,7 +10,6 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
-using System;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -107,12 +106,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9551", out var isEnabled)
-                && isEnabled)
-            {
-                return base.VisitSubQuery(subQueryExpression);
-            }
-
             if (_reachable)
             {
                 return subQueryExpression;

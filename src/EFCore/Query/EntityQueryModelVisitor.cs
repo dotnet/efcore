@@ -291,15 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9551", out var isEnabled)
-                && isEnabled)
-            {
-                includeCompiler.RewriteCollectionQueries(queryModel);
-            }
-            else
-            {
-                includeCompiler.RewriteCollectionQueries();
-            }
+            includeCompiler.RewriteCollectionQueries();
 
             includeCompiler.LogIgnoredIncludes();
 

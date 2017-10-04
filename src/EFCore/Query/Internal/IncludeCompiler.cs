@@ -76,32 +76,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return;
             }
 
-            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9551", out var isEnabled)
-                && isEnabled)
-            {
-                foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel))
-                {
-                    includeLoadTree.Compile(
-                        _queryCompilationContext,
-                        queryModel,
-                        trackingQuery,
-                        asyncQuery,
-                        ref _collectionIncludeId);
-                }
-            }
-            else
-            {
-                _targetQueryModel = _targetQueryModel ?? queryModel;
+            _targetQueryModel = _targetQueryModel ?? queryModel;
 
-                foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel))
-                {
-                    includeLoadTree.Compile(
-                        _queryCompilationContext,
-                        _targetQueryModel,
-                        trackingQuery,
-                        asyncQuery,
-                        ref _collectionIncludeId);
-                }
+            foreach (var includeLoadTree in CreateIncludeLoadTrees(queryModel))
+            {
+                includeLoadTree.Compile(
+                    _queryCompilationContext,
+                    _targetQueryModel,
+                    trackingQuery,
+                    asyncQuery,
+                    ref _collectionIncludeId);
             }
         }
 
@@ -166,26 +150,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     continue;
                 }
 
-                if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9551", out var isEnabled)
-                    && isEnabled))
+                if (querySourceReferenceExpression.Type.IsGrouping()
+                    && querySourceTracingExpressionVisitor.OriginGroupByQueryModel != null)
                 {
-                    if (querySourceReferenceExpression.Type.IsGrouping()
-                        && querySourceTracingExpressionVisitor.OriginGroupByQueryModel != null)
-                    {
-                        querySourceReferenceExpression
-                            = querySourceTracingExpressionVisitor
-                                .FindResultQuerySourceReferenceExpression(
-                                    querySourceTracingExpressionVisitor.OriginGroupByQueryModel.GetOutputExpression(),
-                                    includeResultOperator.QuerySource);
+                    querySourceReferenceExpression
+                        = querySourceTracingExpressionVisitor
+                            .FindResultQuerySourceReferenceExpression(
+                                querySourceTracingExpressionVisitor.OriginGroupByQueryModel.GetOutputExpression(),
+                                includeResultOperator.QuerySource);
 
-                        _targetQueryModel = querySourceTracingExpressionVisitor.OriginGroupByQueryModel;
-                    }
+                    _targetQueryModel = querySourceTracingExpressionVisitor.OriginGroupByQueryModel;
+                }
 
-                    if (querySourceReferenceExpression == null
-                        || querySourceReferenceExpression.Type.IsGrouping())
-                    {
-                        continue;
-                    }
+                if (querySourceReferenceExpression == null
+                    || querySourceReferenceExpression.Type.IsGrouping())
+                {
+                    continue;
                 }
 
                 var includeLoadTree
