@@ -3966,6 +3966,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Enum_ToString_is_client_eval()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears
+                    .OrderBy(g => g.SquadId)
+                    .ThenBy(g => g.Nickname)
+                    .Select(g => g.Rank.ToString())
+                    .Take(1)
+                    .ToList();
+
+                var result = Assert.Single(query);
+                Assert.Equal("Corporal", result);
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)

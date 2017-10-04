@@ -3857,6 +3857,19 @@ FROM [Gear] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g].[LeaderNickname]) AND (@_outer_SquadId = [g].[LeaderSquadId]))");
         }
 
+        public override void Enum_ToString_is_client_eval()
+        {
+            base.Enum_ToString_is_client_eval();
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT TOP(@__p_0) [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[SquadId], [g].[Nickname]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

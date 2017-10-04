@@ -45,16 +45,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
-            string storeType;
-
             if (methodCallExpression.Method.Name == nameof(ToString)
                 && methodCallExpression.Arguments.Count == 0
                 && methodCallExpression.Object != null
                 && _typeMapping.TryGetValue(
-                    methodCallExpression.Object.Type
-                        .UnwrapNullableType()
-                        .UnwrapEnumType(),
-                    out storeType))
+                    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9894", out var enabled)
+                    && enabled
+                        ? methodCallExpression.Object.Type.UnwrapNullableType().UnwrapEnumType()
+                        : methodCallExpression.Object.Type.UnwrapNullableType(),
+                    out var storeType))
             {
                 return new SqlFunctionExpression(
                     functionName: "CONVERT",
