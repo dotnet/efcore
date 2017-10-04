@@ -130,13 +130,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
-            return Expression.Lambda<Func<ValueBuffer, object>>(
+            var getter = Expression.Lambda<Func<ValueBuffer, object>>(
                     Expression.Call(
                         valueBufferParameter,
                         ValueBuffer.GetValueMethod,
                         Expression.Constant(property.GetIndex())),
                     valueBufferParameter)
                 .Compile();
+
+            var converter = property.FindMapping()?.Converter;
+
+            return converter != null 
+                ? (vb => converter.ConvertFromStore(getter(vb))) 
+                : getter;
         }
     }
 }

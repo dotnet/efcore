@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private static readonly ByteArrayTypeMapping _blob = new ByteArrayTypeMapping(_blobTypeName);
         private static readonly StringTypeMapping _text = new StringTypeMapping(_textTypeName);
 
-        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+        private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             : base(dependencies)
         {
             _storeTypeMappings
-                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase);
+                = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase);
 
             _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+        protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
             => _storeTypeMappings;
     }
 }

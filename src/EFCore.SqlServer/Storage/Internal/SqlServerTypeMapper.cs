@@ -46,6 +46,35 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("tinyint", DbType.Byte);
 
+        // TODO.TM Less burden on handle nulls/nullables/non-exact matches
+        private readonly UIntTypeMapping _uint = new UIntTypeMapping(
+            "int",
+            new TypeConverter(
+                v => v == null ? null : (object)(int)Convert.ToUInt32(v), 
+                v => v == null ? null : (object)(uint)Convert.ToInt32(v)),
+            DbType.Int32);
+
+        private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
+            "bigint",
+            new TypeConverter(
+                v => v == null ? null : (object)(long)Convert.ToUInt64(v), 
+                v => v == null ? null : (object)(ulong)Convert.ToInt64(v)),
+            DbType.Int64);
+
+        private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
+            "smallint",
+            new TypeConverter(
+                v => v == null ? null : (object)(short)Convert.ToUInt16(v), 
+                v => v == null ? null : (object)(ushort)Convert.ToInt16(v)),
+            DbType.Int16);
+
+        private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
+            "tinyint",
+            new TypeConverter(
+                v => v == null ? null : (object)(byte)Convert.ToSByte(v),
+                v => v == null ? null : (object)(sbyte)Convert.ToByte(v)),
+            DbType.Byte);
+
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
@@ -84,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly SqlServerStringTypeMapping _xml = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
 
-        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+        private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
         private readonly HashSet<string> _disallowedMappings;
 
@@ -96,46 +125,46 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             : base(dependencies)
         {
             _storeTypeMappings
-                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+                = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "bigint", _long },
-                    { "binary varying", _variableLengthBinary },
-                    { "binary", _fixedLengthBinary },
-                    { "bit", _bool },
-                    { "char varying", _variableLengthAnsiString },
-                    { "char", _fixedLengthAnsiString },
-                    { "character varying", _variableLengthAnsiString },
-                    { "character", _fixedLengthAnsiString },
-                    { "date", _date },
-                    { "datetime", _datetime },
-                    { "datetime2", _datetime2 },
-                    { "datetimeoffset", _datetimeoffset },
-                    { "dec", _decimal },
-                    { "decimal", _decimal },
-                    { "float", _double },
-                    { "image", _variableLengthBinary },
-                    { "int", _int },
-                    { "money", _decimal },
-                    { "national char varying", _variableLengthUnicodeString },
-                    { "national character varying", _variableLengthUnicodeString },
-                    { "national character", _fixedLengthUnicodeString },
-                    { "nchar", _fixedLengthUnicodeString },
-                    { "ntext", _variableLengthUnicodeString },
-                    { "numeric", _decimal },
-                    { "nvarchar", _variableLengthUnicodeString },
-                    { "real", _real },
-                    { "rowversion", _rowversion },
-                    { "smalldatetime", _datetime },
-                    { "smallint", _short },
-                    { "smallmoney", _decimal },
-                    { "text", _variableLengthAnsiString },
-                    { "time", _time },
-                    { "timestamp", _rowversion },
-                    { "tinyint", _byte },
-                    { "uniqueidentifier", _uniqueidentifier },
-                    { "varbinary", _variableLengthBinary },
-                    { "varchar", _variableLengthAnsiString },
-                    { "xml", _xml }
+                    { "bigint", new List<RelationalTypeMapping> { _long, _ulong } },
+                    { "binary varying", new List<RelationalTypeMapping> { _variableLengthBinary } },
+                    { "binary", new List<RelationalTypeMapping> { _fixedLengthBinary } },
+                    { "bit", new List<RelationalTypeMapping> { _bool } },
+                    { "char varying", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
+                    { "character varying", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "character", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
+                    { "date", new List<RelationalTypeMapping> { _date } },
+                    { "datetime", new List<RelationalTypeMapping> { _datetime } },
+                    { "datetime2", new List<RelationalTypeMapping> { _datetime2 } },
+                    { "datetimeoffset", new List<RelationalTypeMapping> { _datetimeoffset } },
+                    { "dec", new List<RelationalTypeMapping> { _decimal } },
+                    { "decimal", new List<RelationalTypeMapping> { _decimal } },
+                    { "float", new List<RelationalTypeMapping> { _double } },
+                    { "image", new List<RelationalTypeMapping> { _variableLengthBinary } },
+                    { "int", new List<RelationalTypeMapping> { _int, _uint } },
+                    { "money", new List<RelationalTypeMapping> { _decimal } },
+                    { "national char varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "national character varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "national character", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
+                    { "nchar", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
+                    { "ntext", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "numeric", new List<RelationalTypeMapping> { _decimal } },
+                    { "nvarchar", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "real", new List<RelationalTypeMapping> { _real } },
+                    { "rowversion", new List<RelationalTypeMapping> { _rowversion } },
+                    { "smalldatetime", new List<RelationalTypeMapping> { _datetime } },
+                    { "smallint", new List<RelationalTypeMapping> { _short, _ushort } },
+                    { "smallmoney", new List<RelationalTypeMapping> { _decimal } },
+                    { "text", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "time", new List<RelationalTypeMapping> { _time } },
+                    { "timestamp", new List<RelationalTypeMapping> { _rowversion } },
+                    { "tinyint", new List<RelationalTypeMapping> { _byte, _sbyte } },
+                    { "uniqueidentifier", new List<RelationalTypeMapping> { _uniqueidentifier } },
+                    { "varbinary", new List<RelationalTypeMapping> { _variableLengthBinary } },
+                    { "varchar", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "xml", new List<RelationalTypeMapping> { _xml } }
                 };
 
             // Note: sbyte, ushort, uint, char and ulong type mappings are not supported by SQL Server.
@@ -145,13 +174,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     { typeof(int), _int },
                     { typeof(long), _long },
+                    { typeof(uint), _uint },
+                    { typeof(ulong), _ulong },
                     { typeof(DateTime), _datetime2 },
                     { typeof(Guid), _uniqueidentifier },
                     { typeof(bool), _bool },
                     { typeof(byte), _byte },
+                    { typeof(sbyte), _sbyte },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
+                    { typeof(ushort), _ushort },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }
@@ -260,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+        protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
             => _storeTypeMappings;
 
         /// <summary>

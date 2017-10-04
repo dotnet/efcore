@@ -18,10 +18,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
-        private static readonly MethodInfo _readValue
-            = typeof(ValueBuffer).GetTypeInfo().DeclaredProperties
-                .Single(p => p.GetIndexParameters().Any()).GetMethod;
-
         private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> _materializers;
 
         /// <summary>
@@ -33,11 +29,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type type,
             int index,
             IProperty property)
-            => Expression.Call(
+        {
+            var converter = property?.FindMapping()?.Converter;
+            if (converter != null)
+            {
+                return Expression.Call(
+                    TryReadValueWithConvertMethod.MakeGenericMethod(type),
+                    valueBuffer,
+                    Expression.Constant(index),
+                    Expression.Constant(converter.ConvertFromStore),
+                    Expression.Constant(property, typeof(IPropertyBase)));
+            }
+
+            return Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
                 valueBuffer,
                 Expression.Constant(index),
                 Expression.Constant(property, typeof(IPropertyBase)));
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -62,7 +71,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ThrowReadValueException<TValue>(e, untypedValue, property);
             }
 
-            return default(TValue);
+            return default;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static readonly MethodInfo TryReadValueWithConvertMethod
+            = typeof(EntityMaterializerSource).GetTypeInfo()
+                .GetDeclaredMethod(nameof(TryReadValueWithConvert));
+
+        // TODO.TM Generic non-boxing
+        private static TValue TryReadValueWithConvert<TValue>(
+            ValueBuffer valueBuffer,
+            int index,
+            Func<object, object> converter,
+            IPropertyBase property = null)
+        {
+            var untypedValue = valueBuffer[index];
+            try
+            {
+                return (TValue)converter(untypedValue);
+            }
+            catch (Exception e)
+            {
+                ThrowReadValueException<TValue>(e, untypedValue, property);
+            }
+
+            return default;
         }
 
         /// <summary>
@@ -110,8 +147,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Use CreateReadValueExpression making sure to pass bound property if available.")]
         public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
-            => Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
+            => Expression.Call(valueBuffer, ValueBuffer.GetValueMethod, Expression.Constant(index));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

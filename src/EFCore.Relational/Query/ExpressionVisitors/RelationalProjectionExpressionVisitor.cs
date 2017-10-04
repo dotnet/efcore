@@ -1,12 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -247,7 +249,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                             var readValueExpression
                                 = _entityMaterializerSource
-                                    .CreateReadValueCallExpression(targetExpression, index);
+                                    .CreateReadValueExpression(
+                                        targetExpression,
+                                        expression.Type.MakeNullable(),
+                                        index,
+                                        FindProperty(sqlExpression));
 
                             var outputDataInfo
                                 = (expression as SubQueryExpression)?.QueryModel
@@ -271,6 +277,21 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
 
             return base.Visit(expression);
+        }
+
+        private static IProperty FindProperty(Expression expression)
+        {
+            switch (expression)
+            {
+                case ColumnExpression columnExpression:
+                    return columnExpression.Property;
+                case ColumnReferenceExpression columnReferenceExpression:
+                    return FindProperty(columnReferenceExpression.Expression);
+                case UnaryExpression unaryExpression:
+                    return FindProperty(unaryExpression.Operand);
+            }
+
+            return null;
         }
     }
 }

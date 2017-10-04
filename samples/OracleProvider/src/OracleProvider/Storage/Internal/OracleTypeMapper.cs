@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly OracleStringTypeMapping _xml = new OracleStringTypeMapping("XML", dbType: null, unicode: true);
 
-        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+        private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
         private readonly HashSet<string> _disallowedMappings;
 
@@ -95,28 +95,28 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             : base(dependencies)
         {
             _storeTypeMappings
-                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+                = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "number(19)", _long },
-                    { "blob", _variableLengthBinary },
-                    { "raw", _fixedLengthBinary },
-                    { "number(1)", _bool },
-                    { "char", _fixedLengthAnsiString },
-                    { "date", _date },
-                    { "timestamp", _datetime },
-                    { "timestamp(3) with time zone", _datetimeoffset3 },
-                    { "timestamp with time zone", _datetimeoffset },
-                    { "decimal(29,4)", _decimal },
-                    { "float(49)", _double },
-                    { "number(10)", _int },
-                    { "nchar", _fixedLengthUnicodeString },
-                    { "nvarchar2", _variableLengthUnicodeString },
-                    { "number(6)", _short },
-                    { "interval", _time },
-                    { "number(3)", _byte },
-                    { "raw(16)", _uniqueidentifier },
-                    { "varchar2", _variableLengthAnsiString },
-                    { "xml", _xml }
+                    { "number(19)", new List<RelationalTypeMapping> { _long } },
+                    { "blob", new List<RelationalTypeMapping> { _variableLengthBinary } },
+                    { "raw", new List<RelationalTypeMapping> { _fixedLengthBinary } },
+                    { "number(1)", new List<RelationalTypeMapping> { _bool } },
+                    { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
+                    { "date", new List<RelationalTypeMapping> { _date } },
+                    { "timestamp", new List<RelationalTypeMapping> { _datetime } },
+                    { "timestamp(3) with time zone", new List<RelationalTypeMapping> { _datetimeoffset3 } },
+                    { "timestamp with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
+                    { "decimal(29,4)", new List<RelationalTypeMapping> { _decimal } },
+                    { "float(49)", new List<RelationalTypeMapping> { _double } },
+                    { "number(10)", new List<RelationalTypeMapping> { _int } },
+                    { "nchar", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
+                    { "nvarchar2", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "number(6)", new List<RelationalTypeMapping> { _short } },
+                    { "interval", new List<RelationalTypeMapping> { _time } },
+                    { "number(3)", new List<RelationalTypeMapping> { _byte } },
+                    { "raw(16)", new List<RelationalTypeMapping> { _uniqueidentifier } },
+                    { "varchar2", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "xml", new List<RelationalTypeMapping> { _xml } }
                 };
 
             _clrTypeMappings
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _clrTypeMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+        protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
             => _storeTypeMappings;
 
         public override RelationalTypeMapping FindMapping(Type clrType)

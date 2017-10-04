@@ -495,7 +495,7 @@ WHERE 0 = 1");
             base.Where_equals_using_int_overload_on_mismatched_types();
 
             AssertSql(
-                @"@__shortPrm_0='1' (DbType = Int32)
+                @"@__shortPrm_0='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]

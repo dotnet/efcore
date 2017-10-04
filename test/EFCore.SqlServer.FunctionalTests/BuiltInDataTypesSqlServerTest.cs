@@ -101,6 +101,10 @@ WHERE [e].[Time] = @__timeSpan_0",
                         Bigint = 78L,
                         Smallint = 79,
                         Tinyint = 80,
+                        U_Int = uint.MaxValue,
+                        U_Bigint = ulong.MaxValue,
+                        U_Smallint = ushort.MaxValue,
+                        S_Tinyint = sbyte.MinValue,
                         Bit = true,
                         Money = 81.1m,
                         Smallmoney = 82.2m,
@@ -213,6 +217,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 
                 decimal? param40 = 104m;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.Numeric == param40));
+
+                uint? param41 = uint.MaxValue;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.U_Int == param41));
+
+                ulong? param42 = ulong.MaxValue;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.U_Bigint == param42));
+
+                ushort? param43 = ushort.MaxValue;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.U_Smallint == param43));
+
+                sbyte? param44 = sbyte.MinValue;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.S_Tinyint == param44));
             }
         }
 
@@ -321,6 +337,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 
                 decimal? param40 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.Numeric == param40));
+
+                uint? param41 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.U_Int == param41));
+
+                ulong? param42 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.U_Bigint == param42));
+
+                ushort? param43 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.U_Smallint == param43));
+
+                sbyte? param44 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.S_Tinyint == param44));
             }
         }
 
@@ -365,14 +393,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3'
 @p20='" + entity.NvarcharMax + @"' (Nullable = false) (Size = -1)
 @p21='84.4'
-@p22='2018-01-02T13:11:12' (DbType = DateTime)
-@p23='79'
-@p24='82.2'
-@p25='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p26='11:15:12'
-@p27='80' (Size = 1)
-@p28='0x595A5B5C' (Nullable = false) (Size = 8000)
-@p29='" + entity.VarcharMax + "' (Nullable = false) (Size = -1) (DbType = AnsiString)",
+@p22='128' (Size = 1)
+@p23='2018-01-02T13:11:12' (DbType = DateTime)
+@p24='79'
+@p25='82.2'
+@p26='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p27='11:15:12'
+@p28='80' (Size = 1)
+@p29='-1'
+@p30='-1'
+@p31='-1'
+@p32='0x595A5B5C' (Nullable = false) (Size = 8000)
+@p33='" + entity.VarcharMax + "' (Nullable = false) (Size = -1) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -392,6 +424,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint);
             Assert.Equal(80, entity.Tinyint);
+            Assert.Equal(uint.MaxValue, entity.U_Int);
+            Assert.Equal(ulong.MaxValue, entity.U_Bigint);
+            Assert.Equal(ushort.MaxValue, entity.U_Smallint);
+            Assert.Equal(sbyte.MinValue, entity.S_Tinyint);
             Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
@@ -427,6 +463,10 @@ WHERE [e].[Time] = @__timeSpan_0",
                 Bigint = 78L,
                 Smallint = 79,
                 Tinyint = 80,
+                U_Int = uint.MaxValue,
+                U_Bigint = ulong.MaxValue,
+                U_Smallint = ushort.MaxValue,
+                S_Tinyint = sbyte.MinValue,
                 Bit = true,
                 Money = 81.1m,
                 Smallmoney = 82.2m,
@@ -489,14 +529,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3' (Nullable = true)
 @p20='don't' (Size = 4000)
 @p21='84.4' (Nullable = true)
-@p22='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
-@p23='79' (Nullable = true)
-@p24='82.2' (Nullable = true)
-@p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p26='11:15:12' (Nullable = true)
-@p27='80' (Nullable = true) (Size = 1)
-@p28='0x595A5B5C' (Size = 8000)
-@p29='C' (Size = 8000) (DbType = AnsiString)",
+@p22='128' (Nullable = true) (Size = 1)
+@p23='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
+@p24='79' (Nullable = true)
+@p25='82.2' (Nullable = true)
+@p26='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p27='11:15:12' (Nullable = true)
+@p28='80' (Nullable = true) (Size = 1)
+@p29='-1' (Nullable = true)
+@p30='-1' (Nullable = true)
+@p31='-1' (Nullable = true)
+@p32='0x595A5B5C' (Size = 8000)
+@p33='C' (Size = 8000) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -512,6 +556,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint.Value);
             Assert.Equal(80, entity.Tinyint.Value);
+            Assert.Equal(uint.MaxValue, entity.U_Int);
+            Assert.Equal(ulong.MaxValue, entity.U_Bigint);
+            Assert.Equal(ushort.MaxValue, entity.U_Smallint);
+            Assert.Equal(sbyte.MinValue, entity.S_Tinyint);
             Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
@@ -547,6 +595,10 @@ WHERE [e].[Time] = @__timeSpan_0",
                 Bigint = 78L,
                 Smallint = 79,
                 Tinyint = 80,
+                U_Int = uint.MaxValue,
+                U_Bigint = ulong.MaxValue,
+                U_Smallint = ushort.MaxValue,
+                S_Tinyint = sbyte.MinValue,
                 Bit = true,
                 Money = 81.1m,
                 Smallmoney = 82.2m,
@@ -609,14 +661,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='' (DbType = String)
 @p20='' (Size = 4000) (DbType = String)
 @p21='' (DbType = String)
-@p22='' (DbType = DateTime)
-@p23='' (DbType = Int16)
-@p24='' (DbType = String)
-@p25='' (Size = 8000)
-@p26='' (DbType = String)
-@p27='' (DbType = Byte)
-@p28='' (Size = 8000) (DbType = Binary)
-@p29='' (Size = 8000)",
+@p22='' (DbType = Byte)
+@p23='' (DbType = DateTime)
+@p24='' (DbType = Int16)
+@p25='' (DbType = String)
+@p26='' (Size = 8000)
+@p27='' (DbType = String)
+@p28='' (DbType = Byte)
+@p29='' (DbType = Int64)
+@p30='' (DbType = Int32)
+@p31='' (DbType = Int16)
+@p32='' (Size = 8000) (DbType = Binary)
+@p33='' (Size = 8000)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -632,6 +688,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Null(entity.Bigint);
             Assert.Null(entity.Smallint);
             Assert.Null(entity.Tinyint);
+            Assert.Null(entity.U_Int);
+            Assert.Null(entity.U_Bigint);
+            Assert.Null(entity.U_Smallint);
+            Assert.Null(entity.S_Tinyint);
             Assert.Null(entity.Bit);
             Assert.Null(entity.Money);
             Assert.Null(entity.Smallmoney);
@@ -915,14 +975,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3'
 @p20='don't' (Size = 4000)
 @p21='84.4'
-@p22='2018-01-02T13:11:12' (DbType = DateTime)
-@p23='79'
-@p24='82.2'
-@p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p26='11:15:12'
-@p27='80' (Size = 1)
-@p28='0x595A5B5C' (Size = 8000)
-@p29='C' (Size = 8000) (DbType = AnsiString)",
+@p22='128' (Size = 1)
+@p23='2018-01-02T13:11:12' (DbType = DateTime)
+@p24='79'
+@p25='82.2'
+@p26='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p27='11:15:12'
+@p28='80' (Size = 1)
+@p29='-1'
+@p30='-1'
+@p31='-1'
+@p32='0x595A5B5C' (Size = 8000)
+@p33='C' (Size = 8000) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -938,6 +1002,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint);
             Assert.Equal(80, entity.Tinyint);
+            Assert.Equal(uint.MaxValue, entity.U_Int);
+            Assert.Equal(ulong.MaxValue, entity.U_Bigint);
+            Assert.Equal(ushort.MaxValue, entity.U_Smallint);
+            Assert.Equal(sbyte.MinValue, entity.S_Tinyint);
             Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
@@ -973,6 +1041,10 @@ WHERE [e].[Time] = @__timeSpan_0",
                 Bigint = 78L,
                 Smallint = 79,
                 Tinyint = 80,
+                U_Int = uint.MaxValue,
+                U_Bigint = ulong.MaxValue,
+                U_Smallint = ushort.MaxValue,
+                S_Tinyint = sbyte.MinValue,
                 Bit = true,
                 Money = 81.1m,
                 Smallmoney = 82.2m,
@@ -1035,14 +1107,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='103.3' (Nullable = true)
 @p20='don't' (Size = 4000)
 @p21='84.4' (Nullable = true)
-@p22='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
-@p23='79' (Nullable = true)
-@p24='82.2' (Nullable = true)
-@p25='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p26='11:15:12' (Nullable = true)
-@p27='80' (Nullable = true) (Size = 1)
-@p28='0x595A5B5C' (Size = 8000)
-@p29='C' (Size = 8000) (DbType = AnsiString)",
+@p22='128' (Nullable = true) (Size = 1)
+@p23='2018-01-02T13:11:12' (Nullable = true) (DbType = DateTime)
+@p24='79' (Nullable = true)
+@p25='82.2' (Nullable = true)
+@p26='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p27='11:15:12' (Nullable = true)
+@p28='80' (Nullable = true) (Size = 1)
+@p29='-1' (Nullable = true)
+@p30='-1' (Nullable = true)
+@p31='-1' (Nullable = true)
+@p32='0x595A5B5C' (Size = 8000)
+@p33='C' (Size = 8000) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1058,6 +1134,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Equal(78, entity.Bigint);
             Assert.Equal(79, entity.Smallint.Value);
             Assert.Equal(80, entity.Tinyint.Value);
+            Assert.Equal(uint.MaxValue, entity.U_Int);
+            Assert.Equal(ulong.MaxValue, entity.U_Bigint);
+            Assert.Equal(ushort.MaxValue, entity.U_Smallint);
+            Assert.Equal(sbyte.MinValue, entity.S_Tinyint);
             Assert.True(entity.Bit);
             Assert.Equal(81.1m, entity.Money);
             Assert.Equal(82.2m, entity.Smallmoney);
@@ -1093,6 +1173,10 @@ WHERE [e].[Time] = @__timeSpan_0",
                 Bigint = 78L,
                 Smallint = 79,
                 Tinyint = 80,
+                U_Int = uint.MaxValue,
+                U_Bigint = ulong.MaxValue,
+                U_Smallint = ushort.MaxValue,
+                S_Tinyint = sbyte.MinValue,
                 Bit = true,
                 Money = 81.1m,
                 Smallmoney = 82.2m,
@@ -1155,14 +1239,18 @@ WHERE [e].[Time] = @__timeSpan_0",
 @p19='' (DbType = String)
 @p20='' (Size = 4000) (DbType = String)
 @p21='' (DbType = String)
-@p22='' (DbType = DateTime)
-@p23='' (DbType = Int16)
-@p24='' (DbType = String)
-@p25='' (Size = 8000)
-@p26='' (DbType = String)
-@p27='' (DbType = Byte)
-@p28='' (Size = 8000) (DbType = Binary)
-@p29='' (Size = 8000)",
+@p22='' (DbType = Byte)
+@p23='' (DbType = DateTime)
+@p24='' (DbType = Int16)
+@p25='' (DbType = String)
+@p26='' (Size = 8000)
+@p27='' (DbType = String)
+@p28='' (DbType = Byte)
+@p29='' (DbType = Int64)
+@p30='' (DbType = Int32)
+@p31='' (DbType = Int16)
+@p32='' (Size = 8000) (DbType = Binary)
+@p33='' (Size = 8000)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1179,6 +1267,10 @@ WHERE [e].[Time] = @__timeSpan_0",
             Assert.Null(entity.Bigint);
             Assert.Null(entity.Smallint);
             Assert.Null(entity.Tinyint);
+            Assert.Null(entity.U_Int);
+            Assert.Null(entity.U_Bigint);
+            Assert.Null(entity.U_Smallint);
+            Assert.Null(entity.S_Tinyint);
             Assert.Null(entity.Bit);
             Assert.Null(entity.Money);
             Assert.Null(entity.Smallmoney);
@@ -1830,8 +1922,12 @@ BuiltInDataTypes.TestDouble ---> [float] [Precision = 53]
 BuiltInDataTypes.TestInt16 ---> [smallint] [Precision = 5 Scale = 0]
 BuiltInDataTypes.TestInt32 ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestInt64 ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypes.TestSignedByte ---> [tinyint] [Precision = 3 Scale = 0]
 BuiltInDataTypes.TestSingle ---> [real] [Precision = 24]
 BuiltInDataTypes.TestTimeSpan ---> [time] [Precision = 7]
+BuiltInDataTypes.TestUnsignedInt16 ---> [smallint] [Precision = 5 Scale = 0]
+BuiltInDataTypes.TestUnsignedInt32 ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypes.TestUnsignedInt64 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.Enum16 ---> [nullable smallint] [Precision = 5 Scale = 0]
 BuiltInNullableDataTypes.Enum32 ---> [nullable int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.Enum64 ---> [nullable bigint] [Precision = 19 Scale = 0]
@@ -1848,8 +1944,12 @@ BuiltInNullableDataTypes.TestNullableDouble ---> [nullable float] [Precision = 5
 BuiltInNullableDataTypes.TestNullableInt16 ---> [nullable smallint] [Precision = 5 Scale = 0]
 BuiltInNullableDataTypes.TestNullableInt32 ---> [nullable int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.TestNullableInt64 ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypes.TestNullableSignedByte ---> [nullable tinyint] [Precision = 3 Scale = 0]
 BuiltInNullableDataTypes.TestNullableSingle ---> [nullable real] [Precision = 24]
 BuiltInNullableDataTypes.TestNullableTimeSpan ---> [nullable time] [Precision = 7]
+BuiltInNullableDataTypes.TestNullableUnsignedInt16 ---> [nullable smallint] [Precision = 5 Scale = 0]
+BuiltInNullableDataTypes.TestNullableUnsignedInt32 ---> [nullable int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypes.TestNullableUnsignedInt64 ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestString ---> [nullable nvarchar] [MaxLength = -1]
 MappedDataTypes.Bigint ---> [bigint] [Precision = 19 Scale = 0]
 MappedDataTypes.Binary_varyingMax ---> [varbinary] [MaxLength = -1]
@@ -1873,12 +1973,16 @@ MappedDataTypes.Ntext ---> [ntext] [MaxLength = 1073741823]
 MappedDataTypes.Numeric ---> [numeric] [Precision = 18 Scale = 0]
 MappedDataTypes.NvarcharMax ---> [nvarchar] [MaxLength = -1]
 MappedDataTypes.Real ---> [real] [Precision = 24]
+MappedDataTypes.S_Tinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypes.Smalldatetime ---> [smalldatetime] [Precision = 0]
 MappedDataTypes.Smallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypes.Smallmoney ---> [smallmoney] [Precision = 10 Scale = 4]
 MappedDataTypes.Text ---> [text] [MaxLength = 2147483647]
 MappedDataTypes.Time ---> [time] [Precision = 7]
 MappedDataTypes.Tinyint ---> [tinyint] [Precision = 3 Scale = 0]
+MappedDataTypes.U_Bigint ---> [bigint] [Precision = 19 Scale = 0]
+MappedDataTypes.U_Int ---> [int] [Precision = 10 Scale = 0]
+MappedDataTypes.U_Smallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypes.VarbinaryMax ---> [varbinary] [MaxLength = -1]
 MappedDataTypes.VarcharMax ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.Bigint ---> [bigint] [Precision = 19 Scale = 0]
@@ -1904,12 +2008,16 @@ MappedDataTypesWithIdentity.Ntext ---> [nullable ntext] [MaxLength = 1073741823]
 MappedDataTypesWithIdentity.Numeric ---> [numeric] [Precision = 18 Scale = 0]
 MappedDataTypesWithIdentity.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.Real ---> [real] [Precision = 24]
+MappedDataTypesWithIdentity.S_Tinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypesWithIdentity.Smalldatetime ---> [smalldatetime] [Precision = 0]
 MappedDataTypesWithIdentity.Smallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypesWithIdentity.Smallmoney ---> [smallmoney] [Precision = 10 Scale = 4]
 MappedDataTypesWithIdentity.Text ---> [nullable text] [MaxLength = 2147483647]
 MappedDataTypesWithIdentity.Time ---> [time] [Precision = 7]
 MappedDataTypesWithIdentity.Tinyint ---> [tinyint] [Precision = 3 Scale = 0]
+MappedDataTypesWithIdentity.U_Bigint ---> [bigint] [Precision = 19 Scale = 0]
+MappedDataTypesWithIdentity.U_Int ---> [int] [Precision = 10 Scale = 0]
+MappedDataTypesWithIdentity.U_Smallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypesWithIdentity.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
 MappedDataTypesWithIdentity.VarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.Bigint ---> [nullable bigint] [Precision = 19 Scale = 0]
@@ -1934,12 +2042,16 @@ MappedNullableDataTypes.Ntext ---> [nullable ntext] [MaxLength = 1073741823]
 MappedNullableDataTypes.Numeric ---> [nullable numeric] [Precision = 18 Scale = 0]
 MappedNullableDataTypes.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypes.Real ---> [nullable real] [Precision = 24]
+MappedNullableDataTypes.S_Tinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
 MappedNullableDataTypes.Smalldatetime ---> [nullable smalldatetime] [Precision = 0]
 MappedNullableDataTypes.Smallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypes.Smallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
 MappedNullableDataTypes.Text ---> [nullable text] [MaxLength = 2147483647]
 MappedNullableDataTypes.Time ---> [nullable time] [Precision = 7]
 MappedNullableDataTypes.Tinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
+MappedNullableDataTypes.U_Bigint ---> [nullable bigint] [Precision = 19 Scale = 0]
+MappedNullableDataTypes.U_Int ---> [nullable int] [Precision = 10 Scale = 0]
+MappedNullableDataTypes.U_Smallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypes.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
 MappedNullableDataTypes.VarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.Bigint ---> [nullable bigint] [Precision = 19 Scale = 0]
@@ -1965,12 +2077,16 @@ MappedNullableDataTypesWithIdentity.Ntext ---> [nullable ntext] [MaxLength = 107
 MappedNullableDataTypesWithIdentity.Numeric ---> [nullable numeric] [Precision = 18 Scale = 0]
 MappedNullableDataTypesWithIdentity.NvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.Real ---> [nullable real] [Precision = 24]
+MappedNullableDataTypesWithIdentity.S_Tinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
 MappedNullableDataTypesWithIdentity.Smalldatetime ---> [nullable smalldatetime] [Precision = 0]
 MappedNullableDataTypesWithIdentity.Smallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypesWithIdentity.Smallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
 MappedNullableDataTypesWithIdentity.Text ---> [nullable text] [MaxLength = 2147483647]
 MappedNullableDataTypesWithIdentity.Time ---> [nullable time] [Precision = 7]
 MappedNullableDataTypesWithIdentity.Tinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
+MappedNullableDataTypesWithIdentity.U_Bigint ---> [nullable bigint] [Precision = 19 Scale = 0]
+MappedNullableDataTypesWithIdentity.U_Int ---> [nullable int] [Precision = 10 Scale = 0]
+MappedNullableDataTypesWithIdentity.U_Smallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypesWithIdentity.VarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.VarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedPrecisionAndScaledDataTypes.Dec ---> [decimal] [Precision = 5 Scale = 2]
@@ -2087,22 +2203,14 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
                         {
-                            b.Ignore(dt => dt.TestUnsignedInt16);
-                            b.Ignore(dt => dt.TestUnsignedInt32);
-                            b.Ignore(dt => dt.TestUnsignedInt64);
                             b.Ignore(dt => dt.TestCharacter);
-                            b.Ignore(dt => dt.TestSignedByte);
                             b.Property(dt => dt.TestDecimal).HasColumnType("decimal(18,2)");
                         });
 
                 modelBuilder.Entity<BuiltInNullableDataTypes>(
                     b =>
                         {
-                            b.Ignore(dt => dt.TestNullableUnsignedInt16);
-                            b.Ignore(dt => dt.TestNullableUnsignedInt32);
-                            b.Ignore(dt => dt.TestNullableUnsignedInt64);
                             b.Ignore(dt => dt.TestNullableCharacter);
-                            b.Ignore(dt => dt.TestNullableSignedByte);
                         });
 
                 modelBuilder.Entity<MappedDataTypes>(
@@ -2174,6 +2282,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                         typeName = typeName.Substring(0, typeName.IndexOf("Max")) + "(max)";
                     }
 
+                    if (typeName.StartsWith("U_")
+                        || typeName.StartsWith("S_"))
+                    {
+                        typeName = typeName.Substring(2);
+                    }
+
                     typeName = typeName.Replace('_', ' ');
 
                     entityType.GetOrAddProperty(propertyInfo).Relational().ColumnType = typeName;
@@ -2220,6 +2334,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public long Bigint { get; set; }
             public short Smallint { get; set; }
             public byte Tinyint { get; set; }
+            public uint U_Int { get; set; }
+            public ulong U_Bigint { get; set; }
+            public ushort U_Smallint { get; set; }
+            public sbyte S_Tinyint { get; set; }
             public bool Bit { get; set; }
             public decimal Money { get; set; }
             public decimal Smallmoney { get; set; }
@@ -2292,6 +2410,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public long? Bigint { get; set; }
             public short? Smallint { get; set; }
             public byte? Tinyint { get; set; }
+            public uint? U_Int { get; set; }
+            public ulong? U_Bigint { get; set; }
+            public ushort? U_Smallint { get; set; }
+            public sbyte? S_Tinyint { get; set; }
             public bool? Bit { get; set; }
             public decimal? Money { get; set; }
             public decimal? Smallmoney { get; set; }
@@ -2328,6 +2450,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public long Bigint { get; set; }
             public short Smallint { get; set; }
             public byte Tinyint { get; set; }
+            public uint U_Int { get; set; }
+            public ulong U_Bigint { get; set; }
+            public ushort U_Smallint { get; set; }
+            public sbyte S_Tinyint { get; set; }
             public bool Bit { get; set; }
             public decimal Money { get; set; }
             public decimal Smallmoney { get; set; }
@@ -2408,6 +2534,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public long? Bigint { get; set; }
             public short? Smallint { get; set; }
             public byte? Tinyint { get; set; }
+            public uint? U_Int { get; set; }
+            public ulong? U_Bigint { get; set; }
+            public ushort? U_Smallint { get; set; }
+            public sbyte? S_Tinyint { get; set; }
             public bool? Bit { get; set; }
             public decimal? Money { get; set; }
             public decimal? Smallmoney { get; set; }

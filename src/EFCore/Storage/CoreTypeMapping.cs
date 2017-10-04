@@ -22,16 +22,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
         /// </summary>
         /// <param name="clrType"> The .NET type used in the EF model. </param>
-        protected CoreTypeMapping([NotNull] Type clrType)
+        /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
+        protected CoreTypeMapping(
+            [NotNull] Type clrType,
+            [CanBeNull] TypeConverter converter = null)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             ClrType = clrType;
+            Converter = converter;
         }
 
         /// <summary>
         ///     Gets the .NET type used in the EF model.
         /// </summary>
         public virtual Type ClrType { get; }
+
+        /// <summary>
+        ///     Converts types to and from the store whenever this mapping is used.
+        ///     May be null if no conversion is needed.
+        /// </summary>
+        public virtual TypeConverter Converter { get; }
     }
 }

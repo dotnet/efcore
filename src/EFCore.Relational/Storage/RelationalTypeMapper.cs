@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -22,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMapper : IRelationalTypeMapper
     {
-        private readonly ConcurrentDictionary<string, RelationalTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<string, RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<(string StoreType, Type ClrType), RelationalTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<(string StoreType, Type ClrType), RelationalTypeMapping>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -44,7 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the mappings from database types to .NET types.
         /// </summary>
         /// <returns> The type mappings. </returns>
-        protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings();
+        [Obsolete("Override GetMultipleStoreTypeMappings instead.")]
+        protected virtual IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+            => throw new NotImplementedException("This method was abstract and is now obsolete. Override GetMultipleStoreTypeMappings instead.");
+
+        /// <summary>
+        ///     Gets the mappings from database types to .NET types.
+        /// </summary>
+        /// <returns> The type mappings. </returns>
+        protected virtual IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
+           => null;
 
         /// <summary>
         ///     Gets column type for the given property.
@@ -98,7 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
             }
 
-            return (storeType != null ? FindMapping(storeType) : null)
+            return (storeType != null
+                       ? _explicitMappings.GetOrAdd(
+                           (storeType, property.ClrType.UnwrapNullableType()),
+                           k => CreateMappingFromStoreType(k.StoreType, k.ClrType))
+                       : null)
                    ?? FindCustomMapping(property)
                    ?? FindMapping(property.ClrType);
         }
@@ -121,8 +135,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Gets the mapping that represents the given database type.
-        ///     Returns null if no mapping is found.
+        ///     <para>
+        ///         Gets the mapping that represents the given database type.
+        ///         Returns null if no mapping is found.
+        ///     </para>
+        ///     <para>
+        ///         Note that sometimes the same store type can have different mappings; this method returns the default.
+        ///     </para>
         /// </summary>
         /// <param name="storeType">The type to get the mapping for.</param>
         /// <returns>
@@ -132,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(storeType, nameof(storeType));
 
-            return _explicitMappings.GetOrAdd(storeType, CreateMappingFromStoreType);
+            return _explicitMappings.GetOrAdd((storeType, typeof(DBNull)), k => CreateMappingFromStoreType(k.StoreType, null));
         }
 
         /// <summary>
@@ -141,10 +160,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType">The type to create the mapping for.</param>
         /// <returns> The type mapping to be used. </returns>
         protected virtual RelationalTypeMapping CreateMappingFromStoreType([NotNull] string storeType)
+            => CreateMappingFromStoreType(storeType, null);
+
+        /// <summary>
+        ///     Creates the mapping for the given database type.
+        /// </summary>
+        /// <param name="storeType"> The type to create the mapping for. </param>
+        /// <param name="clrType"> The CLR type for which the mapping will be used. </param>
+        /// <returns> The type mapping to be used. </returns>
+        protected virtual RelationalTypeMapping CreateMappingFromStoreType([NotNull] string storeType, [CanBeNull] Type clrType)
         {
             Check.NotNull(storeType, nameof(storeType));
 
-            if (GetStoreTypeMappings().TryGetValue(storeType, out var mapping)
+            if (TryFindStoreMapping(storeType, clrType, out var mapping)
                 && mapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
             {
                 return mapping;
@@ -153,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
             if (openParen > 0)
             {
-                if (!GetStoreTypeMappings().TryGetValue(storeType.Substring(0, openParen), out mapping))
+                if (!TryFindStoreMapping(storeType.Substring(0, openParen), clrType, out mapping))
                 {
                     return null;
                 }
@@ -173,6 +201,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             return mapping?.Clone(storeType, mapping.Size);
+        }
+
+        private bool TryFindStoreMapping(
+            string storeTypeFragment, 
+            Type clrType, 
+            out RelationalTypeMapping mapping)
+        {
+            var mappings = GetMultipleStoreTypeMappings();
+            if (mappings == null)
+            {
+                // Only look in obsolete collection if new collection returned null
+#pragma warning disable 618
+                if (GetStoreTypeMappings().TryGetValue(storeTypeFragment, out mapping))
+#pragma warning restore 618
+                {
+                    return clrType == null || mapping.ClrType == clrType;
+                }
+            }
+            else if (mappings.TryGetValue(storeTypeFragment, out var mappingList))
+            {
+                mapping = mappingList.FirstOrDefault(m => clrType == null || m.ClrType == clrType);
+                if (mapping != null)
+                {
+                    return true;
+                }
+            }
+
+            mapping = null;
+            return false;
         }
 
         /// <summary>

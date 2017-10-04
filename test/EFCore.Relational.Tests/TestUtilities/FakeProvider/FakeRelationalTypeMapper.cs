@@ -27,18 +27,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
                 { typeof(string), _string }
             };
 
-        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
-            = new Dictionary<string, RelationalTypeMapping>
+        private readonly IReadOnlyDictionary<string, IList<RelationalTypeMapping>> _simpleNameMappings
+            = new Dictionary<string, IList<RelationalTypeMapping>>
             {
-                { "DefaultInt", _int },
-                { "DefaultLong", _long },
-                { "DefaultString", _string }
+                { "DefaultInt", new List<RelationalTypeMapping> { _int  } },
+                { "DefaultLong", new List<RelationalTypeMapping> { _long } },
+                { "DefaultString", new List<RelationalTypeMapping> { _string } }
             };
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
+        protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
             => _simpleNameMappings;
     }
 }
