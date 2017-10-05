@@ -17,6 +17,16 @@
 - All query tests passing (aside from a few failing due to various Oracle specific issues).
 - All runtime tests passing (aside from those directly related to the limitations above).
 
+## Opening solution:
+Run following commands at repository root
+```
+.\build /t:Pin
+cd Samples\OracleProvider
+dotnet restore
+.\OracleProvider.sln
+```
+If you see a warning about KoreBuild using different dotnet than the one in PATH then check [Getting and Building the Code\(https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code)
+
 ## Running the tests
 
 1) Install [Oracle Database 12c Release 2 (12.2.0.1.0) - Standard Edition 2](http://www.oracle.com/technetwork/database/enterprise-edition/downloads/index.html) 
