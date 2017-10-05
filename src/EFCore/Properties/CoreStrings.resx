@@ -755,7 +755,7 @@
     <value>The ownership navigation '{ownershipNavigation}' should be the same as the defining navigation '{definingNavigation}' for entity type '{entityType}'</value>
   </data>
   <data name="InconsistentOwnership" xml:space="preserve">
-    <value>The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. All entity types sharin a CLR type must be configured as owned.</value>
+    <value>The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. All entity types sharing a CLR type must be configured as owned.</value>
   </data>
   <data name="InverseToOwnedType" xml:space="preserve">
     <value>The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the owner entity type can declare a navigation to an owned entity type.</value>
