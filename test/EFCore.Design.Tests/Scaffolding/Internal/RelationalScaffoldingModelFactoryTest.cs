@@ -198,6 +198,118 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+        [Fact]
+        public void Use_database_names_for_columns()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "NaturalProducts",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Name = "ProductSKU",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "supplierID",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "Vendor_Discount",
+                                StoreType = "nvarchar(max)"
+                            }
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var entityType = _factory.Create(info, useDatabaseNames: true).FindEntityType("NaturalProducts");
+
+            Assert.Collection(
+                entityType.GetProperties(),
+                pk =>
+                {
+                    Assert.Equal("Id", pk.Name);
+                },
+                col1 =>
+                {
+                    Assert.Equal("ProductSKU", col1.Name);
+                },
+                col2 =>
+                {
+                    Assert.Equal("Vendor_Discount", col2.Name);
+                },
+                col3 =>
+                {
+                    Assert.Equal("supplierID", col3.Name);
+                });
+        }
+
+        [Fact]
+        public void Do_not_use_database_names_for_columns()
+        {
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "NaturalProducts",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Name = "ProductSKU",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "supplierID",
+                                StoreType = "nvarchar(max)"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "Vendor_Discount",
+                                StoreType = "nvarchar(max)"
+                            }
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var entityType = _factory.Create(info, useDatabaseNames: false).FindEntityType("NaturalProducts");
+
+            Assert.Collection(
+                entityType.GetProperties(),
+                pk =>
+                {
+                    Assert.Equal("Id", pk.Name);
+                },
+                col1 =>
+                {
+                    Assert.Equal("ProductSku", col1.Name);
+                },
+                col2 =>
+                {
+                    Assert.Equal("SupplierId", col2.Name);
+                },
+                col3 =>
+                {
+                    Assert.Equal("VendorDiscount", col3.Name);
+                });
+        }
+
         [Theory]
         [InlineData("nvarchar(450)", null, null)]
         [InlineData("alias for string", "nvarchar(450)", "alias for string")]

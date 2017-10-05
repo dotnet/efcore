@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IOperationReporter _reporter;
         private readonly ICandidateNamingService _candidateNamingService;
         private Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>> _columnNamers;
+        private bool _useDatabaseNames;
         private readonly DatabaseTable _nullTable = new DatabaseTable();
         private CSharpUniqueNamer<DatabaseTable> _tableNamer;
         private CSharpUniqueNamer<DatabaseTable> _dbSetNamer;
@@ -93,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     ? (Func<string, string>)null
                     : _pluralizer.Pluralize);
             _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
+            _useDatabaseNames = useDatabaseNames;
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
@@ -131,13 +133,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!_columnNamers.ContainsKey(table))
             {
-                _columnNamers.Add(
-                    table,
-                    new CSharpUniqueNamer<DatabaseColumn>(
-                        c => _candidateNamingService.GenerateCandidateIdentifier(c.Name),
-                        usedNames,
-                        _cSharpUtilities,
-                        singularizePluralizer: null));
+                if (_useDatabaseNames)
+                {
+                    _columnNamers.Add(
+                        table,
+                        new CSharpUniqueNamer<DatabaseColumn>(
+                            c => c.Name,
+                            usedNames,
+                            _cSharpUtilities,
+                            singularizePluralizer: null));
+                }
+                else
+                {
+                    _columnNamers.Add(
+                        table,
+                        new CSharpUniqueNamer<DatabaseColumn>(
+                            c => _candidateNamingService.GenerateCandidateIdentifier(c.Name),
+                            usedNames,
+                            _cSharpUtilities,
+                            singularizePluralizer: null));
+                }
             }
 
             return _columnNamers[table].GetName(column);
