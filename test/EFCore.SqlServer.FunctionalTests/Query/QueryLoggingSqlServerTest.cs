@@ -99,6 +99,54 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Fact]
+        public virtual void Concat_Include_collection_ignored()
+        {
+            using (var context = CreateContext())
+            {
+                var orders = context.Orders
+                    .Where(o => o.OrderID < 10250)
+                    .Concat(context.Orders.Where(o => o.CustomerID == "ALFKI"))
+                    .Include(o => o.OrderDetails)
+                    .ToList();
+
+                Assert.NotNull(orders);
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[o].OrderDetails"), Fixture.TestSqlLoggerFactory.Log);
+            }
+        }
+
+        [Fact]
+        public virtual void Union_Include_collection_ignored()
+        {
+            using (var context = CreateContext())
+            {
+                var orders = context.Orders
+                    .Where(o => o.OrderID < 10250)
+                    .Union(context.Orders.Where(o => o.CustomerID == "ALFKI"))
+                    .Include(o => o.OrderDetails)
+                    .ToList();
+
+                Assert.NotNull(orders);
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[o].OrderDetails"), Fixture.TestSqlLoggerFactory.Log);
+            }
+        }
+
+        [Fact]
+        public virtual void GroupBy_Include_collection_ignored()
+        {
+            using (var context = CreateContext())
+            {
+                var orders = context.Orders
+                    .GroupBy(o => o.OrderID)
+                    .Select(g => g.OrderBy(o => o.OrderID).FirstOrDefault())
+                    .Include(o => o.OrderDetails)
+                    .ToList();
+
+                Assert.NotNull(orders);
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"), Fixture.TestSqlLoggerFactory.Log);
+            }
+        }
+        
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

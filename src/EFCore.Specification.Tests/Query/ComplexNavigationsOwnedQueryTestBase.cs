@@ -369,5 +369,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Include_collection_with_multiple_orderbys_complex_repeated()
         {
         }
+
+        public override void Include_collection_with_groupby_in_subquery()
+        {
+        }
+
+        public override void Multi_include_with_groupby_in_subquery()
+        {
+        }
+
+        public override void Include_collection_with_groupby_in_subquery_and_filter_before_groupby()
+        {
+        }
+
+        public override void Include_collection_with_groupby_in_subquery_and_filter_after_groupby()
+        {
+        }
     }
 }
