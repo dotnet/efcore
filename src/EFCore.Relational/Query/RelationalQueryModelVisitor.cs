@@ -1516,6 +1516,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return false;
             }
 
+            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue9892", out var enabled) && enabled))
+            {
+                if (!IsFlattenableGroupJoinDefaultIfEmpty(groupJoinClause, queryModel, index))
+                {
+                    var shaperType = innerShapedQuery?.Arguments.Last().Type;
+                    if (shaperType == null
+                        || !typeof(EntityShaper).IsAssignableFrom(shaperType))
+                    {
+                        return false;
+                    }
+                }
+            }
+
             var joinClause = groupJoinClause.JoinClause;
 
             var outerQuerySource = FindPreviousQuerySource(queryModel, index);
@@ -1626,6 +1639,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(innerShaper),
                     groupJoinMethodCallExpression.Arguments[3],
                     groupJoinMethodCallExpression.Arguments[4]);
+
+            return true;
+        }
+
+        private bool IsFlattenableGroupJoinDefaultIfEmpty(
+            [NotNull] GroupJoinClause groupJoinClause,
+            QueryModel queryModel,
+            int index)
+        {
+            var additionalFromClause
+                = queryModel.BodyClauses.ElementAtOrDefault(index + 1)
+                    as AdditionalFromClause;
+
+            var subQueryModel
+                = (additionalFromClause?.FromExpression as SubQueryExpression)
+                ?.QueryModel;
+
+            var referencedQuerySource
+                = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
+
+            if (referencedQuerySource != groupJoinClause
+                || queryModel.CountQuerySourceReferences(groupJoinClause) != 1
+                || subQueryModel.BodyClauses.Count != 0
+                || subQueryModel.ResultOperators.Count != 1
+                || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator))
+            {
+                return false;
+            }
 
             return true;
         }
