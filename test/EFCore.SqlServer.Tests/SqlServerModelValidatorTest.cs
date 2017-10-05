@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
             public string Name { get; set; }
         }
 
-        protected override ModelValidator CreateModelValidator()
+        protected override IModelValidator CreateModelValidator()
             => new SqlServerModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(

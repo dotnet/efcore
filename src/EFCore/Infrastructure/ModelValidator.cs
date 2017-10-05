@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -52,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateDefiningNavigations(model);
             ValidateFieldMapping(model);
             ValidateQueryFilters(model);
+            ValidateSeedData(model);
         }
 
         /// <summary>
@@ -429,6 +431,102 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         throw new InvalidOperationException(errorMessage);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateSeedData([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            var identityMaps = new Dictionary<IKey, IIdentityMap>();
+            var sensitiveDataLogged = Dependencies.Logger.ShouldLogSensitiveData();
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var key = entityType.FindPrimaryKey();
+                if (!identityMaps.TryGetValue(key, out var identityMap))
+                {
+                    identityMap = key.GetIdentityMapFactory()(sensitiveDataLogged);
+                    identityMaps[key] = identityMap;
+                }
+
+                foreach (var seedDatum in entityType.GetSeedData())
+                {
+                    foreach (var property in entityType.GetProperties())
+                    {
+                        if (!seedDatum.TryGetValue(property.Name, out var value)
+                            || value == null)
+                        {
+                            if (!property.IsNullable
+                                && !property.RequiresValueGenerator())
+                            {
+                                throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
+                            }
+                        }
+                        else
+                        {
+                            if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                            {
+                                if (sensitiveDataLogged)
+                                {
+                                    throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValueSensitive(
+                                        entityType.DisplayName(), value, property.Name, property.ClrType.DisplayName()));
+                                }
+                                throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValue(
+                                    entityType.DisplayName(), property.Name, property.ClrType.DisplayName()));
+                            }
+                        }
+                    }
+
+                    var keyValues = new object[key.Properties.Count];
+                    for (var i = 0; i < key.Properties.Count; i++)
+                    {
+                        keyValues[i] = seedDatum[key.Properties[i].Name];
+                    }
+
+                    foreach (var navigation in entityType.GetNavigations())
+                    {
+                        if (seedDatum.TryGetValue(navigation.Name, out var value)
+                            && value != null)
+                        {
+                            if (sensitiveDataLogged)
+                            {
+                                throw new InvalidOperationException(CoreStrings.SeedDatumNavigationSensitive(
+                                    entityType.DisplayName(),
+                                    string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
+                                    navigation.Name,
+                                    navigation.GetTargetType().DisplayName(),
+                                    Property.Format(navigation.ForeignKey.Properties)));
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.SeedDatumNavigation(
+                                entityType.DisplayName(),
+                                navigation.Name,
+                                navigation.GetTargetType().DisplayName(),
+                                Property.Format(navigation.ForeignKey.Properties)));
+                        }
+                    }
+
+                    var entry = identityMap.TryGetEntry(keyValues);
+                    if (entry != null)
+                    {
+                        if (sensitiveDataLogged)
+                        {
+                            throw new InvalidOperationException(CoreStrings.SeedDatumDuplicateSensitive(
+                                entityType.DisplayName(), string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i]))));
+                        }
+                        throw new InvalidOperationException(CoreStrings.SeedDatumDuplicate(
+                            entityType.DisplayName(), Property.Format(key.Properties)));
+                    }
+
+                    entry = new InternalShadowEntityEntry(null, entityType);
+
+                    identityMap.Add(keyValues, entry);
                 }
             }
         }

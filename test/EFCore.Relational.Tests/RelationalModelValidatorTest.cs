@@ -800,7 +800,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ModelValidator CreateModelValidator()
+        protected override IModelValidator CreateModelValidator()
             => new RelationalModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(

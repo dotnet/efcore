@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -11,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -20,13 +19,8 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
     {
-        private readonly ModelValidator _coreModelValidator
-            = new ModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new LoggerFactory(),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))));
+        private readonly IModelValidator _coreModelValidator
+            = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
 
         private readonly NullConventionSetBuilder _nullConventionSetBuilder
             = new NullConventionSetBuilder();

@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping] = new SqliteTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
 
-        protected override ModelValidator CreateModelValidator()
+        protected override IModelValidator CreateModelValidator()
             => new SqliteModelValidator(
                 new ModelValidatorDependencies(
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(

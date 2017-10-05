@@ -43,10 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The extension, or null if none was found. </returns>
         public virtual TExtension FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
-        {
-            IDbContextOptionsExtension extension;
-            return _extensions.TryGetValue(typeof(TExtension), out extension) ? (TExtension)extension : null;
-        }
+            => _extensions.TryGetValue(typeof(TExtension), out var extension) ? (TExtension)extension : null;
 
         /// <summary>
         ///     Gets the extension of the specified type. Throws if no extension of the specified type is configured.

@@ -3,8 +3,11 @@
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -47,6 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
+                context.GetInfrastructure().GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Query>>()
+                    .Options.IsSensitiveDataLoggingWarned = false;
                 // ReSharper disable once ConvertToConstant.Local
                 var city = "Redmond";
 
@@ -146,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"), Fixture.TestSqlLoggerFactory.Log);
             }
         }
-        
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }

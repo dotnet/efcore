@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ownershipNavigation, definingNavigation, entityType);
 
         /// <summary>
-        ///     The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. All entity types sharin a CLR type must be configured as owned.
+        ///     The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. All entity types sharing a CLR type must be configured as owned.
         /// </summary>
         public static string InconsistentOwnership([CanBeNull] object ownedEntityType, [CanBeNull] object nonOwnedEntityType)
             => string.Format(
@@ -1799,7 +1799,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogDuplicateDependentEntityTypeInstance")));
 
         /// <summary>
-        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the parent first. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the same key value for {keyProperties} is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the previous owned entity entry first. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
         public static string IdentityConflictOwned([CanBeNull] object entityType, [CanBeNull] object keyProperties)
             => string.Format(
@@ -1807,12 +1807,76 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, keyProperties);
 
         /// <summary>
-        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the parent first..
+        ///     The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the previous owned entity entry first.
         /// </summary>
         public static string IdentityConflictOwnedSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue)
             => string.Format(
                 GetString("IdentityConflictOwnedSensitive", nameof(entityType), nameof(keyValue)),
                 entityType, keyValue);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because another seed entity with the same key value for {keyProperties} has already been added. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+        /// </summary>
+        public static string SeedDatumDuplicate([CanBeNull] object entityType, [CanBeNull] object keyProperties)
+            => string.Format(
+                GetString("SeedDatumDuplicate", nameof(entityType), nameof(keyProperties)),
+                entityType, keyProperties);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because another seed entity with the key value '{keyValue}' has already been added.
+        /// </summary>
+        public static string SeedDatumDuplicateSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue)
+            => string.Format(
+                GetString("SeedDatumDuplicateSensitive", nameof(entityType), nameof(keyValue)),
+                entityType, keyValue);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because the value provided for the property '{property}' is not of the type '{type}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.
+        /// </summary>
+        public static string SeedDatumIncompatibleValue([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object type)
+            => string.Format(
+                GetString("SeedDatumIncompatibleValue", nameof(entityType), nameof(property), nameof(type)),
+                entityType, property, type);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because the value '{value}' provided for the property '{property}' is not of the type '{type}'.
+        /// </summary>
+        public static string SeedDatumIncompatibleValueSensitive([CanBeNull] object entityType, [CanBeNull] object value, [CanBeNull] object property, [CanBeNull] object type)
+            => string.Format(
+                GetString("SeedDatumIncompatibleValueSensitive", nameof(entityType), nameof(value), nameof(property), nameof(type)),
+                entityType, value, property, type);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'. 
+        /// </summary>
+        public static string SeedDatumMissingValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("SeedDatumMissingValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.
+        /// </summary>
+        public static string SeedDatumNavigation([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object relatedEntityType, [CanBeNull] object foreignKeyProperties)
+            => string.Format(
+                GetString("SeedDatumNavigation", nameof(entityType), nameof(navigation), nameof(relatedEntityType), nameof(foreignKeyProperties)),
+                entityType, navigation, relatedEntityType, foreignKeyProperties);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' with the key value '{keyValue}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}.
+        /// </summary>
+        public static string SeedDatumNavigationSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue, [CanBeNull] object navigation, [CanBeNull] object relatedEntityType, [CanBeNull] object foreignKeyProperties)
+            => string.Format(
+                GetString("SeedDatumNavigationSensitive", nameof(entityType), nameof(keyValue), nameof(navigation), nameof(relatedEntityType), nameof(foreignKeyProperties)),
+                entityType, keyValue, navigation, relatedEntityType, foreignKeyProperties);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.
+        /// </summary>
+        public static string SeedDatumDerivedType([CanBeNull] object entityType, [CanBeNull] object derivedType)
+            => string.Format(
+                GetString("SeedDatumDerivedType", nameof(entityType), nameof(derivedType)),
+                entityType, derivedType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

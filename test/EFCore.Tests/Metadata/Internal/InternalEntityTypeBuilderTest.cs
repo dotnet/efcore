@@ -10,6 +10,8 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -1615,12 +1617,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             validationConvention.Apply(modelBuilder);
 
-            var modelValidator = new ModelValidator(
-                new ModelValidatorDependencies(
-                    new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
-                        new LoggerFactory(),
-                        new LoggingOptions(),
-                        new DiagnosticListener("Fake"))));
+            var modelValidator = InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelValidator>();
 
             modelValidator.Validate(modelBuilder.Metadata);
 

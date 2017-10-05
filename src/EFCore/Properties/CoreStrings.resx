@@ -796,4 +796,28 @@
   <data name="IdentityConflictOwnedSensitive" xml:space="preserve">
     <value>The instance of entity type '{entityType}' cannot be tracked because another instance with the key value '{keyValue}' is already being tracked. When replacing owned entities modify the properties without changing the instance or detach the previous owned entity entry first.</value>
   </data>
+  <data name="SeedDatumDuplicate" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because another seed entity with the same key value for {keyProperties} has already been added. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
+  </data>
+  <data name="SeedDatumDuplicateSensitive" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because another seed entity with the key value '{keyValue}' has already been added.</value>
+  </data>
+  <data name="SeedDatumIncompatibleValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because the value provided for the property '{property}' is not of the type '{type}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
+  </data>
+  <data name="SeedDatumIncompatibleValueSensitive" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because the value '{value}' provided for the property '{property}' is not of the type '{type}'.</value>
+  </data>
+  <data name="SeedDatumMissingValue" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'. </value>
+  </data>
+  <data name="SeedDatumNavigation" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
+  </data>
+  <data name="SeedDatumNavigationSensitive" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' with the key value '{keyValue}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}.</value>
+  </data>
+  <data name="SeedDatumDerivedType" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.</value>
+  </data>
 </root>

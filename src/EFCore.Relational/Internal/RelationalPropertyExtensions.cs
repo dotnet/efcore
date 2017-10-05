@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static RelationalTypeMapping FindRelationalMapping(
-            [NotNull] this IProperty property) 
+            [NotNull] this IProperty property)
             => property[CoreAnnotationNames.TypeMapping] as RelationalTypeMapping;
     }
 }

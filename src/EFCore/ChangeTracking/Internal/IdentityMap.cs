@@ -176,6 +176,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void Add(object[] keyValues, InternalEntityEntry entry)
+            => Add((TKey)PrincipalKeyValueFactory.CreateFromKeyValues(keyValues), entry);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected virtual void Add([NotNull] TKey key, [NotNull] InternalEntityEntry entry)
         {
             if (_identityMap.TryGetValue(key, out var existingEntry))

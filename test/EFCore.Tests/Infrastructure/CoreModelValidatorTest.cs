@@ -8,10 +8,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class CoreModelValidatorTest : ModelValidatorTest
@@ -535,6 +540,101 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(model);
         }
 
+        [Fact]
+        public virtual void Passes_for_valid_seeds()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>().SeedData(new A { Id = 1 });
+            modelBuilder.Entity<D>().SeedData(new D { Id = 2, P0 = 3 });
+
+            Validate(modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_derived_seeds()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(CoreStrings.SeedDatumDerivedType(nameof(A), nameof(D)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>().SeedData(new D { Id = 2, P0 = 3 })).Message);
+        }
+
+        [Fact]
+        public virtual void Detects_missing_required_values_in_seeds()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>(e =>
+                {
+                    e.Property(a => a.P0).IsRequired();
+                    e.SeedData(new A { Id = 1 });
+                });
+
+            VerifyError(CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.P0)),
+                modelBuilder.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
+        {
+            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>().SeedData(new A { Id = 1 });
+            modelBuilder.Entity<D>().SeedData(new D { Id = 1 });
+
+            VerifyError(
+                sensitiveDataLoggingEnabled
+                    ? CoreStrings.SeedDatumDuplicateSensitive(nameof(D), $"{nameof(A.Id)}:1")
+                    : CoreStrings.SeedDatumDuplicate(nameof(D), $"{{'{nameof(A.Id)}'}}"),
+                modelBuilder.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
+        {
+            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>(e => { e.SeedData(new { Id = 1, P0 = "invalid" }); });
+
+            VerifyError(
+                sensitiveDataLoggingEnabled
+                    ? CoreStrings.SeedDatumIncompatibleValueSensitive(nameof(A), "invalid", nameof(A.P0), "System.Nullable<int>")
+                    : CoreStrings.SeedDatumIncompatibleValue(nameof(A), nameof(A.P0), "System.Nullable<int>"),
+                modelBuilder.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Detects_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
+        {
+            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<SampleEntity>(e => { e.SeedData(new SampleEntity { Id = 1, ReferencedEntity = new ReferencedEntity { Id = 2 } }); });
+
+            VerifyError(
+                sensitiveDataLoggingEnabled
+                    ? CoreStrings.SeedDatumNavigationSensitive(
+                        nameof(SampleEntity),
+                        $"{nameof(SampleEntity.Id)}:1",
+                        nameof(SampleEntity.ReferencedEntity),
+                        nameof(ReferencedEntity),
+                        $"{{'{nameof(ReferencedEntity.SampleEntityId)}'}}")
+                    : CoreStrings.SeedDatumNavigation(
+                        nameof(SampleEntity),
+                        nameof(SampleEntity.ReferencedEntity),
+                        nameof(ReferencedEntity),
+                        $"{{'{nameof(ReferencedEntity.SampleEntityId)}'}}"),
+                modelBuilder.Model);
+        }
+
+        private ModelBuilder CreateModelBuilder()
+            => new ModelBuilder(
+                InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet());
+
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
@@ -561,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int Id { get; set; }
         }
 
-        protected override ModelValidator CreateModelValidator()
+        protected override IModelValidator CreateModelValidator()
             => new ModelValidator(new ModelValidatorDependencies(Logger));
     }
 }

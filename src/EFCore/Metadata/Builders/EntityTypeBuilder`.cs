@@ -369,7 +369,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     An array of seed data.
         /// </param>
         public virtual EntityTypeBuilder<TEntity> SeedData([NotNull] params TEntity[] data)
-            => (EntityTypeBuilder<TEntity>)base.SeedData(data);
+        {
+            foreach (var entity in data)
+            {
+                if (entity.GetType() != typeof(TEntity))
+                {
+                    throw new InvalidOperationException(CoreStrings.SeedDatumDerivedType(Metadata.DisplayName(), entity.GetType().ShortDisplayName()));
+                }
+            }
+            return (EntityTypeBuilder<TEntity>)base.SeedData(data);
+        }
 
         private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
     }

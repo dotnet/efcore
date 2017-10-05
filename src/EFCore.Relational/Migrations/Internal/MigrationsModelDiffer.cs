@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             typeof(CreateIndexOperation)
         };
 
-        private IStateManager _targetStateManager;
         private IStateManager _sourceStateManager;
+        private IStateManager _targetStateManager;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             TypeMapper = typeMapper;
             MigrationsAnnotations = migrationsAnnotations;
             ChangeDetector = changeDetector;
-            StateManagerStateManagerDependencies = stateManagerDependencies;
+            StateManagerDependencies = stateManagerDependencies;
             CommandBatchPreparerDependencies = commandBatchPreparerDependencies;
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual StateManagerDependencies StateManagerStateManagerDependencies { get; }
+        protected virtual StateManagerDependencies StateManagerDependencies { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -338,8 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             [CanBeNull] IModel target,
             [NotNull] DiffContext diffContext)
         {
-            _sourceStateManager = source == null ? null : new StateManager(StateManagerStateManagerDependencies.With(source));
-            _targetStateManager = target == null ? null : new StateManager(StateManagerStateManagerDependencies.With(target));
+            TrackSeedData(source, target);
 
             var schemaOperations = source != null && target != null
                 ? DiffAnnotations(source, target)
@@ -357,70 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
 
-            return schemaOperations.Concat(DiffSeedData());
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual IEnumerable<MigrationOperation> DiffSeedData()
-        {
-            foreach (var stateManager in new[] { _sourceStateManager, _targetStateManager })
-            {
-                if (stateManager == null)
-                {
-                    continue;
-                }
-
-                ChangeDetector.DetectChanges(stateManager);
-                var entries = stateManager.GetEntriesToSave();
-                if (entries == null
-                    || entries.Count == 0)
-                {
-                    continue;
-                }
-
-                var batchCommands = new CommandBatchPreparer(CommandBatchPreparerDependencies.With(() => stateManager))
-                    .BatchCommands(entries)
-                    .SelectMany(o => o.ModificationCommands);
-
-                foreach (var c in batchCommands)
-                {
-                    if (c.EntityState == EntityState.Added)
-                    {
-                        yield return new InsertDataOperation
-                        {
-                            Schema = c.Schema,
-                            Table = c.TableName,
-                            Columns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                            Values = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList())
-                        };
-                    }
-                    else if (c.EntityState == EntityState.Modified)
-                    {
-                        yield return new UpdateDataOperation
-                        {
-                            Schema = c.Schema,
-                            Table = c.TableName,
-                            KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
-                            KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(col => col.Value).ToList()),
-                            Columns = c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
-                            Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.Value).ToList())
-                        };
-                    }
-                    else
-                    {
-                        yield return new DeleteDataOperation
-                        {
-                            Schema = c.Schema,
-                            Table = c.TableName,
-                            KeyColumns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                            KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToArray())
-                        };
-                    }
-                }
-            }
+            return schemaOperations.Concat(GetSeedDataOperations());
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
@@ -591,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield return operation;
             }
 
-            TrackSeeds(source, target, diffContext);
+            DiffSeedData(source, target, diffContext);
         }
 
         private IEnumerable<MigrationOperation> DiffAnnotations(
@@ -648,8 +584,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 yield return operation;
             }
-
-            TrackSeeds(null, target, diffContext);
         }
 
         /// <summary>
@@ -1283,15 +1217,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void TrackSeeds(
-            [CanBeNull] TableMapping source,
-            [NotNull] TableMapping target,
-            [NotNull] DiffContext diffContext)
+        protected virtual void TrackSeedData(
+            [CanBeNull] IModel source,
+            [CanBeNull] IModel target)
         {
-            Check.NotNull(target, nameof(target));
-            Check.NotNull(diffContext, nameof(diffContext));
+            if (target == null)
+            {
+                _targetStateManager = null;
+                return;
+            }
 
-            foreach (var targetEntityType in target.EntityTypes)
+            _targetStateManager = new StateManager(StateManagerDependencies.With(target));
+
+            foreach (var targetEntityType in target.GetEntityTypes())
             {
                 foreach (var targetSeed in targetEntityType.GetSeedData())
                 {
@@ -1301,11 +1239,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (source == null)
             {
+                _sourceStateManager = null;
                 return;
             }
 
+            _sourceStateManager = new StateManager(StateManagerDependencies.With(source));
+
+            foreach (var sourceEntityType in source.GetEntityTypes())
+            {
+                foreach (var sourceSeed in sourceEntityType.GetSeedData())
+                {
+                    _sourceStateManager.CreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Added);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void DiffSeedData(
+            [NotNull] TableMapping source,
+            [NotNull] TableMapping target,
+            [NotNull] DiffContext diffContext)
+        {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(target, nameof(target));
+            Check.NotNull(diffContext, nameof(diffContext));
+
+            var targetTableEntryMappingMap = SharedTableEntryMap<List<InternalEntityEntry>>.CreateSharedTableEntryMapFactory(
+                target.EntityTypes,
+                _targetStateManager,
+                target.Name,
+                target.Schema)
+                ((t, s, c) => new List<InternalEntityEntry>());
+
+            foreach (var targetEntityType in target.EntityTypes)
+            {
+                foreach (var targetSeed in targetEntityType.GetSeedData())
+                {
+                    var targetEntry = GetEntry(targetSeed, targetEntityType, _targetStateManager);
+                    var targetEntries = targetTableEntryMappingMap.GetOrAddValue(targetEntry);
+                    targetEntries.Add(targetEntry);
+                }
+            }
+
             var targetKeys = target.EntityTypes.SelectMany(Metadata.Internal.EntityTypeExtensions.GetDeclaredKeys).ToList();
-            var keyMapping = new Dictionary<IEntityType, Dictionary<IKey, List<string>>>();
+            var keyMapping = new Dictionary<IEntityType, Dictionary<IKey, List<IProperty>>>();
             foreach (var sourceEntityType in source.EntityTypes)
             {
                 foreach (var targetKey in targetKeys)
@@ -1315,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         continue;
                     }
 
-                    var keyPropertiesMap = new List<string>();
+                    var keyPropertiesMap = new List<IProperty>();
                     foreach (var keyProperty in targetKey.Properties)
                     {
                         var sourceProperty = diffContext.FindCompatibleSource(keyProperty, sourceEntityType);
@@ -1324,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             break;
                         }
 
-                        keyPropertiesMap.Add(sourceProperty.Name);
+                        keyPropertiesMap.Add(sourceProperty);
                     }
 
                     if (keyPropertiesMap.Count == targetKey.Properties.Count)
@@ -1334,75 +1314,188 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
+            var sourceTableEntryMappingMap = SharedTableEntryMap<EntryMapping>.CreateSharedTableEntryMapFactory(
+                source.EntityTypes,
+                _sourceStateManager,
+                source.Name,
+                source.Schema)
+                ((t, s, c) => new EntryMapping());
+
             foreach (var sourceEntityType in source.EntityTypes)
             {
                 foreach (var sourceSeed in sourceEntityType.GetSeedData())
                 {
-                    var targetEntryFound = false;
-                    if (keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap))
+                    var sourceEntry = GetEntry(sourceSeed, sourceEntityType, _sourceStateManager);
+                    var entryMapping = sourceTableEntryMappingMap.GetOrAddValue(sourceEntry);
+                    entryMapping.SourceEntries.Add(sourceEntry);
+
+                    if (!keyMapping.TryGetValue(sourceEntityType, out var targetKeyMap))
                     {
-                        foreach (var targetKey in targetKeys)
+                        entryMapping.RebuildRequired = true;
+                        continue;
+                    }
+
+                    foreach (var targetKey in targetKeys)
+                    {
+                        if (!targetKeyMap.TryGetValue(targetKey, out var keyPropertiesMap))
                         {
-                            if (!targetKeyMap.TryGetValue(targetKey, out var keyPropertiesMap))
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            var targetKeyValues = new object[keyPropertiesMap.Count];
-                            for (var i = 0; i < keyPropertiesMap.Count; i++)
-                            {
-                                var sourceName = keyPropertiesMap[i];
-                                if (!sourceSeed.TryGetValue(sourceName, out var value))
-                                {
-                                    targetKeyValues = null;
-                                    break;
-                                }
+                        var targetKeyValues = new object[keyPropertiesMap.Count];
+                        for (var i = 0; i < keyPropertiesMap.Count; i++)
+                        {
+                            targetKeyValues[i] = sourceEntry.GetCurrentValue(keyPropertiesMap[i]);
+                        }
 
-                                targetKeyValues[i] = value;
-                            }
+                        var entry = _targetStateManager.TryGetEntry(targetKey, targetKeyValues);
+                        if (entry == null)
+                        {
+                            continue;
+                        }
 
-                            if (targetKeyValues == null)
+                        foreach (var targetEntry in targetTableEntryMappingMap.GetOrAddValue(entry))
+                        {
+                            if (entryMapping.TargetEntries.Add(targetEntry))
                             {
-                                continue;
-                            }
-
-                            var entry = _targetStateManager.TryGetEntry(targetKey, targetKeyValues)?.ToEntityEntry();
-                            if (entry == null)
-                            {
-                                continue;
-                            }
-
-                            if (entry.State == EntityState.Added)
-                            {
-                                foreach (var targetProperty in entry.Metadata.GetProperties())
+                                foreach (var targetProperty in targetEntry.EntityType.GetProperties())
                                 {
                                     if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
                                     {
-                                        entry.OriginalValues[targetProperty] = targetProperty.ClrType.GetDefaultValue();
+                                        targetEntry.SetOriginalValue(targetProperty, targetProperty.ClrType.GetDefaultValue());
                                     }
                                 }
 
-                                entry.State = EntityState.Unchanged;
+                                targetEntry.SetEntityState(EntityState.Unchanged);
                             }
+                        }
 
-                            foreach (var targetProperty in entry.Metadata.GetProperties())
+                        foreach (var targetProperty in entry.EntityType.GetProperties())
+                        {
+                            var sourceProperty = diffContext.FindCompatibleSource(targetProperty, sourceEntityType);
+                            if (targetProperty.AfterSaveBehavior == PropertySaveBehavior.Save)
                             {
-                                var sourceProperty = diffContext.FindCompatibleSource(targetProperty, sourceEntityType);
-                                if (sourceProperty != null
-                                    && sourceProperty.AfterSaveBehavior == PropertySaveBehavior.Save
-                                    && sourceSeed.TryGetValue(sourceProperty.Name, out var sourceValue))
+                                if (sourceProperty != null)
                                 {
-                                    entry.OriginalValues[targetProperty] = sourceValue;
+                                    entry.SetOriginalValue(targetProperty, sourceEntry.GetCurrentValue(sourceProperty));
                                 }
                             }
-
-                            targetEntryFound = true;
+                            else if (sourceProperty == null
+                                     || !Equals(sourceEntry.GetCurrentValue(sourceProperty), entry.GetCurrentValue(targetProperty)))
+                            {
+                                entryMapping.RebuildRequired = true;
+                                break;
+                            }
                         }
                     }
+                }
+            }
 
-                    if (!targetEntryFound)
+            foreach (var entryMapping in sourceTableEntryMappingMap.Values)
+            {
+                if (entryMapping.RebuildRequired
+                    || entryMapping.TargetEntries.Count == 0)
+                {
+                    foreach (var targetEntry in entryMapping.TargetEntries)
                     {
-                        _sourceStateManager.CreateEntry(sourceSeed, sourceEntityType).SetEntityState(EntityState.Deleted);
+                        targetEntry.SetEntityState(EntityState.Added);
+                    }
+                    foreach (var sourceEntry in entryMapping.SourceEntries)
+                    {
+                        sourceEntry.SetEntityState(EntityState.Deleted);
+                    }
+                }
+                else
+                {
+                    foreach (var sourceEntry in entryMapping.SourceEntries)
+                    {
+                        sourceEntry.SetEntityState(EntityState.Detached);
+                    }
+                }
+            }
+        }
+
+        private InternalEntityEntry GetEntry(IDictionary<string, object> sourceSeed, IEntityType sourceEntityType, IStateManager stateManager)
+        {
+            var key = sourceEntityType.FindPrimaryKey();
+            var keyValues = new object[key.Properties.Count];
+            for (var i = 0; i < keyValues.Length; i++)
+            {
+                keyValues[i] = sourceSeed[key.Properties[i].Name];
+            }
+
+            return stateManager.TryGetEntry(key, keyValues);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual IEnumerable<MigrationOperation> GetSeedDataOperations()
+        {
+            if (_sourceStateManager != null)
+            {
+                foreach (var sourceEntry in _sourceStateManager.Entries.ToList())
+                {
+                    if (sourceEntry.EntityState == EntityState.Added)
+                    {
+                        sourceEntry.SetEntityState(EntityState.Detached);
+                    }
+                }
+            }
+
+            foreach (var stateManager in new[] { _sourceStateManager, _targetStateManager })
+            {
+                if (stateManager == null)
+                {
+                    continue;
+                }
+
+                ChangeDetector.DetectChanges(stateManager);
+                var entries = stateManager.GetEntriesToSave();
+                if (entries == null
+                    || entries.Count == 0)
+                {
+                    continue;
+                }
+
+                var batchCommands = new CommandBatchPreparer(CommandBatchPreparerDependencies.With(() => stateManager))
+                    .BatchCommands(entries)
+                    .SelectMany(o => o.ModificationCommands);
+
+                foreach (var c in batchCommands)
+                {
+                    if (c.EntityState == EntityState.Added)
+                    {
+                        yield return new InsertDataOperation
+                        {
+                            Schema = c.Schema,
+                            Table = c.TableName,
+                            Columns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
+                            Values = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList())
+                        };
+                    }
+                    else if (c.EntityState == EntityState.Modified)
+                    {
+                        yield return new UpdateDataOperation
+                        {
+                            Schema = c.Schema,
+                            Table = c.TableName,
+                            KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                            KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(col => col.Value).ToList()),
+                            Columns = c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
+                            Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.Value).ToList())
+                        };
+                    }
+                    else
+                    {
+                        yield return new DeleteDataOperation
+                        {
+                            Schema = c.Schema,
+                            Table = c.TableName,
+                            KeyColumns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
+                            KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToArray())
+                        };
                     }
                 }
             }
@@ -1526,6 +1619,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 result[0, i] = values[i];
             }
             return result;
+        }
+
+        private class EntryMapping
+        {
+            public HashSet<InternalEntityEntry> SourceEntries { get; } = new HashSet<InternalEntityEntry>();
+            public HashSet<InternalEntityEntry> TargetEntries { get; } = new HashSet<InternalEntityEntry>();
+            public bool RebuildRequired { get; set; }
         }
 
         /// <summary>
