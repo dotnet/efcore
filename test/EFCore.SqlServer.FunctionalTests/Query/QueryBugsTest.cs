@@ -2689,6 +2689,98 @@ WHERE @__Enabled_0 = [e].[IsDeleted]");
 
         #endregion
 
+        #region Bug9892
+
+        [Fact]
+        public virtual void GroupJoin_to_parent_with_no_child_works_9892()
+        {
+            using (CreateDatabase9892())
+            {
+                using (var context = new MyContext9892(_options))
+                {
+                    var results = (
+                        from p in context.Parents
+                        join c in (
+                                from x in context.Children
+                                select new
+                                {
+                                    ParentId = x.ParentId,
+                                    OtherParent = x.OtherParent.Name
+                                })
+                            on p.Id equals c.ParentId into child
+                        select new
+                        {
+                            ParentId = p.Id,
+                            ParentName = p.Name,
+                            Children = child.Select(c => c.OtherParent)
+                        }).ToList();
+
+                    Assert.Equal(3, results.Count);
+                    Assert.Single(results.Where(t => !t.Children.Any()));
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9892()
+            => CreateTestStore(
+                () => new MyContext9892(_options),
+                context =>
+                {
+                    context.Parents.Add(new Parent9892 { Name = "Parent1" });
+                    context.Parents.Add(new Parent9892 { Name = "Parent2" });
+                    context.Parents.Add(new Parent9892 { Name = "Parent3" });
+
+                    context.OtherParents.Add(new OtherParent9892 { Name = "OtherParent1" });
+                    context.OtherParents.Add(new OtherParent9892 { Name = "OtherParent2" });
+
+                    context.SaveChanges();
+
+                    context.Children.Add(new Child9892 { ParentId = 1, OtherParentId = 1 });
+                    context.Children.Add(new Child9892 { ParentId = 1, OtherParentId = 2 });
+                    context.Children.Add(new Child9892 { ParentId = 2, OtherParentId = 1 });
+                    context.Children.Add(new Child9892 { ParentId = 2, OtherParentId = 2 });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext9892 : DbContext
+        {
+            public MyContext9892(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Parent9892> Parents { get; set; }
+            public DbSet<Child9892> Children { get; set; }
+            public DbSet<OtherParent9892> OtherParents { get; set; }
+        }
+
+        public class Parent9892
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<Child9892> Children { get; set; }
+        }
+
+        public class OtherParent9892
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class Child9892
+        {
+            public int Id { get; set; }
+            public int ParentId { get; set; }
+            public Parent9892 Parent { get; set; }
+            public int OtherParentId { get; set; }
+            public OtherParent9892 OtherParent { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
