@@ -4209,6 +4209,19 @@ LEFT JOIN (
 ) AS [t] ON ([cg].[GearNickName] = [t].[Nickname]) AND ([cg].[GearSquadId] = [t].[SquadId])");
         }
 
+        public override void Enum_ToString_is_client_eval()
+        {
+            base.Enum_ToString_is_client_eval();
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT TOP(@__p_0) [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[SquadId], [g].[Nickname]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
