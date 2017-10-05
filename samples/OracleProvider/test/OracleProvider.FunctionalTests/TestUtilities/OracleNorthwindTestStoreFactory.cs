@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override TestStore GetOrCreate(string storeName)
         {
-            var oracleTestStore = OracleTestStore.GetOrCreate(Name, "Northwind.sql");
+            var oracleTestStore = OracleTestStore.GetOrCreateInitialized(Name, "Northwind.sql");
 
             oracleTestStore.ExecuteNonQuery(
                 @"CREATE OR REPLACE PROCEDURE ""Ten Most Expensive Products""(cur OUT sys_refcursor) AS

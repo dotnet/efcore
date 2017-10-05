@@ -3076,6 +3076,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 var result = Assert.Single(query);
+
                 Assert.Equal("Corporal", result);
             }
         }

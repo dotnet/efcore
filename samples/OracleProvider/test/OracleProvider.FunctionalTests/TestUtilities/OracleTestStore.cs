@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static OracleTestStore GetOrCreate(string name)
             => new OracleTestStore(name);
 
-        public static OracleTestStore GetOrCreateInitialized(string name)
-            => new OracleTestStore(name).InitializeOracle(null, (Func<DbContext>)null, null);
+        public static OracleTestStore GetOrCreateInitialized(string name, string scriptPath = null)
+            => new OracleTestStore(name, scriptPath).InitializeOracle(null, (Func<DbContext>)null, null);
 
         public static OracleTestStore GetOrCreate(string name, string scriptPath)
             => new OracleTestStore(name, scriptPath: scriptPath);
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var oracleConnectionStringBuilder = new OracleConnectionStringBuilder
             {
-                DataSource = "//localhost:1521/ef",
+                DataSource = "//efci:1521/ef.redmond.corp.microsoft.com",
                 UserID = user,
                 Password = user
             };

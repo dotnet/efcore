@@ -1856,7 +1856,7 @@ ORDER BY (
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" ""c""
-WHERE ""c"".""CustomerID"" <> N'VAFFE'
+WHERE ""c"".""CustomerID"" NOT IN (N'VAFFE', N'DRACD')
 ORDER BY ""c"".""City"" NULLS FIRST, ""c"".""CustomerID"" NULLS FIRST
 OFFSET :p_0 ROWS FETCH NEXT :p_1 ROWS ONLY",
                 //
@@ -1868,7 +1868,7 @@ FROM ""Orders"" ""c.Orders""
 INNER JOIN (
     SELECT ""c0"".""CustomerID"", ""c0"".""City""
     FROM ""Customers"" ""c0""
-    WHERE ""c0"".""CustomerID"" <> N'VAFFE'
+    WHERE ""c0"".""CustomerID"" NOT IN (N'VAFFE', N'DRACD')
     ORDER BY ""c0"".""City"" NULLS FIRST, ""c0"".""CustomerID"" NULLS FIRST
     OFFSET :p_0 ROWS FETCH NEXT :p_1 ROWS ONLY
 ) ""t"" ON ""c.Orders"".""CustomerID"" = ""t"".""CustomerID""

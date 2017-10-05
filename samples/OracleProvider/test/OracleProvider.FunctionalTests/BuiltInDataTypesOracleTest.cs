@@ -386,8 +386,8 @@ WHERE ""e"".""Time"" = :timeSpan_0",
 :p2='1'
 :p3='Your' (Nullable = false) (Size = 2000)
 :p4='strong' (Nullable = false) (Size = 2000)
-:p5='01/02/2015 10:11:12' (DbType = Date)
-:p6='01/02/2019 14:11:12' (DbType = DateTime)
+:p5='2015-01-02T10:11:12' (DbType = Date)
+:p6='2019-01-02T14:11:12' (DbType = DateTime)
 :p7='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
 :p8='102.2'
 :p9='101.1'
@@ -506,7 +506,7 @@ WHERE ""e"".""Time"" = :timeSpan_0",
 :p2='1' (Nullable = true)
 :p3='Your' (Size = 2000)
 :p4='strong' (Size = 2000)
-:p5='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
+:p5='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
 :p6='01/02/2016 11:11:12 +00:00' (Nullable = true) (DbType = DateTime)
 :p7='102.2' (Nullable = true)
 :p8='101.1' (Nullable = true)
@@ -820,7 +820,7 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             var parameters = DumpParameters();
             Assert.Equal(
                 @":p0='77'
-:p1='01/02/2017 12:11:12' (DbType = DateTime)
+:p1='2017-01-02T12:11:12' (DbType = DateTime)
 :p2='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
 :p3='102.2'
 :p4='101.1'
@@ -918,8 +918,8 @@ WHERE ""e"".""Time"" = :timeSpan_0",
 :p1='1'
 :p2='Your' (Size = 2000)
 :p3='strong' (Size = 2000)
-:p4='01/02/2015 10:11:12' (DbType = Date)
-:p5='01/02/2019 14:11:12' (DbType = DateTime)
+:p4='2015-01-02T10:11:12' (DbType = Date)
+:p5='2019-01-02T14:11:12' (DbType = DateTime)
 :p6='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
 :p7='102.2'
 :p8='101.1'
@@ -1035,7 +1035,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p1='1' (Nullable = true)
 :p2='Your' (Size = 2000)
 :p3='strong' (Size = 2000)
-:p4='01/02/2019 14:11:12' (Nullable = true) (DbType = DateTime)
+:p4='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
 :p5='01/02/2016 11:11:12 +00:00' (Nullable = true) (DbType = DateTime)
 :p6='102.2' (Nullable = true)
 :p7='101.1' (Nullable = true)
@@ -1354,7 +1354,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @":p0='01/02/2017 12:11:12' (DbType = DateTime)
+                @":p0='2017-01-02T12:11:12' (DbType = DateTime)
 :p1='01/02/2016 11:11:12 +00:00' (DbType = DateTime)
 :p2='102.2'
 :p3='101.1'
