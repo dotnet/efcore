@@ -4217,7 +4217,7 @@ LEFT JOIN (
                 @"@__p_0='1'
 
 SELECT TOP(@__p_0) [g].[Rank]
-FROM [Gear] AS [g]
+FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[SquadId], [g].[Nickname]");
         }
