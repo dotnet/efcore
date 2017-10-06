@@ -106,6 +106,7 @@ namespace E2ETest.Namespace.SubDir
         [Column("xmlColumn", TypeName = "xml")]
         public string XmlColumn { get; set; }
         [Column("typeAliasColumn", TypeName = "TestTypeAlias")]
+        [StringLength(4000)]
         public string TypeAliasColumn { get; set; }
         [Column("binaryVaryingColumn")]
         [MaxLength(1)]
