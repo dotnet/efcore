@@ -3,14 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 using Xunit;
 // ReSharper disable InconsistentNaming
 
@@ -362,6 +367,205 @@ CREATE SEQUENCE [NumericSequence_defaults]
                         Assert.Null(s.MinValue);
                         Assert.Null(s.MaxValue);
                     });
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_binary_varbinary()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthBinaryColumns (
+    Id int,
+    binaryColumn binary(8000),
+    binaryVaryingColumn binary varying(8000),
+    varbinaryColumn varbinary(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthBinaryColumns").Columns;
+
+                    Assert.Equal("binary(8000)", columns.Single(c => c.Name == "binaryColumn").StoreType);
+                    Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "binaryVaryingColumn").StoreType);
+                    Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "varbinaryColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthBinaryColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_char_1()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthCharColumns (
+    Id int,
+    charColumn char(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthCharColumns").Columns;
+
+                    Assert.Equal("char(8000)", columns.Single(c => c.Name == "charColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthCharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_char_2()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthCharColumns (
+    Id int,
+    characterColumn character(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthCharColumns").Columns;
+
+                    Assert.Equal("char(8000)", columns.Single(c => c.Name == "characterColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthCharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_varchar()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthVarcharColumns (
+    Id int,
+    charVaryingColumn char varying(8000),
+    characterVaryingColumn character varying(8000),
+    varcharColumn varchar(8000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthVarcharColumns").Columns;
+
+                    Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "charVaryingColumn").StoreType);
+                    Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "characterVaryingColumn").StoreType);
+                    Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "varcharColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthVarcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nchar_1()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNcharColumns (
+    Id int,
+    natioanlCharColumn national char(4000),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthNcharColumns").Columns;
+
+                    Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "natioanlCharColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthNcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nchar_2()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNcharColumns (
+    Id int,
+    nationalCharacterColumn national character(4000),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthNcharColumns").Columns;
+
+                    Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharacterColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthNcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nchar_3()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNcharColumns (
+    Id int,
+    ncharColumn nchar(4000),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthNcharColumns").Columns;
+
+                    Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "ncharColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthNcharColumns;");
+        }
+
+        [Fact]
+        public void Default_max_length_are_added_to_nvarchar()
+        {
+            Test(
+                @"
+CREATE TABLE DefaultRequiredLengthNvarcharColumns (
+    Id int,
+    nationalCharVaryingColumn national char varying(4000),
+    nationalCharacterVaryingColumn national character varying(4000),
+    nvarcharColumn nvarchar(4000)
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single(e => e.Name == "DefaultRequiredLengthNvarcharColumns").Columns;
+
+                    Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nationalCharVaryingColumn").StoreType);
+                    Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nationalCharacterVaryingColumn").StoreType);
+                    Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nvarcharColumn").StoreType);
+                },
+                @"DROP TABLE DefaultRequiredLengthNvarcharColumns;");
+        }
+
+        private readonly List<Tuple<LogLevel, EventId, string>> Log = new List<Tuple<LogLevel, EventId, string>>();
+
+        private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+        {
+            _fixture.TestStore.ExecuteNonQuery(createSql);
+
+            try
+            {
+                var databaseModelFactory = new SqlServerDatabaseModelFactory(
+                    new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
+                        new ListLoggerFactory(Log),
+                        new LoggingOptions(),
+                        new DiagnosticListener("Fake")));
+
+                var databaseModel = databaseModelFactory.Create(_fixture.TestStore.ConnectionString, tables, schemas);
+                Assert.NotNull(databaseModel);
+                asserter(databaseModel);
+            }
+            finally
+            {
+                if (!string.IsNullOrEmpty(cleanupSql))
+                {
+                    _fixture.TestStore.ExecuteNonQuery(cleanupSql);
+                }
+            }
         }
 
         private readonly SqlServerDatabaseModelFixture _fixture;

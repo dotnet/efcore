@@ -239,7 +239,8 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.TypeAliasColumn)
                     .HasColumnName("typeAliasColumn")
-                    .HasColumnType("TestTypeAlias");
+                    .HasColumnType("TestTypeAlias")
+                    .HasMaxLength(4000);
 
                 entity.Property(e => e.UniqueidentifierColumn).HasColumnName("uniqueidentifierColumn");
 
