@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             throw new NotImplementedException();
         }
 
-        public InternalEntityEntry TryGetEntry(object entity)
+        public InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true)
         {
             throw new NotImplementedException();
         }

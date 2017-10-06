@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
             var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
             context.Add(new Category { Id = 78, PrincipalId = 778 });
-            context.Add(new Product { Id = productId1, Name = "Apple Cider", Price = 1.49M });
-            context.Add(new Product { Id = productId2, Name = "Apple Cobler", Price = 2.49M });
+            context.Add(new Product { Id = productId1, Name = "Apple Cider", Price = 1.49M, DependentId = 778 });
+            context.Add(new Product { Id = productId2, Name = "Apple Cobler", Price = 2.49M, DependentId = 778 });
 
             context.SaveChanges();
         }

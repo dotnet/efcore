@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntry(object entity)
+        public virtual InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true)
         {
             if (_entityReferenceMap.TryGetValue(entity, out var entry))
             {
@@ -326,6 +326,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (found)
                     {
+                        if (!throwOnNonUniqueness)
+                        {
+                            return null;
+                        }
+
                         throw new InvalidOperationException(
                             CoreStrings.AmbiguousDependentEntity(
                                 entity.GetType().ShortDisplayName(),
@@ -424,7 +429,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values
             .Concat(_dependentTypeReferenceMap.Values.SelectMany(e => e.Values))
-            .Where(e => e.EntityState != EntityState.Detached);
+            .Where(e => e.EntityState != EntityState.Detached
+                        && (e.SharedIdentityEntry == null || e.EntityState != EntityState.Deleted));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -706,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     : Enumerable.Empty<InternalEntityEntry>();
             }
 
-            return ((IEnumerable<object>)navigationValue).Select(TryGetEntry).Where(e => e != null);
+            return ((IEnumerable<object>)navigationValue).Select(v => TryGetEntry(v)).Where(e => e != null);
         }
 
         /// <summary>

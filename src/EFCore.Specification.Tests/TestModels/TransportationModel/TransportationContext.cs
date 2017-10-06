@@ -106,8 +106,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         }
 
         protected IEnumerable<Vehicle> CreateVehicles()
-        {
-            return new List<Vehicle>
+            => new List<Vehicle>
             {
                 new Vehicle
                 {
@@ -141,6 +140,5 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                     Operator = new LicensedOperator { Name = "William J. Knight", LicenseType = "Air Force Test Pilot", VehicleName = "North American X-15A-2" }
                 }
             };
-        }
     }
 }

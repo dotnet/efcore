@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     updated (<see cref="EntityFrameworkCore.EntityState.Modified" />),
         ///     or deleted ((<see cref="EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
-        public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
+        public virtual EntityState EntityState => _entries.FirstOrDefault(e => e.SharedIdentityEntry == null)?.EntityState ?? EntityState.Modified;
 
         /// <summary>
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
@@ -142,7 +142,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             if (_entries.Count > 0)
             {
                 var lastEntry = _entries[_entries.Count - 1];
-                if (lastEntry.EntityState != entry.EntityState)
+                var lastEntryState = lastEntry.SharedIdentityEntry == null
+                    ? lastEntry.EntityState
+                    : EntityState.Modified;
+                var entryState = entry.SharedIdentityEntry == null
+                    ? entry.EntityState
+                    : EntityState.Modified;
+                if (lastEntryState != entryState)
                 {
                     if (_sensitiveLoggingEnabled)
                     {
@@ -150,18 +156,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                             RelationalStrings.ConflictingRowUpdateTypesSensitive(
                                 entry.EntityType.DisplayName(),
                                 entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
-                                entry.EntityState,
+                                entryState,
                                 lastEntry.EntityType.DisplayName(),
                                 lastEntry.BuildCurrentValuesString(lastEntry.EntityType.FindPrimaryKey().Properties),
-                                lastEntry.EntityState));
+                                lastEntryState));
                     }
 
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingRowUpdateTypes(
                             entry.EntityType.DisplayName(),
-                            entry.EntityState,
+                            entryState,
                             lastEntry.EntityType.DisplayName(),
-                            lastEntry.EntityState));
+                            lastEntryState));
                 }
             }
 
@@ -188,21 +194,53 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             foreach (var entry in _entries)
             {
-                var entityType = entry.EntityType;
-
-                foreach (var property in entityType.GetProperties())
+                Dictionary<string, IProperty> sharedIdentityEntryProperties = null;
+                if (entry.SharedIdentityEntry != null)
                 {
+                    if (entry.EntityState == EntityState.Deleted)
+                    {
+                        continue;
+                    }
+
+                    sharedIdentityEntryProperties = new Dictionary<string, IProperty>();
+
+                    foreach (var property in entry.SharedIdentityEntry.EntityType.GetProperties())
+                    {
+                        sharedIdentityEntryProperties[property.Relational().ColumnName] = property;
+                    }
+                }
+
+                foreach (var property in entry.EntityType.GetProperties())
+                {
+                    var propertyAnnotations = property.Relational();
                     var isKey = property.IsPrimaryKey();
                     var isConcurrencyToken = property.IsConcurrencyToken;
                     var isCondition = !adding && (isKey || isConcurrencyToken);
                     var readValue = entry.IsStoreGenerated(property);
 
-                    var writeValue = !readValue
-                                     && (adding
-                                         && property.BeforeSaveBehavior == PropertySaveBehavior.Save
-                                         || !adding
-                                         && property.AfterSaveBehavior == PropertySaveBehavior.Save
-                                         && entry.IsModified(property));
+                    var writeValue = false;
+                    if (!readValue)
+                    {
+                        if (adding)
+                        {
+                            writeValue = property.BeforeSaveBehavior == PropertySaveBehavior.Save;
+                        }
+                        else
+                        {
+                            if (property.AfterSaveBehavior == PropertySaveBehavior.Save
+                                && entry.IsModified(property))
+                            {
+                                writeValue = true;
+                            }
+                            else if (sharedIdentityEntryProperties != null
+                                     && (property.BeforeSaveBehavior == PropertySaveBehavior.Save
+                                         || property.AfterSaveBehavior == PropertySaveBehavior.Save))
+                            {
+                                writeValue = !sharedIdentityEntryProperties.TryGetValue(propertyAnnotations.ColumnName, out var originalProperty)
+                                             || !Equals(entry.SharedIdentityEntry.GetOriginalValue(originalProperty), entry.GetCurrentValue(property));
+                            }
+                        }
+                    }
 
                     if (readValue
                         || writeValue
@@ -216,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         var columnModification = new ColumnModification(
                             entry,
                             property,
-                            property.Relational(),
+                            propertyAnnotations,
                             _generateParameterName,
                             readValue,
                             writeValue,
@@ -226,19 +264,19 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                         if (columnMap != null)
                         {
-                            if (columnMap.TryGetValue(columnModification.ColumnName, out var existingColumn))
+                            if (columnMap.TryGetValue(columnModification.ColumnName, out var existingColumnModification))
                             {
                                 if (columnModification.UseCurrentValueParameter
-                                    && !Equals(columnModification.Value, existingColumn.Value))
+                                    && !Equals(columnModification.Value, existingColumnModification.Value))
                                 {
                                     conflictingColumnValues = AddConflictingColumnValues(
-                                        conflictingColumnValues, columnModification, existingColumn);
+                                        conflictingColumnValues, columnModification, existingColumnModification);
                                 }
                                 else if (columnModification.UseOriginalValueParameter
-                                         && !Equals(columnModification.OriginalValue, existingColumn.OriginalValue))
+                                         && !Equals(columnModification.OriginalValue, existingColumnModification.OriginalValue))
                                 {
                                     conflictingOriginalColumnValues = AddConflictingColumnValues(
-                                        conflictingOriginalColumnValues, columnModification, existingColumn);
+                                        conflictingOriginalColumnValues, columnModification, existingColumnModification);
                                 }
 
                                 continue;

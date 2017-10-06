@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -59,6 +59,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual IStateManager StateManager { [DebuggerStepThrough] get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalEntityEntry SharedIdentityEntry { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -835,6 +841,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 || (currentState == EntityState.Modified))
             {
                 _originalValues.AcceptChanges(this);
+                SharedIdentityEntry?.AcceptChanges();
 
                 SetEntityState(EntityState.Unchanged, true);
             }
@@ -1008,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var property in EntityType.GetProperties())
                 {
-                    if (storeGeneratedValues.TryGetValue(property, out var value))
+                    if (storeGeneratedValues.TryGetValue(property, out var _))
                     {
                         var isTemp = HasTemporaryValue(property);
 
@@ -1152,5 +1159,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && EntityState != EntityState.Detached
                 && this[navigation] != null)
                || _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
+
+        IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
     }
 }

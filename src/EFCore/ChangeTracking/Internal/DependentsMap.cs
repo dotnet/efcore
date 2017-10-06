@@ -40,12 +40,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void Add(InternalEntityEntry entry)
         {
-            TKey key;
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
-                && TryCreateFromCurrentValues(entry, out key))
+                && TryCreateFromCurrentValues(entry, out var key))
             {
-                HashSet<InternalEntityEntry> dependents;
-                if (!_map.TryGetValue(key, out dependents))
+                if (!_map.TryGetValue(key, out var dependents))
                 {
                     dependents = new HashSet<InternalEntityEntry>();
                     _map[key] = dependents;
@@ -61,12 +59,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void Remove(InternalEntityEntry entry)
         {
-            TKey key;
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
-                && TryCreateFromCurrentValues(entry, out key))
+                && TryCreateFromCurrentValues(entry, out var key))
             {
-                HashSet<InternalEntityEntry> dependents;
-                if (_map.TryGetValue(key, out dependents))
+                if (_map.TryGetValue(key, out var dependents))
                 {
                     dependents.Remove(entry);
                 }
@@ -81,10 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType))
             {
-                TKey key;
-                HashSet<InternalEntityEntry> dependents;
-                if (_dependentKeyValueFactory.TryCreateFromRelationshipSnapshot(entry, out key)
-                    && _map.TryGetValue(key, out dependents))
+                if (_dependentKeyValueFactory.TryCreateFromRelationshipSnapshot(entry, out var key)
+                    && _map.TryGetValue(key, out var dependents))
                 {
                     dependents.Remove(entry);
                 }
@@ -123,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry)
         {
-            HashSet<InternalEntityEntry> dependents;
-            return _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry), out dependents)
+            return _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry), out var dependents)
                 ? dependents
                 : Enumerable.Empty<InternalEntityEntry>();
         }
@@ -135,8 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(InternalEntityEntry principalEntry)
         {
-            HashSet<InternalEntityEntry> dependents;
-            return _map.TryGetValue(_principalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), out dependents)
+            return _map.TryGetValue(_principalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), out var dependents)
                 ? dependents
                 : Enumerable.Empty<InternalEntityEntry>();
         }

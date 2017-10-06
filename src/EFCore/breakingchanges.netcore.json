@@ -33,5 +33,10 @@
       "TypeId": "public class Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker : Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.DbContext context)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Update.IUpdateEntry",
+      "MemberId": "Microsoft.EntityFrameworkCore.Update.IUpdateEntry get_SharedIdentityEntry()",
+      "Kind": "Addition"
     }
   ]

@@ -39,8 +39,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     foreach (var expectedFragment in expected)
                     {
+                        var normalizedExpectedFragment = expectedFragment.Replace("\r", string.Empty).Replace("\n", EOL);
                         Assert.Contains(
-                            expectedFragment.Replace("\r", string.Empty).Replace("\n", EOL),
+                            normalizedExpectedFragment,
                             sqlStatements);
                     }
                 }

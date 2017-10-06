@@ -29,6 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         EntityState EntityState { get; }
 
         /// <summary>
+        ///     The other entry that has the same key values, if one exists.
+        /// </summary>
+        IUpdateEntry SharedIdentityEntry { get; }
+
+        /// <summary>
         ///     Gets a value indicating if the specified property is modified. If true, the current value assigned
         ///     to the property should be saved to the database.
         /// </summary>

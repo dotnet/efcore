@@ -138,6 +138,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         _tables.Value.Add(key, table = _tableFactory.Create(entityType));
                     }
 
+                    if (entry.SharedIdentityEntry != null)
+                    {
+                        if (entry.EntityState == EntityState.Deleted)
+                        {
+                            continue;
+                        }
+
+                        table.Delete(entry);
+                    }
+
                     switch (entry.EntityState)
                     {
                         case EntityState.Added:

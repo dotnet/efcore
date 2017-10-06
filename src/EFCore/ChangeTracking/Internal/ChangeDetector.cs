@@ -99,7 +99,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 e => e.EntityState != EntityState.Detached
                      && e.EntityType.GetChangeTrackingStrategy() == ChangeTrackingStrategy.Snapshot).ToList())
             {
-                DetectChanges(entry);
+                // State might change while detecting changes on other entries
+                if (entry.EntityState != EntityState.Detached)
+                {
+                    DetectChanges(entry);
+                }
             }
         }
 

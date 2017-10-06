@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
         {
-            var other = obj as PoweredVehicle;
-            return other != null
+            return obj is PoweredVehicle other
                    && base.Equals(other)
                    && Equals(Engine, other.Engine);
         }

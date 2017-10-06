@@ -11,8 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
         {
-            var other = obj as Vehicle;
-            return other != null
+            return obj is Vehicle other
                    && Name == other.Name
                    && SeatingCapacity == other.SeatingCapacity
                    && Equals(Operator, other.Operator);
