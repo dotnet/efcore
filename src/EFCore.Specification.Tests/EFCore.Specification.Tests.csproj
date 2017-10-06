@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit" Version="$(XunitVersionInSpecProjects)" />
+    <PackageReference Include="xunit" Version="$(XunitStablePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
