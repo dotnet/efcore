@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -57,6 +59,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var operationsDown = modelDiffer.GetDifferences(targetModelBuilder.Model, sourceModelBuilder.Model);
                 assertActionDown(operationsDown);
             }
+        }
+
+        protected void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
+        {
+            Assert.Collection(ToOnedimensionalArray(values), assertions);
+        }
+
+        protected static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
+        {
+            Debug.Assert(values.GetLength(firstDimension ? 1 : 0) == 1,
+                $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
+
+            var result = new T[values.Length];
+            for (var i = 0; i < values.Length; i++)
+            {
+                result[i] = firstDimension
+                    ? values[i, 0]
+                    : values[0, i];
+            }
+
+            return result;
         }
 
         protected abstract ModelBuilder CreateModelBuilder();

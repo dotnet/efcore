@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
@@ -315,6 +314,59 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [Fact]
+        public void Add_SequenceHiLo_with_seed_data()
+        {
+            Execute(
+                common => common.Entity(
+                    "Firefly",
+                    x =>
+                        {
+                            x.ToTable("Firefly", "dbo");
+                            x.Property<int>("Id");
+                            x.Property<int>("SequenceId");
+                            x.SeedData(new { Id = 42 });
+                        }),
+                _ => { },
+                target => target.Entity(
+                    "Firefly",
+                    x =>
+                        {
+                            x.ToTable("Firefly", "dbo");
+                            x.Property<int>("SequenceId").ForSqlServerUseSequenceHiLo(schema: "dbo");
+                            x.SeedData(
+                                new { Id = 42 },
+                                new { Id = 43 });
+                        }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                        {
+                            var operation = Assert.IsType<CreateSequenceOperation>(o);
+                            Assert.Equal("dbo", operation.Schema);
+                            Assert.Equal("EntityFrameworkHiLoSequence", operation.Name);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<InsertDataOperation>(o);
+                            AssertMultidimensionalArray(m.Values,
+                                v => Assert.Equal(43, v),
+                                v => Assert.Equal(0, v));
+                        }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                        {
+                            var operation = Assert.IsType<DropSequenceOperation>(o);
+                            Assert.Equal("dbo", operation.Schema);
+                            Assert.Equal("EntityFrameworkHiLoSequence", operation.Name);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<DeleteDataOperation>(o);
+                            AssertMultidimensionalArray(m.KeyValues,
+                                v => Assert.Equal(43, v));
+                        }));
+        }
+
+        [Fact]
         public void Alter_index_clustering()
         {
             Execute(
@@ -334,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             x.ToTable("Mutton", "bah");
                             x.Property<int>("Id");
                             x.Property<int>("Value");
-                            x.HasIndex("Value").ForSqlServerIsClustered(true);
+                            x.HasIndex("Value").ForSqlServerIsClustered();
                         }),
                 operations =>
                     {

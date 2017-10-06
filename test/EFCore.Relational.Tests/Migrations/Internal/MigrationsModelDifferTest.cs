@@ -449,6 +449,109 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Add_owned_type_with_seed_data()
+        {
+            Execute(
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Order",
+                            x =>
+                                {
+                                    x.Property<int>("Id");
+                                    x.SeedData(new { Id = 42 });
+                                });
+                    },
+                _ => { },
+                modelBuilder =>
+                    {
+                        modelBuilder.Entity(
+                            "Order",
+                            x =>
+                                {
+                                    x.OwnsOne("Address", "ShippingAddress", s =>
+                                        {
+                                            s.Property<string>("Street");
+                                            s.Property<string>("City");
+                                            s.SeedData(new { OrderId = 42, Street = "Lombard", City = "San Francisco" });
+                                        });
+                                    x.OwnsOne("Address", "BillingAddress", s =>
+                                        {
+                                            s.Property<string>("Street");
+                                            s.Property<string>("City");
+                                            s.SeedData(new { OrderId = 42, Street = "Abbey Road", City = "London" });
+                                        });
+                                });
+                    },
+                upOps => Assert.Collection(upOps,
+                    o =>
+                        {
+                            var m = Assert.IsType<AddColumnOperation>(o);
+                            Assert.Equal("BillingAddress_City", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<AddColumnOperation>(o);
+                            Assert.Equal("BillingAddress_Street", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<AddColumnOperation>(o);
+                            Assert.Equal("ShippingAddress_City", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<AddColumnOperation>(o);
+                            Assert.Equal("ShippingAddress_Street", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<UpdateDataOperation>(o);
+                            AssertMultidimensionalArray(m.KeyValues,
+                                v => Assert.Equal(42, v));
+                            AssertMultidimensionalArray(m.Values,
+                                v => Assert.Equal("London", v),
+                                v => Assert.Equal("Abbey Road", v),
+                                v => Assert.Equal("San Francisco", v),
+                                v => Assert.Equal("Lombard", v));
+                            Assert.Collection(m.Columns,
+                                v => Assert.Equal("BillingAddress_City", v),
+                                v => Assert.Equal("BillingAddress_Street", v),
+                                v => Assert.Equal("ShippingAddress_City", v),
+                                v => Assert.Equal("ShippingAddress_Street", v));
+                        }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                        {
+                            var m = Assert.IsType<DropColumnOperation>(o);
+                            Assert.Equal("BillingAddress_City", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<DropColumnOperation>(o);
+                            Assert.Equal("BillingAddress_Street", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<DropColumnOperation>(o);
+                            Assert.Equal("ShippingAddress_City", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        },
+                    o =>
+                        {
+                            var m = Assert.IsType<DropColumnOperation>(o);
+                            Assert.Equal("ShippingAddress_Street", m.Name);
+                            Assert.Equal("Order", m.Table);
+                        }));
+        }
+
+        [Fact]
         public void Rename_entity_type_with_seed_data()
         {
             Execute(
@@ -5654,27 +5757,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public string Title { get; set; }
             public int? BlogId { get; set; }
             public Blog Blog { get; set; }
-        }
-
-        private void AssertMultidimensionalArray<T>(T[,] values, params Action<T>[] assertions)
-        {
-            Assert.Collection(ToOnedimensionalArray(values), assertions);
-        }
-
-        private static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
-        {
-            Debug.Assert(values.GetLength(firstDimension ? 1 : 0) == 1,
-                $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
-
-            var result = new T[values.Length];
-            for (var i = 0; i < values.Length; i++)
-            {
-                result[i] = firstDimension
-                    ? values[i, 0]
-                    : values[0, i];
-            }
-
-            return result;
         }
 
         protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();

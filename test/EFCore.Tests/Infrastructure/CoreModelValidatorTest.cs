@@ -560,6 +560,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Detects_derived_seeds_for_owned_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(CoreStrings.SeedDatumDerivedType("B.A#A", nameof(D)),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<B>()
+                    .OwnsOne(b => b.A, a => a.SeedData(new D { Id = 2, P0 = 3 }))).Message);
+        }
+
+        [Fact]
         public virtual void Detects_missing_required_values_in_seeds()
         {
             var modelBuilder = CreateModelBuilder();

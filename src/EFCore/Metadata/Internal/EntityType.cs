@@ -1812,7 +1812,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void AddSeedData([NotNull] params object[] data) => _seedData.UnionWith(data);
+        public virtual void AddSeedData([NotNull] params object[] data)
+        {
+            foreach (var entity in data)
+            {
+                if (ClrType != null
+                    && ClrType != entity.GetType()
+                    && ClrType.GetTypeInfo().IsAssignableFrom(entity.GetType().GetTypeInfo()))
+                {
+                    throw new InvalidOperationException(CoreStrings.SeedDatumDerivedType(
+                        this.DisplayName(), entity.GetType().ShortDisplayName()));
+                }
+            }
+            _seedData.UnionWith(data);
+        }
 
         #endregion
 

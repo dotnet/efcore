@@ -69,6 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int? P1 { get; set; }
             public int? P2 { get; set; }
             public int? P3 { get; set; }
+
+            public A A { get; set; }
         }
 
         protected class D : A
