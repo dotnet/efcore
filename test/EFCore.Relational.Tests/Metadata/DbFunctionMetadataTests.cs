@@ -31,6 +31,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public class MyBaseContext : DbContext
         {
+            public static readonly string[] FunctionNames =
+            {
+                nameof(MyBaseContext.StaticPublicBase),
+                nameof(MyBaseContext.StaticProtectedBase),
+                nameof(MyBaseContext.StaticPrivateBase),
+                nameof(MyBaseContext.StaticInteranlBase),
+                nameof(MyBaseContext.StaticProtectedInteralBase),
+                nameof(MyBaseContext.InstancePublicBase),
+                nameof(MyBaseContext.InstanceProtectedBase),
+                nameof(MyBaseContext.InstancePrivateBase),
+                nameof(MyBaseContext.InstanceInteranlBase),
+                nameof(MyBaseContext.InstanceProtectedInteralBase),
+            };
+
             public static void Foo()
             {
             }
@@ -42,22 +56,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             private static void Skip()
             {
             }
-            
-            [DbFunction]
-            public static int StaticBase()
-            {
-                throw new Exception();
-            }
 
             [DbFunction]
-            public int NonStaticBase()
-            {
-                throw new Exception();
-            }
+            public static int StaticPublicBase() => throw new Exception();
+
+            [DbFunction]
+            protected static int StaticProtectedBase() => throw new Exception();
+
+            [DbFunction]
+            private static int StaticPrivateBase() => throw new Exception();
+
+            [DbFunction]
+            internal static int StaticInteranlBase() => throw new Exception();
+
+            [DbFunction]
+            protected internal static int StaticProtectedInteralBase() => throw new Exception();
+
+            [DbFunction]
+            public int InstancePublicBase() => throw new Exception();
+
+            [DbFunction]
+            protected int InstanceProtectedBase() => throw new Exception();
+
+            [DbFunction]
+            private int InstancePrivateBase() => throw new Exception();
+
+            [DbFunction]
+            internal int InstanceInteranlBase() => throw new Exception();
+
+            [DbFunction]
+            protected internal int InstanceProtectedInteralBase() => throw new Exception();
+            
+            [DbFunction]
+            public virtual int VirtualBase() => throw new Exception();
         }
 
         public class MyDerivedContext : MyBaseContext
         {
+            public new static readonly string[] FunctionNames =
+            {
+                nameof(MyDerivedContext.StaticPublicDerived),
+                nameof(MyDerivedContext.StaticProtectedDerived),
+                nameof(MyDerivedContext.StaticPrivateDerived),
+                nameof(MyDerivedContext.StaticInteranlDerived),
+                nameof(MyDerivedContext.StaticProtectedInteralDerived),
+                nameof(MyDerivedContext.InstancePublicDerived),
+                nameof(MyDerivedContext.InstanceProtectedDerived),
+                nameof(MyDerivedContext.InstancePrivateDerived),
+                nameof(MyDerivedContext.InstanceInteranlDerived),
+                nameof(MyDerivedContext.InstanceProtectedInteralDerived),
+            };
+
             public static void Bar()
             {
             }
@@ -70,22 +119,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
             }
 
-            [DbFunction]
-            public static int StaticDerived()
-            {
-                throw new Exception();
-            }
-
-            [DbFunction]
-            public int NonStaticDerived()
-            {
-                throw new Exception();
-            }
-
             public static int DuplicateNameTest()
             {
                 throw new Exception();
             }
+
+            [DbFunction]
+            public static int StaticPublicDerived() => throw new Exception();
+
+            [DbFunction]
+            protected static int StaticProtectedDerived() => throw new Exception();
+
+            [DbFunction]
+            private static int StaticPrivateDerived() => throw new Exception();
+
+            [DbFunction]
+            internal static int StaticInteranlDerived() => throw new Exception();
+
+            [DbFunction]
+            protected internal static int StaticProtectedInteralDerived() => throw new Exception();
+
+            [DbFunction]
+            public int InstancePublicDerived() => throw new Exception();
+
+            [DbFunction]
+            protected int InstanceProtectedDerived() => throw new Exception();
+
+            [DbFunction]
+            private int InstancePrivateDerived() => throw new Exception();
+
+            [DbFunction]
+            internal int InstanceInteranlDerived() => throw new Exception();
+
+            [DbFunction]
+            protected internal int InstanceProtectedInteralDerived() => throw new Exception();
+            
+            [DbFunction]
+            public override int VirtualBase() => throw new Exception();
         }
 
         public static MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
@@ -132,16 +202,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var Dup1methodInfo
+            var dup1methodInfo
                 = typeof(MyDerivedContext)
                     .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), new Type[] { });
 
-            var Dup2methodInfo
+            var dup2methodInfo
                 = typeof(MyNonDbContext)
                     .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), new Type[] { });
 
-            var dbFunc1 = modelBuilder.HasDbFunction(Dup1methodInfo).HasName("Dup1").Metadata;
-            var dbFunc2 = modelBuilder.HasDbFunction(Dup2methodInfo).HasName("Dup2").Metadata;
+            var dbFunc1 = modelBuilder.HasDbFunction(dup1methodInfo).HasName("Dup1").Metadata;
+            var dbFunc2 = modelBuilder.HasDbFunction(dup2methodInfo).HasName("Dup2").Metadata;
 
             Assert.Equal("Dup1", dbFunc1.FunctionName);
             Assert.Equal("Dup2", dbFunc2.FunctionName);
@@ -156,21 +226,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             customizer.Customize(modelBuilder, new MyDerivedContext());
 
-            Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
-                typeof(MyDerivedContext)
-                        .GetRuntimeMethod(nameof(MyBaseContext.NonStaticBase), new Type[] { })));
+            foreach (var function in MyBaseContext.FunctionNames)
+            {
+                Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
+                    typeof(MyBaseContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+            }
 
-            Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
-                typeof(MyBaseContext)
-                    .GetRuntimeMethod(nameof(MyBaseContext.StaticBase), new Type[] { })));
-
-            Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
-                typeof(MyDerivedContext)
-                    .GetRuntimeMethod(nameof(MyDerivedContext.NonStaticDerived), new Type[] { })));
-
-            Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
-                typeof(MyDerivedContext)
-                    .GetRuntimeMethod(nameof(MyDerivedContext.NonStaticDerived), new Type[] { })));
+            foreach (var function in MyDerivedContext.FunctionNames)
+            {
+                Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
+                    typeof(MyDerivedContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+            }
         }
 
         [Fact]
@@ -178,13 +244,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            var methodInfo 
+            var methodInfo
                 = typeof(MyDerivedContext)
-                        .GetRuntimeMethod(nameof(MyDerivedContext.NonStaticBase), new Type[] { });
+                        .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), new Type[] { });
 
             var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
-            Assert.Equal("NonStaticBase", dbFunc.FunctionName);
+            Assert.Equal("InstancePublicBase", dbFunc.FunctionName);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
