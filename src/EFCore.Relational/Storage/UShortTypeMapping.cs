@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public UShortTypeMapping(
             [NotNull] string storeType,
-            [NotNull] TypeConverter converter,
+            [NotNull] ValueConverter converter,
             DbType? dbType = null)
             : base(storeType, typeof(ushort), converter, dbType)
         {

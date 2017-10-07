@@ -634,13 +634,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         private RelationalTypeMapping GetTypeMapping(object value)
-        {
-            return _typeMapping != null
-                   && (value == null
-                       || _typeMapping.ClrType.IsInstanceOfType(value))
+            => _typeMapping != null
+               && (value == null
+                   || _typeMapping.ClrType.IsInstanceOfType(value))
                 ? _typeMapping
                 : Dependencies.RelationalTypeMapper.GetMappingForValue(value);
-        }
 
         /// <summary>
         ///     Visit a TableExpression.
@@ -1568,20 +1566,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     A RelationalTypeMapping.
         /// </returns>
-        protected virtual RelationalTypeMapping InferTypeMappingFromColumn([NotNull] Expression expression)
-        {
-            switch (expression)
-            {
-                case ColumnExpression columnExpression:
-                    return Dependencies.RelationalTypeMapper.FindMapping(columnExpression.Property);
-                case ColumnReferenceExpression columnReferenceExpression:
-                    return InferTypeMappingFromColumn(columnReferenceExpression.Expression);
-                case AliasExpression aliasExpression:
-                    return InferTypeMappingFromColumn(aliasExpression.Expression);
-                default:
-                    return null;
-            }
-        }
+        protected virtual RelationalTypeMapping InferTypeMappingFromColumn([NotNull] Expression expression) 
+            => expression.FindProperty(expression.Type)?.FindRelationalMapping();
 
         /// <summary>
         ///     Attempts to generate binary operator for a given expression type.

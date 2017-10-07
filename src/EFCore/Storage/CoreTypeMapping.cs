@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
         protected CoreTypeMapping(
             [NotNull] Type clrType,
-            [CanBeNull] TypeConverter converter = null)
+            [CanBeNull] ValueConverter converter = null)
         {
             Check.NotNull(clrType, nameof(clrType));
 
@@ -42,6 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Converts types to and from the store whenever this mapping is used.
         ///     May be null if no conversion is needed.
         /// </summary>
-        public virtual TypeConverter Converter { get; }
+        public virtual ValueConverter Converter { get; }
     }
 }

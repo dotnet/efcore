@@ -11,10 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Defines conversions from an object of one type in a model to an object of the same or
     ///     different type in the store.
     /// </summary>
-    public abstract class TypeConverter
+    public abstract class ValueConverter
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="TypeConverter" /> class.
+        ///     Initializes a new instance of the <see cref="ValueConverter" /> class.
         /// </summary>
         /// <param name="convertToStore">
         ///     The function to convert objects when writing data to the store,
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     exactly as supplied, which may be a generic delegate and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </param>
-        protected TypeConverter(
+        protected ValueConverter(
             [NotNull] Func<object, object> convertToStore,
             [NotNull] Func<object, object> convertFromStore,
             [NotNull] Delegate rawConvertToStore,

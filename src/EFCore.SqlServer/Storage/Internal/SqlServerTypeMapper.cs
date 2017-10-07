@@ -48,22 +48,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly UIntTypeMapping _uint = new UIntTypeMapping(
             "int",
-            new TypeConverter<uint, int>(v => (int)v, v => (uint)v),
+            new ValueConverter<uint, int>(v => (int)v, v => (uint)v),
             DbType.Int32);
 
         private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
             "bigint",
-            new TypeConverter<ulong, long>(v => (long)v, v => (ulong)v),
+            new ValueConverter<ulong, long>(v => (long)v, v => (ulong)v),
             DbType.Int64);
 
         private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
             "smallint",
-            new TypeConverter<ushort, short>(v => (short)v, v => (ushort)v),
+            new ValueConverter<ushort, short>(v => (short)v, v => (ushort)v),
             DbType.Int16);
 
         private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
             "tinyint",
-            new TypeConverter<sbyte, byte>(v => (byte)v, v => (sbyte)v),
+            new ValueConverter<sbyte, byte>(v => (byte)v, v => (sbyte)v),
             DbType.Byte);
 
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit");

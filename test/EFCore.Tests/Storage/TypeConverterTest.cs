@@ -9,14 +9,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class TypeConverterTest
     {
-        private static readonly TypeConverter<uint, int> _uIntToInt
-            = new TypeConverter<uint, int>(v => (int)v, v => (uint)v);
+        private static readonly ValueConverter<uint, int> _uIntToInt
+            = new ValueConverter<uint, int>(v => (int)v, v => (uint)v);
 
         [Fact]
         public void Can_access_raw_converters()
         {
-            Assert.Same(_uIntToInt.RawConvertFromStore, ((TypeConverter)_uIntToInt).RawConvertFromStore);
-            Assert.Same(_uIntToInt.RawConvertToStore, ((TypeConverter)_uIntToInt).RawConvertToStore);
+            Assert.Same(_uIntToInt.RawConvertFromStore, ((ValueConverter)_uIntToInt).RawConvertFromStore);
+            Assert.Same(_uIntToInt.RawConvertToStore, ((ValueConverter)_uIntToInt).RawConvertToStore);
 
             Assert.Equal(1, _uIntToInt.RawConvertToStore(1));
             Assert.Equal((uint)1, _uIntToInt.RawConvertFromStore(1));
@@ -78,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(_uIntToInt.ConvertFromStore(null));
         }
 
-        private static readonly TypeConverter<uint?, int?> _nullableUIntToInt
-            = new TypeConverter<uint?, int?>(v => (int?)v, v => (uint?)v);
+        private static readonly ValueConverter<uint?, int?> _nullableUIntToInt
+            = new ValueConverter<uint?, int?>(v => (int?)v, v => (uint?)v);
 
         [Fact]
         public void Can_convert_exact_types_with_nullable_converter()
@@ -134,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(_nullableUIntToInt.ConvertFromStore(null));
         }
 
-        private static readonly TypeConverter<string, int?> _stringConverter
-            = new TypeConverter<string, int?>(
+        private static readonly ValueConverter<string, int?> _stringConverter
+            = new ValueConverter<string, int?>(
                 v => v.Equals("<null>", StringComparison.OrdinalIgnoreCase)
                     ? null
                     : (int?)int.Parse(v, CultureInfo.InvariantCulture),

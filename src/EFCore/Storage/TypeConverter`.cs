@@ -11,14 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Defines conversions from an object of one type in a model to an object of the same or
     ///     different type in the store.
     /// </summary>
-    public class TypeConverter<TModel, TStore> : TypeConverter
+    public class ValueConverter<TModel, TStore> : ValueConverter
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="TypeConverter{TModel,TStore}" /> class.
+        ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TStore}" /> class.
         /// </summary>
         /// <param name="convertToStore"> The function to convert objects when writing data to the store. </param>
         /// <param name="convertFromStore"> The function to convert objects when reading data from the store. </param>
-        public TypeConverter(
+        public ValueConverter(
             [NotNull] Func<TModel, TStore> convertToStore,
             [NotNull] Func<TStore, TModel> convertFromStore)
             : base(

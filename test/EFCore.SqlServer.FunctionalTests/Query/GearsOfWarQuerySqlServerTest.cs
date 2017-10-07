@@ -1834,28 +1834,28 @@ WHERE @_outer_FullName1 = [w1].[OwnerFullName]");
 FROM [Gears] AS [o]
 WHERE [o].[Discriminator] = N'Officer'",
                 //
-                @"@_outer_Nickname2='Baird' (Size = 4000)
+                @"@_outer_Nickname2='Baird' (Size = 450)
 @_outer_SquadId2='1'
 
 SELECT [g2].[Nickname], [g2].[SquadId], [g2].[AssignedCityName], [g2].[CityOrBirthName], [g2].[Discriminator], [g2].[FullName], [g2].[HasSoulPatch], [g2].[LeaderNickname], [g2].[LeaderSquadId], [g2].[Rank]
 FROM [Gears] AS [g2]
 WHERE [g2].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname2 = [g2].[LeaderNickname]) AND (@_outer_SquadId2 = [g2].[LeaderSquadId]))",
                 //
-                @"@_outer_Nickname1='Baird' (Size = 4000)
+                @"@_outer_Nickname1='Baird' (Size = 450)
 @_outer_SquadId1='1'
 
 SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[HasSoulPatch], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
 FROM [Gears] AS [g1]
 WHERE [g1].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname1 = [g1].[LeaderNickname]) AND (@_outer_SquadId1 = [g1].[LeaderSquadId]))",
                 //
-                @"@_outer_Nickname2='Marcus' (Size = 4000)
+                @"@_outer_Nickname2='Marcus' (Size = 450)
 @_outer_SquadId2='1'
 
 SELECT [g2].[Nickname], [g2].[SquadId], [g2].[AssignedCityName], [g2].[CityOrBirthName], [g2].[Discriminator], [g2].[FullName], [g2].[HasSoulPatch], [g2].[LeaderNickname], [g2].[LeaderSquadId], [g2].[Rank]
 FROM [Gears] AS [g2]
 WHERE [g2].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname2 = [g2].[LeaderNickname]) AND (@_outer_SquadId2 = [g2].[LeaderSquadId]))",
                 //
-                @"@_outer_Nickname1='Marcus' (Size = 4000)
+                @"@_outer_Nickname1='Marcus' (Size = 450)
 @_outer_SquadId1='1'
 
 SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOrBirthName], [g1].[Discriminator], [g1].[FullName], [g1].[HasSoulPatch], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank]
@@ -2681,14 +2681,14 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] = N'Officer'
 ORDER BY [g].[Nickname]",
                 //
-                @"@_outer_Nickname='Baird' (Size = 4000)
+                @"@_outer_Nickname='Baird' (Size = 450)
 @_outer_SquadId='1'
 
 SELECT [r].[Nickname], [r].[SquadId], [r].[AssignedCityName], [r].[CityOrBirthName], [r].[Discriminator], [r].[FullName], [r].[HasSoulPatch], [r].[LeaderNickname], [r].[LeaderSquadId], [r].[Rank]
 FROM [Gears] AS [r]
 WHERE ([r].[Discriminator] IN (N'Officer', N'Gear') AND ([r].[Nickname] <> N'Dom')) AND ((@_outer_Nickname = [r].[LeaderNickname]) AND (@_outer_SquadId = [r].[LeaderSquadId]))",
                 //
-                @"@_outer_Nickname='Marcus' (Size = 4000)
+                @"@_outer_Nickname='Marcus' (Size = 450)
 @_outer_SquadId='1'
 
 SELECT [r].[Nickname], [r].[SquadId], [r].[AssignedCityName], [r].[CityOrBirthName], [r].[Discriminator], [r].[FullName], [r].[HasSoulPatch], [r].[LeaderNickname], [r].[LeaderSquadId], [r].[Rank]
@@ -3358,14 +3358,14 @@ WHERE @_outer_FullName = [w].[OwnerFullName]");
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] = N'Officer'",
                 //
-                @"@_outer_Nickname='Baird' (Size = 4000)
+                @"@_outer_Nickname='Baird' (Size = 450)
 @_outer_SquadId='1'
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
 FROM [Gears] AS [g0]
 WHERE [g0].[Discriminator] IN (N'Officer', N'Gear') AND ((@_outer_Nickname = [g0].[LeaderNickname]) AND (@_outer_SquadId = [g0].[LeaderSquadId]))",
                 //
-                @"@_outer_Nickname='Marcus' (Size = 4000)
+                @"@_outer_Nickname='Marcus' (Size = 450)
 @_outer_SquadId='1'
 
 SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOrBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank]
