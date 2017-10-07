@@ -72,13 +72,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NotNull(context, nameof(context));
 
-            var functions = context.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(mi => mi.IsPublic
-                          && mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
+            var contextType = context.GetType();
 
-            foreach (var function in functions)
-            {
-                modelBuilder.HasDbFunction(function);
+            while(contextType != typeof(DbContext))
+            { 
+                var functions = contextType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance 
+                                                                | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                                    .Where(mi => mi.GetCustomAttributes(typeof(DbFunctionAttribute)).Any());
+
+                foreach (var function in functions)
+                {
+                    modelBuilder.HasDbFunction(function);
+                }
+
+                contextType = contextType.BaseType;
             }
         }
 
