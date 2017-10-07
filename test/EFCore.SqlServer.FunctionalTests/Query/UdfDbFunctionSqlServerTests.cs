@@ -15,13 +15,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class UdfDbFunctionSqlServerTests : IClassFixture<UdfDbFunctionSqlServerTests.SqlServerUDFFixture>
     {
-        public UdfDbFunctionSqlServerTests(SqlServerUDFFixture fixture) => Fixture = fixture;
+        public UdfDbFunctionSqlServerTests(SqlServerUDFFixture fixture)
+        {
+            Fixture = fixture;
+            Fixture.TestSqlLoggerFactory.Clear();
+        }
 
         private SqlServerUDFFixture Fixture { get; }
 
         protected UDFSqlContext CreateContext() => (UDFSqlContext)Fixture.CreateContext();
-
-        private string Sql => Fixture.TestSqlLoggerFactory.SqlStatements.Last();
 
         public class Customer
         {
@@ -242,15 +244,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(3, len);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE CASE
     WHEN IsDate([c].[FirstName]) = 1
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END = 0",
-                Sql,
-                ignoreLineEndingDifferences: true);
+END = 0");
             }
         }
 
@@ -266,14 +266,12 @@ END = 0",
 
                 Assert.Equal(5, len);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_0='3'
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -304,13 +302,11 @@ WHERE [c].[Id] = @__customerId_0",
 
                 Assert.Equal(3, custs.Count);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_0='1'
 
 SELECT [dbo].CustomerOrderCount(@__customerId_0)
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -330,12 +326,10 @@ FROM [Customers] AS [c]",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal(3, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount([c].[Id]) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 1");
             }
         }
 
@@ -355,12 +349,10 @@ WHERE [c].[Id] = 1",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal(3, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 1");
             }
         }
 
@@ -382,15 +374,13 @@ WHERE [c].[Id] = 1",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal(3, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_1='1'
 @__customerId_0='1'
 
 SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(@__customerId_1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -413,16 +403,14 @@ WHERE [c].[Id] = @__customerId_0",
                 Assert.Equal("Three", cust.LastName);
                 Assert.Equal("***1", cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__starCount_1='3'
 @__customerId_2='3'
 @__customerId_0='3'
 
 SELECT TOP(2) [c].[LastName], [dbo].StarValue(@__starCount_1, [dbo].CustomerOrderCount(@__customerId_2)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -437,12 +425,10 @@ WHERE [c].[Id] = @__customerId_0",
 
                 Assert.Equal(1, cust.Count);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
 FROM [Customers] AS [c]
-WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [dbo].IsTopCustomer([c].[Id]) = 1");
             }
         }
 
@@ -459,14 +445,12 @@ WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
 
                 Assert.Equal(custId, 2);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__startDate_0='2000-04-01T00:00:00'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_0) = [c].[Id]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_0) = [c].[Id]");
             }
         }
 
@@ -484,14 +468,12 @@ WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_0) = [c].[Id]",
 
                 Assert.Equal(custId, 1);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__period_0='Winter'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(@__period_0))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(@__period_0))");
             }
         }
 
@@ -508,12 +490,10 @@ WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeri
 
                 Assert.Equal(custId, 1);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))");
             }
         }
 
@@ -534,12 +514,10 @@ WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeri
                 Assert.Equal("Two", cust.LastName);
                 Assert.Equal(2, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount([c].[Id]) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 2",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 2");
             }
         }
 
@@ -560,12 +538,10 @@ WHERE [c].[Id] = 2",
                 Assert.Equal("Two", cust.LastName);
                 Assert.Equal(2, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(2) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 2",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 2");
             }
         }
 
@@ -588,15 +564,13 @@ WHERE [c].[Id] = 2",
                 Assert.Equal("Two", cust.LastName);
                 Assert.Equal(2, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_0='2'
 @__customerId_1='2'
 
 SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_1");
             }
         }
 
@@ -620,16 +594,14 @@ WHERE [c].[Id] = @__customerId_1",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal("***3", cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__starCount_0='3'
 @__customerId_1='1'
 @__customerId_2='1'
 
 SELECT TOP(2) [c].[LastName], [dbo].StarValue(@__starCount_0, [dbo].CustomerOrderCount(@__customerId_1)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_2",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_2");
             }
         }
 
@@ -643,11 +615,9 @@ WHERE [c].[Id] = @__customerId_2",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -663,11 +633,9 @@ FROM [Customers] AS [c]",
                 Assert.Equal(3, results.Count);
                 Assert.True(results.SequenceEqual(Enumerable.Range(1, 3)));
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -683,12 +651,10 @@ FROM [Customers] AS [c]",
                 Assert.Equal(3, results.Count);
                 Assert.True(results.SequenceEqual(Enumerable.Range(2, 3)));
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
 FROM [Customers] AS [c]
-ORDER BY [c].[Id]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+ORDER BY [c].[Id]");
             }
         }
 
@@ -702,11 +668,9 @@ ORDER BY [c].[Id]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -720,11 +684,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -738,11 +700,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -756,11 +716,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -774,11 +732,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -792,11 +748,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -810,11 +764,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -828,11 +780,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -846,11 +796,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -864,12 +812,10 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))");
             }
         }
 
@@ -884,11 +830,9 @@ WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -902,12 +846,10 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))");
             }
         }
 
@@ -930,12 +872,10 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
 
                 Assert.Equal(custName.LastName, "$$One");
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [dbo].StarValue(4, [c].[Id]) AS [Id], [dbo].DollarValue(2, [c].[LastName]) AS [LastName]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 1");
             }
         }
 
@@ -949,15 +889,13 @@ WHERE [c].[Id] = 1",
 
                 Assert.Equal(3, len);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT COUNT(*)
 FROM [Customers] AS [c]
 WHERE CASE
     WHEN IsDate([c].[FirstName]) = 1
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
-END = 0",
-                Sql,
-                ignoreLineEndingDifferences: true);
+END = 0");
             }
         }
 
@@ -973,14 +911,12 @@ END = 0",
 
                 Assert.Equal(5, len);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_0='3'
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -1011,13 +947,11 @@ WHERE [c].[Id] = @__customerId_0",
 
                 Assert.Equal(3, custs.Count);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_1='1'
 
 SELECT [dbo].CustomerOrderCount(@__customerId_1)
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1037,12 +971,10 @@ FROM [Customers] AS [c]",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal(3, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount([c].[Id]) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 1");
             }
         }
 
@@ -1062,12 +994,10 @@ WHERE [c].[Id] = 1",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal(3, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 1");
             }
         }
 
@@ -1089,15 +1019,13 @@ WHERE [c].[Id] = 1",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal(3, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__customerId_2='1'
 @__customerId_0='1'
 
 SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(@__customerId_2) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -1120,16 +1048,14 @@ WHERE [c].[Id] = @__customerId_0",
                 Assert.Equal("Three", cust.LastName);
                 Assert.Equal("***1", cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__starCount_2='3'
 @__customerId_4='3'
 @__customerId_0='3'
 
 SELECT TOP(2) [c].[LastName], [dbo].StarValue(@__starCount_2, [dbo].CustomerOrderCount(@__customerId_4)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_0",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_0");
             }
         }
 
@@ -1144,12 +1070,10 @@ WHERE [c].[Id] = @__customerId_0",
 
                 Assert.Equal(1, cust.Count);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT LOWER(CONVERT(VARCHAR(11), [c].[Id]))
 FROM [Customers] AS [c]
-WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [dbo].IsTopCustomer([c].[Id]) = 1");
             }
         }
 
@@ -1166,14 +1090,12 @@ WHERE [dbo].IsTopCustomer([c].[Id]) = 1",
 
                 Assert.Equal(custId, 2);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__startDate_1='2000-04-01T00:00:00'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_1) = [c].[Id]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_1) = [c].[Id]");
             }
         }
 
@@ -1191,14 +1113,12 @@ WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_1) = [c].[Id]",
 
                 Assert.Equal(custId, 1);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__period_2='Winter'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(@__period_2))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(@__period_2))");
             }
         }
 
@@ -1215,12 +1135,10 @@ WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeri
 
                 Assert.Equal(custId, 1);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeriodStartDate(0))");
             }
         }
 
@@ -1241,12 +1159,10 @@ WHERE [c].[Id] = [dbo].GetCustomerWithMostOrdersAfterDate([dbo].GetReportingPeri
                 Assert.Equal("Two", cust.LastName);
                 Assert.Equal(2, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount([c].[Id]) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 2",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 2");
             }
         }
 
@@ -1267,12 +1183,10 @@ WHERE [c].[Id] = 2",
                 Assert.Equal("Two", cust.LastName);
                 Assert.Equal(2, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(2) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = 2",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = 2");
             }
         }
 
@@ -1295,15 +1209,13 @@ WHERE [c].[Id] = 2",
                 Assert.Equal("Two", cust.LastName);
                 Assert.Equal(2, cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__8__locals1_customerId_1='2'
 @__8__locals1_customerId_2='2'
 
 SELECT TOP(2) [c].[LastName], [dbo].CustomerOrderCount(@__8__locals1_customerId_1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__8__locals1_customerId_2",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__8__locals1_customerId_2");
             }
         }
 
@@ -1327,16 +1239,14 @@ WHERE [c].[Id] = @__8__locals1_customerId_2",
                 Assert.Equal("One", cust.LastName);
                 Assert.Equal("***3", cust.OrderCount);
 
-                Assert.Equal(
+                AssertSql(
                     @"@__starCount_1='3'
 @__customerId_3='1'
 @__customerId_4='1'
 
 SELECT TOP(2) [c].[LastName], [dbo].StarValue(@__starCount_1, [dbo].CustomerOrderCount(@__customerId_3)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE [c].[Id] = @__customerId_4",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE [c].[Id] = @__customerId_4");
             }
         }
 
@@ -1350,11 +1260,9 @@ WHERE [c].[Id] = @__customerId_4",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1370,11 +1278,9 @@ FROM [Customers] AS [c]",
                 Assert.Equal(3, results.Count);
                 Assert.True(results.SequenceEqual(Enumerable.Range(1, 3)));
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1390,12 +1296,10 @@ FROM [Customers] AS [c]",
                 Assert.Equal(3, results.Count);
                 Assert.True(results.SequenceEqual(Enumerable.Range(2, 3)));
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
 FROM [Customers] AS [c]
-ORDER BY [c].[Id]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+ORDER BY [c].[Id]");
             }
         }
 
@@ -1409,11 +1313,9 @@ ORDER BY [c].[Id]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1427,11 +1329,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1445,11 +1345,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1463,11 +1361,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1481,11 +1377,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1499,11 +1393,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1517,11 +1409,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1535,11 +1425,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(3, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1553,11 +1441,9 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(2, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1571,12 +1457,10 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))");
             }
         }
 
@@ -1591,11 +1475,9 @@ WHERE 3 = ABS([dbo].CustomerOrderCount([c].[Id]))",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[Id]
-FROM [Customers] AS [c]",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+FROM [Customers] AS [c]");
             }
         }
 
@@ -1609,12 +1491,10 @@ FROM [Customers] AS [c]",
                                select c.Id).Single();
 
                 Assert.Equal(1, results);
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
-WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))");
             }
         }
 
@@ -1705,5 +1585,8 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))",
                 context.SaveChanges();
             }
         }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
