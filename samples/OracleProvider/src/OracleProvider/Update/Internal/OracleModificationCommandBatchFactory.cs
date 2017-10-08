@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         public virtual ModificationCommandBatch Create()
-            => new OracleSingularModificationCommandBatch(
+            => new OracleModificationCommandBatch(
                 _commandBuilderFactory,
                 _sqlGenerationHelper,
                 _updateSqlGenerator,

@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -315,14 +316,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     }
 
                     // HACK: Need to make it easier to add this in update pipeline.
-                    if (command.CommandText.Contains(":cur"))
+                    if (command.CommandText.IndexOf(":cur") > 0)
                     {
-                        command.Parameters.Add(
+                        var cursors = Regex.Matches(command.CommandText, ":cur").Count;
+                        for (int i = 1; i <= cursors; i++)
+                        {
+                            command.Parameters.Add(
                             new OracleParameter(
                                 "cur",
                                 OracleDbType.RefCursor,
                                 DBNull.Value,
                                 ParameterDirection.Output));
+                        } 
                     }
 
                     return command;
