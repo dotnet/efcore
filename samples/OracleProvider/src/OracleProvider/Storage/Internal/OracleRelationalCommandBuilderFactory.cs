@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         {
                             command.Parameters.Add(
                             new OracleParameter(
-                                "cur",
+                                $"cur{i}",
                                 OracleDbType.RefCursor,
                                 DBNull.Value,
                                 ParameterDirection.Output));
