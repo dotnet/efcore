@@ -12,35 +12,35 @@ using SQLitePCL;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Represents a collection of SQLite parameters.
+    ///     Represents a collection of SQLite parameters.
     /// </summary>
     public class SqliteParameterCollection : DbParameterCollection
     {
         private readonly List<SqliteParameter> _parameters = new List<SqliteParameter>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteParameterCollection" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteParameterCollection" /> class.
         /// </summary>
         protected internal SqliteParameterCollection()
         {
         }
 
         /// <summary>
-        /// Gets the number of items in the collection.
+        ///     Gets the number of items in the collection.
         /// </summary>
         /// <value>The number of items in the collection.</value>
         public override int Count
             => _parameters.Count;
 
         /// <summary>
-        /// Gets the object used to synchronize access to the collection.
+        ///     Gets the object used to synchronize access to the collection.
         /// </summary>
         /// <value>The object used to synchronize access to the collection.</value>
         public override object SyncRoot
             => ((ICollection)_parameters).SyncRoot;
 
         /// <summary>
-        /// Gets or sets the parameter at the specified index.
+        ///     Gets or sets the parameter at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the parameter.</param>
         /// <returns>The parameter.</returns>
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets the parameter with the specified name.
+        ///     Gets or sets the parameter with the specified name.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <returns>The parameter.</returns>
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Adds a parameter to the collection.
+        ///     Adds a parameter to the collection.
         /// </summary>
         /// <param name="value">The parameter to add. Must be a <see cref="SqliteParameter" />.</param>
         /// <returns>The zero-based index of the parameter that was added.</returns>
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Adds a parameter to the collection.
+        ///     Adds a parameter to the collection.
         /// </summary>
         /// <param name="value">The parameter to add.</param>
         /// <returns>The parameter that was added.</returns>
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Adds a parameter to the collection.
+        ///     Adds a parameter to the collection.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <param name="type">The SQLite type of the parameter.</param>
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Sqlite
             => Add(new SqliteParameter(parameterName, type));
 
         /// <summary>
-        /// Adds a parameter to the collection.
+        ///     Adds a parameter to the collection.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <param name="type">The SQLite type of the parameter.</param>
@@ -113,36 +113,36 @@ namespace Microsoft.Data.Sqlite
             => Add(new SqliteParameter(parameterName, type, size));
 
         /// <summary>
-        /// Adds a parameter to the collection.
+        ///     Adds a parameter to the collection.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <param name="type">The SQLite type of the parameter.</param>
         /// <param name="size">The maximum size, in bytes, of the parameter.</param>
         /// <param name="sourceColumn">
-        /// The source column used for loading the value of the parameter. Can be null.
+        ///     The source column used for loading the value of the parameter. Can be null.
         /// </param>
         /// <returns>The parameter that was added.</returns>
         public virtual SqliteParameter Add(string parameterName, SqliteType type, int size, string sourceColumn)
             => Add(new SqliteParameter(parameterName, type, size, sourceColumn));
 
         /// <summary>
-        /// Adds multiple parameters to the collection.
+        ///     Adds multiple parameters to the collection.
         /// </summary>
         /// <param name="values">
-        /// An array of parameters to add. They must be <see cref="SqliteParameter" /> objects.
+        ///     An array of parameters to add. They must be <see cref="SqliteParameter" /> objects.
         /// </param>
         public override void AddRange(Array values)
             => Add(values.Cast<SqliteParameter>());
 
         /// <summary>
-        /// Adds multiple parameters to the collection.
+        ///     Adds multiple parameters to the collection.
         /// </summary>
         /// <param name="values">The parameters to add.</param>
         public virtual void AddRange(IEnumerable<SqliteParameter> values)
             => _parameters.AddRange(values);
 
         /// <summary>
-        /// Adds a parameter to the collection.
+        ///     Adds a parameter to the collection.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <param name="value">The value of the parameter. Can be null.</param>
@@ -156,13 +156,13 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Removes all parameters from the collection.
+        ///     Removes all parameters from the collection.
         /// </summary>
         public override void Clear()
             => _parameters.Clear();
 
         /// <summary>
-        /// Gets a value indicating whether the collection contains the specified parameter.
+        ///     Gets a value indicating whether the collection contains the specified parameter.
         /// </summary>
         /// <param name="value">The parameter to look for. Must be a <see cref="SqliteParameter" />.</param>
         /// <returns>true if the collection contains the parameter; otherwise, false.</returns>
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Sqlite
             => Contains((SqliteParameter)value);
 
         /// <summary>
-        /// Gets a value indicating whether the collection contains the specified parameter.
+        ///     Gets a value indicating whether the collection contains the specified parameter.
         /// </summary>
         /// <param name="value">The parameter to look for.</param>
         /// <returns>true if the collection contains the parameter; otherwise, false.</returns>
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Sqlite
             => _parameters.Contains(value);
 
         /// <summary>
-        /// Gets a value indicating whether the collection contains a parameter with the specified name.
+        ///     Gets a value indicating whether the collection contains a parameter with the specified name.
         /// </summary>
         /// <param name="value">The name of the parameter.</param>
         /// <returns>true if the collection contains the parameter; otherwise, false.</returns>
@@ -186,17 +186,17 @@ namespace Microsoft.Data.Sqlite
             => IndexOf(value) != -1;
 
         /// <summary>
-        /// Copies the collection to an array of parameters.
+        ///     Copies the collection to an array of parameters.
         /// </summary>
         /// <param name="array">
-        /// The array into which the parameters are copied. Must be an array of <see cref="SqliteParameter" /> objects.
+        ///     The array into which the parameters are copied. Must be an array of <see cref="SqliteParameter" /> objects.
         /// </param>
         /// <param name="index">The zero-based index to which the parameters are copied.</param>
         public override void CopyTo(Array array, int index)
             => CopyTo((SqliteParameter[])array, index);
 
         /// <summary>
-        /// Copies the collection to an array of parameters.
+        ///     Copies the collection to an array of parameters.
         /// </summary>
         /// <param name="array">The array into which the parameters are copied.</param>
         /// <param name="index">The zero-based index to which the parameters are copied.</param>
@@ -204,14 +204,14 @@ namespace Microsoft.Data.Sqlite
             => _parameters.CopyTo(array, index);
 
         /// <summary>
-        /// Gets an enumerator that iterates through the collection.
+        ///     Gets an enumerator that iterates through the collection.
         /// </summary>
         /// <returns>The enumerator.</returns>
         public override IEnumerator GetEnumerator()
             => _parameters.GetEnumerator();
 
         /// <summary>
-        /// Gets a parameter at the specified index.
+        ///     Gets a parameter at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the parameter.</param>
         /// <returns>The parameter.</returns>
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Sqlite
             => this[index];
 
         /// <summary>
-        /// Gets a parameter with the specified name.
+        ///     Gets a parameter with the specified name.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <returns>The parameter.</returns>
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Sqlite
             => GetParameter(IndexOfChecked(parameterName));
 
         /// <summary>
-        /// Gets the index of the specified parameter.
+        ///     Gets the index of the specified parameter.
         /// </summary>
         /// <param name="value">The parameter. Must be a <see cref="SqliteParameter" />.</param>
         /// <returns>The zero-based index of the parameter.</returns>
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Sqlite
             => IndexOf((SqliteParameter)value);
 
         /// <summary>
-        /// Gets the index of the specified parameter.
+        ///     Gets the index of the specified parameter.
         /// </summary>
         /// <param name="value">The parameter.</param>
         /// <returns>The zero-based index of the parameter.</returns>
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Sqlite
             => _parameters.IndexOf(value);
 
         /// <summary>
-        /// Gets the index of the parameter with the specified name.
+        ///     Gets the index of the parameter with the specified name.
         /// </summary>
         /// <param name="parameterName">The name of the parameter.</param>
         /// <returns>The zero-based index of the parameter or -1 if not found.</returns>
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Inserts a parameter into the collection at the specified index.
+        ///     Inserts a parameter into the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which the parameter should be inserted.</param>
         /// <param name="value">The parameter to insert. Must be a <see cref="SqliteParameter" />.</param>
@@ -269,7 +269,7 @@ namespace Microsoft.Data.Sqlite
             => Insert(index, (SqliteParameter)value);
 
         /// <summary>
-        /// Inserts a parameter into the collection at the specified index.
+        ///     Inserts a parameter into the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which the parameter should be inserted.</param>
         /// <param name="value">The parameter to insert.</param>
@@ -277,35 +277,35 @@ namespace Microsoft.Data.Sqlite
             => _parameters.Insert(index, value);
 
         /// <summary>
-        /// Removes a parameter from the collection.
+        ///     Removes a parameter from the collection.
         /// </summary>
         /// <param name="value">The parameter to remove. Must be a <see cref="SqliteParameter" />.</param>
         public override void Remove(object value)
             => Remove((SqliteParameter)value);
 
         /// <summary>
-        /// Removes a parameter from the collection.
+        ///     Removes a parameter from the collection.
         /// </summary>
         /// <param name="value">The parameter to remove.</param>
         public virtual void Remove(SqliteParameter value)
             => _parameters.Remove(value);
 
         /// <summary>
-        /// Removes a parameter from the collection at the specified index.
+        ///     Removes a parameter from the collection at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the parameter to remove.</param>
         public override void RemoveAt(int index)
             => _parameters.RemoveAt(index);
 
         /// <summary>
-        /// Removes a parameter with the specified name from the collection.
+        ///     Removes a parameter with the specified name from the collection.
         /// </summary>
         /// <param name="parameterName">The name of the parameter to remove.</param>
         public override void RemoveAt(string parameterName)
             => RemoveAt(IndexOfChecked(parameterName));
 
         /// <summary>
-        /// Sets the parameter at the specified index.
+        ///     Sets the parameter at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index of the parameter to set.</param>
         /// <param name="value">The parameter. Must be a <see cref="SqliteParameter" />.</param>
@@ -313,7 +313,7 @@ namespace Microsoft.Data.Sqlite
             => this[index] = (SqliteParameter)value;
 
         /// <summary>
-        /// Sets the parameter with the specified name.
+        ///     Sets the parameter with the specified name.
         /// </summary>
         /// <param name="parameterName">The name of the parameter to set.</param>
         /// <param name="value">The parameter. Must be a <see cref="SqliteParameter" />.</param>

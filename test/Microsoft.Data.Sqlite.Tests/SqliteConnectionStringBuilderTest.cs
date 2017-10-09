@@ -258,11 +258,11 @@ namespace Microsoft.Data.Sqlite
         public void ToString_builds_string()
         {
             var builder = new SqliteConnectionStringBuilder
-            {
-                DataSource = "test.db",
-                Cache = SqliteCacheMode.Shared,
-                Mode = SqliteOpenMode.Memory
-            };
+                {
+                    DataSource = "test.db",
+                    Cache = SqliteCacheMode.Shared,
+                    Mode = SqliteOpenMode.Memory
+                };
 
             Assert.Equal("Data Source=test.db;Mode=Memory;Cache=Shared", builder.ToString());
         }
@@ -271,9 +271,9 @@ namespace Microsoft.Data.Sqlite
         public void ToString_builds_minimal_string()
         {
             var builder = new SqliteConnectionStringBuilder
-            {
-                DataSource = "test.db"
-            };
+                {
+                    DataSource = "test.db"
+                };
 
             Assert.Equal("Data Source=test.db", builder.ToString());
         }

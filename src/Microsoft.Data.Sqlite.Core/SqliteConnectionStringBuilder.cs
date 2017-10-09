@@ -14,8 +14,8 @@ using Microsoft.Data.Sqlite.Properties;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Provides a simple way to create and manage the contents of connection strings used by
-    /// <see cref="SqliteConnection" />.
+    ///     Provides a simple way to create and manage the contents of connection strings used by
+    ///     <see cref="SqliteConnection" />.
     /// </summary>
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
@@ -48,35 +48,35 @@ namespace Microsoft.Data.Sqlite
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(3, StringComparer.OrdinalIgnoreCase)
-            {
-                [DataSourceKeyword] = Keywords.DataSource,
-                [ModeKeyword] = Keywords.Mode,
-                [CacheKeyword] = Keywords.Cache,
+                {
+                    [DataSourceKeyword] = Keywords.DataSource,
+                    [ModeKeyword] = Keywords.Mode,
+                    [CacheKeyword] = Keywords.Cache,
 
-                // aliases
-                [FilenameKeyword] = Keywords.DataSource,
-                [DataSourceNoSpaceKeyword] = Keywords.DataSource
-            };
+                    // aliases
+                    [FilenameKeyword] = Keywords.DataSource,
+                    [DataSourceNoSpaceKeyword] = Keywords.DataSource
+                };
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteConnectionStringBuilder" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteConnectionStringBuilder" /> class.
         /// </summary>
         public SqliteConnectionStringBuilder()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteConnectionStringBuilder" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteConnectionStringBuilder" /> class.
         /// </summary>
         /// <param name="connectionString">
-        /// The initial connection string the builder will represent. Can be null.
+        ///     The initial connection string the builder will represent. Can be null.
         /// </param>
         public SqliteConnectionStringBuilder(string connectionString)
             => ConnectionString = connectionString;
 
         /// <summary>
-        /// Gets or sets the database file.
+        ///     Gets or sets the database file.
         /// </summary>
         /// <value>The database file.</value>
         public virtual string DataSource
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets the connection mode.
+        ///     Gets or sets the connection mode.
         /// </summary>
         /// <value>The connection mode.</value>
         public virtual SqliteOpenMode Mode
@@ -96,14 +96,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets a collection containing the keys used by the connection string.
+        ///     Gets a collection containing the keys used by the connection string.
         /// </summary>
         /// <value>A collection containing the keys used by the connection string.</value>
         public override ICollection Keys
             => new ReadOnlyCollection<string>((string[])_validKeywords);
 
         /// <summary>
-        /// Gets a collection containing the values used by the connection string.
+        ///     Gets a collection containing the values used by the connection string.
         /// </summary>
         /// <value>A collection containing the values used by the connection string.</value>
         public override ICollection Values
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets the caching mode used by the connection.
+        ///     Gets or sets the caching mode used by the connection.
         /// </summary>
         /// <value>The caching mode used by the connection.</value>
         /// <seealso href="http://sqlite.org/sharedcache.html">SQLite Shared-Cache Mode</seealso>
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets the value associated with the specified key.
+        ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
         /// <returns>The value.</returns>
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Clears the contents of the builder.
+        ///     Clears the contents of the builder.
         /// </summary>
         public override void Clear()
         {
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Determines whether the specified key is used by the connection string.
+        ///     Determines whether the specified key is used by the connection string.
         /// </summary>
         /// <param name="keyword">The key to look for.</param>
         /// <returns>true if it is use; otherwise, false.</returns>
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Sqlite
             => _keywords.ContainsKey(keyword);
 
         /// <summary>
-        /// Removes the specified key and its value from the connection string.
+        ///     Removes the specified key and its value from the connection string.
         /// </summary>
         /// <param name="keyword">The key to remove.</param>
         /// <returns>true if the key was used; otherwise, false.</returns>
@@ -241,7 +241,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Determines whether the specified key should be serialized into the connection string.
+        ///     Determines whether the specified key should be serialized into the connection string.
         /// </summary>
         /// <param name="keyword">The key to check.</param>
         /// <returns>true if it should be serialized; otherwise, false.</returns>
@@ -249,7 +249,7 @@ namespace Microsoft.Data.Sqlite
             => _keywords.TryGetValue(keyword, out var index) && base.ShouldSerialize(_validKeywords[(int)index]);
 
         /// <summary>
-        /// Gets the value of the specified key if it is used.
+        ///     Gets the value of the specified key if it is used.
         /// </summary>
         /// <param name="keyword">The key.</param>
         /// <param name="value">The value.</param>

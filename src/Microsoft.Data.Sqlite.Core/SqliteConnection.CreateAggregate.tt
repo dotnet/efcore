@@ -86,7 +86,7 @@ namespace Microsoft.Data.Sqlite
                 }
 #>
         /// <summary>
-        /// Creates or redefines an aggregate SQL function.
+        ///     Creates or redefines an aggregate SQL function.
         /// </summary>
 <# for (var i = 1; i <= arity; i++) { #>
         /// <typeparam name="T<#= i #>">The type of the <#= ordinal[i - 1] #> parameter of the function.</typeparam>
@@ -99,9 +99,12 @@ namespace Microsoft.Data.Sqlite
 <# if (seed) { #>
         /// <param name="seed">The initial accumulator value.</param>
 <# } #>
-        /// <param name="func">An accumulator function to be invoked on each element.  Pass null to delete a function.</param>
+        /// <param name="func">An accumulator function to be invoked on each element. Pass null to delete a function.</param>
 <# if (resultSelector) { #>
-        /// <param name="resultSelector">A function to transform the final accumulator value into the result value.  Pass null to delete a function.</param>
+        /// <param name="resultSelector">
+        ///     A function to transform the final accumulator value into the result value. Pass null to
+        ///     delete a function.
+        /// </param>
 <# } #>
         public virtual void CreateAggregate<<#= typeArguments #>>(string name<#= seedParameter #>, Func<<#= lambdaTypeArguments #>> func<#= resultSelectorParameter #>)
             => CreateAggregateCore(name, <#= arity #>, <#= seedArgument #>, IfNotNull<TAccumulate, TAccumulate>(func, (a, r) => func(<#= lambdaArguments #>)), <#= resultSelectorArgument #>);
@@ -110,7 +113,7 @@ namespace Microsoft.Data.Sqlite
 #>
 
         /// <summary>
-        /// Creates or redefines an aggregate SQL function.
+        ///     Creates or redefines an aggregate SQL function.
         /// </summary>
         /// <typeparam name="TAccumulate">The type of the accumulator value.</typeparam>
 <# if (resultSelector) { #>
@@ -122,7 +125,10 @@ namespace Microsoft.Data.Sqlite
 <# } #>
         /// <param name="func">An accumulator function to be invoked on each element. Pass null to delete a function.</param>
 <# if (resultSelector) { #>
-        /// <param name="resultSelector">A function to transform the final accumulator value into the result value. Pass null to delete a function.</param>
+        /// <param name="resultSelector">
+        ///     A function to transform the final accumulator value into the result value. Pass null to
+        ///     delete a function.
+        /// </param>
 <# } #>
         public virtual void CreateAggregate<TAccumulate<#= resultTypeArgument #>>(string name<#= seedParameter #>, Func<TAccumulate, object[], TAccumulate> func<#= resultSelectorParameter #>)
             => CreateAggregateCore(name, -1, <#= seedArgument #>, IfNotNull<TAccumulate, TAccumulate>(func, (a, r) => func(a, GetValues(r))), <#= resultSelectorArgument #>);

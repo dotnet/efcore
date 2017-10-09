@@ -23,7 +23,8 @@ namespace Microsoft.Data.Sqlite
         protected override void BindBlob(byte[] value)
         {
             var blob = value;
-            if (_size.HasValue && (value.Length > _size.Value))
+            if (_size.HasValue
+                && (value.Length > _size.Value))
             {
                 blob = new byte[_size.Value];
                 Array.Copy(value, blob, _size.Value);
@@ -44,7 +45,8 @@ namespace Microsoft.Data.Sqlite
         protected override void BindText(string value)
         {
             var text = value;
-            if (_size.HasValue && (value.Length > _size.Value))
+            if (_size.HasValue
+                && (value.Length > _size.Value))
             {
                 text = value.Substring(0, _size.Value);
             }

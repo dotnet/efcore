@@ -192,7 +192,7 @@ namespace Microsoft.Data.Sqlite
                         valueParam.Value = i;
                         Assert.Equal(1, command.ExecuteNonQuery());
                     }
-                    
+
                     Assert.Equal(1, command.ExecuteNonQuery());
 
                     command.CommandText = "SELECT Value FROM Data ORDER BY ID";
@@ -730,51 +730,6 @@ namespace Microsoft.Data.Sqlite
             return Task.WhenAll(
                 Task.Run(
                     async () =>
-                    {
-                        using (var connection = new SqliteConnection(connectionString))
-                        {
-                            connection.Open();
-
-                            connection.ExecuteNonQuery(
-                                "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
-
-                            using (connection.ExecuteReader("SELECT * FROM Data;"))
-                            {
-                                selectedSignal.Set();
-
-                                await Task.Delay(1000);
-                            }
-                        }
-                    }),
-                Task.Run(
-                    () =>
-                    {
-                        using (var connection = new SqliteConnection(connectionString))
-                        {
-                            connection.Open();
-
-                            selectedSignal.WaitOne();
-
-                            var command = connection.CreateCommand();
-                            command.CommandText = "DROP TABLE Data;";
-
-                            command.ExecuteNonQuery();
-                        }
-                    }));
-        }
-
-        [Fact]
-        public async Task ExecuteReader_retries_when_busy()
-        {
-            const string connectionString = "Data Source=busy.db";
-
-            var selectedSignal = new AutoResetEvent(initialState: false);
-
-            try
-            {
-                await Task.WhenAll(
-                    Task.Run(
-                        async () =>
                         {
                             using (var connection = new SqliteConnection(connectionString))
                             {
@@ -791,8 +746,8 @@ namespace Microsoft.Data.Sqlite
                                 }
                             }
                         }),
-                    Task.Run(
-                        () =>
+                Task.Run(
+                    () =>
                         {
                             using (var connection = new SqliteConnection(connectionString))
                             {
@@ -806,6 +761,51 @@ namespace Microsoft.Data.Sqlite
                                 command.ExecuteNonQuery();
                             }
                         }));
+        }
+
+        [Fact]
+        public async Task ExecuteReader_retries_when_busy()
+        {
+            const string connectionString = "Data Source=busy.db";
+
+            var selectedSignal = new AutoResetEvent(initialState: false);
+
+            try
+            {
+                await Task.WhenAll(
+                    Task.Run(
+                        async () =>
+                            {
+                                using (var connection = new SqliteConnection(connectionString))
+                                {
+                                    connection.Open();
+
+                                    connection.ExecuteNonQuery(
+                                        "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                                    using (connection.ExecuteReader("SELECT * FROM Data;"))
+                                    {
+                                        selectedSignal.Set();
+
+                                        await Task.Delay(1000);
+                                    }
+                                }
+                            }),
+                    Task.Run(
+                        () =>
+                            {
+                                using (var connection = new SqliteConnection(connectionString))
+                                {
+                                    connection.Open();
+
+                                    selectedSignal.WaitOne();
+
+                                    var command = connection.CreateCommand();
+                                    command.CommandText = "DROP TABLE Data;";
+
+                                    command.ExecuteNonQuery();
+                                }
+                            }));
             }
             finally
             {

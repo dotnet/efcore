@@ -9,12 +9,12 @@ using SQLitePCL;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Represents a SQLite error.
+    ///     Represents a SQLite error.
     /// </summary>
     public class SqliteException : DbException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteException" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteException" /> class.
         /// </summary>
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
@@ -23,19 +23,19 @@ namespace Microsoft.Data.Sqlite
             => SqliteErrorCode = errorCode;
 
         /// <summary>
-        /// Gets the SQLite error code.
+        ///     Gets the SQLite error code.
         /// </summary>
         /// <value>The SQLite error code.</value>
         /// <seealso href="http://sqlite.org/rescode.html">SQLite Result Codes</seealso>
         public virtual int SqliteErrorCode { get; }
 
         /// <summary>
-        /// Throws an exception with a specific SQLite error code value.
+        ///     Throws an exception with a specific SQLite error code value.
         /// </summary>
         /// <param name="rc">The SQLite error code corresponding to the desired exception.</param>
         /// <param name="db">A handle to database connection.</param>
         /// <remarks>
-        /// No exception is thrown for non-error result codes.
+        ///     No exception is thrown for non-error result codes.
         /// </remarks>
         public static void ThrowExceptionForRC(int rc, sqlite3 db)
         {

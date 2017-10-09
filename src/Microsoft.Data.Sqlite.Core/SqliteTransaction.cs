@@ -9,7 +9,7 @@ using Microsoft.Data.Sqlite.Properties;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Represents a transaction made against a SQLite database.
+    ///     Represents a transaction made against a SQLite database.
     /// </summary>
     public class SqliteTransaction : DbTransaction
     {
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Sqlite
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
         {
             if ((isolationLevel == IsolationLevel.ReadUncommitted
-                    && connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
+                 && connection.ConnectionStringBuilder.Cache != SqliteCacheMode.Shared)
                 || isolationLevel == IsolationLevel.ReadCommitted
                 || isolationLevel == IsolationLevel.RepeatableRead)
             {
@@ -49,22 +49,22 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the connection associated with the transaction.
+        ///     Gets the connection associated with the transaction.
         /// </summary>
         /// <value>The connection associated with the transaction.</value>
         public new virtual SqliteConnection Connection
             => _connection;
 
         /// <summary>
-        /// Gets the connection associated with the transaction.
+        ///     Gets the connection associated with the transaction.
         /// </summary>
         /// <value>The connection associated with the transaction.</value>
         protected override DbConnection DbConnection
             => Connection;
 
         /// <summary>
-        /// Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
-        /// closed.
+        ///     Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
+        ///     closed.
         /// </summary>
         /// <value>The isolation level for the transaction.</value>
         public override IsolationLevel IsolationLevel
@@ -73,12 +73,12 @@ namespace Microsoft.Data.Sqlite
                 : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
                     : (_connection.ConnectionStringBuilder.Cache == SqliteCacheMode.Shared
-                            && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
+                       && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
 
         /// <summary>
-        /// Applies the changes made in the transaction.
+        ///     Applies the changes made in the transaction.
         /// </summary>
         public override void Commit()
         {
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Reverts the changes made in the transaction.
+        ///     Reverts the changes made in the transaction.
         /// </summary>
         public override void Rollback()
         {
@@ -105,10 +105,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Releases any resources used by the transaction and rolls it back.
+        ///     Releases any resources used by the transaction and rolls it back.
         /// </summary>
         /// <param name="disposing">
-        /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {

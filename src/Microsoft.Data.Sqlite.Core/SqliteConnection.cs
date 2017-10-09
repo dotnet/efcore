@@ -14,7 +14,7 @@ using SQLitePCL;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Represents a connection to a SQLite database.
+    ///     Represents a connection to a SQLite database.
     /// </summary>
     public partial class SqliteConnection : DbConnection
     {
@@ -30,19 +30,19 @@ namespace Microsoft.Data.Sqlite
             => BundleInitializer.Initialize();
 
         /// <summary>
-        /// Occurs whenever a row is updated, inserted or deleted in a rowid table.
+        ///     Occurs whenever a row is updated, inserted or deleted in a rowid table.
         /// </summary>
         public event EventHandler<UpdateEventArgs> Update;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteConnection" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
         /// </summary>
         public SqliteConnection()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteConnection" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
         /// </summary>
         /// <param name="connectionString">The string used to open the connection.</param>
         /// <seealso cref="SqliteConnectionStringBuilder" />
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Sqlite
             => ConnectionString = connectionString;
 
         /// <summary>
-        /// Gets a handle to underlying database connection.
+        ///     Gets a handle to underlying database connection.
         /// </summary>
         /// <value>A handle to underlying database connection.</value>
         /// <seealso href="http://sqlite.org/c3ref/sqlite3.html">Database Connection Handle</seealso>
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Sqlite
             => _db;
 
         /// <summary>
-        /// Gets or sets a string used to open the connection.
+        ///     Gets or sets a string used to open the connection.
         /// </summary>
         /// <value>A string used to open the connection.</value>
         /// <seealso cref="SqliteConnectionStringBuilder" />
@@ -80,14 +80,14 @@ namespace Microsoft.Data.Sqlite
         internal SqliteConnectionStringBuilder ConnectionStringBuilder { get; set; }
 
         /// <summary>
-        /// Gets the name of the current database. Always 'main'.
+        ///     Gets the name of the current database. Always 'main'.
         /// </summary>
         /// <value>The name of the current database.</value>
         public override string Database
             => MainDatabaseName;
 
         /// <summary>
-        /// Gets the path to the database file. Will be absolute for open connections.
+        ///     Gets the path to the database file. Will be absolute for open connections.
         /// </summary>
         /// <value>The path to the database file.</value>
         public override string DataSource
@@ -105,21 +105,21 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the version of SQLite used by the connection.
+        ///     Gets the version of SQLite used by the connection.
         /// </summary>
         /// <value>The version of SQLite used by the connection.</value>
         public override string ServerVersion
             => raw.sqlite3_libversion();
 
         /// <summary>
-        /// Gets the current state of the connection.
+        ///     Gets the current state of the connection.
         /// </summary>
         /// <value>The current state of the connection.</value>
         public override ConnectionState State
             => _state;
 
         /// <summary>
-        /// Gets or sets the transaction currently being used by the connection, or null if none.
+        ///     Gets or sets the transaction currently being used by the connection, or null if none.
         /// </summary>
         /// <value>The transaction currently being used by the connection.</value>
         protected internal virtual SqliteTransaction Transaction { get; set; }
@@ -135,8 +135,8 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Opens a connection to the database using the value of <see cref="ConnectionString" />. If
-        /// <c>Mode=ReadWriteCreate</c> is used (the default) the file is created, if it doesn't already exist.
+        ///     Opens a connection to the database using the value of <see cref="ConnectionString" />. If
+        ///     <c>Mode=ReadWriteCreate</c> is used (the default) the file is created, if it doesn't already exist.
         /// </summary>
         /// <exception cref="SqliteException">A SQLite error occurs while opening the connection.</exception>
         public override void Open()
@@ -219,12 +219,12 @@ namespace Microsoft.Data.Sqlite
             raw.sqlite3_update_hook(
                 _db,
                 (_, type, database, table, rowid)
-                => OnUpdate(new UpdateEventArgs((UpdateEventType)type, database, table, rowid)),
+                    => OnUpdate(new UpdateEventArgs((UpdateEventType)type, database, table, rowid)),
                 null);
         }
 
         /// <summary>
-        /// Closes the connection to the database. Open transactions are rolled back.
+        ///     Closes the connection to the database. Open transactions are rolled back.
         /// </summary>
         public override void Close()
         {
@@ -252,10 +252,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Releases any resources used by the connection and closes it.
+        ///     Releases any resources used by the connection and closes it.
         /// </summary>
         /// <param name="disposing">
-        /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -268,18 +268,18 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Creates a new command associated with the connection.
+        ///     Creates a new command associated with the connection.
         /// </summary>
         /// <returns>The new command.</returns>
         /// <remarks>
-        /// The command's <seealso cref="SqliteCommand.Transaction" /> property will also be set to the current
-        /// transaction.
+        ///     The command's <seealso cref="SqliteCommand.Transaction" /> property will also be set to the current
+        ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
             => new SqliteCommand { Connection = this, Transaction = Transaction };
 
         /// <summary>
-        /// Creates a new command associated with the connection.
+        ///     Creates a new command associated with the connection.
         /// </summary>
         /// <returns>The new command.</returns>
         protected override DbCommand CreateDbCommand()
@@ -292,7 +292,8 @@ namespace Microsoft.Data.Sqlite
         {
             for (var i = _commands.Count - 1; i >= 0; i--)
             {
-                if (!_commands[i].TryGetTarget(out var item) || item == command)
+                if (!_commands[i].TryGetTarget(out var item)
+                    || item == command)
                 {
                     _commands.RemoveAt(i);
                 }
@@ -300,15 +301,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Create custom collation.
+        ///     Create custom collation.
         /// </summary>
         /// <param name="name">Name of the collation.</param>
         /// <param name="comparison">Method that compares two strings.</param>
         public virtual void CreateCollation(string name, Comparison<string> comparison)
-            => CreateCollation<object>(name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
+            => CreateCollation(name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
 
         /// <summary>
-        /// Create custom collation.
+        ///     Create custom collation.
         /// </summary>
         /// <typeparam name="T">The type of the state object.</typeparam>
         /// <param name="name">Name of the collation.</param>
@@ -326,20 +327,20 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(CreateCollation)));
             }
 
-            delegate_collation collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (delegate_collation)null;
+            var collation = comparison != null ? (v, s1, s2) => comparison((T)v, s1, s2) : (delegate_collation)null;
             var rc = raw.sqlite3_create_collation(_db, name, state, collation);
             SqliteException.ThrowExceptionForRC(rc, _db);
         }
 
         /// <summary>
-        /// Begins a transaction on the connection.
+        ///     Begins a transaction on the connection.
         /// </summary>
         /// <returns>The transaction.</returns>
         public new virtual SqliteTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
 
         /// <summary>
-        /// Begins a transaction on the connection.
+        ///     Begins a transaction on the connection.
         /// </summary>
         /// <param name="isolationLevel">The isolation level of the transaction.</param>
         /// <returns>The transaction.</returns>
@@ -347,7 +348,7 @@ namespace Microsoft.Data.Sqlite
             => BeginTransaction(isolationLevel);
 
         /// <summary>
-        /// Begins a transaction on the connection.
+        ///     Begins a transaction on the connection.
         /// </summary>
         /// <param name="isolationLevel">The isolation level of the transaction.</param>
         /// <returns>The transaction.</returns>
@@ -366,7 +367,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Changes the current database. Not supported.
+        ///     Changes the current database. Not supported.
         /// </summary>
         /// <param name="databaseName">The name of the database to use.</param>
         /// <exception cref="NotSupportedException">Always.</exception>
@@ -374,7 +375,7 @@ namespace Microsoft.Data.Sqlite
             => throw new NotSupportedException();
 
         /// <summary>
-        /// Enables extension loading on the connection.
+        ///     Enables extension loading on the connection.
         /// </summary>
         /// <param name="enable">true to enable; false to disable</param>
         /// <seealso href="http://sqlite.org/loadext.html">Run-Time Loadable Extensions</seealso>
@@ -391,7 +392,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Raises the Microsoft.Data.Sqlite.SqliteConnection.Update event.
+        ///     Raises the Microsoft.Data.Sqlite.SqliteConnection.Update event.
         /// </summary>
         /// <param name="e">A Microsoft.Data.Sqlite.UpdateEventArgs that contains the event data.</param>
         protected virtual void OnUpdate(UpdateEventArgs e)
@@ -417,28 +418,28 @@ namespace Microsoft.Data.Sqlite
             if (function != null)
             {
                 func = (ctx, user_data, args) =>
-                {
-                    // TODO: Avoid allocation when niladic
-                    var values = new SqliteParameterReader(args);
-
-                    try
                     {
-                        // TODO: Avoid closure by passing function via user_data
-                        var result = function((TState)user_data, values);
+                        // TODO: Avoid allocation when niladic
+                        var values = new SqliteParameterReader(args);
 
-                        new SqliteResultBinder(ctx, result).Bind();
-                    }
-                    catch (Exception ex)
-                    {
-                        raw.sqlite3_result_error(ctx, ex.Message);
-
-                        if (ex is SqliteException sqlEx)
+                        try
                         {
-                            // NB: This must be called after sqlite3_result_error()
-                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                            // TODO: Avoid closure by passing function via user_data
+                            var result = function((TState)user_data, values);
+
+                            new SqliteResultBinder(ctx, result).Bind();
                         }
-                    }
-                };
+                        catch (Exception ex)
+                        {
+                            raw.sqlite3_result_error(ctx, ex.Message);
+
+                            if (ex is SqliteException sqlEx)
+                            {
+                                // NB: This must be called after sqlite3_result_error()
+                                raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                            }
+                        }
+                    };
             }
 
             var rc = raw.sqlite3_create_function(_db, name, arity, state, func);
@@ -466,62 +467,62 @@ namespace Microsoft.Data.Sqlite
             if (func != null)
             {
                 func_step = (ctx, user_data, args) =>
-                {
-                    var context = (AggregateContext<TAccumulate>)user_data;
-                    if (context.Exception != null)
                     {
-                        return;
-                    }
+                        var context = (AggregateContext<TAccumulate>)user_data;
+                        if (context.Exception != null)
+                        {
+                            return;
+                        }
 
-                    // TODO: Avoid allocation when niladic
-                    var reader = new SqliteParameterReader(args);
+                        // TODO: Avoid allocation when niladic
+                        var reader = new SqliteParameterReader(args);
 
-                    try
-                    {
-                        // TODO: Avoid closure by passing func via user_data
-                        // NB: No need to set ctx.state since we just mutate the instance
-                        context.Accumulate = func(context.Accumulate, reader);
-                    }
-                    catch (Exception ex)
-                    {
-                        context.Exception = ex;
-                    }
-                };
+                        try
+                        {
+                            // TODO: Avoid closure by passing func via user_data
+                            // NB: No need to set ctx.state since we just mutate the instance
+                            context.Accumulate = func(context.Accumulate, reader);
+                        }
+                        catch (Exception ex)
+                        {
+                            context.Exception = ex;
+                        }
+                    };
             }
 
             delegate_function_aggregate_final func_final = null;
             if (resultSelector != null)
             {
                 func_final = (ctx, user_data) =>
-                {
-                    var context = (AggregateContext<TAccumulate>)user_data;
-
-                    if (context.Exception == null)
                     {
-                        try
-                        {
-                            // TODO: Avoid closure by passing resultSelector via user_data
-                            var result = resultSelector(context.Accumulate);
+                        var context = (AggregateContext<TAccumulate>)user_data;
 
-                            new SqliteResultBinder(ctx, result).Bind();
-                        }
-                        catch (Exception ex)
+                        if (context.Exception == null)
                         {
-                            context.Exception = ex;
+                            try
+                            {
+                                // TODO: Avoid closure by passing resultSelector via user_data
+                                var result = resultSelector(context.Accumulate);
+
+                                new SqliteResultBinder(ctx, result).Bind();
+                            }
+                            catch (Exception ex)
+                            {
+                                context.Exception = ex;
+                            }
                         }
-                    }
 
-                    if (context.Exception != null)
-                    {
-                        raw.sqlite3_result_error(ctx, context.Exception.Message);
-
-                        if (context.Exception is SqliteException sqlEx)
+                        if (context.Exception != null)
                         {
-                            // NB: This must be called after sqlite3_result_error()
-                            raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                            raw.sqlite3_result_error(ctx, context.Exception.Message);
+
+                            if (context.Exception is SqliteException sqlEx)
+                            {
+                                // NB: This must be called after sqlite3_result_error()
+                                raw.sqlite3_result_error_code(ctx, sqlEx.SqliteErrorCode);
+                            }
                         }
-                    }
-                };
+                    };
             }
 
             var rc = raw.sqlite3_create_function(

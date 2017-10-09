@@ -40,7 +40,11 @@ namespace Microsoft.Data.Sqlite
 
         [Fact]
         public void FieldCount_throws_when_closed()
-            => X_throws_when_closed(r => { var x = r.FieldCount; }, "FieldCount");
+            => X_throws_when_closed(
+                r =>
+                    {
+                        var x = r.FieldCount;
+                    }, "FieldCount");
 
         [Fact]
         public void GetBoolean_works()
@@ -86,7 +90,7 @@ namespace Microsoft.Data.Sqlite
             => GetX_works(
                 "SELECT 'A';",
                 r => r.GetChar(0),
-                'A');        
+                'A');
 
         [Fact]
         public void GetChars_not_supported()
@@ -590,7 +594,6 @@ namespace Microsoft.Data.Sqlite
                 "SELECT '测试测试测试';",
                 r => r.GetValue(0) as string,
                 "测试测试测试");
-
 
         [Fact]
         public void GetString_works()

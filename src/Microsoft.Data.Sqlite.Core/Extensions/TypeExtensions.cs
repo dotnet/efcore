@@ -9,7 +9,7 @@ namespace System
     {
         public static bool IsNullable(this Type type)
             => !type.IsValueType
-                || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+               || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
 
         public static Type UnwrapEnumType(this Type type)
             => type.GetTypeInfo().IsEnum ? Enum.GetUnderlyingType(type) : type;

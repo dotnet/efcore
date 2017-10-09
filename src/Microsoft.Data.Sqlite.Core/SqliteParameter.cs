@@ -12,7 +12,7 @@ namespace Microsoft.Data.Sqlite
     // TODO: Truncate to specified size
     // TODO: Infer type and size from value
     /// <summary>
-    /// Represents a parameter and its value in a <see cref="SqliteCommand" />.
+    ///     Represents a parameter and its value in a <see cref="SqliteCommand" />.
     /// </summary>
     /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
     /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
@@ -23,14 +23,14 @@ namespace Microsoft.Data.Sqlite
         private int? _size;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
         /// </summary>
         public SqliteParameter()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="value">The value of the parameter. Can be null.</param>
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Sqlite
             => Size = size;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SqliteParameter" /> class.
+        ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
         /// </summary>
         /// <param name="name">The name of the parameter.</param>
         /// <param name="type">The type of the parameter.</param>
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Sqlite
             => SourceColumn = sourceColumn;
 
         /// <summary>
-        /// Gets or sets the type of the parameter.
+        ///     Gets or sets the type of the parameter.
         /// </summary>
         /// <value>The type of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Sqlite
         public override DbType DbType { get; set; } = DbType.String;
 
         /// <summary>
-        /// Gets or sets the SQLite type of the parameter.
+        ///     Gets or sets the SQLite type of the parameter.
         /// </summary>
         /// <value>The SQLite type of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Sqlite
         public virtual SqliteType SqliteType { get; set; } = SqliteType.Text;
 
         /// <summary>
-        /// Gets or sets the direction of the parameter. Only <see cref="ParameterDirection.Input" /> is supported.
+        ///     Gets or sets the direction of the parameter. Only <see cref="ParameterDirection.Input" /> is supported.
         /// </summary>
         /// <value>The direction of the parameter.</value>
         public override ParameterDirection Direction
@@ -115,13 +115,13 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the parameter is nullable.
+        ///     Gets or sets a value indicating whether the parameter is nullable.
         /// </summary>
         /// <value>A value indicating whether the parameter is nullable.</value>
         public override bool IsNullable { get; set; }
 
         /// <summary>
-        /// Gets or sets the name of the parameter.
+        ///     Gets or sets the name of the parameter.
         /// </summary>
         /// <value>The name of the parameter.</value>
         public override string ParameterName
@@ -139,32 +139,30 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets or sets the maximum size, in bytes, of the parameter.
+        ///     Gets or sets the maximum size, in bytes, of the parameter.
         /// </summary>
         /// <value>The maximum size, in bytes, of the parameter.</value>
         public override int Size
         {
             get => _size ?? (
-                _value is string stringValue ? stringValue.Length :
-                _value is byte[] byteArray ? byteArray.Length :
-                0);
+                       _value is string stringValue ? stringValue.Length : _value is byte[] byteArray ? byteArray.Length : 0);
             set => _size = value;
         }
 
         /// <summary>
-        /// Gets or sets the source column used for loading the value.
+        ///     Gets or sets the source column used for loading the value.
         /// </summary>
         /// <value>The source column used for loading the value.</value>
         public override string SourceColumn { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the source column is nullable.
+        ///     Gets or sets a value indicating whether the source column is nullable.
         /// </summary>
         /// <value>A value indicating whether the source column is nullable.</value>
         public override bool SourceColumnNullMapping { get; set; }
 
         /// <summary>
-        /// Gets or sets the value of the parameter.
+        ///     Gets or sets the value of the parameter.
         /// </summary>
         /// <value>The value of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
@@ -172,20 +170,17 @@ namespace Microsoft.Data.Sqlite
         public override object Value
         {
             get => _value;
-            set
-            {
-                _value = value;
-            }
+            set { _value = value; }
         }
 
         /// <summary>
-        /// Resets the <see cref="DbType" /> property to its original value.
+        ///     Resets the <see cref="DbType" /> property to its original value.
         /// </summary>
         public override void ResetDbType()
             => ResetSqliteType();
 
         /// <summary>
-        /// Resets the <see cref="SqliteType" /> property to its original value.
+        ///     Resets the <see cref="SqliteType" /> property to its original value.
         /// </summary>
         public virtual void ResetSqliteType()
         {
@@ -201,8 +196,8 @@ namespace Microsoft.Data.Sqlite
             }
 
             var index = raw.sqlite3_bind_parameter_index(stmt, _parameterName);
-            if (index == 0 &&
-                (index = FindPrefixedParameter(stmt)) == 0)
+            if (index == 0
+                && (index = FindPrefixedParameter(stmt)) == 0)
             {
                 return false;
             }

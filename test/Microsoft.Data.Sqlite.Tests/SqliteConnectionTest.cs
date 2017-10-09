@@ -372,14 +372,14 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
                 var list = new List<string>();
-                connection.CreateCollation<List<string>>(
+                connection.CreateCollation(
                     "MY_NOCASE",
                     list,
                     (l, s1, s2) =>
-                    {
-                        l.Add("Invoked");
-                        return string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase);
-                    });
+                        {
+                            l.Add("Invoked");
+                            return string.Compare(s1, s2, StringComparison.OrdinalIgnoreCase);
+                        });
 
                 Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT 'Νικοσ' = 'ΝΙΚΟΣ' COLLATE MY_NOCASE;"));
                 var item = Assert.Single(list);
@@ -431,7 +431,7 @@ namespace Microsoft.Data.Sqlite
                 connection.Open();
                 connection.CreateFunction(
                     "test",
-                    (object[] args) => string.Join(", ", args.Select(a => a?.GetType().FullName ?? "(null)")));
+                    args => string.Join(", ", args.Select(a => a?.GetType().FullName ?? "(null)")));
 
                 var result = connection.ExecuteScalar<string>("SELECT test(1, 3.1, 'A', X'7E57', NULL);");
 
@@ -636,7 +636,7 @@ namespace Microsoft.Data.Sqlite
                     "test",
                     "A",
                     (string a, string x, int y) => a + x + y,
-                    (string a) => a + "Z");
+                    a => a + "Z");
 
                 var result = connection.ExecuteScalar<string>("SELECT test(dummy1, dummy2) FROM dual2;");
 
@@ -856,10 +856,10 @@ namespace Microsoft.Data.Sqlite
             {
                 var list = new List<UpdateEventArgs>();
                 connection.Update += (sender, e) =>
-                {
-                    Assert.Equal(connection, sender);
-                    list.Add(e);
-                };
+                    {
+                        Assert.Equal(connection, sender);
+                        list.Add(e);
+                    };
 
                 connection.Open();
                 connection.ExecuteNonQuery(

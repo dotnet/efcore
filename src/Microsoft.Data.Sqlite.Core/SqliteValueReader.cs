@@ -131,7 +131,8 @@ namespace Microsoft.Data.Sqlite
 
         public virtual T GetFieldValue<T>(int ordinal)
         {
-            if (IsDBNull(ordinal) && typeof(T).IsNullable())
+            if (IsDBNull(ordinal)
+                && typeof(T).IsNullable())
             {
                 return GetNull<T>();
             }

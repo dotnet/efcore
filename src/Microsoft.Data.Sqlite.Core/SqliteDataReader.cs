@@ -13,7 +13,7 @@ using SQLitePCL;
 namespace Microsoft.Data.Sqlite
 {
     /// <summary>
-    /// Provides methods for reading the result of a command executed against a SQLite database.
+    ///     Provides methods for reading the result of a command executed against a SQLite database.
     /// </summary>
     public class SqliteDataReader : DbDataReader
     {
@@ -46,14 +46,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the depth of nesting for the current row. Always zero.
+        ///     Gets the depth of nesting for the current row. Always zero.
         /// </summary>
         /// <value>The depth of nesting for the current row.</value>
         public override int Depth
             => 0;
 
         /// <summary>
-        /// Gets the number of columns in the current row.
+        ///     Gets the number of columns in the current row.
         /// </summary>
         /// <value>The number of columns in the current row.</value>
         public override int FieldCount
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Sqlite
                 : _record.FieldCount;
 
         /// <summary>
-        /// Gets a handle to underlying prepared statement.
+        ///     Gets a handle to underlying prepared statement.
         /// </summary>
         /// <value>A handle to underlying prepared statement.</value>
         /// <seealso href="http://sqlite.org/c3ref/stmt.html">Prepared Statement Object</seealso>
@@ -70,27 +70,27 @@ namespace Microsoft.Data.Sqlite
             => _stmt;
 
         /// <summary>
-        /// Gets a value indicating whether the data reader contains any rows.
+        ///     Gets a value indicating whether the data reader contains any rows.
         /// </summary>
         /// <value>A value indicating whether the data reader contains any rows.</value>
         public override bool HasRows
             => _hasRows;
 
         /// <summary>
-        /// Gets a value indicating whether the data reader is closed.
+        ///     Gets a value indicating whether the data reader is closed.
         /// </summary>
         /// <value>A value indicating whether the data reader is closed.</value>
         public override bool IsClosed
             => _closed;
 
         /// <summary>
-        /// Gets the number of rows inserted, updated, or deleted. -1 for SELECT statements.
+        ///     Gets the number of rows inserted, updated, or deleted. -1 for SELECT statements.
         /// </summary>
         /// <value>The number of rows inserted, updated, or deleted.</value>
         public override int RecordsAffected { get; }
 
         /// <summary>
-        /// Gets the value of the specified column.
+        ///     Gets the value of the specified column.
         /// </summary>
         /// <param name="name">The name of the column. The value is case-sensitive.</param>
         /// <returns>The value.</returns>
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Sqlite
             => _record[name];
 
         /// <summary>
-        /// Gets the value of the specified column.
+        ///     Gets the value of the specified column.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value.</returns>
@@ -106,14 +106,14 @@ namespace Microsoft.Data.Sqlite
             => _record[ordinal];
 
         /// <summary>
-        /// Gets an enumerator that can be used to iterate through the rows in the data reader.
+        ///     Gets an enumerator that can be used to iterate through the rows in the data reader.
         /// </summary>
         /// <returns>The enumerator.</returns>
         public override IEnumerator GetEnumerator()
             => new DbEnumerator(this, closeReader: false);
 
         /// <summary>
-        /// Advances to the next row in the result set.
+        ///     Advances to the next row in the result set.
         /// </summary>
         /// <returns>true if there are more rows; otherwise, false.</returns>
         public override bool Read()
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Advances to the next result set for batched statements.
+        ///     Advances to the next result set for batched statements.
         /// </summary>
         /// <returns>true if there are more result sets; otherwise, false.</returns>
         public override bool NextResult()
@@ -160,16 +160,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Closes the data reader.
+        ///     Closes the data reader.
         /// </summary>
         public override void Close()
             => Dispose(true);
 
         /// <summary>
-        /// Releases any resources used by the data reader and closes it.
+        ///     Releases any resources used by the data reader and closes it.
         /// </summary>
         /// <param name="disposing">
-        /// true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the name of the specified column.
+        ///     Gets the name of the specified column.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The name of the column.</returns>
@@ -216,7 +216,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the ordinal of the specified column.
+        ///     Gets the ordinal of the specified column.
         /// </summary>
         /// <param name="name">The name of the column.</param>
         /// <returns>The zero-based column ordinal.</returns>
@@ -224,8 +224,8 @@ namespace Microsoft.Data.Sqlite
             => _record.GetOrdinal(name);
 
         /// <summary>
-        /// Gets the declared data type name of the specified column. The storage class is returned for computed
-        /// columns.
+        ///     Gets the declared data type name of the specified column. The storage class is returned for computed
+        ///     columns.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The data type name of the column.</returns>
@@ -242,7 +242,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the data type of the specified column.
+        ///     Gets the data type of the specified column.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The data type of the column.</returns>
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets a value indicating whether the specified column is <see cref="DBNull" />.
+        ///     Gets a value indicating whether the specified column is <see cref="DBNull" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>true if the specified column is <see cref="DBNull" />; otherwise, false.</returns>
@@ -269,7 +269,7 @@ namespace Microsoft.Data.Sqlite
                     : _record.IsDBNull(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="bool" />.
+        ///     Gets the value of the specified column as a <see cref="bool" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetBoolean(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="byte" />.
+        ///     Gets the value of the specified column as a <see cref="byte" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetByte(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="char" />.
+        ///     Gets the value of the specified column as a <see cref="char" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetChar(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="DateTime" />.
+        ///     Gets the value of the specified column as a <see cref="DateTime" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetDateTime(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="DateTimeOffset" />.
+        ///     Gets the value of the specified column as a <see cref="DateTimeOffset" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -309,7 +309,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetDateTimeOffset(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="TimeSpan" />.
+        ///     Gets the value of the specified column as a <see cref="TimeSpan" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetTimeSpan(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="decimal" />.
+        ///     Gets the value of the specified column as a <see cref="decimal" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetDecimal(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="double" />.
+        ///     Gets the value of the specified column as a <see cref="double" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetDouble(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="float" />.
+        ///     Gets the value of the specified column as a <see cref="float" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -341,7 +341,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetFloat(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="Guid" />.
+        ///     Gets the value of the specified column as a <see cref="Guid" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -349,7 +349,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetGuid(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="short" />.
+        ///     Gets the value of the specified column as a <see cref="short" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -357,7 +357,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetInt16(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="int" />.
+        ///     Gets the value of the specified column as a <see cref="int" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -365,7 +365,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetInt32(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="long" />.
+        ///     Gets the value of the specified column as a <see cref="long" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -373,7 +373,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetInt64(ordinal);
 
         /// <summary>
-        /// Gets the value of the specified column as a <see cref="string" />.
+        ///     Gets the value of the specified column as a <see cref="string" />.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetString(ordinal);
 
         /// <summary>
-        /// Reads a stream of bytes from the specified column. Not supported.
+        ///     Reads a stream of bytes from the specified column. Not supported.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <param name="dataOffset">The index from which to begin the read operation.</param>
@@ -393,7 +393,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetBytes(ordinal, dataOffset, buffer, bufferOffset, length);
 
         /// <summary>
-        /// Reads a stream of characters from the specified column. Not supported.
+        ///     Reads a stream of characters from the specified column. Not supported.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <param name="dataOffset">The index from which to begin the read operation.</param>
@@ -405,14 +405,15 @@ namespace Microsoft.Data.Sqlite
             => _record.GetChars(ordinal, dataOffset, buffer, bufferOffset, length);
 
         /// <summary>
-        /// Gets the value of the specified column.
+        ///     Gets the value of the specified column.
         /// </summary>
         /// <typeparam name="T">The type of the value.</typeparam>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
         public override T GetFieldValue<T>(int ordinal)
         {
-            if (typeof(T) == typeof(DBNull) && (!_stepped || _done))
+            if (typeof(T) == typeof(DBNull)
+                && (!_stepped || _done))
             {
                 throw new InvalidOperationException(Resources.NoData);
             }
@@ -421,7 +422,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the value of the specified column.
+        ///     Gets the value of the specified column.
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The value of the column.</returns>
@@ -440,7 +441,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// Gets the column values of the current row.
+        ///     Gets the column values of the current row.
         /// </summary>
         /// <param name="values">An array into which the values are copied.</param>
         /// <returns>The number of values copied into the array.</returns>
@@ -448,7 +449,7 @@ namespace Microsoft.Data.Sqlite
             => _record.GetValues(values);
 
         /// <summary>
-        /// Returns a System.Data.DataTable that describes the column metadata of the System.Data.Common.DbDataReader.
+        ///     Returns a System.Data.DataTable that describes the column metadata of the System.Data.Common.DbDataReader.
         /// </summary>
         /// <returns>A System.Data.DataTable that describes the column metadata.</returns>
         public override DataTable GetSchemaTable()
@@ -524,7 +525,8 @@ namespace Microsoft.Data.Sqlite
                 schemaRow[IsExpression] = columnName == null;
                 schemaRow[IsLong] = DBNull.Value;
 
-                if (!string.IsNullOrEmpty(tableName) && !string.IsNullOrEmpty(columnName))
+                if (!string.IsNullOrEmpty(tableName)
+                    && !string.IsNullOrEmpty(columnName))
                 {
                     using (var command = _command.Connection.CreateCommand())
                     {
