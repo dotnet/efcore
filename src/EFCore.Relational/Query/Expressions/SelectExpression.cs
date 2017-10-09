@@ -624,10 +624,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             {
                 return _projection.Select(
                     e =>
-                        e.NodeType == ExpressionType.Convert
-                        && e.Type == typeof(object)
+                        e.FindProperty(e.Type)?.FindRelationalMapping()?.Converter?.StoreType
+                        ?? (e.NodeType == ExpressionType.Convert
+                            && e.Type == typeof(object)
                             ? ((UnaryExpression)e).Operand.Type
-                            : e.Type);
+                            : e.Type));
             }
 
             return _tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes());

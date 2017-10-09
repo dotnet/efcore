@@ -1840,8 +1840,12 @@ BuiltInDataTypes.TestDouble ---> [FLOAT] [MaxLength = 22] [Precision = 49 [Preci
 BuiltInDataTypes.TestInt16 ---> [NUMBER] [MaxLength = 22] [Precision = 6 [Precision = 6 Scale = 0]
 BuiltInDataTypes.TestInt32 ---> [NUMBER] [MaxLength = 22] [Precision = 10 [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestInt64 ---> [NUMBER] [MaxLength = 22] [Precision = 19 [Precision = 19 Scale = 0]
+BuiltInDataTypes.TestSignedByte ---> [NUMBER] [MaxLength = 22] [Precision = 3 [Precision = 3 Scale = 0]
 BuiltInDataTypes.TestSingle ---> [FLOAT] [MaxLength = 22] [Precision = 63 [Precision = 63]
 BuiltInDataTypes.TestTimeSpan ---> [INTERVAL DAY(2) TO SECOND(6)] [MaxLength = 11] [Precision = 2 [Precision = 2 Scale = 6]
+BuiltInDataTypes.TestUnsignedInt16 ---> [NUMBER] [MaxLength = 22] [Precision = 6 [Precision = 6 Scale = 0]
+BuiltInDataTypes.TestUnsignedInt32 ---> [NUMBER] [MaxLength = 22] [Precision = 10 [Precision = 10 Scale = 0]
+BuiltInDataTypes.TestUnsignedInt64 ---> [NUMBER] [MaxLength = 22] [Precision = 20 [Precision = 20 Scale = 0]
 BuiltInNullableDataTypes.Enum16 ---> [NUMBER] [MaxLength = 22] [Precision = 6 [Precision = 6 Scale = 0]
 BuiltInNullableDataTypes.Enum32 ---> [NUMBER] [MaxLength = 22] [Precision = 10 [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.Enum64 ---> [NUMBER] [MaxLength = 22] [Precision = 19 [Precision = 19 Scale = 0]
@@ -1858,8 +1862,12 @@ BuiltInNullableDataTypes.TestNullableDouble ---> [FLOAT] [MaxLength = 22] [Preci
 BuiltInNullableDataTypes.TestNullableInt16 ---> [NUMBER] [MaxLength = 22] [Precision = 6 [Precision = 6 Scale = 0]
 BuiltInNullableDataTypes.TestNullableInt32 ---> [NUMBER] [MaxLength = 22] [Precision = 10 [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.TestNullableInt64 ---> [NUMBER] [MaxLength = 22] [Precision = 19 [Precision = 19 Scale = 0]
+BuiltInNullableDataTypes.TestNullableSignedByte ---> [NUMBER] [MaxLength = 22] [Precision = 3 [Precision = 3 Scale = 0]
 BuiltInNullableDataTypes.TestNullableSingle ---> [FLOAT] [MaxLength = 22] [Precision = 63 [Precision = 63]
 BuiltInNullableDataTypes.TestNullableTimeSpan ---> [INTERVAL DAY(2) TO SECOND(6)] [MaxLength = 11] [Precision = 2 [Precision = 2 Scale = 6]
+BuiltInNullableDataTypes.TestNullableUnsignedInt16 ---> [NUMBER] [MaxLength = 22] [Precision = 6 [Precision = 6 Scale = 0]
+BuiltInNullableDataTypes.TestNullableUnsignedInt32 ---> [NUMBER] [MaxLength = 22] [Precision = 10 [Precision = 10 Scale = 0]
+BuiltInNullableDataTypes.TestNullableUnsignedInt64 ---> [NUMBER] [MaxLength = 22] [Precision = 20 [Precision = 20 Scale = 0]
 BuiltInNullableDataTypes.TestString ---> [NVARCHAR2] [MaxLength = 4000]
 MappedDataTypes.Bigint ---> [NUMBER] [MaxLength = 22] [Precision = 19 [Precision = 19 Scale = 0]
 MappedDataTypes.Bit ---> [NUMBER] [MaxLength = 22] [Precision = 1 [Precision = 1 Scale = 0]
@@ -2077,23 +2085,12 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
                         {
-                            b.Ignore(dt => dt.TestUnsignedInt16);
-                            b.Ignore(dt => dt.TestUnsignedInt32);
-                            b.Ignore(dt => dt.TestUnsignedInt64);
                             b.Ignore(dt => dt.TestCharacter);
-                            b.Ignore(dt => dt.TestSignedByte);
                             b.Property(dt => dt.TestDecimal).HasColumnType("DECIMAL(18,2)");
                         });
 
-                modelBuilder.Entity<BuiltInNullableDataTypes>(
-                    b =>
-                        {
-                            b.Ignore(dt => dt.TestNullableUnsignedInt16);
-                            b.Ignore(dt => dt.TestNullableUnsignedInt32);
-                            b.Ignore(dt => dt.TestNullableUnsignedInt64);
-                            b.Ignore(dt => dt.TestNullableCharacter);
-                            b.Ignore(dt => dt.TestNullableSignedByte);
-                        });
+                modelBuilder.Entity<BuiltInNullableDataTypes>()
+                    .Ignore(dt => dt.TestNullableCharacter);
 
                 modelBuilder.Entity<MappedDataTypes>(
                     b =>
@@ -2106,8 +2103,7 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
                     b =>
                         {
                             b.HasKey(e => e.Int);
-                            b.Property(e => e.Int)
-                                .ValueGeneratedNever();
+                            b.Property(e => e.Int).ValueGeneratedNever();
                         });
 
                 modelBuilder.Entity<MappedSizedDataTypes>()

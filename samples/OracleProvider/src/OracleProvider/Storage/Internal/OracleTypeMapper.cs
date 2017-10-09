@@ -48,6 +48,26 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("NUMBER(3)", DbType.Byte);
 
+        private readonly UIntTypeMapping _uint = new UIntTypeMapping(
+            "NUMBER(10)",
+            new ValueConverter<uint, long>(v => v, v => (uint)v),
+            DbType.Int64);
+
+        private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
+            "NUMBER(20)",
+            new ValueConverter<ulong, decimal>(v => v, v => (ulong)v),
+            DbType.Decimal);
+
+        private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
+            "NUMBER(6)",
+            new ValueConverter<ushort, int>(v => v, v => (ushort)v),
+            DbType.Int32);
+
+        private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
+            "NUMBER(3)",
+            new ValueConverter<sbyte, short>(v => v, v => (sbyte)v),
+            DbType.Int16);
+
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("NUMBER(1)");
 
         private readonly OracleStringTypeMapping _fixedLengthUnicodeString
@@ -123,14 +143,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), _int },
+                    { typeof(uint), _uint },
                     { typeof(long), _long },
+                    { typeof(ulong), _ulong },
                     { typeof(DateTime), _datetime },
                     { typeof(Guid), _uniqueidentifier },
                     { typeof(bool), _bool },
                     { typeof(byte), _byte },
+                    { typeof(sbyte), _sbyte },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
+                    { typeof(ushort), _ushort },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }

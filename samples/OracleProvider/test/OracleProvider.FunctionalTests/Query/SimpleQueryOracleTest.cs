@@ -142,7 +142,7 @@ FROM (
 LEFT JOIN (
     SELECT ""c"".""EmployeeID"", ""c"".""City"", ""c"".""Country"", ""c"".""FirstName"", ""c"".""ReportsTo"", ""c"".""Title""
     FROM ""Employees"" ""c""
-    WHERE ""c"".""EmployeeID"" = -1
+    WHERE ""c"".""EmployeeID"" = 4294967295
 ) ""t"" ON 1 = 1");
         }
 
@@ -169,7 +169,7 @@ LEFT JOIN (
             AssertSql(
                 @"SELECT ""c"".""EmployeeID"", ""c"".""City"", ""c"".""Country"", ""c"".""FirstName"", ""c"".""ReportsTo"", ""c"".""Title""
 FROM ""Employees"" ""c""
-WHERE ""c"".""EmployeeID"" = -1");
+WHERE ""c"".""EmployeeID"" = 4294967295");
         }
 
         public override void Where_subquery_anon()
@@ -1457,7 +1457,7 @@ END)) = 1");
             AssertSql(
                 @"SELECT ""o"".""CustomerID""
 FROM ""Orders"" ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL AND (INSTR(CAST(""o"".""EmployeeID"" AS VARCHAR2(11)), N'10') > 0)");
+WHERE ""o"".""OrderDate"" IS NOT NULL AND (INSTR(CAST(""o"".""EmployeeID"" AS VARCHAR2(10)), N'10') > 0)");
         }
 
         public override void Select_expression_long_to_string()

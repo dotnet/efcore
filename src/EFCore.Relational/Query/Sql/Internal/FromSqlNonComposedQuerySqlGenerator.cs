@@ -93,7 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                             throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
                         }
 
-                        types[i] = SelectExpression.Projection[i].Type;
+                        types[i] = columnExpression.Property?.FindRelationalMapping()?.Converter?.StoreType 
+                            ?? columnExpression.Type;
+
                         indexMap[i] = readerColumn.Ordinal;
                     }
                 }
