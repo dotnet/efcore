@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
 
             return relationalValueBufferFactoryFactory
-                .Create(SelectExpression.GetProjectionTypes().ToArray(), indexMap: null);
+                .Create(SelectExpression.GetMappedProjectionTypes().ToArray());
         }
 
         /// <summary>

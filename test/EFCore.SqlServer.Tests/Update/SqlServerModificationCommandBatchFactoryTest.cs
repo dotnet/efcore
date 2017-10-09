@@ -18,21 +18,23 @@ namespace Microsoft.EntityFrameworkCore.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(1));
 
+            var typeMapper = new SqlServerTypeMapper(
+                new RelationalTypeMapperDependencies());
+
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new SqlServerTypeMapper(
-                        new RelationalTypeMapperDependencies())),
+                    typeMapper),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new SqlServerTypeMapper(
-                            new RelationalTypeMapperDependencies()))),
+                        typeMapper)),
                 new UntypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies()),
+                    new RelationalValueBufferFactoryDependencies(
+                        typeMapper)),
                 optionsBuilder.Options);
 
             var batch = factory.Create();
@@ -47,21 +49,23 @@ namespace Microsoft.EntityFrameworkCore.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
+            var typeMapper = new SqlServerTypeMapper(
+                new RelationalTypeMapperDependencies());
+
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new SqlServerTypeMapper(
-                        new RelationalTypeMapperDependencies())),
+                    typeMapper),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new SqlServerTypeMapper(
-                            new RelationalTypeMapperDependencies()))),
+                        typeMapper)),
                 new UntypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies()),
+                    new RelationalValueBufferFactoryDependencies(
+                        typeMapper)),
                 optionsBuilder.Options);
 
             var batch = factory.Create();

@@ -545,7 +545,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                     sqlGenerator ?? new FakeSqlGenerator(
                         RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>()),
-                    new TypedRelationalValueBufferFactoryFactory(new RelationalValueBufferFactoryDependencies()))
+                    new TypedRelationalValueBufferFactoryFactory(
+                        new RelationalValueBufferFactoryDependencies(
+                            new FakeRelationalTypeMapper(
+                                new RelationalTypeMapperDependencies()))))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;

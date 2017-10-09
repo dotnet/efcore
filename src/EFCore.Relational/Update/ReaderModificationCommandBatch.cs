@@ -333,8 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)
-                        .Select(c => c.Property.ClrType)
-                        .ToArray(),
-                    indexMap: null);
+                        .Select(c => new TypeMaterializationInfo(c.Property.ClrType, c.Property, null))
+                        .ToArray());
     }
 }

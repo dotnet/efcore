@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -617,21 +618,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <returns>
         ///     The types of the expressions in <see cref="Projection" />.
         /// </returns>
-        public virtual IEnumerable<Type> GetProjectionTypes()
+        [Obsolete("Use GetMappedProjectionTypes().")]
+        public virtual IEnumerable<Type> GetProjectionTypes() 
+            => GetMappedProjectionTypes().Select(t => t.ClrType);
+
+        /// <summary>
+        ///     Gets the types of the expressions in <see cref="Projection" />.
+        /// </summary>
+        /// <returns>
+        ///     The types of the expressions in <see cref="Projection" />.
+        /// </returns>
+        public virtual IEnumerable<TypeMaterializationInfo> GetMappedProjectionTypes()
         {
             if (_projection.Any()
                 || !IsProjectStar)
             {
                 return _projection.Select(
                     e =>
-                        e.FindProperty(e.Type)?.FindRelationalMapping()?.Converter?.StoreType
-                        ?? (e.NodeType == ExpressionType.Convert
-                            && e.Type == typeof(object)
-                            ? ((UnaryExpression)e).Operand.Type
-                            : e.Type));
+                        {
+                            var queryType = e.NodeType == ExpressionType.Convert
+                                            && e.Type == typeof(object)
+                                ? ((UnaryExpression)e).Operand.Type
+                                : e.Type;
+
+                            return new TypeMaterializationInfo(
+                                queryType, 
+                                e.FindProperty(queryType), 
+                                Dependencies.TypeMapper);
+                        });
             }
 
-            return _tables.OfType<SelectExpression>().SelectMany(e => e.GetProjectionTypes());
+            return _tables.OfType<SelectExpression>().SelectMany(e => e.GetMappedProjectionTypes());
         }
 
         /// <summary>

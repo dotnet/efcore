@@ -72,8 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                         })
                     .ToList();
 
-            var types = new Type[SelectExpression.Projection.Count];
-            var indexMap = new int[SelectExpression.Projection.Count];
+            var types = new TypeMaterializationInfo[SelectExpression.Projection.Count];
 
             for (var i = 0; i < SelectExpression.Projection.Count; i++)
             {
@@ -93,15 +92,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                             throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
                         }
 
-                        types[i] = columnExpression.Property?.FindRelationalMapping()?.Converter?.StoreType 
-                            ?? columnExpression.Type;
-
-                        indexMap[i] = readerColumn.Ordinal;
+                        types[i] = new TypeMaterializationInfo(
+                            columnExpression.Type,
+                            columnExpression.Property,
+                            Dependencies.RelationalTypeMapper,
+                            readerColumn.Ordinal);
                     }
                 }
             }
 
-            return relationalValueBufferFactoryFactory.Create(types, indexMap);
+            return relationalValueBufferFactoryFactory.Create(types);
         }
     }
 }

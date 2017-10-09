@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>()

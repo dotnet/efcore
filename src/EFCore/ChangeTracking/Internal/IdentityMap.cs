@@ -123,7 +123,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 throw new InvalidOperationException(
                     // ReSharper disable once PossibleNullReferenceException
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(TKey), key.GetType()),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast(
+                        Key.DeclaringEntityType.DisplayName(),
+                        Key.Properties.First().Name,
+                        typeof(TKey),
+                        key.GetType()),
                     e);
             }
         }

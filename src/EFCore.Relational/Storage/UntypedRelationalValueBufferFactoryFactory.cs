@@ -49,25 +49,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private struct CacheKey
         {
-            public CacheKey(IReadOnlyList<Type> valueTypes)
-            {
-                ValueTypes = valueTypes;
-            }
+            public CacheKey(IReadOnlyList<TypeMaterializationInfo> types)
+                => Types = types;
 
-            public IReadOnlyList<Type> ValueTypes { get; }
-
-            private bool Equals(CacheKey other) => ValueTypes.SequenceEqual(other.ValueTypes);
+            public IReadOnlyList<TypeMaterializationInfo> Types { get; }
 
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj) && obj is CacheKey && Equals((CacheKey)obj);
+                => !ReferenceEquals(null, obj)
+                   && (obj is CacheKey
+                       && Equals((CacheKey)obj));
+
+            private bool Equals(CacheKey other)
+                => Types.SequenceEqual(other.Types);
 
             public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return ValueTypes.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
-                }
-            }
+                => Types.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
         }
 
         private readonly ConcurrentDictionary<CacheKey, Action<object[]>> _cache
@@ -87,14 +83,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The newly created <see cref="IRelationalValueBufferFactoryFactory" />.
         /// </returns>
+        [Obsolete("Use Create(IReadOnlyList<TypeMaterializationInfo>).")]
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
         {
-            var processValuesAction = _cache.GetOrAdd(new CacheKey(valueTypes), _createValueProcessorDelegate);
+            Check.NotNull(valueTypes, nameof(valueTypes));
 
-            return indexMap == null
-                ? (IRelationalValueBufferFactory)new UntypedRelationalValueBufferFactory(Dependencies, processValuesAction)
-                : new RemappingUntypedRelationalValueBufferFactory(Dependencies, indexMap, processValuesAction);
+            var mapper = Dependencies.TypeMapper;
+
+            return Create(valueTypes.Select(
+                (t, i) => new TypeMaterializationInfo(t, null, mapper, indexMap?[i] ?? -1)).ToList());
+        }
+
+        /// <summary>
+        ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
+        /// </summary>
+        /// <param name="types"> Types and mapping for the values to be read. </param>
+        /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
+        public virtual IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types)
+        {
+            Check.NotNull(types, nameof(types));
+
+            var processValuesAction = _cache.GetOrAdd(new CacheKey(types), _createValueProcessorDelegate);
+
+            return types.Any(t => t.Index >= 0)
+                ? (IRelationalValueBufferFactory)new RemappingUntypedRelationalValueBufferFactory(Dependencies, types, processValuesAction)
+                : new UntypedRelationalValueBufferFactory(Dependencies, types, processValuesAction);
         }
 
         private static readonly Func<CacheKey, Action<object[]>> _createValueProcessorDelegate = CreateValueProcessor;
@@ -103,14 +117,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var valuesParam = Expression.Parameter(typeof(object[]), "values");
 
-            var conversions = new List<Expression>();
-            var valueTypes = cacheKey.ValueTypes;
+            var conversions = new List<Expression>();   
+            var valueTypes = cacheKey.Types;
 
             var valueVariable = Expression.Variable(typeof(object), "value");
 
             for (var i = 0; i < valueTypes.Count; i++)
             {
-                var type = valueTypes[i];
+                var type = valueTypes[i].ClrType;
 
                 if (type.UnwrapNullableType().GetTypeInfo().IsEnum)
                 {

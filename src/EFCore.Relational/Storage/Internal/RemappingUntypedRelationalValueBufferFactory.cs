@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class RemappingUntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
-        private readonly IReadOnlyList<int> _indexMap;
+        private readonly IReadOnlyList<TypeMaterializationInfo> _mappingInfo;
         private readonly Action<object[]> _processValuesAction;
 
         /// <summary>
@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public RemappingUntypedRelationalValueBufferFactory(
             [NotNull] RelationalValueBufferFactoryDependencies dependencies,
-            [NotNull] IReadOnlyList<int> indexMap,
+            [NotNull] IReadOnlyList<TypeMaterializationInfo> mappingInfo,
             [CanBeNull] Action<object[]> processValuesAction)
         {
-            _indexMap = indexMap;
+            _mappingInfo = mappingInfo;
             _processValuesAction = processValuesAction;
         }
 
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public virtual ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
-            Debug.Assert(dataReader.FieldCount >= _indexMap.Count);
+            Debug.Assert(dataReader.FieldCount >= _mappingInfo.Count);
 
-            if (_indexMap.Count == 0)
+            if (_mappingInfo.Count == 0)
             {
                 return ValueBuffer.Empty;
             }
@@ -49,24 +49,26 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             dataReader.GetValues(values);
 
-            var remappedValues = new object[_indexMap.Count];
+            var remappedValues = new object[_mappingInfo.Count];
 
-            for (var i = 0; i < _indexMap.Count; i++)
+            for (var i = 0; i < _mappingInfo.Count; i++)
             {
-                remappedValues[i] = values[_indexMap[i]];
+                remappedValues[i] = values[_mappingInfo[i].Index];
             }
 
-            _processValuesAction?.Invoke(remappedValues);
+            values = remappedValues;
 
-            for (var i = 0; i < _indexMap.Count; i++)
+            _processValuesAction?.Invoke(values);
+
+            for (var i = 0; i < _mappingInfo.Count; i++)
             {
-                if (ReferenceEquals(remappedValues[i], DBNull.Value))
+                if (ReferenceEquals(values[i], DBNull.Value))
                 {
-                    remappedValues[i] = null;
+                    values[i] = null;
                 }
             }
 
-            return new ValueBuffer(remappedValues);
+            return new ValueBuffer(values);
         }
     }
 }

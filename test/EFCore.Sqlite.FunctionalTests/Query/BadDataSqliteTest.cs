@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext("bad int"))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().Where(p => p.ProductID != 1).ToList()).Message);
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(null, true))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueNullReference(typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "ProductID", typeof(int)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().Where(p => p.ProductID != 2).ToList()).Message);
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(1, true, 1))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().Where(p => p.ProductID != 3).ToList()).Message);
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(1))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(string), typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductName", typeof(string), typeof(int)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().Where(p => p.ProductID != 4)
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext("bad int"))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueInvalidCast(typeof(int), typeof(string)),
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast("Product", "ProductID", typeof(int), typeof(string)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>()
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(1, null))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().Where(p => p.ProductID != 6).ToList()).Message);
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(new object[] { null }))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueNullReference(typeof(bool)),
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "Discontinued", typeof(bool)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>()
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(null, true))
             {
                 Assert.Equal(
-                    CoreStrings.ErrorMaterializingValueNullReference(typeof(int)),
+                    CoreStrings.ErrorMaterializingPropertyNullReference("Product", "ProductID", typeof(int)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>()

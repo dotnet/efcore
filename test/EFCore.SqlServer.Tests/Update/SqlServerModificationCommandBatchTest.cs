@@ -15,21 +15,23 @@ namespace Microsoft.EntityFrameworkCore.Update
         [Fact]
         public void AddCommand_returns_false_when_max_batch_size_is_reached()
         {
+            var typeMapper = new SqlServerTypeMapper(
+                new RelationalTypeMapperDependencies());
+
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new SqlServerTypeMapper(
-                        new RelationalTypeMapperDependencies())),
+                    typeMapper),
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerUpdateSqlGenerator(
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new SqlServerTypeMapper(
-                            new RelationalTypeMapperDependencies()))),
+                        typeMapper)),
                 new UntypedRelationalValueBufferFactoryFactory(
-                    new RelationalValueBufferFactoryDependencies()),
+                    new RelationalValueBufferFactoryDependencies(
+                        typeMapper)),
                 1);
 
             Assert.True(

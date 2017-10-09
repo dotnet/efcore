@@ -18,5 +18,20 @@
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Migrations.HistoryRepositoryDependencies",
       "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator databaseCreator, Microsoft.EntityFrameworkCore.Storage.IRawSqlCommandBuilder rawSqlCommandBuilder, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions options, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator migrationsSqlGenerator, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper)",
       "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Storage.RelationalValueBufferFactoryDependencies",
+      "MemberId": "public .ctor()",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.Expressions.SelectExpressionDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Sql.IQuerySqlGeneratorFactory querySqlGeneratorFactory)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
+      "MemberId": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory Create(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.TypeMaterializationInfo> types)",
+      "Kind": "Addition"
     }
   ]
