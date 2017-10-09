@@ -241,49 +241,6 @@ SELECT CASE
 END FROM DUAL");
         }
 
-// Issue #10016
-//        public override void GroupBy_anonymous()
-//        {
-//            base.GroupBy_anonymous();
-
-//            AssertSql(
-//                @"SELECT ""c"".""City"", ""c"".""CustomerID""
-//FROM ""Customers"" ""c""
-//ORDER BY ""c"".""City"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_anonymous_with_where()
-//        {
-//            base.GroupBy_anonymous_with_where();
-
-//            AssertSql(
-//                @"SELECT ""c"".""City"", ""c"".""CustomerID""
-//FROM ""Customers"" ""c""
-//WHERE ""c"".""Country"" IN (N'Argentina', N'Austria', N'Brazil', N'France', N'Germany', N'USA')
-//ORDER BY ""c"".""City"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_nested_order_by_enumerable()
-//        {
-//            base.GroupBy_nested_order_by_enumerable();
-
-//            AssertSql(
-//                @"SELECT ""c"".""Country"", ""c"".""CustomerID""
-//FROM ""Customers"" ""c""
-//ORDER BY ""c"".""Country"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_join_default_if_empty_anonymous()
-//        {
-//            base.GroupBy_join_default_if_empty_anonymous();
-
-//            AssertSql(
-//                @"SELECT ""order0"".""OrderID"", ""order0"".""CustomerID"", ""order0"".""EmployeeID"", ""order0"".""OrderDate"", ""orderDetail0"".""OrderID"", ""orderDetail0"".""ProductID"", ""orderDetail0"".""Discount"", ""orderDetail0"".""Quantity"", ""orderDetail0"".""UnitPrice""
-//FROM ""Orders"" ""order0""
-//LEFT JOIN ""Order Details"" ""orderDetail0"" ON ""order0"".""OrderID"" = ""orderDetail0"".""OrderID""
-//ORDER BY ""order0"".""OrderID"" NULLS FIRST");
-//        }
-
         public override void OrderBy_arithmetic()
         {
             base.OrderBy_arithmetic();
@@ -898,67 +855,6 @@ CROSS JOIN ""Orders"" ""o""
 WHERE ""c"".""CustomerID"" = N'ALFKI'
 ORDER BY ""c"".""CustomerID"" NULLS FIRST");
         }
-
-// Issue #10016
-//        public override void GroupBy_simple()
-//        {
-//            base.GroupBy_simple();
-
-//            AssertSql(
-//                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-//FROM ""Orders"" ""o""
-//ORDER BY ""o"".""CustomerID"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_Count()
-//        {
-//            base.GroupBy_Count();
-
-//            AssertSql(
-//                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-//FROM ""Orders"" ""o""
-//ORDER BY ""o"".""CustomerID"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_LongCount()
-//        {
-//            base.GroupBy_LongCount();
-
-//            AssertSql(
-//                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-//FROM ""Orders"" ""o""
-//ORDER BY ""o"".""CustomerID"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_with_orderby()
-//        {
-//            base.GroupBy_with_orderby();
-
-//            AssertSql(
-//                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-//FROM ""Orders"" ""o""
-//ORDER BY ""o"".""CustomerID"" NULLS FIRST, ""o"".""OrderID"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_with_orderby_and_anonymous_projection()
-//        {
-//            base.GroupBy_with_orderby_and_anonymous_projection();
-
-//            AssertSql(
-//                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-//FROM ""Orders"" ""o""
-//ORDER BY ""o"".""CustomerID"" NULLS FIRST");
-//        }
-
-//        public override void GroupBy_with_orderby_take_skip_distinct()
-//        {
-//            base.GroupBy_with_orderby_take_skip_distinct();
-
-//            AssertSql(
-//                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-//FROM ""Orders"" ""o""
-//ORDER BY ""o"".""CustomerID"" NULLS FIRST");
-//        }
 
         public override void SelectMany_cartesian_product_with_ordering()
         {
@@ -1876,18 +1772,6 @@ INNER JOIN (
 ) ""t"" ON ""c.Orders"".""CustomerID"" = ""t"".""CustomerID""
 ORDER BY ""t"".""City"" NULLS FIRST, ""t"".""CustomerID"" NULLS FIRST");
         }
-
-// Issue #10016
-//        public override void GroupBy_join_anonymous()
-//        {
-//            base.GroupBy_join_anonymous();
-
-//            AssertSql(
-//                @"SELECT ""order0"".""OrderID"", ""order0"".""CustomerID"", ""order0"".""EmployeeID"", ""order0"".""OrderDate"", ""orderDetail0"".""OrderID"", ""orderDetail0"".""ProductID"", ""orderDetail0"".""Discount"", ""orderDetail0"".""Quantity"", ""orderDetail0"".""UnitPrice""
-//FROM ""Orders"" ""order0""
-//LEFT JOIN ""Order Details"" ""orderDetail0"" ON ""order0"".""OrderID"" = ""orderDetail0"".""OrderID""
-//ORDER BY ""order0"".""OrderID"" NULLS FIRST");
-//        }
 
         public override void Int16_parameter_can_be_used_for_int_column()
         {
