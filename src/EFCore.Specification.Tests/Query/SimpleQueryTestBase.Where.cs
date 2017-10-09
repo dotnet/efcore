@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -36,11 +37,40 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_indexer_closure()
         {
-            // ReSharper disable once ConvertToConstant.Local
-            var city = new[] { "London" };
+            var cities = new[] { "London" };
 
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.City == city[0]),
+                cs => cs.Where(c => c.City == cities[0]),
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_dictionary_key_access_closure()
+        {
+            var predicateMap = new Dictionary<string, string> { ["City"] = "London" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == predicateMap["City"]),
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_tuple_item_closure()
+        {
+            var predicateTuple = new Tuple<string, string>("ALFKI", "London");
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == predicateTuple.Item2),
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_named_tuple_item_closure()
+        {
+            (string CustomerID, string City) predicateTuple = ("ALFKI", "London");
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City == predicateTuple.City),
                 entryCount: 6);
         }
 

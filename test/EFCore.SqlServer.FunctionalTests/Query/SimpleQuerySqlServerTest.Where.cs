@@ -36,8 +36,47 @@ WHERE [c].[City] = @__city_0");
             base.Where_indexer_closure();
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+                @"@__p_0='London' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__p_0");
+        }
+
+        public override void Where_dictionary_key_access_closure()
+        {
+            base.Where_dictionary_key_access_closure();
+
+            AssertSql(
+                @"@__get_Item_0='London' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__get_Item_0");
+        }
+
+        public override void Where_tuple_item_closure()
+        {
+            base.Where_tuple_item_closure();
+
+            AssertSql(
+                @"@__predicateTuple_Item2_0='London' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__predicateTuple_Item2_0");
+        }
+
+        public override void Where_named_tuple_item_closure()
+        {
+            base.Where_named_tuple_item_closure();
+
+            AssertSql(
+                @"@__predicateTuple_Item2_0='London' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__predicateTuple_Item2_0");
         }
 
         public override void Where_simple_closure_constant()
