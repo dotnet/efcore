@@ -20,7 +20,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawVersion)">
+    <PackageReference Include="SQLitePCLRaw.bundle_green" Version="$(SQLitePCLRawBundle_greenPackageVersion)">
       <PrivateAssets>None</PrivateAssets>
     </PackageReference>
   </ItemGroup>
