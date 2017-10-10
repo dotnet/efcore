@@ -318,7 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     // HACK: Need to make it easier to add this in update pipeline.
                     if (command.CommandText.IndexOf(":cur") > 0)
                     {
-                        var cursors = Regex.Matches(command.CommandText, ":cur").Count;
+                        var cursors = Regex.Matches(command.CommandText, ":cur",
+                                                    RegexOptions.Compiled, TimeSpan.FromSeconds(2)).Count;
                         for (int i = 1; i <= cursors; i++)
                         {
                             command.Parameters.Add(
