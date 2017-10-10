@@ -53,22 +53,23 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
 		protected override string GetCommandText()
 		{
-			var bulkOperation = new StringBuilder();
-			_VariablesCommand.Clear();
-			bulkOperation.AppendLine(base.GetCommandText());
-			bulkOperation.Append(GetBatchInsertCommandText(ModificationCommands.Count));
+            var bulkOperation = new StringBuilder();
+            _VariablesCommand.Clear();
 
-			if (_VariablesCommand.Length > 0)
-			{
-				var declareVariable = new StringBuilder();
-				declareVariable.AppendLine("DECLARE");
-				declareVariable.Append(_VariablesCommand)
-							   .AppendLine("BEGIN");
-				bulkOperation.Insert(0, declareVariable);
-				bulkOperation.AppendLine("END;");
-			}
-			return bulkOperation.ToString();
-		}
+            bulkOperation.AppendLine("BEGIN");
+            bulkOperation.AppendLine(base.GetCommandText());
+            bulkOperation.Append(GetBatchInsertCommandText(ModificationCommands.Count));
+            if (_CursorPosition > 1)
+            {
+                var declare = new StringBuilder();
+                declare.AppendLine("DECLARE")
+                       .Append(_VariablesCommand);
+                bulkOperation.Insert(0, declare);
+            }
+            bulkOperation.AppendLine("END;");
+
+            return bulkOperation.ToString();
+        }
 
 		private string GetBatchInsertCommandText(int lastIndex)
 		{
