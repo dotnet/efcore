@@ -25,13 +25,14 @@ namespace Microsoft.EntityFrameworkCore
                 using (var connection = new OracleConnection(store.ConnectionString))
                 {
                     BatchInsertContext cxt = new BatchInsertContext(serviceProvider, connection);
+                    CreateTableProduct(cxt);
 
                     //Test Insert Batch Customer
                     for (int i = 0; i < 5000; i++)
                     {
                         cxt.Customers.Add(new Customer
                         {
-                            CustomerID = i.ToString("D5"),
+                            CustomerID = $"O{i:0000}",
                             CompanyName = $"Microsoft Test {i}",
                             Fax = "79 XXXX-8693"
                         });
@@ -39,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(5000, cxt.SaveChanges());
 
-                    //Test Insert Batch Product
-                    CreateTableProduct(cxt);
+                    //Test Insert Batch Product 
                     for (int i = 0; i < 5000; i++)
                     {
                         cxt.Products.Add(new Product
