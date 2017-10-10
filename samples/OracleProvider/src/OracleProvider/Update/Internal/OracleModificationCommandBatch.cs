@@ -12,12 +12,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public class OracleModificationCommandBatch : AffectedCountModificationCommandBatch
     {
-		internal const int MaxParameterCount = 1000;
-		internal const int MaxRowCount = 300;
-		internal int _CountParameter = 1;
-		internal readonly List<ModificationCommand> _BatchInsertCommands;
-		internal readonly StringBuilder _VariablesCommand;
-		internal int _CursorPosition = 1;
+        private const int MaxParameterCount = 1000;
+        private const int MaxRowCount = 300;
+        private int _countParameter = 1;
+        private readonly List<ModificationCommand> _batchInsertCommands;
+        private readonly StringBuilder _variablesCommand;
+        private int _cursorPosition = 1;
 
 		public OracleModificationCommandBatch(
 			[NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 			[NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
 			: base(commandBuilderFactory, sqlGenerationHelper, updateSqlGenerator, valueBufferFactoryFactory)
 		{
-			_BatchInsertCommands = new List<ModificationCommand>();
-			_VariablesCommand = new StringBuilder();
+			_batchInsertCommands = new List<ModificationCommand>();
+			_variablesCommand = new StringBuilder();
 		}
 
 		protected new virtual IOracleUpdateSqlGenerator UpdateSqlGenerator => (IOracleUpdateSqlGenerator)base.UpdateSqlGenerator;
@@ -35,35 +35,40 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 		protected override bool CanAddCommand(ModificationCommand modificationCommand)
 		{
 			if (ModificationCommands.Count >= MaxRowCount)
-				return false;
+            {
+                return false;
+            }
 
-			var additionalParameterCount = CountParameters(modificationCommand);
-			if (_CountParameter + additionalParameterCount >= MaxParameterCount)
-				return false;
+            var additionalParameterCount = CountParameters(modificationCommand);
 
-			_CountParameter += additionalParameterCount;
+            if (_countParameter + additionalParameterCount >= MaxParameterCount)
+            {
+                return false;
+            }
+
+            _countParameter += additionalParameterCount;
 			return true;
 		}
 
 		protected override void ResetCommandText()
 		{
 			base.ResetCommandText();
-			_BatchInsertCommands.Clear();
+			_batchInsertCommands.Clear();
 		}
 
 		protected override string GetCommandText()
 		{
             var bulkOperation = new StringBuilder();
-            _VariablesCommand.Clear();
+            _variablesCommand.Clear();
 
             bulkOperation.AppendLine("BEGIN");
             bulkOperation.AppendLine(base.GetCommandText());
             bulkOperation.Append(GetBatchInsertCommandText(ModificationCommands.Count));
-            if (_CursorPosition > 1)
+            if (_cursorPosition > 1)
             {
                 var declare = new StringBuilder();
                 declare.AppendLine("DECLARE")
-                       .Append(_VariablesCommand);
+                       .Append(_variablesCommand);
                 bulkOperation.Insert(0, declare);
             }
             bulkOperation.AppendLine("END;");
@@ -73,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
 		private string GetBatchInsertCommandText(int lastIndex)
 		{
-			if (_BatchInsertCommands.Count == 0)
+			if (_batchInsertCommands.Count == 0)
 				return string.Empty;
 
 			var stringBuilder = new StringBuilder();
 			var resultSetMapping = UpdateSqlGenerator
-				.AppendBulkInsertOperation(stringBuilder, _VariablesCommand, _BatchInsertCommands, lastIndex - _BatchInsertCommands.Count,ref _CursorPosition);
+				.AppendBulkInsertOperation(stringBuilder, _variablesCommand, _batchInsertCommands, lastIndex - _batchInsertCommands.Count,ref _cursorPosition);
 
-			for (var i = lastIndex - _BatchInsertCommands.Count; i < lastIndex; i++)
+			for (var i = lastIndex - _batchInsertCommands.Count; i < lastIndex; i++)
 				CommandResultSet[i] = resultSetMapping;
 
 			if (resultSetMapping != ResultSetMapping.NoResultSet)
@@ -94,26 +99,26 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 			var newModificationCommand = ModificationCommands[commandPosition];
 			if (newModificationCommand.EntityState == EntityState.Added)
 			{
-				if (_BatchInsertCommands.Count > 0
-					&& !CanBeInserted(_BatchInsertCommands[0], newModificationCommand))
+				if (_batchInsertCommands.Count > 0
+					&& !CanBeInserted(_batchInsertCommands[0], newModificationCommand))
 				{
 					CachedCommandText.Append(GetBatchInsertCommandText(commandPosition));
-					_BatchInsertCommands.Clear();
+					_batchInsertCommands.Clear();
 				}
-				_BatchInsertCommands.Add(newModificationCommand);
+				_batchInsertCommands.Add(newModificationCommand);
 				LastCachedCommandIndex = commandPosition;
 			}
 			else
 			{
 				CachedCommandText.Append(GetBatchInsertCommandText(commandPosition));
-				_BatchInsertCommands.Clear();
+				_batchInsertCommands.Clear();
 				base.UpdateCachedCommandText(commandPosition);
 			}
 		}
 
 		protected override bool IsCommandTextValid() => true;
 
-		protected override int GetParameterCount() => _CountParameter;
+		protected override int GetParameterCount() => _countParameter;
 
 		private static int CountParameters(ModificationCommand modificationCommand)
 		{
