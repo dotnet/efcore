@@ -15,15 +15,12 @@ namespace Microsoft.EntityFrameworkCore
     public class OracleInsertBatch
     {
         [Fact]
-        public void insert_custormer_product_batch()
+        public void Insert_batch_records()
         {
             var serviceProvider = new ServiceCollection()
              .AddEntityFrameworkOracle()
              .BuildServiceProvider();
-
-            var costumerSave = 0;
-            var productSave = 0;
-
+              
             using (var store = OracleTestStore.GetNorthwindStore())
             {
                 using (var connection = new OracleConnection(store.ConnectionString))
@@ -39,7 +36,8 @@ namespace Microsoft.EntityFrameworkCore
                             Fax = "79 XXXX-8693"
                         });
                     }
-                    costumerSave = cxt.SaveChanges();
+
+                    Assert.Equal(20, cxt.SaveChanges());
 
                     //Test Insert Batch Product
                     CreateTableProduct(cxt);
@@ -53,13 +51,10 @@ namespace Microsoft.EntityFrameworkCore
 
                         });
                     }
-                    productSave = cxt.SaveChanges();
+
+                    Assert.Equal(50, cxt.SaveChanges()); 
                 }
-            }
-            //Customers
-            Assert.Equal(20, costumerSave);
-            //Products
-            Assert.Equal(50, productSave);
+            } 
         }
 
         private class BatchInsertContext : DbContext
