@@ -2726,25 +2726,25 @@ WHERE [b].[IsDeleted] = 0");
                 }
 
                 AssertSql(
-                    @"@__IsModerated_0='True' (Nullable = true)
-@__IsModerated_1='True' (Nullable = true)
+                    @"@__$IsModerated_0='True' (Nullable = true)
+@__$IsModerated_1='True' (Nullable = true)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR (@__IsModerated_1 = [e].[IsModerated]))",
+WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR (@__$IsModerated_1 = [e].[IsModerated]))",
                     //
-                    @"@__IsModerated_0='False' (Nullable = true)
-@__IsModerated_1='False' (Nullable = true)
+                    @"@__$IsModerated_0='False' (Nullable = true)
+@__$IsModerated_1='False' (Nullable = true)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR (@__IsModerated_1 = [e].[IsModerated]))",
+WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR (@__$IsModerated_1 = [e].[IsModerated]))",
                     //
-                    @"@__IsModerated_0='' (DbType = String)
+                    @"@__$IsModerated_0='' (DbType = String)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)");
+WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)");
             }
         }
 
@@ -2780,17 +2780,17 @@ WHERE ([e].[IsDeleted] = 0) AND (@__IsModerated_0 IS NULL OR [e].[IsModerated] I
                 }
 
                 AssertSql(
-                    @"@__Enabled_0='True'
+                    @"@__$Enabled_0='True'
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Chains] AS [e]
-WHERE @__Enabled_0 = [e].[IsDeleted]",
+WHERE @__$Enabled_0 = [e].[IsDeleted]",
                     //
-                    @"@__Enabled_0='False'
+                    @"@__$Enabled_0='False'
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Chains] AS [e]
-WHERE @__Enabled_0 = [e].[IsDeleted]");
+WHERE @__$Enabled_0 = [e].[IsDeleted]");
             }
         }
 
@@ -2803,7 +2803,55 @@ WHERE @__Enabled_0 = [e].[IsDeleted]");
                 {
                     context.IsModerated = true;
                     var exception = Assert.Throws<InvalidOperationException>(() => context.Locals.ToList());
-                    Assert.Equal(CoreStrings.ExpressionParameterizationExceptionSensitive("value(Microsoft.EntityFrameworkCore.Query.QueryBugsTest+MyContext9825+<>c__DisplayClass21_0).local.Enabled"), exception.Message);
+                    Assert.Equal(CoreStrings.ExpressionParameterizationExceptionSensitive("value(Microsoft.EntityFrameworkCore.Query.QueryBugsTest+MyContext9825+<>c__DisplayClass33_0).local.Enabled"), exception.Message);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Local_variable_does_not_clash_with_filter_parameter()
+        {
+            using (CreateDatabase9825())
+            {
+                using (var context = new MyContext9825(_options))
+                {
+                    // ReSharper disable once ConvertToConstant.Local
+                    var IsModerated = false;
+                    var query = context.Users.Where(e => e.IsModerated == IsModerated).ToList();
+
+                    Assert.Single(query);
+
+                    AssertSql(
+                        @"@__$IsModerated_0='' (DbType = String)
+@__IsModerated_0='False'
+
+SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
+FROM [Users] AS [e]
+WHERE (([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)) AND ([e].[IsModerated] = @__IsModerated_0)");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Complex_filter_gets_prefixed_name()
+        {
+            using (CreateDatabase9825())
+            {
+                using (var context = new MyContext9825(_options))
+                {
+                    context.BasePrice = 1;
+                    context.CustomPrice = 2;
+                    var query = context.Complexes.ToList();
+
+                    Assert.Single(query);
+
+                    AssertSql(
+                        @"@__$BasePrice_0='1'
+@__$CustomPrice_1='2'
+
+SELECT [e].[Id], [e].[IsEnabled]
+FROM [Complexes] AS [e]
+WHERE ([e].[IsEnabled] = 1) AND ((@__$BasePrice_0 + @__$CustomPrice_1) > 0)");
                 }
             }
         }
@@ -2827,8 +2875,12 @@ WHERE @__Enabled_0 = [e].[IsDeleted]");
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = false },
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = false },
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = true },
-                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = true }
+                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = true },
+
+                            new EntityWithComplexContextBoundExpression9825 { IsEnabled = true },
+                            new EntityWithComplexContextBoundExpression9825 { IsEnabled = false }
                         );
+
                         context.SaveChanges();
 
                         ClearLog();
@@ -2842,11 +2894,14 @@ WHERE @__Enabled_0 = [e].[IsDeleted]");
             }
 
             public bool? IsModerated { get; set; }
+            public int BasePrice { get; set; }
+            public int CustomPrice { get; set; }
             public Indirection IndirectionFlag { get; set; }
 
             public DbSet<EntityWithContextBoundComplexExpression9825> Users { get; set; }
             public DbSet<EntityWithContextBoundMemberChain9825> Chains { get; set; }
             public DbSet<EntityWithLocalVariableAccessInFilter9825> Locals { get; set; }
+            public DbSet<EntityWithComplexContextBoundExpression9825> Complexes { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -2862,6 +2917,9 @@ WHERE @__Enabled_0 = [e].[IsDeleted]");
                 local = null;
                 modelBuilder.Entity<EntityWithLocalVariableAccessInFilter9825>()
                     .HasQueryFilter(x => local.Enabled == x.IsDeleted);
+
+                modelBuilder.Entity<EntityWithComplexContextBoundExpression9825>()
+                    .HasQueryFilter(x => x.IsEnabled && (BasePrice + CustomPrice > 0));
             }
         }
 
@@ -2889,6 +2947,12 @@ WHERE @__Enabled_0 = [e].[IsDeleted]");
             public int Id { get; set; }
             public bool IsDeleted { get; set; }
             public bool IsModerated { get; set; }
+        }
+
+        public class EntityWithComplexContextBoundExpression9825
+        {
+            public int Id { get; set; }
+            public bool IsEnabled { get; set; }
         }
 
         #endregion
