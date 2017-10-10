@@ -319,7 +319,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     if (command.CommandText.IndexOf(":cur") > 0)
                     {
                         var cursors = Regex.Matches(command.CommandText, ":cur",
-                                                    RegexOptions.Compiled, TimeSpan.FromSeconds(2)).Count;
+                                                    RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(1000.0)).Count;
+
                         for (int i = 1; i <= cursors; i++)
                         {
                             command.Parameters.Add(
