@@ -69,6 +69,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Sum_with_no_data_nullable()
+        {
+            AssertSingleResult<Order>(os => os.Where(o => o.OrderID < 0).Select(o => (int?)o.OrderID).Sum());
+        }
+
+        [ConditionalFact]
         public virtual void Sum_with_binary_expression()
         {
             AssertSingleResult<Order>(os => os.Select(o => o.OrderID * 2).Sum());

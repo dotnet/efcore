@@ -755,10 +755,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
-
-                    return (Expression)_transformClientExpressionMethodInfo
-                        .MakeGenericMethod(sumExpression.Type)
-                        .Invoke(null, new object[] { handlerContext, /*throwOnNullResult:*/ false });
+                    
+                    var clientExpression 
+                        = (Expression)_transformClientExpressionMethodInfo
+                            .MakeGenericMethod(sumExpression.Type.UnwrapNullableType())
+                            .Invoke(null, new object[] { handlerContext, /*throwOnNullResult:*/ false });
+                    
+                    return
+                        sumExpression.Type.IsNullableType()
+                            ? Expression.Convert(clientExpression, sumExpression.Type)
+                            : clientExpression;
                 }
             }
 
