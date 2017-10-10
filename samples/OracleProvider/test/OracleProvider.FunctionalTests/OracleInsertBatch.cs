@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -20,28 +19,29 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = new ServiceCollection()
              .AddEntityFrameworkOracle()
              .BuildServiceProvider();
-              
+
             using (var store = OracleTestStore.GetNorthwindStore())
             {
                 using (var connection = new OracleConnection(store.ConnectionString))
                 {
                     BatchInsertContext cxt = new BatchInsertContext(serviceProvider, connection);
+
                     //Test Insert Batch Customer
-                    for (int i = 0; i < 20; i++)
+                    for (int i = 0; i < 5000; i++)
                     {
                         cxt.Customers.Add(new Customer
                         {
-                            CustomerID = RandomKey(),
-                            CompanyName = $"Net Foundation Test {i}",
+                            CustomerID = i.ToString("D5"),
+                            CompanyName = $"Microsoft Test {i}",
                             Fax = "79 XXXX-8693"
                         });
                     }
 
-                    Assert.Equal(20, cxt.SaveChanges());
+                    Assert.Equal(5000, cxt.SaveChanges());
 
                     //Test Insert Batch Product
                     CreateTableProduct(cxt);
-                    for (int i = 0; i < 50; i++)
+                    for (int i = 0; i < 5000; i++)
                     {
                         cxt.Products.Add(new Product
                         {
@@ -52,9 +52,10 @@ namespace Microsoft.EntityFrameworkCore
                         });
                     }
 
-                    Assert.Equal(50, cxt.SaveChanges()); 
+                    Assert.Equal(5000, cxt.SaveChanges());
+
                 }
-            } 
+            }
         }
 
         private class BatchInsertContext : DbContext
@@ -115,20 +116,11 @@ namespace Microsoft.EntityFrameworkCore
             public decimal Price { get; set; }
         }
 
-        private static Random random = new Random();
-
-        private string RandomKey()
-        {
-            var charsRandom = Guid.NewGuid().ToString().Replace("-", "").ToUpper();
-            var info = new string(Enumerable.Repeat(charsRandom, 5)
-                                  .Select(s => s[random.Next(s.Length)]).ToArray());
-            return info;
-        }
-
         private void CreateTableProduct(BatchInsertContext context)
         {
             //Table teste auto-increment
             var commandTable = new StringBuilder();
+            context.Database.ExecuteSqlCommand("delete from \"Customers\" where \"CompanyName\" like '%Microsoft Test%'");
             //Drops
             commandTable.AppendLine("DECLARE")
                         .AppendLine("C INT;")
