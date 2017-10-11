@@ -82,8 +82,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return _sb.ToString();
         }
 
-        private void GenerateClass(IModel model, string contextName, string connectionString, bool useDataAnnotations)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void GenerateClass(
+            [NotNull] IModel model,
+            [NotNull] string contextName,
+            [NotNull] string connectionString,
+            bool useDataAnnotations)
         {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(contextName, nameof(contextName));
+            Check.NotNull(connectionString, nameof(connectionString));
+
             _sb.AppendLine($"public partial class {contextName} : DbContext");
             _sb.AppendLine("{");
 
@@ -124,8 +136,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateOnConfiguring(string connectionString)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void GenerateOnConfiguring(
+            [NotNull] string connectionString)
         {
+            Check.NotNull(connectionString, nameof(connectionString));
+
             _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
             _sb.AppendLine("{");
 
@@ -156,8 +175,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine();
         }
 
-        private void GenerateOnModelCreating(IModel model, bool useDataAnnotations)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void GenerateOnModelCreating(
+            [NotNull] IModel model,
+            bool useDataAnnotations)
         {
+            Check.NotNull(model, nameof(model));
+
             _sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
             _sb.Append("{");
 
