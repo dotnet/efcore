@@ -30,7 +30,48 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private int _count;
 
         private DbContextPoolConfigurationSnapshot _configurationSnapshot;
-        
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public sealed class Lease : IDisposable
+        {
+            private DbContextPool<TContext> _contextPool;
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public Lease([NotNull] DbContextPool<TContext> contextPool)
+            {
+                _contextPool = contextPool;
+
+                Context = _contextPool.Rent();
+            }
+
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public TContext Context { get; private set; }
+
+            void IDisposable.Dispose()
+            {
+                if (_contextPool != null)
+                {
+                    if (!_contextPool.Return(Context))
+                    {
+                        ((IDbContextPoolable)Context).SetPool(null);
+                        Context.Dispose();
+                    }
+
+                    _contextPool = null;
+                    Context = null;
+                }
+            }
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -141,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             while (_pool.TryDequeue(out var context))
             {
+                ((IDbContextPoolable)context).SetPool(null);
                 context.Dispose();
             }
         }

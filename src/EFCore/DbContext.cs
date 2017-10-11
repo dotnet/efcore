@@ -63,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextPool _dbContextPool;
         private bool _initializing;
         private bool _disposed;
-
-        private AsyncLocal<bool> _leased;
         
         /// <summary>
         ///     <para>
@@ -281,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         internal void CheckDisposed()
         {
-            if (_disposed || _leased?.Value == false)
+            if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
             }
@@ -481,10 +479,7 @@ namespace Microsoft.EntityFrameworkCore
 
         void IDbContextPoolable.SetPool(IDbContextPool contextPool)
         {
-            Check.NotNull(contextPool, nameof(contextPool));
-
             _dbContextPool = contextPool;
-            _leased = new AsyncLocal<bool> { Value = true };
         }
 
         DbContextPoolConfigurationSnapshot IDbContextPoolable.SnapshotConfiguration()
@@ -495,7 +490,7 @@ namespace Microsoft.EntityFrameworkCore
         
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
-            _leased.Value = true;
+            _disposed = false;
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
@@ -527,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            _leased.Value = false;
+            _disposed = true;
         }
 
         /// <summary>
@@ -536,21 +531,17 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Dispose()
         {
             if (_dbContextPool == null
-                || _leased.Value
-                && !_dbContextPool.Return(this))
+                && !_disposed)
             {
-                if (!_disposed)
-                {
-                    _disposed = true;
+                _disposed = true;
 
-                    _dbContextDependencies?.StateManager.Unsubscribe();
+                _dbContextDependencies?.StateManager.Unsubscribe();
 
-                    _serviceScope?.Dispose();
-                    _dbContextDependencies = null;
-                    _changeTracker = null;
-                    _database = null;
-                    _dbContextPool = null;
-                }
+                _serviceScope?.Dispose();
+                _dbContextDependencies = null;
+                _changeTracker = null;
+                _database = null;
+                _dbContextPool = null;
             }
         }
 
