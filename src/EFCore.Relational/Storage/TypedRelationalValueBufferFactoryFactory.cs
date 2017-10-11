@@ -74,10 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private struct CacheKey
         {
-            public CacheKey(IReadOnlyList<TypeMaterializationInfo> types) 
-                => Types = types;
+            public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo) 
+                => TypeMaterializationInfo = materializationInfo;
 
-            public IReadOnlyList<TypeMaterializationInfo> Types { get; }
+            public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
 
             public override bool Equals(object obj)
                 => !ReferenceEquals(null, obj)
@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                        && Equals((CacheKey)obj));
 
             private bool Equals(CacheKey other) 
-                => Types.SequenceEqual(other.Types);
+                => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
 
             public override int GetHashCode() 
-                => Types.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
+                => TypeMaterializationInfo.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
         }
 
         private readonly ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory> _cache
@@ -141,38 +141,51 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return Expression.Lambda<Func<DbDataReader, object[]>>(
                     Expression.NewArrayInit(
                         typeof(object),
-                        cacheKey.Types
+                        cacheKey.TypeMaterializationInfo
                             .Select(
-                                (type, i) =>
+                                (mi, i) =>
                                     CreateGetValueExpression(
                                         dataReaderParameter,
-                                        type.ClrType,
-                                        type.Property,
-                                        Expression.Constant(type.Index == -1 ? i : type.Index)))),
+                                        Expression.Constant(mi.Index == -1 ? i : mi.Index),
+                                        mi))),
                     dataReaderParameter)
                 .Compile();
         }
 
         private static Expression CreateGetValueExpression(
             Expression dataReaderExpression, 
-            Type type,
-            IProperty property,
-            Expression indexExpression)
+            Expression indexExpression,
+            TypeMaterializationInfo materializationInfo)
         {
-            var underlyingType = type.UnwrapNullableType().UnwrapEnumType();
+            var storeType = materializationInfo.StoreType;
+            var underlyingStoreType = storeType.UnwrapNullableType().UnwrapEnumType();
 
-            MethodInfo getMethod;
-            if (!_getXMethods.TryGetValue(underlyingType, out getMethod))
+            if (!_getXMethods.TryGetValue(underlyingStoreType, out var getMethod))
             {
-                getMethod = _getFieldValueMethod.MakeGenericMethod(underlyingType);
+                getMethod = _getFieldValueMethod.MakeGenericMethod(underlyingStoreType);
             }
 
             Expression expression
                 = Expression.Call(dataReaderExpression, getMethod, indexExpression);
 
-            if (expression.Type != type)
+            var converter = materializationInfo.Mapping?.Converter;
+            if (converter != null)
             {
-                expression = Expression.Convert(expression, type);
+                if (converter.StoreType.IsNullableType())
+                {
+                    expression
+                        = Expression.Condition(
+                            Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
+                            Expression.Default(converter.StoreType),
+                            expression);
+                }
+
+                expression = ((UnaryExpression)converter.ConvertFromStoreExpression.Body).Update(expression);
+            }
+
+            if (expression.Type != materializationInfo.ModelType)
+            {
+                expression = Expression.Convert(expression, materializationInfo.ModelType);
             }
 
             var exceptionParameter
@@ -191,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 dataReaderExpression,
                                 _getFieldValueMethod.MakeGenericMethod(typeof(object)),
                                 indexExpression),
-                            Expression.Constant(property, typeof(IPropertyBase))));
+                            Expression.Constant(materializationInfo.Property, typeof(IPropertyBase))));
 
             expression = Expression.TryCatch(expression, catchBlock);
 
@@ -200,7 +213,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 expression = Expression.Convert(expression, typeof(object));
             }
 
-            if (expression.Type.IsNullableType())
+            if ((converter == null
+                 && expression.Type.IsNullableType())
+                || (converter != null
+                    && !converter.StoreType.IsNullableType()))
             {
                 expression
                     = Expression.Condition(

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -15,7 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private class FakeValueConverter : ValueConverter
         {
             public FakeValueConverter()
-                : base(_ => _ , _ => _, (Func<object, object>)(_ => _), (Func<object, object>)(_ => _))
+                : base(
+                      _ => _ , 
+                      _ => _, 
+                      (Expression<Func<object, object>>)(_ => _), 
+                      (Expression<Func<object, object>>)(_ => _))
             {
             }
 

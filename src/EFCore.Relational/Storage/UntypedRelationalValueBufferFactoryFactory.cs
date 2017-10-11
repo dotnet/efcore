@@ -49,10 +49,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private struct CacheKey
         {
-            public CacheKey(IReadOnlyList<TypeMaterializationInfo> types)
-                => Types = types;
+            public CacheKey(IReadOnlyList<TypeMaterializationInfo> typeMaterializationInfo)
+                => TypeMaterializationInfo = typeMaterializationInfo;
 
-            public IReadOnlyList<TypeMaterializationInfo> Types { get; }
+            public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
 
             public override bool Equals(object obj)
                 => !ReferenceEquals(null, obj)
@@ -60,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                        && Equals((CacheKey)obj));
 
             private bool Equals(CacheKey other)
-                => Types.SequenceEqual(other.Types);
+                => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
 
             public override int GetHashCode()
-                => Types.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
+                => TypeMaterializationInfo.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
         }
 
         private readonly ConcurrentDictionary<CacheKey, Action<object[]>> _cache
@@ -118,35 +118,65 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var valuesParam = Expression.Parameter(typeof(object[]), "values");
 
             var conversions = new List<Expression>();   
-            var valueTypes = cacheKey.Types;
+            var materializationInfo = cacheKey.TypeMaterializationInfo;
 
             var valueVariable = Expression.Variable(typeof(object), "value");
 
-            for (var i = 0; i < valueTypes.Count; i++)
+            for (var i = 0; i < materializationInfo.Count; i++)
             {
-                var type = valueTypes[i].ClrType;
+                var modelType = materializationInfo[i].ModelType;
+                var converter = materializationInfo[i].Mapping?.Converter;
 
-                if (type.UnwrapNullableType().GetTypeInfo().IsEnum)
+                var isEnum = modelType.UnwrapNullableType().GetTypeInfo().IsEnum;
+
+                if (converter != null
+                    || isEnum)
                 {
-                    var arrayAccess = Expression.ArrayAccess(valuesParam, Expression.Constant(i));
+                    var arrayAccess = 
+                        Expression.ArrayAccess(valuesParam, Expression.Constant(i));
 
                     conversions.Add(Expression.Assign(valueVariable, arrayAccess));
 
-                    conversions.Add(
-                        Expression.IfThen(
-                            Expression.IsFalse(
-                                Expression.ReferenceEqual(
-                                    valueVariable,
-                                    Expression.Constant(DBNull.Value))),
-                            Expression.Assign(
-                                arrayAccess,
-                                Expression.Convert(
+                    if (converter != null)
+                    {
+                        // TODO: Nullable converters
+                        if (!converter.StoreType.IsNullableType())
+                        {
+                            conversions.Add(
+                                Expression.Assign(
+                                    isEnum ? (Expression)valueVariable : arrayAccess,
+                                    Expression.Condition(
+                                        Expression.ReferenceEqual(
+                                            valueVariable,
+                                            Expression.Constant(DBNull.Value)),
+                                        Expression.Constant(null),
+                                        Expression.Convert(
+                                            ((UnaryExpression)converter.ConvertFromStoreExpression.Body).Update(
+                                                Expression.Convert(
+                                                    valueVariable,
+                                                    converter.StoreType)),
+                                            typeof(object)))));
+                        }
+                    }
+
+                    if (isEnum)
+                    {
+                        conversions.Add(
+                            Expression.IfThen(
+                                Expression.IsFalse(
+                                    Expression.ReferenceEqual(
+                                        valueVariable,
+                                        Expression.Constant(DBNull.Value))),
+                                Expression.Assign(
+                                    arrayAccess,
                                     Expression.Convert(
                                         Expression.Convert(
-                                            valueVariable,
-                                            type.UnwrapEnumType()),
-                                        type),
-                                    typeof(object)))));
+                                            Expression.Convert(
+                                                valueVariable,
+                                                modelType.UnwrapEnumType()),
+                                            modelType),
+                                        typeof(object)))));
+                    }
                 }
             }
 

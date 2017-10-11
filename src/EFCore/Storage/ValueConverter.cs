@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -24,32 +25,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The function to convert objects when reading data from the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </param>
-        /// <param name="rawConvertToStore">
-        ///     The function to convert objects when writing data to the store,
-        ///     exactly as supplied, which may be a generic delegate and may not handle
+        /// <param name="convertToStoreExpression">
+        ///     The expression to convert objects when writing data to the store,
+        ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </param>
-        /// <param name="rawConvertFromStore">
-        ///     The function to convert objects when reading data from the store,
-        ///     exactly as supplied, which may be a generic delegate and may not handle
+        /// <param name="convertFromStoreExpression">
+        ///     The expression to convert objects when reading data from the store,
+        ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </param>
         protected ValueConverter(
             [NotNull] Func<object, object> convertToStore,
             [NotNull] Func<object, object> convertFromStore,
-            [NotNull] Delegate rawConvertToStore,
-            [NotNull] Delegate rawConvertFromStore)
+            [NotNull] LambdaExpression convertToStoreExpression,
+            [NotNull] LambdaExpression convertFromStoreExpression)
 
         {
             Check.NotNull(convertToStore, nameof(convertToStore));
             Check.NotNull(convertFromStore, nameof(convertFromStore));
-            Check.NotNull(rawConvertToStore, nameof(rawConvertToStore));
-            Check.NotNull(rawConvertFromStore, nameof(rawConvertFromStore));
+            Check.NotNull(convertToStoreExpression, nameof(convertToStoreExpression));
+            Check.NotNull(convertFromStoreExpression, nameof(convertFromStoreExpression));
 
             ConvertToStore = convertToStore;
             ConvertFromStore = convertFromStore;
-            RawConvertToStore = rawConvertToStore;
-            RawConvertFromStore = rawConvertFromStore;
+            ConvertToStoreExpression = convertToStoreExpression;
+            ConvertFromStoreExpression = convertFromStoreExpression;
         }
 
         /// <summary>
@@ -65,18 +66,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Func<object, object> ConvertFromStore { get; }
 
         /// <summary>
-        ///     Gets the function to convert objects when writing data to the store,
-        ///     exactly as supplied, which may be a generic delegate and may not handle
+        ///     Gets the expression to convert objects when writing data to the store,
+        ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public virtual Delegate RawConvertToStore { get; }
+        public virtual LambdaExpression ConvertToStoreExpression { get; }
 
         /// <summary>
-        ///     Gets the function to convert objects when reading data from the store,
-        ///     exactly as supplied, which may be a generic delegate and may not handle
+        ///     Gets the expression to convert objects when reading data from the store,
+        ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public virtual Delegate RawConvertFromStore { get; }
+        public virtual LambdaExpression ConvertFromStoreExpression { get; }
 
         /// <summary>
         ///     The CLR type used in the EF model.

@@ -15,14 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_access_raw_converters()
         {
-            Assert.Same(_uIntToInt.RawConvertFromStore, ((ValueConverter)_uIntToInt).RawConvertFromStore);
-            Assert.Same(_uIntToInt.RawConvertToStore, ((ValueConverter)_uIntToInt).RawConvertToStore);
+            Assert.Same(_uIntToInt.ConvertFromStoreExpression, ((ValueConverter)_uIntToInt).ConvertFromStoreExpression);
+            Assert.Same(_uIntToInt.ConvertToStoreExpression, ((ValueConverter)_uIntToInt).ConvertToStoreExpression);
 
-            Assert.Equal(1, _uIntToInt.RawConvertToStore(1));
-            Assert.Equal((uint)1, _uIntToInt.RawConvertFromStore(1));
+            Assert.Equal(1, _uIntToInt.ConvertToStoreExpression.Compile()(1));
+            Assert.Equal((uint)1, _uIntToInt.ConvertFromStoreExpression.Compile()(1));
 
-            Assert.Equal(-1, _uIntToInt.RawConvertToStore(uint.MaxValue));
-            Assert.Equal(uint.MaxValue, _uIntToInt.RawConvertFromStore(-1));
+            Assert.Equal(-1, _uIntToInt.ConvertToStoreExpression.Compile()(uint.MaxValue));
+            Assert.Equal(uint.MaxValue, _uIntToInt.ConvertFromStoreExpression.Compile()(-1));
         }
 
         [Fact]
@@ -139,8 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 v => v.Equals("<null>", StringComparison.OrdinalIgnoreCase)
                     ? null
                     : (int?)int.Parse(v, CultureInfo.InvariantCulture),
-                v => v?.ToString(CultureInfo.InvariantCulture)
-                     ?? "<null>");
+                v => v != null
+                    ? v.Value.ToString(CultureInfo.InvariantCulture)
+                    : "<null>");
 
         [Fact]
         public void Can_convert_nulls_to_non_nulls()

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -16,23 +17,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TStore}" /> class.
         /// </summary>
-        /// <param name="convertToStore"> The function to convert objects when writing data to the store. </param>
-        /// <param name="convertFromStore"> The function to convert objects when reading data from the store. </param>
+        /// <param name="convertToStoreExpression"> An expression to convert objects when writing data to the store. </param>
+        /// <param name="convertFromStoreExpression"> An expression to convert objects when reading data from the store. </param>
         public ValueConverter(
-            [NotNull] Func<TModel, TStore> convertToStore,
-            [NotNull] Func<TStore, TModel> convertFromStore)
+            [NotNull] Expression<Func<TModel, TStore>> convertToStoreExpression,
+            [NotNull] Expression<Func<TStore, TModel>> convertFromStoreExpression)
             : base(
-                SanitizeConverter(Check.NotNull(convertToStore, nameof(convertToStore))),
-                SanitizeConverter(Check.NotNull(convertFromStore, nameof(convertFromStore))),
-                convertToStore,
-                convertFromStore)
+                SanitizeConverter(Check.NotNull(convertToStoreExpression, nameof(convertToStoreExpression))),
+                SanitizeConverter(Check.NotNull(convertFromStoreExpression, nameof(convertFromStoreExpression))),
+                convertToStoreExpression,
+                convertFromStoreExpression)
         {
         }
 
-        private static Func<object, object> SanitizeConverter<TIn, TOut>(Func<TIn, TOut> convertToStore)
-            => typeof(TIn).IsNullableType()
-                ? (Func<object, object>)(v => convertToStore(SanitizeNullable<TIn>(v)))
-                : (v => v == null ? (object)null : convertToStore(SanitizeNonNullable<TIn>(v)));
+        private static Func<object, object> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
+        {
+            var compiled = convertExpression.Compile();
+
+            return typeof(TIn).IsNullableType()
+                ? (Func<object, object>)(v => compiled(SanitizeNullable<TIn>(v)))
+                : (v => v == null ? (object)null : compiled(SanitizeNonNullable<TIn>(v)));
+        }
 
         private static T SanitizeNullable<T>(object value)
         {
@@ -51,20 +56,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 : value);
 
         /// <summary>
-        ///     Gets the function to convert objects when writing data to the store,
-        ///     exactly as supplied, which may be a generic delegate and may not handle
+        ///     Gets the expression to convert objects when writing data to the store,
+        ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public new virtual Func<TModel, TStore> RawConvertToStore
-            => (Func<TModel, TStore>)base.RawConvertToStore;
+        public new virtual Expression<Func<TModel, TStore>> ConvertToStoreExpression
+            => (Expression<Func<TModel, TStore>>)base.ConvertToStoreExpression;
 
         /// <summary>
-        ///     Gets the function to convert objects when reading data from the store,
-        ///     exactly as supplied, which may be a generic delegate and may not handle
+        ///     Gets the expression to convert objects when reading data from the store,
+        ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public new virtual Func<TStore, TModel> RawConvertFromStore
-            => (Func<TStore, TModel>)base.RawConvertFromStore;
+        public new virtual Expression<Func<TStore, TModel>> ConvertFromStoreExpression
+            => (Expression<Func<TStore, TModel>>)base.ConvertFromStoreExpression;
 
         /// <summary>
         ///     The CLR type used in the EF model.

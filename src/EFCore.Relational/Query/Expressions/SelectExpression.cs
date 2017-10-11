@@ -620,7 +620,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         [Obsolete("Use GetMappedProjectionTypes().")]
         public virtual IEnumerable<Type> GetProjectionTypes() 
-            => GetMappedProjectionTypes().Select(t => t.ClrType);
+            => GetMappedProjectionTypes().Select(t => t.StoreType);
 
         /// <summary>
         ///     Gets the types of the expressions in <see cref="Projection" />.

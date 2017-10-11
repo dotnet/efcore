@@ -237,28 +237,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         }
 
         private static bool TryMakeNullable(
-            MethodInfo method, 
+            MethodInfo method,
             Type type,
             out MethodInfo convertedMethod)
         {
-            foreach (var candidate in _readValueMethods)
+            if (method.MethodIsClosedFormOf(EntityMaterializerSource.TryReadValueMethod))
             {
-                if (method.MethodIsClosedFormOf(candidate))
-                {
-                    convertedMethod = candidate.MakeGenericMethod(type.MakeNullable());
-                    return true;
-                }
+                convertedMethod = EntityMaterializerSource.TryReadValueMethod.MakeGenericMethod(type.MakeNullable());
+                return true;
             }
+
             convertedMethod = null;
             return false;
         }
-
-        private static readonly MethodInfo[] _readValueMethods =
-        {
-            EntityMaterializerSource.TryReadValueMethod,
-            EntityMaterializerSource.TryReadValueWithConvertMethod,
-            EntityMaterializerSource.TryReadValueWithObjectConvertMethod
-        };
 
         private static Expression TryCreateNullableAccessOperation(Expression accessOperation)
             => accessOperation is MethodCallExpression methodCallExpression
