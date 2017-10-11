@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-rc3-000000-01",
-    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.5",
-    "Microsoft.EntityFrameworkCore.Sqlite": "1.0.5"
+    "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.0.6",
+    "Microsoft.EntityFrameworkCore.Sqlite": "1.0.6"
   },
   "publishOptions": {
     "includeFiles": "northwind.db"
@@ -24,7 +24,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.7",
+          "version": "1.0.8-servicing-005009-00",
           "type": "platform"
         }
       }

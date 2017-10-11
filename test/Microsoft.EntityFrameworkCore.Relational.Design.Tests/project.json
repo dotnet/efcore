@@ -4,7 +4,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.5",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.6",
     "Microsoft.EntityFrameworkCore.Relational.Tests": "1.0.0"
   },
   "testRunner": "xunit",
@@ -16,7 +16,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.7",
+          "version": "1.0.8-servicing-005009-00",
           "type": "platform"
         }
       }

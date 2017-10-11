@@ -1,5 +1,5 @@
 {
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Shared test suite for Entity Framework Core relational database providers.",
   "packOptions": {
     "tags": [
@@ -19,8 +19,8 @@
     "xmlDoc": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.5",
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.5"
+    "Microsoft.EntityFrameworkCore.Specification.Tests": "1.0.6",
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.6"
   },
   "frameworks": {
     "netstandard1.3": {

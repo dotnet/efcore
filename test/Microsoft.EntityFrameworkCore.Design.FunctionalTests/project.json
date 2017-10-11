@@ -6,9 +6,9 @@
   },
   "dependencies": {
     "dotnet-test-xunit": "1.0.0-rc3-000000-01",
-    "Microsoft.EntityFrameworkCore.Design": "1.0.5",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.5",
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.5"
+    "Microsoft.EntityFrameworkCore.Design": "1.0.6",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.6",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.0.6"
   },
   "testRunner": "xunit",
   "frameworks": {
@@ -19,7 +19,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.7",
+          "version": "1.0.8-servicing-005009-00",
           "type": "platform"
         }
       }

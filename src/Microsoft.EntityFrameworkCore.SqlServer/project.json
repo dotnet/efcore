@@ -1,5 +1,5 @@
 {
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Microsoft SQL Server database provider for Entity Framework Core.",
   "packOptions": {
     "tags": [
@@ -26,7 +26,7 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational": "1.0.5"
+    "Microsoft.EntityFrameworkCore.Relational": "1.0.6"
   },
   "frameworks": {
     "net451": {},
