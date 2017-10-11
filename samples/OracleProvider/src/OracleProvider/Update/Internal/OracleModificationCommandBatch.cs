@@ -112,8 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                        ParameterDirection.Output));
             }
 
-
-
             return new RawSqlCommand(
                 commandBuilder.Build(),
                 parameterValues);
