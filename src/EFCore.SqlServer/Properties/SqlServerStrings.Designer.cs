@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("TransientExceptionDetected");
 
         /// <summary>
-        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForSqlServerHasColumnType()'.
+        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForHasColumnType()'.
         /// </summary>
         public static readonly EventDefinition<string, string> LogDefaultDecimalTypeColumn
             = new EventDefinition<string, string>(
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogFoundTypeAlias")));
 
         /// <summary>
-        ///     Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}
         /// </summary>
         public static readonly FallbackEventDefinition LogFoundColumn
             = new FallbackEventDefinition(
@@ -148,25 +148,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 _resourceManager.GetString("LogFoundColumn"));
 
         /// <summary>
-        ///     Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.
+        ///     Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.
         /// </summary>
-        public static readonly FallbackEventDefinition LogFoundForeignKeyColumn
-            = new FallbackEventDefinition(
-                SqlServerEventId.ForeignKeyColumnFound,
+        public static readonly EventDefinition<string, string, string, string> LogFoundForeignKey
+            = new EventDefinition<string, string, string, string>(
+                SqlServerEventId.ForeignKeyFound,
                 LogLevel.Debug,
-                _resourceManager.GetString("LogFoundForeignKeyColumn"));
-
-        /// <summary>
-        ///     Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogColumnNotInSelectionSet
-            = new EventDefinition<string, string>(
-                SqlServerEventId.ColumnSkipped,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string>(
+                LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Debug,
-                    SqlServerEventId.ColumnSkipped,
-                    _resourceManager.GetString("LogColumnNotInSelectionSet")));
+                    SqlServerEventId.ForeignKeyFound,
+                    _resourceManager.GetString("LogFoundForeignKey")));
 
         /// <summary>
         ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
@@ -179,30 +170,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Warning,
                     SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
                     _resourceManager.GetString("LogPrincipalTableNotInSelectionSet")));
-
-        /// <summary>
-        ///     Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.
-        /// </summary>
-        public static readonly EventDefinition<string, string, string, int?> LogFoundIndexColumn
-            = new EventDefinition<string, string, string, int?>(
-                SqlServerEventId.IndexColumnFound,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string, string, int?>(
-                    LogLevel.Debug,
-                    SqlServerEventId.IndexColumnFound,
-                    _resourceManager.GetString("LogFoundIndexColumn")));
-
-        /// <summary>
-        ///     For index {indexName}. Unable to find parent table {tableName}. Skipping index.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogUnableToFindTableForIndex
-            = new EventDefinition<string, string>(
-                SqlServerEventId.IndexTableMissingWarning,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    SqlServerEventId.IndexTableMissingWarning,
-                    _resourceManager.GetString("LogUnableToFindTableForIndex")));
 
         /// <summary>
         ///     Unable to find a schema in the database matching the selected schema {schema}.
@@ -250,34 +217,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogFoundTable")));
 
         /// <summary>
-        ///     Table {tableName} is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string> LogTableNotInSelectionSet
-            = new EventDefinition<string>(
-                SqlServerEventId.TableSkipped,
-                LogLevel.Debug,
-                LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    SqlServerEventId.TableSkipped,
-                    _resourceManager.GetString("LogTableNotInSelectionSet")));
-
-        /// <summary>
         ///     The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.
         /// </summary>
         public static string NoInitialCatalog
             => GetString("NoInitialCatalog");
-
-        /// <summary>
-        ///     Foreign key {fkName} is defined on table {tableName} which is not included in the selection set. Skipping.
-        /// </summary>
-        public static readonly EventDefinition<string, string> LogForeignKeyTableNotInSelectionSet
-            = new EventDefinition<string, string>(
-                SqlServerEventId.ForeignKeyTableMissingWarning,
-                LogLevel.Debug,
-                LoggerMessage.Define<string, string>(
-                    LogLevel.Debug,
-                    SqlServerEventId.ForeignKeyTableMissingWarning,
-                    _resourceManager.GetString("LogForeignKeyTableNotInSelectionSet")));
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different value generation strategies.
@@ -286,6 +229,62 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("DuplicateColumnNameValueGenerationStrategyMismatch", nameof(entityType1), nameof(property1), nameof(entityType2), nameof(property2), nameof(columnName), nameof(table)),
                 entityType1, property1, entityType2, property2, columnName, table);
+
+        /// <summary>
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        /// </summary>
+        public static readonly EventDefinition<string, string, bool> LogFoundIndex
+            = new EventDefinition<string, string, bool>(
+                SqlServerEventId.IndexFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, bool>(
+                    LogLevel.Debug,
+                    SqlServerEventId.IndexFound,
+                    _resourceManager.GetString("LogFoundIndex")));
+
+        /// <summary>
+        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundPrimaryKey
+            = new EventDefinition<string, string>(
+                SqlServerEventId.PrimaryKeyFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    SqlServerEventId.PrimaryKeyFound,
+                    _resourceManager.GetString("LogFoundPrimaryKey")));
+
+        /// <summary>
+        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundUniqueConstraint
+            = new EventDefinition<string, string>(
+                SqlServerEventId.UniqueConstraintFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    SqlServerEventId.UniqueConstraintFound,
+                    _resourceManager.GetString("LogFoundUniqueConstraint")));
+
+        /// <summary>
+        ///     For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogPrincipalColumnNotFound
+            = new EventDefinition<string, string, string, string>(
+                SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Warning,
+                    SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
+                    _resourceManager.GetString("LogPrincipalColumnNotFound")));
+
+        /// <summary>
+        ///     The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.
+        /// </summary>
+        public static string InvalidTableToIncludeInScaffolding([CanBeNull] object table)
+            => string.Format(
+                GetString("InvalidTableToIncludeInScaffolding", nameof(table)),
+                table);
 
         private static string GetString(string name, params string[] formatterNames)
         {

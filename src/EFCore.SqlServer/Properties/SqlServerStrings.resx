@@ -139,7 +139,7 @@
     <value>An exception has been raised that is likely due to a transient failure. If you are connecting to a SQL Azure database consider using SqlAzureExecutionStrategy.</value>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForSqlServerHasColumnType()'.</value>
+    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForHasColumnType()'.</value>
     <comment>Warning SqlServerEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
@@ -164,28 +164,16 @@
     <comment>Debug SqlServerEventId.TypeAliasFound string string</comment>
   </data>
   <data name="LogFoundColumn" xml:space="preserve">
-    <value>Found column with table: {tableName}, column name: {columnName}, data type: {dataType}, ordinal: {ordinal}, nullable: {isNullable}, primary key ordinal: {primaryKeyOrdinal}, default value: {defaultValue}, computed value: {computedValue}, precision: {precision}, scale: {scale}, maximum length: {maxLength}, identity: {isIdentity}</value>
-    <comment>Debug SqlServerEventId.ColumnFound string string string int? bool? int? string string int? int? int? bool?</comment>
+    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}</value>
+    <comment>Debug SqlServerEventId.ColumnFound string string int string int int int bool bool string string</comment>
   </data>
-  <data name="LogFoundForeignKeyColumn" xml:space="preserve">
-    <value>Found foreign key column with table: {tableName}, foreign key name: {fkName}, principal table: {principalTableName}, column name: {columnName}, principal column name: {principalColumnName}, update action: {updateAction}, delete action: {deleteAction}, ordinal: {ordinal}.</value>
-    <comment>Debug SqlServerEventId.ForeignKeyColumnFound string string string string string string string int?</comment>
-  </data>
-  <data name="LogColumnNotInSelectionSet" xml:space="preserve">
-    <value>Column {columnName} belongs to table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Debug SqlServerEventId.ColumnSkipped string string</comment>
+  <data name="LogFoundForeignKey" xml:space="preserve">
+    <value>Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.</value>
+    <comment>Debug SqlServerEventId.ForeignKeyFound string string string string</comment>
   </data>
   <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
     <value>For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.</value>
     <comment>Warning SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning string string string</comment>
-  </data>
-  <data name="LogFoundIndexColumn" xml:space="preserve">
-    <value>Found index column on index {indexName} on table {tableName}, column name: {columnName}, ordinal: {ordinal}.</value>
-    <comment>Debug SqlServerEventId.IndexColumnFound string string string int?</comment>
-  </data>
-  <data name="LogUnableToFindTableForIndex" xml:space="preserve">
-    <value>For index {indexName}. Unable to find parent table {tableName}. Skipping index.</value>
-    <comment>Debug SqlServerEventId.IndexTableMissingWarning string string</comment>
   </data>
   <data name="LogMissingSchema" xml:space="preserve">
     <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
@@ -197,24 +185,35 @@
   </data>
   <data name="LogFoundSequence" xml:space="preserve">
     <value>Found sequence name: {name}, data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
-    <comment>Debug SqlServerEventId.SequenceFound string string bool? int? long? long? long?</comment>
+    <comment>Debug SqlServerEventId.SequenceFound string string bool int long long long</comment>
   </data>
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: {name}.</value>
     <comment>Debug SqlServerEventId.TableFound string</comment>
   </data>
-  <data name="LogTableNotInSelectionSet" xml:space="preserve">
-    <value>Table {tableName} is not included in the selection set. Skipping.</value>
-    <comment>Debug SqlServerEventId.TableSkipped string</comment>
-  </data>
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use EnsureDeleted, the connection string must specify Initial Catalog.</value>
   </data>
-  <data name="LogForeignKeyTableNotInSelectionSet" xml:space="preserve">
-    <value>Foreign key {fkName} is defined on table {tableName} which is not included in the selection set. Skipping.</value>
-    <comment>Debug SqlServerEventId.ForeignKeyTableMissingWarning string string</comment>
-  </data>
   <data name="DuplicateColumnNameValueGenerationStrategyMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}' but are configured with different value generation strategies.</value>
+  </data>
+  <data name="LogFoundIndex" xml:space="preserve">
+    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+    <comment>Debug SqlServerEventId.IndexFound string string bool</comment>
+  </data>
+  <data name="LogFoundPrimaryKey" xml:space="preserve">
+    <value>Found primary key with name: {primaryKeyName}, table: {tableName}.</value>
+    <comment>Debug SqlServerEventId.PrimaryKeyFound string string</comment>
+  </data>
+  <data name="LogFoundUniqueConstraint" xml:space="preserve">
+    <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
+    <comment>Debug SqlServerEventId.UniqueConstraintFound string string</comment>
+  </data>
+  <data name="LogPrincipalColumnNotFound" xml:space="preserve">
+    <value>For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
+    <comment>Warning SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
+  </data>
+  <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
+    <value>The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.</value>
   </data>
 </root>

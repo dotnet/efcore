@@ -52,7 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TableFound,
             TableSkipped,
             TypeAliasFound,
-            ForeignKeyTableMissingWarning
+            ForeignKeyTableMissingWarning,
+            PrimaryKeyFound,
+            UniqueConstraintFound,
+            IndexFound,
+            ForeignKeyFound,
+            ForeignKeyPrincipalColumnMissingWarning
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -97,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A column of a foreign key was found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ForeignKeyColumnFound = MakeScaffoldingId(Id.ForeignKeyColumnFound);
 
         /// <summary>
@@ -189,6 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The table referened by an index was not found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId IndexTableMissingWarning = MakeScaffoldingId(Id.IndexTableMissingWarning);
 
         /// <summary>
@@ -208,18 +215,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A table was skipped.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId TableSkipped = MakeScaffoldingId(Id.TableSkipped);
 
         /// <summary>
         ///     A column was skipped.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ColumnSkipped = MakeScaffoldingId(Id.ColumnSkipped);
 
         /// <summary>
         ///     An index was skipped.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId IndexColumnFound = MakeScaffoldingId(Id.IndexColumnFound);
 
         /// <summary>
@@ -239,6 +249,37 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A foreign key table was not found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
+        [Obsolete]
         public static readonly EventId ForeignKeyTableMissingWarning = MakeScaffoldingId(Id.ForeignKeyTableMissingWarning);
+
+        /// <summary>
+        ///     Primary key was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId PrimaryKeyFound = MakeScaffoldingId(Id.PrimaryKeyFound);
+
+        /// <summary>
+        ///     An unique constraint was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId UniqueConstraintFound = MakeScaffoldingId(Id.UniqueConstraintFound);
+
+        /// <summary>
+        ///     An index was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId IndexFound = MakeScaffoldingId(Id.IndexFound);
+
+        /// <summary>
+        ///     A foreign key was found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyFound = MakeScaffoldingId(Id.ForeignKeyFound);
+
+        /// <summary>
+        ///     A principal column referenced by a foreign key was not found.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyPrincipalColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
     }
 }
