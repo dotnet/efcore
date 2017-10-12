@@ -12,12 +12,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private const string DateTimeOffsetFormatConst = "{0:yyyy-MM-ddTHH:mm:ss.fffzzz}";
 
         public OracleDateTimeOffsetTypeMapping([NotNull] string storeType)
-            : base(storeType)
+            : this(storeType, null)
+        {
+        }
+
+        public OracleDateTimeOffsetTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter)
+            : base(storeType, converter)
         {
         }
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDateTimeOffsetTypeMapping(storeType);
+            => new OracleDateTimeOffsetTypeMapping(storeType, Converter);
 
         protected override string SqlLiteralFormatString => "'" + DateTimeOffsetFormatConst + "'";
 

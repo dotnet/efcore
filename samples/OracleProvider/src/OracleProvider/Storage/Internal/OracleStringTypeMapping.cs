@@ -12,19 +12,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private readonly int _maxSpecificSize;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OracleStringTypeMapping" /> class.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public OracleStringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType,
             bool unicode = false,
             int? size = null)
-            : base(storeType, dbType, unicode, size)
+            : this(storeType, null, dbType, unicode, size)
+        {
+        }
+
+        public OracleStringTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            [CanBeNull] DbType? dbType,
+            bool unicode = false,
+            int? size = null)
+            : base(storeType, converter, dbType, unicode, size)
         {
             _maxSpecificSize = CalculateSize(unicode, size);
         }
@@ -41,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleStringTypeMapping(
                 storeType,
+                Converter,
                 DbType,
                 IsUnicode,
                 size);
@@ -68,13 +72,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
         }
 
-        /// <summary>
-        ///     Generates the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
             => IsUnicode
                 ? $"N'{EscapeSqlLiteral((string)value)}'" // Interpolation okay; strings

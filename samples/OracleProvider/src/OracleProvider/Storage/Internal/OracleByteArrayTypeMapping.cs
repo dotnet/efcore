@@ -14,17 +14,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         private readonly int _maxSpecificSize;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OracleByteArrayTypeMapping" /> class.
-        /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public OracleByteArrayTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
             int? size = null)
-            : base(storeType, dbType, size)
+            : this(storeType, null, dbType, size)
+        {
+        }
+
+        public OracleByteArrayTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
+            int? size = null)
+            : base(storeType, converter, dbType, size)
         {
             _maxSpecificSize = CalculateSize(size);
         }
@@ -35,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleByteArrayTypeMapping(
                 storeType,
+                Converter,
                 DbType,
                 size);
 
@@ -52,13 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     : parameter.Size;
         }
 
-        /// <summary>
-        ///     Generates the SQL representation of a literal value.
-        /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             var builder = new StringBuilder();

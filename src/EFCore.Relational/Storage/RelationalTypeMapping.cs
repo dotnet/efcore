@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
-            [NotNull] ValueConverter converter,
+            [CanBeNull] ValueConverter converter,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)

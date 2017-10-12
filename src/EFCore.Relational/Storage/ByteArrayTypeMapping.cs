@@ -30,7 +30,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] string storeType,
             DbType? dbType = null,
             int? size = null)
-            : base(storeType, typeof(byte[]), dbType, size: size)
+            : this(storeType, null, dbType, size)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ByteArrayTypeMapping" /> class.
+        /// </summary>
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
+        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        public ByteArrayTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            DbType? dbType = null,
+            int? size = null)
+            : base(storeType, typeof(byte[]), converter, dbType, size: size)
         {
         }
 
@@ -43,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new ByteArrayTypeMapping(
                 storeType,
+                Converter,
                 DbType,
                 size);
 

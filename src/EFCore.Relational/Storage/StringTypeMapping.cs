@@ -30,7 +30,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : base(storeType, typeof(string), dbType, unicode, size)
+            : this(storeType, null, dbType, unicode, size)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
+        /// </summary>
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
+        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        public StringTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            DbType? dbType = null,
+            bool unicode = false,
+            int? size = null)
+            : base(storeType, typeof(string), converter, dbType, unicode, size)
         {
         }
 
@@ -41,11 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new StringTypeMapping(
-                storeType,
-                DbType,
-                IsUnicode,
-                size);
+            => new StringTypeMapping(storeType, Converter, DbType, IsUnicode, size);
 
         /// <summary>
         ///     Generates the escaped SQL representation of a literal value.

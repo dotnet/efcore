@@ -13,12 +13,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public OracleDateTimeTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType)
+            : this(storeType, null, dbType)
+        {
+        }
+
+        public OracleDateTimeTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            [CanBeNull] DbType? dbType = null)
+            : base(storeType, converter, dbType)
         {
         }
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDateTimeTypeMapping(storeType, DbType);
+            => new OracleDateTimeTypeMapping(storeType, Converter, DbType);
 
         protected override string SqlLiteralFormatString => DateTimeFormatConst;
     }

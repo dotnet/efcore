@@ -10,9 +10,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class OracleTimeSpanTypeMapping : TimeSpanTypeMapping
     {
         public OracleTimeSpanTypeMapping([NotNull] string storeType, [CanBeNull] DbType? dbType = null)
-            : base(storeType, dbType)
+            : this(storeType, null, dbType)
         {
         }
+
+        public OracleTimeSpanTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            [CanBeNull] DbType? dbType = null)
+            : base(storeType, converter, dbType)
+        {
+        }
+
+        public override RelationalTypeMapping Clone(string storeType, int? size)
+            => new OracleTimeSpanTypeMapping(storeType, Converter, DbType);
 
         protected override string GenerateNonNullSqlLiteral(object value)
         {

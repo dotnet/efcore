@@ -28,7 +28,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DateTimeOffsetTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, typeof(DateTimeOffset), dbType)
+            : this(storeType, null, dbType)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DateTimeOffsetTypeMapping" /> class.
+        /// </summary>
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
+        public DateTimeOffsetTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            DbType? dbType = null)
+            : base(storeType, typeof(DateTimeOffset), converter, dbType)
         {
         }
 
@@ -39,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new DateTimeOffsetTypeMapping(storeType, DbType);
+            => new DateTimeOffsetTypeMapping(storeType, Converter, DbType);
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.

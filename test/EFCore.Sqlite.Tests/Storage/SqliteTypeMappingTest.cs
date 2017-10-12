@@ -18,6 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.String;
 
+        [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
+        [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]
+        [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
+        public override void Create_and_clone_with_converter(Type mappingType, Type clrType)
+        {
+            base.Create_and_clone_with_converter(mappingType, clrType);
+        }
+
         [Theory]
         [InlineData("TEXT", typeof(string))]
         [InlineData("Integer", typeof(long))]

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public SByteTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, typeof(sbyte), dbType)
+            : this(storeType, null, dbType)
         {
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public SByteTypeMapping(
             [NotNull] string storeType,
-            [NotNull] ValueConverter converter,
+            [CanBeNull] ValueConverter converter,
             DbType? dbType = null)
             : base(storeType, typeof(sbyte), converter, dbType)
         {

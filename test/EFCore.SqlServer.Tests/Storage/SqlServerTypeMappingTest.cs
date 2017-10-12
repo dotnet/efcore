@@ -18,6 +18,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbType DefaultParameterType
             => DbType.Int32;
 
+        [InlineData(typeof(SqlServerDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
+        [InlineData(typeof(SqlServerDateTimeTypeMapping), typeof(DateTime))]
+        [InlineData(typeof(SqlServerDoubleTypeMapping), typeof(double))]
+        [InlineData(typeof(SqlServerFloatTypeMapping), typeof(float))]
+        [InlineData(typeof(SqlServerTimeSpanTypeMapping), typeof(TimeSpan))]
+        public override void Create_and_clone_with_converter(Type mappingType, Type clrType)
+        {
+            base.Create_and_clone_with_converter(mappingType, clrType);
+        }
+
+        [InlineData(typeof(SqlServerByteArrayTypeMapping), typeof(byte[]))]
+        public override void Create_and_clone_sized_mappings_with_converter(Type mappingType, Type clrType)
+        {
+            base.Create_and_clone_sized_mappings_with_converter(mappingType, clrType);
+        }
+
+        [InlineData(typeof(SqlServerStringTypeMapping), typeof(string))]
+        public override void Create_and_clone_unicode_sized_mappings_with_converter(Type mappingType, Type clrType)
+        {
+            base.Create_and_clone_unicode_sized_mappings_with_converter(mappingType, clrType);
+        }
+
         public override void GenerateSqlLiteral_returns_ByteArray_literal()
         {
             var value = new byte[] { 0xDA, 0x7A };

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ULongTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, typeof(ulong), dbType)
+            : this(storeType, null, dbType)
         {
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public ULongTypeMapping(
             [NotNull] string storeType,
-            [NotNull] ValueConverter converter,
+            [CanBeNull] ValueConverter converter,
             DbType? dbType = null)
             : base(storeType, typeof(ulong), converter, dbType)
         {

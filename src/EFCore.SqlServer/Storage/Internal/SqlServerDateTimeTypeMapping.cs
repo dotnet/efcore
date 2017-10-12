@@ -23,7 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public SqlServerDateTimeTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, dbType)
+            : this(storeType, null, dbType)
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public SqlServerDateTimeTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            DbType? dbType = null)
+            : base(storeType, converter, dbType)
         {
         }
 
@@ -47,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerDateTimeTypeMapping(storeType, DbType);
+            => new SqlServerDateTimeTypeMapping(storeType, Converter, DbType);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

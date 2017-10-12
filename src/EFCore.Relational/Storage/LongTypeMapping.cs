@@ -25,7 +25,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public LongTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, typeof(long), dbType)
+            : this(storeType, null, dbType)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="LongTypeMapping" /> class.
+        /// </summary>
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
+        public LongTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            DbType? dbType = null)
+            : base(storeType, typeof(long), converter, dbType)
         {
         }
 
@@ -36,6 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new LongTypeMapping(storeType, DbType);
+            => new LongTypeMapping(storeType, Converter, DbType);
     }
 }

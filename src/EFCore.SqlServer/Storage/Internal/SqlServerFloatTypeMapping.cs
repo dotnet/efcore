@@ -13,36 +13,40 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class SqlServerFloatTypeMapping : FloatTypeMapping
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SqlServerFloatTypeMapping" /> class.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public SqlServerFloatTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : base(storeType, dbType)
+            : this(storeType, null, dbType)
         {
         }
 
         /// <summary>
-        ///     Creates a copy of this mapping.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
-        /// <returns> The newly created mapping. </returns>
+        public SqlServerFloatTypeMapping(
+            [NotNull] string storeType,
+            [CanBeNull] ValueConverter converter,
+            DbType? dbType = null)
+            : base(storeType, converter, dbType)
+        {
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerFloatTypeMapping(storeType, DbType);
+            => new SqlServerFloatTypeMapping(storeType, Converter, DbType);
 
         /// <summary>
-        ///     Generates the SQL representation of a literal value.
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /// <param name="value">The literal value.</param>
-        /// <returns>
-        ///     The generated string.
-        /// </returns>
-        protected override string GenerateNonNullSqlLiteral(object value)
-        {
-            return $"CAST({base.GenerateNonNullSqlLiteral(value)} AS {StoreType})";
-        }
+        protected override string GenerateNonNullSqlLiteral(object value) 
+            => $"CAST({base.GenerateNonNullSqlLiteral(value)} AS {StoreType})";
     }
 }
