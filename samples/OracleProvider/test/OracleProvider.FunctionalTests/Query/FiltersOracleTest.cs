@@ -6,13 +6,19 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class FiltersOracleTest : FiltersTestBase<NorthwindQueryOracleFixture<NorthwindFiltersCustomizer>>
-    {
-        public FiltersOracleTest(NorthwindQueryOracleFixture<NorthwindFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            fixture.TestSqlLoggerFactory.Clear();
-            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        }
-    }
+    // TODO: See issue#10052
+    //public class FiltersOracleTest : FiltersTestBase<NorthwindQueryOracleFixture<NorthwindFiltersCustomizer>>
+    //{
+    //    public FiltersOracleTest(NorthwindQueryOracleFixture<NorthwindFiltersCustomizer> fixture, ITestOutputHelper testOutputHelper)
+    //        : base(fixture)
+    //    {
+    //        fixture.TestSqlLoggerFactory.Clear();
+    //        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    //    }
+
+    //    public override void Include_query()
+    //    {
+    //        base.Include_query();
+    //    }
+    //}
 }
