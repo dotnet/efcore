@@ -749,7 +749,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var asProperty = propertyBase as IProperty;
                 var propertyIndex = asProperty?.GetIndex();
 
-                if (!Equals(currentValue, value)
+                var valuesEqual = asProperty != null
+                    ? Equals(currentValue, value)
+                    : ReferenceEquals(currentValue, value);
+
+                if (!valuesEqual
                     || (propertyIndex.HasValue
                         && (_stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Unknown)
                             || _stateData.IsPropertyFlagged(propertyIndex.Value, PropertyFlag.Null)
