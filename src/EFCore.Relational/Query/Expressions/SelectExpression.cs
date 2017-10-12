@@ -810,26 +810,48 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(ordering, nameof(ordering));
 
             var existingOrdering
-                = _orderBy.Find(
-                    o =>
-                        {
-                            if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
+                = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue10045", out var enabled)
+                  && enabled
+                    ? _orderBy.Find(
+                        o =>
                             {
-                                return true;
-                            }
+                                if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
+                                {
+                                    return true;
+                                }
 
-                            if (o.Expression.RemoveConvert() is NullableExpression nullableExpression1
-                                && _expressionEqualityComparer
-                                    .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
+                                if (o.Expression is NullableExpression nullableExpression1
+                                    && _expressionEqualityComparer
+                                        .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
+                                {
+                                    return true;
+                                }
+
+                                return ordering.Expression is NullableExpression nullableExpression2
+                                       && _expressionEqualityComparer
+                                           .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
+                            }
+                    )
+                    : _orderBy.Find(
+                        o =>
                             {
-                                return true;
-                            }
+                                if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
+                                {
+                                    return true;
+                                }
 
-                            return ordering.Expression.RemoveConvert() is NullableExpression nullableExpression2
-                                   && _expressionEqualityComparer
-                                       .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
-                        }
-                );
+                                if (o.Expression.RemoveConvert() is NullableExpression nullableExpression1
+                                    && _expressionEqualityComparer
+                                        .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
+                                {
+                                    return true;
+                                }
+
+                                return ordering.Expression.RemoveConvert() is NullableExpression nullableExpression2
+                                       && _expressionEqualityComparer
+                                           .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
+                            }
+                    );
 
             if (existingOrdering != null)
             {

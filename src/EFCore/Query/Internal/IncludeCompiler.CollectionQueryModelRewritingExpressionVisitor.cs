@@ -197,23 +197,39 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var propertyExpression = querySourceReferenceExpression.CreateEFPropertyExpression(property);
 
-                    var orderingExpression = Expression.Convert(
-                        new NullConditionalExpression(
-                            querySourceReferenceExpression,
-                            propertyExpression),
-                        propertyExpression.Type);
-
-                    if (!orderings.Any(
-                        o => _expressionEqualityComparer.Equals(o.Expression, orderingExpression)
-                             || (o.Expression is MemberExpression memberExpression1
-                                 && propertyExpression is MethodCallExpression methodCallExpression
-                                 && MatchEfPropertyToMemberExpression(memberExpression1, methodCallExpression))
-                             || (o.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression
-                                 && nullConditionalExpression.AccessOperation is MemberExpression memberExpression
-                                 && propertyExpression is MethodCallExpression methodCallExpression1
-                                 && MatchEfPropertyToMemberExpression(memberExpression, methodCallExpression1))))
+                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue10045", out var enabled)
+                        && enabled)
                     {
-                        parentOrderings.Add(new Ordering(orderingExpression, OrderingDirection.Asc));
+                        if (!orderings.Any(
+                            o => _expressionEqualityComparer.Equals(o.Expression, propertyExpression)
+                                 || o.Expression is MemberExpression memberExpression
+                                 && memberExpression.Expression is QuerySourceReferenceExpression memberQuerySourceReferenceExpression
+                                 && ReferenceEquals(memberQuerySourceReferenceExpression.ReferencedQuerySource, querySourceReferenceExpression.ReferencedQuerySource)
+                                 && memberExpression.Member.Equals(property.PropertyInfo)))
+                        {
+                            parentOrderings.Add(new Ordering(propertyExpression, OrderingDirection.Asc));
+                        }
+                    }
+                    else
+                    {
+                        var orderingExpression = Expression.Convert(
+                            new NullConditionalExpression(
+                                querySourceReferenceExpression,
+                                propertyExpression),
+                            propertyExpression.Type);
+
+                        if (!orderings.Any(
+                            o => _expressionEqualityComparer.Equals(o.Expression, orderingExpression)
+                                 || (o.Expression is MemberExpression memberExpression1
+                                     && propertyExpression is MethodCallExpression methodCallExpression
+                                     && MatchEfPropertyToMemberExpression(memberExpression1, methodCallExpression))
+                                 || (o.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression
+                                     && nullConditionalExpression.AccessOperation is MemberExpression memberExpression
+                                     && propertyExpression is MethodCallExpression methodCallExpression1
+                                     && MatchEfPropertyToMemberExpression(memberExpression, methodCallExpression1))))
+                        {
+                            parentOrderings.Add(new Ordering(orderingExpression, OrderingDirection.Asc));
+                        }
                     }
                 }
             }
@@ -525,9 +541,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         int projectionIndex;
                         var orderingExpression = ordering.Expression;
-                        if (ordering.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression)
+                        if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue10045", out var enabled)
+                            && enabled))
                         {
-                            orderingExpression = nullConditionalExpression.AccessOperation;
+                            if (ordering.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression)
+                            {
+                                orderingExpression = nullConditionalExpression.AccessOperation;
+                            }
                         }
 
                         if (orderingExpression is MemberExpression memberExpression
@@ -566,10 +586,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                         else
                         {
-                            projectionIndex
-                                = subQueryProjection
-                                    // Do NOT use orderingExpression variable here
-                                    .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression.RemoveConvert()));
+                            if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue10045", out var enabled2)
+                                && enabled2)
+                            {
+                                projectionIndex
+                                    = subQueryProjection
+                                        // Do NOT use orderingExpression variable here
+                                        .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression));
+                            }
+                            else
+                            {
+                                projectionIndex
+                                    = subQueryProjection
+                                        // Do NOT use orderingExpression variable here
+                                        .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression.RemoveConvert()));
+                            }
                         }
 
                         if (projectionIndex == -1)
