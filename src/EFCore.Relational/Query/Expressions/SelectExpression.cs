@@ -818,14 +818,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                                 return true;
                             }
 
-                            if (o.Expression is NullableExpression nullableExpression1
+                            if (o.Expression.RemoveConvert() is NullableExpression nullableExpression1
                                 && _expressionEqualityComparer
                                     .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
                             {
                                 return true;
                             }
 
-                            return ordering.Expression is NullableExpression nullableExpression2
+                            return ordering.Expression.RemoveConvert() is NullableExpression nullableExpression2
                                    && _expressionEqualityComparer
                                        .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
                         }

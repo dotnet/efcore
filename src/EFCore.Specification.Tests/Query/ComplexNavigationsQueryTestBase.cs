@@ -3674,6 +3674,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level1>(e => e.OneToMany_Optional, "OneToMany_Optional") });
         }
 
+        [ConditionalFact]
+        public virtual void Include_reference_collection_order_by_reference_navigation()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
+                    .OrderBy(l1 => l1.OneToOne_Optional_FK.Id),
+                l1s => l1s
+                    .Include(l1 => l1.OneToOne_Optional_FK.OneToMany_Optional)
+                    .OrderBy(l1 => MaybeScalar<int>(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Id)),
+                expectedIncludes: new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK, "OneToOne_Optional_FK"),
+                    new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional", "OneToOne_Optional_FK")
+                });
+        }
+
         private static TResult Maybe<TResult>(object caller, Func<TResult> expression) where TResult : class
         {
             if (caller == null)

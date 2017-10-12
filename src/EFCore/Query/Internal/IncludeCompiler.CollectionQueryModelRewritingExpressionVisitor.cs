@@ -197,17 +197,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var propertyExpression = querySourceReferenceExpression.CreateEFPropertyExpression(property);
 
+                    var orderingExpression = Expression.Convert(
+                        new NullConditionalExpression(
+                            querySourceReferenceExpression,
+                            propertyExpression),
+                        propertyExpression.Type);
+
                     if (!orderings.Any(
-                        o =>
-                            _expressionEqualityComparer.Equals(o.Expression, propertyExpression)
-                            || o.Expression is MemberExpression memberExpression
-                            && memberExpression.Expression is QuerySourceReferenceExpression memberQuerySourceReferenceExpression
-                            && ReferenceEquals(memberQuerySourceReferenceExpression.ReferencedQuerySource, querySourceReferenceExpression.ReferencedQuerySource)
-                            && memberExpression.Member.Equals(property.PropertyInfo)))
+                        o => _expressionEqualityComparer.Equals(o.Expression, orderingExpression)
+                             || (o.Expression is MemberExpression memberExpression1
+                                 && propertyExpression is MethodCallExpression methodCallExpression
+                                 && MatchEfPropertyToMemberExpression(memberExpression1, methodCallExpression))
+                             || (o.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression
+                                 && nullConditionalExpression.AccessOperation is MemberExpression memberExpression
+                                 && propertyExpression is MethodCallExpression methodCallExpression1
+                                 && MatchEfPropertyToMemberExpression(memberExpression, methodCallExpression1))))
                     {
-                        parentOrderings.Add(new Ordering(propertyExpression, OrderingDirection.Asc));
+                        parentOrderings.Add(new Ordering(orderingExpression, OrderingDirection.Asc));
                     }
                 }
+            }
+
+            private static bool MatchEfPropertyToMemberExpression(MemberExpression memberExpression, MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.IsEFProperty())
+                {
+                    var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+
+                    return memberExpression.Member.Name.Equals(propertyName)
+                           && _expressionEqualityComparer.Equals(memberExpression.Expression, methodCallExpression.Arguments[0]);
+                }
+
+                return false;
             }
 
             private static void AdjustPredicate(
@@ -503,8 +524,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     foreach (var ordering in orderByClause.Orderings)
                     {
                         int projectionIndex;
+                        var orderingExpression = ordering.Expression;
+                        if (ordering.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression)
+                        {
+                            orderingExpression = nullConditionalExpression.AccessOperation;
+                        }
 
-                        if (ordering.Expression is MemberExpression memberExpression
+                        if (orderingExpression is MemberExpression memberExpression
                             && memberExpression.Expression is QuerySourceReferenceExpression memberQsre
                             && memberQsre.ReferencedQuerySource == querySource)
                         {
@@ -542,7 +568,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         {
                             projectionIndex
                                 = subQueryProjection
-                                    .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression));
+                                    // Do NOT use orderingExpression variable here
+                                    .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression.RemoveConvert()));
                         }
 
                         if (projectionIndex == -1)
@@ -553,8 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 Expression.Convert(
                                     // Workaround re-linq#RMLNQ-111 - When this is fixed the Clone can go away
                                     CloningExpressionVisitor.AdjustExpressionAfterCloning(
-                                        ordering.Expression, 
-                                        new QuerySourceMapping()), 
+                                        ordering.Expression,
+                                        new QuerySourceMapping()),
                                     typeof(object)));
                         }
 

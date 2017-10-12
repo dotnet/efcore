@@ -20,10 +20,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Nested_group_join_with_take();
         }
 
-        [ConditionalFact(Skip = " issue #9591")]
+        [ConditionalFact(Skip = "issue #9591")]
         public override void Multi_include_with_groupby_in_subquery()
         {
             base.Multi_include_with_groupby_in_subquery();
+        }
+
+        [ConditionalFact(Skip = "Issue #10060")]
+        public override void Include_reference_collection_order_by_reference_navigation()
+        {
+            base.Include_reference_collection_order_by_reference_navigation();
         }
     }
 }

@@ -390,6 +390,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Include_reference_collection_order_by_reference_navigation()
+        {
+        }
+
         protected override IQueryable<Level1> GetExpectedLevelOne()
             => ComplexNavigationsData.SplitLevelOnes.AsQueryable();
 
