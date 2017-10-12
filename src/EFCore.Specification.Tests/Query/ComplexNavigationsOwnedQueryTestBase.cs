@@ -385,5 +385,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Include_collection_with_groupby_in_subquery_and_filter_after_groupby()
         {
         }
+
+        public override void Include_reference_collection_order_by_reference_navigation()
+        {
+        }
     }
 }
