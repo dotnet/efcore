@@ -2,11 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class TableSplittingOracleTest : TableSplittingTestBase
     {
+        public TableSplittingOracleTest(ITestOutputHelper testOutputHelper)
+            : base(testOutputHelper)
+        {
+        }
+
         protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
     }
 }
