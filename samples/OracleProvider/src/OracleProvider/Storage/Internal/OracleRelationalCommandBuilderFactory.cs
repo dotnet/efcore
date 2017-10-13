@@ -312,18 +312,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         {
                             parameter.AddDbParameter(command, parameterValues);
                         }
-                    }
-
-                    // HACK: Need to make it easier to add this in update pipeline.
-                    if (command.CommandText.Contains(":cur"))
-                    {
-                        command.Parameters.Add(
-                            new OracleParameter(
-                                "cur",
-                                OracleDbType.RefCursor,
-                                DBNull.Value,
-                                ParameterDirection.Output));
-                    }
+                    } 
 
                     return command;
                 }
