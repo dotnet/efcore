@@ -7,6 +7,7 @@
     <Product>Microsoft Entity Framework Core</Product>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">True</PublicSign>
     <RepositoryType>git</RepositoryType>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot> 
     <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
     <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
