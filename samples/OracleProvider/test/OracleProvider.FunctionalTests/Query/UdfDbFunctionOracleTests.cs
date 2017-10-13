@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -294,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var startDate = DateTime.Parse("4/1/2000");
+                var startDate = DateTime.Parse("4/1/2000", CultureInfo.InvariantCulture);
 
                 var custId = (from c in context.Customers
                               where UDFSqlContext.GetCustomerWithMostOrdersAfterDate(startDate) == c.Id
@@ -699,12 +700,12 @@ BEGIN
   RETURN LENGTH(value);
 END;");
 
-                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = DateTime.Parse("1/20/2000") };
-                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = DateTime.Parse("2/21/2000") };
-                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = DateTime.Parse("3/20/2000") };
-                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = DateTime.Parse("4/21/2000") };
-                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = DateTime.Parse("5/20/2000") };
-                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = DateTime.Parse("6/21/2000") };
+                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = DateTime.Parse("1/20/2000", CultureInfo.InvariantCulture) };
+                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = DateTime.Parse("2/21/2000", CultureInfo.InvariantCulture) };
+                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = DateTime.Parse("3/20/2000", CultureInfo.InvariantCulture) };
+                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = DateTime.Parse("4/21/2000", CultureInfo.InvariantCulture) };
+                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = DateTime.Parse("5/20/2000", CultureInfo.InvariantCulture) };
+                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = DateTime.Parse("6/21/2000", CultureInfo.InvariantCulture) };
 
                 var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12, order13 } };
                 var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22 } };
