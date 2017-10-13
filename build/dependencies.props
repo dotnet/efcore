@@ -1,7 +1,7 @@
 ﻿<Project>
   <PropertyGroup>
     <EntityFrameworkPackageVersion>6.1.3</EntityFrameworkPackageVersion>
-    <InternalAspNetCoreSdkPackageVersion>2.0.2-beta-15516</InternalAspNetCoreSdkPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.0.2-rc1-15526</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCSharpPackageVersion>4.4.0</MicrosoftCSharpPackageVersion>
     <MicrosoftDataSqliteCorePackageVersion>2.0.0</MicrosoftDataSqliteCorePackageVersion>

@@ -292,4 +292,3 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 *.g.targets
-korebuild-lock.txt
