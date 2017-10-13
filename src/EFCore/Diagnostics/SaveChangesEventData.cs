@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     A <see cref="DiagnosticSource" /> event payload class for events that
-    ///     specify the enties being saved and the rows affected.
+    ///     specify the entities being saved and the rows affected.
     /// </summary>
     public class SaveChangesEventData : EventData
     {

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         private Expression _predicate;
 
         /// <summary>
-        ///     Specialised constructor for use only by derived class.
+        ///     Specialized constructor for use only by derived class.
         /// </summary>
         /// <param name="tableExpression"> The target table expression. </param>
         protected PredicateJoinExpressionBase([NotNull] TableExpressionBase tableExpression)

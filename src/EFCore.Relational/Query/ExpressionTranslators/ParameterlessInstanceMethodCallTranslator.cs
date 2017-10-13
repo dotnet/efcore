@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         private readonly string _sqlFunctionName;
 
         /// <summary>
-        ///     Specialised constructor for use only by derived class.
+        ///     Specialized constructor for use only by derived class.
         /// </summary>
         /// <param name="declaringType"> The declaring type of the method. </param>
         /// <param name="clrMethodName"> Name of the method. </param>

@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId IndexNotNamedWarning = MakeScaffoldingId(Id.IndexNotNamedWarning);
 
         /// <summary>
-        ///     The table referened by an index was not found.
+        ///     The table referenced by an index was not found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         [Obsolete]

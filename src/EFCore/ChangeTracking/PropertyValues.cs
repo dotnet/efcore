@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         Objects of this type can be obtained from <see cref="EntityEntry.CurrentValues" />,
     ///         <see cref="EntityEntry.OriginalValues" />,  <see cref="EntityEntry.GetDatabaseValues" />,
     ///         or <see cref="EntityEntry.GetDatabaseValuesAsync" />.
-    ///         Once obtained, the objects are usually used in various combinations to resolve optimitisic
-    ///         concurrency exceptions signalled by the throwing of a <see cref="DbUpdateConcurrencyException" />.
+    ///         Once obtained, the objects are usually used in various combinations to resolve optimistic
+    ///         concurrency exceptions signaled by the throwing of a <see cref="DbUpdateConcurrencyException" />.
     ///     </para>
     /// </summary>
     public abstract class PropertyValues
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         from the type for this object.
         ///     </para>
         /// </summary>
-        /// <param name="propertyValues"> The object from which values should be coiped. </param>
+        /// <param name="propertyValues"> The object from which values should be copied. </param>
         public abstract void SetValues([NotNull] PropertyValues propertyValues);
 
         /// <summary>

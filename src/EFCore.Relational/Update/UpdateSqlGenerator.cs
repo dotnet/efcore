@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         A a base class for the <see cref="IUpdateSqlGenerator" /> service that is typically inheritted from
+    ///         A a base class for the <see cref="IUpdateSqlGenerator" /> service that is typically inherited from
     ///         by database providers.
     ///     </para>
     ///     <para>

@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
-                var optionsInitialzer = internalServiceProvider.GetService<ISingletonOptionsInitialzer>();
+                var optionsInitialzer = internalServiceProvider.GetService<ISingletonOptionsInitializer>();
                 if (optionsInitialzer == null)
                 {
                     throw new InvalidOperationException(CoreStrings.NoEfServices);
@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         if (hasProvider)
                         {
                             serviceProvider
-                                .GetRequiredService<ISingletonOptionsInitialzer>()
+                                .GetRequiredService<ISingletonOptionsInitializer>()
                                 .EnsureInitialized(serviceProvider, options);
                         }
 

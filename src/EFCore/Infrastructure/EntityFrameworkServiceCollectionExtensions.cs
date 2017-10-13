@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public static class EntityFrameworkServiceCollectionExtensions
     {
         /// <summary>
-        ///     This method is no longer functional. Call a provider-specfic method such as
+        ///     This method is no longer functional. Call a provider-specific method such as
         ///     AddEntityFrameworkSqlServer, AddEntityFrameworkSqlite, etc. instead.
         /// </summary>
         /// <param name="serviceCollection"> The service collection. </param>

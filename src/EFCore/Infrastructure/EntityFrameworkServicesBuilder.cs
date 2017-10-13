@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityEntryGraphIterator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IValueGeneratorCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(INodeTypeProviderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ISingletonOptionsInitialzer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ISingletonOptionsInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILoggingOptions), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelValidator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICompiledQueryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICompiledQueryCacheKeyGenerator, CompiledQueryCacheKeyGenerator>();
             TryAdd<IResultOperatorHandler, ResultOperatorHandler>();
             TryAdd<IProjectionExpressionVisitorFactory, ProjectionExpressionVisitorFactory>();
-            TryAdd<ISingletonOptionsInitialzer, SingletonOptionsInitialzer>();
+            TryAdd<ISingletonOptionsInitializer, SingletonOptionsInitializer>();
             TryAdd(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>));
             TryAdd<ILoggingOptions, LoggingOptions>();
             TryAdd<ISingletonOptions, ILoggingOptions>(p => p.GetService<ILoggingOptions>());

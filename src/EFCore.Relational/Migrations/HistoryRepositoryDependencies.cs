@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="coreConventionSetBuilder"> The vore convention set to use when creating the model. </param>
+        /// <param name="coreConventionSetBuilder"> The core convention set to use when creating the model. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public HistoryRepositoryDependencies With([NotNull] ICoreConventionSetBuilder coreConventionSetBuilder)
             => new HistoryRepositoryDependencies(

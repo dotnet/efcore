@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IReadOnlyCollection<IQueryAnnotation> QueryAnnotations => _queryAnnotations;
 
         /// <summary>
-        ///     Adds query annotations to the exisiting list.
+        ///     Adds query annotations to the existing list.
         /// </summary>
         /// <param name="annotations">The query annotations.</param>
         public virtual void AddAnnotations([NotNull] IEnumerable<IQueryAnnotation> annotations)
