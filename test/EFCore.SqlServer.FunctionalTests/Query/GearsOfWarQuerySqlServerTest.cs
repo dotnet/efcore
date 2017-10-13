@@ -571,7 +571,7 @@ WHERE [w].[AmmunitionType] IS NULL");
             base.Where_nullable_enum_with_non_nullable_parameter();
 
             AssertSql(
-                @"@__ammunitionType_0='Cartridge'
+                @"@__ammunitionType_0='1'
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
@@ -583,7 +583,7 @@ WHERE [w].[AmmunitionType] = @__ammunitionType_0");
             base.Where_nullable_enum_with_nullable_parameter();
 
             AssertSql(
-                @"@__ammunitionType_0='Cartridge' (Nullable = true)
+                @"@__ammunitionType_0='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
@@ -655,7 +655,7 @@ WHERE ([w].[AmmunitionType] & NULL) > 0");
             base.Where_bitwise_and_nullable_enum_with_non_nullable_parameter();
 
             AssertSql(
-                @"@__ammunitionType_0='Cartridge'
+                @"@__ammunitionType_0='1'
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
@@ -667,7 +667,7 @@ WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0");
             base.Where_bitwise_and_nullable_enum_with_nullable_parameter();
 
             AssertSql(
-                @"@__ammunitionType_0='Cartridge' (Nullable = true)
+                @"@__ammunitionType_0='1' (Nullable = true)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
@@ -806,7 +806,7 @@ ORDER BY [x0].[Nickname], [x0].[SquadId]");
             base.Where_enum_has_flag_with_non_nullable_parameter();
 
             AssertSql(
-                @"@__parameter_0='Corporal'
+                @"@__parameter_0='1'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
@@ -818,7 +818,7 @@ WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND (([g].[Rank] & @__paramet
             base.Where_has_flag_with_nullable_parameter();
 
             AssertSql(
-                @"@__parameter_0='Corporal' (Nullable = true)
+                @"@__parameter_0='1' (Nullable = true)
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
@@ -886,8 +886,8 @@ WHERE [w].[IsAutomatic] = 1");
             base.Select_comparison_with_null();
 
             AssertSql(
-                @"@__ammunitionType_1='Cartridge' (Nullable = true)
-@__ammunitionType_0='Cartridge' (Nullable = true)
+                @"@__ammunitionType_1='1' (Nullable = true)
+@__ammunitionType_0='1' (Nullable = true)
 
 SELECT [w].[Id], CASE
     WHEN [w].[AmmunitionType] = @__ammunitionType_1

@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,6 +25,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMapper : IRelationalTypeMapper
     {
+        private static readonly MethodInfo _getFieldValueMethod
+            = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
+
+        private static readonly IDictionary<Type, MethodInfo> _getXMethods
+            = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(bool), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetBoolean)) },
+                { typeof(byte), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetByte)) },
+                { typeof(char), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetChar)) },
+                { typeof(DateTime), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDateTime)) },
+                { typeof(decimal), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDecimal)) },
+                { typeof(double), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDouble)) },
+                { typeof(float), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFloat)) },
+                { typeof(Guid), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetGuid)) },
+                { typeof(short), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt16)) },
+                { typeof(int), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt32)) },
+                { typeof(long), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt64)) },
+                { typeof(string), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetString)) }
+            };
+
         private readonly ConcurrentDictionary<(string StoreType, Type ClrType), RelationalTypeMapping> _explicitMappings
             = new ConcurrentDictionary<(string StoreType, Type ClrType), RelationalTypeMapping>();
 
@@ -303,5 +325,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> True if the property is a key, otherwise false. </returns>
         protected virtual bool RequiresKeyMapping([NotNull] IProperty property)
             => property.IsKey() || property.IsForeignKey();
+
+        /// <summary>
+        ///     The method to use when reading values of the given type. The method must be defined
+        ///     on <see cref="DbDataReader" /> or one of its subclasses.
+        /// </summary>
+        /// <param name="type"> The type of the value to be read. </param>
+        /// <returns> The method to use to read the value. </returns>
+        public virtual MethodInfo GetDataReaderMethod(Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return _getXMethods.TryGetValue(type, out var method)
+                ? method
+                : _getFieldValueMethod.MakeGenericMethod(type);
+        }
     }
 }

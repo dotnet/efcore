@@ -469,7 +469,7 @@ WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_0) = [c].[Id]");
                 Assert.Equal(custId, 1);
 
                 AssertSql(
-                    @"@__period_0='Winter'
+                    @"@__period_0='0'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
@@ -1114,7 +1114,7 @@ WHERE [dbo].GetCustomerWithMostOrdersAfterDate(@__startDate_1) = [c].[Id]");
                 Assert.Equal(custId, 1);
 
                 AssertSql(
-                    @"@__period_2='Winter'
+                    @"@__period_2='0'
 
 SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]

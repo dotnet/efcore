@@ -11,6 +11,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -137,11 +138,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     conversions.Add(Expression.Assign(valueVariable, arrayAccess));
 
+                    var passNullToConverter
+                        = converter != null
+                          && converter.StoreType.IsNullableType()
+                          && !modelType.IsNullableType();
+
                     if (converter != null)
                     {
-                        // TODO: Nullable converters
                         if (!converter.StoreType.IsNullableType())
                         {
+                            Expression valueExpression = Expression.Convert(
+                                valueVariable,
+                                converter.StoreType);
+
+                            if (passNullToConverter)
+                            {
+                                valueExpression
+                                    = Expression.Condition(
+                                        Expression.ReferenceEqual(
+                                            valueVariable,
+                                            Expression.Constant(DBNull.Value)),
+                                        Expression.Default(converter.StoreType),
+                                        valueExpression);
+                            }
+
                             conversions.Add(
                                 Expression.Assign(
                                     isEnum ? (Expression)valueVariable : arrayAccess,
@@ -151,15 +171,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                             Expression.Constant(DBNull.Value)),
                                         Expression.Constant(null),
                                         Expression.Convert(
-                                            ((UnaryExpression)converter.ConvertFromStoreExpression.Body).Update(
-                                                Expression.Convert(
-                                                    valueVariable,
-                                                    converter.StoreType)),
+                                            ReplacingExpressionVisitor.Replace(
+                                                converter.ConvertFromStoreExpression.Parameters.Single(),
+                                                valueExpression,
+                                                converter.ConvertFromStoreExpression.Body),
                                             typeof(object)))));
                         }
                     }
 
-                    if (isEnum)
+                    if (isEnum
+                        && !passNullToConverter)
                     {
                         conversions.Add(
                             Expression.IfThen(

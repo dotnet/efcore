@@ -618,7 +618,7 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             Assert.Equal(
                 @":p0='78'
 :p1='' (DbType = Int64)
-:p2='' (DbType = String)
+:p2='' (DbType = Int32)
 :p3='' (Size = 2000) (DbType = String)
 :p4='' (Size = 2000) (DbType = String)
 :p5='' (DbType = DateTime)
@@ -1148,7 +1148,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
             var parameters = DumpParameters();
             Assert.Equal(
                 @":p0='' (DbType = Int64)
-:p1='' (DbType = String)
+:p1='' (DbType = Int32)
 :p2='' (Size = 2000) (DbType = String)
 :p3='' (Size = 2000) (DbType = String)
 :p4='' (DbType = DateTime)

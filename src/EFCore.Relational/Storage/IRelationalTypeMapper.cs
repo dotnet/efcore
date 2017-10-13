@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -63,5 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the mapper to be used for string properties.
         /// </summary>
         IStringRelationalTypeMapper StringMapper { get; }
+
+        /// <summary>
+        ///     The method to use when reading values of the given type. The method must be defined
+        ///     on <see cref="DbDataReader" /> or one of its subclasses.
+        /// </summary>
+        /// <param name="type"> The type of the value to be read. </param>
+        /// <returns> The method to use to read the value. </returns>
+        MethodInfo GetDataReaderMethod([NotNull] Type type);
     }
 }
