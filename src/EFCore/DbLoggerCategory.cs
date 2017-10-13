@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
     ///     <para>
-    ///         An API for getting logger categories inan Intellisense/tab-completion friedly manner.
+    ///         An API for getting logger categories in an Intellisense/tab-completion friendly manner.
     ///     </para>
     ///     <para>
     ///         Get an Entity Framework Core logger category using its Name property. For example,

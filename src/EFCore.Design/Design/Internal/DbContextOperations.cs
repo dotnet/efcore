@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             // Look for IDesignTimeDbContextFactory implementations
             _reporter.WriteVerbose(DesignStrings.FindingContextFactories);
-            var contextFactories = _startupAssembly.GetConstructableTypes()
+            var contextFactories = _startupAssembly.GetConstructibleTypes()
                 .Where(t => typeof(IDesignTimeDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
             foreach (var factory in contextFactories)
             {
@@ -159,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             // Look for DbContext classes in assemblies
             _reporter.WriteVerbose(DesignStrings.FindingReferencedContexts);
-            var types = _startupAssembly.GetConstructableTypes()
-                .Concat(_assembly.GetConstructableTypes())
+            var types = _startupAssembly.GetConstructibleTypes()
+                .Concat(_assembly.GetConstructibleTypes())
                 .ToList();
             var contextTypes = types.Where(t => typeof(DbContext).GetTypeInfo().IsAssignableFrom(t)).Select(
                     t => t.AsType())
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private Func<DbContext> FindContextFactory(Type contextType)
         {
             var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
-            var factory = contextType.GetTypeInfo().Assembly.GetConstructableTypes()
+            var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
                 .Where(t => factoryInterface.IsAssignableFrom(t))
                 .FirstOrDefault();
             if (factory == null)

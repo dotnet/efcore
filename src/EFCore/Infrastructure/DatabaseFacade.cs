@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         Returns the name of the database provider currently in use.
         ///         The name is typically the name of the provider assembly.
-        ///         It is usually easier to use a sugar method auch as 'IsSqlServer()' instead of
+        ///         It is usually easier to use a sugar method such as 'IsSqlServer()' instead of
         ///         calling this method directly.
         ///     </para>
         ///     <para>

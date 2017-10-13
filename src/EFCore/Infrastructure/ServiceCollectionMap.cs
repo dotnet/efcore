@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Prvoides a map over a <see cref="IServiceCollection" /> that allows <see cref="ServiceDescriptor" />
+    ///         Provides a map over a <see cref="IServiceCollection" /> that allows <see cref="ServiceDescriptor" />
     ///         entries to be conditionally added or re-written without requiring linear scans of the service
     ///         collection each time this is done.
     ///     </para>

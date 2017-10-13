@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Note that if this function is translated into SQL, then the semantics of the comparison will
         ///         depend on the database configuration. In particular, it may be either case-sensitive or
-        ///         case-insenstitive. If this function is evaluated on the client, then it will always use
-        ///         a case-insenstitive comparison.
+        ///         case-insensitive. If this function is evaluated on the client, then it will always use
+        ///         a case-insensitive comparison.
         ///     </para>
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     <para>
         ///         Note that if this function is translated into SQL, then the semantics of the comparison will
         ///         depend on the database configuration. In particular, it may be either case-sensitive or
-        ///         case-insenstitive. If this function is evaluated on the client, then it will always use
-        ///         a case-insenstitive comparison.
+        ///         case-insensitive. If this function is evaluated on the client, then it will always use
+        ///         a case-insensitive comparison.
         ///     </para>
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>

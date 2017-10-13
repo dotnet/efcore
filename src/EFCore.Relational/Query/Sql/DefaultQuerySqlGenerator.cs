@@ -1702,7 +1702,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             /// <param name="expression">The expression to translate</param>
             /// <param name="searchCondition">Specifies if the returned value should be boolean condition or value</param>
             /// <returns>The translated expression</returns>
-            /// General flow of overriden methods
+            /// General flow of overridden methods
             /// 1. Inspect expression type and set _isSearchCondition flag
             /// 2. Visit the children
             /// 3. Restore _isSearchCondition

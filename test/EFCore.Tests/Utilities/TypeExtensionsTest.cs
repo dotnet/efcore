@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 typeof(SomeGenericClass<int>),
                 typeof(SomeTypeWithoutDefaultCtor));
 
-            var types = assembly.GetConstructableTypes().Select(t => t.AsType()).ToList();
+            var types = assembly.GetConstructibleTypes().Select(t => t.AsType()).ToList();
 
             Assert.DoesNotContain(typeof(SomeAbstractClass), types);
             Assert.DoesNotContain(typeof(SomeGenericClass<>), types);
