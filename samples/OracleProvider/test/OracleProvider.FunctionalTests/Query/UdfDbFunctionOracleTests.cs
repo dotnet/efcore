@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where UDFSqlContext.GetCustomerWithMostOrdersAfterDate(startDate) == c.Id
                               select c.Id).SingleOrDefault();
 
-                Assert.Equal(custId, 2);
+                Assert.Equal(custId, 1);
             }
         }
 

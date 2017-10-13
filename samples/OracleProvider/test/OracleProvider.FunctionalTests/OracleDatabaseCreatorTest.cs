@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool HasTablesBase() => HasTables();
 
-            public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default)
                 => HasTablesAsync(cancellationToken);
 
             public IExecutionStrategyFactory ExecutionStrategyFactory => Dependencies.ExecutionStrategyFactory;

@@ -424,13 +424,13 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(5, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.Equal(3, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
                     Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[0]);
                     Assert.Contains("SELECT", Fixture.TestSqlLoggerFactory.SqlStatements[1]);
                     Assert.Contains(":p0='" + deletedId, Fixture.TestSqlLoggerFactory.SqlStatements[2]);
                     Assert.Contains("DELETE", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("UPDATE", Fixture.TestSqlLoggerFactory.SqlStatements[3]);
-                    Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[4]);
+                    Assert.Contains("UPDATE", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("INSERT", Fixture.TestSqlLoggerFactory.SqlStatements[2]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         $@"SELECT Count(*) FROM ""Blog"" WHERE ""Id"" = {updatedId} AND ""Name"" = 'Blog is Updated'");
@@ -614,29 +614,29 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Actor>(
                     eb =>
-                        {
-                            eb.HasKey(a => new { a.GameId, a.Id });
-                            eb.HasOne(a => a.Level)
-                                .WithMany()
-                                .HasForeignKey(nameof(Actor.GameId), "LevelId")
-                                .IsRequired();
-                        });
+                    {
+                        eb.HasKey(a => new { a.GameId, a.Id });
+                        eb.HasOne(a => a.Level)
+                            .WithMany()
+                            .HasForeignKey(nameof(Actor.GameId), "LevelId")
+                            .IsRequired();
+                    });
 
                 modelBuilder.Entity<PlayerCharacter>();
 
                 modelBuilder.Entity<Game>(
                     eb =>
-                        {
-                            eb.Property(g => g.Id)
-                                .ValueGeneratedOnAdd();
-                            eb.HasMany(g => g.Levels)
-                                .WithOne(l => l.Game)
-                                .HasForeignKey(l => l.GameId);
-                            eb.HasMany(g => g.Actors)
-                                .WithOne(a => a.Game)
-                                .HasForeignKey(a => a.GameId)
-                                .OnDelete(DeleteBehavior.Restrict);
-                        });
+                    {
+                        eb.Property(g => g.Id)
+                            .ValueGeneratedOnAdd();
+                        eb.HasMany(g => g.Levels)
+                            .WithOne(l => l.Game)
+                            .HasForeignKey(l => l.GameId);
+                        eb.HasMany(g => g.Actors)
+                            .WithOne(a => a.Game)
+                            .HasForeignKey(a => a.GameId)
+                            .OnDelete(DeleteBehavior.Restrict);
+                    });
             }
         }
 
@@ -815,10 +815,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
             }
         }
 
