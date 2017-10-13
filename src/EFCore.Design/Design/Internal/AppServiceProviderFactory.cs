@@ -3,9 +3,11 @@
 
 using System;
 using System.Reflection;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting.WebHostBuilderFactory;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
@@ -44,20 +46,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             _reporter.WriteVerbose(DesignStrings.FindingBuildWebHost);
 
-            var programType = FindProgramClass();
-            if (programType == null)
+            var webHostFactoryResult = WebHostFactoryResolver.ResolveWebHostFactory<object, object>(_startupAssembly);
+            switch (webHostFactoryResult.ResultKind)
             {
-                _reporter.WriteVerbose(DesignStrings.NoEntryPoint(_startupAssembly.GetName().Name));
-
-                return null;
-            }
-
-            var buildWebHostMethod = programType.GetTypeInfo().GetDeclaredMethod("BuildWebHost");
-            if (buildWebHostMethod == null)
-            {
-                _reporter.WriteVerbose(DesignStrings.NoBuildWebHost(programType.DisplayName()));
-
-                return null;
+                case FactoryResolutionResultKind.Success:
+                    break;
+                case FactoryResolutionResultKind.NoEntryPoint:
+                    _reporter.WriteVerbose(DesignStrings.NoEntryPoint(_startupAssembly.GetName().Name));
+                    return null;
+                case FactoryResolutionResultKind.NoCreateWebHostBuilder:
+                case FactoryResolutionResultKind.NoBuildWebHost:
+                    _reporter.WriteVerbose(DesignStrings.NoBuildWebHost(webHostFactoryResult.ProgramType.DisplayName()));
+                    return null;
+                default:
+                    Debug.Fail("Unexpected value: " + webHostFactoryResult.ResultKind);
+                    return null;
             }
 
             // TODO: Remove when dotnet/cli#6617 is fixed
@@ -69,11 +72,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             _reporter.WriteVerbose(DesignStrings.UsingEnvironment(environment));
-            _reporter.WriteVerbose(DesignStrings.UsingBuildWebHost(programType.ShortDisplayName()));
+            _reporter.WriteVerbose(DesignStrings.UsingBuildWebHost(webHostFactoryResult.ProgramType.ShortDisplayName()));
 
             try
             {
-                var webHost = buildWebHostMethod.Invoke(null, new object[] { args });
+                var webHost = webHostFactoryResult.WebHostFactory(args);
                 var webHostType = webHost.GetType();
                 var servicesProperty = webHostType.GetTypeInfo().GetDeclaredProperty("Services");
                 var services = (IServiceProvider)servicesProperty.GetValue(webHost);
@@ -88,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 _reporter.WriteVerbose(ex.ToString());
-                _reporter.WriteWarning(DesignStrings.InvokeBuildWebHostFailed(programType.ShortDisplayName(), ex.Message));
+                _reporter.WriteWarning(DesignStrings.InvokeBuildWebHostFailed(webHostFactoryResult.ProgramType.ShortDisplayName(), ex.Message));
 
                 return null;
             }

@@ -9,13 +9,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestAppServiceProviderFactory : AppServiceProviderFactory
     {
-        private readonly Type _programType;
-
         public TestAppServiceProviderFactory(Assembly startupAssembly, Type programType, IOperationReporter reporter = null)
-            : base(startupAssembly, reporter ?? new TestOperationReporter())
-            => _programType = programType;
-
-        protected override Type FindProgramClass()
-            => _programType;
+            : base(startupAssembly, reporter ?? new TestOperationReporter()) { }
     }
 }
