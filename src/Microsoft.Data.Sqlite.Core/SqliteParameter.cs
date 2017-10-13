@@ -217,7 +217,7 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-        private readonly static char[] _parameterPrefixes = { '@', '$', ':' };
+        private static readonly char[] _parameterPrefixes = { '@', '$', ':' };
 
         private int FindPrefixedParameter(sqlite3_stmt stmt)
         {

@@ -1001,7 +1001,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal("LastName", schema.Rows[0]["BaseColumnName"]);
                     Assert.Equal(DBNull.Value, schema.Rows[0]["BaseSchemaName"]);
                     Assert.Equal("Person", schema.Rows[0]["BaseTableName"]);
-                    Assert.Equal(typeof(String), schema.Rows[0]["DataType"]);
+                    Assert.Equal(typeof(string), schema.Rows[0]["DataType"]);
                     Assert.Equal("TEXT", schema.Rows[0]["DataTypeName"]);
                     Assert.False((bool)schema.Rows[0]["AllowDBNull"]);
                     Assert.False((bool)schema.Rows[0]["IsAliased"]);
@@ -1021,7 +1021,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal("ID", schema.Rows[1]["BaseColumnName"]);
                     Assert.Equal(DBNull.Value, schema.Rows[1]["BaseSchemaName"]);
                     Assert.Equal("Person", schema.Rows[1]["BaseTableName"]);
-                    Assert.Equal(typeof(Int64), schema.Rows[1]["DataType"]);
+                    Assert.Equal(typeof(long), schema.Rows[1]["DataType"]);
                     Assert.Equal("INTEGER", schema.Rows[1]["DataTypeName"]);
                     Assert.True((bool)schema.Rows[1]["AllowDBNull"]);
                     Assert.False((bool)schema.Rows[1]["IsAliased"]);
@@ -1041,7 +1041,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal("Code", schema.Rows[2]["BaseColumnName"]);
                     Assert.Equal(DBNull.Value, schema.Rows[2]["BaseSchemaName"]);
                     Assert.Equal("Person", schema.Rows[2]["BaseTableName"]);
-                    Assert.Equal(typeof(Int64), schema.Rows[2]["DataType"]);
+                    Assert.Equal(typeof(long), schema.Rows[2]["DataType"]);
                     Assert.Equal("INT", schema.Rows[2]["DataTypeName"]);
                     Assert.True((bool)schema.Rows[2]["AllowDBNull"]);
                     Assert.False((bool)schema.Rows[2]["IsAliased"]);
@@ -1061,7 +1061,7 @@ namespace Microsoft.Data.Sqlite
                     Assert.Equal(DBNull.Value, schema.Rows[3]["BaseColumnName"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["BaseSchemaName"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["BaseTableName"]);
-                    Assert.Equal(typeof(Int64), schema.Rows[3]["DataType"]);
+                    Assert.Equal(typeof(long), schema.Rows[3]["DataType"]);
                     Assert.Equal("INTEGER", schema.Rows[3]["DataTypeName"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["AllowDBNull"]);
                     Assert.True((bool)schema.Rows[3]["IsAliased"]);
@@ -1090,7 +1090,7 @@ namespace Microsoft.Data.Sqlite
                 using (var reader = connection.ExecuteReader("SELECT Value FROM Test;"))
                 {
                     var schema = reader.GetSchemaTable();
-                    Assert.True(schema.Columns.Contains("DataType"));                    
+                    Assert.True(schema.Columns.Contains("DataType"));
                     Assert.Equal(expectedType, schema.Rows[0]["DataType"]);
                 }
             }

@@ -80,7 +80,7 @@ namespace Microsoft.Data.Sqlite
             }
 #>
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
 <# if (state) { #>
         /// <typeparam name="TState">The type of the state.</typeparam>
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Sqlite
 #>
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
 <# if (state) { #>
         /// <typeparam name="TState">The type of the state.</typeparam>

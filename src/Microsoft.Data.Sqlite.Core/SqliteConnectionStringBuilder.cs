@@ -48,15 +48,15 @@ namespace Microsoft.Data.Sqlite
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(3, StringComparer.OrdinalIgnoreCase)
-                {
-                    [DataSourceKeyword] = Keywords.DataSource,
-                    [ModeKeyword] = Keywords.Mode,
-                    [CacheKeyword] = Keywords.Cache,
+            {
+                [DataSourceKeyword] = Keywords.DataSource,
+                [ModeKeyword] = Keywords.Mode,
+                [CacheKeyword] = Keywords.Cache,
 
-                    // aliases
-                    [FilenameKeyword] = Keywords.DataSource,
-                    [DataSourceNoSpaceKeyword] = Keywords.DataSource
-                };
+                // aliases
+                [FilenameKeyword] = Keywords.DataSource,
+                [DataSourceNoSpaceKeyword] = Keywords.DataSource
+            };
         }
 
         /// <summary>
@@ -155,11 +155,11 @@ namespace Microsoft.Data.Sqlite
                         return;
 
                     case Keywords.Mode:
-                        Mode = ConvertToEnum<SqliteOpenMode>(keyword, value);
+                        Mode = ConvertToEnum<SqliteOpenMode>(value);
                         return;
 
                     case Keywords.Cache:
-                        Cache = ConvertToEnum<SqliteCacheMode>(keyword, value);
+                        Cache = ConvertToEnum<SqliteCacheMode>(value);
                         return;
 
                     default:
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        private TEnum ConvertToEnum<TEnum>(string keyword, object value)
+        private TEnum ConvertToEnum<TEnum>(object value)
             where TEnum : struct
         {
             if (value is string stringValue)

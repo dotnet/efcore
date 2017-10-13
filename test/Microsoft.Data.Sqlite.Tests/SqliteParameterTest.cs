@@ -74,10 +74,10 @@ namespace Microsoft.Data.Sqlite
         public void ResetDbType_works()
         {
             var parameter = new SqliteParameter
-                {
-                    DbType = DbType.Int64,
-                    SqliteType = SqliteType.Integer
-                };
+            {
+                DbType = DbType.Int64,
+                SqliteType = SqliteType.Integer
+            };
 
             parameter.ResetDbType();
 
@@ -89,10 +89,10 @@ namespace Microsoft.Data.Sqlite
         public void ResetSqliteType_works()
         {
             var parameter = new SqliteParameter
-                {
-                    DbType = DbType.Int64,
-                    SqliteType = SqliteType.Integer
-                };
+            {
+                DbType = DbType.Int64,
+                SqliteType = SqliteType.Integer
+            };
 
             parameter.ResetSqliteType();
 

@@ -60,23 +60,23 @@ namespace Microsoft.Data.Sqlite
             const string connectionString = "Data Source=read-uncommitted;Mode=Memory;Cache=Shared";
 
             using (var connection1 = new SqliteConnection(connectionString))
-                using (var connection2 = new SqliteConnection(connectionString))
+            using (var connection2 = new SqliteConnection(connectionString))
+            {
+                connection1.Open();
+                connection2.Open();
+
+                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                using (connection1.BeginTransaction())
+                using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    connection1.Open();
-                    connection2.Open();
+                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                    connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+                    var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
 
-                    using (connection1.BeginTransaction())
-                        using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
-                        {
-                            connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
-
-                            var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
-
-                            Assert.Equal(1, value);
-                        }
+                    Assert.Equal(1, value);
                 }
+            }
         }
 
         [Fact]
@@ -85,26 +85,26 @@ namespace Microsoft.Data.Sqlite
             const string connectionString = "Data Source=serialized;Mode=Memory;Cache=Shared";
 
             using (var connection1 = new SqliteConnection(connectionString))
-                using (var connection2 = new SqliteConnection(connectionString))
+            using (var connection2 = new SqliteConnection(connectionString))
+            {
+                connection1.Open();
+                connection2.Open();
+
+                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                using (connection1.BeginTransaction())
+                using (connection2.BeginTransaction(IsolationLevel.Serializable))
                 {
-                    connection1.Open();
-                    connection2.Open();
+                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                    connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+                    var command = connection2.CreateCommand();
+                    command.CommandText = "SELECT * FROM Data;";
+                    command.CommandTimeout = 0;
 
-                    using (connection1.BeginTransaction())
-                        using (connection2.BeginTransaction(IsolationLevel.Serializable))
-                        {
-                            connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
-
-                            var command = connection2.CreateCommand();
-                            command.CommandText = "SELECT * FROM Data;";
-                            command.CommandTimeout = 0;
-
-                            var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
-                            Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
-                        }
+                    var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
+                    Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
                 }
+            }
         }
 
         [Fact]

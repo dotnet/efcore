@@ -8,7 +8,7 @@ namespace Microsoft.Data.Sqlite
     partial class SqliteConnection
     {
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TResult">The type of the resulting value.</typeparam>
         /// <param name="name">The name of the SQL function.</param>
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 0, null, IfNotNull<object, TResult>(function, (s, r) => function()));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="TResult">The type of the resulting value.</typeparam>
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 1, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 2, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 3, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 4, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 5, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 6, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 7, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 8, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 9, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 10, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 11, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 12, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -225,7 +225,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 13, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 14, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12), r.GetFieldValue<T14>(13))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -272,7 +272,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 15, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12), r.GetFieldValue<T14>(13), r.GetFieldValue<T15>(14))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
         /// <typeparam name="T2">The type of the second parameter of the function.</typeparam>
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 16, null, IfNotNull<object, TResult>(function, (s, r) => function(r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12), r.GetFieldValue<T14>(13), r.GetFieldValue<T15>(14), r.GetFieldValue<T16>(15))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TResult">The type of the resulting value.</typeparam>
         /// <param name="name">The name of the SQL function.</param>
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, -1, null, IfNotNull<object, TResult>(function, (s, r) => function(GetValues(r))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="TResult">The type of the resulting value.</typeparam>
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 0, state, IfNotNull<TState, TResult>(function, (s, r) => function(s)));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -329,7 +329,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 1, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 2, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 3, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -371,7 +371,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 4, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -387,7 +387,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 5, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -404,7 +404,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 6, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -422,7 +422,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 7, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -441,7 +441,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 8, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -461,7 +461,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 9, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -482,7 +482,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 10, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -504,7 +504,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 11, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -527,7 +527,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 12, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -551,7 +551,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 13, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -576,7 +576,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 14, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12), r.GetFieldValue<T14>(13))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="T1">The type of the first parameter of the function.</typeparam>
@@ -602,7 +602,7 @@ namespace Microsoft.Data.Sqlite
             => CreateFunctionCore(name, 15, state, IfNotNull<TState, TResult>(function, (s, r) => function(s, r.GetFieldValue<T1>(0), r.GetFieldValue<T2>(1), r.GetFieldValue<T3>(2), r.GetFieldValue<T4>(3), r.GetFieldValue<T5>(4), r.GetFieldValue<T6>(5), r.GetFieldValue<T7>(6), r.GetFieldValue<T8>(7), r.GetFieldValue<T9>(8), r.GetFieldValue<T10>(9), r.GetFieldValue<T11>(10), r.GetFieldValue<T12>(11), r.GetFieldValue<T13>(12), r.GetFieldValue<T14>(13), r.GetFieldValue<T15>(14))));
 
         /// <summary>
-        ///     Creates or redfines a SQL function.
+        ///     Creates or redefines a SQL function.
         /// </summary>
         /// <typeparam name="TState">The type of the state.</typeparam>
         /// <typeparam name="TResult">The type of the resulting value.</typeparam>
