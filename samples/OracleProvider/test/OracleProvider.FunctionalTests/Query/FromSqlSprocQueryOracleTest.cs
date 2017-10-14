@@ -42,11 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                         DBNull.Value,
                         ParameterDirection.Output)
             };
-        }
+        } 
 
         protected override string TenMostExpensiveProductsSproc
             => "BEGIN \"Ten Most Expensive Products\"(:cur); END;";
 
-        protected override string CustomerOrderHistorySproc => "BEGIN \"CustOrderHist\"(:p0, :cur); END;";
+        protected override string CustomerOrderHistorySproc 
+            => "BEGIN \"CustOrderHist\"(:p0, :cur); END;";
     }
 }
