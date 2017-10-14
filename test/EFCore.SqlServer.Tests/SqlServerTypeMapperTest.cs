@@ -47,13 +47,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Throws_for_SQL_Server_mappings_to_unsupported_types()
-        {
-            var ex = Assert.Throws<InvalidOperationException>(() => GetTypeMapping(typeof(char)).StoreType);
-            Assert.Equal(RelationalStrings.UnsupportedPropertyType("MyType", "MyProp", "char"), ex.Message);
-        }
-
-        [Fact]
         public void Does_simple_SQL_Server_mappings_for_enums_to_DDL_types()
         {
             Assert.Equal("int", GetTypeMapping(typeof(IntEnum)).StoreType);

@@ -77,6 +77,10 @@ FROM [dbo].[Orders] AS [o]",
                             e.Metadata.SqlServer().TableName = "Customers";
                             e.Metadata.SqlServer().Schema = "dbo";
                         });
+
+                modelBuilder.Entity<MappedEmployee>()
+                    .Property(c => c.EmployeeID)
+                    .HasColumnType("int");
             }
         }
     }
