@@ -314,17 +314,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         }
                     }
 
-                    // HACK: Need to make it easier to add this in update pipeline.
-                    if (command.CommandText.Contains(":cur"))
-                    {
-                        command.Parameters.Add(
-                            new OracleParameter(
-                                "cur",
-                                OracleDbType.RefCursor,
-                                DBNull.Value,
-                                ParameterDirection.Output));
-                    }
-
                     return command;
                 }
 
@@ -339,46 +328,46 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     return parameterValues.ToDictionary(
                         kv => kv.Key,
                         kv =>
+                        {
+                            var type = kv.Value?.GetType();
+
+                            if (type != null)
                             {
-                                var type = kv.Value?.GetType();
+                                type = type.UnwrapNullableType();
 
-                                if (type != null)
+                                if (type == typeof(bool))
                                 {
-                                    type = type.UnwrapNullableType();
+                                    var b = (bool)kv.Value;
 
-                                    if (type == typeof(bool))
-                                    {
-                                        var b = (bool)kv.Value;
-
-                                        return b ? 1 : 0;
-                                    }
-
-                                    if (type == typeof(Guid))
-                                    {
-                                        var g = (Guid)kv.Value;
-
-                                        return g.ToByteArray();
-                                    }
-
-                                    if (type.IsEnum)
-                                    {
-                                        var underlyingType = Enum.GetUnderlyingType(type);
-
-                                        return Convert.ChangeType(kv.Value, underlyingType);
-                                    }
-
-                                    if (type == typeof(DateTimeOffset))
-                                    {
-                                        var dateTimeOffset = (DateTimeOffset)kv.Value;
-
-                                        return new OracleTimeStampTZ(
-                                            dateTimeOffset.DateTime,
-                                            dateTimeOffset.Offset.ToString());
-                                    }
+                                    return b ? 1 : 0;
                                 }
 
-                                return kv.Value;
-                            });
+                                if (type == typeof(Guid))
+                                {
+                                    var g = (Guid)kv.Value;
+
+                                    return g.ToByteArray();
+                                }
+
+                                if (type.IsEnum)
+                                {
+                                    var underlyingType = Enum.GetUnderlyingType(type);
+
+                                    return Convert.ChangeType(kv.Value, underlyingType);
+                                }
+
+                                if (type == typeof(DateTimeOffset))
+                                {
+                                    var dateTimeOffset = (DateTimeOffset)kv.Value;
+
+                                    return new OracleTimeStampTZ(
+                                        dateTimeOffset.DateTime,
+                                        dateTimeOffset.Offset.ToString());
+                                }
+                            }
+
+                            return kv.Value;
+                        });
                 }
 
                 private sealed class DbDataReaderDecorator : DbDataReader
