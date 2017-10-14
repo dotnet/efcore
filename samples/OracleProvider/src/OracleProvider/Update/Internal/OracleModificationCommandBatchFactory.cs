@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IUpdateSqlGenerator _updateSqlGenerator;
 
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-        //private readonly IDbContextOptions _options;
+        private readonly IDbContextOptions _options;
 
         public OracleModificationCommandBatchFactory(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
@@ -34,14 +35,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _sqlGenerationHelper = sqlGenerationHelper;
             _updateSqlGenerator = updateSqlGenerator;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
-            //_options = options;
+            _options = options;
         }
 
         public virtual ModificationCommandBatch Create()
-            => new OracleSingularModificationCommandBatch(
+        {
+            var optionsExtension = _options.FindExtension<OracleOptionsExtension>();
+
+            return new OracleModificationCommandBatch(
                 _commandBuilderFactory,
                 _sqlGenerationHelper,
                 _updateSqlGenerator,
-                _valueBufferFactoryFactory);
+                _valueBufferFactoryFactory,
+                optionsExtension?.MaxBatchSize);
+        } 
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -294,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var startDate = DateTime.Parse("4/1/2000");
+                var startDate = DateTime.Parse("4/1/2000", CultureInfo.InvariantCulture);
 
                 var custId = (from c in context.Customers
                               where UDFSqlContext.GetCustomerWithMostOrdersAfterDate(startDate) == c.Id
