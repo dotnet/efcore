@@ -20,11 +20,6 @@ namespace Microsoft.EntityFrameworkCore
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void Add_dependent_then_principal_one_to_one_FK_set_both_navs_set()
-        {
-            base.Add_dependent_then_principal_one_to_one_FK_set_both_navs_set();
-        }
-
         [Fact]
         public void Temp_values_are_replaced_on_save()
         {

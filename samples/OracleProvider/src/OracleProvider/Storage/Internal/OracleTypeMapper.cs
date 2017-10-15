@@ -4,15 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Types;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class OracleTypeMapper : RelationalTypeMapper
     {
+        private static readonly IDictionary<Type, MethodInfo> _getXMethods
+            = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(OracleTimeStampTZ), typeof(OracleDataReader).GetTypeInfo().GetDeclaredMethod(nameof(OracleDataReader.GetOracleTimeStampTZ)) }
+            };
+
         private readonly OracleStringTypeMapping _defaultUnicodeString
             = new OracleStringTypeMapping("NVARCHAR2(2000)", dbType: null, unicode: true);
 
@@ -68,7 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             new ValueConverter<sbyte, short>(v => v, v => (sbyte)v),
             DbType.Int16);
 
-        private readonly BoolTypeMapping _bool = new BoolTypeMapping("NUMBER(1)");
+        private readonly BoolTypeMapping _bool = new BoolTypeMapping(
+            "NUMBER(1)",
+            new ValueConverter<bool, int>(v => v ? 1 : 0, v => v == 1),
+            DbType.Int32);
 
         private readonly OracleStringTypeMapping _fixedLengthUnicodeString
             = new OracleStringTypeMapping("NCHAR", dbType: DbType.String, unicode: true);
@@ -92,14 +104,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly DoubleTypeMapping _double = new OracleDoubleTypeMapping("FLOAT(49)");
 
-        private readonly OracleDateTimeOffsetTypeMapping _datetimeoffset = new OracleDateTimeOffsetTypeMapping("TIMESTAMP WITH TIME ZONE");
-
-        // TODO: Remove this hard-coded mapping
-        private readonly OracleDateTimeOffsetTypeMapping _datetimeoffset3 = new OracleDateTimeOffsetTypeMapping("TIMESTAMP(3) WITH TIME ZONE");
+        private readonly OracleDateTimeOffsetTypeMapping _datetimeoffset
+            = new OracleDateTimeOffsetTypeMapping(
+                "TIMESTAMP WITH TIME ZONE",
+                new ValueConverter<DateTimeOffset, OracleTimeStampTZ>(
+                    v => new OracleTimeStampTZ(v.DateTime, v.Offset.ToString()),
+                    v => new DateTimeOffset(v.Value, v.GetTimeZoneOffset())));
 
         private readonly FloatTypeMapping _real = new OracleFloatTypeMapping("REAL");
 
-        private readonly GuidTypeMapping _uniqueidentifier = new OracleGuidTypeMapping("RAW(16)", DbType.Binary);
+        private readonly GuidTypeMapping _uniqueidentifier
+            = new OracleGuidTypeMapping(
+                "RAW(16)",
+                new ValueConverter<Guid, byte[]>(v => v.ToByteArray(), v => v == null ? Guid.Empty : new Guid(v)),
+                DbType.Binary);
 
         private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("DECIMAL(29,4)");
 
@@ -124,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
                     { "date", new List<RelationalTypeMapping> { _date } },
                     { "timestamp", new List<RelationalTypeMapping> { _datetime } },
-                    { "timestamp(3) with time zone", new List<RelationalTypeMapping> { _datetimeoffset3 } },
+                    { "timestamp(3) with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
                     { "timestamp with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
                     { "decimal(29,4)", new List<RelationalTypeMapping> { _decimal } },
                     { "float(49)", new List<RelationalTypeMapping> { _double } },
@@ -250,5 +268,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         protected override bool RequiresKeyMapping(IProperty property)
             => base.RequiresKeyMapping(property) || property.IsIndex();
+
+        public override MethodInfo GetDataReaderMethod(Type type)
+            => _getXMethods.TryGetValue(type, out var method)
+                ? method
+                : base.GetDataReaderMethod(type);
     }
 }

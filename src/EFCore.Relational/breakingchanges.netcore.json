@@ -33,5 +33,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactoryFactory",
       "MemberId": "Microsoft.EntityFrameworkCore.Storage.IRelationalValueBufferFactory Create(System.Collections.Generic.IReadOnlyList<Microsoft.EntityFrameworkCore.Storage.TypeMaterializationInfo> types)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper : Microsoft.EntityFrameworkCore.Storage.ITypeMapper",
+      "MemberId": "System.Reflection.MethodInfo GetDataReaderMethod(System.Type type)",
+      "Kind": "Addition"
     }
   ]

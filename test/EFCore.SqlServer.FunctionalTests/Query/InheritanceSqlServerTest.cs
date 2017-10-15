@@ -345,7 +345,7 @@ WHERE [c].[Id] = 1",
 @p3='Little spotted kiwi' (Size = 4000)
 @p4='' (Size = 100) (DbType = String)
 @p5='True'
-@p6='North'
+@p6='0' (Size = 1)
 
 SET NOCOUNT ON;
 INSERT INTO [Animal] ([Species], [CountryId], [Discriminator], [Name], [EagleId], [IsFlightless], [FoundOn])

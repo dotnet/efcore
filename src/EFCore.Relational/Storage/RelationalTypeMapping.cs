@@ -134,6 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
+            if (value != null
+                && value.GetType().IsEnum)
+            {
+                value = Convert.ChangeType(value, value.GetType().GetEnumUnderlyingType());
+            }
+
             parameter.Value = (Converter != null
                                   ? Converter.ConvertToStore(value)
                                   : value)
