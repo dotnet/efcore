@@ -133,11 +133,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override RelationalTypeMapping FindMapping(Type clrType)
         {
-            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+            var underlyingType = clrType.UnwrapNullableType().UnwrapEnumType();
 
-            return clrType == typeof(string)
+            return underlyingType == typeof(string)
                 ? _string
-                : (clrType == typeof(byte[])
+                : (underlyingType == typeof(byte[])
                     ? _binary
                     : base.FindMapping(clrType));
         }

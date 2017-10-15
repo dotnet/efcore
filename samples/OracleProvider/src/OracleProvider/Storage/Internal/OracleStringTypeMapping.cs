@@ -42,12 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     : 4000;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleStringTypeMapping(
-                storeType,
-                Converter,
-                DbType,
-                IsUnicode,
-                size);
+            => new OracleStringTypeMapping(storeType, Converter, DbType, IsUnicode, size);
+
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new OracleStringTypeMapping(StoreType, ComposeConverter(converter), DbType, IsUnicode, Size);
 
         protected override void ConfigureParameter(DbParameter parameter)
         {

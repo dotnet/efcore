@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
@@ -13,19 +13,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMappingTest
     {
-        private class FakeValueConverter : ValueConverter
+        private class FakeValueConverter : ValueConverter<object, object>
         {
             public FakeValueConverter()
-                : base(
-                      _ => _ , 
-                      _ => _, 
-                      (Expression<Func<object, object>>)(_ => _), 
-                      (Expression<Func<object, object>>)(_ => _))
+                : base(_ => _, _ => _)
             {
             }
 
-            public override Type ModelType { get; }
-            public override Type StoreType { get; }
+            public override Type ModelType { get; } = typeof(object);
+            public override Type StoreType { get; } = typeof(object);
         }
 
         [Theory]
@@ -63,7 +59,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(clone.Size);
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
-            Assert.Same(clrType, clone.ClrType);
+            Assert.Same(typeof(object), clone.ClrType);
+
+            var newConverter = new FakeValueConverter();
+            clone = (RelationalTypeMapping)mapping.Clone(newConverter);
+
+            Assert.NotSame(mapping, clone);
+            Assert.Same(mapping.GetType(), clone.GetType());
+            Assert.Equal("<original>", clone.StoreType);
+            Assert.Equal(DbType.VarNumeric, clone.DbType);
+            Assert.Null(clone.Size);
+            Assert.NotSame(mapping.Converter, clone.Converter);
+            Assert.Same(typeof(object), clone.ClrType);
         }
 
         [Theory]
@@ -88,7 +95,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(66, clone.Size);
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
-            Assert.Same(clrType, clone.ClrType);
+            Assert.Same(typeof(object), clone.ClrType);
+
+            var newConverter = new FakeValueConverter();
+            clone = (RelationalTypeMapping)mapping.Clone(newConverter);
+
+            Assert.NotSame(mapping, clone);
+            Assert.Same(mapping.GetType(), clone.GetType());
+            Assert.Equal("<original>", mapping.StoreType);
+            Assert.Equal("<original>", clone.StoreType);
+            Assert.Equal(DbType.VarNumeric, clone.DbType);
+            Assert.Equal(33, mapping.Size);
+            Assert.Equal(33, clone.Size);
+            Assert.NotSame(mapping.Converter, clone.Converter);
+            Assert.Same(typeof(object), clone.ClrType);
         }
 
         [Theory]
@@ -112,10 +132,45 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(DbType.VarNumeric, clone.DbType);
             Assert.Equal(33, mapping.Size);
             Assert.Equal(66, clone.Size);
+            Assert.False(mapping.IsUnicode);
             Assert.False(clone.IsUnicode);
             Assert.NotNull(mapping.Converter);
             Assert.Same(mapping.Converter, clone.Converter);
-            Assert.Same(clrType, clone.ClrType);
+            Assert.Same(typeof(object), clone.ClrType);
+
+            var newConverter = new FakeValueConverter();
+            clone = (RelationalTypeMapping)mapping.Clone(newConverter);
+
+            Assert.NotSame(mapping, clone);
+            Assert.Same(mapping.GetType(), clone.GetType());
+            Assert.Equal("<original>", mapping.StoreType);
+            Assert.Equal("<original>", clone.StoreType);
+            Assert.Equal(DbType.VarNumeric, clone.DbType);
+            Assert.Equal(33, mapping.Size);
+            Assert.Equal(33, clone.Size);
+            Assert.False(mapping.IsUnicode);
+            Assert.False(clone.IsUnicode);
+            Assert.NotSame(mapping.Converter, clone.Converter);
+            Assert.Same(typeof(object), clone.ClrType);
+        }
+
+        [Fact]
+        public void Cannot_compose_converters_with_mismatched_types()
+        {
+            Assert.Equal(
+                CoreStrings.ConverterCloneNotImplemented("FakeTypeMapping"),
+                Assert.Throws<NotImplementedException>(
+                    () => new FakeTypeMapping().Clone(new FakeValueConverter())).Message);
+        }
+
+        private class FakeTypeMapping : RelationalTypeMapping
+        {
+            public FakeTypeMapping()
+                : base("storeType", typeof(object))
+            {
+            }
+
+            public override RelationalTypeMapping Clone(string storeType, int? size) => throw new NotImplementedException();
         }
 
         [Fact]

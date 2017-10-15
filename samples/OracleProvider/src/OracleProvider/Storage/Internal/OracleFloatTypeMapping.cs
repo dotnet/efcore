@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleFloatTypeMapping(storeType, Converter, DbType);
 
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new OracleFloatTypeMapping(StoreType, ComposeConverter(converter), DbType);
+
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             return $"CAST({base.GenerateNonNullSqlLiteral(value)} AS {StoreType})";

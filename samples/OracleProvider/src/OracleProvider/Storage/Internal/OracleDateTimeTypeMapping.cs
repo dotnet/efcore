@@ -28,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleDateTimeTypeMapping(storeType, Converter, DbType);
 
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new OracleDateTimeTypeMapping(StoreType, ComposeConverter(converter), DbType);
+
         protected override string SqlLiteralFormatString => DateTimeFormatConst;
     }
 }

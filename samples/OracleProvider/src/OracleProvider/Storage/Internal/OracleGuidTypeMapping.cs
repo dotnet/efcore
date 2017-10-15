@@ -25,14 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleGuidTypeMapping(storeType, Converter, DbType);
 
-        public override string GenerateSqlLiteral(object value)
-        {
-            if (value is Guid guid)
-            {
-                return $"'{BitConverter.ToString(guid.ToByteArray()).Replace("-", string.Empty)}'";
-            }
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new OracleGuidTypeMapping(StoreType, ComposeConverter(converter), DbType);
 
-            return base.GenerateSqlLiteral(value);
-        }
+        public override string GenerateSqlLiteral(object value)
+            => value is Guid guid
+                ? $"'{BitConverter.ToString(guid.ToByteArray()).Replace("-", string.Empty)}'"
+                : base.GenerateSqlLiteral(value);
     }
 }

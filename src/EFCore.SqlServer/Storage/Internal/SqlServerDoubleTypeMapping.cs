@@ -46,6 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new SqlServerDoubleTypeMapping(StoreType, ComposeConverter(converter), DbType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             var literal = base.GenerateNonNullSqlLiteral(value);

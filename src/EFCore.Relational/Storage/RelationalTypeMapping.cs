@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -34,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             public override RelationalTypeMapping Clone(string storeType, int? size)
-                => new NullTypeMapping(storeType);
+                => this;
+
+            public override CoreTypeMapping Clone(ValueConverter converter)
+                => this;
         }
 
         /// <summary>
@@ -90,6 +94,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public abstract RelationalTypeMapping Clone([NotNull] string storeType, int? size);
 
         /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => throw new NotImplementedException(CoreStrings.ConverterCloneNotImplemented(GetType().ShortDisplayName()));
+
+        /// <summary>
         ///     Gets the name of the database type.
         /// </summary>
         public virtual string StoreType { get; }
@@ -134,16 +147,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
+            if (Converter != null)
+            {
+                value = Converter.ConvertToStore(value);
+            }
+
             if (value != null
                 && value.GetType().IsEnum)
             {
-                value = Convert.ChangeType(value, value.GetType().GetEnumUnderlyingType());
+                value = Convert.ChangeType(value, value.GetType().UnwrapEnumType());
             }
 
-            parameter.Value = (Converter != null
-                                  ? Converter.ConvertToStore(value)
-                                  : value)
-                              ?? DBNull.Value;
+            parameter.Value = value ?? DBNull.Value;
 
             if (nullable.HasValue)
             {

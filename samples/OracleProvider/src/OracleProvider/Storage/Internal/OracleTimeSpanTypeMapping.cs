@@ -25,6 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new OracleTimeSpanTypeMapping(storeType, Converter, DbType);
 
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new OracleTimeSpanTypeMapping(StoreType, ComposeConverter(converter), DbType);
+
         protected override string GenerateNonNullSqlLiteral(object value)
         {
             var ts = (TimeSpan)value;

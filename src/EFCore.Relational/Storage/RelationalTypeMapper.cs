@@ -10,6 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -151,10 +152,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            return GetClrTypeMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out var mapping)
-                ? mapping
-                : null;
+            return _explicitMappings.GetOrAdd(
+                ("", clrType.UnwrapNullableType()),
+                k => GetClrTypeMappings().TryGetValue(k.ClrType.UnwrapEnumType(), out var mapping)
+                    ? (k.ClrType.IsEnum
+                        ? (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(k.ClrType))
+                        : mapping)
+                    : null);
         }
+
+        private static ValueConverter CreateEnumToNumberConverter(Type enumType)
+            => (ValueConverter)Activator.CreateInstance(
+                typeof(EnumToNumberConveter<,>).MakeGenericType(enumType, enumType.UnwrapEnumType()));
 
         /// <summary>
         ///     <para>
@@ -194,36 +203,71 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(storeType, nameof(storeType));
 
-            if (TryFindStoreMapping(storeType, clrType, out var mapping)
-                && mapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
+            if (TryFindExactMapping(storeType, clrType, out var mapping))
             {
                 return mapping;
             }
 
+            var isEnum = clrType != null && clrType.IsEnum;
+
+            if (mapping == null
+                && isEnum)
+            {
+                if (TryFindExactMapping(storeType, clrType.UnwrapEnumType(), out mapping))
+                {
+                    return (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(clrType));
+                }
+
+                if (mapping == null
+                    && TryFindExactMapping(storeType, typeof(string), out mapping))
+                {
+                    return (RelationalTypeMapping)mapping.Clone(CreateEnumToStringConverter(clrType));
+                }
+            }
+
+            var size = mapping?.Size;
+
             var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
             if (openParen > 0)
             {
-                if (!TryFindStoreMapping(storeType.Substring(0, openParen), clrType, out mapping))
+                var fragment = storeType.Substring(0, openParen);
+                if (!TryFindStoreMapping(fragment, clrType, out mapping) 
+                    && isEnum)
                 {
-                    return null;
+                    if (TryFindStoreMapping(fragment, clrType.UnwrapEnumType(), out mapping))
+                    {
+                        mapping = (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(clrType));
+                    }
+                    else if (TryFindStoreMapping(fragment, typeof(string), out mapping))
+                    {
+                        mapping = (RelationalTypeMapping)mapping.Clone(CreateEnumToStringConverter(clrType));
+                    }
                 }
 
-                if (mapping.ClrType == typeof(string)
-                    || mapping.ClrType == typeof(byte[]))
+                if (mapping?.ClrType == typeof(string)
+                    || mapping?.ClrType == typeof(byte[]))
                 {
                     var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
 
                     if (closeParen > openParen
-                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var size)
-                        && mapping.Size != size)
+                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var newSize)
+                        && mapping.Size != newSize)
                     {
-                        return mapping.Clone(storeType, size);
+                        size = newSize;
                     }
                 }
             }
 
-            return mapping?.Clone(storeType, mapping.Size);
+            return mapping?.Clone(storeType, size ?? mapping.Size);
         }
+
+        private static ValueConverter CreateEnumToStringConverter(Type enumType)
+            => (ValueConverter)Activator.CreateInstance(
+                typeof(EnumToStringConveter<>).MakeGenericType(enumType));
+
+        private bool TryFindExactMapping(string storeType, Type clrType, out RelationalTypeMapping mapping)
+            => TryFindStoreMapping(storeType, clrType, out mapping)
+               && mapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase);
 
         private bool TryFindStoreMapping(
             string storeTypeFragment, 

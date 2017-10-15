@@ -143,7 +143,11 @@ namespace Microsoft.EntityFrameworkCore
                         Enum64 = Enum64.SomeValue,
                         Enum32 = Enum32.SomeValue,
                         Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue
+                        Enum8 = Enum8.SomeValue,
+                        EnumU64 = EnumU64.SomeValue,
+                        EnumU32 = EnumU32.SomeValue,
+                        EnumU16 = EnumU16.SomeValue,
+                        EnumS8 = EnumS8.SomeValue
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -240,6 +244,30 @@ namespace Microsoft.EntityFrameworkCore
                     var param20 = (sbyte)-128;
                     Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestSignedByte == param20));
                 }
+
+                if (entityType.FindProperty("EnumU64") != null)
+                {
+                    var param21 = EnumU64.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.EnumU64 == param21));
+                }
+
+                if (entityType.FindProperty("EnumU32") != null)
+                {
+                    var param22 = EnumU32.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.EnumU32 == param22));
+                }
+
+                if (entityType.FindProperty("EnumU16") != null)
+                {
+                    var param23 = EnumU16.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.EnumU16 == param23));
+                }
+
+                if (entityType.FindProperty("EnumS8") != null)
+                {
+                    var param24 = EnumS8.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.EnumS8 == param24));
+                }
             }
         }
 
@@ -272,7 +300,11 @@ namespace Microsoft.EntityFrameworkCore
                         Enum64 = Enum64.SomeValue,
                         Enum32 = Enum32.SomeValue,
                         Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue
+                        Enum8 = Enum8.SomeValue,
+                        EnumU64 = EnumU64.SomeValue,
+                        EnumU32 = EnumU32.SomeValue,
+                        EnumU16 = EnumU16.SomeValue,
+                        EnumS8 = EnumS8.SomeValue
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -369,6 +401,30 @@ namespace Microsoft.EntityFrameworkCore
                     sbyte? param20 = -128;
                     Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableSignedByte == param20));
                 }
+
+                if (entityType.FindProperty("EnumU64") != null)
+                {
+                    var param21 = EnumU64.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.EnumU64 == param21));
+                }
+
+                if (entityType.FindProperty("EnumU32") != null)
+                {
+                    var param22 = EnumU32.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.EnumU32 == param22));
+                }
+
+                if (entityType.FindProperty("EnumU16") != null)
+                {
+                    var param23 = EnumU16.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.EnumU16 == param23));
+                }
+
+                if (entityType.FindProperty("EnumS8") != null)
+                {
+                    var param24 = EnumS8.SomeValue;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.EnumS8 == param24));
+                }
             }
         }
 
@@ -400,7 +456,11 @@ namespace Microsoft.EntityFrameworkCore
                         Enum64 = Enum64.SomeValue,
                         Enum32 = Enum32.SomeValue,
                         Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue
+                        Enum8 = Enum8.SomeValue,
+                        EnumU64 = EnumU64.SomeValue,
+                        EnumU32 = EnumU32.SomeValue,
+                        EnumU16 = EnumU16.SomeValue,
+                        EnumS8 = EnumS8.SomeValue
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -492,6 +552,26 @@ namespace Microsoft.EntityFrameworkCore
                 if (entityType.FindProperty("TestSignedByte") != null)
                 {
                     Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.TestNullableSignedByte == -128));
+                }
+
+                if (entityType.FindProperty("EnumU64") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.EnumU64 == EnumU64.SomeValue));
+                }
+
+                if (entityType.FindProperty("EnumU32") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.EnumU32 == EnumU32.SomeValue));
+                }
+
+                if (entityType.FindProperty("EnumU16") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.EnumU16 == EnumU16.SomeValue));
+                }
+
+                if (entityType.FindProperty("EnumS8") != null)
+                {
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 12 && e.EnumS8 == EnumS8.SomeValue));
                 }
             }
         }
@@ -590,6 +670,30 @@ namespace Microsoft.EntityFrameworkCore
                     sbyte? param20 = null;
                     Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.TestNullableSignedByte == param20));
                 }
+
+                if (entityType.FindProperty("EnumU64") != null)
+                {
+                    EnumU64? param21 = null;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.EnumU64 == param21));
+                }
+
+                if (entityType.FindProperty("EnumU32") != null)
+                {
+                    EnumU32? param22 = null;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.EnumU32 == param22));
+                }
+
+                if (entityType.FindProperty("EnumU16") != null)
+                {
+                    EnumU16? param23 = null;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.EnumU16 == param23));
+                }
+
+                if (entityType.FindProperty("EnumS8") != null)
+                {
+                    EnumS8? param24 = null;
+                    Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.EnumS8 == param24));
+                }
             }
         }
 
@@ -622,7 +726,11 @@ namespace Microsoft.EntityFrameworkCore
                         Enum64 = Enum64.SomeValue,
                         Enum32 = Enum32.SomeValue,
                         Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue
+                        Enum8 = Enum8.SomeValue,
+                        EnumU64 = EnumU64.SomeValue,
+                        EnumU32 = EnumU32.SomeValue,
+                        EnumU16 = EnumU16.SomeValue,
+                        EnumS8 = EnumS8.SomeValue
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -653,6 +761,10 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, 1234567890123456789UL, () => dt.TestUnsignedInt64);
                 AssertEqualIfMapped(entityType, 'a', () => dt.TestCharacter);
                 AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.TestSignedByte);
+                AssertEqualIfMapped(entityType, EnumU64.SomeValue, () => dt.EnumU64);
+                AssertEqualIfMapped(entityType, EnumU32.SomeValue, () => dt.EnumU32);
+                AssertEqualIfMapped(entityType, EnumU16.SomeValue, () => dt.EnumU16);
+                AssertEqualIfMapped(entityType, EnumS8.SomeValue, () => dt.EnumS8);
             }
         }
 
@@ -860,6 +972,10 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(dt.Enum32);
                 Assert.Null(dt.Enum16);
                 Assert.Null(dt.Enum8);
+                Assert.Null(dt.EnumU64);
+                Assert.Null(dt.EnumU32);
+                Assert.Null(dt.EnumU16);
+                Assert.Null(dt.EnumS8);
             }
         }
 
@@ -894,7 +1010,11 @@ namespace Microsoft.EntityFrameworkCore
                         Enum64 = Enum64.SomeValue,
                         Enum32 = Enum32.SomeValue,
                         Enum16 = Enum16.SomeValue,
-                        Enum8 = Enum8.SomeValue
+                        Enum8 = Enum8.SomeValue,
+                        EnumU64 = EnumU64.SomeValue,
+                        EnumU32 = EnumU32.SomeValue,
+                        EnumU16 = EnumU16.SomeValue,
+                        EnumS8 = EnumS8.SomeValue
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -927,6 +1047,10 @@ namespace Microsoft.EntityFrameworkCore
                 AssertEqualIfMapped(entityType, 1234567890123456789UL, () => dt.TestNullableUnsignedInt64);
                 AssertEqualIfMapped(entityType, 'a', () => dt.TestNullableCharacter);
                 AssertEqualIfMapped(entityType, (sbyte)-128, () => dt.TestNullableSignedByte);
+                AssertEqualIfMapped(entityType, EnumU64.SomeValue, () => dt.EnumU64);
+                AssertEqualIfMapped(entityType, EnumU32.SomeValue, () => dt.EnumU32);
+                AssertEqualIfMapped(entityType, EnumU16.SomeValue, () => dt.EnumU16);
+                AssertEqualIfMapped(entityType, EnumS8.SomeValue, () => dt.EnumS8);
             }
         }
 
@@ -1008,6 +1132,10 @@ namespace Microsoft.EntityFrameworkCore
             public Enum32 Enum32 { get; set; }
             public Enum16 Enum16 { get; set; }
             public Enum8 Enum8 { get; set; }
+            public EnumU64 EnumU64 { get; set; }
+            public EnumU32 EnumU32 { get; set; }
+            public EnumU16 EnumU16 { get; set; }
+            public EnumS8 EnumS8 { get; set; }
         }
 
         protected enum Enum64 : long
@@ -1028,6 +1156,26 @@ namespace Microsoft.EntityFrameworkCore
         protected enum Enum8 : byte
         {
             SomeValue = 1
+        }
+
+        protected enum EnumU64 : ulong
+        {
+            SomeValue = 1234567890123456789UL
+        }
+
+        protected enum EnumU32 : uint
+        {
+            SomeValue = uint.MaxValue
+        }
+
+        protected enum EnumU16 : ushort
+        {
+            SomeValue = ushort.MaxValue
+        }
+
+        protected enum EnumS8 : sbyte
+        {
+            SomeValue = sbyte.MinValue
         }
 
         protected class MaxLengthDataTypes
@@ -1106,6 +1254,10 @@ namespace Microsoft.EntityFrameworkCore
             public Enum32? Enum32 { get; set; }
             public Enum16? Enum16 { get; set; }
             public Enum8? Enum8 { get; set; }
+            public EnumU64? EnumU64 { get; set; }
+            public EnumU32? EnumU32 { get; set; }
+            public EnumU16? EnumU16 { get; set; }
+            public EnumS8? EnumS8 { get; set; }
             // ReSharper restore MemberHidesStaticFromOuterClass
         }
     }

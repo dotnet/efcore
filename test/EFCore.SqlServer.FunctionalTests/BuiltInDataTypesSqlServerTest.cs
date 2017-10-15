@@ -141,7 +141,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                         CharAsNationalCharacterVaryingMax = 'F',
                         CharAsText = 'G',
                         CharAsNtext = 'H',
-                        CharAsInt = 'I'
+                        CharAsInt = 'I',
+                        EnumAsNvarchar20 = StringEnumU16.Value4,
+                        EnumAsVarcharMax = StringEnum16.Value2
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -276,6 +278,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 
                 char? param58 = 'I';
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsInt == param58));
+
+                StringEnumU16? param59 = StringEnumU16.Value4;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsNvarchar20 == param59));
+
+                StringEnum16? param60 = StringEnum16.Value2;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
             }
         }
 
@@ -438,6 +446,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 
                 char? param58 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsInt == param58));
+
+                StringEnumU16? param59 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.EnumAsNvarchar20 == param59));
+
+                StringEnum16? param60 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.EnumAsVarcharMax == param60));
             }
         }
 
@@ -487,27 +501,29 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='82.2'
 @p25='85.5'
 @p26='83.3'
-@p27='84.4'
-@p28='a8f9f951-145f-4545-ac60-b92ff57ada47'
-@p29='78'
-@p30='-128'
-@p31='128' (Size = 1)
-@p32='79'
-@p33='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p34='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p35='help' (Nullable = false) (Size = 4000)
-@p36='anyone!' (Nullable = false) (Size = 4000)
-@p37='Gumball Rules OK!' (Nullable = false) (Size = 4000)
-@p38='" + entity.StringAsNvarcharMax + @"' (Nullable = false) (Size = -1)
-@p39='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p40='" + entity.StringAsVarcharMax + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
-@p41='11:15:12'
-@p42='65535'
-@p43='-1'
-@p44='4294967295'
+@p27='Value4' (Nullable = false) (Size = 4000)
+@p28='Value2' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p29='84.4'
+@p30='a8f9f951-145f-4545-ac60-b92ff57ada47'
+@p31='78'
+@p32='-128'
+@p33='128' (Size = 1)
+@p34='79'
+@p35='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p36='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p37='help' (Nullable = false) (Size = 4000)
+@p38='anyone!' (Nullable = false) (Size = 4000)
+@p39='Gumball Rules OK!' (Nullable = false) (Size = 4000)
+@p40='" + entity.StringAsNvarcharMax + @"' (Nullable = false) (Size = -1)
+@p41='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p42='" + entity.StringAsVarcharMax + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
+@p43='11:15:12'
+@p44='65535'
 @p45='-1'
-@p46='-1'
-@p47='18446744073709551615' (Precision = 20)",
+@p46='4294967295'
+@p47='-1'
+@p48='-1'
+@p49='18446744073709551615' (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -571,6 +587,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('G', entity.CharAsText);
             Assert.Equal('H', entity.CharAsNtext);
             Assert.Equal('I', entity.CharAsInt);
+            Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
+            Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
         }
 
         private static MappedDataTypes CreateMappedDataTypes(int id)
@@ -623,7 +641,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNationalCharacterVaryingMax = 'F',
                 CharAsText = 'G',
                 CharAsNtext = 'H',
-                CharAsInt = 'I'
+                CharAsInt = 'I',
+                EnumAsNvarchar20 = StringEnumU16.Value4,
+                EnumAsVarcharMax = StringEnum16.Value2
             };
 
         [Fact]
@@ -637,7 +657,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             }
 
             var parameters = DumpParameters();
-            Assert.Equal(
+           Assert.Equal(
                 @"@p0='77'
 @p1='True' (Nullable = true)
 @p2='80' (Nullable = true) (Size = 1)
@@ -665,27 +685,29 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='82.2' (Nullable = true)
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
-@p27='84.4' (Nullable = true)
-@p28='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
-@p29='78' (Nullable = true)
-@p30='-128' (Nullable = true)
-@p31='128' (Nullable = true) (Size = 1)
-@p32='79' (Nullable = true)
-@p33='Your' (Size = 8000) (DbType = AnsiString)
-@p34='strong' (Size = 8000) (DbType = AnsiString)
-@p35='help' (Size = 4000)
-@p36='anyone!' (Size = 4000)
-@p37='Gumball Rules OK!' (Size = 4000)
-@p38='don't' (Size = 4000)
-@p39='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p40='C' (Size = 8000) (DbType = AnsiString)
-@p41='11:15:12' (Nullable = true)
-@p42='65535' (Nullable = true)
-@p43='-1' (Nullable = true)
-@p44='4294967295' (Nullable = true)
+@p27='Value4' (Size = 4000)
+@p28='Value2' (Size = 8000) (DbType = AnsiString)
+@p29='84.4' (Nullable = true)
+@p30='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
+@p31='78' (Nullable = true)
+@p32='-128' (Nullable = true)
+@p33='128' (Nullable = true) (Size = 1)
+@p34='79' (Nullable = true)
+@p35='Your' (Size = 8000) (DbType = AnsiString)
+@p36='strong' (Size = 8000) (DbType = AnsiString)
+@p37='help' (Size = 4000)
+@p38='anyone!' (Size = 4000)
+@p39='Gumball Rules OK!' (Size = 4000)
+@p40='don't' (Size = 4000)
+@p41='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p42='C' (Size = 8000) (DbType = AnsiString)
+@p43='11:15:12' (Nullable = true)
+@p44='65535' (Nullable = true)
 @p45='-1' (Nullable = true)
-@p46='-1' (Nullable = true)
-@p47='18446744073709551615' (Nullable = true) (Precision = 20)",
+@p46='4294967295' (Nullable = true)
+@p47='-1' (Nullable = true)
+@p48='-1' (Nullable = true)
+@p49='18446744073709551615' (Nullable = true) (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -745,6 +767,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('G', entity.CharAsText);
             Assert.Equal('H', entity.CharAsNtext);
             Assert.Equal('I', entity.CharAsInt);
+            Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
+            Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
         }
 
         private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
@@ -797,7 +821,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNationalCharacterVaryingMax = 'F',
                 CharAsText = 'G',
                 CharAsNtext = 'H',
-                CharAsInt = 'I'
+                CharAsInt = 'I',
+                EnumAsNvarchar20 = StringEnumU16.Value4,
+                EnumAsVarcharMax = StringEnum16.Value2
             };
 
         [Fact]
@@ -839,27 +865,29 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='' (DbType = String)
 @p25='' (DbType = String)
 @p26='' (DbType = String)
-@p27='' (DbType = String)
-@p28='' (DbType = Guid)
-@p29='' (DbType = Int64)
-@p30='' (DbType = Int16)
-@p31='' (DbType = Byte)
+@p27='' (Size = 4000) (DbType = String)
+@p28='' (Size = 8000)
+@p29='' (DbType = String)
+@p30='' (DbType = Guid)
+@p31='' (DbType = Int64)
 @p32='' (DbType = Int16)
-@p33='' (Size = 8000)
-@p34='' (Size = 8000)
-@p35='' (Size = 4000) (DbType = String)
-@p36='' (Size = 4000) (DbType = String)
+@p33='' (DbType = Byte)
+@p34='' (DbType = Int16)
+@p35='' (Size = 8000)
+@p36='' (Size = 8000)
 @p37='' (Size = 4000) (DbType = String)
 @p38='' (Size = 4000) (DbType = String)
-@p39='' (Size = 8000)
-@p40='' (Size = 8000)
-@p41='' (DbType = String)
-@p42='' (DbType = Int32)
-@p43='' (DbType = Int16)
-@p44='' (DbType = Int64)
-@p45='' (DbType = Int32)
+@p39='' (Size = 4000) (DbType = String)
+@p40='' (Size = 4000) (DbType = String)
+@p41='' (Size = 8000)
+@p42='' (Size = 8000)
+@p43='' (DbType = String)
+@p44='' (DbType = Int32)
+@p45='' (DbType = Int16)
 @p46='' (DbType = Int64)
-@p47='' (DbType = Decimal)",
+@p47='' (DbType = Int32)
+@p48='' (DbType = Int64)
+@p49='' (DbType = Decimal)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -919,6 +947,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Null(entity.CharAsText);
             Assert.Null(entity.CharAsNtext);
             Assert.Null(entity.CharAsInt);
+            Assert.Null(entity.EnumAsNvarchar20);
+            Assert.Null(entity.EnumAsVarcharMax);
         }
 
         [Fact]
@@ -1210,28 +1240,30 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p23='82.2'
 @p24='85.5'
 @p25='83.3'
-@p26='84.4'
-@p27='a8f9f951-145f-4545-ac60-b92ff57ada47'
-@p28='77'
-@p29='78'
-@p30='-128'
-@p31='128' (Size = 1)
-@p32='79'
-@p33='Your' (Size = 8000) (DbType = AnsiString)
-@p34='strong' (Size = 8000) (DbType = AnsiString)
-@p35='help' (Size = 4000)
-@p36='anyone!' (Size = 4000)
-@p37='Gumball Rules OK!' (Size = 4000)
-@p38='don't' (Size = 4000)
-@p39='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p40='C' (Size = 8000) (DbType = AnsiString)
-@p41='11:15:12'
-@p42='65535'
-@p43='-1'
-@p44='4294967295'
+@p26='Value4' (Nullable = false) (Size = 4000)
+@p27='Value2' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p28='84.4'
+@p29='a8f9f951-145f-4545-ac60-b92ff57ada47'
+@p30='77'
+@p31='78'
+@p32='-128'
+@p33='128' (Size = 1)
+@p34='79'
+@p35='Your' (Size = 8000) (DbType = AnsiString)
+@p36='strong' (Size = 8000) (DbType = AnsiString)
+@p37='help' (Size = 4000)
+@p38='anyone!' (Size = 4000)
+@p39='Gumball Rules OK!' (Size = 4000)
+@p40='don't' (Size = 4000)
+@p41='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p42='C' (Size = 8000) (DbType = AnsiString)
+@p43='11:15:12'
+@p44='65535'
 @p45='-1'
-@p46='-1'
-@p47='18446744073709551615' (Precision = 20)",
+@p46='4294967295'
+@p47='-1'
+@p48='-1'
+@p49='18446744073709551615' (Precision = 20)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1291,6 +1323,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('G', entity.CharAsText);
             Assert.Equal('H', entity.CharAsNtext);
             Assert.Equal('I', entity.CharAsInt);
+            Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
+            Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
         }
 
         private static MappedDataTypesWithIdentity CreateMappedDataTypesWithIdentity(int id)
@@ -1343,7 +1377,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNationalCharacterVaryingMax = 'F',
                 CharAsText = 'G',
                 CharAsNtext = 'H',
-                CharAsInt = 'I'
+                CharAsInt = 'I',
+                EnumAsNvarchar20 = StringEnumU16.Value4,
+                EnumAsVarcharMax = StringEnum16.Value2
             };
 
         [Fact]
@@ -1384,28 +1420,30 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p23='82.2' (Nullable = true)
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
-@p26='84.4' (Nullable = true)
-@p27='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
-@p28='77' (Nullable = true)
-@p29='78' (Nullable = true)
-@p30='-128' (Nullable = true)
-@p31='128' (Nullable = true) (Size = 1)
-@p32='79' (Nullable = true)
-@p33='Your' (Size = 8000) (DbType = AnsiString)
-@p34='strong' (Size = 8000) (DbType = AnsiString)
-@p35='help' (Size = 4000)
-@p36='anyone!' (Size = 4000)
-@p37='Gumball Rules OK!' (Size = 4000)
-@p38='don't' (Size = 4000)
-@p39='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p40='C' (Size = 8000) (DbType = AnsiString)
-@p41='11:15:12' (Nullable = true)
-@p42='65535' (Nullable = true)
-@p43='4294967295' (Nullable = true)
-@p44='-1' (Nullable = true)
-@p45='-1' (Nullable = true)
-@p46='18446744073709551615' (Nullable = true) (Precision = 20)
-@p47='-1' (Nullable = true)",
+@p26='Value4' (Size = 4000)
+@p27='Value2' (Size = 8000) (DbType = AnsiString)
+@p28='84.4' (Nullable = true)
+@p29='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
+@p30='77' (Nullable = true)
+@p31='78' (Nullable = true)
+@p32='-128' (Nullable = true)
+@p33='128' (Nullable = true) (Size = 1)
+@p34='79' (Nullable = true)
+@p35='Your' (Size = 8000) (DbType = AnsiString)
+@p36='strong' (Size = 8000) (DbType = AnsiString)
+@p37='help' (Size = 4000)
+@p38='anyone!' (Size = 4000)
+@p39='Gumball Rules OK!' (Size = 4000)
+@p40='don't' (Size = 4000)
+@p41='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p42='C' (Size = 8000) (DbType = AnsiString)
+@p43='11:15:12' (Nullable = true)
+@p44='65535' (Nullable = true)
+@p45='4294967295' (Nullable = true)
+@p46='-1' (Nullable = true)
+@p47='-1' (Nullable = true)
+@p48='18446744073709551615' (Nullable = true) (Precision = 20)
+@p49='-1' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1465,6 +1503,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('G', entity.CharAsText);
             Assert.Equal('H', entity.CharAsNtext);
             Assert.Equal('I', entity.CharAsInt);
+            Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
+            Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
         }
 
         private static MappedNullableDataTypesWithIdentity CreateMappedNullableDataTypesWithIdentity(int id)
@@ -1517,7 +1557,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNationalCharacterVaryingMax = 'F',
                 CharAsText = 'G',
                 CharAsNtext = 'H',
-                CharAsInt = 'I'
+                CharAsInt = 'I',
+                EnumAsNvarchar20 = StringEnumU16.Value4,
+                EnumAsVarcharMax = StringEnum16.Value2
             };
 
         [Fact]
@@ -1558,28 +1600,30 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p23='' (DbType = String)
 @p24='' (DbType = String)
 @p25='' (DbType = String)
-@p26='' (DbType = String)
-@p27='' (DbType = Guid)
-@p28='78' (Nullable = true)
-@p29='' (DbType = Int64)
-@p30='' (DbType = Int16)
-@p31='' (DbType = Byte)
+@p26='' (Size = 4000) (DbType = String)
+@p27='' (Size = 8000)
+@p28='' (DbType = String)
+@p29='' (DbType = Guid)
+@p30='78' (Nullable = true)
+@p31='' (DbType = Int64)
 @p32='' (DbType = Int16)
-@p33='' (Size = 8000)
-@p34='' (Size = 8000)
-@p35='' (Size = 4000) (DbType = String)
-@p36='' (Size = 4000) (DbType = String)
+@p33='' (DbType = Byte)
+@p34='' (DbType = Int16)
+@p35='' (Size = 8000)
+@p36='' (Size = 8000)
 @p37='' (Size = 4000) (DbType = String)
 @p38='' (Size = 4000) (DbType = String)
-@p39='' (Size = 8000)
-@p40='' (Size = 8000)
-@p41='' (DbType = String)
-@p42='' (DbType = Int32)
-@p43='' (DbType = Int64)
+@p39='' (Size = 4000) (DbType = String)
+@p40='' (Size = 4000) (DbType = String)
+@p41='' (Size = 8000)
+@p42='' (Size = 8000)
+@p43='' (DbType = String)
 @p44='' (DbType = Int32)
 @p45='' (DbType = Int64)
-@p46='' (DbType = Decimal)
-@p47='' (DbType = Int16)",
+@p46='' (DbType = Int32)
+@p47='' (DbType = Int64)
+@p48='' (DbType = Decimal)
+@p49='' (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1640,6 +1684,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Null(entity.CharAsText);
             Assert.Null(entity.CharAsNtext);
             Assert.Null(entity.CharAsInt);
+            Assert.Null(entity.EnumAsNvarchar20);
+            Assert.Null(entity.EnumAsVarcharMax);
         }
 
         [Fact]
@@ -2284,6 +2330,10 @@ BuiltInDataTypes.Enum16 ---> [smallint] [Precision = 5 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum8 ---> [tinyint] [Precision = 3 Scale = 0]
+BuiltInDataTypes.EnumS8 ---> [smallint] [Precision = 5 Scale = 0]
+BuiltInDataTypes.EnumU16 ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypes.EnumU32 ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypes.EnumU64 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.PartitionId ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestBoolean ---> [bit]
@@ -2306,6 +2356,10 @@ BuiltInNullableDataTypes.Enum16 ---> [nullable smallint] [Precision = 5 Scale = 
 BuiltInNullableDataTypes.Enum32 ---> [nullable int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.Enum64 ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.Enum8 ---> [nullable tinyint] [Precision = 3 Scale = 0]
+BuiltInNullableDataTypes.EnumS8 ---> [nullable smallint] [Precision = 5 Scale = 0]
+BuiltInNullableDataTypes.EnumU16 ---> [nullable int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypes.EnumU32 ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypes.EnumU64 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.PartitionId ---> [int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.TestByteArray ---> [nullable varbinary] [MaxLength = -1]
@@ -2352,6 +2406,8 @@ MappedDataTypes.DecimalAsNumeric ---> [numeric] [Precision = 18 Scale = 0]
 MappedDataTypes.DecimalAsSmallmoney ---> [smallmoney] [Precision = 10 Scale = 4]
 MappedDataTypes.DoubleAsDoublePrecision ---> [float] [Precision = 53]
 MappedDataTypes.DoubleAsFloat ---> [float] [Precision = 53]
+MappedDataTypes.EnumAsNvarchar20 ---> [nvarchar] [MaxLength = 20]
+MappedDataTypes.EnumAsVarcharMax ---> [varchar] [MaxLength = -1]
 MappedDataTypes.FloatAsReal ---> [real] [Precision = 24]
 MappedDataTypes.GuidAsUniqueidentifier ---> [uniqueidentifier]
 MappedDataTypes.Int ---> [int] [Precision = 10 Scale = 0]
@@ -2400,6 +2456,8 @@ MappedDataTypesWithIdentity.DecimalAsNumeric ---> [numeric] [Precision = 18 Scal
 MappedDataTypesWithIdentity.DecimalAsSmallmoney ---> [smallmoney] [Precision = 10 Scale = 4]
 MappedDataTypesWithIdentity.DoubleAsDoublePrecision ---> [float] [Precision = 53]
 MappedDataTypesWithIdentity.DoubleAsFloat ---> [float] [Precision = 53]
+MappedDataTypesWithIdentity.EnumAsNvarchar20 ---> [nvarchar] [MaxLength = 20]
+MappedDataTypesWithIdentity.EnumAsVarcharMax ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.FloatAsReal ---> [real] [Precision = 24]
 MappedDataTypesWithIdentity.GuidAsUniqueidentifier ---> [uniqueidentifier]
 MappedDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
@@ -2449,6 +2507,8 @@ MappedNullableDataTypes.DecimalAsNumeric ---> [nullable numeric] [Precision = 18
 MappedNullableDataTypes.DecimalAsSmallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
 MappedNullableDataTypes.DoubleAsDoublePrecision ---> [nullable float] [Precision = 53]
 MappedNullableDataTypes.DoubleAsFloat ---> [nullable float] [Precision = 53]
+MappedNullableDataTypes.EnumAsNvarchar20 ---> [nullable nvarchar] [MaxLength = 20]
+MappedNullableDataTypes.EnumAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.FloatAsReal ---> [nullable real] [Precision = 24]
 MappedNullableDataTypes.GuidAsUniqueidentifier ---> [nullable uniqueidentifier]
 MappedNullableDataTypes.Int ---> [int] [Precision = 10 Scale = 0]
@@ -2497,6 +2557,8 @@ MappedNullableDataTypesWithIdentity.DecimalAsNumeric ---> [nullable numeric] [Pr
 MappedNullableDataTypesWithIdentity.DecimalAsSmallmoney ---> [nullable smallmoney] [Precision = 10 Scale = 4]
 MappedNullableDataTypesWithIdentity.DoubkleAsDoublePrecision ---> [nullable float] [Precision = 53]
 MappedNullableDataTypesWithIdentity.DoubleAsFloat ---> [nullable float] [Precision = 53]
+MappedNullableDataTypesWithIdentity.EnumAsNvarchar20 ---> [nullable nvarchar] [MaxLength = 20]
+MappedNullableDataTypesWithIdentity.EnumAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.FloatAsReal ---> [nullable real] [Precision = 24]
 MappedNullableDataTypesWithIdentity.GuidAsUniqueidentifier ---> [nullable uniqueidentifier]
 MappedNullableDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
@@ -2700,6 +2762,20 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public override DateTime DefaultDateTime => new DateTime();
         }
 
+        protected enum StringEnum16 : short
+        {
+            Value1 = 1,
+            Value2 = 2,
+            Value4 = 4
+        }
+
+        protected enum StringEnumU16 : ushort
+        {
+            Value1 = 1,
+            Value2 = 2,
+            Value4 = 4
+        }
+
         protected class MappedDataTypes
         {
             [Column(TypeName = "int")]
@@ -2845,6 +2921,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "int")]
             public char CharAsInt { get; set; }
+
+            [Column(TypeName = "varchar(max)")]
+            public StringEnum16 EnumAsVarcharMax { get; set; }
+
+            [Column(TypeName = "nvarchar(20)")]
+            public StringEnumU16 EnumAsNvarchar20 { get; set; }
         }
 
         protected class MappedSizedDataTypes
@@ -3094,6 +3176,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "int")]
             public char? CharAsInt { get; set; }
+
+            [Column(TypeName = "varchar(max)")]
+            public StringEnum16? EnumAsVarcharMax { get; set; }
+
+            [Column(TypeName = "nvarchar(20)")]
+            public StringEnumU16? EnumAsNvarchar20 { get; set; }
         }
 
         protected class MappedDataTypesWithIdentity
@@ -3243,6 +3331,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "int")]
             public char CharAsInt { get; set; }
+
+            [Column(TypeName = "varchar(max)")]
+            public StringEnum16 EnumAsVarcharMax { get; set; }
+
+            [Column(TypeName = "nvarchar(20)")]
+            public StringEnumU16 EnumAsNvarchar20 { get; set; }
         }
 
         protected class MappedSizedDataTypesWithIdentity
@@ -3497,6 +3591,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "int")]
             public char? CharAsInt { get; set; }
+
+            [Column(TypeName = "varchar(max)")]
+            public StringEnum16? EnumAsVarcharMax { get; set; }
+
+            [Column(TypeName = "nvarchar(20)")]
+            public StringEnumU16? EnumAsNvarchar20 { get; set; }
         }
 
         protected class ColumnInfo

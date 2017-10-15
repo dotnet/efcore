@@ -51,5 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
             => new ShortTypeMapping(storeType, Converter, DbType);
+
+        /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new ShortTypeMapping(StoreType, ComposeConverter(converter), DbType);
     }
 }

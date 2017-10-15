@@ -57,11 +57,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new ByteArrayTypeMapping(
-                storeType,
-                Converter,
-                DbType,
-                size);
+            => new ByteArrayTypeMapping(storeType, Converter, DbType, size);
+
+        /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new ByteArrayTypeMapping(StoreType, ComposeConverter(converter), DbType, Size);
 
         /// <summary>
         ///     Generates the SQL representation of a literal value.

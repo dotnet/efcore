@@ -117,84 +117,82 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private static Action<object[]> CreateValueProcessor(CacheKey cacheKey)
         {
             var valuesParam = Expression.Parameter(typeof(object[]), "values");
-
             var conversions = new List<Expression>();   
             var materializationInfo = cacheKey.TypeMaterializationInfo;
-
-            var valueVariable = Expression.Variable(typeof(object), "value");
 
             for (var i = 0; i < materializationInfo.Count; i++)
             {
                 var modelType = materializationInfo[i].ModelType;
                 var converter = materializationInfo[i].Mapping?.Converter;
 
-                var isEnum = modelType.UnwrapNullableType().GetTypeInfo().IsEnum;
+                var arrayAccess =
+                    Expression.ArrayAccess(valuesParam, Expression.Constant(i));
 
-                if (converter != null
-                    || isEnum)
+                if (converter != null)
                 {
-                    var arrayAccess = 
-                        Expression.ArrayAccess(valuesParam, Expression.Constant(i));
-
-                    conversions.Add(Expression.Assign(valueVariable, arrayAccess));
+                    Expression valueExpression = Expression.Convert(
+                        arrayAccess,
+                        converter.StoreType);
 
                     var passNullToConverter
-                        = converter != null
-                          && converter.StoreType.IsNullableType()
+                        = converter.StoreType.IsNullableType()
                           && !modelType.IsNullableType();
 
-                    if (converter != null)
+                    if (passNullToConverter)
                     {
-                        Expression valueExpression = Expression.Convert(
-                            valueVariable,
-                            converter.StoreType);
-
-                        if (passNullToConverter)
-                        {
-                            valueExpression
-                                = Expression.Condition(
-                                    Expression.ReferenceEqual(
-                                        valueVariable,
-                                        Expression.Constant(DBNull.Value)),
-                                    Expression.Default(converter.StoreType),
-                                    valueExpression);
-                        }
-
-                        conversions.Add(
-                            Expression.Assign(
-                                isEnum ? (Expression)valueVariable : arrayAccess,
-                                Expression.Condition(
-                                    Expression.ReferenceEqual(
-                                        valueVariable,
-                                        Expression.Constant(DBNull.Value)),
-                                    Expression.Constant(null),
-                                    Expression.Convert(
-                                        ReplacingExpressionVisitor.Replace(
-                                            converter.ConvertFromStoreExpression.Parameters.Single(),
-                                            valueExpression,
-                                            converter.ConvertFromStoreExpression.Body),
-                                        typeof(object)))));
+                        valueExpression
+                            = Expression.Condition(
+                                Expression.ReferenceEqual(
+                                    arrayAccess,
+                                    Expression.Constant(DBNull.Value)),
+                                Expression.Default(converter.StoreType),
+                                valueExpression);
                     }
 
-                    if (isEnum
-                        && !passNullToConverter)
+                    valueExpression
+                        = Expression.Convert(
+                            ReplacingExpressionVisitor.Replace(
+                                converter.ConvertFromStoreExpression.Parameters.Single(),
+                                valueExpression,
+                                converter.ConvertFromStoreExpression.Body),
+                            typeof(object));
+
+                    if (!passNullToConverter)
                     {
-                        conversions.Add(
-                            Expression.IfThen(
-                                Expression.IsFalse(
-                                    Expression.ReferenceEqual(
-                                        valueVariable,
-                                        Expression.Constant(DBNull.Value))),
-                                Expression.Assign(
+                        valueExpression
+                            = Expression.Condition(
+                                Expression.ReferenceEqual(
                                     arrayAccess,
+                                    Expression.Constant(DBNull.Value)),
+                                Expression.Constant(null),
+                                valueExpression);
+                    }
+
+                    conversions.Add(
+                        Expression.Assign(
+                            arrayAccess,
+                            valueExpression
+                        ));
+                }
+
+                if (converter == null
+                    && modelType.UnwrapNullableType().GetTypeInfo().IsEnum)
+                {
+                    conversions.Add(
+                        Expression.IfThen(
+                            Expression.IsFalse(
+                                Expression.ReferenceEqual(
+                                    arrayAccess,
+                                    Expression.Constant(DBNull.Value))),
+                            Expression.Assign(
+                                arrayAccess,
+                                Expression.Convert(
                                     Expression.Convert(
                                         Expression.Convert(
-                                            Expression.Convert(
-                                                valueVariable,
-                                                modelType.UnwrapEnumType()),
-                                            modelType),
-                                        typeof(object)))));
-                    }
+                                            arrayAccess,
+                                            modelType.UnwrapEnumType()),
+                                        modelType),
+                                    typeof(object)))));
                 }
             }
 
@@ -205,7 +203,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return Expression.Lambda<Action<object[]>>(
                     Expression.Block(
-                        new[] { valueVariable },
                         conversions),
                     valuesParam)
                 .Compile();

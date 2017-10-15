@@ -354,11 +354,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+            var underlyingType = clrType.UnwrapNullableType().UnwrapEnumType();
 
-            return clrType == typeof(string)
+            return underlyingType == typeof(string)
                 ? _unboundedUnicodeString
-                : clrType == typeof(byte[])
+                : underlyingType == typeof(byte[])
                     ? _unboundedBinary
                     : base.FindMapping(clrType);
         }

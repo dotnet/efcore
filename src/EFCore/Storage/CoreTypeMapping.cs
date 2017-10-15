@@ -43,5 +43,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     May be null if no conversion is needed.
         /// </summary>
         public virtual ValueConverter Converter { get; }
+
+        /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
+
+        /// <summary>
+        /// Composes the given <see cref="ValueConverter"/> with any already in this mapping
+        /// and returns a new <see cref="ValueConverter"/> combining them together.
+        /// </summary>
+        /// <param name="converter"> The new converter. </param>
+        /// <returns> The composed converter. </returns>
+        protected virtual ValueConverter ComposeConverter([CanBeNull] ValueConverter converter)
+            => ValueConverter.Compose(converter, Converter);
     }
 }

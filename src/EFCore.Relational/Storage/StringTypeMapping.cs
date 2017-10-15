@@ -62,6 +62,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new StringTypeMapping(storeType, Converter, DbType, IsUnicode, size);
 
         /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new StringTypeMapping(StoreType, ComposeConverter(converter), DbType, IsUnicode, Size);
+
+        /// <summary>
         ///     Generates the escaped SQL representation of a literal value.
         /// </summary>
         /// <param name="literal">The value to be escaped.</param>

@@ -1815,6 +1815,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, keyValue);
 
         /// <summary>
+        ///     Cannot compose converter from '{typeOneIn}' to '{typeOneOut}' with converter from '{typeTwoIn}' to '{typeTwoOut}' because the output type of the first converter is different from the input type of the second converter.
+        /// </summary>
+        public static string ConvertersCannotBeComposed([CanBeNull] object typeOneIn, [CanBeNull] object typeOneOut, [CanBeNull] object typeTwoIn, [CanBeNull] object typeTwoOut)
+            => string.Format(
+                GetString("ConvertersCannotBeComposed", nameof(typeOneIn), nameof(typeOneOut), nameof(typeTwoIn), nameof(typeTwoOut)),
+                typeOneIn, typeOneOut, typeTwoIn, typeTwoOut);
+
+        /// <summary>
+        ///     The '{mapping}' does not support value conversions. Support for value conversions typically requires changes in the database provider.
+        /// </summary>
+        public static string ConverterCloneNotImplemented([CanBeNull] object mapping)
+            => string.Format(
+                GetString("ConverterCloneNotImplemented", nameof(mapping)),
+                mapping);
+
+        /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because another seed entity with the same key value for {keyProperties} has already been added. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
         public static string SeedDatumDuplicate([CanBeNull] object entityType, [CanBeNull] object keyProperties)

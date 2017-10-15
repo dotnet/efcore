@@ -4,6 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -88,5 +90,40 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The CLR type used when reading and writing from the store.
         /// </summary>
         public abstract Type StoreType { get; }
+
+        /// <summary>
+        ///     Composes two <see cref="ValueConverter" /> instances together such that
+        ///     the result of the first conversion is used as the input to the second conversion.
+        /// </summary>
+        /// <param name="firstConverter"> The first converter. </param>
+        /// <param name="secondConverter"> The second converter. </param>
+        /// <returns> The composed converter. </returns>
+        public static ValueConverter Compose(
+            [CanBeNull] ValueConverter firstConverter,
+            [CanBeNull] ValueConverter secondConverter)
+        {
+            if (firstConverter == null
+                || secondConverter == null)
+            {
+                return firstConverter ?? secondConverter;
+            }
+
+            if (firstConverter.StoreType != secondConverter.ModelType)
+            {
+                throw new ArgumentException(CoreStrings.ConvertersCannotBeComposed(
+                    firstConverter.ModelType.ShortDisplayName(),
+                    firstConverter.StoreType.ShortDisplayName(), 
+                    secondConverter.ModelType.ShortDisplayName(),
+                    secondConverter.StoreType.ShortDisplayName()));
+            }
+
+            return (ValueConverter)Activator.CreateInstance(
+                typeof(ComposedValueConveter<,,>).MakeGenericType(
+                    firstConverter.ModelType,
+                    firstConverter.StoreType,
+                    secondConverter.StoreType),
+                firstConverter,
+                secondConverter);
+        }
     }
 }

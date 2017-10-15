@@ -255,13 +255,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            clrType = clrType.UnwrapNullableType().UnwrapEnumType();
+            var underlyingType = clrType.UnwrapNullableType().UnwrapEnumType();
 
-            return clrType == typeof(string)
+            return underlyingType == typeof(string)
                 ? _defaultUnicodeString
-                : (clrType == typeof(byte[])
+                : underlyingType == typeof(byte[])
                     ? _unboundedBinary
-                    : base.FindMapping(clrType));
+                    : base.FindMapping(clrType);
         }
 
         // Indexes in Oracle have a max size of 900 bytes

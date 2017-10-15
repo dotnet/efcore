@@ -54,6 +54,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new GuidTypeMapping(storeType, Converter, DbType);
 
         /// <summary>
+        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
+        ///    added.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <returns> A new type mapping </returns>
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new GuidTypeMapping(StoreType, ComposeConverter(converter), DbType);
+
+        /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
         /// </summary>
         protected override string SqlLiteralFormatString => "'{0}'";

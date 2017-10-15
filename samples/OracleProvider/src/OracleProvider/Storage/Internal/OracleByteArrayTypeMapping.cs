@@ -36,11 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => size.HasValue && size < 8000 ? size.Value : 8000;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleByteArrayTypeMapping(
-                storeType,
-                Converter,
-                DbType,
-                size);
+            => new OracleByteArrayTypeMapping(storeType, Converter, DbType, size);
+
+        public override CoreTypeMapping Clone(ValueConverter converter)
+            => new OracleByteArrayTypeMapping(StoreType, ComposeConverter(converter), DbType, Size);
 
         protected override void ConfigureParameter(DbParameter parameter)
         {
