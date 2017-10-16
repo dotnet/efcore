@@ -25,7 +25,7 @@
     "Microsoft.EntityFrameworkCore.Design": "1.1.4",
     "Microsoft.EntityFrameworkCore.Relational.Design": "1.1.4",
     "Microsoft.EntityFrameworkCore.Relational.Specification.Tests": "1.1.4",
-    "Microsoft.Extensions.DependencyModel": "1.1.4-servicing-001651",
+    "Microsoft.Extensions.DependencyModel": "1.1.4-servicing-001653",
     "NETStandard.Library": "1.6.1"
   },
   "frameworks": {
