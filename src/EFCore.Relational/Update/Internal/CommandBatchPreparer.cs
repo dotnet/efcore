@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
+        private readonly int _minBatchSize;
         private IStateManager _stateManager;
         private readonly bool _sensitiveLoggingEnabled;
 
@@ -39,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
             _modificationCommandComparer = dependencies.ModificationCommandComparer;
             _keyValueIndexFactorySource = dependencies.KeyValueIndexFactorySource;
+            _minBatchSize = dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()
+                ?.MinBatchSize ?? 4;
             Dependencies = dependencies;
 
             if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -73,15 +76,44 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     if (!batch.AddCommand(modificationCommand))
                     {
-                        yield return batch;
-                        parameterNameGenerator.Reset();
-                        batch = _modificationCommandBatchFactory.Create();
-                        batch.AddCommand(modificationCommand);
+                        if (batch.ModificationCommands.Count == 1
+                            || batch.ModificationCommands.Count >= _minBatchSize)
+                        {
+                            yield return batch;
+                        }
+                        else
+                        {
+                            foreach (var command in batch.ModificationCommands)
+                            {
+                                yield return StartNewBatch(parameterNameGenerator, command);
+                            }
+                        }
+
+                        batch = StartNewBatch(parameterNameGenerator, modificationCommand);
                     }
                 }
 
-                yield return batch;
+                if (batch.ModificationCommands.Count == 1
+                    || batch.ModificationCommands.Count >= _minBatchSize)
+                {
+                    yield return batch;
+                }
+                else
+                {
+                    foreach (var command in batch.ModificationCommands)
+                    {
+                        yield return StartNewBatch(parameterNameGenerator, command);
+                    }
+                }
             }
+        }
+
+        private ModificationCommandBatch StartNewBatch(ParameterNameGenerator parameterNameGenerator, ModificationCommand modificationCommand)
+        {
+            parameterNameGenerator.Reset();
+            var batch = _modificationCommandBatchFactory.Create();
+            batch.AddCommand(modificationCommand);
+            return batch;
         }
 
         /// <summary>

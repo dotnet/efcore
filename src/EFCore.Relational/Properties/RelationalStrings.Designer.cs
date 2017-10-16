@@ -884,6 +884,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string ConflictingEnlistedTransaction
             => GetString("ConflictingEnlistedTransaction");
 
+        /// <summary>
+        ///     The specified MinBatchSize value is not valid. It must be a positive number.
+        /// </summary>
+        public static string InvalidMinBatchSize
+            => GetString("InvalidMinBatchSize");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

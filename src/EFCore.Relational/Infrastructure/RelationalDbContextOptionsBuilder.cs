@@ -47,6 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => (TExtension)e.WithMaxBatchSize(maxBatchSize));
 
         /// <summary>
+        ///     Configures the minimum number of statements that are needed for a multi-statement command sent to the database
+        ///     during <see cref="DbContext.SaveChanges()" />.
+        /// </summary>
+        /// <param name="minBatchSize"> The minimum number of statements. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual TBuilder MinBatchSize(int minBatchSize)
+            => WithOption(e => (TExtension)e.WithMinBatchSize(minBatchSize));
+
+        /// <summary>
         ///     Configures the wait time (in seconds) before terminating the attempt to execute a command and generating an error.
         /// </summary>
         /// <param name="commandTimeout"> The time in seconds to wait for the command to execute. </param>

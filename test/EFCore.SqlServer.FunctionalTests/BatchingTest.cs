@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -138,6 +140,45 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
+        [Theory]
+        [InlineData(3)]
+        [InlineData(4)]
+        public void Inserts_are_batched_only_when_necessary(int minBatchSize)
+        {
+            var expectedBlogs = new List<Blog>();
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                () =>
+                    {
+                        var optionsBuilder = new DbContextOptionsBuilder(Fixture.CreateOptions());
+                        new SqlServerDbContextOptionsBuilder(optionsBuilder).MinBatchSize(minBatchSize);
+                        return new BloggingContext(optionsBuilder.Options);
+                    },
+                UseTransaction,
+                context =>
+                    {
+                        var owner = new Owner();
+                        context.Owners.Add(owner);
+
+                        for (var i = 1; i < 4; i++)
+                        {
+                            var blog = new Blog
+                            {
+                                Id = Guid.NewGuid(),
+                                Owner = owner
+                            };
+
+                            context.Set<Blog>().Add(blog);
+                            expectedBlogs.Add(blog);
+                        }
+
+                        Fixture.TestSqlLoggerFactory.Clear();
+
+                        context.SaveChanges();
+
+                        Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
+                    }, context => AssertDatabaseState(context, false, expectedBlogs));
+        }
+
         private void AssertDatabaseState(DbContext context, bool clientOrder, List<Blog> expectedBlogs)
         {
             expectedBlogs = clientOrder
@@ -193,6 +234,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
             }
 
+            // ReSharper disable once UnusedMember.Local
             public DbSet<Blog> Blogs { get; set; }
             public DbSet<Owner> Owners { get; set; }
         }
@@ -217,6 +259,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "BatchingTest";
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
             protected override Type ContextType { get; } = typeof(BloggingContext);
 

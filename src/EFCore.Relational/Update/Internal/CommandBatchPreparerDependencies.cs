@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
@@ -52,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
             [NotNull] Func<IStateManager> stateManager,
-            [NotNull] ILoggingOptions loggingOptions)
+            [NotNull] ILoggingOptions loggingOptions,
+            [NotNull] IDbContextOptions options)
         {
             ModificationCommandBatchFactory = modificationCommandBatchFactory;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
@@ -60,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             KeyValueIndexFactorySource = keyValueIndexFactorySource;
             StateManager = stateManager;
             LoggingOptions = loggingOptions;
+            Options = options;
         }
 
         /// <summary>
@@ -99,6 +102,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public ILoggingOptions LoggingOptions { get; }
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IDbContextOptions Options { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="modificationCommandBatchFactory"> A replacement for the current dependency of this type. </param>
@@ -110,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 ModificationCommandComparer,
                 KeyValueIndexFactorySource,
                 StateManager,
-                LoggingOptions);
+                LoggingOptions,
+                Options);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -124,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 ModificationCommandComparer,
                 KeyValueIndexFactorySource,
                 StateManager,
-                LoggingOptions);
+                LoggingOptions,
+                Options);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -138,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 modificationCommandComparer,
                 KeyValueIndexFactorySource,
                 StateManager,
-                LoggingOptions);
+                LoggingOptions,
+                Options);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -152,7 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 ModificationCommandComparer,
                 keyValueIndexFactorySource,
                 StateManager,
-                LoggingOptions);
+                LoggingOptions,
+                Options);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -166,7 +179,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 ModificationCommandComparer,
                 KeyValueIndexFactorySource,
                 stateManager,
-                LoggingOptions);
+                LoggingOptions,
+                Options);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -180,6 +194,22 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 ModificationCommandComparer,
                 KeyValueIndexFactorySource,
                 StateManager,
-                loggingOptions);
+                loggingOptions,
+                Options);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="options"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CommandBatchPreparerDependencies With([NotNull] IDbContextOptions options)
+            => new CommandBatchPreparerDependencies(
+                ModificationCommandBatchFactory,
+                ParameterNameGeneratorFactory,
+                ModificationCommandComparer,
+                KeyValueIndexFactorySource,
+                StateManager,
+                LoggingOptions,
+                options);
     }
 }

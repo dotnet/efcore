@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private DbConnection _connection;
         private int? _commandTimeout;
         private int? _maxBatchSize;
+        private int? _minBatchSize;
         private bool _useRelationalNulls;
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
@@ -58,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _connection = copyFrom._connection;
             _commandTimeout = copyFrom._commandTimeout;
             _maxBatchSize = copyFrom._maxBatchSize;
+            _minBatchSize = copyFrom._minBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
@@ -166,6 +168,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._maxBatchSize = maxBatchSize;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     The minimum number of statements that are needed for a multi-statement command sent to the database
+        ///     during <see cref="DbContext.SaveChanges()" /> or <c>null</c> if none has been set.
+        /// </summary>
+        public virtual int? MinBatchSize => _minBatchSize;
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="minBatchSize"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual RelationalOptionsExtension WithMinBatchSize(int? minBatchSize)
+        {
+            if (minBatchSize.HasValue
+                && minBatchSize <= 0)
+            {
+                throw new InvalidOperationException(RelationalStrings.InvalidMinBatchSize);
+            }
+
+            var clone = Clone();
+
+            clone._minBatchSize = minBatchSize;
 
             return clone;
         }

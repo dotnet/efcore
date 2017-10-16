@@ -440,4 +440,7 @@
   <data name="ConflictingEnlistedTransaction" xml:space="preserve">
     <value>The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a transaction.</value>
   </data>
+  <data name="InvalidMinBatchSize" xml:space="preserve">
+    <value>The specified MinBatchSize value is not valid. It must be a positive number.</value>
+  </data>
 </root>
