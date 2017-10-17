@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMapper : IRelationalTypeMapper
     {
+        private static readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _emptyNamedMappings
+            = new Dictionary<string, Func<Type, RelationalTypeMapping>>();
+
         private static readonly MethodInfo _getFieldValueMethod
             = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
 
@@ -63,6 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The type mappings. </returns>
         protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings();
+
+        /// <summary>
+        ///     Gets the mappings from .NET type names to database types.
+        /// </summary>
+        /// <returns> The type mappings. </returns>
+        protected virtual IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> GetClrTypeNameMappings()
+            => _emptyNamedMappings;
 
         /// <summary>
         ///     Gets the mappings from database types to .NET types.
@@ -154,11 +164,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return _explicitMappings.GetOrAdd(
                 ("", clrType.UnwrapNullableType()),
-                k => GetClrTypeMappings().TryGetValue(k.ClrType.UnwrapEnumType(), out var mapping)
-                    ? (k.ClrType.IsEnum
-                        ? (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(k.ClrType))
-                        : mapping)
-                    : null);
+                k =>
+                    {
+                        var underlyingType = k.ClrType.UnwrapEnumType();
+
+                        if (!GetClrTypeMappings().TryGetValue(underlyingType, out var mapping)
+                            && GetClrTypeNameMappings().TryGetValue(underlyingType.FullName, out var mappingFunc))
+                        {
+                            mapping = mappingFunc(underlyingType);
+                        }
+
+                        return mapping != null
+                               && k.ClrType.IsEnum
+                            ? (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(k.ClrType))
+                            : mapping;
+                    });
         }
 
         private static ValueConverter CreateEnumToNumberConverter(Type enumType)
