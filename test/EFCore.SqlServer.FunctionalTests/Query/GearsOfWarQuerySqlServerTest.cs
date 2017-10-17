@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -4214,9 +4213,7 @@ LEFT JOIN (
             base.Enum_ToString_is_client_eval();
 
             AssertSql(
-                @"@__p_0='1'
-
-SELECT TOP(@__p_0) [g].[Rank]
+                @"SELECT [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[SquadId], [g].[Nickname]");

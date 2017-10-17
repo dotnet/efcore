@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
-            return (propertyInfos != null) && (propertyInfos.Count == 1) ? propertyInfos[0] : null;
+            return propertyInfos != null && propertyInfos.Count == 1 ? propertyInfos[0] : null;
         }
 
         /// <summary>
@@ -197,9 +197,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static Expression RemoveConvert([CanBeNull] this Expression expression)
         {
-            while ((expression != null)
-                   && ((expression.NodeType == ExpressionType.Convert)
-                       || (expression.NodeType == ExpressionType.ConvertChecked)))
+            while (expression != null
+                   && (expression.NodeType == ExpressionType.Convert
+                       || expression.NodeType == ExpressionType.ConvertChecked))
             {
                 expression = RemoveConvert(((UnaryExpression)expression).Operand);
             }
@@ -231,8 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(expression, nameof(expression));
 
-            return (expression.NodeType == ExpressionType.AndAlso)
-                   || (expression.NodeType == ExpressionType.OrElse);
+            return expression.NodeType == ExpressionType.AndAlso
+                   || expression.NodeType == ExpressionType.OrElse;
         }
 
         /// <summary>
@@ -243,13 +243,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Check.NotNull(expression, nameof(expression));
 
-            return (expression.NodeType == ExpressionType.Equal)
-                   || (expression.NodeType == ExpressionType.NotEqual)
-                   || (expression.NodeType == ExpressionType.LessThan)
-                   || (expression.NodeType == ExpressionType.LessThanOrEqual)
-                   || (expression.NodeType == ExpressionType.GreaterThan)
-                   || (expression.NodeType == ExpressionType.GreaterThanOrEqual)
-                   || (expression.NodeType == ExpressionType.Not);
+            return expression.Type == typeof(bool)
+                   && (expression.NodeType == ExpressionType.Equal
+                       || expression.NodeType == ExpressionType.NotEqual
+                       || expression.NodeType == ExpressionType.LessThan
+                       || expression.NodeType == ExpressionType.LessThanOrEqual
+                       || expression.NodeType == ExpressionType.GreaterThan
+                       || expression.NodeType == ExpressionType.GreaterThanOrEqual
+                       || expression.NodeType == ExpressionType.Not);
         }
 
         /// <summary>
@@ -321,9 +322,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             testExpression = null;
             resultExpression = null;
-            var binaryTest = conditionalExpression.Test as BinaryExpression;
 
-            if (binaryTest == null
+            if (!(conditionalExpression.Test is BinaryExpression binaryTest)
                 || !(binaryTest.NodeType == ExpressionType.Equal
                      || binaryTest.NodeType == ExpressionType.NotEqual))
             {

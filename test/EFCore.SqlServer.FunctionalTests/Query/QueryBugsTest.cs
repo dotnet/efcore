@@ -1177,7 +1177,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                    // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1198,7 +1198,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                    // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1219,7 +1219,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                    // ReSharper disable once MergeConditionalExpression
+                                // ReSharper disable once MergeConditionalExpression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
                     var result = query.ToList();
@@ -2042,7 +2042,7 @@ WHERE [c].[Id] IN (
 
                     return (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
                         .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
-                        .GetValue(compiledQueryCache);
+                        ?.GetValue(compiledQueryCache);
                 }
             }
         }
@@ -2194,14 +2194,16 @@ WHERE [w].[Val] = 1");
                         context.Widgets.AddRange(w1, w2, w3);
                         context.SaveChanges();
 
-                        context.Database.ExecuteSqlCommand(@"CREATE FUNCTION foo.AddOne (@num int)  
+                        context.Database.ExecuteSqlCommand(
+                            @"CREATE FUNCTION foo.AddOne (@num int)
                                                             RETURNS int
                                                                 AS
                                                             BEGIN  
                                                                 return @num + 1 ;
                                                             END");
 
-                        context.Database.ExecuteSqlCommand(@"CREATE FUNCTION dbo.AddTwo (@num int)  
+                        context.Database.ExecuteSqlCommand(
+                            @"CREATE FUNCTION dbo.AddTwo (@num int)
                                                             RETURNS int
                                                                 AS
                                                             BEGIN  
@@ -2251,7 +2253,6 @@ WHERE [w].[Val] = 1");
             public int Id { get; set; }
             public int Val { get; set; }
         }
-
 
         #endregion
 
@@ -2582,15 +2583,15 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
             return CreateTestStore(
                 () => new MyContext9735(_options),
                 context =>
-                {
-                    context.AddRange(
-                        new Address9735 {Name = "An A"},
-                        new Customer9735 {Name = "A B", AddressId = 1}
-                    );
-                    context.SaveChanges();
+                    {
+                        context.AddRange(
+                            new Address9735 { Name = "An A" },
+                            new Customer9735 { Name = "A B", AddressId = 1 }
+                        );
+                        context.SaveChanges();
 
-                    ClearLog();
-                });
+                        ClearLog();
+                    });
         }
 
         #endregion
@@ -2771,12 +2772,11 @@ WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[IsM
 
                 using (var context = new MyContext9825(_options))
                 {
-                        context.IndirectionFlag = null;
+                    context.IndirectionFlag = null;
                     var exception = Assert.Throws<NullReferenceException>(() => context.Chains.ToList());
                     Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
                     Assert.StartsWith(
                         @"   at lambda_method(Closure , QueryContext )", exception.StackTrace);
-
                 }
 
                 AssertSql(
@@ -2866,17 +2866,14 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
                             new EntityWithContextBoundComplexExpression9825 { IsDeleted = true, IsModerated = false },
                             new EntityWithContextBoundComplexExpression9825 { IsDeleted = false, IsModerated = true },
                             new EntityWithContextBoundComplexExpression9825 { IsDeleted = true, IsModerated = true },
-
                             new EntityWithContextBoundMemberChain9825 { IsDeleted = false, IsModerated = false },
                             new EntityWithContextBoundMemberChain9825 { IsDeleted = true, IsModerated = false },
                             new EntityWithContextBoundMemberChain9825 { IsDeleted = false, IsModerated = true },
                             new EntityWithContextBoundMemberChain9825 { IsDeleted = true, IsModerated = true },
-
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = false },
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = false },
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = true },
                             new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = true },
-
                             new EntityWithComplexContextBoundExpression9825 { IsEnabled = true },
                             new EntityWithComplexContextBoundExpression9825 { IsEnabled = false }
                         );
@@ -2972,7 +2969,7 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
                                 from x in context.Children
                                 select new
                                 {
-                                    ParentId = x.ParentId,
+                                    x.ParentId,
                                     OtherParent = x.OtherParent.Name
                                 })
                             on p.Id equals c.ParentId into child
@@ -2993,25 +2990,25 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
             => CreateTestStore(
                 () => new MyContext9892(_options),
                 context =>
-                {
-                    context.Parents.Add(new Parent9892 { Name = "Parent1" });
-                    context.Parents.Add(new Parent9892 { Name = "Parent2" });
-                    context.Parents.Add(new Parent9892 { Name = "Parent3" });
+                    {
+                        context.Parents.Add(new Parent9892 { Name = "Parent1" });
+                        context.Parents.Add(new Parent9892 { Name = "Parent2" });
+                        context.Parents.Add(new Parent9892 { Name = "Parent3" });
 
-                    context.OtherParents.Add(new OtherParent9892 { Name = "OtherParent1" });
-                    context.OtherParents.Add(new OtherParent9892 { Name = "OtherParent2" });
+                        context.OtherParents.Add(new OtherParent9892 { Name = "OtherParent1" });
+                        context.OtherParents.Add(new OtherParent9892 { Name = "OtherParent2" });
 
-                    context.SaveChanges();
+                        context.SaveChanges();
 
-                    context.Children.Add(new Child9892 { ParentId = 1, OtherParentId = 1 });
-                    context.Children.Add(new Child9892 { ParentId = 1, OtherParentId = 2 });
-                    context.Children.Add(new Child9892 { ParentId = 2, OtherParentId = 1 });
-                    context.Children.Add(new Child9892 { ParentId = 2, OtherParentId = 2 });
+                        context.Children.Add(new Child9892 { ParentId = 1, OtherParentId = 1 });
+                        context.Children.Add(new Child9892 { ParentId = 1, OtherParentId = 2 });
+                        context.Children.Add(new Child9892 { ParentId = 2, OtherParentId = 1 });
+                        context.Children.Add(new Child9892 { ParentId = 2, OtherParentId = 2 });
 
-                    context.SaveChanges();
+                        context.SaveChanges();
 
-                    ClearLog();
-                });
+                        ClearLog();
+                    });
 
         public class MyContext9892 : DbContext
         {
@@ -3045,6 +3042,86 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
             public Parent9892 Parent { get; set; }
             public int OtherParentId { get; set; }
             public OtherParent9892 OtherParent { get; set; }
+        }
+
+        #endregion
+
+        #region Bug9468
+
+        [Fact]
+        public virtual void Conditional_expression_with_conditions_does_not_collapse_if_nullable_bool()
+        {
+            using (CreateDatabase9468())
+            {
+                using (var context = new MyContext9468(_options))
+                {
+                    var query = context.Carts.Select(
+                        t => new
+                        {
+                            Processing = t.Configuration != null ? !t.Configuration.Processed : (bool?)null
+                        }).ToList();
+
+                    Assert.Single(query.Where(t => t.Processing == null));
+                    Assert.Single(query.Where(t => t.Processing == true));
+                    Assert.Single(query.Where(t => t.Processing == false));
+
+                    AssertSql(
+                        @"SELECT CASE
+    WHEN [t].[ConfigurationId] IS NOT NULL
+    THEN CASE
+        WHEN [t.Configuration].[Processed] = 0
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END ELSE NULL
+END AS [Processing]
+FROM [Carts] AS [t]
+LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t.Configuration].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase9468()
+            => CreateTestStore(
+                () => new MyContext9468(_options),
+                context =>
+                    {
+                        context.AddRange(
+                            new Cart9468(),
+                            new Cart9468
+                            {
+                                Configuration = new Configuration9468 { Processed = true }
+                            },
+                            new Cart9468
+                            {
+                                Configuration = new Configuration9468()
+                            }
+                        );
+
+                        context.SaveChanges();
+
+                        ClearLog();
+                    });
+
+        public class MyContext9468 : DbContext
+        {
+            public MyContext9468(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Cart9468> Carts { get; set; }
+        }
+
+        public class Cart9468
+        {
+            public int Id { get; set; }
+            public int? ConfigurationId { get; set; }
+            public Configuration9468 Configuration { get; set; }
+        }
+
+        public class Configuration9468
+        {
+            public int Id { get; set; }
+            public bool Processed { get; set; }
         }
 
         #endregion
