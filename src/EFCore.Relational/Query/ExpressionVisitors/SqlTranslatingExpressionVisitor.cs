@@ -615,8 +615,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             var operand = _queryModelVisitor.QueryCompilationContext.Model.Relational().FindDbFunction(methodCallExpression.Method) != null
-                            ? methodCallExpression.Object
-                            : Visit(methodCallExpression.Object);
+                ? methodCallExpression.Object
+                : Visit(methodCallExpression.Object);
 
             if (operand != null
                 || methodCallExpression.Object == null)
@@ -909,8 +909,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     || fromExpression.NodeType == ExpressionType.ListInit
                     || fromExpression.NodeType == ExpressionType.NewArrayInit)
                 {
-                    var containsItem = Visit(contains.Item)?.RemoveConvert();
-                    if (containsItem != null && !containsItem.Type.Equals(typeof(Expression[])))
+                    var containsItem = Visit(contains.Item);
+                    if (containsItem != null
+                        && containsItem.Type == contains.Item.Type)
                     {
                         return new InExpression(containsItem, new[] { fromExpression });
                     }

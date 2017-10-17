@@ -1313,5 +1313,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => o.CustomerID == "QUICK")
                     .Where(o => o.OrderDate > new DateTime(1998, 1, 1)), entryCount: 8);
         }
+
+        [ConditionalFact]
+        public virtual void Where_navigation_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var cusotmer = context.Customers.Include(c => c.Orders).Single(c => c.CustomerID == "ALFKI");
+                var orderDetails = context.OrderDetails.Where(od => cusotmer.Orders.Contains(od.Order)).ToList();
+
+                Assert.Equal(12, orderDetails.Count);
+            }
+        }
     }
 }
