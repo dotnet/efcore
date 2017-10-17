@@ -221,17 +221,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
                 if (sqlExpression == null)
                 {
-                    if (expression is QuerySourceReferenceExpression qsre)
+                    switch (expression)
                     {
-                        if (QueryModelVisitor.ParentQueryModelVisitor != null
-                            && selectExpression.HandlesQuerySource(qsre.ReferencedQuerySource))
-                        {
-                            selectExpression.ProjectStarTable = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource);
-                        }
-                    }
-                    else
-                    {
-                        QueryModelVisitor.RequiresClientProjection = true;
+                        case MethodCallExpression methodCallExpression when IncludeCompiler.IsIncludeMethod(methodCallExpression):
+                            return base.Visit(expression);
+
+                        case QuerySourceReferenceExpression qsre:
+                            if (QueryModelVisitor.ParentQueryModelVisitor != null
+                                && selectExpression.HandlesQuerySource(qsre.ReferencedQuerySource))
+                            {
+                                selectExpression.ProjectStarTable = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource);
+                            }
+                            break;
+
+                        default:
+                            QueryModelVisitor.RequiresClientProjection = true;
+                            break;
                     }
                 }
                 else
@@ -558,4 +563,3 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         }
     }
 }
-

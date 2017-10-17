@@ -3713,6 +3713,71 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_distinct_is_server_evaluated(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = useString
+                        ? context.Orders
+                            .Where(o => o.OrderID < 10250)
+                            .Include("Customer")
+                            .Distinct()
+                            .ToList()
+                        : context.Orders
+                            .Where(o => o.OrderID < 10250)
+                            .Include(o => o.Customer)
+                            .Distinct()
+                            .ToList();
+
+                foreach (var order in orders)
+                {
+                    CheckIsLoaded(
+                        context,
+                        order,
+                        orderDetailsLoaded: false,
+                        productLoaded: false,
+                        customerLoaded: true,
+                        ordersLoaded: false);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_distinct_is_server_evaluated(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = useString
+                        ? context.Customers
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .Include("Orders")
+                            .Distinct()
+                            .ToList()
+                        : context.Customers
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .Include(o => o.Orders)
+                            .Distinct()
+                            .ToList();
+
+                foreach (var customer in customers)
+                {
+                    CheckIsLoaded(
+                        context,
+                        customer,
+                        ordersLoaded: true,
+                        orderDetailsLoaded: false,
+                        productLoaded: false);
+                }
+            }
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,

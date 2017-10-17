@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                     PushDownSubquery();
                 }
 
-                if (value && _orderBy.Any(o => !_projection.Contains(o.Expression, _expressionEqualityComparer)))
+                if (value && _orderBy.Any(o => !_projection.Any(p => OrderingExpressionComparison(o, p))))
                 {
                     ClearOrderBy();
                 }
@@ -887,26 +887,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             Check.NotNull(ordering, nameof(ordering));
 
             var existingOrdering
-                = _orderBy.Find(
-                    o =>
-                        {
-                            if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
-                            {
-                                return true;
-                            }
-
-                            if (o.Expression.RemoveConvert() is NullableExpression nullableExpression1
-                                && _expressionEqualityComparer
-                                    .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
-                            {
-                                return true;
-                            }
-
-                            return ordering.Expression.RemoveConvert() is NullableExpression nullableExpression2
-                                   && _expressionEqualityComparer
-                                       .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
-                        }
-                );
+                = _orderBy.Find(o => OrderingExpressionComparison(o, ordering.Expression));
 
             if (existingOrdering != null)
             {
@@ -916,6 +897,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             _orderBy.Add(ordering);
 
             return ordering;
+        }
+
+        private bool OrderingExpressionComparison(Ordering ordering, Expression expressionToMatch)
+        {
+            return _expressionEqualityComparer.Equals(ordering.Expression, expressionToMatch)
+                   || _expressionEqualityComparer.Equals(
+                       UnwrapNullableExpression(ordering.Expression.RemoveConvert()).RemoveConvert(),
+                       expressionToMatch)
+                   || _expressionEqualityComparer.Equals(
+                       UnwrapNullableExpression(expressionToMatch.RemoveConvert()).RemoveConvert(),
+                       ordering.Expression);
+        }
+
+        private Expression UnwrapNullableExpression(Expression expression)
+        {
+            if (expression is NullableExpression nullableExpression)
+            {
+                return nullableExpression.Operand;
+            }
+
+            return expression;
         }
 
         /// <summary>
