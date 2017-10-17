@@ -2726,25 +2726,25 @@ WHERE [b].[IsDeleted] = 0");
                 }
 
                 AssertSql(
-                    @"@__$IsModerated_0='True' (Nullable = true)
-@__$IsModerated_1='True' (Nullable = true)
+                    @"@__ef_filter__IsModerated_0='True' (Nullable = true)
+@__ef_filter__IsModerated_1='True' (Nullable = true)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR (@__$IsModerated_1 = [e].[IsModerated]))",
+WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [e].[IsModerated]))",
                     //
-                    @"@__$IsModerated_0='False' (Nullable = true)
-@__$IsModerated_1='False' (Nullable = true)
+                    @"@__ef_filter__IsModerated_0='False' (Nullable = true)
+@__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR (@__$IsModerated_1 = [e].[IsModerated]))",
+WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [e].[IsModerated]))",
                     //
-                    @"@__$IsModerated_0='' (DbType = String)
+                    @"@__ef_filter__IsModerated_0='' (DbType = String)
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)");
+WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)");
             }
         }
 
@@ -2780,17 +2780,17 @@ WHERE ([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR [e].[IsModerated] 
                 }
 
                 AssertSql(
-                    @"@__$Enabled_0='True'
+                    @"@__ef_filter__Enabled_0='True'
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Chains] AS [e]
-WHERE @__$Enabled_0 = [e].[IsDeleted]",
+WHERE @__ef_filter__Enabled_0 = [e].[IsDeleted]",
                     //
-                    @"@__$Enabled_0='False'
+                    @"@__ef_filter__Enabled_0='False'
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Chains] AS [e]
-WHERE @__$Enabled_0 = [e].[IsDeleted]");
+WHERE @__ef_filter__Enabled_0 = [e].[IsDeleted]");
             }
         }
 
@@ -2822,12 +2822,12 @@ WHERE @__$Enabled_0 = [e].[IsDeleted]");
                     Assert.Single(query);
 
                     AssertSql(
-                        @"@__$IsModerated_0='' (DbType = String)
+                        @"@__ef_filter__IsModerated_0='' (DbType = String)
 @__IsModerated_0='False'
 
 SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
 FROM [Users] AS [e]
-WHERE (([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)) AND ([e].[IsModerated] = @__IsModerated_0)");
+WHERE (([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)) AND ([e].[IsModerated] = @__IsModerated_0)");
                 }
             }
         }
@@ -2846,12 +2846,12 @@ WHERE (([e].[IsDeleted] = 0) AND (@__$IsModerated_0 IS NULL OR [e].[IsModerated]
                     Assert.Single(query);
 
                     AssertSql(
-                        @"@__$BasePrice_0='1'
-@__$CustomPrice_1='2'
+                        @"@__ef_filter__BasePrice_0='1'
+@__ef_filter__CustomPrice_1='2'
 
 SELECT [e].[Id], [e].[IsEnabled]
 FROM [Complexes] AS [e]
-WHERE ([e].[IsEnabled] = 1) AND ((@__$BasePrice_0 + @__$CustomPrice_1) > 0)");
+WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__CustomPrice_1) > 0)");
                 }
             }
         }

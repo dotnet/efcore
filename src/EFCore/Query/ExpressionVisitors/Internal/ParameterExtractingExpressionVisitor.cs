@@ -436,9 +436,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (newExpression != expression)
                 {
-                    parameterName = "$" + (expression is MemberExpression memberExpression
+                    parameterName = "ef_filter__" + (expression is MemberExpression memberExpression
                                         ? memberExpression.Member.Name
-                                        : "filter");
+                                        : "ef_filter");
 
                     return Expression.Lambda(
                         newExpression,
