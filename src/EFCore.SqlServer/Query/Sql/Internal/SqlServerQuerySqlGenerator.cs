@@ -177,11 +177,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
                 var innerRowNumberExpression = new AliasExpression(
                     RowNumberColumnName + (_counter != 0 ? $"{_counter}" : ""),
-                    new RowNumberExpression(subQuery.OrderBy
-                        .Select(o => new Ordering(
-                            o.Expression is AliasExpression ae ? ae.Expression : o.Expression,
-                            o.OrderingDirection))
-                        .ToList()));
+                    new RowNumberExpression(
+                        subQuery.OrderBy
+                            .Select(
+                                o => new Ordering(
+                                    o.Expression is AliasExpression ae ? ae.Expression : o.Expression,
+                                    o.OrderingDirection))
+                            .ToList()));
 
                 _counter++;
 
@@ -194,8 +196,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
                 if (subQuery.Offset != null)
                 {
-                    selectExpression.AddToPredicate
-                        (Expression.GreaterThan(rowNumberReferenceExpression, offset));
+                    selectExpression.AddToPredicate(
+                        Expression.GreaterThan(
+                            rowNumberReferenceExpression,
+                            ApplyConversion(offset, rowNumberReferenceExpression.Type)));
 
                     subQuery.Offset = null;
                 }
@@ -212,12 +216,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                             : Expression.Add(offset, subQuery.Limit);
 
                     selectExpression.AddToPredicate(
-                        Expression.LessThanOrEqual(rowNumberReferenceExpression, limitExpression));
+                        Expression.LessThanOrEqual(
+                            rowNumberReferenceExpression,
+                            ApplyConversion(limitExpression, rowNumberReferenceExpression.Type)));
 
                     subQuery.Limit = null;
                 }
 
                 return selectExpression;
+            }
+
+            private static Expression ApplyConversion(Expression expression, Type type)
+            {
+                return expression.Type != type ? Expression.Convert(expression, type) : expression;
             }
 
             private Expression VisitExistExpression(ExistsExpression existsExpression)

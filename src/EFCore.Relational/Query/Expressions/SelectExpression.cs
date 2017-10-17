@@ -103,8 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public virtual TableExpressionBase ProjectStarTable
         {
             get { return _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null); }
-            [param: CanBeNull]
-            set { _projectStarTable = value; }
+            [param: CanBeNull] set { _projectStarTable = value; }
         }
 
         /// <summary>
@@ -619,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         ///     The types of the expressions in <see cref="Projection" />.
         /// </returns>
         [Obsolete("Use GetMappedProjectionTypes().")]
-        public virtual IEnumerable<Type> GetProjectionTypes() 
+        public virtual IEnumerable<Type> GetProjectionTypes()
             => GetMappedProjectionTypes().Select(t => t.StoreType);
 
         /// <summary>
@@ -630,10 +629,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         public virtual IEnumerable<TypeMaterializationInfo> GetMappedProjectionTypes()
         {
-            if (_projection.Any()
-                || !IsProjectStar)
+            if (IsProjectStar)
             {
-                return _projection.Select(
+                switch (ProjectStarTable)
+                {
+                    case SelectExpression selectExpression:
+                        foreach (var typeMaterializationInfo in selectExpression.GetMappedProjectionTypes())
+                        {
+                            yield return typeMaterializationInfo;
+                        }
+                        break;
+                    case JoinExpressionBase joinExpression
+                    when joinExpression.TableExpression is SelectExpression selectExpression2:
+                        foreach (var typeMaterializationInfo in selectExpression2.GetMappedProjectionTypes())
+                        {
+                            yield return typeMaterializationInfo;
+                        }
+                        break;
+                }
+            }
+
+            if (_projection.Any())
+            {
+                foreach (var typeMaterializationInfo in _projection.Select(
                     e =>
                         {
                             var queryType = e.NodeType == ExpressionType.Convert
@@ -642,13 +660,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                                 : e.Type;
 
                             return new TypeMaterializationInfo(
-                                queryType, 
-                                e.FindProperty(queryType), 
+                                queryType,
+                                e.FindProperty(queryType),
                                 Dependencies.TypeMapper);
-                        });
+                        }))
+                {
+                    yield return typeMaterializationInfo;
+                }
             }
-
-            return _tables.OfType<SelectExpression>().SelectMany(e => e.GetMappedProjectionTypes());
         }
 
         /// <summary>
@@ -869,25 +888,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             var existingOrdering
                 = _orderBy.Find(
-                        o =>
+                    o =>
+                        {
+                            if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
                             {
-                                if (_expressionEqualityComparer.Equals(o.Expression, ordering.Expression))
-                                {
-                                    return true;
-                                }
-
-                                if (o.Expression.RemoveConvert() is NullableExpression nullableExpression1
-                                    && _expressionEqualityComparer
-                                        .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
-                                {
-                                    return true;
-                                }
-
-                                return ordering.Expression.RemoveConvert() is NullableExpression nullableExpression2
-                                       && _expressionEqualityComparer
-                                           .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
+                                return true;
                             }
-                    );
+
+                            if (o.Expression.RemoveConvert() is NullableExpression nullableExpression1
+                                && _expressionEqualityComparer
+                                    .Equals(nullableExpression1.Operand.RemoveConvert(), ordering.Expression))
+                            {
+                                return true;
+                            }
+
+                            return ordering.Expression.RemoveConvert() is NullableExpression nullableExpression2
+                                   && _expressionEqualityComparer
+                                       .Equals(nullableExpression2.Operand.RemoveConvert(), o.Expression);
+                        }
+                );
 
             if (existingOrdering != null)
             {
