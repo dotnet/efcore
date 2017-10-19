@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (!orderings.Any(
                         o => _expressionEqualityComparer.Equals(o.Expression, orderingExpression)
-                             || (o.Expression is MemberExpression memberExpression1
+                             || (o.Expression.RemoveConvert() is MemberExpression memberExpression1
                                  && propertyExpression is MethodCallExpression methodCallExpression
                                  && MatchEfPropertyToMemberExpression(memberExpression1, methodCallExpression))
                              || (o.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             orderingExpression = nullConditionalExpression.AccessOperation;
                         }
 
-                        if (orderingExpression is MemberExpression memberExpression
+                        if (orderingExpression.RemoveConvert() is MemberExpression memberExpression
                             && memberExpression.Expression is QuerySourceReferenceExpression memberQsre
                             && memberQsre.ReferencedQuerySource == querySource)
                         {

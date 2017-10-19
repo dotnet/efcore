@@ -1455,6 +1455,26 @@ INNER JOIN (
 ORDER BY [t].[CustomerID]");
         }
 
+        public override void Include_collection_OrderBy_object(bool useString)
+        {
+            base.Include_collection_OrderBy_object(useString);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250
+ORDER BY [o].[OrderID]",
+                //
+                @"SELECT [o.OrderDetails].[OrderID], [o.OrderDetails].[ProductID], [o.OrderDetails].[Discount], [o.OrderDetails].[Quantity], [o.OrderDetails].[UnitPrice]
+FROM [Order Details] AS [o.OrderDetails]
+INNER JOIN (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[OrderID] < 10250
+) AS [t] ON [o.OrderDetails].[OrderID] = [t].[OrderID]
+ORDER BY [t].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

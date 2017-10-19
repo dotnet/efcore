@@ -3778,6 +3778,39 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_OrderBy_object(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = useString
+                        ? context.Orders
+                            .Where(o => o.OrderID < 10250)
+                            .Include("OrderDetails")
+                            .OrderBy<Order, object>(c => c.OrderID)
+                            .ToList()
+                        : context.Orders
+                            .Where(o => o.OrderID < 10250)
+                            .Include(o => o.OrderDetails)
+                            .OrderBy<Order, object>(c => c.OrderID)
+                            .ToList();
+
+                foreach (var order in orders)
+                {
+                    CheckIsLoaded(
+                        context,
+                        order,
+                        orderDetailsLoaded: true,
+                        productLoaded: false,
+                        customerLoaded: false,
+                        ordersLoaded: false);
+                }
+            }
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,
