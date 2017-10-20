@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc)
+                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .ToArrayAsync();
 
                 Assert.Equal(10, actual.Length);
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, "ALFKI")
+                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .ToArrayAsync();
 
                 Assert.Equal(11, actual.Length);
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc)
+                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
                     .OrderBy(mep => mep.UnitPrice)
                     .ToArrayAsync();
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<CustomerOrderHistory>()
-                    .FromSql(CustomerOrderHistorySproc, "ALFKI")
+                    .FromSql(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
                     .Where(coh => coh.ProductName.Contains("C"))
                     .OrderBy(coh => coh.Total)
                     .ToArrayAsync();
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = await context
                     .Set<MostExpensiveProduct>()
-                    .FromSql(TenMostExpensiveProductsSproc)
+                    .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                     .OrderByDescending(mep => mep.UnitPrice)
                     .Take(2)
                     .ToArrayAsync();
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     45.60m,
                     await context.Set<MostExpensiveProduct>()
-                        .FromSql(TenMostExpensiveProductsSproc)
+                        .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                         .MinAsync(mep => mep.UnitPrice));
             }
         }
@@ -136,12 +136,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         async () =>
                             await context.Set<Product>()
-                                .FromSql("SelectStoredProcedure")
+                                .FromSql("SelectStoredProcedure", GetTenMostExpensiveProductsParameters())
                                 .Include(p => p.OrderDetails)
                                 .ToArrayAsync()
                     )).Message);
             }
         }
+
+        protected virtual object[] GetTenMostExpensiveProductsParameters()
+            => new object[0];
+
+        protected virtual object[] GetCustomerOrderHistorySprocParameters()
+            => new[] { "ALFKI" };
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
