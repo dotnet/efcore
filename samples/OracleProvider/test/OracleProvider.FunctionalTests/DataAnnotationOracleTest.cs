@@ -166,7 +166,7 @@ FETCH FIRST 1 ROWS ONLY
 :p0='ModifiedData' (Nullable = false) (Size = 2000)
 :p1='0x00000000000000000003000000000001' (Nullable = false)
 :p3='0x01000000000000000000000000000001' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
 v_RowCount INTEGER;
@@ -174,14 +174,15 @@ BEGIN
 UPDATE ""Sample"" SET ""Name"" = :p0, ""RowVersion"" = :p1
 WHERE ""UniqueNo"" = :p2 AND ""RowVersion"" = :p3;
 v_RowCount := SQL%ROWCOUNT;
-OPEN :cur FOR SELECT v_RowCount FROM DUAL;
+OPEN :cur1 FOR SELECT v_RowCount FROM DUAL;
+
 END;
 
 :p2='1'
 :p0='ChangedData' (Nullable = false) (Size = 2000)
 :p1='0x00000000000000000002000000000001' (Nullable = false)
 :p3='0x01000000000000000000000000000001' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
 v_RowCount INTEGER;
@@ -189,7 +190,8 @@ BEGIN
 UPDATE ""Sample"" SET ""Name"" = :p0, ""RowVersion"" = :p1
 WHERE ""UniqueNo"" = :p2 AND ""RowVersion"" = :p3;
 v_RowCount := SQL%ROWCOUNT;
-OPEN :cur FOR SELECT v_RowCount FROM DUAL;
+OPEN :cur1 FOR SELECT v_RowCount FROM DUAL;
+
 END;",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -203,16 +205,24 @@ END;",
                 @":p0='' (Size = 10) (DbType = String)
 :p1='Third' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000003' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_UniqueNo NUMBER(10);
+TYPE efRowSample_0 IS RECORD
+(
+UniqueNo NUMBER(10)
+);
+TYPE efSample_0 IS TABLE OF efRowSample_0;
+listSample_0 efSample_0;
+v_RowCount INTEGER;
 BEGIN
+
+listSample_0 := efSample_0();
+listSample_0.extend(1);
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (:p0, :p1, :p2)
-RETURN ""UniqueNo"" INTO v_UniqueNo;
-OPEN :cur FOR
-SELECT v_UniqueNo FROM DUAL;
+RETURNING ""UniqueNo"" INTO listSample_0(1);
+OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -226,31 +236,47 @@ END;",
                 @":p0='Short' (Size = 10)
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000001' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_UniqueNo NUMBER(10);
+TYPE efRowSample_0 IS RECORD
+(
+UniqueNo NUMBER(10)
+);
+TYPE efSample_0 IS TABLE OF efRowSample_0;
+listSample_0 efSample_0;
+v_RowCount INTEGER;
 BEGIN
+
+listSample_0 := efSample_0();
+listSample_0.extend(1);
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (:p0, :p1, :p2)
-RETURN ""UniqueNo"" INTO v_UniqueNo;
-OPEN :cur FOR
-SELECT v_UniqueNo FROM DUAL;
+RETURNING ""UniqueNo"" INTO listSample_0(1);
+OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;
 
 :p0='VeryVeryVeryVeryVeryVeryLongString'
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000002' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_UniqueNo NUMBER(10);
+TYPE efRowSample_0 IS RECORD
+(
+UniqueNo NUMBER(10)
+);
+TYPE efSample_0 IS TABLE OF efRowSample_0;
+listSample_0 efSample_0;
+v_RowCount INTEGER;
 BEGIN
+
+listSample_0 := efSample_0();
+listSample_0.extend(1);
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (:p0, :p1, :p2)
-RETURN ""UniqueNo"" INTO v_UniqueNo;
-OPEN :cur FOR
-SELECT v_UniqueNo FROM DUAL;
+RETURNING ""UniqueNo"" INTO listSample_0(1);
+OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -261,7 +287,7 @@ END;",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @":p1='1'" + EOL,
+                @":p0='' (DbType = Int32)" + EOL,
                 Sql);
 
             Assert.Contains(
@@ -277,31 +303,47 @@ END;",
                 @":p0='' (Size = 10) (DbType = String)
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000001' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_UniqueNo NUMBER(10);
+TYPE efRowSample_0 IS RECORD
+(
+UniqueNo NUMBER(10)
+);
+TYPE efSample_0 IS TABLE OF efRowSample_0;
+listSample_0 efSample_0;
+v_RowCount INTEGER;
 BEGIN
+
+listSample_0 := efSample_0();
+listSample_0.extend(1);
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (:p0, :p1, :p2)
-RETURN ""UniqueNo"" INTO v_UniqueNo;
-OPEN :cur FOR
-SELECT v_UniqueNo FROM DUAL;
+RETURNING ""UniqueNo"" INTO listSample_0(1);
+OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;
 
 :p0='' (Size = 10) (DbType = String)
 :p1='' (Nullable = false) (Size = 2000) (DbType = String)
 :p2='0x00000000000000000000000000000002' (Nullable = false)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_UniqueNo NUMBER(10);
+TYPE efRowSample_0 IS RECORD
+(
+UniqueNo NUMBER(10)
+);
+TYPE efSample_0 IS TABLE OF efRowSample_0;
+listSample_0 efSample_0;
+v_RowCount INTEGER;
 BEGIN
+
+listSample_0 := efSample_0();
+listSample_0.extend(1);
 INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (:p0, :p1, :p2)
-RETURN ""UniqueNo"" INTO v_UniqueNo;
-OPEN :cur FOR
-SELECT v_UniqueNo FROM DUAL;
+RETURNING ""UniqueNo"" INTO listSample_0(1);
+OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;",
                 Sql,
                 ignoreLineEndingDifferences: true);
@@ -313,31 +355,47 @@ END;",
 
             Assert.Equal(
                 @":p0='ValidString' (Size = 16)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_Id NUMBER(10);
-v_Timestamp RAW(8);
+TYPE efRowTwo_0 IS RECORD
+(
+Id NUMBER(10)
+,Timestamp RAW(8)
+);
+TYPE efTwo_0 IS TABLE OF efRowTwo_0;
+listTwo_0 efTwo_0;
+v_RowCount INTEGER;
 BEGIN
+
+listTwo_0 := efTwo_0();
+listTwo_0.extend(1);
 INSERT INTO ""Two"" (""Data"")
 VALUES (:p0)
-RETURN ""Id"", ""Timestamp"" INTO v_Id, v_Timestamp;
-OPEN :cur FOR
-SELECT v_Id, v_Timestamp FROM DUAL;
+RETURNING ""Id"", ""Timestamp"" INTO listTwo_0(1);
+OPEN :cur1 FOR SELECT listTwo_0(1).Id,listTwo_0(1).Timestamp FROM DUAL;
 END;
 
 :p0='ValidButLongString'
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
-v_Id NUMBER(10);
-v_Timestamp RAW(8);
+TYPE efRowTwo_0 IS RECORD
+(
+Id NUMBER(10)
+,Timestamp RAW(8)
+);
+TYPE efTwo_0 IS TABLE OF efRowTwo_0;
+listTwo_0 efTwo_0;
+v_RowCount INTEGER;
 BEGIN
+
+listTwo_0 := efTwo_0();
+listTwo_0.extend(1);
 INSERT INTO ""Two"" (""Data"")
 VALUES (:p0)
-RETURN ""Id"", ""Timestamp"" INTO v_Id, v_Timestamp;
-OPEN :cur FOR
-SELECT v_Id, v_Timestamp FROM DUAL;
+RETURNING ""Id"", ""Timestamp"" INTO listTwo_0(1);
+OPEN :cur1 FOR SELECT listTwo_0(1).Id,listTwo_0(1).Timestamp FROM DUAL;
 END;",
                 Sql,
                 ignoreLineEndingDifferences: true);

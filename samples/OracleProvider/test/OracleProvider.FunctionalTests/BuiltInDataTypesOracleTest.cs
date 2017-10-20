@@ -940,7 +940,7 @@ WHERE ""e"".""Time"" = :timeSpan_0",
 :p23='80'
 :p24='0x595A5B5C' (Size = 2000)
 :p25='C' (Size = 2000) (DbType = AnsiString)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1056,7 +1056,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p22='80' (Nullable = true)
 :p23='0x595A5B5C' (Size = 2000)
 :p24='C' (Size = 2000) (DbType = AnsiString)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1172,7 +1172,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p22='' (DbType = Byte)
 :p23='' (Size = 2000) (DbType = Binary)
 :p24='' (Size = 2000)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1242,7 +1242,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p10='Int' (Size = 3)
 :p11='0x0B0C0D' (Size = 3)
 :p12='Tha' (Size = 3) (DbType = AnsiString)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1314,7 +1314,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p10='' (Size = 3) (DbType = String)
 :p11='' (Size = 3) (DbType = Binary)
 :p12='' (Size = 3)
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1361,7 +1361,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p4='83.3'
 :p5='77'
 :p6='103.3'
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1413,7 +1413,7 @@ cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
 :p1='101.1'
 :p2='77'
 :p3='103.3'
-cur='' (Nullable = false) (Direction = Output) (DbType = Object)",
+cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -2092,27 +2092,27 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
 
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
-                        {
-                            b.Ignore(dt => dt.TestCharacter);
-                            b.Property(dt => dt.TestDecimal).HasColumnType("DECIMAL(18,2)");
-                        });
+                    {
+                        b.Ignore(dt => dt.TestCharacter);
+                        b.Property(dt => dt.TestDecimal).HasColumnType("DECIMAL(18,2)");
+                    });
 
                 modelBuilder.Entity<BuiltInNullableDataTypes>()
                     .Ignore(dt => dt.TestNullableCharacter);
 
                 modelBuilder.Entity<MappedDataTypes>(
                     b =>
-                        {
-                            b.HasKey(e => e.Int);
-                            b.Property(e => e.Int).ValueGeneratedNever();
-                        });
+                    {
+                        b.HasKey(e => e.Int);
+                        b.Property(e => e.Int).ValueGeneratedNever();
+                    });
 
                 modelBuilder.Entity<MappedNullableDataTypes>(
                     b =>
-                        {
-                            b.HasKey(e => e.Int);
-                            b.Property(e => e.Int).ValueGeneratedNever();
-                        });
+                    {
+                        b.HasKey(e => e.Int);
+                        b.Property(e => e.Int).ValueGeneratedNever();
+                    });
 
                 modelBuilder.Entity<MappedSizedDataTypes>()
                     .Property(e => e.Id)
@@ -2131,59 +2131,59 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
                 modelBuilder.Entity<MappedDataTypes>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
-                            e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
-                            e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
-                            e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
-                            e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
-                            e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
-                            e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
-                            e.Property(m => m.Text).HasColumnType("CLOB");
-                            e.Property(m => m.Ntext).HasColumnType("NCLOB");
-                            e.Property(m => m.Image).HasColumnType("BLOB");
-                            e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
-                        });
+                    {
+                        e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
+                        e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
+                        e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
+                        e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
+                        e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
+                        e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
+                        e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
+                        e.Property(m => m.Text).HasColumnType("CLOB");
+                        e.Property(m => m.Ntext).HasColumnType("NCLOB");
+                        e.Property(m => m.Image).HasColumnType("BLOB");
+                        e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
+                    });
 
                 MapColumnTypes<MappedNullableDataTypes>(modelBuilder);
 
                 modelBuilder.Entity<MappedNullableDataTypes>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
-                            e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
-                            e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
-                            e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
-                            e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
-                            e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
-                            e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
-                            e.Property(m => m.Text).HasColumnType("CLOB");
-                            e.Property(m => m.Ntext).HasColumnType("NCLOB");
-                            e.Property(m => m.Image).HasColumnType("BLOB");
-                            e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
-                        });
+                    {
+                        e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
+                        e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
+                        e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
+                        e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
+                        e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
+                        e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
+                        e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
+                        e.Property(m => m.Text).HasColumnType("CLOB");
+                        e.Property(m => m.Ntext).HasColumnType("NCLOB");
+                        e.Property(m => m.Image).HasColumnType("BLOB");
+                        e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
+                    });
 
                 MapSizedColumnTypes<MappedSizedDataTypes>(modelBuilder);
 
                 modelBuilder.Entity<MappedSizedDataTypes>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Binary).HasColumnType("RAW(3)");
-                            e.Property(m => m.Varbinary).HasColumnType("RAW(3)");
-                        });
+                    {
+                        e.Property(m => m.Binary).HasColumnType("RAW(3)");
+                        e.Property(m => m.Varbinary).HasColumnType("RAW(3)");
+                    });
 
                 MapSizedColumnTypes<MappedScaledDataTypes>(modelBuilder);
 
                 modelBuilder.Entity<MappedScaledDataTypes>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
-                            e.Property(m => m.Datetime2).HasColumnType("TIMESTAMP");
-                            e.Property(m => m.Float).HasColumnType("FLOAT(10)");
-                        });
+                    {
+                        e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
+                        e.Property(m => m.Datetime2).HasColumnType("TIMESTAMP");
+                        e.Property(m => m.Float).HasColumnType("FLOAT(10)");
+                    });
 
                 MapPreciseColumnTypes<MappedPrecisionAndScaledDataTypes>(modelBuilder);
 
@@ -2205,59 +2205,59 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
                 modelBuilder.Entity<MappedDataTypesWithIdentity>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
-                            e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
-                            e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
-                            e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
-                            e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
-                            e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
-                            e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
-                            e.Property(m => m.Text).HasColumnType("CLOB");
-                            e.Property(m => m.Ntext).HasColumnType("NCLOB");
-                            e.Property(m => m.Image).HasColumnType("BLOB");
-                            e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
-                        });
+                    {
+                        e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
+                        e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
+                        e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
+                        e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
+                        e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
+                        e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
+                        e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
+                        e.Property(m => m.Text).HasColumnType("CLOB");
+                        e.Property(m => m.Ntext).HasColumnType("NCLOB");
+                        e.Property(m => m.Image).HasColumnType("BLOB");
+                        e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
+                    });
 
                 MapColumnTypes<MappedNullableDataTypesWithIdentity>(modelBuilder);
 
                 modelBuilder.Entity<MappedNullableDataTypesWithIdentity>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
-                            e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
-                            e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
-                            e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
-                            e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
-                            e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
-                            e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
-                            e.Property(m => m.Text).HasColumnType("CLOB");
-                            e.Property(m => m.Ntext).HasColumnType("NCLOB");
-                            e.Property(m => m.Image).HasColumnType("BLOB");
-                            e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
-                        });
+                    {
+                        e.Property(m => m.Bigint).HasColumnType("NUMBER(19)");
+                        e.Property(m => m.Tinyint).HasColumnType("NUMBER(3)");
+                        e.Property(m => m.Bit).HasColumnType("NUMBER(1)");
+                        e.Property(m => m.Money).HasColumnType("DECIMAL(19,4)");
+                        e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP WITH TIME ZONE");
+                        e.Property(m => m.Datetime).HasColumnType("TIMESTAMP");
+                        e.Property(m => m.Time).HasColumnType("INTERVAL DAY TO SECOND");
+                        e.Property(m => m.Text).HasColumnType("CLOB");
+                        e.Property(m => m.Ntext).HasColumnType("NCLOB");
+                        e.Property(m => m.Image).HasColumnType("BLOB");
+                        e.Property(m => m.VarbinaryMax).HasColumnType("RAW(2000)");
+                    });
 
                 MapSizedColumnTypes<MappedSizedDataTypesWithIdentity>(modelBuilder);
 
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Binary).HasColumnType("RAW(3)");
-                            e.Property(m => m.Varbinary).HasColumnType("RAW(3)");
-                        });
+                    {
+                        e.Property(m => m.Binary).HasColumnType("RAW(3)");
+                        e.Property(m => m.Varbinary).HasColumnType("RAW(3)");
+                    });
 
                 MapSizedColumnTypes<MappedScaledDataTypesWithIdentity>(modelBuilder);
 
                 modelBuilder.Entity<MappedScaledDataTypesWithIdentity>(
                     e
                         =>
-                        {
-                            e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP(3) WITH TIME ZONE");
-                            e.Property(m => m.Datetime2).HasColumnType("TIMESTAMP(3)");
-                            e.Property(m => m.Float).HasColumnType("FLOAT(10)");
-                        });
+                    {
+                        e.Property(m => m.Datetimeoffset).HasColumnType("TIMESTAMP(3) WITH TIME ZONE");
+                        e.Property(m => m.Datetime2).HasColumnType("TIMESTAMP(3)");
+                        e.Property(m => m.Float).HasColumnType("FLOAT(10)");
+                    });
 
                 MapPreciseColumnTypes<MappedPrecisionAndScaledDataTypesWithIdentity>(modelBuilder);
             }
