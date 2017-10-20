@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMappingTest
     {
-        private class FakeValueConverter : ValueConverter<object, object>
+        protected class FakeValueConverter : ValueConverter<object, object>
         {
             public FakeValueConverter()
                 : base(_ => _, _ => _)

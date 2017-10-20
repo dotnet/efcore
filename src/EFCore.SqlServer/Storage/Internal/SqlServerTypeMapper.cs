@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly StringTypeMapping _unicodeFixedChar
             = new StringTypeMapping(
-                "nchar(1)", 
+                "nchar(1)",
                 new ValueConverter<char, string>(
-                    v => v.ToString(), 
+                    v => v.ToString(),
                     v => v != null && v.Length >= 1 ? v[0] : (char)0),
                 unicode: true);
 
@@ -162,6 +162,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             new ValueConverter<ulong, decimal>(v => v, v => (ulong)v),
             DbType.Decimal);
 
+        private readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _namedClrMappings
+            = new Dictionary<string, Func<Type, RelationalTypeMapping>>(StringComparer.Ordinal)
+            {
+                { "Microsoft.SqlServer.Types.SqlHierarchyId", t => new SqlServerUdtTypeMapping("hierarchyid", t) },
+                { "Microsoft.SqlServer.Types.SqlGeography", t => new SqlServerUdtTypeMapping("geography", t) },
+                { "Microsoft.SqlServer.Types.SqlGeometry", t => new SqlServerUdtTypeMapping("geometry", t) }
+            };
+
         private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
         private readonly HashSet<string> _disallowedMappings;
@@ -237,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time },
-                    { typeof(char), _unicodeFixedChar },
+                    { typeof(char), _unicodeFixedChar }
                 };
 
             // These are disallowed only if specified without any kind of length specified in parenthesis.
@@ -331,6 +339,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(storeType));
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected override IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> GetClrTypeNameMappings()
+            => _namedClrMappings;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
