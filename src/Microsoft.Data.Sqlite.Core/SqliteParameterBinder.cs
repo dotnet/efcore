@@ -12,8 +12,8 @@ namespace Microsoft.Data.Sqlite
         private readonly int _index;
         private readonly int? _size;
 
-        public SqliteParameterBinder(sqlite3_stmt stmt, int index, object value, int? size)
-            : base(value)
+        public SqliteParameterBinder(sqlite3_stmt stmt, int index, object value, int? size, SqliteType? sqliteType)
+            : base(value, sqliteType)
         {
             _stmt = stmt;
             _index = index;

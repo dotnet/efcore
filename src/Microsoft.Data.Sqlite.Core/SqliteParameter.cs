@@ -21,6 +21,7 @@ namespace Microsoft.Data.Sqlite
         private string _parameterName = string.Empty;
         private object _value;
         private int? _size;
+        private SqliteType? _sqliteType;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteParameter" /> class.
@@ -96,7 +97,11 @@ namespace Microsoft.Data.Sqlite
         /// <value>The SQLite type of the parameter.</value>
         /// <remarks>Due to SQLite's dynamic type system, parameter values are not converted.</remarks>
         /// <seealso href="http://sqlite.org/datatype3.html">Datatypes In SQLite Version 3</seealso>
-        public virtual SqliteType SqliteType { get; set; } = SqliteType.Text;
+        public virtual SqliteType SqliteType
+        {
+            get => _sqliteType ?? SqliteValueBinder.GetSqliteType(_value);
+            set => _sqliteType = value;
+        }
 
         /// <summary>
         ///     Gets or sets the direction of the parameter. Only <see cref="ParameterDirection.Input" /> is supported.
@@ -207,7 +212,7 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.RequiresSet(nameof(Value)));
             }
 
-            new SqliteParameterBinder(stmt, index, _value, _size).Bind();
+            new SqliteParameterBinder(stmt, index, _value, _size, _sqliteType).Bind();
 
             return true;
         }
