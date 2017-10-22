@@ -38,5 +38,10 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper : Microsoft.EntityFrameworkCore.Storage.ITypeMapper",
       "MemberId": "System.Reflection.MethodInfo GetDataReaderMethod(System.Type type)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator",
+      "MemberId": "System.String GenerateCreateScript(System.String batchTerminator)",
+      "Kind": "Addition"
     }
   ]

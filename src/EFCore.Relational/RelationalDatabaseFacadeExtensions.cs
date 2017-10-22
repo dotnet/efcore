@@ -481,6 +481,15 @@ namespace Microsoft.EntityFrameworkCore
         public static int? GetCommandTimeout([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalConnection>().CommandTimeout;
 
+        /// <summary>
+        ///     Generates a script to create all tables for the current model.
+        /// </summary>
+        /// <returns>
+        ///     A SQL script.
+        /// </returns>
+        public static string GenerateCreateScript([NotNull] this DatabaseFacade databaseFacade)
+            => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript(databaseFacade.GetRelationalService<ISqlGenerationHelper>().BatchTerminator);
+
         private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
