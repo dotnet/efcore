@@ -46,64 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("tinyint", DbType.Byte);
 
-        private readonly StringTypeMapping _unicodeFixedChar
-            = new StringTypeMapping(
-                "nchar(1)",
-                new ValueConverter<char, string>(
-                    v => v.ToString(),
-                    v => v != null && v.Length >= 1 ? v[0] : (char)0),
-                unicode: true);
-
-        private readonly StringTypeMapping _unicodeVarChar
-            = new StringTypeMapping(
-                "nvarchar(1)",
-                new ValueConverter<char, string>(
-                    v => v.ToString(),
-                    v => v != null && v.Length >= 1 ? v[0] : (char)0),
-                unicode: true);
-
-        private readonly StringTypeMapping _ansiFixedChar
-            = new StringTypeMapping(
-                "char(1)",
-                new ValueConverter<char, string>(
-                    v => v.ToString(),
-                    v => v != null && v.Length >= 1 ? v[0] : (char)0),
-                DbType.AnsiString);
-
-        private readonly StringTypeMapping _ansiVarChar
-            = new StringTypeMapping(
-                "varchar(1)",
-                new ValueConverter<char, string>(
-                    v => v.ToString(),
-                    v => v != null && v.Length >= 1 ? v[0] : (char)0),
-                DbType.AnsiString);
-
-        private readonly IntTypeMapping _intChar
-            = new IntTypeMapping(
-                "int",
-                new ValueConverter<char, int>(v => v, v => (char)v),
-                DbType.Int32);
-
-        private readonly UIntTypeMapping _uint = new UIntTypeMapping(
-            "int",
-            new ValueConverter<uint, int>(v => (int)v, v => (uint)v),
-            DbType.Int32);
-
-        private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
-            "bigint",
-            new ValueConverter<ulong, long>(v => (long)v, v => (ulong)v),
-            DbType.Int64);
-
-        private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
-            "smallint",
-            new ValueConverter<ushort, short>(v => (short)v, v => (ushort)v),
-            DbType.Int16);
-
-        private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
-            "tinyint",
-            new ValueConverter<sbyte, byte>(v => (byte)v, v => (sbyte)v),
-            DbType.Byte);
-
         private readonly BoolTypeMapping _bool = new BoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
@@ -142,26 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly SqlServerStringTypeMapping _xml = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
 
-        private readonly UIntTypeMapping _uintToBigint = new UIntTypeMapping(
-            "bigint",
-            new ValueConverter<uint, long>(v => (long)v, v => (uint)v),
-            DbType.Int64);
-
-        private readonly UShortTypeMapping _ushortToInt = new UShortTypeMapping(
-            "int",
-            new ValueConverter<ushort, int>(v => v, v => (ushort)v),
-            DbType.Int32);
-
-        private readonly SByteTypeMapping _sbyteToSmallint = new SByteTypeMapping(
-            "smallint",
-            new ValueConverter<sbyte, short>(v => v, v => (sbyte)v),
-            DbType.Int16);
-
-        private readonly ULongTypeMapping _ulongToDecimal = new ULongTypeMapping(
-            "decimal(20, 0)",
-            new ValueConverter<ulong, decimal>(v => v, v => (ulong)v),
-            DbType.Decimal);
-
         private readonly IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> _namedClrMappings
             = new Dictionary<string, Func<Type, RelationalTypeMapping>>(StringComparer.Ordinal)
             {
@@ -186,68 +108,62 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             _storeTypeMappings
                 = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "bigint", new List<RelationalTypeMapping> { _long, _uintToBigint, _ulong } },
+                    { "bigint", new List<RelationalTypeMapping> { _long } },
                     { "binary varying", new List<RelationalTypeMapping> { _variableLengthBinary } },
                     { "binary", new List<RelationalTypeMapping> { _fixedLengthBinary } },
                     { "bit", new List<RelationalTypeMapping> { _bool } },
-                    { "char varying", new List<RelationalTypeMapping> { _variableLengthAnsiString, _ansiVarChar } },
-                    { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString, _ansiFixedChar } },
-                    { "character varying", new List<RelationalTypeMapping> { _variableLengthAnsiString, _ansiVarChar } },
-                    { "character", new List<RelationalTypeMapping> { _fixedLengthAnsiString, _ansiFixedChar } },
+                    { "char varying", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
+                    { "character varying", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "character", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
                     { "date", new List<RelationalTypeMapping> { _date } },
                     { "datetime", new List<RelationalTypeMapping> { _datetime } },
                     { "datetime2", new List<RelationalTypeMapping> { _datetime2 } },
                     { "datetimeoffset", new List<RelationalTypeMapping> { _datetimeoffset } },
-                    { "dec", new List<RelationalTypeMapping> { _decimal, _ulongToDecimal } },
-                    { "decimal", new List<RelationalTypeMapping> { _decimal, _ulongToDecimal } },
-                    { "float", new List<RelationalTypeMapping> { _double } },
+                    { "dec", new List<RelationalTypeMapping> { _decimal } },
+                    { "decimal", new List<RelationalTypeMapping> { _decimal } },
+                    { "float", new List<RelationalTypeMapping> { _double, _real } },
+                    { "double precision", new List<RelationalTypeMapping> { _double, _real } },
                     { "image", new List<RelationalTypeMapping> { _variableLengthBinary } },
-                    { "int", new List<RelationalTypeMapping> { _int, _ushortToInt, _uint, _intChar } },
+                    { "int", new List<RelationalTypeMapping> { _int } },
                     { "money", new List<RelationalTypeMapping> { _decimal } },
-                    { "national char varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString, _unicodeVarChar } },
-                    { "national character varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString, _unicodeVarChar } },
-                    { "national character", new List<RelationalTypeMapping> { _fixedLengthUnicodeString, _unicodeFixedChar } },
-                    { "nchar", new List<RelationalTypeMapping> { _fixedLengthUnicodeString, _unicodeFixedChar } },
-                    { "ntext", new List<RelationalTypeMapping> { _variableLengthUnicodeString, _unicodeVarChar } },
-                    { "numeric", new List<RelationalTypeMapping> { _decimal, _ulongToDecimal } },
-                    { "nvarchar", new List<RelationalTypeMapping> { _variableLengthUnicodeString, _unicodeVarChar } },
-                    { "real", new List<RelationalTypeMapping> { _real } },
+                    { "national char varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "national character varying", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "national character", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
+                    { "nchar", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
+                    { "ntext", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "numeric", new List<RelationalTypeMapping> { _decimal } },
+                    { "nvarchar", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
+                    { "real", new List<RelationalTypeMapping> { _real, _double } },
                     { "rowversion", new List<RelationalTypeMapping> { _rowversion } },
                     { "smalldatetime", new List<RelationalTypeMapping> { _datetime } },
-                    { "smallint", new List<RelationalTypeMapping> { _short, _sbyteToSmallint, _ushort } },
+                    { "smallint", new List<RelationalTypeMapping> { _short } },
                     { "smallmoney", new List<RelationalTypeMapping> { _decimal } },
-                    { "text", new List<RelationalTypeMapping> { _variableLengthAnsiString, _ansiVarChar } },
+                    { "text", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
                     { "time", new List<RelationalTypeMapping> { _time } },
                     { "timestamp", new List<RelationalTypeMapping> { _rowversion } },
-                    { "tinyint", new List<RelationalTypeMapping> { _byte, _sbyte } },
+                    { "tinyint", new List<RelationalTypeMapping> { _byte } },
                     { "uniqueidentifier", new List<RelationalTypeMapping> { _uniqueidentifier } },
                     { "varbinary", new List<RelationalTypeMapping> { _variableLengthBinary } },
-                    { "varchar", new List<RelationalTypeMapping> { _variableLengthAnsiString, _ansiVarChar } },
+                    { "varchar", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
                     { "xml", new List<RelationalTypeMapping> { _xml } }
                 };
 
-            // Note: sbyte, ushort, uint, char and ulong type mappings are not supported by SQL Server.
-            // We would need the type conversions feature to allow this to work - see https://github.com/aspnet/EntityFramework/issues/242.
             _clrTypeMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), _int },
                     { typeof(long), _long },
-                    { typeof(uint), _uintToBigint },
-                    { typeof(ulong), _ulongToDecimal },
                     { typeof(DateTime), _datetime2 },
                     { typeof(Guid), _uniqueidentifier },
                     { typeof(bool), _bool },
                     { typeof(byte), _byte },
-                    { typeof(sbyte), _sbyteToSmallint },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
-                    { typeof(ushort), _ushortToInt },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
-                    { typeof(TimeSpan), _time },
-                    { typeof(char), _unicodeFixedChar }
+                    { typeof(TimeSpan), _time }
                 };
 
             // These are disallowed only if specified without any kind of length specified in parenthesis.

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 = new ModelBuilder(
                     new CoreConventionSetBuilder(
                             new CoreConventionSetBuilderDependencies(
-                                new CoreTypeMapper(new CoreTypeMapperDependencies())))
+                                TestServiceFactory.Instance.Create<CoreTypeMapper>()))
                         .CreateConventionSet());
 
             _provider = new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());

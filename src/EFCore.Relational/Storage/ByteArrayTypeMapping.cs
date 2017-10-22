@@ -5,6 +5,7 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage

@@ -1,6 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Utilities;
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -35,9 +39,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        // ReSharper disable once EmptyConstructor
-        public CoreTypeMapperDependencies()
+        /// <param name="valueConverterSelector"> The registry of known <see cref="ValueConverter" />s. </param>
+        public CoreTypeMapperDependencies([NotNull] IValueConverterSelector valueConverterSelector)
         {
+            Check.NotNull(valueConverterSelector, nameof(valueConverterSelector));
+
+            ValueConverterSelector = valueConverterSelector;
         }
+
+        /// <summary>
+        ///     The registry of known <see cref="ValueConverter" />s.
+        /// </summary>
+        public IValueConverterSelector ValueConverterSelector { get; }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="valueConverterSelector"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CoreTypeMapperDependencies With([NotNull] IValueConverterSelector valueConverterSelector)
+            => new CoreTypeMapperDependencies(valueConverterSelector);
     }
 }

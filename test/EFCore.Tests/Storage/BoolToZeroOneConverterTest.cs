@@ -1,0 +1,93 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Xunit;
+
+namespace Microsoft.EntityFrameworkCore.Storage
+{
+    public class BoolToZeroOneConverterTest
+    {
+        private static readonly BoolToZeroOneConverter<decimal> _boolToZeroOne
+            = new BoolToZeroOneConverter<decimal>();
+
+        [Fact]
+        public void Can_convert_bools_to_zero_one()
+        {
+            var converter = _boolToZeroOne.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(1, converter(true));
+            Assert.Equal(0, converter(false));
+        }
+
+        [Fact]
+        public void Can_convert_bools_to_zero_one_object()
+        {
+            var converter = _boolToZeroOne.ConvertToStore;
+
+            Assert.Equal((decimal)1, converter(true));
+            Assert.Equal((decimal)0, converter(false));
+            Assert.Equal((decimal)1, converter((bool?)true));
+            Assert.Equal((decimal)0, converter((bool?)false));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Can_convert_zero_one_to_bool()
+        {
+            var converter = _boolToZeroOne.ConvertFromStoreExpression.Compile();
+
+            Assert.False(converter(0));
+            Assert.True(converter(1));
+            Assert.False(converter(77));
+        }
+
+        [Fact]
+        public void Can_convert_zero_one_to_bool_object()
+        {
+            var converter = _boolToZeroOne.ConvertFromStore;
+
+            Assert.Equal(false, converter(0));
+            Assert.Equal(true, converter(1));
+            Assert.Equal(false, converter(77));
+            Assert.Equal(false, converter((int?)0));
+            Assert.Equal(true, converter((int?)1));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_bools_to_zero_one()
+        {
+            ValueConverterTest.OrderingTest(_boolToZeroOne, false, true);
+        }
+
+        [Fact]
+        public void Can_convert_bools_to_zero_one_for_all_numerics()
+        {
+            GenericConvertTest(0, 1);
+            GenericConvertTest<short>(0, 1);
+            GenericConvertTest<long>(0, 1);
+            GenericConvertTest<byte>(0, 1);
+            GenericConvertTest<uint>(0, 1);
+            GenericConvertTest<ushort>(0, 1);
+            GenericConvertTest<ulong>(0, 1);
+            GenericConvertTest<byte>(0, 1);
+            GenericConvertTest<decimal>(0, 1);
+            GenericConvertTest<double>(0, 1);
+            GenericConvertTest<float>(0, 1);
+        }
+
+        private static void GenericConvertTest<TStore>(TStore zero, TStore one)
+        {
+            var converter = new BoolToZeroOneConverter<TStore>();
+
+            var toStore = converter.ConvertToStoreExpression.Compile();
+            Assert.Equal(one, toStore(true));
+            Assert.Equal(zero, toStore(false));
+
+            var fromStore = converter.ConvertFromStoreExpression.Compile();
+            Assert.True(fromStore(one));
+            Assert.False(fromStore(zero));
+        }
+    }
+}

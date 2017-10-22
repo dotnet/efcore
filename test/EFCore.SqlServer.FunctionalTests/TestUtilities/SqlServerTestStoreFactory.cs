@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual TestStore GetOrCreate(string storeName)
             => SqlServerTestStore.GetOrCreate(storeName);
 
-        public IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
+        public virtual IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
             => serviceCollection.AddEntityFrameworkSqlServer()
                 .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
     }

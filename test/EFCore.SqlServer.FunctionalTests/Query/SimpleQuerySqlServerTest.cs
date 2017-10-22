@@ -203,7 +203,7 @@ FROM (
 LEFT JOIN (
     SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
     FROM [Employees] AS [c]
-    WHERE [c].[EmployeeID] = " + NonExistentID + @"
+    WHERE [c].[EmployeeID] = -1
 ) AS [t] ON 1 = 1");
         }
 
@@ -230,7 +230,7 @@ LEFT JOIN (
             AssertSql(
                 @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE [c].[EmployeeID] = " + NonExistentID);
+WHERE [c].[EmployeeID] = -1");
         }
 
         public override void Default_if_empty_top_level_projection()
@@ -245,7 +245,7 @@ FROM (
 LEFT JOIN (
     SELECT [e].[EmployeeID]
     FROM [Employees] AS [e]
-    WHERE [e].[EmployeeID] = " + NonExistentID + @"
+    WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1");
         }
 

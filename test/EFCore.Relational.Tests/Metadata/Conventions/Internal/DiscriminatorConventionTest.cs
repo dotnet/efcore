@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -166,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     new Model(
                         new CoreConventionSetBuilder(
                                 new CoreConventionSetBuilderDependencies(
-                                    new CoreTypeMapper(new CoreTypeMapperDependencies())))
+                                    TestServiceFactory.Instance.Create<CoreTypeMapper>()))
                             .CreateConventionSet()));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);

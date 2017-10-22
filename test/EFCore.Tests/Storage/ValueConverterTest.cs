@@ -2,9 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -12,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class ValueConverterTest
     {
         private static readonly ValueConverter<uint, int> _uIntToInt
-            = new ValueConverter<uint, int>(v => (int)v, v => (uint)v);
+            = new CastingConverter<uint, int>();
 
         [Fact]
         public void Can_access_raw_converters()
@@ -80,60 +84,106 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Null(_uIntToInt.ConvertFromStore(null));
         }
 
-        private static readonly ValueConverter<uint?, int?> _nullableUIntToInt
-            = new ValueConverter<uint?, int?>(v => (int?)v, v => (uint?)v);
+        private static readonly ValueConverter<uint?, int?> _nullableUIntToNullableInt
+            = new CastingConverter<uint?, int?>();
 
         [Fact]
         public void Can_convert_exact_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((uint?)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((int?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((uint?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((int?)1));
 
-            Assert.Equal((int?)-1, _nullableUIntToInt.ConvertToStore((uint?)uint.MaxValue));
-            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToInt.ConvertFromStore((int?)-1));
+            Assert.Equal((int?)-1, _nullableUIntToNullableInt.ConvertToStore((uint?)uint.MaxValue));
+            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromStore((int?)-1));
         }
 
         [Fact]
         public void Can_convert_non_nullable_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((uint?)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((int?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((uint?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((int?)1));
 
-            Assert.Equal((int?)-1, _nullableUIntToInt.ConvertToStore((uint?)uint.MaxValue));
-            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToInt.ConvertFromStore((int?)-1));
+            Assert.Equal((int?)-1, _nullableUIntToNullableInt.ConvertToStore((uint?)uint.MaxValue));
+            Assert.Equal((uint?)uint.MaxValue, _nullableUIntToNullableInt.ConvertFromStore((int?)-1));
         }
 
         [Fact]
         public void Can_convert_non_exact_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((ushort?)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((short?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ushort?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((short?)1));
 
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((ulong?)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((long?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ulong?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((long?)1));
 
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((int?)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((int?)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((int?)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((int?)1));
         }
 
         [Fact]
         public void Can_convert_non_exact_nullable_types_with_nullable_converter()
         {
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((ushort)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((short)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ushort)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((short)1));
 
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore((ulong)1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore((long)1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore((ulong)1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore((long)1));
 
-            Assert.Equal((int?)1, _nullableUIntToInt.ConvertToStore(1));
-            Assert.Equal((uint?)1, _nullableUIntToInt.ConvertFromStore(1));
+            Assert.Equal((int?)1, _nullableUIntToNullableInt.ConvertToStore(1));
+            Assert.Equal((uint?)1, _nullableUIntToNullableInt.ConvertFromStore(1));
         }
 
         [Fact]
         public void Can_handle_nulls_with_nullable_converter()
         {
-            Assert.Null(_nullableUIntToInt.ConvertToStore(null));
-            Assert.Null(_nullableUIntToInt.ConvertFromStore(null));
+            Assert.Null(_nullableUIntToNullableInt.ConvertToStore(null));
+            Assert.Null(_nullableUIntToNullableInt.ConvertFromStore(null));
+        }
+
+        [Fact]
+        public void Can_cast_between_numeric_types()
+        {
+            var types = new[]
+            {
+                typeof(sbyte), typeof(short), typeof(int), typeof(long),
+                typeof(byte), typeof(ushort), typeof(uint), typeof(ulong),
+                typeof(char), typeof(double), typeof(float), typeof(decimal),
+                typeof(sbyte?), typeof(short?), typeof(int?), typeof(long?),
+                typeof(byte?), typeof(ushort?), typeof(uint?), typeof(ulong?),
+                typeof(char?), typeof(double?), typeof(float?), typeof(decimal?)
+            };
+
+            foreach (var fromType in types)
+            {
+                foreach (var toType in types)
+                {
+                    var converter = (ValueConverter)Activator.CreateInstance(
+                        typeof(CastingConverter<,>).MakeGenericType(fromType, toType),
+                        new object[] { null });
+
+                    var resultToStore = Expression.Lambda<Func<object>>(
+                            Expression.Convert(
+                                Expression.Invoke(
+                                    converter.ConvertToStoreExpression,
+                                    Expression.Convert(
+                                        Expression.Constant(1), fromType)),
+                                typeof(object)))
+                        .Compile()();
+
+                    Assert.Same(toType.UnwrapNullableType(), resultToStore.GetType());
+
+                    var resultFromStore = Expression.Lambda<Func<object>>(
+                            Expression.Convert(
+                                Expression.Invoke(
+                                    converter.ConvertFromStoreExpression,
+                                    Expression.Convert(
+                                        Expression.Constant(1), toType)),
+                                typeof(object)))
+                        .Compile()();
+
+                    Assert.Same(fromType.UnwrapNullableType(), resultFromStore.GetType());
+                }
+            }
         }
 
         private static readonly ValueConverter<string, int?> _stringConverter
@@ -155,134 +205,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("<null>", _stringConverter.ConvertFromStore(null));
         }
 
-        private static readonly ValueConverter<Beatles, string> _enumToString
-            = new EnumToStringConveter<Beatles>();
-
-        [Fact]
-        public void Can_convert_enums_to_strings()
-        {
-            var converter = _enumToString.ConvertToStoreExpression.Compile();
-
-            Assert.Equal("John", converter(Beatles.John));
-            Assert.Equal("Paul", converter(Beatles.Paul));
-            Assert.Equal("George", converter(Beatles.George));
-            Assert.Equal("Ringo", converter(Beatles.Ringo));
-            Assert.Equal("77", converter((Beatles)77));
-            Assert.Equal("0", converter(default));
-        }
-
-        [Fact]
-        public void Can_convert_enums_to_strings_object()
-        {
-            var converter = _enumToString.ConvertToStore;
-
-            Assert.Equal("John", converter(Beatles.John));
-            Assert.Equal("Paul", converter(Beatles.Paul));
-            Assert.Equal("George", converter(Beatles.George));
-            Assert.Equal("Ringo", converter(Beatles.Ringo));
-            Assert.Equal("77", converter((Beatles)77));
-            Assert.Equal("0", converter(default(Beatles)));
-            Assert.Equal(null, converter(null));
-        }
-
-        [Fact]
-        public void Can_convert_strings_to_enums()
-        {
-            var converter = _enumToString.ConvertFromStoreExpression.Compile();
-
-            Assert.Equal(Beatles.John, converter("John"));
-            Assert.Equal(Beatles.Paul, converter("Paul"));
-            Assert.Equal(Beatles.George, converter("George"));
-            Assert.Equal(Beatles.Ringo, converter("Ringo"));
-            Assert.Equal(Beatles.Ringo, converter("RINGO"));
-            Assert.Equal(Beatles.John, converter("7"));
-            Assert.Equal(Beatles.Ringo, converter("-1"));
-            Assert.Equal((Beatles)77, converter("77"));
-            Assert.Equal(default, converter("0"));
-            Assert.Equal(default, converter(null));
-        }
-
-        [Fact]
-        public void Can_convert_strings_to_enums_object()
-        {
-            var converter = _enumToString.ConvertFromStore;
-
-            Assert.Equal(Beatles.John, converter("John"));
-            Assert.Equal(Beatles.Paul, converter("Paul"));
-            Assert.Equal(Beatles.George, converter("George"));
-            Assert.Equal(Beatles.Ringo, converter("Ringo"));
-            Assert.Equal(Beatles.Ringo, converter("rINGO"));
-            Assert.Equal(Beatles.John, converter("7"));
-            Assert.Equal(Beatles.Ringo, converter("-1"));
-            Assert.Equal((Beatles)77, converter("77"));
-            Assert.Equal(default(Beatles), converter("0"));
-            Assert.Equal(default(Beatles), converter(null));
-        }
-
-        private static readonly ValueConverter<Beatles, int> _enumToNumber
-            = new EnumToNumberConveter<Beatles, int>();
-
-        [Fact]
-        public void Can_convert_enums_to_numbers()
-        {
-            var converter = _enumToNumber.ConvertToStoreExpression.Compile();
-
-            Assert.Equal(7, converter(Beatles.John));
-            Assert.Equal(4, converter(Beatles.Paul));
-            Assert.Equal(1, converter(Beatles.George));
-            Assert.Equal(-1, converter(Beatles.Ringo));
-            Assert.Equal(77, converter((Beatles)77));
-            Assert.Equal(0, converter(default));
-        }
-
-        [Fact]
-        public void Can_convert_enums_to_numbers_object()
-        {
-            var converter = _enumToNumber.ConvertToStore;
-
-            Assert.Equal(7, converter(Beatles.John));
-            Assert.Equal(4, converter(Beatles.Paul));
-            Assert.Equal(1, converter(Beatles.George));
-            Assert.Equal(-1, converter(Beatles.Ringo));
-            Assert.Equal(77, converter((Beatles)77));
-            Assert.Equal(0, converter(default(Beatles)));
-            Assert.Equal(null, converter(null));
-        }
-
-        [Fact]
-        public void Can_convert_numbers_to_enums()
-        {
-            var converter = _enumToNumber.ConvertFromStoreExpression.Compile();
-
-            Assert.Equal(Beatles.John, converter(7));
-            Assert.Equal(Beatles.Paul, converter(4));
-            Assert.Equal(Beatles.George, converter(1));
-            Assert.Equal(Beatles.Ringo, converter(-1));
-            Assert.Equal((Beatles)77, converter(77));
-            Assert.Equal(default, converter(0));
-        }
-
-        [Fact]
-        public void Can_convert_numbers_to_enums_object()
-        {
-            var converter = _enumToNumber.ConvertFromStore;
-
-            Assert.Equal(Beatles.John, converter(7));
-            Assert.Equal(Beatles.Paul, converter(4));
-            Assert.Equal(Beatles.George, converter(1));
-            Assert.Equal(Beatles.Ringo, converter(-1));
-            Assert.Equal((Beatles)77, converter(77));
-            Assert.Equal(default(Beatles), converter(0));
-            Assert.Equal(null, converter(null));
-        }
-
         private static readonly ValueConverter<int, string> _intToString
             = new ValueConverter<int, string>(
                 v => v.ToString(),
                 v => ConvertToInt(v));
 
-        private static int ConvertToInt(string v) 
+        private static int ConvertToInt(string v)
             => int.TryParse(v, out var result) ? result : 0;
+
+        private static readonly ValueConverter<Beatles, int> _enumToNumber
+            = new EnumToNumberConverter<Beatles, int>();
 
         [Fact]
         public void Can_convert_compose_to_strings()
@@ -310,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("-1", converter(Beatles.Ringo));
             Assert.Equal("77", converter((Beatles)77));
             Assert.Equal("0", converter(default(Beatles)));
-            Assert.Equal(null, converter(null));
+            Assert.Null(converter(null));
         }
 
         [Fact]
@@ -357,6 +289,42 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CoreStrings.ConvertersCannotBeComposed("Beatles", "int", "uint", "int"),
                 Assert.Throws<ArgumentException>(
                     () => ValueConverter.Compose(_enumToNumber, _uIntToInt)).Message);
+        }
+
+        public static void OrderingTest<TModel, TStore>(
+            ValueConverter<TModel, TStore> converter,
+            params TModel[] values)
+        {
+            var convertToStore = converter.ConvertToStoreExpression.Compile();
+            var convertFromStore = converter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(
+                values,
+                values.Select(v => convertToStore(v))
+                    .OrderBy(v => v).ToList()
+                    .Select(v => convertFromStore(v))
+                    .ToArray());
+        }
+
+        public static void OrderingTest<TModel>(
+            ValueConverter<TModel, byte[]> converter,
+            params TModel[] values)
+        {
+            var convertToStore = converter.ConvertToStoreExpression.Compile();
+            var convertFromStore = converter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(
+                values,
+                values.Select(v => convertToStore(v))
+                    .OrderBy(v => v, new BytesComparer()).ToList()
+                    .Select(v => convertFromStore(v))
+                    .ToArray());
+        }
+
+        private class BytesComparer : IComparer<byte[]>
+        {
+            public int Compare(byte[] x, byte[] y)
+                => StructuralComparisons.StructuralComparer.Compare(x, y);
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-            Assert.Equal("NVARCHAR2(64)", new OracleTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+            Assert.Equal("NVARCHAR2(64)", TestServiceFactory.Instance.Create<OracleTypeMapper>().FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-            Assert.Equal("RAW(8)", new OracleTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+            Assert.Equal("RAW(8)", TestServiceFactory.Instance.Create<OracleTypeMapper>().FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp");
-            Assert.Equal("RAW(8)", new OracleTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+            Assert.Equal("RAW(8)", TestServiceFactory.Instance.Create<OracleTypeMapper>().FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -164,8 +164,8 @@ FETCH FIRST 1 ROWS ONLY
 
 :p2='1'
 :p0='ModifiedData' (Nullable = false) (Size = 2000)
-:p1='0x00000000000000000003000000000001' (Nullable = false)
-:p3='0x01000000000000000000000000000001' (Nullable = false)
+:p1='0x00000000000000000003000000000001' (Nullable = false) (Size = 16)
+:p3='0x01000000000000000000000000000001' (Nullable = false) (Size = 16)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -180,8 +180,8 @@ END;
 
 :p2='1'
 :p0='ChangedData' (Nullable = false) (Size = 2000)
-:p1='0x00000000000000000002000000000001' (Nullable = false)
-:p3='0x01000000000000000000000000000001' (Nullable = false)
+:p1='0x00000000000000000002000000000001' (Nullable = false) (Size = 16)
+:p3='0x01000000000000000000000000000001' (Nullable = false) (Size = 16)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -204,7 +204,7 @@ END;",
             Assert.Equal(
                 @":p0='' (Size = 10) (DbType = String)
 :p1='Third' (Nullable = false) (Size = 2000)
-:p2='0x00000000000000000000000000000003' (Nullable = false)
+:p2='0x00000000000000000000000000000003' (Nullable = false) (Size = 16)
 :p3='Third Additional Name' (Size = 2000)
 :p4='Third Name' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
@@ -237,7 +237,7 @@ END;",
             Assert.Equal(
                 @":p0='Short' (Size = 10)
 :p1='ValidString' (Nullable = false) (Size = 2000)
-:p2='0x00000000000000000000000000000001' (Nullable = false)
+:p2='0x00000000000000000000000000000001' (Nullable = false) (Size = 16)
 :p3='Third Additional Name' (Size = 2000)
 :p4='Third Name' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
@@ -262,7 +262,7 @@ END;
 
 :p0='VeryVeryVeryVeryVeryVeryLongString'
 :p1='ValidString' (Nullable = false) (Size = 2000)
-:p2='0x00000000000000000000000000000002' (Nullable = false)
+:p2='0x00000000000000000000000000000002' (Nullable = false) (Size = 16)
 :p3='Third Additional Name' (Size = 2000)
 :p4='Third Name' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
@@ -308,7 +308,7 @@ END;",
             Assert.Equal(
                 @":p0='' (Size = 10) (DbType = String)
 :p1='ValidString' (Nullable = false) (Size = 2000)
-:p2='0x00000000000000000000000000000001' (Nullable = false)
+:p2='0x00000000000000000000000000000001' (Nullable = false) (Size = 16)
 :p3='Two' (Size = 2000)
 :p4='One' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
@@ -333,7 +333,7 @@ END;
 
 :p0='' (Size = 10) (DbType = String)
 :p1='' (Nullable = false) (Size = 2000) (DbType = String)
-:p2='0x00000000000000000000000000000002' (Nullable = false)
+:p2='0x00000000000000000000000000000002' (Nullable = false) (Size = 16)
 :p3='Two' (Size = 2000)
 :p4='One' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)

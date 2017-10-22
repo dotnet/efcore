@@ -1831,6 +1831,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 mapping);
 
         /// <summary>
+        ///     The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.
+        /// </summary>
+        public static string ConverterBadType([CanBeNull] object converter, [CanBeNull] object type, [CanBeNull] object allowed)
+            => string.Format(
+                GetString("ConverterBadType", nameof(converter), nameof(type), nameof(allowed)),
+                converter, type, allowed);
+
+        /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because another seed entity with the same key value for {keyProperties} has already been added. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
         /// </summary>
         public static string SeedDatumDuplicate([CanBeNull] object entityType, [CanBeNull] object keyProperties)

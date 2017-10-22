@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage

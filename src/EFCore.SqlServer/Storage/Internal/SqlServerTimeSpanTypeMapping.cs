@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {

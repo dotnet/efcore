@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage.Converters
 {
     /// <summary>
     ///     Defines conversions from an object of one type in a model to an object of the same or
@@ -37,11 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </param>
+        /// <param name="mappingHints">
+        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     facets for the converted data.
+        /// </param>
         protected ValueConverter(
             [NotNull] Func<object, object> convertToStore,
             [NotNull] Func<object, object> convertFromStore,
             [NotNull] LambdaExpression convertToStoreExpression,
-            [NotNull] LambdaExpression convertFromStoreExpression)
+            [NotNull] LambdaExpression convertFromStoreExpression,
+            ConverterMappingHints mappingHints = default)
 
         {
             Check.NotNull(convertToStore, nameof(convertToStore));
@@ -53,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ConvertFromStore = convertFromStore;
             ConvertToStoreExpression = convertToStoreExpression;
             ConvertFromStoreExpression = convertFromStoreExpression;
+            MappingHints = mappingHints;
         }
 
         /// <summary>
@@ -92,15 +99,54 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public abstract Type StoreType { get; }
 
         /// <summary>
+        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     facets for the converted data.
+        /// </summary>
+        public virtual ConverterMappingHints MappingHints { get; }
+
+        /// <summary>
+        ///     Checks that the type used with a value converter is supported by that converter and throws if not.
+        /// </summary>
+        /// <param name="type"> The type to check. </param>
+        /// <param name="converterType"> The value converter type. </param>
+        /// <param name="supportedTypes"> The types that are supported. </param>
+        /// <returns> The given type. </returns>
+        protected static Type CheckTypeSupported(
+            [NotNull] Type type,
+            [NotNull] Type converterType,
+            [NotNull] params Type[] supportedTypes)
+        {
+            Check.NotNull(type, nameof(type));
+            Check.NotNull(converterType, nameof(converterType));
+            Check.NotEmpty(supportedTypes, nameof(supportedTypes));
+
+            if (!supportedTypes.Contains(type))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ConverterBadType(
+                        converterType.ShortDisplayName(),
+                        type.ShortDisplayName(),
+                        string.Join(", ", supportedTypes.Select(t => t.ShortDisplayName()))));
+            }
+
+            return type;
+        }
+
+        /// <summary>
         ///     Composes two <see cref="ValueConverter" /> instances together such that
         ///     the result of the first conversion is used as the input to the second conversion.
         /// </summary>
         /// <param name="firstConverter"> The first converter. </param>
         /// <param name="secondConverter"> The second converter. </param>
+        /// <param name="mappingHints">
+        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     facets for the converted data.
+        /// </param>
         /// <returns> The composed converter. </returns>
         public static ValueConverter Compose(
             [CanBeNull] ValueConverter firstConverter,
-            [CanBeNull] ValueConverter secondConverter)
+            [CanBeNull] ValueConverter secondConverter,
+            ConverterMappingHints mappingHints = default)
         {
             if (firstConverter == null
                 || secondConverter == null)
@@ -110,20 +156,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (firstConverter.StoreType != secondConverter.ModelType)
             {
-                throw new ArgumentException(CoreStrings.ConvertersCannotBeComposed(
-                    firstConverter.ModelType.ShortDisplayName(),
-                    firstConverter.StoreType.ShortDisplayName(), 
-                    secondConverter.ModelType.ShortDisplayName(),
-                    secondConverter.StoreType.ShortDisplayName()));
+                throw new ArgumentException(
+                    CoreStrings.ConvertersCannotBeComposed(
+                        firstConverter.ModelType.ShortDisplayName(),
+                        firstConverter.StoreType.ShortDisplayName(),
+                        secondConverter.ModelType.ShortDisplayName(),
+                        secondConverter.StoreType.ShortDisplayName()));
             }
 
             return (ValueConverter)Activator.CreateInstance(
-                typeof(ComposedValueConveter<,,>).MakeGenericType(
+                typeof(CompositeValueConverter<,,>).MakeGenericType(
                     firstConverter.ModelType,
                     firstConverter.StoreType,
                     secondConverter.StoreType),
                 firstConverter,
-                secondConverter);
+                secondConverter,
+                mappingHints.With(secondConverter.MappingHints));
         }
     }
 }

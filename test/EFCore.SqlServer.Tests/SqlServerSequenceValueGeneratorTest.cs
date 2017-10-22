@@ -215,20 +215,11 @@ namespace Microsoft.EntityFrameworkCore
                     _commandBuilder = commandBuilder;
                 }
 
-                public string CommandText
-                {
-                    get { throw new NotImplementedException(); }
-                }
+                public string CommandText => throw new NotImplementedException();
 
-                public IReadOnlyList<IRelationalParameter> Parameters
-                {
-                    get { throw new NotImplementedException(); }
-                }
+                public IReadOnlyList<IRelationalParameter> Parameters => throw new NotImplementedException();
 
-                public IReadOnlyDictionary<string, object> ParameterValues
-                {
-                    get { throw new NotImplementedException(); }
-                }
+                public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
 
                 public int ExecuteNonQuery(IRelationalConnection connection, IReadOnlyDictionary<string, object> parameterValues)
                 {

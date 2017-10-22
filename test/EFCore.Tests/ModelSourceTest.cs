@@ -106,9 +106,13 @@ namespace Microsoft.EntityFrameworkCore
             public ConcreteModelSource(IDbSetFinder setFinder)
                 : base(
                     new ModelSourceDependencies(
-                        new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))),
-                        new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                        new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
+                        new CoreConventionSetBuilder(
+                            new CoreConventionSetBuilderDependencies(
+                                TestServiceFactory.Instance.Create<CoreTypeMapper>())),
+                        new ModelCustomizer(
+                            new ModelCustomizerDependencies(setFinder)),
+                        new ModelCacheKeyFactory(
+                            new ModelCacheKeyFactoryDependencies())))
             {
             }
         }

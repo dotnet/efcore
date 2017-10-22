@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -153,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             if (value != null
-                && value.GetType().IsEnum)
+                && value.GetType().UnwrapNullableType().IsEnum)
             {
                 value = Convert.ChangeType(value, value.GetType().UnwrapEnumType());
             }
@@ -196,9 +197,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The generated string.
         /// </returns>
         public virtual string GenerateSqlLiteral([CanBeNull] object value)
-            => value == null
+        {
+            if (Converter != null)
+            {
+                value = Converter.ConvertToStore(value);
+            }
+
+            return value == null
                 ? "NULL"
                 : GenerateNonNullSqlLiteral(value);
+        }
 
         /// <summary>
         ///     Generates the SQL representation of a non-null literal value.

@@ -481,15 +481,15 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p3='0x5D5E5F60' (Nullable = false) (Size = 8000)
 @p4='0x61626364' (Nullable = false) (Size = 8000)
 @p5='0x595A5B5C' (Nullable = false) (Size = 8000)
-@p6='B' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p7='C' (Nullable = false) (Size = 1) (DbType = AnsiString)
+@p6='B' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p7='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p8='73'
-@p9='E' (Nullable = false) (Size = 1)
-@p10='F' (Nullable = false) (Size = 1)
-@p11='H' (Nullable = false) (Size = 1)
-@p12='D' (Nullable = false) (Size = 1)
-@p13='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p14='A' (Nullable = false) (Size = 1) (DbType = AnsiString)
+@p9='E' (Nullable = false) (Size = 4000)
+@p10='F' (Nullable = false) (Size = 4000)
+@p11='H' (Nullable = false) (Size = 4000)
+@p12='D' (Nullable = false) (Size = 4000)
+@p13='G' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p14='A' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p15='2015-01-02T10:11:12' (DbType = Date)
 @p16='2019-01-02T14:11:12' (DbType = DateTime)
 @p17='2017-01-02T12:11:12'
@@ -502,7 +502,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='82.2'
 @p25='85.5'
 @p26='83.3'
-@p27='Value4' (Nullable = false) (Size = 4000)
+@p27='Value4' (Nullable = false) (Size = 20)
 @p28='Value2' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p29='84.4'
 @p30='a8f9f951-145f-4545-ac60-b92ff57ada47'
@@ -524,7 +524,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p46='4294967295'
 @p47='-1'
 @p48='-1'
-@p49='18446744073709551615' (Precision = 20)",
+@p49='18446744073709551615'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -665,15 +665,15 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p3='0x5D5E5F60' (Size = 8000)
 @p4='0x61626364' (Size = 8000)
 @p5='0x595A5B5C' (Size = 8000)
-@p6='B' (Size = 1) (DbType = AnsiString)
-@p7='C' (Size = 1) (DbType = AnsiString)
+@p6='B' (Size = 8000) (DbType = AnsiString)
+@p7='C' (Size = 8000) (DbType = AnsiString)
 @p8='73' (Nullable = true)
-@p9='E' (Size = 1)
-@p10='F' (Size = 1)
-@p11='H' (Size = 1)
-@p12='D' (Size = 1)
-@p13='G' (Size = 1) (DbType = AnsiString)
-@p14='A' (Size = 1) (DbType = AnsiString)
+@p9='E' (Size = 4000)
+@p10='F' (Size = 4000)
+@p11='H' (Size = 4000)
+@p12='D' (Size = 4000)
+@p13='G' (Size = 8000) (DbType = AnsiString)
+@p14='A' (Size = 8000) (DbType = AnsiString)
 @p15='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
 @p16='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
 @p17='2017-01-02T12:11:12' (Nullable = true)
@@ -686,7 +686,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='82.2' (Nullable = true)
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
-@p27='Value4' (Size = 4000)
+@p27='Value4' (Size = 20)
 @p28='Value2' (Size = 8000) (DbType = AnsiString)
 @p29='84.4' (Nullable = true)
 @p30='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
@@ -708,7 +708,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p46='4294967295' (Nullable = true)
 @p47='-1' (Nullable = true)
 @p48='-1' (Nullable = true)
-@p49='18446744073709551615' (Nullable = true) (Precision = 20)",
+@p49='18446744073709551615' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -845,15 +845,15 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p3='' (Size = 8000) (DbType = Binary)
 @p4='' (Size = 8000) (DbType = Binary)
 @p5='' (Size = 8000) (DbType = Binary)
-@p6=''
-@p7=''
+@p6='' (Size = 8000)
+@p7='' (Size = 8000)
 @p8='' (DbType = Int32)
-@p9='' (DbType = String)
-@p10='' (DbType = String)
-@p11='' (DbType = String)
-@p12='' (DbType = String)
-@p13=''
-@p14=''
+@p9='' (Size = 4000) (DbType = String)
+@p10='' (Size = 4000) (DbType = String)
+@p11='' (Size = 4000) (DbType = String)
+@p12='' (Size = 4000) (DbType = String)
+@p13='' (Size = 8000)
+@p14='' (Size = 8000)
 @p15='' (DbType = Date)
 @p16='' (DbType = DateTime)
 @p17='' (DbType = DateTime2)
@@ -866,7 +866,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='' (DbType = String)
 @p25='' (DbType = String)
 @p26='' (DbType = String)
-@p27='' (Size = 4000) (DbType = String)
+@p27='' (Size = 20) (DbType = String)
 @p28='' (Size = 8000)
 @p29='' (DbType = String)
 @p30='' (DbType = Guid)
@@ -888,7 +888,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p46='' (DbType = Int64)
 @p47='' (DbType = Int32)
 @p48='' (DbType = Int64)
-@p49='' (DbType = Decimal)",
+@p49='' (DbType = String)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -968,12 +968,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p1='0x0A0B0C' (Size = 3)
 @p2='0x0C0D0E' (Size = 3)
 @p3='0x0B0C0D' (Size = 3)
-@p4='B' (Size = 1) (DbType = AnsiString)
-@p5='C' (Size = 1) (DbType = AnsiString)
-@p6='E' (Size = 1)
-@p7='F' (Size = 1)
-@p8='D' (Size = 1)
-@p9='A' (Size = 1) (DbType = AnsiString)
+@p4='B' (Size = 3) (DbType = AnsiString)
+@p5='C' (Size = 3) (DbType = AnsiString)
+@p6='E' (Size = 3)
+@p7='F' (Size = 3)
+@p8='D' (Size = 3)
+@p9='A' (Size = 3) (DbType = AnsiString)
 @p10='Wor' (Size = 3) (DbType = AnsiString)
 @p11='Thr' (Size = 3) (DbType = AnsiString)
 @p12='Lon' (Size = 3) (DbType = AnsiString)
@@ -1058,12 +1058,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p1='' (Size = 3) (DbType = Binary)
 @p2='' (Size = 3) (DbType = Binary)
 @p3='' (Size = 3) (DbType = Binary)
-@p4=''
-@p5=''
-@p6='' (DbType = String)
-@p7='' (DbType = String)
-@p8='' (DbType = String)
-@p9=''
+@p4='' (Size = 3)
+@p5='' (Size = 3)
+@p6='' (Size = 3) (DbType = String)
+@p7='' (Size = 3) (DbType = String)
+@p8='' (Size = 3) (DbType = String)
+@p9='' (Size = 3)
 @p10='' (Size = 3)
 @p11='' (Size = 3)
 @p12='' (Size = 3)
@@ -1220,15 +1220,15 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p2='0x5D5E5F60' (Size = 8000)
 @p3='0x61626364' (Size = 8000)
 @p4='0x595A5B5C' (Size = 8000)
-@p5='B' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p6='C' (Nullable = false) (Size = 1) (DbType = AnsiString)
+@p5='B' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p6='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p7='73'
-@p8='E' (Nullable = false) (Size = 1)
-@p9='F' (Nullable = false) (Size = 1)
-@p10='H' (Nullable = false) (Size = 1)
-@p11='D' (Nullable = false) (Size = 1)
-@p12='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p13='A' (Nullable = false) (Size = 1) (DbType = AnsiString)
+@p8='E' (Nullable = false) (Size = 4000)
+@p9='F' (Nullable = false) (Size = 4000)
+@p10='H' (Nullable = false) (Size = 4000)
+@p11='D' (Nullable = false) (Size = 4000)
+@p12='G' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p13='A' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p14='2015-01-02T10:11:12' (DbType = Date)
 @p15='2019-01-02T14:11:12' (DbType = DateTime)
 @p16='2017-01-02T12:11:12'
@@ -1241,7 +1241,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p23='82.2'
 @p24='85.5'
 @p25='83.3'
-@p26='Value4' (Nullable = false) (Size = 4000)
+@p26='Value4' (Nullable = false) (Size = 20)
 @p27='Value2' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p28='84.4'
 @p29='a8f9f951-145f-4545-ac60-b92ff57ada47'
@@ -1264,7 +1264,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p46='4294967295'
 @p47='-1'
 @p48='-1'
-@p49='18446744073709551615' (Precision = 20)",
+@p49='18446744073709551615'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1400,15 +1400,15 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p2='0x61626364' (Size = 8000)
 @p3='0x595A5B5C' (Size = 8000)
 @p4='0x5D5E5F60' (Size = 8000)
-@p5='B' (Size = 1) (DbType = AnsiString)
-@p6='C' (Size = 1) (DbType = AnsiString)
+@p5='B' (Size = 8000) (DbType = AnsiString)
+@p6='C' (Size = 8000) (DbType = AnsiString)
 @p7='73' (Nullable = true)
-@p8='E' (Size = 1)
-@p9='F' (Size = 1)
-@p10='H' (Size = 1)
-@p11='D' (Size = 1)
-@p12='G' (Size = 1) (DbType = AnsiString)
-@p13='A' (Size = 1) (DbType = AnsiString)
+@p8='E' (Size = 4000)
+@p9='F' (Size = 4000)
+@p10='H' (Size = 4000)
+@p11='D' (Size = 4000)
+@p12='G' (Size = 8000) (DbType = AnsiString)
+@p13='A' (Size = 8000) (DbType = AnsiString)
 @p14='2015-01-02T10:11:12' (Nullable = true) (DbType = Date)
 @p15='2019-01-02T14:11:12' (Nullable = true) (DbType = DateTime)
 @p16='2017-01-02T12:11:12' (Nullable = true)
@@ -1421,7 +1421,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p23='82.2' (Nullable = true)
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
-@p26='Value4' (Size = 4000)
+@p26='Value4' (Size = 20)
 @p27='Value2' (Size = 8000) (DbType = AnsiString)
 @p28='84.4' (Nullable = true)
 @p29='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
@@ -1443,7 +1443,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p45='4294967295' (Nullable = true)
 @p46='-1' (Nullable = true)
 @p47='-1' (Nullable = true)
-@p48='18446744073709551615' (Nullable = true) (Precision = 20)
+@p48='18446744073709551615' (Nullable = true)
 @p49='-1' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1580,15 +1580,15 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p2='' (Size = 8000) (DbType = Binary)
 @p3='' (Size = 8000) (DbType = Binary)
 @p4='' (Size = 8000) (DbType = Binary)
-@p5=''
-@p6=''
+@p5='' (Size = 8000)
+@p6='' (Size = 8000)
 @p7='' (DbType = Int32)
-@p8='' (DbType = String)
-@p9='' (DbType = String)
-@p10='' (DbType = String)
-@p11='' (DbType = String)
-@p12=''
-@p13=''
+@p8='' (Size = 4000) (DbType = String)
+@p9='' (Size = 4000) (DbType = String)
+@p10='' (Size = 4000) (DbType = String)
+@p11='' (Size = 4000) (DbType = String)
+@p12='' (Size = 8000)
+@p13='' (Size = 8000)
 @p14='' (DbType = Date)
 @p15='' (DbType = DateTime)
 @p16='' (DbType = DateTime2)
@@ -1601,7 +1601,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p23='' (DbType = String)
 @p24='' (DbType = String)
 @p25='' (DbType = String)
-@p26='' (Size = 4000) (DbType = String)
+@p26='' (Size = 20) (DbType = String)
 @p27='' (Size = 8000)
 @p28='' (DbType = String)
 @p29='' (DbType = Guid)
@@ -1623,7 +1623,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p45='' (DbType = Int64)
 @p46='' (DbType = Int32)
 @p47='' (DbType = Int64)
-@p48='' (DbType = Decimal)
+@p48='' (DbType = String)
 @p49='' (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1704,12 +1704,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 @"@p0='0x0A0B0C' (Size = 3)
 @p1='0x0C0D0E' (Size = 3)
 @p2='0x0B0C0D' (Size = 3)
-@p3='B' (Size = 1) (DbType = AnsiString)
-@p4='C' (Size = 1) (DbType = AnsiString)
-@p5='E' (Size = 1)
-@p6='F' (Size = 1)
-@p7='D' (Size = 1)
-@p8='A' (Size = 1) (DbType = AnsiString)
+@p3='B' (Size = 3) (DbType = AnsiString)
+@p4='C' (Size = 3) (DbType = AnsiString)
+@p5='E' (Size = 3)
+@p6='F' (Size = 3)
+@p7='D' (Size = 3)
+@p8='A' (Size = 3) (DbType = AnsiString)
 @p9='77'
 @p10='Wor' (Size = 3) (DbType = AnsiString)
 @p11='Thr' (Size = 3) (DbType = AnsiString)
@@ -1794,12 +1794,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 @"@p0='' (Size = 3) (DbType = Binary)
 @p1='' (Size = 3) (DbType = Binary)
 @p2='' (Size = 3) (DbType = Binary)
-@p3=''
-@p4=''
-@p5='' (DbType = String)
-@p6='' (DbType = String)
-@p7='' (DbType = String)
-@p8=''
+@p3='' (Size = 3)
+@p4='' (Size = 3)
+@p5='' (Size = 3) (DbType = String)
+@p6='' (Size = 3) (DbType = String)
+@p7='' (Size = 3) (DbType = String)
+@p8='' (Size = 3)
 @p9='78'
 @p10='' (Size = 3)
 @p11='' (Size = 3)
@@ -2339,7 +2339,7 @@ BuiltInDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.PartitionId ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestBoolean ---> [bit]
 BuiltInDataTypes.TestByte ---> [tinyint] [Precision = 3 Scale = 0]
-BuiltInDataTypes.TestCharacter ---> [nchar] [MaxLength = 1]
+BuiltInDataTypes.TestCharacter ---> [nvarchar] [MaxLength = 1]
 BuiltInDataTypes.TestDateTime ---> [datetime2] [Precision = 7]
 BuiltInDataTypes.TestDateTimeOffset ---> [datetimeoffset] [Precision = 7]
 BuiltInDataTypes.TestDecimal ---> [decimal] [Precision = 18 Scale = 2]
@@ -2366,7 +2366,7 @@ BuiltInNullableDataTypes.PartitionId ---> [int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.TestByteArray ---> [nullable varbinary] [MaxLength = -1]
 BuiltInNullableDataTypes.TestNullableBoolean ---> [nullable bit]
 BuiltInNullableDataTypes.TestNullableByte ---> [nullable tinyint] [Precision = 3 Scale = 0]
-BuiltInNullableDataTypes.TestNullableCharacter ---> [nullable nchar] [MaxLength = 1]
+BuiltInNullableDataTypes.TestNullableCharacter ---> [nullable nvarchar] [MaxLength = 1]
 BuiltInNullableDataTypes.TestNullableDateTime ---> [nullable datetime2] [Precision = 7]
 BuiltInNullableDataTypes.TestNullableDateTimeOffset ---> [nullable datetimeoffset] [Precision = 7]
 BuiltInNullableDataTypes.TestNullableDecimal ---> [nullable decimal] [Precision = 18 Scale = 2]
@@ -3604,7 +3604,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public StringEnumU16? EnumAsNvarchar20 { get; set; }
         }
 
-        protected class ColumnInfo
+        public class ColumnInfo
         {
             public string TableName { get; set; }
             public string ColumnName { get; set; }

@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -30,7 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ConventionSet Build()
         {
             var relationalTypeMapper = new SqliteTypeMapper(
-                new CoreTypeMapperDependencies(),
+                new CoreTypeMapperDependencies(
+                    new ValueConverterSelector(
+                        new ValueConverterSelectorDependencies())),
                 new RelationalTypeMapperDependencies());
 
             return new SqliteConventionSetBuilder(

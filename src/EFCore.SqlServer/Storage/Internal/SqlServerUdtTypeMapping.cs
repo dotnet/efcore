@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {

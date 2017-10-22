@@ -33,5 +33,10 @@
     "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorDependencies",
     "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.Internal.IQueryOptimizer queryOptimizer, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IQuerySourceTracingExpressionVisitorFactory querySourceTracingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory entityResultFindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor taskBlockingExpressionVisitor, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IMemberAccessBindingExpressionVisitorFactory memberAccessBindingExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IProjectionExpressionVisitorFactory projectionExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.IEntityQueryableExpressionVisitorFactory entityQueryableExpressionVisitorFactory, Microsoft.EntityFrameworkCore.Query.Internal.IQueryAnnotationExtractor queryAnnotationExtractor, Microsoft.EntityFrameworkCore.Query.IResultOperatorHandler resultOperatorHandler, Microsoft.EntityFrameworkCore.Metadata.Internal.IEntityMaterializerSource entityMaterializerSource, Microsoft.EntityFrameworkCore.Query.Internal.IExpressionPrinter expressionPrinter)",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Storage.CoreTypeMapperDependencies",
+    "MemberId": "public .ctor()",
+    "Kind": "Removal"
   }
 ]

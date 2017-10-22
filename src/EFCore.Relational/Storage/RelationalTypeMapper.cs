@@ -10,7 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 { typeof(string), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetString)) }
             };
 
-        private readonly ConcurrentDictionary<(string StoreType, Type ClrType), RelationalTypeMapping> _explicitMappings
-            = new ConcurrentDictionary<(string StoreType, Type ClrType), RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<RelationalTypeMappingInfo, RelationalTypeMapping> _explicitMappings
+            = new ConcurrentDictionary<RelationalTypeMappingInfo, RelationalTypeMapping>();
 
         /// <summary>
         ///     Initializes a new instance of the this class.
@@ -58,7 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         [Obsolete("Use RelationalTypeMapper(CoreTypeMapperDependencies RelationalTypeMapperDependencies) instead.")]
         protected RelationalTypeMapper([NotNull] RelationalTypeMapperDependencies dependencies)
-            : this(new CoreTypeMapperDependencies(), dependencies)
+            : this(
+                new CoreTypeMapperDependencies(
+                    new ValueConverterSelector(
+                        new ValueConverterSelectorDependencies())), dependencies)
         {
         }
 
@@ -73,7 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             : base(coreDependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies used to create this <see cref="RelationalTypeMapper" />
+        /// </summary>
+        protected virtual RelationalTypeMapperDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Gets the mappings from .NET types to database types.
@@ -129,28 +139,71 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            return FindMapping(clrType) != null;
+            return FindMapping(new RelationalTypeMappingInfo(modelClrType: clrType)) != null;
         }
 
-        /// <summary>
-        ///     Gets mapping for the given <see cref="RelationalTypeMappingInfo"/>.
-        ///     Returns null if no mapping is found.
-        /// </summary>
-        /// <param name="typeMappingInfo"> The input data to the mapping process. </param>
-        /// <returns> The type mapping to be used. </returns>
-        protected virtual RelationalTypeMapping FindMapping([NotNull] RelationalTypeMappingInfo typeMappingInfo)
+        private RelationalTypeMapping FindMapping(
+            [NotNull] RelationalTypeMappingInfo typeMappingInfo,
+            bool blockClrTypeFallback = false)
         {
             Check.NotNull(typeMappingInfo, nameof(typeMappingInfo));
 
-            return (typeMappingInfo.StoreTypeName != null
-                       ? _explicitMappings.GetOrAdd(
-                           (typeMappingInfo.StoreTypeName, typeMappingInfo.ModelClrType?.UnwrapNullableType() ?? typeof(DBNull)),
-                           k => CreateMappingFromStoreType(typeMappingInfo))
-                       : null)
-                   ?? FindCustomMapping(typeMappingInfo)
-                   ?? (typeMappingInfo.Property == null ? null : FindCustomMapping(typeMappingInfo.Property))
-                   ?? (typeMappingInfo.ModelClrType == null ? null : FindMapping(typeMappingInfo.ModelClrType));
+            return _explicitMappings.GetOrAdd(
+                typeMappingInfo,
+                k => (typeMappingInfo.StoreTypeName == null
+                         ? null
+                         : FindMappingsWithConversions(typeMappingInfo, blockClrTypeFallback, CreateMappingFromStoreType))
+                     ?? FindMappingsWithConversions(typeMappingInfo, blockClrTypeFallback, CreateMappingFromClrType)
+                     ?? FindMappingsWithConversions(typeMappingInfo, blockClrTypeFallback, CreateMappingFromFallbacks));
         }
+
+        private RelationalTypeMapping FindMappingsWithConversions(
+            RelationalTypeMappingInfo typeMappingInfo,
+            bool blockClrTypeFallback,
+            Func<RelationalTypeMappingInfo, bool, RelationalTypeMapping> mappingFunc)
+        {
+            var typeMappingUsed = typeMappingInfo;
+
+            var mapping = mappingFunc(typeMappingUsed, blockClrTypeFallback);
+
+            if (mapping == null
+                && typeMappingInfo.TargetClrType != null)
+            {
+                foreach (var converterInfo in Dependencies
+                    .ValueConverterSelector
+                    .ForTypes(typeMappingInfo.TargetClrType, typeMappingInfo.StoreClrType))
+                {
+                    typeMappingUsed = (RelationalTypeMappingInfo)typeMappingInfo.WithBuiltInConverter(converterInfo);
+                    mapping = mappingFunc(typeMappingUsed, blockClrTypeFallback);
+
+                    if (mapping != null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (mapping != null
+                && typeMappingUsed.ValueConverterInfo != null)
+            {
+                mapping = (RelationalTypeMapping)mapping.Clone(typeMappingUsed.ValueConverterInfo?.Create());
+            }
+
+            return mapping;
+        }
+
+        private RelationalTypeMapping CreateMappingFromClrType(
+            RelationalTypeMappingInfo typeMappingInfo,
+            bool blockClrTypeFallback)
+            => FindCustomMapping(typeMappingInfo)
+               ?? FindClrTypeMapping(typeMappingInfo);
+
+        private RelationalTypeMapping CreateMappingFromFallbacks(
+            RelationalTypeMappingInfo typeMappingInfo,
+            bool blockClrTypeFallback)
+            => FindClrTypeMapping(typeMappingInfo)
+               ?? (typeMappingInfo.Property == null ? null : FindCustomMapping(typeMappingInfo.Property))
+               ?? (blockClrTypeFallback || typeMappingInfo.TargetClrType == null ? null : FindMapping(typeMappingInfo.TargetClrType));
 
         /// <summary>
         ///     Gets the relational database type for the given property.
@@ -164,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            return FindMapping(new RelationalTypeMappingInfo(property: property));
+            return FindMapping(new RelationalTypeMappingInfo(property));
         }
 
         /// <summary>
@@ -175,32 +228,43 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The type mapping to be used.
         /// </returns>
-        public virtual RelationalTypeMapping FindMapping(Type clrType)
+        public virtual RelationalTypeMapping FindMapping(Type clrType) 
+            => FindMapping(new RelationalTypeMappingInfo(modelClrType: Check.NotNull(clrType, nameof(clrType))), blockClrTypeFallback: true);
+
+        private RelationalTypeMapping FindClrTypeMapping(RelationalTypeMappingInfo typeMappingInfo)
         {
-            Check.NotNull(clrType, nameof(clrType));
+            if (typeMappingInfo.TargetClrType == null)
+            {
+                return null;
+            }
 
-            return _explicitMappings.GetOrAdd(
-                ("", clrType.UnwrapNullableType()),
-                k =>
-                    {
-                        var underlyingType = k.ClrType.UnwrapEnumType();
+            if (!GetClrTypeMappings().TryGetValue(typeMappingInfo.TargetClrType, out var mapping)
+                && GetClrTypeNameMappings().TryGetValue(typeMappingInfo.TargetClrType.FullName, out var mappingFunc))
+            {
+                mapping = mappingFunc(typeMappingInfo.TargetClrType);
+            }
 
-                        if (!GetClrTypeMappings().TryGetValue(underlyingType, out var mapping)
-                            && GetClrTypeNameMappings().TryGetValue(underlyingType.FullName, out var mappingFunc))
-                        {
-                            mapping = mappingFunc(underlyingType);
-                        }
+            if (mapping != null
+                && (typeMappingInfo.Precision != null
+                    || typeMappingInfo.Scale != null))
+            {
+                var newStoreName = mapping.StoreType;
+                var openParen = newStoreName.IndexOf("(", StringComparison.Ordinal);
+                if (openParen > 0)
+                {
+                    newStoreName = mapping.StoreType.Substring(0, openParen);
+                }
 
-                        return mapping != null
-                               && k.ClrType.IsEnum
-                            ? (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(k.ClrType))
-                            : mapping;
-                    });
+                newStoreName += typeMappingInfo.Precision != null
+                                && typeMappingInfo.Scale != null
+                    ? "(" + typeMappingInfo.Precision + "," + typeMappingInfo.Scale + ")"
+                    : "(" + (typeMappingInfo.Precision ?? typeMappingInfo.Scale) + ")";
+
+                mapping = mapping.Clone(newStoreName, mapping.Size);
+            }
+
+            return mapping;
         }
-
-        private static ValueConverter CreateEnumToNumberConverter(Type enumType)
-            => (ValueConverter)Activator.CreateInstance(
-                typeof(EnumToNumberConveter<,>).MakeGenericType(enumType, enumType.UnwrapEnumType()));
 
         /// <summary>
         ///     <para>
@@ -234,93 +298,55 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return CreateMappingFromStoreType(new RelationalTypeMappingInfo(storeTypeName: storeType));
         }
 
-        /// <summary>
-        ///     Creates the mapping for the given database type.
-        /// </summary>
-        /// <param name="typeMappingInfo"> The input data to the mapping process. </param>
-        /// <returns> The type mapping to be used. </returns>
-        protected virtual RelationalTypeMapping CreateMappingFromStoreType([NotNull] RelationalTypeMappingInfo typeMappingInfo)
+        private RelationalTypeMapping CreateMappingFromStoreType(
+            [NotNull] RelationalTypeMappingInfo typeMappingInfo,
+            bool blockClrTypeFallback = false)
         {
             Check.NotNull(typeMappingInfo, nameof(typeMappingInfo));
 
-            var storeType = typeMappingInfo.StoreTypeName;
-            if (storeType == null)
+            var storeTypeName = typeMappingInfo.StoreTypeName;
+            if (storeTypeName == null)
             {
                 return null;
             }
-            
-            var clrType = typeMappingInfo.ModelClrType?.UnwrapNullableType();
 
-            if (TryFindExactMapping(storeType, clrType, out var mapping))
+            if (TryFindExactMapping(typeMappingInfo, typeMappingInfo.TargetClrType, out var mapping))
             {
                 return mapping;
             }
 
-            var isEnum = clrType != null && clrType.IsEnum;
+            int? size = null;
 
-            if (mapping == null
-                && isEnum)
-            {
-                if (TryFindExactMapping(storeType, clrType.UnwrapEnumType(), out mapping))
-                {
-                    return (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(clrType));
-                }
-
-                if (mapping == null
-                    && TryFindExactMapping(storeType, typeof(string), out mapping))
-                {
-                    return (RelationalTypeMapping)mapping.Clone(CreateEnumToStringConverter(clrType));
-                }
-            }
-
-            var size = mapping?.Size;
-
-            var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
+            var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
             if (openParen > 0)
             {
-                var fragment = storeType.Substring(0, openParen);
-                if (!TryFindStoreMapping(fragment, clrType, out mapping) 
-                    && isEnum)
+                if (TryFindStoreMapping(storeTypeName.Substring(0, openParen), typeMappingInfo.TargetClrType, out mapping))
                 {
-                    if (TryFindStoreMapping(fragment, clrType.UnwrapEnumType(), out mapping))
+                    var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
+                    if (closeParen > openParen)
                     {
-                        mapping = (RelationalTypeMapping)mapping.Clone(CreateEnumToNumberConverter(clrType));
-                    }
-                    else if (TryFindStoreMapping(fragment, typeof(string), out mapping))
-                    {
-                        mapping = (RelationalTypeMapping)mapping.Clone(CreateEnumToStringConverter(clrType));
-                    }
-                }
-
-                if (mapping?.ClrType == typeof(string)
-                    || mapping?.ClrType == typeof(byte[]))
-                {
-                    var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
-
-                    if (closeParen > openParen
-                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var newSize)
-                        && mapping.Size != newSize)
-                    {
-                        size = newSize;
+                        var comma = storeTypeName.IndexOf(",", openParen + 1, StringComparison.Ordinal);
+                        if (comma > openParen
+                            && comma < closeParen)
+                        {
+                            // TODO: Parse precision/scale when supported
+                        }
+                        else if (int.TryParse(storeTypeName.Substring(openParen + 1, closeParen - openParen - 1), out var newSize) && mapping.Size != newSize)
+                        {
+                            size = newSize;
+                        }
                     }
                 }
             }
 
-            return mapping?.Clone(storeType, size ?? mapping.Size);
+            return mapping?.Clone(storeTypeName, size ?? mapping.Size);
         }
 
-        private static ValueConverter CreateEnumToStringConverter(Type enumType)
-            => (ValueConverter)Activator.CreateInstance(
-                typeof(EnumToStringConveter<>).MakeGenericType(enumType));
+        private bool TryFindExactMapping(RelationalTypeMappingInfo typeMappingInfo, Type clrType, out RelationalTypeMapping mapping)
+            => TryFindStoreMapping(typeMappingInfo.StoreTypeName, clrType, out mapping)
+               && mapping.StoreType.Equals(typeMappingInfo.StoreTypeName, StringComparison.OrdinalIgnoreCase);
 
-        private bool TryFindExactMapping(string storeType, Type clrType, out RelationalTypeMapping mapping)
-            => TryFindStoreMapping(storeType, clrType, out mapping)
-               && mapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase);
-
-        private bool TryFindStoreMapping(
-            string storeTypeFragment, 
-            Type clrType, 
-            out RelationalTypeMapping mapping)
+        private bool TryFindStoreMapping(string storeTypeFragment, Type clrType,  out RelationalTypeMapping mapping)
         {
             var mappings = GetMultipleStoreTypeMappings();
             if (mappings == null)
@@ -359,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            return FindCustomMapping(new RelationalTypeMappingInfo(property: property));
+            return FindCustomMapping(new RelationalTypeMappingInfo(property));
         }
 
         /// <summary>
@@ -368,19 +394,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Returns null if no mapping is found.
         /// </summary>
         /// <param name="typeMappingInfo"> The input data to the mapping process. </param>
-        /// <returns>
-        ///     The type mapping to be used.
-        /// </returns>
+        /// <returns> The type mapping to be used. </returns>
         protected virtual RelationalTypeMapping FindCustomMapping([NotNull] RelationalTypeMappingInfo typeMappingInfo)
         {
             Check.NotNull(typeMappingInfo, nameof(typeMappingInfo));
 
-            var clrType = typeMappingInfo.ModelClrType?.UnwrapNullableType();
-
-            return clrType == typeof(string)
-                ? GetStringMapping(typeMappingInfo)
-                : clrType == typeof(byte[])
-                    ? GetByteArrayMapping(typeMappingInfo)
+            return typeMappingInfo.TargetClrType == typeof(string)
+                ? (GetStringMapping(typeMappingInfo)
+                   ?? (typeMappingInfo.Property == null ? null : GetStringMapping(typeMappingInfo.Property)))
+                : typeMappingInfo.TargetClrType == typeof(byte[])
+                    ? (GetByteArrayMapping(typeMappingInfo)
+                       ?? (typeMappingInfo.Property == null ? null : GetByteArrayMapping(typeMappingInfo.Property)))
                     : null;
         }
 
@@ -403,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            return GetStringMapping(new RelationalTypeMappingInfo(property: property));
+            return GetStringMapping(new RelationalTypeMappingInfo(property));
         }
 
         /// <summary>
@@ -415,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
-            return GetByteArrayMapping(new RelationalTypeMappingInfo(property: property));
+            return GetByteArrayMapping(new RelationalTypeMappingInfo(property));
         }
 
         /// <summary>
@@ -423,22 +447,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="typeMappingInfo"> The input data to the mapping process. </param>
         /// <returns> The type mapping to be used. </returns>
-        protected virtual RelationalTypeMapping GetStringMapping([NotNull] RelationalTypeMappingInfo typeMappingInfo)
+        protected virtual RelationalTypeMapping GetStringMapping(
+            [NotNull] RelationalTypeMappingInfo typeMappingInfo)
         {
             Check.NotNull(typeMappingInfo, nameof(typeMappingInfo));
 
-            var property = typeMappingInfo.Property;
-            if (property == null)
-            {
-                return null;
-            }
-
-            var principal = property.FindPrincipal();
-
             return StringMapper?.FindMapping(
-                property.IsUnicode() ?? principal?.IsUnicode() ?? true,
-                RequiresKeyMapping(property),
-                property.GetMaxLength() ?? principal?.GetMaxLength());
+                typeMappingInfo.IsUnicode != false,
+                typeMappingInfo.IsKeyOrIndex,
+                typeMappingInfo.Size);
         }
 
         /// <summary>
@@ -446,20 +463,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="typeMappingInfo"> The input data to the mapping process. </param>
         /// <returns> The type mapping to be used. </returns>
-        protected virtual RelationalTypeMapping GetByteArrayMapping([NotNull] RelationalTypeMappingInfo typeMappingInfo)
+        protected virtual RelationalTypeMapping GetByteArrayMapping(
+            [NotNull] RelationalTypeMappingInfo typeMappingInfo)
         {
             Check.NotNull(typeMappingInfo, nameof(typeMappingInfo));
 
-            var property = typeMappingInfo.Property;
-            if (property == null)
-            {
-                return null;
-            }
-
             return ByteArrayMapper?.FindMapping(
-                property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate,
-                RequiresKeyMapping(property),
-                property.GetMaxLength() ?? property.FindPrincipal()?.GetMaxLength());
+                typeMappingInfo.IsRowVersion == true,
+                typeMappingInfo.IsKeyOrIndex,
+                typeMappingInfo.Size);
         }
 
         /// <summary>
@@ -489,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Describes metadata needed to decide on a relational type mapping for
         ///     a property, type, or provider-specific relational type name.
         /// </summary>
-        protected class RelationalTypeMappingInfo : CoreTypeMapper.TypeMappingInfo
+        protected class RelationalTypeMappingInfo : TypeMappingInfo
         {
             /// <summary>
             ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
@@ -503,27 +515,71 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 [CanBeNull] string storeTypeName = null)
                 : base(property, modelClrType)
             {
-                storeTypeName = storeTypeName ?? GetColumnType(property);
-
-                if (storeTypeName == null)
+                if (storeTypeName == null
+                    && property != null)
                 {
-                    var principalProperty = property?.FindPrincipal();
-                    if (principalProperty != null)
-                    {
-                        storeTypeName = GetColumnType(principalProperty);
-                    }
+                    storeTypeName = property
+                        .FindPrincipals()
+                        .Select(p => (string)p[RelationalAnnotationNames.ColumnType])
+                        .FirstOrDefault(t => t != null);
+
                 }
 
                 StoreTypeName = storeTypeName;
             }
 
-            private static string GetColumnType(IProperty property)
-                => (string)property?[RelationalAnnotationNames.ColumnType];
+            /// <summary>
+            ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" /> with the given <see cref="ValueConverterInfo" />.
+            /// </summary>
+            /// <param name="source"> The source info. </param>
+            /// <param name="builtInConverter"> The converter to apply. </param>
+            protected RelationalTypeMappingInfo(
+                [NotNull] RelationalTypeMappingInfo source,
+                ValueConverterInfo builtInConverter)
+                : base(source, builtInConverter)
+            {
+                StoreTypeName = source.StoreTypeName;
+            }
+
+            /// <summary>
+            ///     Returns a new <see cref="RelationalTypeMappingInfo" /> with the given converter applied.
+            /// </summary>
+            /// <param name="converterInfo"> The converter to apply. </param>
+            /// <returns> The new mapping info. </returns>
+            public override TypeMappingInfo WithBuiltInConverter(ValueConverterInfo converterInfo)
+                => new RelationalTypeMappingInfo(this, converterInfo);
 
             /// <summary>
             ///     The provider-specific relational type name for which mapping is needed.
             /// </summary>
             public virtual string StoreTypeName { get; }
+
+            /// <summary>
+            /// Compares this <see cref="RelationalTypeMappingInfo"/> to another to check if they represent the same mapping.
+            /// </summary>
+            /// <param name="other"> The other object. </param>
+            /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
+            protected bool Equals(RelationalTypeMappingInfo other)
+                => Equals((TypeMappingInfo)other)
+                   && StoreTypeName == other.StoreTypeName;
+
+            /// <summary>
+            /// Compares this <see cref="RelationalTypeMappingInfo"/> to another to check if they represent the same mapping.
+            /// </summary>
+            /// <param name="obj"> The other object. </param>
+            /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
+            public override bool Equals(object obj)
+                => !ReferenceEquals(null, obj)
+                   && (ReferenceEquals(this, obj)
+                       || obj.GetType() == GetType()
+                       && Equals((RelationalTypeMappingInfo)obj));
+
+            /// <summary>
+            /// Returns a hash code for this object.
+            /// </summary>
+            /// <returns> The hash code. </returns>
+            public override int GetHashCode()
+                => (base.GetHashCode() * 397) ^ (StoreTypeName?.GetHashCode() ?? 0);
         }
     }
 }

@@ -70,7 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
             var conventionSet = new ConventionSet();
-            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())));
+            conventionSet.EntityTypeAddedConventions.Add(
+                new PropertyDiscoveryConvention(
+                    TestServiceFactory.Instance.Create<CoreTypeMapper>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

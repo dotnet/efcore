@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 = new ModelBuilder(
                     new CoreConventionSetBuilder(
                         new CoreConventionSetBuilderDependencies(
-                            new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
+                            TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet());
 
             var principalTypeBuilder = modelBuilder.Entity<PrincipalEntity>();
             var dependentTypeBuilder = modelBuilder.Entity<DependentEntity>();

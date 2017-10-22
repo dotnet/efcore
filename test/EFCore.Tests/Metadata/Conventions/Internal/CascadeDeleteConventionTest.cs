@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -127,7 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private static ModelBuilder CreateModelBuilder()
             => new ModelBuilder(
                 new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies())))
+                        new CoreConventionSetBuilderDependencies(
+                            TestServiceFactory.Instance.Create<CoreTypeMapper>()))
                     .CreateConventionSet());
     }
 }

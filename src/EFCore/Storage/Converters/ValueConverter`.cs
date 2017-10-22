@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Storage
+namespace Microsoft.EntityFrameworkCore.Storage.Converters
 {
     /// <summary>
     ///     Defines conversions from an object of one type in a model to an object of the same or
@@ -19,14 +19,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="convertToStoreExpression"> An expression to convert objects when writing data to the store. </param>
         /// <param name="convertFromStoreExpression"> An expression to convert objects when reading data from the store. </param>
+        /// <param name="mappingHints">
+        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     facets for the converted data.
+        /// </param>
         public ValueConverter(
             [NotNull] Expression<Func<TModel, TStore>> convertToStoreExpression,
-            [NotNull] Expression<Func<TStore, TModel>> convertFromStoreExpression)
+            [NotNull] Expression<Func<TStore, TModel>> convertFromStoreExpression,
+            ConverterMappingHints mappingHints = default)
             : base(
                 SanitizeConverter(Check.NotNull(convertToStoreExpression, nameof(convertToStoreExpression))),
                 SanitizeConverter(Check.NotNull(convertFromStoreExpression, nameof(convertFromStoreExpression))),
                 convertToStoreExpression,
-                convertFromStoreExpression)
+                convertFromStoreExpression,
+                mappingHints)
         {
         }
 

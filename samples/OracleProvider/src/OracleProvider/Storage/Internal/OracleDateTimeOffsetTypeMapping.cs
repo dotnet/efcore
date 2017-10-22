@@ -3,6 +3,7 @@
 
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Oracle.ManagedDataAccess.Client;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal

@@ -802,6 +802,9 @@
   <data name="ConverterCloneNotImplemented" xml:space="preserve">
     <value>The '{mapping}' does not support value conversions. Support for value conversions typically requires changes in the database provider.</value>
   </data>
+  <data name="ConverterBadType" xml:space="preserve">
+    <value>The value converter '{converter}' cannot be used with type '{type}'. This converter can only be used with {allowed}.</value>
+  </data>
   <data name="SeedDatumDuplicate" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because another seed entity with the same key value for {keyProperties} has already been added. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.</value>
   </data>

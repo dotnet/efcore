@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -21,8 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .AddConventions(
                     new CoreConventionSetBuilder(
                             new CoreConventionSetBuilderDependencies(
-                                new CoreTypeMapper(
-                                    new CoreTypeMapperDependencies())))
+                                TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()))
                         .CreateConventionSet());
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -436,7 +437,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(new CoreTypeMapper(new CoreTypeMapperDependencies())));
+            conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(
+                TestServiceFactory.Instance.Create<CoreTypeMapper>()));
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
 
             var keyConvention = new ValueGeneratorConvention();

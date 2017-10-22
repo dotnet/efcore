@@ -768,7 +768,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private RelationalTypeMapping GetTypeMapping(object value)
             => _typeMapping != null
                && (value == null
-                   || _typeMapping.ClrType.IsInstanceOfType(value))
+                   || _typeMapping.ClrType.IsInstanceOfType(value)
+                   || (value.GetType().IsInteger() && _typeMapping.ClrType.IsInteger()))
                 ? _typeMapping
                 : Dependencies.RelationalTypeMapper.GetMappingForValue(value);
 
@@ -1573,16 +1574,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             var value = constantExpression.Value;
 
-            if (constantExpression.Type.UnwrapNullableType().IsEnum)
+            var mapping = GetTypeMapping(value);
+
+            if (mapping.Converter == null
+                && constantExpression.Type.UnwrapNullableType().IsEnum)
             {
                 var underlyingType = constantExpression.Type.UnwrapEnumType();
                 value = Convert.ChangeType(value, underlyingType);
+
+                mapping = GetTypeMapping(value);
             }
 
             _relationalCommandBuilder.Append(
                 value == null
                     ? "NULL"
-                    : GetTypeMapping(value).GenerateSqlLiteral(value));
+                    : mapping.GenerateSqlLiteral(value));
 
             return constantExpression;
         }

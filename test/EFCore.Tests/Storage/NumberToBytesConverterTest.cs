@@ -1,0 +1,435 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Xunit;
+
+namespace Microsoft.EntityFrameworkCore.Storage
+{
+    public class NumberToBytesConverterTest
+    {
+        private static readonly NumberToBytesConverter<byte> _byteToBytesConverter
+            = new NumberToBytesConverter<byte>();
+
+        [Fact]
+        public void Can_convert_byte_to_bytes()
+        {
+            var converter = _byteToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 7 }, converter(7));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_byte()
+        {
+            var converter = _byteToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(7, converter(new byte[] { 7 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_byte_to_bytes()
+        {
+            ValueConverterTest.OrderingTest(_byteToBytesConverter, (byte)0, (byte)7, (byte)77, (byte)255);
+        }
+
+        private static readonly NumberToBytesConverter<byte?> _nullableByteToBytesConverter
+            = new NumberToBytesConverter<byte?>();
+
+        [Fact]
+        public void Can_convert_nullable_byte_to_bytes()
+        {
+            var converter = _nullableByteToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 7 }, converter(7));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_nullable_byte()
+        {
+            var converter = _nullableByteToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal((byte?)7, converter(new byte[] { 7 }));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_nullable_byte_to_bytes()
+        {
+            ValueConverterTest.OrderingTest(_nullableByteToBytesConverter, (byte?)0, (byte?)7, (byte?)77, (byte?)255);
+        }
+
+        private static readonly NumberToBytesConverter<short> _shortToBytesConverter
+            = new NumberToBytesConverter<short>();
+
+        [Fact]
+        public void Can_convert_short_to_bytes()
+        {
+            var converter = _shortToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 30, 97 }, converter(7777));
+            Assert.Equal(new byte[] { 225, 159 }, converter(-7777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_short()
+        {
+            var converter = _shortToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(7777, converter(new byte[] { 30, 97 }));
+            Assert.Equal(-7777, converter(new byte[] { 225, 159 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<int> _intToBytesConverter
+            = new NumberToBytesConverter<int>();
+
+        [Fact]
+        public void Can_convert_int_to_bytes()
+        {
+            var converter = _intToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 4, 162, 203, 113 }, converter(77777777));
+            Assert.Equal(new byte[] { 251, 93, 52, 143 }, converter(-77777777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_int()
+        {
+            var converter = _intToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(77777777, converter(new byte[] { 4, 162, 203, 113 }));
+            Assert.Equal(-77777777, converter(new byte[] { 251, 93, 52, 143 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<int?> _nullableIntToBytesConverter
+            = new NumberToBytesConverter<int?>();
+
+        [Fact]
+        public void Can_convert_nullable_int_to_bytes()
+        {
+            var converter = _nullableIntToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 4, 162, 203, 113 }, converter(77777777));
+            Assert.Equal(new byte[] { 251, 93, 52, 143 }, converter(-77777777));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_nullable_int()
+        {
+            var converter = _nullableIntToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(77777777, converter(new byte[] { 4, 162, 203, 113 }));
+            Assert.Equal(-77777777, converter(new byte[] { 251, 93, 52, 143 }));
+            Assert.Null(converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<long> _longToBytesConverter
+            = new NumberToBytesConverter<long>();
+
+        [Fact]
+        public void Can_convert_long_to_bytes()
+        {
+            var converter = _longToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 0, 0, 0, 181, 23, 43, 12, 113 }, converter(777777777777));
+            Assert.Equal(new byte[] { 255, 255, 255, 74, 232, 212, 243, 143 }, converter(-777777777777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_long()
+        {
+            var converter = _longToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(777777777777, converter(new byte[] { 0, 0, 0, 181, 23, 43, 12, 113 }));
+            Assert.Equal(-777777777777, converter(new byte[] { 255, 255, 255, 74, 232, 212, 243, 143 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<sbyte> _sbyteToBytesConverter
+            = new NumberToBytesConverter<sbyte>();
+
+        [Fact]
+        public void Can_convert_sbyte_to_bytes()
+        {
+            var converter = _sbyteToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 7 }, converter(7));
+            Assert.Equal(new byte[] { 249 }, converter(-7));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_sbyte()
+        {
+            var converter = _sbyteToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(7, converter(new byte[] { 7 }));
+            Assert.Equal(-7, converter(new byte[] { 249 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<sbyte?> _nullableSbyteToBytesConverter
+            = new NumberToBytesConverter<sbyte?>();
+
+        [Fact]
+        public void Can_convert_nullable_sbyte_to_bytes()
+        {
+            var converter = _nullableSbyteToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 7 }, converter(7));
+            Assert.Equal(new byte[] { 249 }, converter(-7));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_nullable_sbyte()
+        {
+            var converter = _nullableSbyteToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal((sbyte?)7, converter(new byte[] { 7 }));
+            Assert.Equal((sbyte?)-7, converter(new byte[] { 249 }));
+            Assert.Null(converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<ushort> _ushortToBytesConverter
+            = new NumberToBytesConverter<ushort>();
+
+        [Fact]
+        public void Can_convert_ushort_to_bytes()
+        {
+            var converter = _ushortToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 30, 97 }, converter(7777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_ushort()
+        {
+            var converter = _ushortToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(7777, converter(new byte[] { 30, 97 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_ushort_to_bytes()
+        {
+            ValueConverterTest.OrderingTest(_ushortToBytesConverter, (ushort)0, (ushort)7, (ushort)777, (ushort)7777);
+        }
+
+        private static readonly NumberToBytesConverter<uint> _uintToBytesConverter
+            = new NumberToBytesConverter<uint>();
+
+        [Fact]
+        public void Can_convert_uint_to_bytes()
+        {
+            var converter = _uintToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 4, 162, 203, 113 }, converter(77777777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_uint()
+        {
+            var converter = _uintToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal((uint)77777777, converter(new byte[] { 4, 162, 203, 113 }));
+            Assert.Equal((uint)0, converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<uint?> _nullableUintToBytesConverter
+            = new NumberToBytesConverter<uint?>();
+
+        [Fact]
+        public void Can_convert_nullable_uint_to_bytes()
+        {
+            var converter = _nullableUintToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 4, 162, 203, 113 }, converter(77777777));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_nullable_uint()
+        {
+            var converter = _nullableUintToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal((uint?)77777777, converter(new byte[] { 4, 162, 203, 113 }));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_uint_to_bytes()
+        {
+            ValueConverterTest.OrderingTest(_uintToBytesConverter, (uint)0, (uint)7, (uint)777777, (uint)77777777);
+        }
+
+        private static readonly NumberToBytesConverter<ulong> _ulongToBytesConverter
+            = new NumberToBytesConverter<ulong>();
+
+        [Fact]
+        public void Can_convert_ulong_to_bytes()
+        {
+            var converter = _ulongToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 0, 0, 0, 181, 23, 43, 12, 113 }, converter(777777777777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_ulong()
+        {
+            var converter = _ulongToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal((ulong)777777777777, converter(new byte[] { 0, 0, 0, 181, 23, 43, 12, 113 }));
+            Assert.Equal((ulong)0, converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_ulong_to_bytes()
+        {
+            ValueConverterTest.OrderingTest(_ulongToBytesConverter, (ulong)0, (ulong)777, (ulong)77777777, (ulong)7777777777777777);
+        }
+
+        private static readonly NumberToBytesConverter<char> _charToBytesConverter
+            = new NumberToBytesConverter<char>();
+
+        [Fact]
+        public void Can_convert_char_to_bytes()
+        {
+            var converter = _charToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 0, 65 }, converter('A'));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_char()
+        {
+            var converter = _charToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal('A', converter(new byte[] { 0, 65 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        [Fact]
+        public void Ordering_preserved_for_char_to_bytes()
+        {
+            ValueConverterTest.OrderingTest(_charToBytesConverter, '\u0000', 'A', 'Z', '\u7777');
+        }
+
+        private static readonly NumberToBytesConverter<decimal> _decimalToBytesConverter
+            = new NumberToBytesConverter<decimal>();
+
+        [Fact]
+        public void Can_convert_decimal_to_bytes()
+        {
+            var converter = _decimalToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, converter(decimal.MaxValue));
+            Assert.Equal(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, converter(long.MaxValue));
+            Assert.Equal(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF }, converter(int.MaxValue));
+            Assert.Equal(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF }, converter(short.MaxValue));
+            Assert.Equal(new byte[] { 0x80, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, converter(decimal.MinValue));
+            Assert.Equal(new byte[] { 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }, converter((decimal)0.000000001));
+            Assert.Equal(new byte[] { 0x00, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }, converter((decimal)0.00000000000000000001));
+            Assert.Equal(new byte[] { 0x80, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }, converter((decimal)-0.00000000000000000001));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_decimal()
+        {
+            var converter = _decimalToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(decimal.MaxValue, converter(new byte[] { 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+            Assert.Equal(long.MaxValue, converter(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+            Assert.Equal(int.MaxValue, converter(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF }));
+            Assert.Equal(short.MaxValue, converter(new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF }));
+            Assert.Equal(decimal.MinValue, converter(new byte[] { 0x80, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+            Assert.Equal((decimal)0.000000001, converter(new byte[] { 0x00, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
+            Assert.Equal((decimal)0.00000000000000000001, converter(new byte[] { 0x00, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
+            Assert.Equal((decimal)-0.00000000000000000001, converter(new byte[] { 0x80, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 }));
+        }
+
+        private static readonly NumberToBytesConverter<decimal?> _nullableDecimalToBytesConverter
+            = new NumberToBytesConverter<decimal?>();
+
+        [Fact]
+        public void Can_convert_nullable_decimal_to_bytes()
+        {
+            var converter = _nullableDecimalToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }, converter(decimal.MaxValue));
+            Assert.Null(converter(null));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_nullable_decimal()
+        {
+            var converter = _nullableDecimalToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(decimal.MaxValue, converter(new byte[] { 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }));
+            Assert.Null(converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<float> _floatToBytesConverter
+            = new NumberToBytesConverter<float>();
+
+        [Fact]
+        public void Can_convert_float_to_bytes()
+        {
+            var converter = _floatToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 68, 66, 113, 72 }, converter((float)777.77));
+            Assert.Equal(new byte[] { 196, 66, 113, 72 }, converter((float)-777.77));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_float()
+        {
+            var converter = _floatToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal((float)777.77, converter(new byte[] { 68, 66, 113, 72 }));
+            Assert.Equal((float)-777.77, converter(new byte[] { 196, 66, 113, 72 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        private static readonly NumberToBytesConverter<double> _doubleToBytesConverter
+            = new NumberToBytesConverter<double>();
+
+        [Fact]
+        public void Can_convert_double_to_bytes()
+        {
+            var converter = _doubleToBytesConverter.ConvertToStoreExpression.Compile();
+
+            Assert.Equal(new byte[] { 65, 93, 171, 124, 113, 198, 251, 210 }, converter(7777777.77777));
+            Assert.Equal(new byte[] { 193, 93, 171, 124, 113, 198, 251, 210 }, converter(-7777777.77777));
+        }
+
+        [Fact]
+        public void Can_convert_bytes_to_double()
+        {
+            var converter = _doubleToBytesConverter.ConvertFromStoreExpression.Compile();
+
+            Assert.Equal(7777777.77777, converter(new byte[] { 65, 93, 171, 124, 113, 198, 251, 210 }));
+            Assert.Equal(-7777777.77777, converter(new byte[] { 193, 93, 171, 124, 113, 198, 251, 210 }));
+            Assert.Equal(0, converter(null));
+        }
+
+        [Fact]
+        public void Enum_to_integer_converter_throws_for_bad_types()
+        {
+            Assert.Equal(
+                CoreStrings.ConverterBadType(
+                    "NumberToBytesConverter<Guid>",
+                    "Guid",
+                    "double, float, decimal, char, int, long, short, byte, uint, ulong, ushort, sbyte"),
+                Assert.Throws<InvalidOperationException>(
+                    () => new NumberToBytesConverter<Guid>()).Message);
+        }
+    }
+}

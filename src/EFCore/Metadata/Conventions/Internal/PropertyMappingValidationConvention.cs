@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -42,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
+                var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(p));
 
                 if (unmappedProperty != null)
                 {
@@ -129,11 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool IsMappedPrimitiveProperty([NotNull] Type clrType)
+        public virtual bool IsMappedPrimitiveProperty([NotNull] IProperty property)
         {
-            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(property, nameof(property));
 
-            return _typeMapper.IsTypeMapped(clrType);
+            return _typeMapper.IsTypeMapped(
+                ((ValueConverter)property[CoreAnnotationNames.ValueConverter])?.StoreType
+                ?? property.ClrType);
         }
 
         /// <summary>

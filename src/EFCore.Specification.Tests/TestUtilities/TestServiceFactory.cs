@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -29,15 +30,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static ServiceCollection AddType(ServiceCollection serviceCollection, Type serviceType)
         {
-            serviceCollection.AddSingleton(serviceType);
+            var implementationType = GetImplementationType(serviceType);
 
-            var constructors = serviceType.GetConstructors();
+            serviceCollection.AddSingleton(serviceType, implementationType);
+
+            var constructors = implementationType.GetConstructors();
             var constructor = constructors
                 .FirstOrDefault(c => c.GetParameters().Length == constructors.Max(c2 => c2.GetParameters().Length));
 
             if (constructor == null)
             {
-                throw new InvalidOperationException("Cannot use with no public constructors.");
+                throw new InvalidOperationException(
+                    $"Cannot use 'TestServiceFactory' for '{implementationType.ShortDisplayName()}': no public constructor.");
             }
 
             foreach (var parameter in constructor.GetParameters())
@@ -46,6 +50,28 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             return serviceCollection;
+        }
+
+        private static Type GetImplementationType(Type serviceType)
+        {
+            if (!serviceType.IsInterface)
+            {
+                return serviceType;
+            }
+
+            var implementationTypes = serviceType
+                .Assembly
+                .GetTypes()
+                .Where(t => serviceType.IsAssignableFrom(t) && !t.IsAbstract)
+                .ToList();
+
+            if (implementationTypes.Count != 1)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot use 'TestServiceFactory' for '{serviceType.ShortDisplayName()}': no single implementation type in same assembly.");
+            }
+
+            return implementationTypes[0];
         }
     }
 }

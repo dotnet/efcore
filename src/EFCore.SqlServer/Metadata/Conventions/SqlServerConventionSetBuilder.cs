@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -82,7 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ConventionSet Build()
         {
             var sqlServerTypeMapper = new SqlServerTypeMapper(
-                new CoreTypeMapperDependencies(), 
+                new CoreTypeMapperDependencies(
+                    new ValueConverterSelector(
+                        new ValueConverterSelectorDependencies())), 
                 new RelationalTypeMapperDependencies());
 
             return new SqlServerConventionSetBuilder(

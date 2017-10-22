@@ -820,7 +820,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static IMutableModel BuildModel()
         {
-            var builder = new ModelBuilder(new CoreConventionSetBuilder(new CoreConventionSetBuilderDependencies(new CoreTypeMapper(new CoreTypeMapperDependencies()))).CreateConventionSet());
+            var builder = new ModelBuilder(
+                new CoreConventionSetBuilder(
+                    new CoreConventionSetBuilderDependencies(
+                        TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet());
+
             var model = builder.Model;
 
             builder.Entity<Product>().HasOne<Category>().WithOne()

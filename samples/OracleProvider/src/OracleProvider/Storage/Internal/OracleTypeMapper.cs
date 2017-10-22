@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
@@ -57,31 +58,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly ByteTypeMapping _byte = new ByteTypeMapping("NUMBER(3)", DbType.Byte);
 
-        private readonly UIntTypeMapping _uint = new UIntTypeMapping(
-            "NUMBER(10)",
-            new ValueConverter<uint, long>(v => v, v => (uint)v),
-            DbType.Int64);
-
-        private readonly ULongTypeMapping _ulong = new ULongTypeMapping(
-            "NUMBER(20)",
-            new ValueConverter<ulong, decimal>(v => v, v => (ulong)v),
-            DbType.Decimal);
-
-        private readonly UShortTypeMapping _ushort = new UShortTypeMapping(
-            "NUMBER(6)",
-            new ValueConverter<ushort, int>(v => v, v => (ushort)v),
-            DbType.Int32);
-
-        private readonly SByteTypeMapping _sbyte = new SByteTypeMapping(
-            "NUMBER(3)",
-            new ValueConverter<sbyte, short>(v => v, v => (sbyte)v),
-            DbType.Int16);
-
-        private readonly BoolTypeMapping _bool = new BoolTypeMapping(
-            "NUMBER(1)",
-            new ValueConverter<bool, int>(v => v ? 1 : 0, v => v == 1),
-            DbType.Int32);
-
         private readonly OracleStringTypeMapping _fixedLengthUnicodeString
             = new OracleStringTypeMapping("NCHAR", dbType: DbType.String, unicode: true);
 
@@ -113,12 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly FloatTypeMapping _real = new OracleFloatTypeMapping("REAL");
 
-        private readonly GuidTypeMapping _uniqueidentifier
-            = new OracleGuidTypeMapping(
-                "RAW(16)",
-                new ValueConverter<Guid, byte[]>(v => v.ToByteArray(), v => v == null ? Guid.Empty : new Guid(v)),
-                DbType.Binary);
-
         private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("NUMBER(29,4)");
 
         private readonly TimeSpanTypeMapping _time = new OracleTimeSpanTypeMapping("INTERVAL DAY TO SECOND");
@@ -140,7 +110,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "number(19)", new List<RelationalTypeMapping> { _long } },
                     { "blob", new List<RelationalTypeMapping> { _variableLengthBinary } },
                     { "raw", new List<RelationalTypeMapping> { _fixedLengthBinary } },
-                    { "number(1)", new List<RelationalTypeMapping> { _bool } },
                     { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
                     { "date", new List<RelationalTypeMapping> { _date } },
                     { "timestamp", new List<RelationalTypeMapping> { _datetime } },
@@ -154,7 +123,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "number(6)", new List<RelationalTypeMapping> { _short } },
                     { "interval", new List<RelationalTypeMapping> { _time } },
                     { "number(3)", new List<RelationalTypeMapping> { _byte } },
-                    { "raw(16)", new List<RelationalTypeMapping> { _uniqueidentifier } },
                     { "varchar2", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
                     { "clob", new List<RelationalTypeMapping> { _unboundedUnicodeString, _unboundedAnsiString } },
                     { "xml", new List<RelationalTypeMapping> { _xml } }
@@ -164,18 +132,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), _int },
-                    { typeof(uint), _uint },
                     { typeof(long), _long },
-                    { typeof(ulong), _ulong },
                     { typeof(DateTime), _datetime },
-                    { typeof(Guid), _uniqueidentifier },
-                    { typeof(bool), _bool },
                     { typeof(byte), _byte },
-                    { typeof(sbyte), _sbyte },
                     { typeof(double), _double },
                     { typeof(DateTimeOffset), _datetimeoffset },
                     { typeof(short), _short },
-                    { typeof(ushort), _ushort },
                     { typeof(float), _real },
                     { typeof(decimal), _decimal },
                     { typeof(TimeSpan), _time }
