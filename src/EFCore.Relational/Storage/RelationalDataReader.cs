@@ -158,10 +158,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     _startTime,
                     _stopwatch.Elapsed);
 
-                _reader.Dispose();
-                _command.Parameters?.Clear();
-                _command.Dispose();
-                _connection?.Close();
                 _disposed = true;
             }
         }
