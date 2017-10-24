@@ -93,12 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Generates a script to create all tables for the current model.
         /// </summary>
-        /// <param name="batchTerminator">
-        ///     The batch terminator to be used.
-        /// </param>
         /// <returns>
         ///     A SQL script.
         /// </returns>
-        string GenerateCreateScript([NotNull] string batchTerminator);
+        string GenerateCreateScript();
     }
 }

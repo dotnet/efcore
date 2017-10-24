@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     A SQL script.
         /// </returns>
         public static string GenerateCreateScript([NotNull] this DatabaseFacade databaseFacade)
-            => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript(databaseFacade.GetRelationalService<ISqlGenerationHelper>().BatchTerminator);
+            => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
 
         private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
         {

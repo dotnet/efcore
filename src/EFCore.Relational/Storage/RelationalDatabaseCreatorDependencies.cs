@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="modelDiffer"> The <see cref="IMigrationsModelDiffer" /> to be used. </param>
         /// <param name="migrationsSqlGenerator"> The <see cref="IMigrationsSqlGenerator" /> to be used. </param>
         /// <param name="migrationCommandExecutor"> The <see cref="IMigrationCommandExecutor" /> to be used. </param>
+        /// <param name="sqlGenerationHelper"> The <see cref="ISqlGenerationHelper" /> to be used. </param>
         /// <param name="executionStrategyFactory">The <see cref="IExecutionStrategyFactory" /> to be used. </param>
         public RelationalDatabaseCreatorDependencies(
             [NotNull] IModel model,
@@ -56,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IMigrationCommandExecutor migrationCommandExecutor,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IExecutionStrategyFactory executionStrategyFactory)
         {
             Check.NotNull(model, nameof(model));
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
 
             Model = model;
@@ -70,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ModelDiffer = modelDiffer;
             MigrationsSqlGenerator = migrationsSqlGenerator;
             MigrationCommandExecutor = migrationCommandExecutor;
+            SqlGenerationHelper = sqlGenerationHelper;
             ExecutionStrategyFactory = executionStrategyFactory;
         }
 
@@ -99,6 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public IMigrationCommandExecutor MigrationCommandExecutor { get; }
 
         /// <summary>
+        ///     Gets the <see cref="ISqlGenerationHelper" /> to be used.
+        /// </summary>
+        public ISqlGenerationHelper SqlGenerationHelper { get; }
+
+        /// <summary>
         ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
         /// </summary>
         public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
@@ -115,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ModelDiffer,
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
+                SqlGenerationHelper,
                 ExecutionStrategyFactory);
 
         /// <summary>
@@ -129,6 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ModelDiffer,
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
+                SqlGenerationHelper,
                 ExecutionStrategyFactory);
 
         /// <summary>
@@ -143,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 modelDiffer,
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
+                SqlGenerationHelper,
                 ExecutionStrategyFactory);
 
         /// <summary>
@@ -157,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ModelDiffer,
                 migrationsSqlGenerator,
                 MigrationCommandExecutor,
+                SqlGenerationHelper,
                 ExecutionStrategyFactory);
 
         /// <summary>
@@ -171,6 +184,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ModelDiffer,
                 MigrationsSqlGenerator,
                 migrationCommandExecutor,
+                SqlGenerationHelper,
+                ExecutionStrategyFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalDatabaseCreatorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            => new RelationalDatabaseCreatorDependencies(
+                Model,
+                Connection,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                MigrationCommandExecutor,
+                sqlGenerationHelper,
                 ExecutionStrategyFactory);
 
         /// <summary>
@@ -185,6 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 ModelDiffer,
                 MigrationsSqlGenerator,
                 MigrationCommandExecutor,
+                SqlGenerationHelper,
                 executionStrategyFactory);
     }
 }

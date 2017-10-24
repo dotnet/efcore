@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             throw new NotImplementedException();
         }
 
-        public string GenerateCreateScript(string batchTerminator)
+        public string GenerateCreateScript()
         {
             throw new NotImplementedException();
         }

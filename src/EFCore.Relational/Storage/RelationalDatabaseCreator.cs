@@ -270,13 +270,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Generates a script to create all tables for the current model.
         /// </summary>
-        /// <param name="batchTerminator">
-        ///     The batch terminator to be used.
-        /// </param>
         /// <returns>
         ///     A SQL script.
         /// </returns>
-        public virtual string GenerateCreateScript(string batchTerminator)
+        public virtual string GenerateCreateScript()
         {
             var commands = GetCreateTablesCommands();
             var builder = new StringBuilder();
@@ -284,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(command.CommandText)
-                    .AppendLine(batchTerminator);
+                    .AppendLine(Dependencies.SqlGenerationHelper.BatchTerminator);
             }
 
             return builder.ToString();
