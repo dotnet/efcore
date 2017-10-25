@@ -1074,6 +1074,54 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Determines whether correlated collections (if any) can be optimized.
+        /// </summary>
+        /// <returns>True if optimization is allowed, false otherwise.</returns>
+        protected override bool CanOptimizeCorrelatedCollections()
+        {
+            if (!base.CanOptimizeCorrelatedCollections())
+            {
+                return false;
+            }
+
+            if (RequiresClientEval
+                || RequiresClientFilter
+                || RequiresClientJoin
+                || RequiresClientOrderBy
+                || RequiresClientSelectMany)
+            {
+                return false;
+            }
+
+            var injectParametersFinder = new InjectParametersFindingVisitor(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod);
+            injectParametersFinder.Visit(Expression);
+
+            return !injectParametersFinder.InjectParametersFound;
+        }
+
+        private class InjectParametersFindingVisitor : ExpressionVisitorBase
+        {
+            private MethodInfo _injectParametersMethod;
+
+            public InjectParametersFindingVisitor(MethodInfo injectParametersMethod)
+            {
+                _injectParametersMethod = injectParametersMethod;
+            }
+
+            public bool InjectParametersFound { get; private set; }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (node.Method.MethodIsClosedFormOf(_injectParametersMethod))
+                {
+                    InjectParametersFound = true;
+                }
+
+                return base.VisitMethodCall(node);
+            }
+        }
+
+        /// <summary>
         ///     Visits <see cref="SelectClause" /> nodes.
         /// </summary>
         /// <param name="selectClause"> The node being visited. </param>

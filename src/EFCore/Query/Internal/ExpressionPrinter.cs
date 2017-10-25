@@ -770,6 +770,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     VisitNullConditionalEqualExpression(nullConditionalEqualExpression);
                     break;
 
+                case SubQueryExpression subqueryExpression:
+                    VisitSubqueryExpression(subqueryExpression);
+                    break;
+
                 default:
                     UnhandledExpressionType(extensionExpression);
                     break;
@@ -821,6 +825,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Visit(nullConditionalEqualExpression.OuterKey);
             _stringBuilder.Append(" ?= ");
             Visit(nullConditionalEqualExpression.InnerKey);
+        }
+
+        private void VisitSubqueryExpression(SubQueryExpression subqueryExpression)
+        {
+            _stringBuilder.Append(subqueryExpression.QueryModel.Print());
         }
 
         private void VisitArguments(IList<Expression> arguments, Action<string> appendAction, string lastSeparator = "")

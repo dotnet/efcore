@@ -3516,7 +3516,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Level1>(
                 l1s => from l1 in l1s
                        where l1.Id < 3
-                       select new { l1.Id, collection = l1.OneToMany_Optional.Where(l2 => l2.Name != "Foo") },
+                       select new { l1.Id, collection = l1.OneToMany_Optional.Where(l2 => l2.Name != "Foo").ToList() },
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                     {

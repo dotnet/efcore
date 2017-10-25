@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -395,9 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         "_" + parentQuerySource.ItemName,
                         typeof(AnonymousObject),
                         subQueryExpression,
-                        CreateKeyAccessExpression(
-                            outerTargetExpression,
-                            foreignKey.Properties),
+                        outerTargetExpression.CreateKeyAccessExpression(foreignKey.Properties),
                         Expression.Constant(null));
 
                 var joinQuerySourceReferenceExpression = new QuerySourceReferenceExpression(joinClause);
@@ -437,23 +436,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return joinQuerySourceReferenceExpression;
             }
-
-            // TODO: Unify this with other versions
-            private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
-                => properties.Count == 1
-                    ? target.CreateEFPropertyExpression(properties[0])
-                    : Expression.New(
-                        AnonymousObject.AnonymousObjectCtor,
-                        Expression.NewArrayInit(
-                            typeof(object),
-                            properties
-                                .Select(
-                                    p =>
-                                        Expression.Convert(
-                                            target.CreateEFPropertyExpression(p),
-                                            typeof(object)))
-                                .Cast<Expression>()
-                                .ToArray()));
 
             private static void ApplyParentOrderings(
                 IEnumerable<Ordering> parentOrderings,
@@ -595,21 +577,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         fromQueryModel.BodyClauses.Remove(orderByClause);
                     }
-                }
-            }
-
-            private class QuerySourceReferenceFindingExpressionTreeVisitor : RelinqExpressionVisitor
-            {
-                public QuerySourceReferenceExpression QuerySourceReferenceExpression { get; private set; }
-
-                protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
-                {
-                    if (QuerySourceReferenceExpression == null)
-                    {
-                        QuerySourceReferenceExpression = querySourceReferenceExpression;
-                    }
-
-                    return querySourceReferenceExpression;
                 }
             }
 

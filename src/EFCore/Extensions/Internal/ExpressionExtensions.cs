@@ -8,6 +8,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses;
@@ -365,6 +367,32 @@ namespace Microsoft.EntityFrameworkCore.Internal
             resultExpression = binaryTest.NodeType == ExpressionType.Equal ? conditionalExpression.IfFalse : conditionalExpression.IfTrue;
 
             return true;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static Expression CreateKeyAccessExpression(
+            [NotNull] this Expression target,
+            [NotNull] IReadOnlyList<IProperty> properties)
+        {
+            Check.NotNull(target, nameof(target));
+            Check.NotNull(properties, nameof(properties));
+
+            return properties.Count == 1
+                ? target.CreateEFPropertyExpression(properties[0])
+                : Expression.New(
+                    AnonymousObject.AnonymousObjectCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        properties
+                            .Select(p =>
+                                Expression.Convert(
+                                    target.CreateEFPropertyExpression(p),
+                                    typeof(object)))
+                            .Cast<Expression>()
+                            .ToArray()));
         }
     }
 }

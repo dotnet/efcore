@@ -432,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.CustomerID, a.CustomerID);
                         CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
                     },
-                entryCount: 34);
+                entryCount: 30);
         }
 
         [ConditionalFact]
@@ -448,7 +448,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.OrderID, a.OrderID);
                         CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
                     },
-                entryCount: 7);
+                entryCount: 6);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_collection_navigation_multi_part2()
+        {
+            AssertQuery<OrderDetail>(
+                ods =>
+                    from od in ods
+                    orderby od.OrderID, od.ProductID
+                    where od.Order.CustomerID == "ALFKI" || od.Order.CustomerID == "ANTON"
+                    select new { od.Order.Customer.Orders },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<Order>(ee => ee.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID)),
+                entryCount: 13);
         }
 
         [ConditionalFact]

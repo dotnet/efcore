@@ -228,6 +228,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void InjectSubqueryToCollectionsInProjection([NotNull] QueryModel queryModel)
+        {
+            var visitor = new ProjectionSubqueryInjectingQueryModelVisitor(_queryModelVisitor);
+            visitor.VisitQueryModel(queryModel);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Rewrite([NotNull] QueryModel queryModel, [CanBeNull] QueryModel parentQueryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -568,16 +578,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Check.NotNull(node, nameof(node));
-
-            if (node.Method.MethodIsClosedFormOf(
-                CollectionNavigationIncludeExpressionRewriter.ProjectCollectionNavigationMethodInfo))
-            {
-                var newArgument = Visit(node.Arguments[0]);
-
-                return newArgument != node.Arguments[0]
-                    ? node.Update(node.Object, new[] { newArgument, node.Arguments[1] })
-                    : node;
-            }
 
             if (node.Method.IsEFPropertyMethod())
             {
@@ -1594,6 +1594,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     originalType);
 
                 adjuster(resultOperator, translatedExpression);
+            }
+        }
+
+        private class ProjectionSubqueryInjectingQueryModelVisitor : QueryModelVisitorBase
+        {
+            private readonly CollectionNavigationSubqueryInjector _subqueryInjector;
+
+            public ProjectionSubqueryInjectingQueryModelVisitor(EntityQueryModelVisitor queryModelVisitor)
+            {
+                _subqueryInjector = new CollectionNavigationSubqueryInjector(queryModelVisitor, shouldInject: true);
+            }
+
+            public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
+            {
+                selectClause.Selector = _subqueryInjector.Visit(selectClause.Selector);
+
+                base.VisitSelectClause(selectClause, queryModel);
             }
         }
     }

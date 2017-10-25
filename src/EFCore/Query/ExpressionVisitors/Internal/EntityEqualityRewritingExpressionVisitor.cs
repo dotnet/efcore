@@ -335,17 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             // If comparing with null then we need only first PK property
             return properties.Count == 1 || nullComparison
                 ? target.CreateEFPropertyExpression(properties[0])
-                : Expression.New(
-                    AnonymousObject.AnonymousObjectCtor,
-                    Expression.NewArrayInit(
-                        typeof(object),
-                        properties
-                            .Select(
-                                p => Expression.Convert(
-                                    target.CreateEFPropertyExpression(p),
-                                    typeof(object)))
-                            .Cast<Expression>()
-                            .ToArray()));
+                : target.CreateKeyAccessExpression(properties);
         }
     }
 }

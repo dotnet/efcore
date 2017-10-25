@@ -64,6 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Mapping between correlated collection query modles and metadata needed to process them
+        /// </summary>
+        public virtual Dictionary<MainFromClause, CorrelatedSubqueryMetadata> CorrelatedSubqueryMetadataMap { get; } = new Dictionary<MainFromClause, CorrelatedSubqueryMetadata>();
+
+        /// <summary>
         ///     Gets the model.
         /// </summary>
         /// <value>

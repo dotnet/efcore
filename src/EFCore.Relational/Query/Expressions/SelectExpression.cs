@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -910,13 +911,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private bool OrderingExpressionComparison(Ordering ordering, Expression expressionToMatch)
         {
-            return _expressionEqualityComparer.Equals(ordering.Expression, expressionToMatch)
-                   || _expressionEqualityComparer.Equals(
-                       UnwrapNullableExpression(ordering.Expression.RemoveConvert()).RemoveConvert(),
-                       expressionToMatch)
-                   || _expressionEqualityComparer.Equals(
-                       UnwrapNullableExpression(expressionToMatch.RemoveConvert()).RemoveConvert(),
-                       ordering.Expression);
+            var unwrappedOrderingExpression = UnwrapNullableExpression(ordering.Expression.RemoveConvert()).RemoveConvert();
+            var unwrappedExpressionToMatch = UnwrapNullableExpression(expressionToMatch.RemoveConvert()).RemoveConvert();
+
+            return _expressionEqualityComparer.Equals(unwrappedOrderingExpression, unwrappedExpressionToMatch);
         }
 
         private Expression UnwrapNullableExpression(Expression expression)
@@ -924,6 +922,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             if (expression is NullableExpression nullableExpression)
             {
                 return nullableExpression.Operand;
+            }
+
+            if (expression is NullConditionalExpression nullConditionalExpression)
+            {
+                return nullConditionalExpression.AccessOperation;
             }
 
             return expression;

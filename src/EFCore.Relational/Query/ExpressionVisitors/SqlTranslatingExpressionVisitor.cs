@@ -649,7 +649,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            if (AnonymousObject.IsGetValueExpression(methodCallExpression, out var querySourceReferenceExpression))
+            if (AnonymousObject.IsGetValueExpression(methodCallExpression, out var querySourceReferenceExpression)
+                || MaterializedAnonymousObject.IsGetValueExpression(methodCallExpression, out querySourceReferenceExpression))
             {
                 var selectExpression
                     = _queryModelVisitor.TryGetQuery(querySourceReferenceExpression.ReferencedQuerySource);
@@ -863,7 +864,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     return Expression.Constant(memberBindings);
                 }
             }
-            else if (expression.Type == typeof(AnonymousObject))
+            else if (expression.Type == typeof(AnonymousObject)
+                || expression.Type == typeof(MaterializedAnonymousObject))
             {
                 var propertyCallExpressions
                     = ((NewArrayExpression)expression.Arguments.Single()).Expressions;

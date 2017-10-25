@@ -104,16 +104,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return methodCallExpression;
             }
 
-            if (methodCallExpression.Method.MethodIsClosedFormOf(
-                CollectionNavigationIncludeExpressionRewriter.ProjectCollectionNavigationMethodInfo))
-            {
-                var newArgument = Visit(methodCallExpression.Arguments[0]);
-
-                return newArgument != methodCallExpression.Arguments[0]
-                    ? methodCallExpression.Update(methodCallExpression.Object, new[] { newArgument, methodCallExpression.Arguments[1] })
-                    : methodCallExpression;
-            }
-
             var shouldInject = ShouldInject;
             if (!methodCallExpression.Method.IsEFPropertyMethod()
                 && !_collectionMaterializingMethods.Any(m => methodCallExpression.Method.MethodIsClosedFormOf(m)))

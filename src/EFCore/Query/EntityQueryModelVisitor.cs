@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -233,6 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Rewrites collection navigation projections so that they can be handled by the Include pipeline.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
+        [Obsolete("This is now handled by correlated collection optimization.")]
         protected virtual void RewriteProjectedCollectionNavigationsToIncludes([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
@@ -277,16 +279,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // Rewrite includes/navigations
 
-            RewriteProjectedCollectionNavigationsToIncludes(queryModel);
-
             var includeCompiler = new IncludeCompiler(QueryCompilationContext, _querySourceTracingExpressionVisitorFactory);
-
             includeCompiler.CompileIncludes(queryModel, TrackResults(queryModel), asyncQuery);
 
             queryModel.TransformExpressions(new CollectionNavigationSubqueryInjector(this).Visit);
             queryModel.TransformExpressions(new CollectionNavigationSetOperatorSubqueryInjector(this).Visit);
 
             var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this);
+            navigationRewritingExpressionVisitor.InjectSubqueryToCollectionsInProjection(queryModel);
+
+            // TODO: for now correlated collection optimization only works for sync queries
+            if (!asyncQuery)
+            {
+                var correlatedCollectionFinder = new CorrelatedCollectionFindingExpressionVisitor(this, TrackResults(queryModel));
+                queryModel.SelectClause.TransformExpressions(correlatedCollectionFinder.Visit);
+            }
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
@@ -521,7 +528,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 MethodInfo trackingMethod;
 
                 if (isGrouping)
-
                 {
                     trackingMethod
                         = LinqOperatorProvider.TrackGroupedEntities
@@ -1029,6 +1035,82 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(ordering.OrderingDirection));
         }
 
+
+        private bool TryOptimizeCorrelatedCollections([NotNull] QueryModel queryModel)
+        {
+            // TODO: disabled for cross joins - problem is outer query containing cross join can produce duplicate results
+            if (queryModel.BodyClauses.OfType<AdditionalFromClause>().Where(c => !IsPartOfLeftJoinPattern(c, queryModel)).Any())
+            {
+                return false;
+            }
+
+            var correlatedCollectionOptimizer = new CorrelatedCollectionOptimizingVisitor(
+                this,
+                queryModel);
+
+            var newSelector = correlatedCollectionOptimizer.Visit(queryModel.SelectClause.Selector);
+            if (newSelector != queryModel.SelectClause.Selector)
+            {
+                queryModel.SelectClause.Selector = newSelector;
+
+                if (correlatedCollectionOptimizer.ParentOrderings.Count > 0)
+                {
+                    var existingOrderByClauses = queryModel.BodyClauses.OfType<OrderByClause>().ToList();
+                    foreach (var existingOrderByClause in existingOrderByClauses)
+                    {
+                        queryModel.BodyClauses.Remove(existingOrderByClause);
+                    }
+
+                    var orderByClause = new OrderByClause();
+
+                    foreach (var ordering in correlatedCollectionOptimizer.ParentOrderings)
+                    {
+                        orderByClause.Orderings.Add(ordering);
+                    }
+
+                    queryModel.BodyClauses.Add(orderByClause);
+
+                    VisitOrderByClause(orderByClause, queryModel, queryModel.BodyClauses.IndexOf(orderByClause));
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsPartOfLeftJoinPattern(AdditionalFromClause additionalFromClause, QueryModel queryModel)
+        {
+            var index = queryModel.BodyClauses.IndexOf(additionalFromClause);
+            var groupJoinClause = queryModel.BodyClauses.ElementAtOrDefault(index - 1) as GroupJoinClause;
+
+            var subQueryModel
+                = (additionalFromClause?.FromExpression as SubQueryExpression)
+                ?.QueryModel;
+
+            var referencedQuerySource
+                = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
+
+            if (groupJoinClause != null
+                && groupJoinClause == referencedQuerySource
+                && queryModel.CountQuerySourceReferences(groupJoinClause) == 1
+                && subQueryModel.BodyClauses.Count == 0
+                && subQueryModel.ResultOperators.Count == 1
+                && subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Determines whether correlated collections (if any) can be optimized.
+        /// </summary>
+        /// <returns>True if optimization is allowed, false otherwise.</returns>
+        protected virtual bool CanOptimizeCorrelatedCollections()
+            => true;
+
         /// <summary>
         ///     Visits <see cref="SelectClause" /> nodes.
         /// </summary>
@@ -1045,6 +1127,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectClause.Selector is QuerySourceReferenceExpression)
             {
                 return;
+            }
+
+            if (CanOptimizeCorrelatedCollections())
+            {
+                TryOptimizeCorrelatedCollections(queryModel);
             }
 
             var selector
