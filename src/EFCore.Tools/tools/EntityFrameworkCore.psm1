@@ -774,9 +774,9 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
         $startupTargetName = GetProperty $startupProject.Properties 'AssemblyName'
         $depsFile = Join-Path $targetDir ($startupTargetName + '.deps.json')
-        $projectAssetsFile = GetCsproj2Property $startupProject 'ProjectAssetsFile'
+        $projectAssetsFile = GetCpsProperty $startupProject 'ProjectAssetsFile'
         $runtimeConfig = Join-Path $targetDir ($startupTargetName + '.runtimeconfig.json')
-        $runtimeFrameworkVersion = GetCsproj2Property $startupProject 'RuntimeFrameworkVersion'
+        $runtimeFrameworkVersion = GetCpsProperty $startupProject 'RuntimeFrameworkVersion'
         $efPath = Join-Path $PSScriptRoot 'netcoreapp2.0\ef.dll'
 
         $dotnetParams = 'exec', '--depsfile', $depsFile
@@ -821,13 +821,15 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     $targetFileName = GetOutputFileName $project
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
+    $language = GetLanguage $project
 
     $params += '--verbose',
         '--no-color',
         '--prefix-output',
         '--assembly', $targetPath,
         '--startup-assembly', $startupTargetPath,
-        '--project-dir', $projectDir
+        '--project-dir', $projectDir,
+        '--language', $language
 
     if (IsWeb $startupProject)
     {
@@ -903,9 +905,14 @@ function IsDocker($project)
     return $project.Kind -eq '{E53339B2-1760-4266-BCC7-CA923CBCF16C}'
 }
 
-function IsCsproj2($project)
+function IsCpsProject($project)
 {
-    return $project.Kind -eq '{9A19103F-16F7-4668-BE54-9A1E7A4F7556}'
+    $hierarchy = GetVsHierarchy $project
+    $isCapabilityMatch = [Microsoft.VisualStudio.Shell.PackageUtilities].GetMethod(
+        'IsCapabilityMatch',
+        [type[]]([Microsoft.VisualStudio.Shell.Interop.IVsHierarchy], [string]))
+
+    return $isCapabilityMatch.Invoke($null, ($hierarchy, 'CPS'))
 }
 
 function IsWeb($project)
@@ -925,49 +932,83 @@ function IsUWP($project)
 function GetIntermediatePath($project)
 {
     # TODO: Remove when dotnet/roslyn-project-system#665 is fixed
-    if (IsCsproj2 $project)
+    if (IsCpsProject $project)
     {
-        return GetCsproj2Property $project 'IntermediateOutputPath'
+        return GetCpsProperty $project 'IntermediateOutputPath'
     }
 
-    return GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties 'IntermediatePath'
+    $intermediatePath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties 'IntermediatePath'
+    if ($intermediatePath)
+    {
+        return $intermediatePath
+    }
+
+    return GetMSBuildProperty $project 'IntermediateOutputPath'
 }
 
 function GetPlatformTarget($project)
 {
     # TODO: Remove when dotnet/roslyn-project-system#669 is fixed
-    if (IsCsproj2 $project)
+    if (IsCpsProject $project)
     {
-        $platformTarget = GetCsproj2Property $project 'PlatformTarget'
+        $platformTarget = GetCpsProperty $project 'PlatformTarget'
         if ($platformTarget)
         {
             return $platformTarget
         }
 
-        return GetCsproj2Property $project 'Platform'
+        return GetCpsProperty $project 'Platform'
     }
 
-    return GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties 'PlatformTarget'
+    $platformTarget = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties 'PlatformTarget'
+    if ($platformTarget)
+    {
+        return $platformTarget
+    }
+
+    $platformTarget = GetMSBuildProperty $project 'PlatfromTarget'
+    if ($platformTarget)
+    {
+        return $platformTarget
+    }
+
+    return 'AnyCPU'
 }
 
 function GetOutputFileName($project)
 {
     # TODO: Remove when dotnet/roslyn-project-system#667 is fixed
-    if (IsCsproj2 $project)
+    if (IsCpsProject $project)
     {
-        return GetCsproj2Property $project 'TargetFileName'
+        return GetCpsProperty $project 'TargetFileName'
     }
 
     return GetProperty $project.Properties 'OutputFileName'
 }
 
-function GetProjectTypes($project)
+function GetLanguage($project)
+{
+    if (IsCpsProject $project)
+    {
+        return GetCpsProperty $project 'Language'
+    }
+
+    return GetMSBuildProperty $project 'Language'
+}
+
+function GetVsHierarchy($project)
 {
     $solution = Get-VSService 'Microsoft.VisualStudio.Shell.Interop.SVsSolution' 'Microsoft.VisualStudio.Shell.Interop.IVsSolution'
     $hierarchy = $null
     $hr = $solution.GetProjectOfUniqueName($project.UniqueName, [ref] $hierarchy)
     [Runtime.InteropServices.Marshal]::ThrowExceptionForHR($hr)
 
+    return $hierarchy
+}
+
+function GetProjectTypes($project)
+{
+    $hierarchy = GetVsHierarchy $project
     $aggregatableProject = Get-Interface $hierarchy 'Microsoft.VisualStudio.Shell.Interop.IVsAggregatableProject'
     if (!$aggregatableProject)
     {
@@ -993,7 +1034,7 @@ function GetProperty($properties, $propertyName)
     }
 }
 
-function GetCsproj2Property($project, $propertyName)
+function GetCpsProperty($project, $propertyName)
 {
     $browseObjectContext = Get-Interface $project 'Microsoft.VisualStudio.ProjectSystem.Properties.IVsBrowseObjectContext'
     $unconfiguredProject = $browseObjectContext.UnconfiguredProject
@@ -1001,6 +1042,14 @@ function GetCsproj2Property($project, $propertyName)
     $properties = $configuredProject.Services.ProjectPropertiesProvider.GetCommonProperties()
 
     return $properties.GetEvaluatedPropertyValueAsync($propertyName).Result
+}
+
+function GetMSBuildProperty($project, $propertyName)
+{
+    $msbuildProject = [Microsoft.Build.Evaluation.ProjectCollection]::GlobalProjectCollection.LoadedProjects |
+        ? FullPath -eq $project.FullName
+
+    return $msbuildProject.GetProperty($propertyName).EvaluatedValue
 }
 
 function GetProjectItem($project, $path)

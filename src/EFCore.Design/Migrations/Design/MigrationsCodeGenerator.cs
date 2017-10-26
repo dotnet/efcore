@@ -38,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public abstract string FileExtension { get; }
 
         /// <summary>
+        ///     Gets the programming language supported by this service.
+        /// </summary>
+        /// <value> The language. </value>
+        public virtual string Language => null;
+
+        /// <summary>
         ///     Parameter object containing dependencies for this service.
         /// </summary>
         protected virtual MigrationsCodeGeneratorDependencies Dependencies { get; }

@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _dataDir;
         private CommandOption _projectDir;
         private CommandOption _rootNamespace;
+        private CommandOption _language;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _dataDir = command.Option("--data-dir <PATH>", Resources.DataDirDescription);
             _projectDir = command.Option("--project-dir <PATH>", Resources.ProjectDirDescription);
             _rootNamespace = command.Option("--root-namespace <NAMESPACE>", Resources.RootNamespaceDescription);
+            _language = command.Option("--language <LANGUAGE>", Resources.LanguageDescription);
 
             base.Configure(command);
         }
@@ -47,14 +49,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _startupAssembly.Value(),
                     _projectDir.Value(),
                     _dataDir.Value(),
-                    _rootNamespace.Value());
+                    _rootNamespace.Value(),
+                    _language.Value());
 #elif NETCOREAPP2_0
                 return new ReflectionOperationExecutor(
                     _assembly.Value(),
                     _startupAssembly.Value(),
                     _projectDir.Value(),
                     _dataDir.Value(),
-                    _rootNamespace.Value());
+                    _rootNamespace.Value(),
+                    _language.Value());
 #else
 #error target frameworks need to be updated.
 #endif

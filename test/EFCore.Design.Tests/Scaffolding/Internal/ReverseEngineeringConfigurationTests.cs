@@ -30,10 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var reverseEngineer = new ReverseEngineerScaffolder(
                 new RelationalDatabaseModelFactoryTest.FakeDatabaseModelFactory(),
                 new RelationalDatabaseModelFactoryTest.FakeScaffoldingModelFactory(new TestOperationReporter()),
-                new CSharpScaffoldingGenerator(
-                    new InMemoryFileService(),
-                    new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),
-                    new CSharpEntityTypeGenerator(cSharpUtilities)),
+                new ScaffoldingCodeGeneratorSelector(
+                    new[]
+                    {
+                        new CSharpScaffoldingGenerator(
+                            new InMemoryFileService(),
+                            new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),
+                            new CSharpEntityTypeGenerator(cSharpUtilities))
+                    }),
                 cSharpUtilities);
 
             Assert.Equal(
@@ -46,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             projectPath: "FakeProjectPath",
                             outputPath: null,
                             rootNamespace: "FakeNamespace",
+                            language: "",
                             contextName: contextName,
                             useDataAnnotations: false,
                             overwriteFiles: false,

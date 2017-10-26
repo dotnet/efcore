@@ -3,51 +3,37 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 
-namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
+namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public interface IScaffoldingCodeGenerator : ILanguageBasedService
+    public class MigrationsCodeGeneratorSelector : LanguageBasedSelector<IMigrationsCodeGenerator>
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IFileService FileService { get; }
+        public MigrationsCodeGeneratorSelector([NotNull] IEnumerable<IMigrationsCodeGenerator> services)
+            : base(services)
+        {
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IList<string> GetExistingFilePaths(
-            [NotNull] string outputPath,
-            [NotNull] string dbContextClassName,
-            [NotNull] IEnumerable<IEntityType> entityTypes);
+        public virtual IMigrationsCodeGenerator Override { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        IList<string> GetReadOnlyFilePaths(
-            [NotNull] string outputPath,
-            [NotNull] string dbContextClassName,
-            [NotNull] IEnumerable<IEntityType> entityTypes);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        ReverseEngineerFiles WriteCode(
-            [NotNull] IModel model,
-            [NotNull] string outputPath,
-            [NotNull] string @namespace,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
-            bool dataAnnotations);
+        public override IMigrationsCodeGenerator Select(string language)
+            => Override ?? base.Select(language);
     }
 }

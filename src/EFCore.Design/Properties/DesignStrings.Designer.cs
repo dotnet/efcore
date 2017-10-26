@@ -572,6 +572,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("InvokeBuildWebHostFailed", nameof(startupClass), nameof(error)),
                 startupClass, error);
 
+        /// <summary>
+        ///     More than one {service} service was found for language '{language}'. Remove one of the conflicting NuGet packages or design-time service registrations and try again.
+        /// </summary>
+        public static string MultipleLanguageServices([CanBeNull] object service, [CanBeNull] object language)
+            => string.Format(
+                GetString("MultipleLanguageServices", nameof(service), nameof(language)),
+                service, language);
+
+        /// <summary>
+        ///     The project language '{language}' isn't supported by the built-in {service} service. You can try looking for an additional NuGet package which supports this language; moving your DbContext type to a C# class library referenced by this project; or manually implementing and registering the design-time service for programming language.
+        /// </summary>
+        public static string NoLanguageService([CanBeNull] object language, [CanBeNull] object service)
+            => string.Format(
+                GetString("NoLanguageService", nameof(language), nameof(service)),
+                language, service);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

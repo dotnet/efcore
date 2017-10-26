@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly Assembly _assembly;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
+        private readonly string _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly DbContextOperations _contextOperations;
 
@@ -39,18 +40,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
-            [NotNull] string rootNamespace)
+            [NotNull] string rootNamespace,
+            [NotNull] string language)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
+            Check.NotNull(language, nameof(language));
 
             _reporter = reporter;
             _assembly = assembly;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
+            _language = language;
             _contextOperations = new DbContextOperations(
                 reporter,
                 assembly,
@@ -80,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 EnsureMigrationsAssembly(services);
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
-                var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace);
+                var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language);
                 var files = scaffolder.Save(_projectDir, migration, outputDir);
 
                 return files;
@@ -182,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
 
-                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force);
+                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
 
                 _reporter.WriteInformation(DesignStrings.Done);
 

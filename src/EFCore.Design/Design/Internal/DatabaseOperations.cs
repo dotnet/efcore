@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly IOperationReporter _reporter;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
+        private readonly string _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
 
         /// <summary>
@@ -29,16 +30,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
-            [NotNull] string rootNamespace)
+            [NotNull] string rootNamespace,
+            [NotNull] string language)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
+            Check.NotNull(language, nameof(language));
 
             _reporter = reporter;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
+            _language = language;
 
             _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
         }
@@ -74,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _projectDir,
                 outputDir,
                 _rootNamespace,
+                _language,
                 dbContextClassName,
                 useDataAnnotations,
                 overwriteFiles,

@@ -23,8 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string startupAssembly,
             string projectDir,
             string dataDirectory,
-            string rootNamespace)
-            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace)
+            string rootNamespace,
+            string language)
+            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace, language)
         {
             var info = new AppDomainSetup { ApplicationBase = AppBasePath };
 
@@ -63,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         { "targetName", AssemblyFileName },
                         { "startupTargetName", StartupAssemblyFileName },
                         { "projectDir", ProjectDirectory },
-                        { "rootNamespace", RootNamespace }
+                        { "rootNamespace", RootNamespace },
+                        { "language", Language }
                     }
                 },
                 null,

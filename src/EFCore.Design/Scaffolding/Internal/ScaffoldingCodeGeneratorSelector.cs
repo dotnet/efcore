@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -10,23 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public interface IReverseEngineerScaffolder
+    public class ScaffoldingCodeGeneratorSelector : LanguageBasedSelector<IScaffoldingCodeGenerator>
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        ReverseEngineerFiles Generate(
-            [NotNull] string connectionString,
-            [NotNull] IEnumerable<string> tables,
-            [NotNull] IEnumerable<string> schemas,
-            [NotNull] string projectPath,
-            [CanBeNull] string outputPath,
-            [NotNull] string rootNamespace,
-            [NotNull] string language,
-            [CanBeNull] string contextName,
-            bool useDataAnnotations,
-            bool overwriteFiles,
-            bool useDatabaseNames);
+        public ScaffoldingCodeGeneratorSelector([NotNull] IEnumerable<IScaffoldingCodeGenerator> services)
+            : base(services)
+        {
+        }
     }
 }

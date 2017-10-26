@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
                 .AddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
+                .AddSingleton<ScaffoldingCodeGeneratorSelector>()
                 .AddSingleton<IScaffoldingCodeGenerator, CSharpScaffoldingGenerator>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<ILoggingOptions, LoggingOptions>()

@@ -7,6 +7,7 @@
              Properties="TargetFramework=$(TargetFrameworks.Split(';')[0]);EFProjectMetadataFile=$(EFProjectMetadataFile)" />
     <ItemGroup Condition=" '$(TargetFramework)' != '' ">
       <EFProjectMetadata Include="AssemblyName: $(AssemblyName)" />
+      <EFProjectMetadata Include="Language: $(Language)" />
       <EFProjectMetadata Include="OutputPath: $(OutputPath)" />
       <EFProjectMetadata Include="Platform: $(Platform)" />
       <EFProjectMetadata Include="PlatformTarget: $(PlatformTarget)" />

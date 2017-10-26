@@ -53,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var startupTargetName = (string)args["startupTargetName"];
             _projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
+            var language = (string)args["language"];
 
             // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
             var startupAssembly = new LazyRef<Assembly>(
@@ -81,14 +82,16 @@ namespace Microsoft.EntityFrameworkCore.Design
                     reporter,
                     startupAssembly.Value,
                     _projectDir,
-                    rootNamespace));
+                    rootNamespace,
+                    language));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     reporter,
                     assembly.Value,
                     startupAssembly.Value,
                     _projectDir,
-                    rootNamespace));
+                    rootNamespace,
+                    language));
         }
 
         /// <summary>

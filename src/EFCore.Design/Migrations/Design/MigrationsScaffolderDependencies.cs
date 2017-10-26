@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="migrationsAssembly"> The migrations assembly. </param>
         /// <param name="migrationsModelDiffer"> The migrations model differ. </param>
         /// <param name="migrationsIdGenerator"> The migrations ID generator. </param>
-        /// <param name="migrationCodeGenerator"> The migrations code generator. </param>
+        /// <param name="migrationCodeGeneratorSelector"> The migrations code generator selector. </param>
         /// <param name="historyRepository"> The history repository. </param>
         /// <param name="operationReporter"> The operation reporter. </param>
         /// <param name="databaseProvider"> The database provider. </param>
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] IMigrationsAssembly migrationsAssembly,
             [NotNull] IMigrationsModelDiffer migrationsModelDiffer,
             [NotNull] IMigrationsIdGenerator migrationsIdGenerator,
-            [NotNull] IMigrationsCodeGenerator migrationCodeGenerator,
+            [NotNull] MigrationsCodeGeneratorSelector migrationCodeGeneratorSelector,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] IOperationReporter operationReporter,
             [NotNull] IDatabaseProvider databaseProvider,
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(migrationsModelDiffer, nameof(migrationsModelDiffer));
             Check.NotNull(migrationsIdGenerator, nameof(migrationsIdGenerator));
-            Check.NotNull(migrationCodeGenerator, nameof(migrationCodeGenerator));
+            Check.NotNull(migrationCodeGeneratorSelector, nameof(migrationCodeGeneratorSelector));
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(operationReporter, nameof(operationReporter));
             Check.NotNull(databaseProvider, nameof(databaseProvider));
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             MigrationsAssembly = migrationsAssembly;
             MigrationsModelDiffer = migrationsModelDiffer;
             MigrationsIdGenerator = migrationsIdGenerator;
-            MigrationCodeGenerator = migrationCodeGenerator;
+            MigrationCodeGeneratorSelector = migrationCodeGeneratorSelector;
             HistoryRepository = historyRepository;
             OperationReporter = operationReporter;
             DatabaseProvider = databaseProvider;
@@ -120,7 +121,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     The migrations code generator.
         /// </summary>
-        public IMigrationsCodeGenerator MigrationCodeGenerator { get; }
+        [Obsolete("Use MigrationCodeGeneratorSelector instead.")]
+        public IMigrationsCodeGenerator MigrationCodeGenerator
+            => MigrationCodeGeneratorSelector.Select(language: null);
+
+        /// <summary>
+        ///     The migrations code generator selector.
+        /// </summary>
+        public MigrationsCodeGeneratorSelector MigrationCodeGeneratorSelector { get; }
 
         /// <summary>
         ///     The history repository.
@@ -154,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -172,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -190,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 migrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -208,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 migrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -226,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 migrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -237,14 +245,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="migrationCodeGenerator"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [Obsolete("Use an MigrationCodeGeneratorSelector instead.")]
         public MigrationsScaffolderDependencies With([NotNull] IMigrationsCodeGenerator migrationCodeGenerator)
+        {
+            MigrationCodeGeneratorSelector.Override = migrationCodeGenerator;
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="migrationCodeGeneratorSelector"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public MigrationsScaffolderDependencies With([NotNull] MigrationsCodeGeneratorSelector migrationCodeGeneratorSelector)
             => new MigrationsScaffolderDependencies(
                 CurrentDbContext,
                 Model,
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                migrationCodeGenerator,
+                migrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -262,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 historyRepository,
                 OperationReporter,
                 DatabaseProvider,
@@ -280,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 operationReporter,
                 DatabaseProvider,
@@ -298,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 databaseProvider,
@@ -316,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 MigrationsAssembly,
                 MigrationsModelDiffer,
                 MigrationsIdGenerator,
-                MigrationCodeGenerator,
+                MigrationCodeGeneratorSelector,
                 HistoryRepository,
                 OperationReporter,
                 DatabaseProvider,

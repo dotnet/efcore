@@ -20,13 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected string StartupAssemblyFileName { get; set; }
         protected string ProjectDirectory { get; }
         protected string RootNamespace { get; }
+        protected string Language { get; }
 
         protected OperationExecutorBase(
             string assembly,
             string startupAssembly,
             string projectDir,
             string dataDirectory,
-            string rootNamespace)
+            string rootNamespace,
+            string language)
         {
             AssemblyFileName = Path.GetFileNameWithoutExtension(assembly);
             StartupAssemblyFileName = startupAssembly == null
@@ -41,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
             RootNamespace = rootNamespace ?? AssemblyFileName;
             ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
+            Language = language;
 
             Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
             Reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));

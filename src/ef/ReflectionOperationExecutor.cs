@@ -4,8 +4,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -22,8 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string startupAssembly,
             string projectDir,
             string dataDirectory,
-            string rootNamespace)
-            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace)
+            string rootNamespace,
+            string language)
+            : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace, language)
         {
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
 
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     { "targetName", AssemblyFileName },
                     { "startupTargetName", StartupAssemblyFileName },
                     { "projectDir", ProjectDirectory },
-                    { "rootNamespace", RootNamespace }
+                    { "rootNamespace", RootNamespace },
+                    { "language", Language }
                 });
 
             _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false);

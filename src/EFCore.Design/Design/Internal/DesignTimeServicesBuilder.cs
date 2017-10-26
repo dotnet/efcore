@@ -82,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 .AddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGeneratorDependencies>()
                 .AddSingleton<CSharpMigrationsGeneratorDependencies>()
+                .AddSingleton<MigrationsCodeGeneratorSelector>()
                 .AddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
                 .AddSingleton(_reporter)
                 .AddScaffolding(_reporter);

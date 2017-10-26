@@ -68,13 +68,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         services.GetRequiredService<StateManagerDependencies>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),
                     idGenerator,
-                    new CSharpMigrationsGenerator(
-                        new MigrationsCodeGeneratorDependencies(),
-                        new CSharpMigrationsGeneratorDependencies(
-                            code,
-                            new CSharpMigrationOperationGenerator(
-                                new CSharpMigrationOperationGeneratorDependencies(code)),
-                            new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code)))),
+                    new MigrationsCodeGeneratorSelector(
+                        new[]
+                        {
+                            new CSharpMigrationsGenerator(
+                                new MigrationsCodeGeneratorDependencies(),
+                                new CSharpMigrationsGeneratorDependencies(
+                                    code,
+                                    new CSharpMigrationOperationGenerator(
+                                        new CSharpMigrationOperationGeneratorDependencies(code)),
+                                    new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code))))
+                        }),
                     new MockHistoryRepository(),
                     reporter,
                     new MockProvider(),

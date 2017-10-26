@@ -306,4 +306,7 @@
   <data name="Options" xml:space="preserve">
     <value>Options: {options}</value>
   </data>
+  <data name="LanguageDescription" xml:space="preserve">
+    <value>The language.  Defaults to 'C#'.</value>
+  </data>
 </root>

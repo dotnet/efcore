@@ -429,6 +429,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
                 GetString("Options", nameof(options)),
                 options);
 
+        /// <summary>
+        ///     The language. Defaults to 'C#'.
+        /// </summary>
+        public static string LanguageDescription
+            => GetString("LanguageDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

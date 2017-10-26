@@ -48,6 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public override string FileExtension => ".cs";
 
         /// <summary>
+        ///     Gets the programming language supported by this service.
+        /// </summary>
+        /// <value> The language. </value>
+        public override string Language => "C#";
+
+        /// <summary>
         ///     Generates the migration code.
         /// </summary>
         /// <param name="migrationNamespace"> The migration's namespace. </param>

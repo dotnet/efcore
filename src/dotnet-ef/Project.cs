@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public string ProjectName { get; }
 
         public string AssemblyName { get; set; }
+        public string Language { get; set; }
         public string OutputPath { get; set; }
         public string PlatformTarget { get; set; }
         public string ProjectAssetsFile { get; set; }
@@ -123,6 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             return new Project(file, framework, configuration, runtime)
             {
                 AssemblyName = metadata["AssemblyName"],
+                Language = metadata["Language"],
                 OutputPath = metadata["OutputPath"],
                 PlatformTarget = platformTarget,
                 ProjectAssetsFile = metadata["ProjectAssetsFile"],
