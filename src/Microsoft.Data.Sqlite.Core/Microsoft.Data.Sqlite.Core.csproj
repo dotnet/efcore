@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
@@ -37,11 +37,8 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.0.0" PrivateAssets="All">
-      <!-- Build-only assets don't need to be assigned from the lineup. -->
-      <NoWarn>KRB4002</NoWarn>
-    </PackageReference>
+    <PackageReference Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawCorePackageVersion)" />
+    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

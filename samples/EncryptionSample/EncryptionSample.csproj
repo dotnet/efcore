@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_sqlcipher" />
+    <PackageReference Include="SQLitePCLRaw.bundle_sqlcipher" Version="$(SQLitePCLRawBundleSqlcipherPackageVersion)" />
   </ItemGroup>
 
 </Project>

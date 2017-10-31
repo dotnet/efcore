@@ -296,4 +296,3 @@ __pycache__/
 *.odx.cs
 *.xsd.cs
 global.json
-korebuild-lock.txt
