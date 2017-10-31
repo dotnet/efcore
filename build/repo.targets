@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <Target Name="_FilterTestProjects" BeforeTargets="TestProjects">
     <ItemGroup Condition="'$(TestFilter)' != ''">

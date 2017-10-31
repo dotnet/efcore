@@ -23,8 +23,8 @@
 
   <ItemGroup>
     <!-- Using xunit.core and xunit.assert instead of 'xunit', which would force consumers to use xunit.analyzers. -->
-    <PackageReference Include="xunit.core" />
-    <PackageReference Include="xunit.assert" />
+    <PackageReference Include="xunit.core" Version="$(XunitCorePackageVersion)" />
+    <PackageReference Include="xunit.assert" Version="$(XunitAssertPackageVersion)" />
   </ItemGroup>
 
 </Project>
