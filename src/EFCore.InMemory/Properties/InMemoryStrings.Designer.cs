@@ -48,6 +48,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string UpdateConcurrencyException
             => GetString("UpdateConcurrencyException");
 
+        /// <summary>
+        ///     Conflicts were detected for instance of entity type '{entityType}' on the concurrency token properties {properties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        /// </summary>
+        public static string UpdateConcurrencyTokenException([CanBeNull] object entityType, [CanBeNull] object properties)
+            => string.Format(
+                GetString("UpdateConcurrencyTokenException", nameof(entityType), nameof(properties)),
+                entityType, properties);
+
+        /// <summary>
+        ///     Conflicts were detected for instance of entity type '{entityType}' with the key value '{keyValue}' on the concurrency token property values {conflictingValues}, with corresponding database values {databaseValues}.
+        /// </summary>
+        public static string UpdateConcurrencyTokenExceptionSensitive([CanBeNull] object entityType, [CanBeNull] object keyValue, [CanBeNull] object conflictingValues, [CanBeNull] object databaseValues)
+            => string.Format(
+                GetString("UpdateConcurrencyTokenExceptionSensitive", nameof(entityType), nameof(keyValue), nameof(conflictingValues), nameof(databaseValues)),
+                entityType, keyValue, conflictingValues, databaseValues);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
