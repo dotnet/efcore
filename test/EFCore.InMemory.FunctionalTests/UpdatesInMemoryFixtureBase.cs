@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class UpdatesInMemoryFixture : UpdatesFixtureBase
+    public abstract class UpdatesInMemoryFixtureBase : UpdatesFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 

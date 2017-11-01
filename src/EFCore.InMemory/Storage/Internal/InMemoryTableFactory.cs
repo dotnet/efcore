@@ -6,8 +6,10 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
@@ -17,8 +19,21 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class InMemoryTableFactory : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {
+        private readonly bool _sensitiveLoggingEnabled = false;
+
         private readonly ConcurrentDictionary<IKey, Func<IInMemoryTable>> _factories
             = new ConcurrentDictionary<IKey, Func<IInMemoryTable>>();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public InMemoryTableFactory([NotNull] ILoggingOptions loggingOptions)
+        {
+            Check.NotNull(loggingOptions, nameof(loggingOptions));
+
+            _sensitiveLoggingEnabled = loggingOptions.IsSensitiveDataLoggingEnabled;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -31,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateFactory))
                 .MakeGenericMethod(GetKeyType(key))
-                .Invoke(null, new object[] { key });
+                .Invoke(null, new object[] { key, _sensitiveLoggingEnabled });
 
         [UsedImplicitly]
-        private static Func<IInMemoryTable> CreateFactory<TKey>(IKey key)
-            => () => new InMemoryTable<TKey>(key.GetPrincipalKeyValueFactory<TKey>());
+        private static Func<IInMemoryTable> CreateFactory<TKey>(IKey key, bool sensitiveLoggingEnabled)
+            => () => new InMemoryTable<TKey>(key.GetPrincipalKeyValueFactory<TKey>(), sensitiveLoggingEnabled);
     }
 }

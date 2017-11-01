@@ -128,4 +128,10 @@
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Attempted to update or delete an entity that does not exist in the store.</value>
   </data>
+  <data name="UpdateConcurrencyTokenException" xml:space="preserve">
+    <value>Conflicts were detected for instance of entity type '{entityType}' on the concurrency token properties {properties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+  </data>
+  <data name="UpdateConcurrencyTokenExceptionSensitive" xml:space="preserve">
+    <value>Conflicts were detected for instance of entity type '{entityType}' with the key value '{keyValue}' on the concurrency token property values {conflictingValues}, with corresponding database values {databaseValues}.</value>
+  </data>
 </root>

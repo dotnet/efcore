@@ -8,9 +8,10 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class UpdatesInMemoryTest : UpdatesTestBase<UpdatesInMemoryFixture>
+    public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixture>
+        where TFixture : UpdatesInMemoryFixtureBase
     {
-        public UpdatesInMemoryTest(UpdatesInMemoryFixture fixture)
+        protected UpdatesInMemoryTestBase(TFixture fixture)
             : base(fixture)
         {
         }

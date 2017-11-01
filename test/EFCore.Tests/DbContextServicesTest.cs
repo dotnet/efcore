@@ -19,6 +19,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using JetBrains.Annotations;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
@@ -2441,6 +2442,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryTableFactory : InMemoryTableFactory
         {
+            public CustomInMemoryTableFactory(
+                [NotNull] ILoggingOptions loggingOptions)
+                : base(loggingOptions)
+            {
+            }
         }
 
         [Fact]
