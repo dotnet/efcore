@@ -6,6 +6,7 @@ using System.Resources;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -105,6 +106,143 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string NoUserId
             => GetString("NoUserId");
+
+        /// <summary>
+        ///     Found default schema {defaultSchema}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogFoundDefaultSchema
+            = new EventDefinition<string>(
+                OracleEventId.DefaultSchemaFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    OracleEventId.DefaultSchemaFound,
+                    _resourceManager.GetString("LogFoundDefaultSchema")));
+
+        /// <summary>
+        ///     Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}
+        /// </summary>
+        public static readonly FallbackEventDefinition LogFoundColumn
+            = new FallbackEventDefinition(
+                OracleEventId.ColumnFound,
+                LogLevel.Debug,
+                _resourceManager.GetString("LogFoundColumn"));
+
+        /// <summary>
+        ///     Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogFoundForeignKey
+            = new EventDefinition<string, string, string, string>(
+                OracleEventId.ForeignKeyFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Debug,
+                    OracleEventId.ForeignKeyFound,
+                    _resourceManager.GetString("LogFoundForeignKey")));
+
+        /// <summary>
+        ///     For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogPrincipalTableNotInSelectionSet
+            = new EventDefinition<string, string, string>(
+                OracleEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Warning,
+                    OracleEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
+                    _resourceManager.GetString("LogPrincipalTableNotInSelectionSet")));
+
+        /// <summary>
+        ///     Unable to find a schema in the database matching the selected schema {schema}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMissingSchema
+            = new EventDefinition<string>(
+                OracleEventId.MissingSchemaWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    OracleEventId.MissingSchemaWarning,
+                    _resourceManager.GetString("LogMissingSchema")));
+
+        /// <summary>
+        ///     Unable to find a table in the database matching the selected table {table}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMissingTable
+            = new EventDefinition<string>(
+                OracleEventId.MissingTableWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    OracleEventId.MissingTableWarning,
+                    _resourceManager.GetString("LogMissingTable")));
+
+        /// <summary>
+        ///     Found table with name: {name}.
+        /// </summary>
+        public static readonly EventDefinition<string> LogFoundTable
+            = new EventDefinition<string>(
+                OracleEventId.TableFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    OracleEventId.TableFound,
+                    _resourceManager.GetString("LogFoundTable")));
+
+        /// <summary>
+        ///     Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.
+        /// </summary>
+        public static readonly EventDefinition<string, string, bool> LogFoundIndex
+            = new EventDefinition<string, string, bool>(
+                OracleEventId.IndexFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, bool>(
+                    LogLevel.Debug,
+                    OracleEventId.IndexFound,
+                    _resourceManager.GetString("LogFoundIndex")));
+
+        /// <summary>
+        ///     Found primary key with name: {primaryKeyName}, table: {tableName}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundPrimaryKey
+            = new EventDefinition<string, string>(
+                OracleEventId.PrimaryKeyFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    OracleEventId.PrimaryKeyFound,
+                    _resourceManager.GetString("LogFoundPrimaryKey")));
+
+        /// <summary>
+        ///     Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogFoundUniqueConstraint
+            = new EventDefinition<string, string>(
+                OracleEventId.UniqueConstraintFound,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    OracleEventId.UniqueConstraintFound,
+                    _resourceManager.GetString("LogFoundUniqueConstraint")));
+
+        /// <summary>
+        ///     For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogPrincipalColumnNotFound
+            = new EventDefinition<string, string, string, string>(
+                OracleEventId.ForeignKeyPrincipalColumnMissingWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Warning,
+                    OracleEventId.ForeignKeyPrincipalColumnMissingWarning,
+                    _resourceManager.GetString("LogPrincipalColumnNotFound")));
+
+        /// <summary>
+        ///     The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.
+        /// </summary>
+        public static string InvalidTableToIncludeInScaffolding([CanBeNull] object table)
+            => string.Format(
+                GetString("InvalidTableToIncludeInScaffolding", nameof(table)),
+                table);
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
 
                     base.VisitSqlFunction(sqlFunctionExpression);
 
-                    Sql.Append(" AS DECIMAL(29,4))");
+                    Sql.Append(" AS NUMBER(29,4))");
 
                     return sqlFunctionExpression;
                 }

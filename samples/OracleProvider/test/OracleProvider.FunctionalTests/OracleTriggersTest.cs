@@ -149,15 +149,15 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.EnsureCreated();
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE TRIGGER TRG_InsertProduct
+                    @"CREATE OR REPLACE TRIGGER ""TRG_InsertProduct""
 AFTER INSERT ON ""Products"" FOR EACH ROW
 BEGIN
-  INSERT INTO ""ProductBackups""
+  INSERT INTO ""ProductBackups""(""Id"", ""Name"", ""Version"")
   VALUES (:NEW.""Id"", :NEW.""Name"", :NEW.""Version"");
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE TRIGGER TRG_UpdateProduct
+                    @"CREATE OR REPLACE TRIGGER ""TRG_UpdateProduct""
 AFTER UPDATE ON ""Products"" FOR EACH ROW
 BEGIN
   UPDATE ""ProductBackups"" b
@@ -166,7 +166,7 @@ BEGIN
 END;");
 
                 context.Database.ExecuteSqlCommand(
-                    @"CREATE OR REPLACE TRIGGER TRG_DeleteProduct
+                    @"CREATE OR REPLACE TRIGGER ""TRG_DeleteProduct""
 AFTER DELETE ON ""Products"" FOR EACH ROW
 BEGIN
   DELETE FROM ""ProductBackups""

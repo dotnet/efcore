@@ -152,4 +152,48 @@
   <data name="NoUserId" xml:space="preserve">
     <value>The database user could not be determined. To use EnsureDeleted, the connection string must specify User Id.</value>
   </data>
+  <data name="LogFoundDefaultSchema" xml:space="preserve">
+    <value>Found default schema {defaultSchema}.</value>
+    <comment>Debug OracleEventId.DefaultSchemaFound string</comment>
+  </data>
+  <data name="LogFoundColumn" xml:space="preserve">
+    <value>Found column with table: {tableName}, column name: {columnName}, ordinal: {ordinal}, data type: {dataType}, maximum length: {maxLength}, precision: {precision}, scale: {scale}, nullable: {isNullable}, identity: {isIdentity}, default value: {defaultValue}, computed value: {computedValue}</value>
+    <comment>Debug OracleEventId.ColumnFound string string int string int int int bool bool string string</comment>
+  </data>
+  <data name="LogFoundForeignKey" xml:space="preserve">
+    <value>Found foreign key on table: {tableName}, name: {foreignKeyName}, principal table: {principalTableName}, delete action: {deleteAction}.</value>
+    <comment>Debug OracleEventId.ForeignKeyFound string string string string</comment>
+  </data>
+  <data name="LogPrincipalTableNotInSelectionSet" xml:space="preserve">
+    <value>For foreign key {fkName} on table {tableName}, unable to model the end of the foreign key on principal table {principaltableName}. This is usually because the principal table was not included in the selection set.</value>
+    <comment>Warning OracleEventId.ForeignKeyReferencesMissingPrincipalTableWarning string string string</comment>
+  </data>
+  <data name="LogMissingSchema" xml:space="preserve">
+    <value>Unable to find a schema in the database matching the selected schema {schema}.</value>
+    <comment>Warning OracleEventId.MissingSchemaWarning string</comment>
+  </data>
+  <data name="LogMissingTable" xml:space="preserve">
+    <value>Unable to find a table in the database matching the selected table {table}.</value>
+    <comment>Warning OracleEventId.MissingTableWarning string</comment>
+  </data>
+  <data name="LogFoundTable" xml:space="preserve">
+    <value>Found table with name: {name}.</value>
+    <comment>Debug OracleEventId.TableFound string</comment>
+  </data> 
+  <data name="LogFoundIndex" xml:space="preserve">
+    <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
+    <comment>Debug OracleEventId.IndexFound string string bool</comment>
+  </data>
+  <data name="LogFoundPrimaryKey" xml:space="preserve">
+    <value>Found primary key with name: {primaryKeyName}, table: {tableName}.</value>
+    <comment>Debug OracleEventId.PrimaryKeyFound string string</comment>
+  </data>
+  <data name="LogFoundUniqueConstraint" xml:space="preserve">
+    <value>Found unique constraint with name: {uniqueConstraintName}, table: {tableName}.</value>
+    <comment>Debug OracleEventId.UniqueConstraintFound string string</comment>
+  </data>
+  <data name="LogPrincipalColumnNotFound" xml:space="preserve">
+    <value>For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
+    <comment>Warning OracleEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
+  </data> 
 </root>
