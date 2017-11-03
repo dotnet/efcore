@@ -9,14 +9,11 @@
 
   <ItemGroup>
     <Compile Remove="Query\**" />
-    <Compile Remove="Scaffolding\**" />
     <Compile Remove="TestUtilities\**" />
     <EmbeddedResource Remove="Query\**" />
-    <EmbeddedResource Remove="Scaffolding\**" />
     <EmbeddedResource Remove="SqlAzure\**" />
     <EmbeddedResource Remove="TestUtilities\**" />
     <None Remove="Query\**" />
-    <None Remove="Scaffolding\**" />
     <None Remove="TestUtilities\**" />
   </ItemGroup>
 

@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new ValueConverter<Guid, byte[]>(v => v.ToByteArray(), v => v == null ? Guid.Empty : new Guid(v)),
                 DbType.Binary);
 
-        private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("DECIMAL(29,4)");
+        private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("NUMBER(29,4)");
 
         private readonly TimeSpanTypeMapping _time = new OracleTimeSpanTypeMapping("INTERVAL DAY TO SECOND");
 
@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "timestamp", new List<RelationalTypeMapping> { _datetime } },
                     { "timestamp(3) with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
                     { "timestamp with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
-                    { "decimal(29,4)", new List<RelationalTypeMapping> { _decimal } },
+                    { "number(29,4)", new List<RelationalTypeMapping> { _decimal } },
                     { "float(49)", new List<RelationalTypeMapping> { _double } },
                     { "number(10)", new List<RelationalTypeMapping> { _int } },
                     { "nchar", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
@@ -154,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "number(3)", new List<RelationalTypeMapping> { _byte } },
                     { "raw(16)", new List<RelationalTypeMapping> { _uniqueidentifier } },
                     { "varchar2", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
+                    { "clob", new List<RelationalTypeMapping> { _unboundedUnicodeString, _unboundedAnsiString } },
                     { "xml", new List<RelationalTypeMapping> { _xml } }
                 };
 
