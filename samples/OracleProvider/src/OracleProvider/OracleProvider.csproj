@@ -15,15 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Design\**" />
-    <Compile Remove="Scaffolding\**" />
-    <EmbeddedResource Remove="Design\**" />
-    <EmbeddedResource Remove="Scaffolding\**" />
-    <None Remove="Design\**" />
-    <None Remove="Scaffolding\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
   </ItemGroup>
 

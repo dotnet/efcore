@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         private static readonly Dictionary<string, string> _typeMapping = new Dictionary<string, string>
         {
             [nameof(Convert.ToByte)] = "NUMBER(3)",
-            [nameof(Convert.ToDecimal)] = "DECIMAL(29,4)",
+            [nameof(Convert.ToDecimal)] = "NUMBER(29,4)",
             [nameof(Convert.ToDouble)] = "NUMBER",
             [nameof(Convert.ToInt16)] = "NUMBER(6)",
             [nameof(Convert.ToInt32)] = "NUMBER(10)",

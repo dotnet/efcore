@@ -541,7 +541,6 @@ namespace Microsoft.EntityFrameworkCore
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
-                _dbContextPool = null;
             }
         }
 
