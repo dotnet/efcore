@@ -146,6 +146,7 @@ namespace Samples
         }
     }
 
+    #region Entities
     public class Blog
     {
         private string _tenantId;
@@ -167,4 +168,5 @@ namespace Samples
         public int BlogId { get; set; }
         public Blog Blog { get; set; }
     }
+    #endregion
 }
