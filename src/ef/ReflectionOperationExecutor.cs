@@ -5,10 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-
-#if NET461
 using System.IO;
-#endif
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
@@ -28,12 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string rootNamespace)
             : base(assembly, startupAssembly, projectDir, dataDirectory, rootNamespace)
         {
-#if NET461
             AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
 
             _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });
             var reportHandlerType = _commandsAssembly.GetType(ReportHandlerTypeName, throwOnError: true, ignoreCase: false);
@@ -69,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 resultHandler,
                 arguments);
 
-#if NET461
         private Assembly ResolveAssembly(object sender, ResolveEventArgs args)
         {
             var assemblyName = new AssemblyName(args.Name);
@@ -94,9 +85,5 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public override void Dispose()
             => AppDomain.CurrentDomain.AssemblyResolve -= ResolveAssembly;
-#elif NETCOREAPP2_0
-#else
-#error target frameworks need to be updated.
-#endif
     }
 }
