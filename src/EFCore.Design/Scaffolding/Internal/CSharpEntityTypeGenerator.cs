@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -62,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             foreach (var ns in entityType.GetProperties()
                 .SelectMany(p => p.ClrType.GetNamespaces())
                 .Where(ns => ns != "System" && ns != "System.Collections.Generic")
-                .Distinct())
+                .Distinct()
+                .OrderBy(x => x, new NamespaceComparer()))
             {
                 _sb.AppendLine($"using {ns};");
             }

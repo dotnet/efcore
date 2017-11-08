@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -73,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "Microsoft.EntityFrameworkCore.Migrations"
             };
             namespaces.AddRange(GetNamespaces(upOperations.Concat(downOperations)));
-            foreach (var n in namespaces.OrderBy(x => x).Distinct())
+            foreach (var n in namespaces.OrderBy(x => x, new NamespaceComparer()).Distinct())
             {
                 builder
                     .Append("using ")
@@ -154,11 +155,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "Microsoft.EntityFrameworkCore",
                 "Microsoft.EntityFrameworkCore.Infrastructure",
                 "Microsoft.EntityFrameworkCore.Metadata",
-                "Microsoft.EntityFrameworkCore.Migrations",
-                contextType.Namespace
+                "Microsoft.EntityFrameworkCore.Migrations"
             };
+            if (!string.IsNullOrEmpty(contextType.Namespace))
+            {
+                namespaces.Add(contextType.Namespace);
+            }
             namespaces.AddRange(GetNamespaces(targetModel));
-            foreach (var n in namespaces.OrderBy(x => x).Distinct())
+            foreach (var n in namespaces.OrderBy(x => x, new NamespaceComparer()).Distinct())
             {
                 builder
                     .Append("using ")
@@ -233,11 +237,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "Microsoft.EntityFrameworkCore",
                 "Microsoft.EntityFrameworkCore.Infrastructure",
                 "Microsoft.EntityFrameworkCore.Metadata",
-                "Microsoft.EntityFrameworkCore.Migrations",
-                contextType.Namespace
+                "Microsoft.EntityFrameworkCore.Migrations"
             };
+            if (!string.IsNullOrEmpty(contextType.Namespace))
+            {
+                namespaces.Add(contextType.Namespace);
+            }
             namespaces.AddRange(GetNamespaces(model));
-            foreach (var n in namespaces.OrderBy(x => x).Distinct())
+            foreach (var n in namespaces.OrderBy(x => x, new NamespaceComparer()).Distinct())
             {
                 builder
                     .Append("using ")
