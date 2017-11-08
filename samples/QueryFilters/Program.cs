@@ -32,6 +32,28 @@ namespace Samples
 
                     Console.WriteLine();
                 }
+
+                #region IgnoreFilters
+
+                blogs = db.Blogs
+                    .Include(b => b.Posts)
+                    .IgnoreQueryFilters()
+                    .ToList();
+                
+                #endregion
+
+                foreach (var blog in blogs)
+                {
+                    Console.WriteLine(
+                        $"{blog.Url.PadRight(33)} [Tenant: {db.Entry(blog).Property("TenantId").CurrentValue}]");
+
+                    foreach (var post in blog.Posts)
+                    {
+                        Console.WriteLine($" - {post.Title.PadRight(30)} [IsDeleted: {post.IsDeleted}]");
+                    }
+
+                    Console.WriteLine();
+                }
             }
         }
 
@@ -116,6 +138,8 @@ namespace Samples
                 .UseLoggerFactory(new LoggerFactory().AddConsole((s, l) => l == LogLevel.Information && !s.EndsWith("Connection")));
         }
 
+        #region Configuration
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Blog>().Property<string>("TenantId").HasField("_tenantId");
@@ -124,6 +148,8 @@ namespace Samples
             modelBuilder.Entity<Blog>().HasQueryFilter(b => EF.Property<string>(b, "TenantId") == _tenantId);
             modelBuilder.Entity<Post>().HasQueryFilter(p => !p.IsDeleted);
         }
+        
+        #endregion
 
         public override int SaveChanges()
         {
@@ -147,6 +173,7 @@ namespace Samples
     }
 
     #region Entities
+
     public class Blog
     {
         private string _tenantId;
@@ -168,5 +195,6 @@ namespace Samples
         public int BlogId { get; set; }
         public Blog Blog { get; set; }
     }
+    
     #endregion
 }
