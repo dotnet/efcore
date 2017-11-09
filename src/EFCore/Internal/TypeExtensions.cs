@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -33,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             { typeof(string), "string" },
             { typeof(uint), "uint" },
             { typeof(ulong), "ulong" },
-            { typeof(ushort), "ushort" }
+            { typeof(ushort), "ushort" },
+            { typeof(void), "void" }
         };
 
         /// <summary>
@@ -56,9 +56,94 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static string DisplayName([NotNull] this Type type, bool fullName = true)
         {
-            var sb = new StringBuilder();
-            ProcessTypeName(type, sb, fullName);
-            return sb.ToString();
+            var stringBuilder = new StringBuilder();
+            ProcessType(stringBuilder, type, fullName);
+            return stringBuilder.ToString();
+        }
+
+        private static void ProcessType(StringBuilder builder, Type type, bool fullName)
+        {
+            if (type.IsGenericType)
+            {
+                var genericArguments = type.GetGenericArguments();
+                ProcessGenericType(builder, type, genericArguments, genericArguments.Length, fullName);
+            }
+            else if (type.IsArray)
+            {
+                ProcessArrayType(builder, type, fullName);
+            }
+            else if (_builtInTypeNames.TryGetValue(type, out var builtInName))
+            {
+                builder.Append(builtInName);
+            }
+            else if (!type.IsGenericParameter)
+            {
+                builder.Append(fullName ? type.FullName : type.Name);
+            }
+        }
+
+        private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName)
+        {
+            var innerType = type;
+            while (innerType.IsArray)
+            {
+                innerType = innerType.GetElementType();
+            }
+
+            ProcessType(builder, innerType, fullName);
+
+            while (type.IsArray)
+            {
+                builder.Append('[');
+                builder.Append(',', type.GetArrayRank() - 1);
+                builder.Append(']');
+                type = type.GetElementType();
+            }
+        }
+
+        private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
+        {
+            var offset = type.IsNested ? type.DeclaringType.GetGenericArguments().Length : 0;
+
+            if (fullName)
+            {
+                if (type.IsNested)
+                {
+                    ProcessGenericType(builder, type.DeclaringType, genericArguments, offset, fullName);
+                    builder.Append('+');
+                }
+                else
+                {
+                    builder.Append(type.Namespace);
+                    builder.Append('.');
+                }
+            }
+
+            var genericPartIndex = type.Name.IndexOf('`');
+            if (genericPartIndex <= 0)
+            {
+                builder.Append(type.Name);
+                return;
+            }
+
+            builder.Append(type.Name, 0, genericPartIndex);
+            builder.Append('<');
+
+            for (var i = offset; i < length; i++)
+            {
+                ProcessType(builder, genericArguments[i], fullName);
+                if (i + 1 == length)
+                {
+                    continue;
+                }
+                builder.Append(',');
+                if (!genericArguments[i + 1].IsGenericParameter)
+                {
+                    builder.Append(' ');
+                }
+            }
+
+            builder.Append('>');
         }
 
         /// <summary>
@@ -66,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static FieldInfo GetFieldInfo([NotNull] this Type type, [NotNull] string fieldName)
-            => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
+                => type.GetRuntimeFields().FirstOrDefault(f => f.Name == fieldName && !f.IsStatic);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -83,97 +168,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     foreach (var ns in typeArgument.GetNamespaces())
                     {
                         yield return ns;
-                    }
-                }
-            }
-        }
-
-        private static void AppendGenericArguments(Type[] args, int startIndex, int numberOfArgsToAppend, StringBuilder sb, bool fullName)
-        {
-            var totalArgs = args.Length;
-            if (totalArgs >= startIndex + numberOfArgsToAppend)
-            {
-                sb.Append("<");
-                for (var i = startIndex; i < startIndex + numberOfArgsToAppend; i++)
-                {
-                    ProcessTypeName(args[i], sb, fullName);
-                    if (i + 1 < startIndex + numberOfArgsToAppend)
-                    {
-                        sb.Append(", ");
-                    }
-                }
-                sb.Append(">");
-            }
-        }
-
-        private static void ProcessTypeName(Type t, StringBuilder sb, bool fullName)
-        {
-            if (t.GetTypeInfo().IsGenericType)
-            {
-                ProcessNestedGenericTypes(t, sb, fullName);
-                return;
-            }
-            if (_builtInTypeNames.ContainsKey(t))
-            {
-                sb.Append(_builtInTypeNames[t]);
-            }
-            else
-            {
-                sb.Append(fullName ? t.FullName : t.Name);
-            }
-        }
-
-        private static void ProcessNestedGenericTypes(Type t, StringBuilder sb, bool fullName)
-        {
-            var genericFullName = t.GetGenericTypeDefinition().FullName;
-            var genericSimpleName = t.GetGenericTypeDefinition().Name;
-            var parts = genericFullName.Split('+');
-            var genericArguments = t.GetTypeInfo().GenericTypeArguments;
-            var index = 0;
-            var totalParts = parts.Length;
-            if (totalParts == 1)
-            {
-                var part = parts[0];
-                var num = part.IndexOf('`');
-                if (num == -1)
-                {
-                    return;
-                }
-
-                var name = part.Substring(0, num);
-                var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1), CultureInfo.InvariantCulture);
-                sb.Append(fullName ? name : genericSimpleName.Substring(0, genericSimpleName.IndexOf('`')));
-                AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
-                return;
-            }
-            for (var i = 0; i < totalParts; i++)
-            {
-                var part = parts[i];
-                var num = part.IndexOf('`');
-                if (num != -1)
-                {
-                    var name = part.Substring(0, num);
-                    var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1), CultureInfo.InvariantCulture);
-                    if (fullName || (i == totalParts - 1))
-                    {
-                        sb.Append(name);
-                        AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
-                    }
-                    if (fullName && (i != totalParts - 1))
-                    {
-                        sb.Append("+");
-                    }
-                    index += numberOfGenericTypeArgs;
-                }
-                else
-                {
-                    if (fullName || (i == totalParts - 1))
-                    {
-                        sb.Append(part);
-                    }
-                    if (fullName && (i != totalParts - 1))
-                    {
-                        sb.Append("+");
                     }
                 }
             }
