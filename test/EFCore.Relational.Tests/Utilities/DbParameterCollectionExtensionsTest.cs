@@ -10,7 +10,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
-    public class RelationalLoggerExtensionsTest
+    public class DbParameterCollectionExtensionsTest
     {
         [Fact]
         public void Short_byte_arrays_are_not_truncated()
