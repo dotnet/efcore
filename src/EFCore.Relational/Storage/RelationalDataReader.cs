@@ -134,26 +134,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (!_disposed)
             {
-                // Defensively read RecordsAffected since MySQL provider can throw ObjectDisposedException
-                var recordsAffected = -1;
-                try
-                {
-                    recordsAffected = _reader.RecordsAffected;
-                }
-                catch
-                {
-                }
-
                 _reader.Dispose();
                 _command.Parameters.Clear();
                 _command.Dispose();
                 _connection.Close();
+
                 _logger.DataReaderDisposing(
                     _connection,
                     _command,
                     _reader,
                     _commandId,
-                    recordsAffected,
+                    _reader.RecordsAffected,
                     _readCount,
                     _startTime,
                     _stopwatch.Elapsed);
