@@ -267,7 +267,7 @@ Register-TabExpansion Scaffold-DbContext @{
     The provider to use. (E.g. Microsoft.EntityFrameworkCore.SqlServer)
 
 .PARAMETER OutputDir
-    The directory to put files in. Paths are relaive to the project directory.
+    The directory to put files in. Paths are relative to the project directory.
 
 .PARAMETER Context
     The name of the DbContext to generate.

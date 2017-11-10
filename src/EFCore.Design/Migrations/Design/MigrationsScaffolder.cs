@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="projectDir"> The project's root directory. </param>
         /// <param name="migration"> The scaffolded migration. </param>
-        /// <param name="outputDir"> The directory to put files in. Paths are relaive to the project directory. </param>
+        /// <param name="outputDir"> The directory to put files in. Paths are relative to the project directory. </param>
         /// <returns> The saved migrations files. </returns>
         public virtual MigrationFiles Save(
             [NotNull] string projectDir,

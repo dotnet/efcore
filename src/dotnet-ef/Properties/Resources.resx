@@ -166,10 +166,10 @@
     <value>Overwrite existing files.</value>
   </data>
   <data name="DotnetEfFullName" xml:space="preserve">
-    <value>Entity Framework Core .NET Command Line Tools</value>
+    <value>Entity Framework Core .NET Command-line Tools</value>
   </data>
   <data name="EFFullName" xml:space="preserve">
-    <value>Entity Framework Core Command Line Tools</value>
+    <value>Entity Framework Core Command-line Tools</value>
   </data>
   <data name="FrameworkDescription" xml:space="preserve">
     <value>The target framework.</value>
@@ -226,7 +226,7 @@
     <value>More than one project was found in the current working directory. Use the --startup-project option.</value>
   </data>
   <data name="NETStandardStartupProject" xml:space="preserve">
-    <value>Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command Line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework.</value>
+    <value>Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework.</value>
   </data>
   <data name="NoColorDescription" xml:space="preserve">
     <value>Don't colorize output.</value>
@@ -271,7 +271,7 @@
     <value>The tables to generate entity types for.</value>
   </data>
   <data name="UnsupportedFramework" xml:space="preserve">
-    <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command Line Tools don't support this framework.</value>
+    <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework.</value>
   </data>
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
     <value>Use table and column names directly from the database.</value>

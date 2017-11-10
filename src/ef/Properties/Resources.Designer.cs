@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextScaffoldForceDescription");
 
         /// <summary>
-        ///     Entity Framework Core Command Line Tools
+        ///     Entity Framework Core Command-line Tools
         /// </summary>
         public static string EFFullName
             => GetString("EFFullName");

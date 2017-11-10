@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>connectionString</c>--The connection string to the database.</para>
             ///     <para><c>provider</c>--The provider to use.</para>
-            ///     <para><c>outputDir</c>--The directory to put files in. Paths are relaive to the project directory.</para>
+            ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
             ///     <para><c>dbContextClassName</c>--The name of the DbContext to generate.</para>
             ///     <para><c>schemaFilters</c>--The schemas of tables to generate entity types for.</para>
             ///     <para><c>tableFilters</c>--The tables to generate entity types for.</para>

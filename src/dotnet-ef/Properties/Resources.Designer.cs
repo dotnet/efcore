@@ -112,13 +112,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextScaffoldForceDescription");
 
         /// <summary>
-        ///     Entity Framework Core .NET Command Line Tools
+        ///     Entity Framework Core .NET Command-line Tools
         /// </summary>
         public static string DotnetEfFullName
             => GetString("DotnetEfFullName");
 
         /// <summary>
-        ///     Entity Framework Core Command Line Tools
+        ///     Entity Framework Core Command-line Tools
         /// </summary>
         public static string EFFullName
             => GetString("EFFullName");
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MultipleStartupProjects");
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command Line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework.
+        ///     Startup project '{startupProject}' targets framework '.NETStandard'. There is no runtime associated with this framework, and projects targeting it cannot be executed directly. To use the Entity Framework Core .NET Command-line Tools with this project, add an executable project targeting .NET Core or .NET Framework that references this project, and set it as the startup project using --startup-project; or, update this project to cross-target .NET Core or .NET Framework.
         /// </summary>
         public static string NETStandardStartupProject([CanBeNull] object startupProject)
             => string.Format(
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("TablesDescription");
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command Line Tools don't support this framework.
+        ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework.
         /// </summary>
         public static string UnsupportedFramework([CanBeNull] object startupProject, [CanBeNull] object targetFramework)
             => string.Format(

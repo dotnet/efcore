@@ -178,7 +178,7 @@
     <value>Overwrite existing files.</value>
   </data>
   <data name="EFFullName" xml:space="preserve">
-    <value>Entity Framework Core Command Line Tools</value>
+    <value>Entity Framework Core Command-line Tools</value>
   </data>
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>

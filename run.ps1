@@ -37,7 +37,7 @@ This function will create a file $PSScriptRoot/korebuild-lock.txt. This lock fil
 When the lockfile is not present, KoreBuild will create one using latest available version from $Channel.
 
 The $ConfigFile is expected to be an JSON file. It is optional, and the configuration values in it are optional as well. Any options set
-in the file are overridden by command line parameters.
+in the file are overridden by command-line parameters.
 
 .EXAMPLE
 Example config file:

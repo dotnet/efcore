@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
-    <Description>Entity Framework Core Command Line Tools</Description>
+    <Description>Entity Framework Core Command-line Tools</Description>
     <OutputType>Exe</OutputType>
     <AssemblyName Condition="'$(Platform)' == 'x86'">ef.x86</AssemblyName>
     <IsPackable>false</IsPackable>
