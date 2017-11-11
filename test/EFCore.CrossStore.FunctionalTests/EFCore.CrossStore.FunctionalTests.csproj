@@ -7,6 +7,8 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <!-- Workaround https://github.com/Microsoft/vstest/issues/792. -->
     <HasRuntimeOutput>true</HasRuntimeOutput>
+    <!-- Put this project into its own test group to avoid running parallel with other test projects. Northwind is not inialized properly in this test assembly. -->
+    <TestGroupName>CrossStore.FunctionalTests</TestGroupName>
   </PropertyGroup>
 
   <ItemGroup>
