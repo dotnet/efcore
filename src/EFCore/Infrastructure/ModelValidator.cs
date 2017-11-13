@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -462,11 +462,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (!seedDatum.TryGetValue(property.Name, out var value)
                             || value == null)
                         {
-                            if (!property.IsNullable
-                                && !property.RequiresValueGenerator())
+                            if (!property.IsNullable)
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                             }
+                        } else if (property.RequiresValueGenerator()
+                                   && property.ClrType.IsDefaultValue(value))
+                        {
+                            throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                         }
                         else
                         {

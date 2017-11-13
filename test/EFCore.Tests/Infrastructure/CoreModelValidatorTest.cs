@@ -583,6 +583,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
+        [Fact]
+        public virtual void Detects_missing_key_values_in_seeds()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<A>(e =>
+                {
+                    e.SeedData(new A());
+                });
+
+            VerifyError(CoreStrings.SeedDatumMissingValue(nameof(A), nameof(A.Id)),
+                modelBuilder.Model);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
