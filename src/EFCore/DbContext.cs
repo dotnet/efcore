@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
         private IDbContextPool _dbContextPool;
         private bool _initializing;
         private bool _disposed;
-        
+
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="DbContext" /> class. The
@@ -487,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker?.AutoDetectChangesEnabled,
                 _changeTracker?.QueryTrackingBehavior,
                 _database?.AutoTransactionsEnabled);
-        
+
         void IDbContextPoolable.Resurrect(DbContextPoolConfigurationSnapshot configurationSnapshot)
         {
             _disposed = false;
@@ -510,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
 
         void IDbContextPoolable.ResetState()
         {
-            var resettableServices 
+            var resettableServices
                 = _contextServices?.InternalServiceProvider?
                     .GetService<IEnumerable<IResettableService>>()?.ToList();
 
@@ -1346,5 +1347,31 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance => InternalServiceProvider;
+
+        #region Hidden System.Object members
+
+        /// <summary>
+        ///     Returns a string that represents the current object.
+        /// </summary>
+        /// <returns> A string that represents the current object. </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => base.ToString();
+
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => base.Equals(obj);
+
+        /// <summary>
+        ///     Serves as the default hash function.
+        /// </summary>
+        /// <returns> A hash code for the current object. </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => base.GetHashCode();
+
+        #endregion
     }
 }
