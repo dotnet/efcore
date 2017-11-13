@@ -1177,7 +1177,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1198,7 +1198,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1219,7 +1219,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 
                     var result = query.ToList();
@@ -3122,6 +3122,141 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
         {
             public int Id { get; set; }
             public bool Processed { get; set; }
+        }
+
+        #endregion
+
+        #region Bug10271
+
+        [Fact]
+        public virtual void Static_member_from_non_dbContext_class_is_inlined_in_queryFilter()
+        {
+            using (CreateDatabase10271())
+            {
+                using (var context = new MyContext10271(_options))
+                {
+                    var query = context.Blogs.ToList();
+
+                    var blog = Assert.Single(query);
+
+                    AssertSql(
+                        @"SELECT [b].[Id], [b].[Processed]
+FROM [Blogs] AS [b]
+WHERE [b].[Processed] = 1");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Local_variable_from_OnModelCreating_is_inlined_in_queryFilter()
+        {
+            using (CreateDatabase10271())
+            {
+                using (var context = new MyContext10271(_options))
+                {
+                    var query = context.Posts.ToList();
+
+                    var blog = Assert.Single(query);
+
+                    AssertSql(
+                        @"SELECT [p].[Id], [p].[TenantId]
+FROM [Posts] AS [p]
+WHERE [p].[TenantId] = 1");
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void ezpz()
+        {
+            using (CreateDatabase10271())
+            {
+                using (var context = new MyContext10271(_options))
+                {
+                    Assert.Empty(context.Comments.ToList());
+
+                    context.Value = 1;
+                    var query = context.Comments.ToList();
+
+                    var blog = Assert.Single(query);
+
+                    AssertSql(
+                        @"SELECT [c].[Id], [c].[Include]
+FROM [Comments] AS [c]",
+                        @"SELECT [c].[Id], [c].[Include]
+FROM [Comments] AS [c]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase10271()
+            => CreateTestStore(
+                () => new MyContext10271(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Blog10271 { Processed = true },
+                        new Blog10271 { Processed = false },
+                        new Post10271 { TenantId = 1 },
+                        new Post10271 { TenantId = 2 },
+                        new Comment10271 { Include = true },
+                        new Comment10271 { Include = false }
+                    );
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        public class MyContext10271 : DbContext
+        {
+            public MyContext10271(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public int Value { get; set; }
+
+            public DbSet<Blog10271> Blogs { get; set; }
+            public DbSet<Post10271> Posts { get; set; }
+            public DbSet<Comment10271> Comments { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog10271>()
+                    .HasQueryFilter(b => b.Processed == Blog10271.Enabled);
+
+                var tenantId = 1;
+                modelBuilder.Entity<Post10271>()
+                    .HasQueryFilter(p => p.TenantId == tenantId);
+
+                Expression<Func<int, bool>> predicate = c => c == Value;
+                Expression<Func<Comment10271, bool>> filter
+                    = c => c.Id == new List<int> { 1, 2, 3 }.AsQueryable().Where(predicate).FirstOrDefault();
+
+                modelBuilder.Entity<Comment10271>()
+                    .HasQueryFilter(filter);
+            }
+        }
+
+        public class Blog10271
+        {
+            public static bool Enabled = true;
+
+            public int Id { get; set; }
+            public bool Processed { get; set; }
+        }
+
+        public class Post10271
+        {
+            public int Id { get; set; }
+            public int TenantId { get; set; }
+        }
+
+        public class Comment10271
+        {
+            public int Id { get; set; }
+            public bool Include { get; set; }
         }
 
         #endregion
