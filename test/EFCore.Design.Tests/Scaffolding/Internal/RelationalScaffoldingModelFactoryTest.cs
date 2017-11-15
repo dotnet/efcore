@@ -1157,8 +1157,47 @@ namespace Microsoft.EntityFrameworkCore
             var columns = model.FindEntityType("Table").GetProperties().ToList();
 
             Assert.Equal(typeof(bool), columns.First(c => c.Name == "NonNullBoolWithoutDefault").ClrType);
+            Assert.False(columns.First(c => c.Name == "NonNullBoolWithoutDefault").IsNullable);
             Assert.Equal(typeof(bool?), columns.First(c => c.Name == "NonNullBoolWithDefault").ClrType);
+            Assert.False(columns.First(c => c.Name == "NonNullBoolWithDefault").IsNullable);
             Assert.Equal("Default", columns.First(c => c.Name == "NonNullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
+        }
+
+        [Fact]
+        public void Nullable_column_with_default_value_sql_does_not_generate_warning()
+        {
+            var dbModel = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Table",
+                        Columns =
+                        {
+                            IdColumn,
+                            new DatabaseColumn
+                            {
+                                Name = "NullBoolWithDefault",
+                                StoreType = "bit",
+                                DefaultValueSql = "Default",
+                                IsNullable = true
+                            }
+                        },
+                        PrimaryKey = IdPrimaryKey
+                    }
+                }
+            };
+
+            var model = _factory.Create(dbModel);
+
+            var columns = model.FindEntityType("Table").GetProperties().ToList();
+
+            Assert.Equal(typeof(bool?), columns.First(c => c.Name == "NullBoolWithDefault").ClrType);
+            Assert.True(columns.First(c => c.Name == "NullBoolWithDefault").IsNullable);
+            Assert.Equal("Default", columns.First(c => c.Name == "NullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
+
+            Assert.Empty(_reporter.Messages);
         }
 
         [Fact]
@@ -1227,96 +1266,96 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").Relational().ColumnType);
             Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").Relational().ColumnType);
         }
-    }
 
-    public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
-    {
-        public override IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
+        public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
         {
-            foreach (var sequence in databaseModel.Sequences)
+            public override IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
             {
-                sequence.Database = databaseModel;
+                foreach (var sequence in databaseModel.Sequences)
+                {
+                    sequence.Database = databaseModel;
+                }
+
+                foreach (var table in databaseModel.Tables)
+                {
+                    table.Database = databaseModel;
+
+                    foreach (var column in table.Columns)
+                    {
+                        column.Table = table;
+                    }
+
+                    if (table.PrimaryKey != null)
+                    {
+                        table.PrimaryKey.Table = table;
+                    }
+
+                    foreach (var index in table.Indexes)
+                    {
+                        index.Table = table;
+                    }
+
+                    foreach (var uniqueConstraints in table.UniqueConstraints)
+                    {
+                        uniqueConstraints.Table = table;
+                    }
+
+                    foreach (var foreignKey in table.ForeignKeys)
+                    {
+                        foreignKey.Table = table;
+                    }
+                }
+
+                return base.Create(databaseModel, useDatabaseNames);
             }
 
-            foreach (var table in databaseModel.Tables)
+            public FakeScaffoldingModelFactory(
+                [NotNull] IOperationReporter reporter)
+                : this(reporter, new NullPluralizer())
             {
-                table.Database = databaseModel;
-
-                foreach (var column in table.Columns)
-                {
-                    column.Table = table;
-                }
-
-                if (table.PrimaryKey != null)
-                {
-                    table.PrimaryKey.Table = table;
-                }
-
-                foreach (var index in table.Indexes)
-                {
-                    index.Table = table;
-                }
-
-                foreach (var uniqueConstraints in table.UniqueConstraints)
-                {
-                    uniqueConstraints.Table = table;
-                }
-
-                foreach (var foreignKey in table.ForeignKeys)
-                {
-                    foreignKey.Table = table;
-                }
             }
 
-            return base.Create(databaseModel, useDatabaseNames);
+            public FakeScaffoldingModelFactory(
+                [NotNull] IOperationReporter reporter,
+                [NotNull] IPluralizer pluralizer)
+                : base(
+                    reporter,
+                    new CandidateNamingService(),
+                    pluralizer,
+                    new CSharpUtilities(),
+                    new ScaffoldingTypeMapper(new SqlServerTypeMapper(new RelationalTypeMapperDependencies())))
+            {
+            }
         }
 
-        public FakeScaffoldingModelFactory(
-            [NotNull] IOperationReporter reporter)
-            : this(reporter, new NullPluralizer())
+        public class FakeDatabaseModelFactory : IDatabaseModelFactory
         {
+            public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
+            {
+                throw new NotImplementedException();
+            }
+
+            public virtual DatabaseModel Create(DbConnection connectio, IEnumerable<string> tables, IEnumerable<string> schemas)
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public FakeScaffoldingModelFactory(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] IPluralizer pluralizer)
-            : base(
-                reporter,
-                new CandidateNamingService(),
-                pluralizer,
-                new CSharpUtilities(),
-                new ScaffoldingTypeMapper(new SqlServerTypeMapper(new RelationalTypeMapperDependencies())))
+        public class FakePluralizer : IPluralizer
         {
-        }
-    }
+            public string Pluralize(string name)
+            {
+                return name.EndsWith("s")
+                    ? name
+                    : name + "s";
+            }
 
-    public class FakeDatabaseModelFactory : IDatabaseModelFactory
-    {
-        public virtual DatabaseModel Create(string connectionString, IEnumerable<string> tables, IEnumerable<string> schemas)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual DatabaseModel Create(DbConnection connectio, IEnumerable<string> tables, IEnumerable<string> schemas)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class FakePluralizer : IPluralizer
-    {
-        public string Pluralize(string name)
-        {
-            return name.EndsWith("s")
-                ? name
-                : name + "s";
-        }
-
-        public string Singularize(string name)
-        {
-            return name.EndsWith("s")
-                ? name.Substring(0, name.Length - 1)
-                : name;
+            public string Singularize(string name)
+            {
+                return name.EndsWith("s")
+                    ? name.Substring(0, name.Length - 1)
+                    : name;
+            }
         }
     }
 }

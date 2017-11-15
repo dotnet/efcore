@@ -362,14 +362,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             var clrType = typeScaffoldingInfo.ClrType;
-            var forceNullable = typeof(bool) == clrType && column.DefaultValueSql != null;
-            if (forceNullable)
+            if (column.IsNullable)
+            {
+                clrType = clrType.MakeNullable();
+            }
+
+            if (clrType == typeof(bool) && column.DefaultValueSql != null)
             {
                 _reporter.WriteWarning(
                     DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint(column.DisplayName()));
-            }
-            if (column.IsNullable || forceNullable)
-            {
+
                 clrType = clrType.MakeNullable();
             }
 
@@ -420,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!(column.Table.PrimaryKey?.Columns.Contains(column) ?? false))
             {
-                property.IsRequired(!column.IsNullable && !forceNullable);
+                property.IsRequired(!column.IsNullable);
             }
 
             if ((bool?)column[ScaffoldingAnnotationNames.ConcurrencyToken] == true)
