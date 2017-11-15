@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class ReverseEngineeringConfigurationTests
@@ -28,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var cSharpUtilities = new CSharpUtilities();
             var reverseEngineer = new ReverseEngineerScaffolder(
-                new FakeDatabaseModelFactory(),
-                new FakeScaffoldingModelFactory(new TestOperationReporter()),
+                new RelationalDatabaseModelFactoryTest.FakeDatabaseModelFactory(),
+                new RelationalDatabaseModelFactoryTest.FakeScaffoldingModelFactory(new TestOperationReporter()),
                 new CSharpScaffoldingGenerator(
                     new InMemoryFileService(),
                     new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),

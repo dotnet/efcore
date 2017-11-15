@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("Name with no s at end", "Name_with_no_s_at_end")]
         public void Singularizes_names(string input, string output)
         {
-            var fakePluralizer = new FakePluralizer();
+            var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Singularize);
             var table = new DatabaseTable { Name = input };
             Assert.Equal(output, namer.GetName(table));
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("Name with no s at end", "Name_with_no_s_at_ends")]
         public void Pluralizes_names(string input, string output)
         {
-            var fakePluralizer = new FakePluralizer();
+            var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Pluralize);
             var table = new DatabaseTable { Name = input };
             Assert.Equal(output, namer.GetName(table));
