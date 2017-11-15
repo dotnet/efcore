@@ -546,5 +546,18 @@ END
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'ALFKI'");
         }
+
+        public override void Projection_in_a_subquery_should_be_liftable()
+        {
+            base.Projection_in_a_subquery_should_be_liftable();
+
+            AssertSql(
+    @"@__p_0='1'
+
+SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]
+OFFSET @__p_0 ROWS");
+        }
     }
 }

@@ -1241,13 +1241,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             Visit(aliasExpression.Expression);
 
-            if (aliasExpression.Alias != null)
+            if (aliasExpression.Alias != GetColumnName(aliasExpression.Expression))
             {
                 _relationalCommandBuilder.Append(AliasSeparator);
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(aliasExpression.Alias));
             }
 
             return aliasExpression;
+        }
+
+        private static string GetColumnName(Expression expression)
+        {
+            expression = expression.RemoveConvert();
+            expression = (expression as NullableExpression)?.Operand.RemoveConvert()
+                         ?? expression;
+
+            return (expression as AliasExpression)?.Alias
+                   ?? (expression as ColumnExpression)?.Name
+                   ?? (expression as ColumnReferenceExpression)?.Name;
         }
 
         /// <summary>

@@ -701,10 +701,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 uniqueAlias = uniqueAliasBase + counter++;
             }
 
-            var updatedExpression
-                = !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase)
-                    ? new AliasExpression(uniqueAlias, (expression as AliasExpression)?.Expression ?? expression)
-                    : expression;
+            var updatedExpression = expression;
+
+            if (!(expression is ColumnReferenceExpression
+                || expression is ColumnExpression
+                || expression is AliasExpression)
+                || !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
+            {
+                updatedExpression = new AliasExpression(uniqueAlias, (expression as AliasExpression)?.Expression ?? expression);
+            }
 
             var currentOrderingIndex = _orderBy.FindIndex(e => e.Expression.Equals(expression));
 

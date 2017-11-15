@@ -872,6 +872,21 @@ FROM (
 WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
         }
 
+        public override void Projection_in_a_subquery_should_be_liftable()
+        {
+            base.Projection_in_a_subquery_should_be_liftable();
+
+            AssertSql(
+  @"@__p_0='1'
+
+SELECT [t].[EmployeeID]
+FROM (
+    SELECT [e].[EmployeeID], ROW_NUMBER() OVER(ORDER BY [e].[EmployeeID]) AS [__RowNumber__]
+    FROM [Employees] AS [e]
+) AS [t]
+WHERE [t].[__RowNumber__] > @__p_0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
