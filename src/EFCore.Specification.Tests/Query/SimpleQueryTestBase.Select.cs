@@ -593,5 +593,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where o.CustomerID == "ALFKI"
                       select o.CustomerID == null ? true : o.OrderID < 100);
         }
+
+        [ConditionalFact]
+        public virtual void Projection_in_a_subquery_should_be_liftable()
+        {
+            AssertQuery<Employee>(
+                es => es.OrderBy(e => e.EmployeeID)
+                    .Select(e => string.Format("{0}", e.EmployeeID))
+                    .Skip(1));
+        }
     }
 }
