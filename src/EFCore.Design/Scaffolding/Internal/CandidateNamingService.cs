@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 candidateName = FindCommonPrefix(firstProperty.Name, properties.Select(p => p.Name));
             }
 
-            return StripId(candidateName, properties);
+            return StripId(candidateName);
         }
 
         private string FindCommonPrefix(string firstName, IEnumerable<string> propertyNames)
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return firstName.Substring(0, prefixLength);
         }
 
-        private string StripId(string commonPrefix, IEnumerable<IProperty> properties)
+        private string StripId(string commonPrefix)
         {
             if (commonPrefix.Length > 2
                 && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase))

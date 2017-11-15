@@ -2597,7 +2597,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PropertyIdentity? navigationToPrincipal,
             PropertyIdentity? navigationToDependent,
             ConfigurationSource? configurationSource,
-            // ReSharper disable once UnusedParameter.Local
             bool shouldThrow,
             out bool shouldInvert,
             out bool shouldResetToPrincipal,

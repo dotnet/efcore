@@ -356,18 +356,5 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(new[] { new MigrationCommand(deleteCommand) })
                 .ToList();
         }
-
-        private string FormatCommandsForReporting(IEnumerable<MigrationCommand> commands)
-        {
-            var builder = new IndentedStringBuilder();
-            foreach (var command in commands)
-            {
-                builder
-                    .AppendLine(command.CommandText)
-                    .Append(_sqlGenerationHelper.BatchTerminator);
-            }
-
-            return builder.ToString();
-        }
     }
 }
