@@ -8,8 +8,8 @@
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.4",
-    "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.4",
+    "Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests": "1.1.5",
+    "Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.5",
     "Microsoft.EntityFrameworkCore.Sqlite.FunctionalTests": {
       "target": "project"
     }
