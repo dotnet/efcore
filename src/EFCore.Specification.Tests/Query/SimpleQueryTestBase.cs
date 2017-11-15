@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs =>
                     from c in cs
 #pragma warning disable CS1718 // Comparison made to same variable
-                    // ReSharper disable once EqualExpressionComparison
+                        // ReSharper disable once EqualExpressionComparison
                     where c == c
 #pragma warning restore CS1718 // Comparison made to same variable
                     select c.CustomerID);
@@ -2539,7 +2539,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = (from o in context.Orders.Take(1)
-                       // ReSharper disable once UseMethodAny.0
+                           // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
@@ -4037,6 +4037,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Join_take_count_works()
+        {
+            AssertSingleResult<Order, Customer>(
+                (os, cs) =>
+                (from o in os.Where(o => o.OrderID > 690 && o.OrderID < 710)
+                 join c in cs.Where(c => c.CustomerID == "ALFKI")
+                  on o.CustomerID equals c.CustomerID
+                 select o)
+                 .Take(5)
+                 .Count());
         }
     }
 }
