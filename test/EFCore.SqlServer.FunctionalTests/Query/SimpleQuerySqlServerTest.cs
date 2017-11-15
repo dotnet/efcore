@@ -4333,6 +4333,26 @@ FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = @_outer_CustomerID");
         }
 
+        public override void Join_take_count_works()
+        {
+            base.Join_take_count_works();
+
+            AssertSql(
+    @"@__p_0='5'
+
+SELECT COUNT(*)
+FROM (
+    SELECT TOP(@__p_0) [o].*
+    FROM [Orders] AS [o]
+    INNER JOIN (
+        SELECT [c].*
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] = N'ALFKI'
+    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
+    WHERE ([o].[OrderID] > 690) AND ([o].[OrderID] < 710)
+) AS [t0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

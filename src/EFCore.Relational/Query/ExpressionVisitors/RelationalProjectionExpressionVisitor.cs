@@ -227,8 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                             return base.Visit(expression);
 
                         case QuerySourceReferenceExpression qsre:
-                            if (QueryModelVisitor.ParentQueryModelVisitor != null
-                                && selectExpression.HandlesQuerySource(qsre.ReferencedQuerySource))
+                            if (selectExpression.HandlesQuerySource(qsre.ReferencedQuerySource))
                             {
                                 selectExpression.ProjectStarTable = selectExpression.GetTableForQuerySource(qsre.ReferencedQuerySource);
                             }
