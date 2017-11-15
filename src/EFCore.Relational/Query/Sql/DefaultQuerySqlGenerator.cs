@@ -1244,10 +1244,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             if (aliasExpression.Alias != null)
             {
                 _relationalCommandBuilder.Append(AliasSeparator);
-            }
-
-            if (aliasExpression.Alias != null)
-            {
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(aliasExpression.Alias));
             }
 

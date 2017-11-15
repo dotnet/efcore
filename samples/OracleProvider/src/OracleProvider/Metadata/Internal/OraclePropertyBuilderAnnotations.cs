@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
         }
 
-        private InternalPropertyBuilder PropertyBuilder => ((Property)Property).Builder;
-
         protected new virtual RelationalAnnotationsBuilder Annotations => (RelationalAnnotationsBuilder)base.Annotations;
 
         protected override bool ShouldThrowOnConflict => false;

@@ -2143,22 +2143,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool UsePropertyAccessMode(PropertyAccessMode propertyAccessMode, ConfigurationSource configurationSource)
             => HasAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, propertyAccessMode, configurationSource);
 
-        private struct RelationshipSnapshot
-        {
-            public readonly ForeignKey ForeignKey;
-            public readonly Navigation NavigationFrom;
-            public readonly Navigation NavigationTo;
-            public readonly bool IsDependent;
-
-            public RelationshipSnapshot(ForeignKey foreignKey, Navigation navigationFrom, Navigation navigationTo, bool isDependent)
-            {
-                ForeignKey = foreignKey;
-                NavigationFrom = navigationFrom;
-                NavigationTo = navigationTo;
-                IsDependent = isDependent;
-            }
-        }
-
         private class RelationshipBuilderSnapshot
         {
             public RelationshipBuilderSnapshot(

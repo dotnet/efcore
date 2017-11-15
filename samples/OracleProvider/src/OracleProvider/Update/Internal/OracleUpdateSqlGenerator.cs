@@ -158,14 +158,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var keyOperations = operations.Where(o => o.IsKey).ToList();
 
                 resultSetMapping
-                    = AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition, cursorPosition);
+                    = AppendSelectAffectedCommand(commandStringBuilder, readOperations, cursorPosition);
 
                 cursorPosition++;
             }
             else
             {
                 resultSetMapping
-                    = AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition, cursorPosition);
+                    = AppendSelectAffectedCountCommand(commandStringBuilder, cursorPosition);
 
                 cursorPosition++;
             }
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
             var resultSetMapping
-                        = AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition, cursorPosition);
+                        = AppendSelectAffectedCountCommand(commandStringBuilder, cursorPosition);
 
             cursorPosition++;
 
@@ -206,11 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private ResultSetMapping AppendSelectAffectedCommand(
             StringBuilder commandStringBuilder,
-            string name,
-            string schema,
             IReadOnlyList<ColumnModification> readOperations,
-            IReadOnlyList<ColumnModification> conditionOperations,
-            int commandPosition,
             int cursorPosition)
         {
             commandStringBuilder
@@ -236,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 .Append(expectedRowsAffected.ToString(CultureInfo.InvariantCulture));
 
         private ResultSetMapping AppendSelectAffectedCountCommand(
-            StringBuilder commandStringBuilder, string name, string schema, int commandPosition, int cursorPosition)
+            StringBuilder commandStringBuilder, int cursorPosition)
         {
             commandStringBuilder
                 .AppendLine("v_RowCount := SQL%ROWCOUNT;")
