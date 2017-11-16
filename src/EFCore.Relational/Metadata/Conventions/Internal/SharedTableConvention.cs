@@ -88,33 +88,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            var tables = new Dictionary<string, (List<EntityType> MappedEntityTypes, Dictionary<string, Property> Columns)>();
+            var maxLength = modelBuilder.Relational(ConfigurationSource.Convention).MaxIdentifierLength;
+            var tables = new Dictionary<string,
+                (Dictionary<string, Property> Columns,
+                    Dictionary<string, Key> Keys,
+                    Dictionary<string, ForeignKey> ForeignKeys,
+                    Dictionary<string, Index> Indexes)>();
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var annotations = entityType.Relational();
-                var tableName = Format(annotations.Schema, annotations.TableName);
+                var tableName = FormatName(entityType.Relational());
 
-                if (tables.TryGetValue(tableName, out var tableMapping))
+                if (!tables.TryGetValue(tableName, out var tableObjects))
                 {
-                    if (tableMapping.MappedEntityTypes.Count == 1)
-                    {
-                        TryUniquifyColumnNames(tableMapping.MappedEntityTypes[0], tableMapping.Columns);
-                    }
-                    tableMapping.MappedEntityTypes.Add(entityType);
-                    TryUniquifyColumnNames(entityType, tableMapping.Columns);
+                    tableObjects = (new Dictionary<string, Property>(),
+                        new Dictionary<string, Key>(),
+                        new Dictionary<string, ForeignKey>(),
+                        new Dictionary<string, Index>());
+                    tables[tableName] = tableObjects;
                 }
-                else
-                {
-                    var mappedEntityTypes = new List<EntityType>();
-                    tables[tableName] = (mappedEntityTypes, new Dictionary<string, Property>());
-                    mappedEntityTypes.Add(entityType);
-                }
+
+                TryUniquifyColumnNames(entityType, tableObjects.Columns, maxLength);
+                TryUniquifyKeyNames(entityType, tableObjects.Keys, maxLength);
+                TryUniquifyForeignKeyNames(entityType, tableObjects.ForeignKeys, maxLength);
+                TryUniquifyIndexNames(entityType, tableObjects.Indexes, maxLength);
             }
 
             return modelBuilder;
         }
 
-        private static void TryUniquifyColumnNames(EntityType entityType, Dictionary<string, Property> properties)
+        private static void TryUniquifyColumnNames(EntityType entityType, Dictionary<string, Property> properties, int maxLength)
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
@@ -130,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     var relationalPropertyBuilder = property.Builder.Relational(ConfigurationSource.Convention);
                     if (relationalPropertyBuilder.CanSetColumnName(null))
                     {
-                        columnName = Uniquify(columnName, property.DeclaringEntityType.ShortName(), properties);
+                        columnName = Uniquify(columnName, property.DeclaringEntityType.ShortName(), properties, maxLength);
                         relationalPropertyBuilder.ColumnName = columnName;
                         properties[columnName] = property;
                         continue;
@@ -143,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (otherRelationalPropertyBuilder.CanSetColumnName(null))
                     {
                         properties[columnName] = property;
-                        columnName = Uniquify(columnName, otherProperty.DeclaringEntityType.ShortName(), properties);
+                        columnName = Uniquify(columnName, otherProperty.DeclaringEntityType.ShortName(), properties, maxLength);
                         otherRelationalPropertyBuilder.ColumnName = columnName;
                         properties[columnName] = otherProperty;
                     }
@@ -151,25 +153,130 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
         }
 
-        private static string Uniquify<T>(string baseIdentifier, string prefix, Dictionary<string, T> existingIdentifiers)
+        private static void TryUniquifyKeyNames(EntityType entityType, Dictionary<string, Key> keys, int maxLength)
         {
-            if (!baseIdentifier.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            foreach (var key in entityType.GetDeclaredKeys())
+            {
+                var keyName = key.Relational().Name;
+                if (!keys.TryGetValue(keyName, out var otherKey))
+                {
+                    keys[keyName] = key;
+                    continue;
+                }
+
+                if (!key.IsPrimaryKey())
+                {
+                    var relationalKeyBuilder = key.Builder.Relational(ConfigurationSource.Convention);
+                    if (relationalKeyBuilder.CanSetName(null))
+                    {
+                        keyName = Uniquify(keyName, null, keys, maxLength);
+                        relationalKeyBuilder.Name = keyName;
+                        keys[keyName] = key;
+                        continue;
+                    }
+                }
+
+                if (!otherKey.IsPrimaryKey())
+                {
+                    var otherRelationalKeyBuilder = otherKey.Builder.Relational(ConfigurationSource.Convention);
+                    if (otherRelationalKeyBuilder.CanSetName(null))
+                    {
+                        keys[keyName] = key;
+                        keyName = Uniquify(keyName, null, keys, maxLength);
+                        otherRelationalKeyBuilder.Name = keyName;
+                        keys[keyName] = otherKey;
+                    }
+                }
+            }
+        }
+
+        private static void TryUniquifyIndexNames(EntityType entityType, Dictionary<string, Index> indexes, int maxLength)
+        {
+            foreach (var index in entityType.GetDeclaredIndexes())
+            {
+                var indexName = index.Relational().Name;
+                if (!indexes.TryGetValue(indexName, out var otherIndex))
+                {
+                    indexes[indexName] = index;
+                    continue;
+                }
+
+                var relationalIndexBuilder = index.Builder.Relational(ConfigurationSource.Convention);
+                if (relationalIndexBuilder.CanSetName(null))
+                {
+                    indexName = Uniquify(indexName, null, indexes, maxLength);
+                    relationalIndexBuilder.Name = indexName;
+                    indexes[indexName] = index;
+                    continue;
+                }
+
+                var otherRelationalIndexBuilder = otherIndex.Builder.Relational(ConfigurationSource.Convention);
+                if (otherRelationalIndexBuilder.CanSetName(null))
+                {
+                    indexes[indexName] = index;
+                    indexName = Uniquify(indexName, null, indexes, maxLength);
+                    otherRelationalIndexBuilder.Name = indexName;
+                    indexes[indexName] = otherIndex;
+                }
+            }
+        }
+
+        private static void TryUniquifyForeignKeyNames(EntityType entityType, Dictionary<string, ForeignKey> foreignKeys, int maxLength)
+        {
+            foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+            {
+                var foreignKeyName = foreignKey.Relational().Name;
+                if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
+                {
+                    foreignKeys[foreignKeyName] = foreignKey;
+                    continue;
+                }
+
+                if (FormatName(foreignKey.DeclaringEntityType.Relational())
+                    == FormatName(foreignKey.PrincipalEntityType.Relational()))
+                {
+                    continue;
+                }
+
+                var relationalKeyBuilder = foreignKey.Builder.Relational(ConfigurationSource.Convention);
+                if (relationalKeyBuilder.CanSetName(null))
+                {
+                    foreignKeyName = Uniquify(foreignKeyName, null, foreignKeys, maxLength);
+                    relationalKeyBuilder.Name = foreignKeyName;
+                    foreignKeys[foreignKeyName] = foreignKey;
+                    continue;
+                }
+
+                var otherRelationalKeyBuilder = otherForeignKey.Builder.Relational(ConfigurationSource.Convention);
+                if (otherRelationalKeyBuilder.CanSetName(null))
+                {
+                    foreignKeys[foreignKeyName] = foreignKey;
+                    foreignKeyName = Uniquify(foreignKeyName, null, foreignKeys, maxLength);
+                    otherRelationalKeyBuilder.Name = foreignKeyName;
+                    foreignKeys[foreignKeyName] = otherForeignKey;
+                }
+            }
+        }
+
+        private static string Uniquify<T>(string baseIdentifier, string prefix, Dictionary<string, T> existingIdentifiers, int maxLength)
+        {
+            if (!string.IsNullOrEmpty(prefix)
+                && !baseIdentifier.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             {
                 baseIdentifier = prefix + "_" + baseIdentifier;
             }
 
+            var finalIdentifier = ConstraintNamer.Truncate(baseIdentifier, null, maxLength);
             var suffix = 1;
-            var finalIdentifier = baseIdentifier;
             while (existingIdentifiers.ContainsKey(finalIdentifier))
             {
-                finalIdentifier = baseIdentifier + suffix;
-                suffix++;
+                finalIdentifier = ConstraintNamer.Truncate(baseIdentifier, suffix++, maxLength);
             }
 
             return finalIdentifier;
         }
 
-        private static string Format(string schema, string name)
-            => (string.IsNullOrEmpty(schema) ? "" : schema + ".") + name;
+        private static string FormatName(IRelationalEntityTypeAnnotations annotations)
+            => (string.IsNullOrEmpty(annotations.Schema) ? "" : annotations.Schema + ".") + annotations.TableName;
     }
 }

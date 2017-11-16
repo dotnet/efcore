@@ -9,7 +9,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedFixupSqliteTest : StoreGeneratedFixupTestBase<StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture>
+    public class StoreGeneratedFixupSqliteTest : StoreGeneratedFixupRelationalTestBase<StoreGeneratedFixupSqliteTest.StoreGeneratedFixupSqliteFixture>
     {
         public StoreGeneratedFixupSqliteTest(StoreGeneratedFixupSqliteFixture fixture)
             : base(fixture)
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        public class StoreGeneratedFixupSqliteFixture : StoreGeneratedFixupFixtureBase
+        public class StoreGeneratedFixupSqliteFixture : StoreGeneratedFixupRelationalFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
         }

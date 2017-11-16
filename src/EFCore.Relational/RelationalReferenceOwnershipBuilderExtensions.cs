@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
 
             referenceReferenceBuilder.GetInfrastructure<InternalRelationshipBuilder>()
                 .Relational(ConfigurationSource.Explicit)
-                .HasConstraintName(name);
+                .HasName(name);
 
             return referenceReferenceBuilder;
         }

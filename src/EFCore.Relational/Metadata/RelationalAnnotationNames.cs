@@ -93,5 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for DbFunction annotations.
         /// </summary>
         public const string DbFunction = Prefix + "DbFunction";
+
+        /// <summary>
+        ///     The maximum length for database identifiers.
+        /// </summary>
+        public const string MaxIdentifierLength = Prefix + "MaxIdentifierLength";
     }
 }

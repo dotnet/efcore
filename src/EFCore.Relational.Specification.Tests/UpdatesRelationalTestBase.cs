@@ -4,7 +4,9 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFixture>
@@ -14,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore
             : base(fixture)
         {
         }
+
+        [Fact]
+        public abstract void Identifiers_are_generated_correctly();
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());

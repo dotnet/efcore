@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="annotations">
         ///     The <see cref="RelationalAnnotations" /> helper representing the <see cref="IModel" /> to annotate.
         /// </param>
-        protected RelationalModelAnnotations(
-            [NotNull] RelationalAnnotations annotations) => Annotations = annotations;
+        protected RelationalModelAnnotations([NotNull] RelationalAnnotations annotations)
+            => Annotations = annotations;
 
         /// <summary>
         ///     The <see cref="RelationalAnnotations" /> helper representing the <see cref="IModel" /> to annotate.
@@ -133,6 +133,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Annotations.SetAnnotation(
                 RelationalAnnotationNames.DefaultSchema,
                 Check.NullButNotEmpty(value, nameof(value)));
+
+        /// <summary>
+        ///     The maximum length allowed for store identifiers.
+        /// </summary>
+        public virtual int MaxIdentifierLength
+        {
+            get => (int?)Annotations.Metadata[RelationalAnnotationNames.MaxIdentifierLength] ?? short.MaxValue;
+            set => SetMaxIdentifierLength(value);
+        }
+
+        /// <summary>
+        ///     Attempts to set the <see cref="MaxIdentifierLength" /> using the semantics of the <see cref="RelationalAnnotations" /> in use.
+        /// </summary>
+        /// <param name="value"> The value to set. </param>
+        /// <returns> <c>True</c> if the annotation was set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetMaxIdentifierLength(int? value)
+            => Annotations.SetAnnotation(RelationalAnnotationNames.MaxIdentifierLength, value);
 
         /// <summary>
         ///     Finds an <see cref="ISequence" /> with the given name.

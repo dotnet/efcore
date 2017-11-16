@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
+// ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable UnusedParameter.Local
@@ -2707,6 +2708,10 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
                 modelBuilder.Entity<BuiltInDataTypes>()
                     .Property(dt => dt.TestDecimal)
+                    .HasColumnType("decimal(18,2)");
+
+                modelBuilder.Entity<BuiltInNullableDataTypes>()
+                    .Property(dt => dt.TestNullableDecimal)
                     .HasColumnType("decimal(18,2)");
 
                 modelBuilder.Entity<MappedDataTypes>(

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -50,11 +50,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var property in model.GetEntityTypes()
                 .SelectMany(t => t.GetDeclaredProperties())
-                .Where(
-                    p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                         && p.SqlServer().ColumnType == null))
+                .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                            && !p.IsForeignKey()))
             {
-                Dependencies.Logger.DecimalTypeDefaultWarning(property);
+                var type = property.FindAnnotation(RelationalAnnotationNames.ColumnType);
+                var typeMapping = property.FindAnnotation(CoreAnnotationNames.TypeMapping);
+                if ((type == null
+                     && (typeMapping == null
+                         || ConfigurationSource.Convention.Overrides(((ConventionalAnnotation)typeMapping).GetConfigurationSource())))
+                    || (type != null
+                        && ConfigurationSource.Convention.Overrides(((ConventionalAnnotation)type).GetConfigurationSource())))
+                {
+                    Dependencies.Logger.DecimalTypeDefaultWarning(property);
+                }
             }
         }
 

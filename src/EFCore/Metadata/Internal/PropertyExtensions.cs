@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static CoreTypeMapping FindMapping(
-            [NotNull] this IProperty property) 
+            [NotNull] this IProperty property)
             => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
 
         /// <summary>

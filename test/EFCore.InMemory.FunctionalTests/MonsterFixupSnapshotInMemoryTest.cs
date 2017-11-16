@@ -16,9 +16,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
-            protected override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+            protected override void OnModelCreating<TMessage, TProduct, TProductPhoto, TProductReview, TComputerDetail, TDimensions>(
+                ModelBuilder builder)
             {
-                base.OnModelCreating<TMessage, TProductPhoto, TProductReview>(builder);
+                base.OnModelCreating<TMessage, TProduct, TProductPhoto, TProductReview, TComputerDetail, TDimensions>(builder);
 
                 builder.Entity<TMessage>().Property(e => e.MessageId).ValueGeneratedOnAdd();
                 builder.Entity<TProductPhoto>().Property(e => e.PhotoId).ValueGeneratedOnAdd();

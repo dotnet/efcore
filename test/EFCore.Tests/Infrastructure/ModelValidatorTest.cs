@@ -132,9 +132,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected virtual void VerifyError(string expectedMessage, IModel model)
-            => Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
+        {
+            ((Model)model).Validate();
+            Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
+        }
 
-        protected virtual void Validate(IModel model) => CreateModelValidator().Validate(model);
+        protected virtual void Validate(IModel model)
+        {
+            ((Model)model).Validate();
+            CreateModelValidator().Validate(model);
+        }
 
         protected virtual DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateLogger(bool sensitiveDataLoggingEnabled = false)
         {

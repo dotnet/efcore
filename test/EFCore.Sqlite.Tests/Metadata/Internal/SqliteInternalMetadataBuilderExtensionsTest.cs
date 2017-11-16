@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class SqliteInternalMetadataBuilderExtensionsTest
@@ -118,13 +119,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.Convention).HasConstraintName("Splew"));
+            Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.Convention).HasName("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.DataAnnotation).HasConstraintName("Splow"));
+            Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.DataAnnotation).HasName("Splow"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.False(relationshipBuilder.Sqlite(ConfigurationSource.Convention).HasConstraintName("Splod"));
+            Assert.False(relationshipBuilder.Sqlite(ConfigurationSource.Convention).HasName("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
 
             Assert.Equal(

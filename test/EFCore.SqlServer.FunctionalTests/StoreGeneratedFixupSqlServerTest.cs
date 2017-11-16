@@ -9,7 +9,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedFixupSqlServerTest : StoreGeneratedFixupTestBase<StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>
+    public class StoreGeneratedFixupSqlServerTest : StoreGeneratedFixupRelationalTestBase<StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>
     {
         public StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerFixture fixture)
             : base(fixture)
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        public class StoreGeneratedFixupSqlServerFixture : StoreGeneratedFixupFixtureBase
+        public class StoreGeneratedFixupSqlServerFixture : StoreGeneratedFixupRelationalFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 

@@ -80,9 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private string GetDefaultTableName()
-            => EntityType.HasDefiningNavigation()
+            => ConstraintNamer.Truncate(
+                EntityType.HasDefiningNavigation()
                 ? $"{GetAnnotations(EntityType.DefiningEntityType).TableName}_{EntityType.DefiningNavigationName}"
-                : EntityType.ShortName();
+                : EntityType.ShortName(),
+                null,
+                EntityType.Model.GetMaxIdentifierLength());
 
         /// <summary>
         ///     Attempts to set the <see cref="TableName" /> using the semantics of the <see cref="RelationalAnnotations" /> in use.

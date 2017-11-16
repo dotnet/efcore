@@ -41,6 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         b.Property(p => p.UnitPrice).HasColumnType("money");
                         b.Property(p => p.UnitsInStock).HasColumnType("smallint");
                     });
+
+            modelBuilder.Entity<MostExpensiveProduct>()
+                .Property(p => p.UnitPrice)
+                .HasColumnType("money");
         }
     }
 }

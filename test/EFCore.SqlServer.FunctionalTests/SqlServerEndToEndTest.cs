@@ -170,6 +170,11 @@ namespace Microsoft.EntityFrameworkCore
                     .Entity<ByteAdNum>()
                     .Property(e => e.Id)
                     .ValueGeneratedOnAdd();
+
+                modelBuilder
+                    .Entity<NownNum>()
+                    .Property(e => e.Id)
+                    .HasColumnType("numeric(18, 0)");
             }
         }
 

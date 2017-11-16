@@ -1389,10 +1389,14 @@ namespace Microsoft.EntityFrameworkCore
 
             public abstract MonsterContext CreateContext(DbContextOptions options);
 
-            protected virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+            protected virtual void OnModelCreating<TMessage, TProduct, TProductPhoto, TProductReview, TComputerDetail, TDimensions>(
+                ModelBuilder builder)
                 where TMessage : class, IMessage
+                where TProduct : class, IProduct
                 where TProductPhoto : class, IProductPhoto
                 where TProductReview : class, IProductReview
+                where TComputerDetail : class, IComputerDetail
+                where TDimensions : class, IDimensions
             {
             }
         }
@@ -1410,8 +1414,11 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder, context);
                 modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
                 OnModelCreating<SnapshotMonsterContext.Message,
+                    SnapshotMonsterContext.Product,
                     SnapshotMonsterContext.ProductPhoto,
-                    SnapshotMonsterContext.ProductReview>(modelBuilder);
+                    SnapshotMonsterContext.ProductReview,
+                    SnapshotMonsterContext.ComputerDetail,
+                    SnapshotMonsterContext.Dimensions>(modelBuilder);
             }
         }
 
@@ -1428,8 +1435,11 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder, context);
                 modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                 OnModelCreating<ChangedOnlyMonsterContext.Message,
+                    ChangedOnlyMonsterContext.Product,
                     ChangedOnlyMonsterContext.ProductPhoto,
-                    ChangedOnlyMonsterContext.ProductReview>(modelBuilder);
+                    ChangedOnlyMonsterContext.ProductReview,
+                    ChangedOnlyMonsterContext.ComputerDetail,
+                    ChangedOnlyMonsterContext.Dimensions>(modelBuilder);
             }
         }
 
@@ -1446,8 +1456,11 @@ namespace Microsoft.EntityFrameworkCore
                 base.OnModelCreating(modelBuilder, context);
                 modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                 OnModelCreating<ChangedChangingMonsterContext.Message,
+                    ChangedChangingMonsterContext.Product,
                     ChangedChangingMonsterContext.ProductPhoto,
-                    ChangedChangingMonsterContext.ProductReview>(modelBuilder);
+                    ChangedChangingMonsterContext.ProductReview,
+                    ChangedChangingMonsterContext.ComputerDetail,
+                    ChangedChangingMonsterContext.Dimensions>(modelBuilder);
             }
         }
 

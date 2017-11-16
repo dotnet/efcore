@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class SqlServerInternalMetadataBuilderExtensionsTest
@@ -159,13 +160,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
-            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasConstraintName("Splew"));
+            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasName("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).HasConstraintName("Splow"));
+            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).HasName("Splow"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
 
-            Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasConstraintName("Splod"));
+            Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).HasName("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Relational().Name);
 
             Assert.Equal(

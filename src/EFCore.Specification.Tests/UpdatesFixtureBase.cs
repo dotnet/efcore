@@ -22,6 +22,42 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Category>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
+
+            modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>().HasKey(l => new
+            {
+                l.LoginId,
+                l.LoginId1,
+                l.LoginId3,
+                l.LoginId4,
+                l.LoginId5,
+                l.LoginId6,
+                l.LoginId7,
+                l.LoginId8,
+                l.LoginId9,
+                l.LoginId10,
+                l.LoginId11,
+                l.LoginId12,
+                l.LoginId13,
+                l.LoginId14
+            });
+
+            modelBuilder.Entity<Profile>().HasKey(l => new
+            {
+                l.ProfileId,
+                l.ProfileId1,
+                l.ProfileId3,
+                l.ProfileId4,
+                l.ProfileId5,
+                l.ProfileId6,
+                l.ProfileId7,
+                l.ProfileId8,
+                l.ProfileId9,
+                l.ProfileId10,
+                l.ProfileId11,
+                l.ProfileId12,
+                l.ProfileId13,
+                l.ProfileId14
+            });
         }
 
         protected override void Seed(UpdatesContext context)

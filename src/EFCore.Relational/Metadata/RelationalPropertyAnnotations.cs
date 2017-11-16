@@ -3,9 +3,7 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -85,59 +83,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual string ColumnName
         {
             get => (string)Annotations.Metadata[RelationalAnnotationNames.ColumnName]
-                   ?? GetDefaultColumnName();
+                   ?? ConstraintNamer.GetDefaultName(Property);
 
             [param: CanBeNull] set => SetColumnName(value);
-        }
-
-        private string GetDefaultColumnName()
-        {
-            var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTablePrincipalPrimaryKeyProperty();
-            if (sharedTablePrincipalPrimaryKeyProperty != null)
-            {
-                return GetAnnotations(sharedTablePrincipalPrimaryKeyProperty).ColumnName;
-            }
-
-            var entityType = Property.DeclaringEntityType;
-            StringBuilder builder = null;
-            do
-            {
-                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-                if (ownership == null)
-                {
-                    entityType = null;
-                }
-                else
-                {
-                    var ownerType = ownership.PrincipalEntityType;
-                    var entityTypeAnnotations = GetAnnotations(entityType);
-                    var ownerTypeAnnotations = GetAnnotations(ownerType);
-                    if (entityTypeAnnotations.TableName == ownerTypeAnnotations.TableName
-                        && entityTypeAnnotations.Schema == ownerTypeAnnotations.Schema)
-                    {
-                        if (builder == null)
-                        {
-                            builder = new StringBuilder();
-                        }
-                        builder.Insert(0, "_");
-                        builder.Insert(0, ownership.PrincipalToDependent.Name);
-                        entityType = ownerType;
-                    }
-                    else
-                    {
-                        entityType = null;
-                    }
-                }
-            }
-            while (entityType != null);
-
-            if (builder != null)
-            {
-                builder.Append(Property.Name);
-                return builder.ToString();
-            }
-
-            return Property.Name;
         }
 
         /// <summary>

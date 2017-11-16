@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var valueGenerationStrategyConvention = new SqlServerValueGenerationStrategyConvention();
             conventionSet.ModelInitializedConventions.Add(valueGenerationStrategyConvention);
+            conventionSet.ModelInitializedConventions.Add(new RelationalMaxIdentifierLengthConvention(128));
 
             ValueGeneratorConvention valueGeneratorConvention = new SqlServerValueGeneratorConvention();
             ReplaceConvention(conventionSet.BaseEntityTypeChangedConventions, valueGeneratorConvention);
