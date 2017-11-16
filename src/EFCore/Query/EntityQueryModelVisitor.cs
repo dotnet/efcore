@@ -373,7 +373,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _queryCompilationContext.AddAnnotations(
                         new[]
                         {
-                            new IncludeResultOperator(stack.Reverse().ToArray(), querySourceReferenceExpression)
+                            new IncludeResultOperator(
+                                stack.Reverse().ToArray(), 
+                                querySourceReferenceExpression,
+                                implicitLoad: true)
                         });
                 }
                 else

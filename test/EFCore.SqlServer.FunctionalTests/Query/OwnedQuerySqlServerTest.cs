@@ -16,6 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             fixture.TestSqlLoggerFactory.Clear();
         }
 
+
+        [Fact(Skip = "#8973")]
+        public override void No_ignored_include_warning_when_implicit_load()
+        {
+            base.No_ignored_include_warning_when_implicit_load();
+        }
+
         [Fact(Skip = "#8973")]
         public override void Query_for_base_type_loads_all_owned_navs()
         {

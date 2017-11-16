@@ -22,20 +22,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
     /// </summary>
     public class IncludeResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
-        private List<string> _navigationPropertyPaths;
         private readonly List<INavigation[]> _navigationPaths;
+
+        private List<string> _navigationPropertyPaths;
         private IQuerySource _querySource;
+        private Expression _pathFromQuerySource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public IncludeResultOperator(
-            [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource)
+            [NotNull] INavigation[] navigationPath, [NotNull] Expression pathFromQuerySource, bool implicitLoad = false)
         {
             _navigationPaths = new List<INavigation[]> { navigationPath };
             _navigationPropertyPaths = new List<string>();
-            PathFromQuerySource = pathFromQuerySource;
+            _pathFromQuerySource = pathFromQuerySource;
+
+            IsImplicitLoad = implicitLoad;
         }
 
         /// <summary>
@@ -47,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
             [NotNull] Expression pathFromQuerySource)
         {
             _navigationPropertyPaths = new List<string>(navigationPropertyPaths);
-            PathFromQuerySource = pathFromQuerySource;
+            _pathFromQuerySource = pathFromQuerySource;
         }
 
         /// <summary>
@@ -65,6 +69,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
                ?? (expression is MemberExpression memberExpression
                    ? GetQuerySource(memberExpression.Expression.RemoveConvert())
                    : null);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool IsImplicitLoad { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -88,7 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression PathFromQuerySource { get; [param: NotNull] set; }
+        public virtual Expression PathFromQuerySource
+        {
+            get { return _pathFromQuerySource; }
+            [param: NotNull] set { _pathFromQuerySource = value; }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

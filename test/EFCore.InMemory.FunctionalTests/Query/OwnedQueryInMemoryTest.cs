@@ -14,6 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
+        public override void No_ignored_include_warning_when_implicit_load()
+        {
+            base.No_ignored_include_warning_when_implicit_load();
+        }
+
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;

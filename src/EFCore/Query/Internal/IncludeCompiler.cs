@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual void LogIgnoredIncludes()
         {
-            foreach (var includeResultOperator in _includeResultOperators)
+            foreach (var includeResultOperator in _includeResultOperators.Where(iro => !iro.IsImplicitLoad))
             {
                 _queryCompilationContext.Logger.IncludeIgnoredWarning(includeResultOperator);
             }

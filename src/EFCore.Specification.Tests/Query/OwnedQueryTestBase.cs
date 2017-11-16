@@ -30,6 +30,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
+        public virtual void No_ignored_include_warning_when_implicit_load()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Set<OwnedPerson>().Count();
+
+                Assert.Equal(4, count);
+            }
+        }
+
+        [Fact]
         public virtual void Query_for_branch_type_loads_all_owned_navs()
         {
             using (var context = CreateContext())
@@ -105,6 +116,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.Entity<Branch>().OwnsOne(p => p.BranchAddress).OwnsOne(a => a.Country);
                 modelBuilder.Entity<LeafA>().OwnsOne(p => p.LeafAAddress).OwnsOne(a => a.Country);
                 modelBuilder.Entity<LeafB>().OwnsOne(p => p.LeafBAddress).OwnsOne(a => a.Country);
+            }
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            {
+                return base.AddOptions(builder).ConfigureWarnings(wcb => wcb.Throw());
             }
 
             protected override void Seed(DbContext context)
