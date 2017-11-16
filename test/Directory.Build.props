@@ -2,6 +2,13 @@
   <Import Project="..\Directory.Build.props" />
 
   <PropertyGroup>
+    <DeveloperBuildTestTfms>netcoreapp2.1</DeveloperBuildTestTfms>
+    <StandardTestTfms>$(DeveloperBuildTestTfms)</StandardTestTfms>
+    <StandardTestTfms Condition=" '$(DeveloperBuild)' != 'True' ">netcoreapp2.1;netcoreapp2.0</StandardTestTfms>
+    <StandardTestTfms Condition=" '$(DeveloperBuild)' != 'True' AND '$(CoreOnly)' != 'True' AND '$(OS)' == 'Windows_NT' ">$(StandardTestTfms);net461</StandardTestTfms>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <NoWarn>$(NoWarn);xUnit1004</NoWarn>
   </PropertyGroup>
 
