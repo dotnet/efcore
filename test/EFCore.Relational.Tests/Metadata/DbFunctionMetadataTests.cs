@@ -33,16 +33,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public static readonly string[] FunctionNames =
             {
-                nameof(MyBaseContext.StaticPublicBase),
-                nameof(MyBaseContext.StaticProtectedBase),
-                nameof(MyBaseContext.StaticPrivateBase),
-                nameof(MyBaseContext.StaticInteranlBase),
-                nameof(MyBaseContext.StaticProtectedInteralBase),
-                nameof(MyBaseContext.InstancePublicBase),
-                nameof(MyBaseContext.InstanceProtectedBase),
-                nameof(MyBaseContext.InstancePrivateBase),
-                nameof(MyBaseContext.InstanceInteranlBase),
-                nameof(MyBaseContext.InstanceProtectedInteralBase),
+                nameof(StaticPublicBase),
+                nameof(StaticProtectedBase),
+                nameof(StaticPrivateBase),
+                nameof(StaticInteranlBase),
+                nameof(StaticProtectedInteralBase),
+                nameof(InstancePublicBase),
+                nameof(InstanceProtectedBase),
+                nameof(InstancePrivateBase),
+                nameof(InstanceInteranlBase),
+                nameof(InstanceProtectedInteralBase)
             };
 
             public static void Foo()
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             [DbFunction]
             protected internal int InstanceProtectedInteralBase() => throw new Exception();
-            
+
             [DbFunction]
             public virtual int VirtualBase() => throw new Exception();
         }
@@ -95,16 +95,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             public new static readonly string[] FunctionNames =
             {
-                nameof(MyDerivedContext.StaticPublicDerived),
-                nameof(MyDerivedContext.StaticProtectedDerived),
-                nameof(MyDerivedContext.StaticPrivateDerived),
-                nameof(MyDerivedContext.StaticInteranlDerived),
-                nameof(MyDerivedContext.StaticProtectedInteralDerived),
-                nameof(MyDerivedContext.InstancePublicDerived),
-                nameof(MyDerivedContext.InstanceProtectedDerived),
-                nameof(MyDerivedContext.InstancePrivateDerived),
-                nameof(MyDerivedContext.InstanceInteranlDerived),
-                nameof(MyDerivedContext.InstanceProtectedInteralDerived),
+                nameof(StaticPublicDerived),
+                nameof(StaticProtectedDerived),
+                nameof(StaticPrivateDerived),
+                nameof(StaticInteranlDerived),
+                nameof(StaticProtectedInteralDerived),
+                nameof(InstancePublicDerived),
+                nameof(InstanceProtectedDerived),
+                nameof(InstancePrivateDerived),
+                nameof(InstanceInteranlDerived),
+                nameof(InstanceProtectedInteralDerived)
             };
 
             public static void Bar()
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             [DbFunction]
             protected internal int InstanceProtectedInteralDerived() => throw new Exception();
-            
+
             [DbFunction]
             public override int VirtualBase() => throw new Exception();
         }
@@ -228,14 +228,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             foreach (var function in MyBaseContext.FunctionNames)
             {
-                Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
-                    typeof(MyBaseContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+                Assert.NotNull(
+                    modelBuilder.Model.Relational().FindDbFunction(
+                        typeof(MyBaseContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
 
             foreach (var function in MyDerivedContext.FunctionNames)
             {
-                Assert.NotNull(modelBuilder.Model.Relational().FindDbFunction(
-                    typeof(MyDerivedContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
+                Assert.NotNull(
+                    modelBuilder.Model.Relational().FindDbFunction(
+                        typeof(MyDerivedContext).GetMethod(function, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance)));
             }
         }
 
@@ -246,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var methodInfo
                 = typeof(MyDerivedContext)
-                        .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), new Type[] { });
+                    .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), new Type[] { });
 
             var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
 

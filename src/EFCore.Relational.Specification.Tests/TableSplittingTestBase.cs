@@ -88,20 +88,21 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_change_dependent_instance_non_derived()
         {
-            using (CreateTestStore(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Engine>().ToTable("Engines");
-                    modelBuilder.Entity<FuelTank>(
-                        eb =>
-                            {
-                                eb.ToTable("FuelTanks");
-                                eb.HasOne(e => e.Engine)
-                                    .WithOne(e => e.FuelTank)
-                                    .HasForeignKey<FuelTank>(e => e.VehicleName)
-                                    .OnDelete(DeleteBehavior.Restrict);
-                            });
-                }))
+            using (CreateTestStore(
+                modelBuilder =>
+                    {
+                        OnModelCreating(modelBuilder);
+                        modelBuilder.Entity<Engine>().ToTable("Engines");
+                        modelBuilder.Entity<FuelTank>(
+                            eb =>
+                                {
+                                    eb.ToTable("FuelTanks");
+                                    eb.HasOne(e => e.Engine)
+                                        .WithOne(e => e.FuelTank)
+                                        .HasForeignKey<FuelTank>(e => e.VehicleName)
+                                        .OnDelete(DeleteBehavior.Restrict);
+                                });
+                    }))
             {
                 using (var context = CreateContext())
                 {
@@ -132,20 +133,21 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Can_change_principal_instance_non_derived()
         {
-            using (CreateTestStore(modelBuilder =>
-                {
-                    OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Engine>().ToTable("Engines");
-                    modelBuilder.Entity<FuelTank>(
-                        eb =>
-                            {
-                                eb.ToTable("FuelTanks");
-                                eb.HasOne(e => e.Engine)
-                                    .WithOne(e => e.FuelTank)
-                                    .HasForeignKey<FuelTank>(e => e.VehicleName)
-                                    .OnDelete(DeleteBehavior.Restrict);
-                            });
-                }))
+            using (CreateTestStore(
+                modelBuilder =>
+                    {
+                        OnModelCreating(modelBuilder);
+                        modelBuilder.Entity<Engine>().ToTable("Engines");
+                        modelBuilder.Entity<FuelTank>(
+                            eb =>
+                                {
+                                    eb.ToTable("FuelTanks");
+                                    eb.HasOne(e => e.Engine)
+                                        .WithOne(e => e.FuelTank)
+                                        .HasForeignKey<FuelTank>(e => e.VehicleName)
+                                        .OnDelete(DeleteBehavior.Restrict);
+                                });
+                    }))
             {
                 using (var context = CreateContext())
                 {

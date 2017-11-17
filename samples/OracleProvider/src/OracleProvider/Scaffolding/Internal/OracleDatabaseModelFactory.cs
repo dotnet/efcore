@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -13,9 +16,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Oracle.ManagedDataAccess.Client;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Globalization;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -96,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GetTables(connection, tableFilter, databaseModel);
 
                 foreach (var schema in schemaList
-                 .Except(
-                     databaseModel.Sequences.Select(s => s.Schema)
-                         .Concat(databaseModel.Tables.Select(t => t.Schema))))
+                    .Except(
+                        databaseModel.Sequences.Select(s => s.Schema)
+                            .Concat(databaseModel.Tables.Select(t => t.Schema))))
                 {
                     _logger.MissingSchemaWarning(schema);
                 }
@@ -200,7 +200,7 @@ FROM user_tables t ";
                     .AppendLine("ORDER BY c.column_id")
                     .ToString();
 
-                using (var reader = (OracleDataReader)command.ExecuteReader())
+                using (var reader = command.ExecuteReader())
                 {
                     var tableColumnGroups = reader.Cast<DbDataRecord>()
                         .GroupBy(
@@ -227,7 +227,8 @@ FROM user_tables t ";
                             var computedValue = dataRecord.GetValueOrDefault<string>("virtual_column").Equals("YES") ? defaultValue : null;
 
                             var storeType = GetOracleClrType(dataTypeName, maxLength, precision, scale);
-                            if (string.IsNullOrWhiteSpace(defaultValue) || !string.IsNullOrWhiteSpace(computedValue))
+                            if (string.IsNullOrWhiteSpace(defaultValue)
+                                || !string.IsNullOrWhiteSpace(computedValue))
                             {
                                 defaultValue = null;
                             }
@@ -292,9 +293,9 @@ FROM user_tables t ";
                 using (var reader = command.ExecuteReader())
                 {
                     var tableIndexGroups = reader.Cast<DbDataRecord>()
-                       .GroupBy(
-                           ddr => (tableSchema: ddr.GetValueOrDefault<string>("tablespace_name"),
-                               tableName: ddr.GetValueOrDefault<string>("table_name")));
+                        .GroupBy(
+                            ddr => (tableSchema: ddr.GetValueOrDefault<string>("tablespace_name"),
+                                tableName: ddr.GetValueOrDefault<string>("table_name")));
 
                     foreach (var tableIndexGroup in tableIndexGroups)
                     {
@@ -538,7 +539,7 @@ FROM user_tables t ";
                             {
                                 Table = table,
                                 Name = indexGroup.Key.Name,
-                                IsUnique = indexGroup.Key.IsUnique,
+                                IsUnique = indexGroup.Key.IsUnique
                             };
 
                             foreach (var dataRecord in indexGroup)
@@ -584,24 +585,27 @@ FROM user_tables t ";
                 case "DECIMAL":
                 case "NUMERIC":
                 case "NUMBER":
+                {
+                    if (precision == 0
+                        && scale == 0)
                     {
-                        if (precision == 0 && scale == 0)
-                        {
-                            precision = 10;
-                        }
-                        else if (precision > 10 && scale > 0)
-                        {
-                            precision = 29;
-                            scale = 4;
-                        }
-                        else if (precision < 6 && scale == 0)
-                        {
-                            precision = 6;
-                        }
-                        return scale > 0
+                        precision = 10;
+                    }
+                    else if (precision > 10
+                             && scale > 0)
+                    {
+                        precision = 29;
+                        scale = 4;
+                    }
+                    else if (precision < 6
+                             && scale == 0)
+                    {
+                        precision = 6;
+                    }
+                    return scale > 0
                         ? $"{dataTypeName}({precision},{scale})"
                         : $"{dataTypeName}({precision})";
-                    }
+                }
                 case "NVARCHAR2":
                 case "NVARCHAR":
                 case "VARCHAR":
@@ -609,13 +613,13 @@ FROM user_tables t ";
                 case "CHAR":
                 case "NCLOB":
                 case "CLOB":
+                {
+                    if (maxLength < 0)
                     {
-                        if (maxLength < 0)
-                        {
-                            return $"{dataTypeName}(4000)";
-                        }
-                        return $"{dataTypeName}({maxLength})";
+                        return $"{dataTypeName}(4000)";
                     }
+                    return $"{dataTypeName}({maxLength})";
+                }
             }
 
             return dataTypeName;
@@ -639,14 +643,14 @@ FROM user_tables t ";
             if (schemas.Any())
             {
                 return s =>
-                {
-                    var schemaFilterBuilder = new StringBuilder();
-                    schemaFilterBuilder.Append(s);
-                    schemaFilterBuilder.Append(" IN (");
-                    schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
-                    schemaFilterBuilder.Append(")");
-                    return schemaFilterBuilder.ToString();
-                };
+                    {
+                        var schemaFilterBuilder = new StringBuilder();
+                        schemaFilterBuilder.Append(s);
+                        schemaFilterBuilder.Append(" IN (");
+                        schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
+                        schemaFilterBuilder.Append(")");
+                        return schemaFilterBuilder.ToString();
+                    };
             }
 
             return null;
@@ -675,68 +679,68 @@ FROM user_tables t ";
                 || tables.Any())
             {
                 return (s, t) =>
-                {
-                    var tableFilterBuilder = new StringBuilder();
-
-                    var openBracket = false;
-                    if (schemaFilter != null)
                     {
-                        tableFilterBuilder
-                            .Append("(")
-                            .Append(schemaFilter(s));
-                        openBracket = true;
-                    }
+                        var tableFilterBuilder = new StringBuilder();
 
-                    if (tables.Any())
-                    {
-                        if (openBracket)
+                        var openBracket = false;
+                        if (schemaFilter != null)
                         {
                             tableFilterBuilder
-                                .AppendLine()
-                                .Append("OR ");
-                        }
-                        else
-                        {
-                            tableFilterBuilder.Append("(");
+                                .Append("(")
+                                .Append(schemaFilter(s));
                             openBracket = true;
                         }
 
-                        var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithoutSchema.Any())
+                        if (tables.Any())
                         {
-                            tableFilterBuilder.Append(t);
-                            tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
-                            tableFilterBuilder.Append(")");
-                        }
+                            if (openBracket)
+                            {
+                                tableFilterBuilder
+                                    .AppendLine()
+                                    .Append("OR ");
+                            }
+                            else
+                            {
+                                tableFilterBuilder.Append("(");
+                                openBracket = true;
+                            }
 
-                        var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithSchema.Any())
-                        {
+                            var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
                             if (tablesWithoutSchema.Any())
                             {
-                                tableFilterBuilder.Append(" OR ");
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(" IN (");
+                                tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
+                                tableFilterBuilder.Append(")");
                             }
-                            tableFilterBuilder.Append(t);
-                            tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
-                            tableFilterBuilder.Append(") AND CONCAT(");
-                            tableFilterBuilder.Append(s);
-                            tableFilterBuilder.Append(", N'.', ");
-                            tableFilterBuilder.Append(t);
-                            tableFilterBuilder.Append(") IN (");
-                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+
+                            var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                            if (tablesWithSchema.Any())
+                            {
+                                if (tablesWithoutSchema.Any())
+                                {
+                                    tableFilterBuilder.Append(" OR ");
+                                }
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(" IN (");
+                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
+                                tableFilterBuilder.Append(") AND CONCAT(");
+                                tableFilterBuilder.Append(s);
+                                tableFilterBuilder.Append(", N'.', ");
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(") IN (");
+                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                                tableFilterBuilder.Append(")");
+                            }
+                        }
+
+                        if (openBracket)
+                        {
                             tableFilterBuilder.Append(")");
                         }
-                    }
 
-                    if (openBracket)
-                    {
-                        tableFilterBuilder.Append(")");
-                    }
-
-                    return tableFilterBuilder.ToString();
-                };
+                        return tableFilterBuilder.ToString();
+                    };
             }
 
             return null;

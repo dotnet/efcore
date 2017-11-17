@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual void Create_and_clone_with_converter(Type mappingType, Type clrType)
         {
             var mapping = (RelationalTypeMapping)Activator.CreateInstance(
-                mappingType, 
-                "<original>", 
+                mappingType,
+                "<original>",
                 new FakeValueConverter(),
                 DbType.VarNumeric);
 
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 mappingType,
                 "<original>",
                 new FakeValueConverter(),
-                DbType.VarNumeric, 
+                DbType.VarNumeric,
                 33);
 
             var clone = mapping.Clone("<clone>", 66);
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             public int Id { get; set; }
 
-            public ICollection<Kiwi> Kiwis{ get; set; }
+            public ICollection<Kiwi> Kiwis { get; set; }
         }
 
         private class Kiwi

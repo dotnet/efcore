@@ -63,18 +63,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     using (var blockingSemaphore = new SemaphoreSlim(0))
                     {
-                        var blockingTask = Task.Run(() =>
-                            context.Customers.Select(
-                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+                        var blockingTask = Task.Run(
+                            () =>
+                                context.Customers.Select(
+                                    c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
 
-                        var throwingTask = Task.Run(() =>
-                            {
-                                synchronizationEvent.Wait();
-                                Assert.Equal(
-                                    CoreStrings.ConcurrentMethodInvocation,
-                                    Assert.Throws<InvalidOperationException>(
-                                        () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
-                            });
+                        var throwingTask = Task.Run(
+                            () =>
+                                {
+                                    synchronizationEvent.Wait();
+                                    Assert.Equal(
+                                        CoreStrings.ConcurrentMethodInvocation,
+                                        Assert.Throws<InvalidOperationException>(
+                                            () => context.Database.ExecuteSqlCommand(@"SELECT * FROM ""Customers""")).Message);
+                                });
 
                         throwingTask.Wait();
 
@@ -228,18 +230,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     using (var blockingSemaphore = new SemaphoreSlim(0))
                     {
-                        var blockingTask = Task.Run(() =>
-                            context.Customers.Select(
-                                c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
+                        var blockingTask = Task.Run(
+                            () =>
+                                context.Customers.Select(
+                                    c => Process(c, synchronizationEvent, blockingSemaphore)).ToList());
 
-                        var throwingTask = Task.Run(async () =>
-                            {
-                                synchronizationEvent.Wait();
-                                Assert.Equal(
-                                    CoreStrings.ConcurrentMethodInvocation,
-                                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                                        () => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
-                            });
+                        var throwingTask = Task.Run(
+                            async () =>
+                                {
+                                    synchronizationEvent.Wait();
+                                    Assert.Equal(
+                                        CoreStrings.ConcurrentMethodInvocation,
+                                        (await Assert.ThrowsAsync<InvalidOperationException>(
+                                            () => context.Database.ExecuteSqlCommandAsync(@"SELECT * FROM ""Customers"""))).Message);
+                                });
 
                         await throwingTask;
 

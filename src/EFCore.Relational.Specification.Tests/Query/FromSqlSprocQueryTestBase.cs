@@ -187,9 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from a in context.Set<MostExpensiveProduct>()
-                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from b in context.Set<MostExpensiveProduct>()
-                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
                        select new { a, b })
                     .ToArray();
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from mep in context.Set<MostExpensiveProduct>()
-                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        from p in context.Set<Product>().FromSql("SELECT * FROM \"Products\"")
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new { mep, p })
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var actual
                     = (from p in context.Set<Product>().FromSql("SELECT * FROM \"Products\"")
                        from mep in context.Set<MostExpensiveProduct>()
-                            .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                           .FromSql(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                        where mep.TenMostExpensiveProducts == p.ProductName
                        select new { mep, p })
                     .ToArray();

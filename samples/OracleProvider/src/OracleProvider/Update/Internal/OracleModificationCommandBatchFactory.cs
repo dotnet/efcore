@@ -48,6 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 _updateSqlGenerator,
                 _valueBufferFactoryFactory,
                 optionsExtension?.MaxBatchSize);
-        } 
+        }
     }
 }

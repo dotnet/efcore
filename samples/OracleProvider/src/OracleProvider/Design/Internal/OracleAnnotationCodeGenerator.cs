@@ -39,6 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return false;
-        } 
+        }
     }
 }
