@@ -139,11 +139,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string foreignKeyName,
-                [NotNull] string tableName,
-                [NotNull] string principalTableName,
-                [NotNull] string onDeleteAction)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string foreignKeyName,
+            [NotNull] string tableName,
+            [NotNull] string principalTableName,
+            [NotNull] string onDeleteAction)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundForeignKey.Log(diagnostics, foreignKeyName, tableName, principalTableName, onDeleteAction);
 
@@ -152,8 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void DefaultSchemaFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string schemaName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string schemaName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundDefaultSchema.Log(diagnostics, schemaName);
 
@@ -162,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TypeAliasFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string typeAliasName,
-                [NotNull] string systemTypeName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string typeAliasName,
+            [NotNull] string systemTypeName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundTypeAlias.Log(diagnostics, typeAliasName, systemTypeName);
 
@@ -173,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void PrimaryKeyFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string primaryKeyName,
-                [NotNull] string tableName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string primaryKeyName,
+            [NotNull] string tableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundPrimaryKey.Log(diagnostics, primaryKeyName, tableName);
 
@@ -184,9 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void UniqueConstraintFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string uniqueConstraintName,
-                [NotNull] string tableName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string uniqueConstraintName,
+            [NotNull] string tableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundUniqueConstraint.Log(diagnostics, uniqueConstraintName, tableName);
 
@@ -195,10 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void IndexFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string indexName,
-                [NotNull] string tableName,
-                bool unique)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string indexName,
+            [NotNull] string tableName,
+            bool unique)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundIndex.Log(diagnostics, indexName, tableName, unique);
 
@@ -207,10 +207,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyReferencesMissingPrincipalTableWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string foreignKeyName,
-                [CanBeNull] string tableName,
-                [CanBeNull] string principalTableName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string foreignKeyName,
+            [CanBeNull] string tableName,
+            [CanBeNull] string principalTableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogPrincipalTableNotInSelectionSet.Log(diagnostics, foreignKeyName, tableName, principalTableName);
 
@@ -219,11 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void ForeignKeyPrincipalColumnMissingWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string foreignKeyName,
-                [NotNull] string tableName,
-                [NotNull] string principalColumnName,
-                [NotNull] string principalTableName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string foreignKeyName,
+            [NotNull] string tableName,
+            [NotNull] string principalColumnName,
+            [NotNull] string principalTableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogPrincipalColumnNotFound.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
 
@@ -232,8 +232,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MissingSchemaWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string schemaName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string schemaName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogMissingSchema.Log(diagnostics, schemaName);
 
@@ -242,8 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void MissingTableWarning(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [CanBeNull] string tableName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [CanBeNull] string tableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogMissingTable.Log(diagnostics, tableName);
 
@@ -289,8 +289,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static void TableFound(
-                [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
-                [NotNull] string tableName)
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            [NotNull] string tableName)
             // No DiagnosticsSource events because these are purely design-time messages
             => SqlServerStrings.LogFoundTable.Log(diagnostics, tableName);
     }
