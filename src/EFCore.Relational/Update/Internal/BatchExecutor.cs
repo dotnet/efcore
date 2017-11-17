@@ -48,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection)
             => CurrentContext.Context.Database.AutoTransactionsEnabled
-                ? ExecutionStrategyFactory.Create().Execute(Tuple.Create(commandBatches, connection), Execute)
-                : Execute(Tuple.Create(commandBatches, connection));
+                ? ExecutionStrategyFactory.Create().Execute((commandBatches, connection), Execute, null)
+                : Execute(CurrentContext.Context, (commandBatches, connection));
 
-        private int Execute(Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters)
+        private int Execute(DbContext _, (IEnumerable<ModificationCommandBatch>, IRelationalConnection) parameters)
         {
             var commandBatches = parameters.Item1;
             var connection = parameters.Item2;
@@ -103,11 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IRelationalConnection connection,
             CancellationToken cancellationToken = default)
             => CurrentContext.Context.Database.AutoTransactionsEnabled
-                ? ExecutionStrategyFactory.Create().ExecuteAsync(Tuple.Create(commandBatches, connection), ExecuteAsync, cancellationToken)
-                : ExecuteAsync(Tuple.Create(commandBatches, connection), cancellationToken);
+                ? ExecutionStrategyFactory.Create().ExecuteAsync((commandBatches, connection), ExecuteAsync, null, cancellationToken)
+                : ExecuteAsync(CurrentContext.Context, (commandBatches, connection), cancellationToken);
 
         private async Task<int> ExecuteAsync(
-            Tuple<IEnumerable<ModificationCommandBatch>, IRelationalConnection> parameters,
+            DbContext _,
+            (IEnumerable<ModificationCommandBatch>, IRelationalConnection) parameters,
             CancellationToken cancellationToken = default)
         {
             var commandBatches = parameters.Item1;

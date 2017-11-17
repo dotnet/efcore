@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
 
-                    return executionStrategy.Execute(executionStrategy.RetriesOnFailure, BufferlessMoveNext);
+                    return executionStrategy.Execute(executionStrategy.RetriesOnFailure, BufferlessMoveNext, null);
                 }
 
                 if (_buffer.Count > 0)
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return false;
             }
 
-            private bool BufferlessMoveNext(bool buffer)
+            private bool BufferlessMoveNext(DbContext _, bool buffer)
             {
                 if (_dataReader == null)
                 {

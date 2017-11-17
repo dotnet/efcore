@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
 
                         return await executionStrategy
-                            .ExecuteAsync(executionStrategy.RetriesOnFailure, BufferlessMoveNext, cancellationToken);
+                            .ExecuteAsync(executionStrategy.RetriesOnFailure, BufferlessMoveNext, null, cancellationToken);
                     }
 
                     if (_buffer.Count > 0)
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            private async Task<bool> BufferlessMoveNext(bool buffer, CancellationToken cancellationToken)
+            private async Task<bool> BufferlessMoveNext(DbContext _, bool buffer, CancellationToken cancellationToken)
             {
                 if (_dataReader == null)
                 {
