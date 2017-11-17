@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ResultSetMapping AppendBatchUpdateOperation(
             StringBuilder commandStringBuilder,
             StringBuilder variablesCommand,
-            IReadOnlyList<ModificationCommand> modificationCommands, 
+            IReadOnlyList<ModificationCommand> modificationCommands,
             int commandPosition,
             ref int cursorPosition);
 

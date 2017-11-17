@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         private readonly IReadOnlyDictionary<string, IList<RelationalTypeMapping>> _simpleNameMappings
             = new Dictionary<string, IList<RelationalTypeMapping>>
             {
-                { "DefaultInt", new List<RelationalTypeMapping> { _int  } },
+                { "DefaultInt", new List<RelationalTypeMapping> { _int } },
                 { "DefaultLong", new List<RelationalTypeMapping> { _long } },
                 { "DefaultString", new List<RelationalTypeMapping> { _string } }
             };

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.DotNet.Cli.CommandLine;
 using Xunit;
-
 using EFCommand = Microsoft.EntityFrameworkCore.Tools.Commands.RootCommand;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static IEnumerable<CommandLineApplication> GetCommands()
         {
-            var app = new CommandLineApplication()
+            var app = new CommandLineApplication
             {
                 Name = "dotnet ef"
             };

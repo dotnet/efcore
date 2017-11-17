@@ -782,9 +782,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 Assert.Equal(
                     RelationalStrings.SharedRowEntryCountMismatch(
                         nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
+                    Assert.Throws<InvalidOperationException>(
+                        () =>
+                            CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)
+                                .BatchCommands(new[] { firstEntry, secondEntry }).ToArray()).Message);
             }
         }
 
@@ -809,14 +810,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                 loggingOptions.Initialize(new DbContextOptionsBuilder<DbContext>().EnableSensitiveDataLogging().Options);
             }
 
-            return new CommandBatchPreparer(new CommandBatchPreparerDependencies(
-                modificationCommandBatchFactory,
-                new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
-                new ModificationCommandComparer(),
-                new KeyValueIndexFactorySource(),
-                () => stateManager,
-                loggingOptions,
-                new DbContextOptionsBuilder().Options));
+            return new CommandBatchPreparer(
+                new CommandBatchPreparerDependencies(
+                    modificationCommandBatchFactory,
+                    new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
+                    new ModificationCommandComparer(),
+                    new KeyValueIndexFactorySource(),
+                    () => stateManager,
+                    loggingOptions,
+                    new DbContextOptionsBuilder().Options));
         }
 
         private static IModel CreateSimpleFKModel()

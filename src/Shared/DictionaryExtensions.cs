@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static TValue GetOrAddNew<TKey, TValue>(
             [NotNull] this IDictionary<TKey, TValue> source,
-            [NotNull] TKey key) where TValue : new()
+            [NotNull] TKey key)
+            where TValue : new()
         {
             if (!source.TryGetValue(key, out var value))
             {

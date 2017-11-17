@@ -46,21 +46,21 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     var variblesBuilder = new StringBuilder();
 
                     variblesBuilder.AppendLine($"TYPE efRow{nameVariable} IS RECORD")
-                                .AppendLine("(");
+                        .AppendLine("(");
                     variblesBuilder.AppendJoin(
-                                reads,
-                                (sb, cm) =>
-                                    sb.Append(cm.ColumnName)
-                                        .Append(" ")
-                                        .AppendLine(GetVariableType(cm))
-                                        , ",")
-                                .Append(")")
-                                .AppendLine(SqlGenerationHelper.StatementTerminator);
+                            reads,
+                            (sb, cm) =>
+                                sb.Append(cm.ColumnName)
+                                    .Append(" ")
+                                    .AppendLine(GetVariableType(cm))
+                            , ",")
+                        .Append(")")
+                        .AppendLine(SqlGenerationHelper.StatementTerminator);
 
                     variblesBuilder.Append($"TYPE ef{nameVariable} IS TABLE OF efRow{nameVariable}")
-                                    .AppendLine(SqlGenerationHelper.StatementTerminator)
-                                    .Append($"list{nameVariable} ef{nameVariable}")
-                                    .AppendLine(SqlGenerationHelper.StatementTerminator);
+                        .AppendLine(SqlGenerationHelper.StatementTerminator)
+                        .Append($"list{nameVariable} ef{nameVariable}")
+                        .AppendLine(SqlGenerationHelper.StatementTerminator);
 
                     variablesInsert.Add(nameVariable, variblesBuilder.ToString());
                 }
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     .AppendLine(SqlGenerationHelper.StatementTerminator);
 
                 commandStringBuilder.Append($"list{nameVariable}.extend(")
-                                    .Append(modificationCommands.Count)
-                                    .Append(")")
-                                    .AppendLine(SqlGenerationHelper.StatementTerminator);
+                    .Append(modificationCommands.Count)
+                    .Append(")")
+                    .AppendLine(SqlGenerationHelper.StatementTerminator);
             }
 
             for (var i = 0; i < modificationCommands.Count; i++)
@@ -186,12 +186,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
             var resultSetMapping
-                        = AppendSelectAffectedCountCommand(commandStringBuilder, cursorPosition);
+                = AppendSelectAffectedCountCommand(commandStringBuilder, cursorPosition);
 
             cursorPosition++;
 
             return resultSetMapping;
-
         }
 
         protected override void AppendIdentityWhereCondition(
@@ -275,13 +274,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     .Append(cursorPosition)
                     .Append(" FOR")
                     .Append(" SELECT ")
-                    .AppendJoin(operations,
-                                (sb, o) => sb.Append("list")
-                                             .Append(name)
-                                             .Append("(")
-                                             .Append(commandPosition + 1)
-                                             .Append(").")
-                                             .Append(o.ColumnName), ",")
+                    .AppendJoin(
+                        operations,
+                        (sb, o) => sb.Append("list")
+                            .Append(name)
+                            .Append("(")
+                            .Append(commandPosition + 1)
+                            .Append(").")
+                            .Append(o.ColumnName), ",")
                     .Append(" FROM DUAL")
                     .AppendLine(SqlGenerationHelper.StatementTerminator);
             }

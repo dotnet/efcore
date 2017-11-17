@@ -2021,14 +2021,14 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         {
             Test(
                 builder =>
-                {
-                    builder.Entity<EntityWithOneProperty>()
-                        .Ignore(e => e.EntityWithTwoProperties)
-                        .SeedData(
-                            new EntityWithOneProperty { Id = 42 });
-                    builder.Ignore<EntityWithTwoProperties>();
-                },
-               GetHeading() + @"
+                    {
+                        builder.Entity<EntityWithOneProperty>()
+                            .Ignore(e => e.EntityWithTwoProperties)
+                            .SeedData(
+                                new EntityWithOneProperty { Id = 42 });
+                        builder.Ignore<EntityWithTwoProperties>();
+                    },
+                GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
@@ -2054,16 +2054,16 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         {
             Test(
                 builder =>
-                {
-                    builder.Entity<EntityWithOneProperty>()
-                        .Ignore(e => e.EntityWithTwoProperties)
-                        .SeedData(
-                            new EntityWithOneProperty { Id = 27 });
-                    builder.Entity<EntityWithTwoProperties>()
-                        .Ignore(e => e.EntityWithOneProperty)
-                        .SeedData(
-                            new EntityWithTwoProperties { Id = 42, AlternateId = 43 });
-                },
+                    {
+                        builder.Entity<EntityWithOneProperty>()
+                            .Ignore(e => e.EntityWithTwoProperties)
+                            .SeedData(
+                                new EntityWithOneProperty { Id = 27 });
+                        builder.Entity<EntityWithTwoProperties>()
+                            .Ignore(e => e.EntityWithOneProperty)
+                            .SeedData(
+                                new EntityWithTwoProperties { Id = 42, AlternateId = 43 });
+                    },
                 GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
@@ -2101,10 +2101,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
                     seed => Assert.Equal(27, seed["Id"]),
                     seed =>
-                    {
-                        Assert.Equal(42, seed["Id"]);
-                        Assert.Equal(43, seed["AlternateId"]);
-                    }));
+                        {
+                            Assert.Equal(42, seed["Id"]);
+                            Assert.Equal(43, seed["AlternateId"]);
+                        }));
         }
 
         #endregion

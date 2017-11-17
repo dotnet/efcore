@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using JetBrains.Annotations;
-using System;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     return Convert.ToBoolean(valueRecord);
                 default:
                     return valueRecord;
-            } 
+            }
         }
     }
 }

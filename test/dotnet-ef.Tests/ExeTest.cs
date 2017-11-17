@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public void ToArguments_works()
         {
             var result = ToArguments(
-                new[] {
+                new[]
+                {
                     "Good",
                     "Good\\",
                     "Needs quotes",

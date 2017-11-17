@@ -236,22 +236,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk =>
-                {
-                    Assert.Equal("Id", pk.Name);
-                },
-                col1 =>
-                {
-                    Assert.Equal("ProductSKU", col1.Name);
-                },
-                col2 =>
-                {
-                    Assert.Equal("Vendor_Discount", col2.Name);
-                },
-                col3 =>
-                {
-                    Assert.Equal("supplierID", col3.Name);
-                });
+                pk => { Assert.Equal("Id", pk.Name); },
+                col1 => { Assert.Equal("ProductSKU", col1.Name); },
+                col2 => { Assert.Equal("Vendor_Discount", col2.Name); },
+                col3 => { Assert.Equal("supplierID", col3.Name); });
         }
 
         [Fact]
@@ -292,22 +280,10 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Collection(
                 entityType.GetProperties(),
-                pk =>
-                {
-                    Assert.Equal("Id", pk.Name);
-                },
-                col1 =>
-                {
-                    Assert.Equal("ProductSku", col1.Name);
-                },
-                col2 =>
-                {
-                    Assert.Equal("SupplierId", col2.Name);
-                },
-                col3 =>
-                {
-                    Assert.Equal("VendorDiscount", col3.Name);
-                });
+                pk => { Assert.Equal("Id", pk.Name); },
+                col1 => { Assert.Equal("ProductSku", col1.Name); },
+                col2 => { Assert.Equal("SupplierId", col2.Name); },
+                col3 => { Assert.Equal("VendorDiscount", col3.Name); });
         }
 
         [Theory]

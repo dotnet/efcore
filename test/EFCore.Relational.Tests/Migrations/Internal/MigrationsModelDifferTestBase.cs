@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected static T[] ToOnedimensionalArray<T>(T[,] values, bool firstDimension = false)
         {
-            Debug.Assert(values.GetLength(firstDimension ? 1 : 0) == 1,
+            Debug.Assert(
+                values.GetLength(firstDimension ? 1 : 0) == 1,
                 $"Length of dimension {(firstDimension ? 1 : 0)} is not 1.");
 
             var result = new T[values.Length];

@@ -302,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         {
                             parameter.AddDbParameter(command, parameterValues);
                         }
-                    } 
+                    }
 
                     return command;
                 }
