@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void IncludeCollection<TEntity, TRelated>(
+        public virtual void IncludeCollection<TEntity, TRelated, TElement>(
             int includeId,
             INavigation navigation,
             INavigation inverseNavigation,
@@ -159,6 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             TEntity entity,
             Func<IEnumerable<TRelated>> relatedEntitiesFactory,
             Func<TEntity, TRelated, bool> joinPredicate)
+            where TRelated : TElement
         {
             IDisposable untypedEnumerator = null;
             IEnumerator<TRelated> enumerator = null;
@@ -179,20 +180,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _includedCollections.Add(includeId, enumerator);
                 }
             }
+            
+            var collection = (ICollection<TElement>)clrCollectionAccessor.GetOrCreate(entity);
 
             if (enumerator == null)
             {
                 if (untypedEnumerator == null)
                 {
-                    clrCollectionAccessor.GetOrCreate(entity);
-
                     return;
                 }
 
                 enumerator = (IEnumerator<TRelated>)untypedEnumerator;
             }
-
-            var relatedEntities = new List<object>();
 
             IIncludeKeyComparer keyComparer = null;
 
@@ -227,11 +226,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (shouldInclude)
                 {
-                    relatedEntities.Add(enumerator.Current);
-
                     if (tracking)
                     {
                         StartTracking(enumerator.Current, targetEntityType);
+                    }
+                    else if (!collection.Contains(enumerator.Current))
+                    {
+                        collection.Add(enumerator.Current);
                     }
 
                     if (inverseNavigation != null)
@@ -268,15 +269,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            clrCollectionAccessor.AddRange(entity, relatedEntities);
-
             if (tracking)
             {
                 var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
 
                 Debug.Assert(internalEntityEntry != null);
 
-                internalEntityEntry.AddRangeToCollectionSnapshot(navigation, relatedEntities);
+                internalEntityEntry.AddRangeToCollectionSnapshot(navigation, (IEnumerable<object>)collection);
                 internalEntityEntry.SetIsLoaded(navigation);
             }
         }
@@ -285,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual async Task IncludeCollectionAsync<TEntity, TRelated>(
+        public virtual async Task IncludeCollectionAsync<TEntity, TRelated, TElement>(
             int includeId,
             INavigation navigation,
             INavigation inverseNavigation,
@@ -297,6 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Func<IAsyncEnumerable<TRelated>> relatedEntitiesFactory,
             Func<TEntity, TRelated, bool> joinPredicate,
             CancellationToken cancellationToken)
+            where TRelated : TElement
         {
             IDisposable untypedAsyncEnumerator = null;
             IAsyncEnumerator<TRelated> asyncEnumerator = null;
@@ -318,19 +318,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            var collection = (ICollection<TElement>)clrCollectionAccessor.GetOrCreate(entity);
+            
             if (asyncEnumerator == null)
             {
                 if (untypedAsyncEnumerator == null)
                 {
-                    clrCollectionAccessor.GetOrCreate(entity);
-
                     return;
                 }
 
                 asyncEnumerator = (IAsyncEnumerator<TRelated>)untypedAsyncEnumerator;
             }
-
-            var relatedEntities = new List<object>();
 
             IIncludeKeyComparer keyComparer = null;
 
@@ -365,11 +363,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (shouldInclude)
                 {
-                    relatedEntities.Add(asyncEnumerator.Current);
-
                     if (tracking)
                     {
                         StartTracking(asyncEnumerator.Current, targetEntityType);
+                    }
+                    else if (!collection.Contains(asyncEnumerator.Current))
+                    {
+                        collection.Add(asyncEnumerator.Current);
                     }
 
                     if (inverseNavigation != null)
@@ -403,15 +403,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            clrCollectionAccessor.AddRange(entity, relatedEntities);
-
             if (tracking)
             {
                 var internalEntityEntry = _dependencies.StateManager.TryGetEntry(entity);
 
                 Debug.Assert(internalEntityEntry != null);
 
-                internalEntityEntry.AddRangeToCollectionSnapshot(navigation, relatedEntities);
+                internalEntityEntry.AddRangeToCollectionSnapshot(navigation, (IEnumerable<object>)collection);
                 internalEntityEntry.SetIsLoaded(navigation);
             }
         }

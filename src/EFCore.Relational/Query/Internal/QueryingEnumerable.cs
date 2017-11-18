@@ -50,11 +50,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly ShaperCommandContext _shaperCommandContext;
             private readonly IShaper<T> _shaper;
+            private readonly Func<DbContext, bool, bool> _bufferlessMoveNext;
 
             private RelationalDataReader _dataReader;
             private Queue<ValueBuffer> _buffer;
             private DbDataReader _dbDataReader;
             private IRelationalValueBufferFactory _valueBufferFactory;
+            private IExecutionStrategy _executionStrategy;
 
             private bool _disposed;
 
@@ -64,15 +66,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
                 _relationalQueryContext = queryingEnumerable._relationalQueryContext;
                 _shaper = queryingEnumerable._shaper;
+                _bufferlessMoveNext = BufferlessMoveNext;
             }
 
             public bool MoveNext()
             {
                 if (_buffer == null)
                 {
-                    var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-
-                    return executionStrategy.Execute(executionStrategy.RetriesOnFailure, BufferlessMoveNext, null);
+                    if (_executionStrategy == null)
+                    {
+                        _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                    }
+                    
+                    return _executionStrategy.Execute(_executionStrategy.RetriesOnFailure, _bufferlessMoveNext, null);
                 }
 
                 if (_buffer.Count > 0)
@@ -200,10 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
+            public void Reset() => throw new NotImplementedException();
         }
     }
 }

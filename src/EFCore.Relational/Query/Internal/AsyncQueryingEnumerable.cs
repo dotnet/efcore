@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
@@ -46,11 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly ShaperCommandContext _shaperCommandContext;
             private readonly IShaper<T> _shaper;
+            private readonly Func<DbContext, bool, CancellationToken, Task<bool>> _bufferlessMoveNext;
 
             private RelationalDataReader _dataReader;
             private Queue<ValueBuffer> _buffer;
             private DbDataReader _dbDataReader;
             private IRelationalValueBufferFactory _valueBufferFactory;
+            private IExecutionStrategy _executionStrategy;
 
             private bool _disposed;
 
@@ -60,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _valueBufferFactory = _shaperCommandContext.ValueBufferFactory;
                 _relationalQueryContext = queryingEnumerable._relationalQueryContext;
                 _shaper = queryingEnumerable._shaper;
+                _bufferlessMoveNext = BufferlessMoveNext;
             }
 
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
@@ -72,10 +76,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     if (_buffer == null)
                     {
-                        var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                        if (_executionStrategy == null)
+                        {
+                            _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
+                        }
 
-                        return await executionStrategy
-                            .ExecuteAsync(executionStrategy.RetriesOnFailure, BufferlessMoveNext, null, cancellationToken);
+                        return await _executionStrategy
+                            .ExecuteAsync(_executionStrategy.RetriesOnFailure, _bufferlessMoveNext, null, cancellationToken);
                     }
 
                     if (_buffer.Count > 0)

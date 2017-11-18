@@ -163,6 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 int collectionIncludeId)
             {
                 var inverseNavigation = navigation.FindInverse();
+                var clrCollectionAccessor = navigation.GetCollectionAccessor();
 
                 var arguments = new List<Expression>
                 {
@@ -170,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Constant(navigation),
                     Expression.Constant(inverseNavigation, typeof(INavigation)),
                     Expression.Constant(navigation.GetTargetType()),
-                    Expression.Constant(navigation.GetCollectionAccessor()),
+                    Expression.Constant(clrCollectionAccessor),
                     Expression.Constant(inverseNavigation?.GetSetter(), typeof(IClrPropertySetter)),
                     Expression.Constant(trackingQuery),
                     targetEntityExpression,
@@ -183,13 +184,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     arguments.Add(cancellationTokenExpression);
                 }
 
+                var targetClrType = navigation.GetTargetType().ClrType;
+
                 var includeCollectionMethodCall
                     = Expression.Call(
                         Expression.Property(
                             EntityQueryModelVisitor.QueryContextParameter,
                             nameof(QueryContext.QueryBuffer)),
                         includeCollectionMethodInfo
-                            .MakeGenericMethod(targetEntityExpression.Type, navigation.GetTargetType().ClrType),
+                            .MakeGenericMethod(
+                            targetEntityExpression.Type,
+                                targetClrType,
+                                clrCollectionAccessor.CollectionType.TryGetSequenceType()
+                                    ?? targetClrType),
                         arguments);
 
                 return
