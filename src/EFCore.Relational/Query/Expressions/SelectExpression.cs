@@ -441,11 +441,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                         expression = nullableExpression.Operand;
                     }
 
-                    var expressionToAdd
-                        = expression.LiftExpressionFromSubquery(subquery)
-                          ?? subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)].LiftExpressionFromSubquery(subquery);
+                    if (!(expression is ColumnExpression
+                        || expression is ColumnReferenceExpression
+                        || expression is AliasExpression))
+                    {
+                        expression = subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)];
+                    }
 
-                    _orderBy.Add(new Ordering(expressionToAdd, ordering.OrderingDirection));
+                    _orderBy.Add(new Ordering(expression.LiftExpressionFromSubquery(subquery), ordering.OrderingDirection));
                 }
 
                 if (subquery.Limit == null
