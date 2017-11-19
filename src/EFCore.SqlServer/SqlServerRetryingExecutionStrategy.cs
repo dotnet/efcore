@@ -81,9 +81,7 @@ namespace Microsoft.EntityFrameworkCore
                 context,
                 maxRetryCount,
                 maxRetryDelay)
-        {
-            _additionalErrorNumbers = errorNumbersToAdd;
-        }
+            => _additionalErrorNumbers = errorNumbersToAdd;
 
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -98,9 +96,7 @@ namespace Microsoft.EntityFrameworkCore
             TimeSpan maxRetryDelay,
             [CanBeNull] ICollection<int> errorNumbersToAdd)
             : base(dependencies, maxRetryCount, maxRetryDelay)
-        {
-            _additionalErrorNumbers = errorNumbersToAdd;
-        }
+            => _additionalErrorNumbers = errorNumbersToAdd;
 
         /// <summary>
         ///     Determines whether the specified exception represents a transient failure that can be
@@ -114,8 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (_additionalErrorNumbers != null)
             {
-                var sqlException = exception as SqlException;
-                if (sqlException != null)
+                if (exception is SqlException sqlException)
                 {
                     foreach (SqlError err in sqlException.Errors)
                     {
@@ -156,8 +151,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private bool IsMemoryOptimizedError(Exception exception)
         {
-            var sqlException = exception as SqlException;
-            if (sqlException != null)
+            if (exception is SqlException sqlException)
             {
                 foreach (SqlError err in sqlException.Errors)
                 {
