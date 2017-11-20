@@ -3184,6 +3184,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      from o1 in os.Where(o => o.OrderID > 11000).DefaultIfEmpty()
                      from o2 in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                      where o1 != null && o2 != null
+                     orderby o1.OrderID,o2.OrderDate
                      select new { c.CustomerID, o1.OrderID, o2.OrderDate }),
                 e => e.CustomerID + " " + e.OrderID);
         }

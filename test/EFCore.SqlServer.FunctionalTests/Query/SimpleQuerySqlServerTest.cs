@@ -3145,7 +3145,8 @@ CROSS APPLY (
         WHERE [o0].[CustomerID] = [c].[CustomerID]
     ) AS [t1] ON 1 = 1
 ) AS [t2]
-WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderID] IS NOT NULL)");
+WHERE ([c].[City] = N'Seattle') AND ([t0].[OrderID] IS NOT NULL AND [t2].[OrderID] IS NOT NULL)
+ORDER BY [t0].[OrderID], [t2].[OrderDate]");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
