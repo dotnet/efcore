@@ -118,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ScaffoldedModel scaffoldedModel,
             string projectDir,
             string outputDir,
+            string outputDbContextDir,
             bool overwriteFiles)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
@@ -126,12 +127,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 ? projectDir
                 : Path.GetFullPath(Path.Combine(projectDir, outputDir));
 
+            string outputDbContextDir1 = null;
+            if (outputDbContextDir == null)
+            {
+                outputDbContextDir1 = outputDir;
+            }
+            else
+            {
+                outputDbContextDir1 = Path.IsPathRooted(outputDbContextDir)
+                    ? outputDbContextDir
+                    : Path.GetFullPath(Path.Combine(projectDir, outputDbContextDir));
+            }
+
             CheckOutputFiles(scaffoldedModel, outputDir, overwriteFiles);
+            CheckOutputFiles(scaffoldedModel, outputDbContextDir1, overwriteFiles);
 
             var files = new ModelFiles();
             Directory.CreateDirectory(outputDir);
+            Directory.CreateDirectory(outputDbContextDir1);
 
-            var contextPath = Path.Combine(outputDir, scaffoldedModel.ContextFile.Path);
+            var contextPath = Path.Combine(outputDbContextDir1, scaffoldedModel.ContextFile.Path);
             File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
             files.ContextFile = contextPath;
 

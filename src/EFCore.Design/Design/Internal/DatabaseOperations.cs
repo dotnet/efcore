@@ -57,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
+            [CanBeNull] string outputContextDir,
             [CanBeNull] string dbContextClassName,
             [NotNull] IEnumerable<string> schemas,
             [NotNull] IEnumerable<string> tables,
@@ -95,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 scaffoldedModel,
                 _projectDir,
                 outputDir,
+                outputContextDir,
                 overwriteFiles);
         }
 

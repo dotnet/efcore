@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string provider,
             string connectionString,
             string outputDir,
+            string outputDbContextDir,
             string dbContextClassName,
             IEnumerable<string> schemaFilters,
             IEnumerable<string> tableFilters,

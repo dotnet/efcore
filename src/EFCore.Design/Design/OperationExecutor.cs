@@ -408,6 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             ///     <para><c>connectionString</c>--The connection string to the database.</para>
             ///     <para><c>provider</c>--The provider to use.</para>
             ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
+            ///     <para><c>outputDbContextDir</c>--The directory to put DbContext file in. Paths are relative to the project directory.</para>
             ///     <para><c>dbContextClassName</c>--The name of the DbContext to generate.</para>
             ///     <para><c>schemaFilters</c>--The schemas of tables to generate entity types for.</para>
             ///     <para><c>tableFilters</c>--The tables to generate entity types for.</para>
@@ -427,6 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var connectionString = (string)args["connectionString"];
                 var provider = (string)args["provider"];
                 var outputDir = (string)args["outputDir"];
+                var outputDbContextDir = (string)args["outputDbContextDir"];
                 var dbContextClassName = (string)args["dbContextClassName"];
                 var schemaFilters = (IEnumerable<string>)args["schemaFilters"];
                 var tableFilters = (IEnumerable<string>)args["tableFilters"];
@@ -436,8 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 Execute(
                     () => executor.ScaffoldContextImpl(
-                        provider,
-                        connectionString, outputDir, dbContextClassName,
+                        provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                         schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames));
             }
         }
@@ -446,6 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
+            [CanBeNull] string outputDbContextDir,
             [CanBeNull] string dbContextClassName,
             [NotNull] IEnumerable<string> schemaFilters,
             [NotNull] IEnumerable<string> tableFilters,
@@ -464,9 +466,17 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
             }
+            if (!string.IsNullOrWhiteSpace(outputDbContextDir))
+            {
+                outputDbContextDir = Path.GetFullPath(Path.Combine(_projectDir, outputDbContextDir));
+            }
+            else
+            {
+                outputDbContextDir = outputDir;
+            }
 
             var files = _databaseOperations.Value.ScaffoldContext(
-                provider, connectionString, outputDir, dbContextClassName,
+                provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                 schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
 
             return new Hashtable

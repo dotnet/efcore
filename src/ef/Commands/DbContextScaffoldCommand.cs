@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 _provider.Value,
                 _connection.Value,
                 _outputDir.Value(),
+                _outputDbContextDir.Value(),
                 _context.Value(),
                 _schemas.Values,
                 _tables.Values,

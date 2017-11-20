@@ -281,6 +281,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("OutputDirDescription");
 
         /// <summary>
+        ///     The directory to put DbContext file in. Paths are relative to the project directory.
+        /// </summary>
+        public static string OutputDbContextDirDescription
+            => GetString("OutputDbContextDirDescription");
+
+        /// <summary>
         ///     Prefix output with level.
         /// </summary>
         public static string PrefixDescription

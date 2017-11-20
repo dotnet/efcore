@@ -39,12 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="scaffoldedModel"> The scaffolded model. </param>
         /// <param name="projectDir"> The project directory. </param>
         /// <param name="outputDir"> The output dirctory. </param>
+        /// <param name="outputDbContextDir"> The DbContext output dirctory. </param>
         /// <param name="overwriteFiles"> True to overwrite any existing files. </param>
         /// <returns> The model files. </returns>
         ModelFiles Save(
             [NotNull] ScaffoldedModel scaffoldedModel,
             [NotNull] string projectDir,
             [CanBeNull] string outputDir,
+            [CanBeNull] string outputDbContextDir,
             bool overwriteFiles);
     }
 }
