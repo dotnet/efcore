@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.Models.Orders
         public DbSet<Product> Products { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder
+        {
+            optionsBuilder
                 .UseInternalServiceProvider(_serviceProvider)
                 .UseSqlServer(
                     _connectionString,
@@ -42,5 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.Models.Orders
                                 b.MaxBatchSize(1);
                             }
                         });
+        }
     }
 }

@@ -91,10 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.Models.AdventureWorks
         public virtual DbSet<WorkOrderRouting> WorkOrderRouting { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlServer(_connectionString).UseInternalServiceProvider(_serviceProvider);
+        {
+            options.UseSqlServer(_connectionString).UseInternalServiceProvider(_serviceProvider);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => ConfigureModel(modelBuilder);
+        {
+            ConfigureModel(modelBuilder);
+        }
 
         public static void ConfigureModel(ModelBuilder modelBuilder)
         {

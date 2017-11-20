@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public int SpecialOfferID { get; set; }
         public int ProductID { get; set; }
         public DateTime ModifiedDate { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
 
         public virtual ICollection<SalesOrderDetail> SalesOrderDetail { get; set; }
         public virtual Product Product { get; set; }

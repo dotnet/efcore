@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public decimal Bonus { get; set; }
         public decimal CommissionPct { get; set; }
         public DateTime ModifiedDate { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public decimal SalesLastYear { get; set; }
         public decimal? SalesQuota { get; set; }
         public decimal SalesYTD { get; set; }

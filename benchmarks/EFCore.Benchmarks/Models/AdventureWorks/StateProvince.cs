@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public bool IsOnlyStateProvinceFlag { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string Name { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public string StateProvinceCode { get; set; }
         public int TerritoryID { get; set; }
 

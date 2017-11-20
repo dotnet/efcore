@@ -1,0 +1,6 @@
+# Benchmark specific rules
+# CSharp code style settings:
+[*.cs]
+# Expression-Bodied members
+csharp_style_expression_bodied_constructors = false : warning
+csharp_style_expression_bodied_methods = false : warning

@@ -9,6 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.Models.AdventureWorks
     {
         // This method is called from timed code, be careful when changing it
         public static AdventureWorksContext CreateContext()
-            => new AdventureWorksContext(ConnectionString);
+        {
+            return new AdventureWorksContext(ConnectionString);
+        }
     }
 }

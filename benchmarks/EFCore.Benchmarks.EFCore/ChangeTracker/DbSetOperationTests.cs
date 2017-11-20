@@ -13,9 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
         public abstract class Base
         {
             private readonly DbSetOperationFixture _fixture = new DbSetOperationFixture();
-            protected List<Customer> CustomersWithoutPk;
-            protected List<Customer> CustomersWithPk;
-            protected OrdersContext Context;
+            protected List<Customer> _customersWithoutPk;
+            protected List<Customer> _customersWithPk;
+            protected OrdersContext _context;
 
             [Params(true, false)]
             public bool AutoDetectChanges { get; set; }
@@ -23,21 +23,21 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
             [GlobalSetup]
             public virtual void CreateCustomers()
             {
-                CustomersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
-                CustomersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
+                _customersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
+                _customersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
             }
 
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = _fixture.CreateContext();
-                Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
+                _context = _fixture.CreateContext();
+                _context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
             }
 
             [IterationCleanup]
             public virtual void CleanupContext()
             {
-                Context.Dispose();
+                _context.Dispose();
             }
         }
 
@@ -46,31 +46,31 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
             [Benchmark]
             public virtual void Add()
             {
-                foreach (var customer in CustomersWithoutPk)
+                foreach (var customer in _customersWithoutPk)
                 {
-                    Context.Customers.Add(customer);
+                    _context.Customers.Add(customer);
                 }
             }
 
             [Benchmark]
             public virtual void AddRange()
             {
-                Context.Customers.AddRange(CustomersWithoutPk);
+                _context.Customers.AddRange(_customersWithoutPk);
             }
 
             [Benchmark]
             public virtual void Attach()
             {
-                foreach (var customer in CustomersWithPk)
+                foreach (var customer in _customersWithPk)
                 {
-                    Context.Customers.Attach(customer);
+                    _context.Customers.Attach(customer);
                 }
             }
 
             [Benchmark]
             public virtual void AttachRange()
             {
-                Context.Customers.AttachRange(CustomersWithPk);
+                _context.Customers.AttachRange(_customersWithPk);
             }
         }
 
@@ -80,37 +80,37 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.ChangeTracker
             public override void InitializeContext()
             {
                 base.InitializeContext();
-                Context.Customers.AttachRange(CustomersWithPk);
+                _context.Customers.AttachRange(_customersWithPk);
             }
 
             [Benchmark]
             public virtual void Remove()
             {
-                foreach (var customer in CustomersWithPk)
+                foreach (var customer in _customersWithPk)
                 {
-                    Context.Customers.Remove(customer);
+                    _context.Customers.Remove(customer);
                 }
             }
 
             [Benchmark]
             public virtual void RemoveRange()
             {
-                Context.Customers.RemoveRange(CustomersWithPk);
+                _context.Customers.RemoveRange(_customersWithPk);
             }
 
             [Benchmark]
             public virtual void Update()
             {
-                foreach (var customer in CustomersWithPk)
+                foreach (var customer in _customersWithPk)
                 {
-                    Context.Customers.Update(customer);
+                    _context.Customers.Update(customer);
                 }
             }
 
             [Benchmark]
             public virtual void UpdateRange()
             {
-                Context.Customers.UpdateRange(CustomersWithPk);
+                _context.Customers.UpdateRange(_customersWithPk);
             }
         }
 

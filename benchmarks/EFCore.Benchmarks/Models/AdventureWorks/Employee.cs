@@ -27,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public DateTime ModifiedDate { get; set; }
         public string NationalIDNumber { get; set; }
         public short? OrganizationLevel { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public bool SalariedFlag { get; set; }
         public short SickLeaveHours { get; set; }
         public short VacationHours { get; set; }

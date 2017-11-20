@@ -41,7 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public string ProductNumber { get; set; }
         public int? ProductSubcategoryID { get; set; }
         public short ReorderPoint { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public short SafetyStockLevel { get; set; }
         public DateTime? SellEndDate { get; set; }
         public DateTime SellStartDate { get; set; }

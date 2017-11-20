@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
         public abstract class Base
         {
             private static readonly FixupFixture _fixture = new FixupFixture();
-            protected List<Customer> Customers;
-            protected List<Order> OrdersWithoutPk;
-            protected List<Order> OrdersWithPk;
-            protected OrdersContext Context;
+            protected List<Customer> _customers;
+            protected List<Order> _ordersWithoutPk;
+            protected List<Order> _ordersWithPk;
+            protected OrdersContext _context;
 
             [Params(true, false)]
             public bool AutoDetectChanges { get; set; }
@@ -38,18 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = _fixture.CreateContext();
-                Context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
+                _context = _fixture.CreateContext();
+                _context.ChangeTracker.AutoDetectChangesEnabled = AutoDetectChanges;
 
-                Customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
-                OrdersWithoutPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: false);
-                OrdersWithPk = _fixture.CreateOrders(Customers, ordersPerCustomer: 2, setPrimaryKeys: true);
+                _customers = _fixture.CreateCustomers(5000, setPrimaryKeys: true);
+                _ordersWithoutPk = _fixture.CreateOrders(_customers, ordersPerCustomer: 2, setPrimaryKeys: false);
+                _ordersWithPk = _fixture.CreateOrders(_customers, ordersPerCustomer: 2, setPrimaryKeys: true);
             }
 
             [IterationCleanup]
             public virtual void CleanupContext()
             {
-                Context.Dispose();
+                _context.Dispose();
             }
         }
 
@@ -59,31 +59,31 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             public override void InitializeContext()
             {
                 base.InitializeContext();
-                Context.Customers.AttachRange(Customers);
+                _context.Customers.AttachRange(_customers);
             }
 
             [Benchmark]
             public virtual void AddChildren()
             {
-                foreach (var order in OrdersWithoutPk)
+                foreach (var order in _ordersWithoutPk)
                 {
-                    Context.Orders.Add(order);
+                    _context.Orders.Add(order);
                 }
             }
 
             [Benchmark]
             public virtual void AttachChildren()
             {
-                foreach (var order in OrdersWithPk)
+                foreach (var order in _ordersWithPk)
                 {
-                    Context.Orders.Attach(order);
+                    _context.Orders.Attach(order);
                 }
             }
 
             [Benchmark]
             public virtual void QueryChildren()
             {
-                Context.Orders.ToList();
+                _context.Orders.ToList();
             }
         }
 
@@ -93,31 +93,31 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore2.ChangeTracker
             public override void InitializeContext()
             {
                 base.InitializeContext();
-                Context.Orders.AttachRange(OrdersWithPk);
+                _context.Orders.AttachRange(_ordersWithPk);
             }
 
             [Benchmark]
             public virtual void AddParents()
             {
-                foreach (var customer in Customers)
+                foreach (var customer in _customers)
                 {
-                    Context.Customers.Add(customer);
+                    _context.Customers.Add(customer);
                 }
             }
 
             [Benchmark]
             public virtual void AttachParents()
             {
-                foreach (var customer in Customers)
+                foreach (var customer in _customers)
                 {
-                    Context.Customers.Attach(customer);
+                    _context.Customers.Attach(customer);
                 }
             }
 
             [Benchmark]
             public virtual void QueryParents()
             {
-                Context.Customers.ToList();
+                _context.Customers.ToList();
             }
         }
 

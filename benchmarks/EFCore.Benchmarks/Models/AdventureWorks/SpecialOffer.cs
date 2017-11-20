@@ -21,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public int? MaxQty { get; set; }
         public int MinQty { get; set; }
         public DateTime ModifiedDate { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public DateTime StartDate { get; set; }
         public string Type { get; set; }
 
