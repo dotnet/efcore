@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
     {
         public abstract class Base
         {
-            protected static readonly SimpleUpdatePipelineFixture Fixture = new SimpleUpdatePipelineFixture();
-            protected OrdersContext Context;
+            protected static readonly SimpleUpdatePipelineFixture _fixture = new SimpleUpdatePipelineFixture();
+            protected OrdersContext _context;
             private IDbContextTransaction _transaction;
             private int _recordsAffected = -1;
 
@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = Fixture.CreateContext(Batching);
-                _transaction = Context.Database.BeginTransaction();
+                _context = _fixture.CreateContext(Batching);
+                _transaction = _context.Database.BeginTransaction();
             }
 
             [IterationCleanup]
@@ -41,15 +41,15 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
                 }
 
                 _transaction.Dispose();
-                Context.Dispose();
+                _context.Dispose();
             }
 
             [Benchmark]
             public async Task UpdatePipeline()
             {
                 _recordsAffected = Async
-                    ? await Context.SaveChangesAsync()
-                    : Context.SaveChanges();
+                    ? await _context.SaveChangesAsync()
+                    : _context.SaveChanges();
             }
         }
 
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             {
                 base.InitializeContext();
 
-                var customers = Fixture.CreateCustomers(1000, setPrimaryKeys: false);
-                Context.Customers.AddRange(customers);
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                _context.Customers.AddRange(customers);
             }
         }
 
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             {
                 base.InitializeContext();
 
-                foreach (var customer in Context.Customers)
+                foreach (var customer in _context.Customers)
                 {
                     customer.FirstName += " Modified";
                 }
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             {
                 base.InitializeContext();
 
-                Context.Customers.RemoveRange(Context.Customers.ToList());
+                _context.Customers.RemoveRange(_context.Customers.ToList());
             }
         }
 
@@ -97,13 +97,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             {
                 base.InitializeContext();
 
-                var existingCustomers = Context.Customers.ToArray();
-                var newCustomers = Fixture.CreateCustomers(333, setPrimaryKeys: false);
-                Context.Customers.AddRange(newCustomers);
+                var existingCustomers = _context.Customers.ToArray();
+                var newCustomers = _fixture.CreateCustomers(333, setPrimaryKeys: false);
+                _context.Customers.AddRange(newCustomers);
 
                 for (var i = 0; i < 1000; i += 3)
                 {
-                    Context.Customers.Remove(existingCustomers[i]);
+                    _context.Customers.Remove(existingCustomers[i]);
                 }
 
                 for (var i = 1; i < 1000; i += 3)
@@ -120,7 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore1.UpdatePipeline
             {
             }
 
-            public OrdersContext CreateContext(bool batching) => new OrdersContext(ConnectionString, disableBatching: !batching);
+            public OrdersContext CreateContext(bool batching)
+            {
+                return new OrdersContext(ConnectionString, disableBatching: !batching);
+            }
         }
     }
 }

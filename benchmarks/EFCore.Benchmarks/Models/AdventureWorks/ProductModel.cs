@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public int ProductModelID { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string Name { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public string CatalogDescription { get; set; }
         public string Instructions { get; set; }
 

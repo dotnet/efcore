@@ -11,7 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public DateTime ModifiedDate { get; set; }
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
 
         public virtual Person BusinessEntity { get; set; }
     }

@@ -15,30 +15,30 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
         {
             private readonly DbSetOperationFixture _fixture = new DbSetOperationFixture();
 
-            protected List<Customer> CustomersWithoutPk;
-            protected List<Customer> CustomersWithPk;
-            protected OrdersContext Context;
+            protected List<Customer> _customersWithoutPk;
+            protected List<Customer> _customersWithPk;
+            protected OrdersContext _context;
 
             protected abstract bool AutoDetectChanges { get; }
 
             [GlobalSetup]
             public virtual void CreateCustomers()
             {
-                CustomersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
-                CustomersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
+                _customersWithoutPk = _fixture.CreateCustomers(20000, setPrimaryKeys: false);
+                _customersWithPk = _fixture.CreateCustomers(20000, setPrimaryKeys: true);
             }
 
             [IterationSetup]
             public virtual void InitializeContext()
             {
-                Context = _fixture.CreateContext();
-                Context.Configuration.AutoDetectChangesEnabled = AutoDetectChanges;
+                _context = _fixture.CreateContext();
+                _context.Configuration.AutoDetectChangesEnabled = AutoDetectChanges;
             }
 
             [IterationCleanup]
             public virtual void CleanupContext()
             {
-                Context.Dispose();
+                _context.Dispose();
             }
         }
 
@@ -47,24 +47,24 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             [Benchmark]
             public virtual void Add()
             {
-                foreach (var customer in CustomersWithoutPk)
+                foreach (var customer in _customersWithoutPk)
                 {
-                    Context.Customers.Add(customer);
+                    _context.Customers.Add(customer);
                 }
             }
 
             [Benchmark]
             public virtual void AddRange()
             {
-                Context.Customers.AddRange(CustomersWithoutPk);
+                _context.Customers.AddRange(_customersWithoutPk);
             }
 
             [Benchmark]
             public virtual void Attach()
             {
-                foreach (var customer in CustomersWithPk)
+                foreach (var customer in _customersWithPk)
                 {
-                    Context.Customers.Attach(customer);
+                    _context.Customers.Attach(customer);
                 }
             }
 
@@ -78,30 +78,30 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.ChangeTracker
             public override void InitializeContext()
             {
                 base.InitializeContext();
-                CustomersWithPk.ForEach(c => Context.Customers.Attach(c));
+                _customersWithPk.ForEach(c => _context.Customers.Attach(c));
             }
 
             [Benchmark]
             public virtual void Remove()
             {
-                foreach (var customer in CustomersWithPk)
+                foreach (var customer in _customersWithPk)
                 {
-                    Context.Customers.Remove(customer);
+                    _context.Customers.Remove(customer);
                 }
             }
 
             [Benchmark]
             public virtual void RemoveRange()
             {
-                Context.Customers.RemoveRange(CustomersWithPk);
+                _context.Customers.RemoveRange(_customersWithPk);
             }
 
             [Benchmark]
             public virtual void Update()
             {
-                foreach (var customer in CustomersWithPk)
+                foreach (var customer in _customersWithPk)
                 {
-                    Context.Entry(customer).State = EntityState.Modified;
+                    _context.Entry(customer).State = EntityState.Modified;
                 }
             }
 

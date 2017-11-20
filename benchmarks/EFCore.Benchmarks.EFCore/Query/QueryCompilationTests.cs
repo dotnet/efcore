@@ -96,7 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
             }
 
             public override OrdersContext CreateContext()
-                => new OrdersContext(_noQueryCacheServiceProvider, ConnectionString);
+            {
+                return new OrdersContext(_noQueryCacheServiceProvider, ConnectionString);
+            }
 
             // ReSharper disable once ClassNeverInstantiated.Local
             private class NonCachingMemoryCache : IMemoryCache
@@ -107,7 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EFCore.Query
                     return false;
                 }
 
-                public ICacheEntry CreateEntry(object key) => new FakeEntry();
+                public ICacheEntry CreateEntry(object key)
+                {
+                    return new FakeEntry();
+                }
 
                 private class FakeEntry : ICacheEntry
                 {

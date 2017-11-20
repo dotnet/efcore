@@ -24,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public string Group { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string Name { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public decimal SalesLastYear { get; set; }
         public decimal SalesYTD { get; set; }
 

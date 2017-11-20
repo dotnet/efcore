@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.27119.0
 MinimumVisualStudioVersion = 15.0.26730.03
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks", "benchmarks\EFCore.Benchmarks\EFCore.Benchmarks.csproj", "{E4F44442-7AD2-480D-AD6B-AAC4424F5FA7}"
 EndProject
@@ -12,6 +12,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.EF6", "benchmarks\EFCore.Benchmarks.EF6\EFCore.Benchmarks.EF6.csproj", "{B4A5F452-58BB-4E9A-B0F0-3ADBE72B45CC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Benchmarks.EFCore", "benchmarks\EFCore.Benchmarks.EFCore\EFCore.Benchmarks.EFCore.csproj", "{7A16A0CD-5072-42AD-B529-F5CA4DF887D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7B1C8E5E-45BE-4224-AFCF-FFAA4F280423}"
+	ProjectSection(SolutionItems) = preProject
+		benchmarks\.editorconfig = benchmarks\.editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

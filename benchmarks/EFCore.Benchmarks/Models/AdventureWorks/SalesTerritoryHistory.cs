@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public int TerritoryID { get; set; }
         public DateTime? EndDate { get; set; }
         public DateTime ModifiedDate { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
 
         public virtual SalesPerson BusinessEntity { get; set; }
         public virtual SalesTerritory Territory { get; set; }

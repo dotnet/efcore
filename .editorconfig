@@ -174,7 +174,7 @@ dotnet_naming_rule.public_field_naming.style = pascal_case_style
 dotnet_naming_rule.public_field_naming.severity = warning
 
 dotnet_naming_symbols.public_field_symbol.applicable_kinds = field
-dotnet_naming_symbols.public_field_symbol.applicable_accessibilities = public
+dotnet_naming_symbols.public_field_symbol.applicable_accessibilities = public, internal
 
 # Other fields
 dotnet_naming_rule.other_field_naming.symbols = other_field_symbol

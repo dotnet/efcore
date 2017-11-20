@@ -29,7 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
         public DateTime OrderDate { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public byte RevisionNumber { get; set; }
+#pragma warning disable IDE1006 // Naming Styles
         public Guid rowguid { get; set; }
+#pragma warning restore IDE1006 // Naming Styles
         public string SalesOrderNumber { get; set; }
         public int? SalesPersonID { get; set; }
         public DateTime? ShipDate { get; set; }

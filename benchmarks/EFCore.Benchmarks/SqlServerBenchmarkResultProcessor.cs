@@ -51,28 +51,28 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
 
         private static readonly string _tableCreationCommand =
             @"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='benchmarkdotnetruns' and xtype='U')
-	CREATE TABLE [dbo].[BenchmarkDotNetRuns](
-		[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
-		[MachineName] [nvarchar](max) NULL,
-		[Framework] [nvarchar](max) NULL,
-		[Architecture] [nvarchar](max) NULL,
-		[TestClassFullName] [nvarchar](max) NULL,
-		[TestClass] [nvarchar](max) NULL,
-		[TestMethodName] [nvarchar](max) NULL,
-		[Variation] [nvarchar](max) NULL,
-		[EfVersion] [nvarchar](max) NULL,
-		[CustomData] [nvarchar](max) NULL,
-		[ReportingTime] [datetime2](7) NOT NULL,
-		[WarmupIterations] [int] NOT NULL,
-		[MainIterations] [int] NOT NULL,
-		[TimeElapsedMean] [float] NOT NULL,
-		[TimeElapsedPercentile90] [float] NOT NULL,
-		[TimeElapsedPercentile95] [float] NOT NULL,
-		[TimeElapsedStandardError] [float] NOT NULL,
-		[TimeElapsedStandardDeviation] [float] NOT NULL,
-		[MemoryAllocated] [float] NOT NULL)
+    CREATE TABLE [dbo].[BenchmarkDotNetRuns](
+        [Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
+        [MachineName] [nvarchar](max) NULL,
+        [Framework] [nvarchar](max) NULL,
+        [Architecture] [nvarchar](max) NULL,
+        [TestClassFullName] [nvarchar](max) NULL,
+        [TestClass] [nvarchar](max) NULL,
+        [TestMethodName] [nvarchar](max) NULL,
+        [Variation] [nvarchar](max) NULL,
+        [EfVersion] [nvarchar](max) NULL,
+        [CustomData] [nvarchar](max) NULL,
+        [ReportingTime] [datetime2](7) NOT NULL,
+        [WarmupIterations] [int] NOT NULL,
+        [MainIterations] [int] NOT NULL,
+        [TimeElapsedMean] [float] NOT NULL,
+        [TimeElapsedPercentile90] [float] NOT NULL,
+        [TimeElapsedPercentile95] [float] NOT NULL,
+        [TimeElapsedStandardError] [float] NOT NULL,
+        [TimeElapsedStandardDeviation] [float] NOT NULL,
+        [MemoryAllocated] [float] NOT NULL)
 ELSE IF NOT EXISTS (SELECT * FROM syscolumns WHERE name = 'Architecture')
-	ALTER TABLE [dbo].[BenchmarkDotNetRuns] ADD [Architecture] nvarchar(max) NULL";
+    ALTER TABLE [dbo].[BenchmarkDotNetRuns] ADD [Architecture] nvarchar(max) NULL";
 
         public virtual void SaveSummary(string connectionString, BenchmarkResult result)
         {

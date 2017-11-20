@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Models.Orders
             EnsureDatabaseCreated();
         }
 
-        public virtual OrdersContext CreateContext() => new OrdersContext(_connectionString);
+        public virtual OrdersContext CreateContext()
+        {
+            return new OrdersContext(_connectionString);
+        }
 
         protected virtual void OnDatabaseCreated(OrdersContext context)
         {
@@ -55,11 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.EF6.Models.Orders
         }
 
         private bool IsDatabaseCorrect(OrdersContext context)
-            => context.Database.CompatibleWithModel(throwIfNoMetadata: true)
-               && _productCount == context.Products.Count()
-               && _customerCount == context.Customers.Count()
-               && (_customerCount * _ordersPerCustomer == context.Orders.Count())
-               && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
+        {
+            return context.Database.CompatibleWithModel(throwIfNoMetadata: true)
+                && _productCount == context.Products.Count()
+                && _customerCount == context.Customers.Count()
+                && (_customerCount * _ordersPerCustomer == context.Orders.Count())
+                && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
+        }
 
         private void InsertSeedData()
         {
