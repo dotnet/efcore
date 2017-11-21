@@ -82,8 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             hasNullKey = false;
-            WeakReference<object> entity;
-            return _identityMap.TryGetValue((TKey)key, out entity) ? entity : null;
+            return _identityMap.TryGetValue((TKey)key, out var entity) ? entity : null;
         }
 
         /// <summary>
@@ -124,8 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (navigation.IsDependentToPrincipal())
             {
-                TKey keyValue;
-                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out keyValue)
+                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out var keyValue)
                     ? (IIncludeKeyComparer)new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
                     : new NullIncludeComparer();
             }
@@ -144,8 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (navigation.IsDependentToPrincipal())
             {
-                TKey keyValue;
-                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out keyValue)
+                return navigation.ForeignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(entry, out var keyValue)
                     ? new DependentToPrincipalIncludeComparer<TKey>(keyValue, PrincipalKeyValueFactory)
                     : (IIncludeKeyComparer)new NullIncludeComparer();
             }

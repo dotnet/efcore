@@ -152,7 +152,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private string GetBatchInsertCommandText(int lastIndex)
         {
             if (_batchInsertCommands.Count == 0)
+            {
                 return string.Empty;
+            }
 
             var stringBuilder = new StringBuilder();
             var resultSetMapping = UpdateSqlGenerator

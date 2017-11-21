@@ -325,9 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             private bool? _canRemoveNullCheck;
 
             public NullCheckRemovalTestingVisitor(RelationalQueryModelVisitor queryModelVisitor)
-            {
-                _queryModelVisitor = queryModelVisitor;
-            }
+                => _queryModelVisitor = queryModelVisitor;
 
             public bool CanRemoveNullCheck(
                 Expression testExpression,
@@ -483,7 +481,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             var binaryExpression = expression as BinaryExpression;
             var leftConstantExpression = binaryExpression?.Left as ConstantExpression;
+#pragma warning disable IDE0019 // Use pattern matching
             var leftExpressions = leftConstantExpression?.Value as Expression[];
+#pragma warning restore IDE0019 // Use pattern matching
             var rightConstantExpression = binaryExpression?.Right as ConstantExpression;
             var rightExpressions = rightConstantExpression?.Value as Expression[];
 

@@ -27,7 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : ComplexNavigationsQueryFixtureBase, new()
     {
-        protected ComplexNavigationsContext CreateContext() => Fixture.CreateContext();
+        protected ComplexNavigationsContext CreateContext()
+        {
+            return Fixture.CreateContext();
+        }
 
         protected ComplexNavigationsQueryTestBase(TFixture fixture)
             : base(fixture)
@@ -778,12 +781,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     select l2 == null ? null : l2.Name,
+#pragma warning restore IDE0031 // Use null propagation
                 (l1s, l2s) =>
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals MaybeScalar(l2, () => l2.Level1_Optional_Id) into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     select l2 == null ? null : l2.Name);
+#pragma warning restore IDE0031 // Use null propagation
         }
 
         [ConditionalFact]
@@ -842,7 +849,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l2Left in groupJoinLeft.DefaultIfEmpty()
                     join l2Right in l2s on l1.Id equals l2Right.Level1_Optional_Id into groupJoinRight
                     from l2Right in groupJoinRight.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     where (l2Left == null ? null : l2Left.Name) == "L2 05" || (l2Right == null ? null : l2Right.Name) == "L2 07"
+#pragma warning restore IDE0031 // Use null propagation
                     select l1.Id);
         }
 
@@ -870,7 +879,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l2Left in groupJoinLeft.DefaultIfEmpty()
                     join l2Right in l2s on l1.Id equals l2Right.Level1_Optional_Id into groupJoinRight
                     from l2Right in groupJoinRight.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     where (l2Left == null ? null : l2Left.Name) == "L2 05" || (l2Right == null ? null : l2Right.Name) != "L2 42"
+#pragma warning restore IDE0031 // Use null propagation
                     select l1.Id);
         }
 
@@ -1344,7 +1355,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in l1s
                     join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     orderby l2 == null ? null : l2.Name, l1.Id
+#pragma warning restore IDE0031 // Use null propagation
                     select l1.Id,
                 assertOrder: true);
         }
@@ -1569,7 +1582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l1 => Maybe(
                               l1.OneToMany_Optional,
                               () => l1.OneToMany_Optional.Select(l2 => l2.OneToOne_Optional_FK)) ?? new List<Level3>()),
-                e => e == null ? null : e.Id,
+                e => e?.Id,
                 (e, a) =>
                     {
                         if (e == null)
@@ -1846,7 +1859,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             l1 => l1.Id,
                             (l2, l1g) => new { l2, l1g })
                         .Select(r => r.l2),
-                e => e != null ? e.Id : null,
+                e => e?.Id,
                 (e, a) =>
                     {
                         if (e == null)
@@ -2547,7 +2560,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
         }
 
-        private TResult ClientMethodReturnSelf<TResult>(TResult element) => element;
+        private TResult ClientMethodReturnSelf<TResult>(TResult element)
+        {
+            return element;
+        }
 
         [ConditionalFact]
         public virtual void Null_reference_protection_complex_client_eval()
@@ -2803,13 +2819,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l2 in l2s
                     join l1 in l1s.OrderBy(x => x.OneToOne_Optional_FK.Name).Take(2) on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     select new { l2.Id, Name = l1 != null ? l1.Name : null },
+#pragma warning restore IDE0031 // Use null propagation
                 (l1s, l2s) =>
                     from l2 in l2s
                     join l1 in l1s.OrderBy(x => Maybe(x.OneToOne_Optional_FK, () => x.OneToOne_Optional_FK.Name)).Take(2)
                         on l2.Level1_Optional_Id equals l1.Id into grouping
                     from l1 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                     select new { l2.Id, Name = l1 != null ? l1.Name : null },
+#pragma warning restore IDE0031 // Use null propagation
                 e => e.Id);
         }
 
@@ -2990,7 +3010,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                 from l2 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                                 where (l2 != null ? l2.Name : null) != "Foo"
+#pragma warning restore IDE0031 // Use null propagation
                                 select l1).OrderBy(l1 => l1.Id).Take(15)
                     select l1.Id);
         }
@@ -3003,7 +3025,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                 from l2 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                                 where (l2 != null ? l2.Name : null) != "Foo"
+#pragma warning restore IDE0031 // Use null propagation
                                 select l1).Distinct()
                     select l1.Id);
         }
@@ -3016,7 +3040,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                 from l2 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                                 where (l2 != null ? l2.Name : null) != "Foo"
+#pragma warning restore IDE0031 // Use null propagation
                                 select l1.Id).Distinct()
                     select l1);
         }
@@ -3029,7 +3055,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in (from l1 in l1s
                                 join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into grouping
                                 from l2 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                                 where (l2 != null ? l2.Name : null) != "Foo"
+#pragma warning restore IDE0031 // Use null propagation
                                 select l1.Id).Distinct().OrderBy(id => id).Take(20)
                     select l1);
         }

@@ -36,14 +36,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static bool? GetFlag(string key)
         {
-            bool flag;
-            return bool.TryParse(Config[key], out flag) ? flag : (bool?)null;
+            return bool.TryParse(Config[key], out var flag) ? flag : (bool?)null;
         }
 
         public static int? GetInt(string key)
         {
-            int value;
-            return int.TryParse(Config[key], out value) ? value : (int?)null;
+            return int.TryParse(Config[key], out var value) ? value : (int?)null;
         }
     }
 }

@@ -19,10 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public override Expression Visit(Expression node)
         {
-            var selectExpression = node as SelectExpression;
-
-            if (selectExpression != null
-                && selectExpression.Projection.Count == 1)
+            if (node is SelectExpression selectExpression && selectExpression.Projection.Count == 1)
             {
                 var conditionalExpression = selectExpression.Projection.First() as ConditionalExpression;
 

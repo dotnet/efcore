@@ -138,9 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public void Build()
         {
-            var args = new List<string>();
-
-            args.Add("build");
+            var args = new List<string>
+            {
+                "build"
+            };
 
             if (_file != null)
             {

@@ -821,11 +821,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            List<string> existingIdentifiers;
-            if (!_entityTypeAndPropertyIdentifiers.TryGetValue(entityType, out existingIdentifiers))
+            if (!_entityTypeAndPropertyIdentifiers.TryGetValue(entityType, out var existingIdentifiers))
             {
-                existingIdentifiers = new List<string>();
-                existingIdentifiers.Add(entityType.Name);
+                existingIdentifiers = new List<string>
+                {
+                    entityType.Name
+                };
                 existingIdentifiers.AddRange(entityType.GetProperties().Select(p => p.Name));
                 _entityTypeAndPropertyIdentifiers[entityType] = existingIdentifiers;
             }

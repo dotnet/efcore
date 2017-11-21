@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IList<int> GetOrCreateDescriptorIndexes([NotNull] Type serviceType)
         {
-            IList<int> indexes;
-            if (!_serviceMap.TryGetValue(serviceType, out indexes))
+            if (!_serviceMap.TryGetValue(serviceType, out var indexes))
             {
                 indexes = new List<int>();
                 _serviceMap[serviceType] = indexes;
@@ -120,8 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public virtual InternalServiceCollectionMap DoPatchInjection<TService>()
             where TService : class
         {
-            IList<int> indexes;
-            if (_serviceMap.TryGetValue(typeof(TService), out indexes))
+            if (_serviceMap.TryGetValue(typeof(TService), out var indexes))
             {
                 foreach (var index in indexes)
                 {

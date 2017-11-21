@@ -64,9 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 return;
             }
 
-            var dbParameter = value as DbParameter;
-
-            if (dbParameter != null)
+            if (value is DbParameter dbParameter)
             {
                 command.Parameters.Add(dbParameter);
 

@@ -101,7 +101,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Customer>().ToTable("Customers");
+            {
+                modelBuilder.Entity<Customer>().ToTable("Customers");
+            }
 
             public DbSet<Customer> Customers { get; set; }
             public DbSet<Postcode> Postcodes { get; set; }
@@ -250,7 +252,9 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<ZeroKey>().ToTable("ZeroKey");
+            {
+                modelBuilder.Entity<ZeroKey>().ToTable("ZeroKey");
+            }
 
             public DbSet<ZeroKey> ZeroKeys { get; set; }
 
@@ -319,11 +323,15 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
             public DbSet<Product> Products { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder.Entity<Product>().ToTable("Product");
+            {
+                modelBuilder.Entity<Product>().ToTable("Product");
+            }
         }
 
         private SqlServerTestStore CreateDatabase603()
-            => CreateTestStore(() => new MyContext603(_options), null);
+        {
+            return CreateTestStore(() => new MyContext603(_options), null);
+        }
 
         #endregion
 
@@ -387,7 +395,8 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
         }
 
         private SqlServerTestStore CreateDatabase925()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext925(_options),
                 context =>
                     {
@@ -397,8 +406,18 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                         var order22 = new Order { Name = "Order22" };
                         var order23 = new Order { Name = "Order23" };
 
-                        var customer1 = new Customer { FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12 } };
-                        var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22, order23 } };
+                        var customer1 = new Customer
+                        {
+                            FirstName = "Customer",
+                            LastName = "One",
+                            Orders = new List<Order> { order11, order12 }
+                        };
+                        var customer2 = new Customer
+                        {
+                            FirstName = "Customer",
+                            LastName = "Two",
+                            Orders = new List<Order> { order21, order22, order23 }
+                        };
 
                         context.Customers.AddRange(customer1, customer2);
                         context.Orders.AddRange(order11, order12, order21, order22, order23);
@@ -406,6 +425,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
 
                         ClearLog();
                     });
+        }
 
         public class Customer
         {
@@ -532,7 +552,8 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
         }
 
         private SqlServerTestStore CreateDatabase7293()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new Context7293(_options),
                 context =>
                     {
@@ -567,6 +588,7 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
                         context.ProjectUsers.AddRange(permissions);
                         context.SaveChanges();
                     });
+        }
 
         #endregion
 
@@ -635,7 +657,8 @@ LEFT JOIN [Customer] AS [o.Customer] ON ([o].[CustomerFirstName] = [o.Customer].
         }
 
         private SqlServerTestStore CreateDatabase963()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext963(_options),
                 context =>
                     {
@@ -658,6 +681,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
                         context.SaveChanges();
                     });
+        }
 
         public class Targaryen
         {
@@ -720,7 +744,9 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         [Fact]
         public void Compiler_generated_local_closure_produces_valid_parameter_name_1742()
-            => Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
+        {
+            Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
+        }
 
         public void Execute1742(CustomerDetails_1742 details)
         {
@@ -858,7 +884,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase3758()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext3758(_options),
                 context =>
                     {
@@ -905,10 +932,15 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         c2.Orders4.Add(o241);
 
                         context.Customers.AddRange(c1, c2);
-                        context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+                        context.Orders.AddRange(
+                            o111, o112, o121, o122,
+                            o131, o132, o141, o211,
+                            o212, o221, o222, o231,
+                            o232, o241);
 
                         context.SaveChanges();
                     });
+        }
 
         #endregion
 
@@ -1042,7 +1074,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase3409()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext3409(_options),
                 context =>
                     {
@@ -1060,6 +1093,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
 
                         context.SaveChanges();
                     });
+        }
 
         #endregion
 
@@ -1220,7 +1254,9 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                     // ReSharper disable once MergeConditionalExpression
+#pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
+#pragma warning restore IDE0029 // Use coalesce expression
 
                     var result = query.ToList();
                     Assert.True(result.All(e => e.Children.Count > 0));
@@ -1250,7 +1286,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase3101()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext3101(_options),
                 context =>
                     {
@@ -1273,6 +1310,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         context.Entities.AddRange(e1, e2, e3);
                         context.SaveChanges();
                     });
+        }
 
         public class MyContext3101 : DbContext
         {
@@ -1363,7 +1401,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase6986()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new ReproContext6986(_options),
                 context =>
                     {
@@ -1396,6 +1435,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                             });
                         context.SaveChanges();
                     });
+        }
 
         public class ReproContext6986 : DbContext
         {
@@ -1562,7 +1602,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase5456()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext5456(_options),
                 context =>
                     {
@@ -1588,6 +1629,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         }
                         context.SaveChanges();
                     });
+        }
 
         public class MyContext5456 : DbContext
         {
@@ -1684,7 +1726,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase7359()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext7359(_options),
                 context =>
                     {
@@ -1692,6 +1735,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         context.Add(new SpecialProduct { Name = "SpecialProduct" });
                         context.SaveChanges();
                     });
+        }
 
         #endregion
 
@@ -1746,7 +1790,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase7312()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext7312(_options),
                 context =>
                     {
@@ -1764,6 +1809,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         );
                         context.SaveChanges();
                     });
+        }
 
         #endregion
 
@@ -1809,7 +1855,8 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
         }
 
         private SqlServerTestStore CreateDatabase8282()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext8282(_options),
                 context =>
                     {
@@ -1818,6 +1865,7 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         );
                         context.SaveChanges();
                     });
+        }
 
         #endregion
 
@@ -1886,7 +1934,8 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
         }
 
         private SqlServerTestStore CreateDatabase8538()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext8538(_options),
                 context =>
                     {
@@ -1899,6 +1948,7 @@ WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
 
                         ClearLog();
                     });
+        }
 
         #endregion
 
@@ -2021,9 +2071,11 @@ WHERE [c].[Id] IN (
         }
 
         private SqlServerTestStore CreateDatabase8909()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext8909(_options),
                 context => { ClearLog(); });
+        }
 
         public class MyContext8909 : DbContext
         {
@@ -2088,7 +2140,8 @@ ORDER BY [t].[Id]");
         }
 
         private SqlServerTestStore CreateDatabase9202()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9202(_options),
                 context =>
                     {
@@ -2102,6 +2155,7 @@ ORDER BY [t].[Id]");
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9202 : DbContext
         {
@@ -2184,7 +2238,8 @@ WHERE [w].[Val] = 1");
         }
 
         private SqlServerTestStore CreateDatabase9214()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9214(_options),
                 context =>
                     {
@@ -2212,6 +2267,7 @@ WHERE [w].[Val] = 1");
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9214 : DbContext
         {
@@ -2288,7 +2344,8 @@ WHERE [w].[Val] = 1");
         }
 
         private SqlServerTestStore CreateDatabase9277()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9277(_options),
                 context =>
                     {
@@ -2318,6 +2375,7 @@ BEGIN
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9277 : DbContext
         {
@@ -2444,7 +2502,8 @@ BEGIN
         }
 
         private SqlServerTestStore CreateDatabase9038()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9038(_options),
                 context =>
                     {
@@ -2476,6 +2535,7 @@ BEGIN
 
                         ClearLog();
                     });
+        }
 
         #endregion
 
@@ -2649,7 +2709,8 @@ WHERE [b].[IsDeleted] = 0");
         }
 
         private SqlServerTestStore CreateDatabase9791()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9791(_options),
                 context =>
                     {
@@ -2665,6 +2726,7 @@ WHERE [b].[IsDeleted] = 0");
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9791 : DbContext
         {
@@ -2857,7 +2919,8 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
         }
 
         private SqlServerTestStore CreateDatabase9825()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9825(_options),
                 context =>
                     {
@@ -2882,6 +2945,7 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9825 : DbContext
         {
@@ -2987,7 +3051,8 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
         }
 
         private SqlServerTestStore CreateDatabase9892()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9892(_options),
                 context =>
                     {
@@ -3009,6 +3074,7 @@ WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__Cust
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9892 : DbContext
         {
@@ -3080,7 +3146,8 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
         }
 
         private SqlServerTestStore CreateDatabase9468()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext9468(_options),
                 context =>
                     {
@@ -3100,6 +3167,7 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
 
                         ClearLog();
                     });
+        }
 
         public class MyContext9468 : DbContext
         {
@@ -3167,7 +3235,7 @@ WHERE [p].[TenantId] = 1");
         }
 
         [Fact]
-        public virtual void ezpz()
+        public virtual void Context_variable_captured_in_multi_level_expression_tree_is_parametrized()
         {
             using (CreateDatabase10271())
             {
@@ -3190,7 +3258,8 @@ FROM [Comments] AS [c]");
         }
 
         private SqlServerTestStore CreateDatabase10271()
-            => CreateTestStore(
+        {
+            return CreateTestStore(
                 () => new MyContext10271(_options),
                 context =>
                 {
@@ -3207,6 +3276,7 @@ FROM [Comments] AS [c]");
 
                     ClearLog();
                 });
+        }
 
         public class MyContext10271 : DbContext
         {
@@ -3281,9 +3351,13 @@ FROM [Comments] AS [c]");
         }
 
         protected void ClearLog()
-            => Fixture.TestSqlLoggerFactory.Clear();
+        {
+            Fixture.TestSqlLoggerFactory.Clear();
+        }
 
         private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+        {
+            Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+        }
     }
 }

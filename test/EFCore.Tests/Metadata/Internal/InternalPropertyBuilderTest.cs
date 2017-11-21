@@ -144,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [Fact]
         public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
         {
-            Func<IProperty, IEntityType, ValueGenerator> factory = (p, e) => new CustomValueGenerator1();
+            ValueGenerator factory(IProperty p, IEntityType e) => new CustomValueGenerator1();
 
             var metadata = CreateProperty();
             metadata.SetValueGeneratorFactory(factory);

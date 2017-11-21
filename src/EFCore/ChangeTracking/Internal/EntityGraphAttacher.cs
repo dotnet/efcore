@@ -21,10 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityGraphAttacher(
-            [NotNull] IEntityEntryGraphIterator graphIterator)
-        {
-            _graphIterator = graphIterator;
-        }
+            [NotNull] IEntityEntryGraphIterator graphIterator) => _graphIterator = graphIterator;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -63,14 +60,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            var tuple = ((EntityState State, bool Force))node.NodeState;
+            var (State, Force) = ((EntityState State, bool Force))node.NodeState;
 
             internalEntityEntry.SetEntityState(
                 internalEntityEntry.IsKeySet
-                    ? tuple.State
+                    ? State
                     : EntityState.Added,
                 acceptChanges: true,
-                forceStateWhenUnknownKey: tuple.Force);
+                forceStateWhenUnknownKey: Force);
 
             return true;
         }
@@ -83,14 +80,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            var tuple = ((EntityState State, bool Force))node.NodeState;
+            var (State, Force) = ((EntityState State, bool Force))node.NodeState;
 
             await internalEntityEntry.SetEntityStateAsync(
                 internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
-                    ? tuple.State
+                    ? State
                     : EntityState.Added,
                 acceptChanges: true,
-                forceStateWhenUnknownKey: tuple.Force,
+                forceStateWhenUnknownKey: Force,
                 cancellationToken: cancellationToken);
 
             return true;

@@ -57,9 +57,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         public string ArgumentSeparatorHelpText { get; set; }
 
         public CommandLineApplication Command(string name, bool throwOnUnexpectedArg = true)
-        {
-            return Command(name, _ => { }, throwOnUnexpectedArg);
-        }
+            => Command(name, _ => { }, throwOnUnexpectedArg);
 
         public CommandLineApplication Command(string name, Action<CommandLineApplication> configuration,
             bool throwOnUnexpectedArg = true)
@@ -71,9 +69,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public CommandOption Option(string template, string description, CommandOptionType optionType)
-        {
-            return Option(template, description, optionType, _ => { });
-        }
+            => Option(template, description, optionType, _ => { });
 
         public CommandOption Option(string template, string description, CommandOptionType optionType, Action<CommandOption> configuration)
         {
@@ -84,9 +80,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public CommandArgument Argument(string name, string description, bool multipleValues = false)
-        {
-            return Argument(name, description, _ => { }, multipleValues);
-        }
+            => Argument(name, description, _ => { }, multipleValues);
 
         public CommandArgument Argument(string name, string description, Action<CommandArgument> configuration, bool multipleValues = false)
         {
@@ -104,19 +98,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return argument;
         }
 
-        public void OnExecute(Func<int> invoke)
-        {
-            Invoke = invoke;
-        }
+        public void OnExecute(Func<int> invoke) => Invoke = invoke;
 
-        public void OnExecute(Func<Task<int>> invoke)
-        {
-            Invoke = () => invoke().Result;
-        }
+        public void OnExecute(Func<Task<int>> invoke) => Invoke = () => invoke().Result;
 
         public int Execute(params string[] args)
         {
-            CommandLineApplication command = this;
+            var command = this;
             IEnumerator<CommandArgument> arguments = null;
 
             if (HandleResponseFiles)
@@ -128,11 +116,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             {
                 var arg = args[index];
 
-                bool isLongOption = arg.StartsWith("--");
+                var isLongOption = arg.StartsWith("--");
                 if (isLongOption || arg.StartsWith("-"))
                 {
-                    CommandOption option;
-                    var result = ParseOption(isLongOption, command, args, ref index, out option);
+                    var result = ParseOption(isLongOption, command, args, ref index, out var option);
                     if (result == ParseOptionResult.ShowHelp)
                     {
                         command.ShowHelp();
@@ -181,12 +168,12 @@ namespace Microsoft.DotNet.Cli.CommandLine
             out CommandOption option)
         {
             option = null;
-            ParseOptionResult result = ParseOptionResult.Succeeded;
+            var result = ParseOptionResult.Succeeded;
             var arg = args[index];
 
-            int optionPrefixLength = isLongOption ? 2 : 1;
-            string[] optionComponents = arg.Substring(optionPrefixLength).Split(new[] { ':', '=' }, 2);
-            string optionName = optionComponents[0];
+            var optionPrefixLength = isLongOption ? 2 : 1;
+            var optionComponents = arg.Substring(optionPrefixLength).Split(new[] { ':', '=' }, 2);
+            var optionName = optionComponents[0];
 
             if (isLongOption)
             {
@@ -368,7 +355,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var argumentsBuilder = new StringBuilder();
             var argumentSeparatorBuilder = new StringBuilder();
 
-            int maxArgLen = 0;
+            var maxArgLen = 0;
             for (var cmd = target; cmd != null; cmd = cmd.Parent)
             {
                 if (cmd.Arguments.Any())
@@ -482,9 +469,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public string GetFullNameAndVersion()
-        {
-            return ShortVersionGetter == null ? FullName : string.Format("{0} {1}", FullName, ShortVersionGetter());
-        }
+            => ShortVersionGetter == null ? FullName : string.Format("{0} {1}", FullName, ShortVersionGetter());
 
         public void ShowRootCommandFullNameAndVersion()
         {
@@ -566,7 +551,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     else
                     {
                         foreach (var responseFileArgument in responseFileArguments)
+                        {
                             yield return responseFileArgument.Trim();
+                        }
                     }
                 }
             }
@@ -575,7 +562,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
         private IEnumerable<string> ParseResponseFile(string fileName)
         {
             if (!HandleResponseFiles)
+            {
                 return null;
+            }
 
             if (!File.Exists(fileName))
             {
@@ -589,31 +578,13 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             private readonly IEnumerator<CommandArgument> _enumerator;
 
-            public CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator)
-            {
-                _enumerator = enumerator;
-            }
+            public CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator) => _enumerator = enumerator;
 
-            public CommandArgument Current
-            {
-                get
-                {
-                    return _enumerator.Current;
-                }
-            }
+            public CommandArgument Current => _enumerator.Current;
 
-            object IEnumerator.Current
-            {
-                get
-                {
-                    return Current;
-                }
-            }
+            object IEnumerator.Current => Current;
 
-            public void Dispose()
-            {
-                _enumerator.Dispose();
-            }
+            public void Dispose() => _enumerator.Dispose();
 
             public bool MoveNext()
             {
@@ -627,10 +598,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return true;
             }
 
-            public void Reset()
-            {
-                _enumerator.Reset();
-            }
+            public void Reset() => _enumerator.Reset();
         }
     }
 }

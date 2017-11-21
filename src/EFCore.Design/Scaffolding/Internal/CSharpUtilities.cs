@@ -388,8 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return $"{genericTypeDefName}<{genericTypeArguments}>";
             }
 
-            string typeName;
-            return _primitiveTypeNames.TryGetValue(type, out typeName)
+            return _primitiveTypeNames.TryGetValue(type, out var typeName)
                 ? typeName
                 : type.Name;
         }

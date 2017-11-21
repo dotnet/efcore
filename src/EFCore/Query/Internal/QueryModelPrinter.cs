@@ -67,8 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitExtension(Expression node)
             {
-                var subquery = node as SubQueryExpression;
-                if (subquery != null)
+                if (node is SubQueryExpression subquery)
                 {
                     using (StringBuilder.Indent())
                     {

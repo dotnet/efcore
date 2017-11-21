@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj)
+                => !(obj is null)
                    && obj is OracleCompiledQueryCacheKey
                    && Equals((OracleCompiledQueryCacheKey)obj);
 

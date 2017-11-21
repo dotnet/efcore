@@ -140,11 +140,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 foreach (var table in tableList)
                 {
-                    var schemaTable = Parse(table);
+                    var (Schema, Table) = Parse(table);
                     if (!databaseModel.Tables.Any(
-                        t => !string.IsNullOrEmpty(schemaTable.Schema)
-                             && t.Schema == schemaTable.Schema
-                             || t.Name == schemaTable.Table))
+                        t => !string.IsNullOrEmpty(Schema)
+                             && t.Schema == Schema
+                             || t.Name == Table))
                     {
                         _logger.MissingTableWarning(table);
                     }

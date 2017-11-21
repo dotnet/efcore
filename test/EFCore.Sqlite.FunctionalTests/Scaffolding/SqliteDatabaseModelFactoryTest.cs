@@ -713,10 +713,10 @@ DROP TABLE PrincipalTable;");
                 new[] { "dbo" },
                 dbModel =>
                     {
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, warning.Id);
-                        Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), warning.Message);
+                        Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.EventId, Id);
+                        Assert.Equal(SqliteStrings.LogUsingSchemaSelectionsWarning.GenerateMessage(), Message);
                     },
                 @"DROP TABLE Everest;");
         }
@@ -732,10 +732,10 @@ DROP TABLE PrincipalTable;");
                     {
                         Assert.Empty(dbModel.Tables);
 
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogMissingTable.EventId, warning.Id);
-                        Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), warning.Message);
+                        Assert.Equal(SqliteStrings.LogMissingTable.EventId, Id);
+                        Assert.Equal(SqliteStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
                     },
                 @"DROP TABLE Blank;");
         }
@@ -758,10 +758,10 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                     {
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, warning.Id);
-                        Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), warning.Message);
+                        Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.EventId, Id);
+                        Assert.Equal(SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.GenerateMessage("0"), Message);
                     },
                 @"
 DROP TABLE DependentTable;
@@ -786,10 +786,10 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                     {
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, warning.Id);
-                        Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"), warning.Message);
+                        Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.EventId, Id);
+                        Assert.Equal(SqliteStrings.LogPrincipalColumnNotFound.GenerateMessage("0", "DependentTable", "ImaginaryId", "PrincipalTable"), Message);
                     },
                 @"
 DROP TABLE DependentTable;
