@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <c>True</c> if the specified object is equal to the current object; otherwise, <c>false</c>. </returns>
         public override bool Equals(object obj)
-            => !ReferenceEquals(null, obj)
+            => !(obj is null)
                && (ReferenceEquals(this, obj)
                    || obj.GetType() == GetType()
                    && Equals((TypeMaterializationInfo)obj));

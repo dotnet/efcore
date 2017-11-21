@@ -181,8 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Check.NotNull(type, nameof(type));
 
-            string builtInType;
-            if (_builtInTypes.TryGetValue(type, out builtInType))
+            if (_builtInTypes.TryGetValue(type, out var builtInType))
             {
                 return builtInType;
             }
@@ -567,14 +566,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var type = value.GetType().UnwrapNullableType();
 
-            Func<CSharpHelper, object, string> literalFunc;
-            if (_literalFuncs.TryGetValue(type, out literalFunc))
+            if (_literalFuncs.TryGetValue(type, out var literalFunc))
             {
                 return literalFunc(this, value);
             }
 
-            var enumValue = value as Enum;
-            if (enumValue != null)
+            if (value is Enum enumValue)
             {
                 return Literal(enumValue);
             }

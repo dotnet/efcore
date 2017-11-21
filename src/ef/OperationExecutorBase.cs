@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public const string DesignAssemblyName = "Microsoft.EntityFrameworkCore.Design";
         protected const string ExecutorTypeName = "Microsoft.EntityFrameworkCore.Design.OperationExecutor";
 
-        private static readonly IDictionary EmptyArguments = new Dictionary<string, object>(0);
+        private static readonly IDictionary _emptyArguments = new Dictionary<string, object>(0);
         public string AppBasePath { get; }
 
         protected string AssemblyFileName { get; set; }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected abstract void Execute(string operationName, object resultHandler, IDictionary arguments);
 
         private TResult InvokeOperation<TResult>(string operation)
-            => InvokeOperation<TResult>(operation, EmptyArguments);
+            => InvokeOperation<TResult>(operation, _emptyArguments);
 
         private TResult InvokeOperation<TResult>(string operation, IDictionary arguments)
             => (TResult)InvokeOperationImpl(operation, arguments);

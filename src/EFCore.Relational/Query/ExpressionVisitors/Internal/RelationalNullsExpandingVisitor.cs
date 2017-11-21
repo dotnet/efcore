@@ -31,11 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var rightIsNull = BuildIsNullExpression(newRight);
                 var rightNullable = rightIsNull != null;
 
-                Type conversionResultTypeLeft;
-                Type conversionResultTypeRight;
-
-                var unwrappedConvertLeft = UnwrapConvertExpression(newLeft, out conversionResultTypeLeft);
-                var unwrappedConvertRight = UnwrapConvertExpression(newRight, out conversionResultTypeRight);
+                var unwrappedConvertLeft = UnwrapConvertExpression(newLeft, out var conversionResultTypeLeft);
+                var unwrappedConvertRight = UnwrapConvertExpression(newRight, out var conversionResultTypeRight);
 
                 var leftUnary = unwrappedConvertLeft as UnaryExpression;
                 var leftNegated = leftUnary != null && leftUnary.NodeType == ExpressionType.Not;
@@ -120,10 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)
         {
-            var unary = expression as UnaryExpression;
-
-            if (unary != null
-                && unary.NodeType == ExpressionType.Convert)
+            if (expression is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
             {
                 conversionResultType = unary.Type;
 

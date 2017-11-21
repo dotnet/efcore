@@ -118,7 +118,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public class DatabaseContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("9849");
+            {
+                optionsBuilder.UseInMemoryDatabase("9849");
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -223,7 +225,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<ExamQuestion3595> ExamQuestions { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("3595");
+            {
+                optionsBuilder.UseInMemoryDatabase("3595");
+            }
         }
 
         #endregion
@@ -382,7 +386,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
+#pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
+#pragma warning restore IDE0029 // Use coalesce expression
 
                     var result = query.ToList();
                     Assert.True(result.All(e => e.Children.Count > 0));
@@ -440,7 +446,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<Child3101> Children { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("3101");
+            {
+                optionsBuilder.UseInMemoryDatabase("3101");
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -616,7 +624,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<Author5456> Authors { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("5456");
+            {
+                optionsBuilder.UseInMemoryDatabase("5456");
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -674,7 +684,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<Entity8282> Entity { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase("8282");
+            {
+                optionsBuilder.UseInMemoryDatabase("8282");
+            }
         }
 
         public class Entity8282
@@ -698,7 +710,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static InMemoryTestStore CreateScratch<TContext>(Action<TContext> seed, string databaseName)
             where TContext : DbContext, new()
-            => InMemoryTestStore.GetOrCreate(databaseName).InitializeInMemory(null, () => new TContext(), c => seed((TContext)c));
+        {
+            return InMemoryTestStore.GetOrCreate(databaseName)
+                .InitializeInMemory(null, () => new TContext(), c => seed((TContext)c));
+        }
 
         #endregion
     }

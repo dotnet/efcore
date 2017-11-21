@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InMemoryStore(
-            [NotNull] IInMemoryTableFactory tableFactory, 
+            [NotNull] IInMemoryTableFactory tableFactory,
             bool useNameMatching)
         {
             _tableFactory = tableFactory;
@@ -83,10 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         }
 
         private static LazyRef<Dictionary<object, IInMemoryTable>> CreateTables()
-        {
-            return new LazyRef<Dictionary<object, IInMemoryTable>>(
-                () => new Dictionary<object, IInMemoryTable>());
-        }
+            => new LazyRef<Dictionary<object, IInMemoryTable>>(() => new Dictionary<object, IInMemoryTable>());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -101,10 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 {
                     foreach (var et in entityType.GetConcreteTypesInHierarchy())
                     {
-                        IInMemoryTable table;
-
                         var key = _useNameMatching ? (object)et.Name : et;
-                        if (_tables.Value.TryGetValue(key, out table))
+                        if (_tables.Value.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
                         }

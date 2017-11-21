@@ -78,8 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var nonNullExpression = isLeftNullConstant ? node.Right : node.Left;
 
-                var methodCallExpression = nonNullExpression as MethodCallExpression;
-                if (methodCallExpression != null)
+                if (nonNullExpression is MethodCallExpression methodCallExpression)
                 {
                     if (methodCallExpression.Method.IsEFPropertyMethod())
                     {

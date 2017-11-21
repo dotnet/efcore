@@ -47,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var operations = new List<MigrationOperation>();
             foreach (var operation in migrationOperations)
             {
-                var foreignKeyOperation = operation as AddForeignKeyOperation;
-                if (foreignKeyOperation != null)
+                if (operation is AddForeignKeyOperation foreignKeyOperation)
                 {
                     var table = migrationOperations
                         .OfType<CreateTableOperation>()
@@ -281,9 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -293,9 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -305,9 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AddUniqueConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -317,9 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -329,9 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -341,9 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -353,9 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropUniqueConstraintOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -365,9 +357,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RenameColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
@@ -377,9 +368,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AlterColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
-        }
+            => throw new NotSupportedException(
+                SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
         #endregion
 
@@ -416,9 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RestartSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-        }
+            => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since SQLite does not support sequences.
@@ -427,9 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(CreateSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-        }
+            => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since SQLite does not support sequences.
@@ -438,9 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(RenameSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-        }
+            => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since SQLite does not support sequences.
@@ -449,9 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(AlterSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-        }
+            => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since SQLite does not support sequences.
@@ -460,9 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropSequenceOperation operation, IModel model, MigrationCommandListBuilder builder)
-        {
-            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-        }
+            => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
         #endregion
     }

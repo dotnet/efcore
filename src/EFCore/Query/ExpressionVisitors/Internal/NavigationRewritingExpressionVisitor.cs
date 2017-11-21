@@ -1028,13 +1028,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (navigationJoin == null)
                 {
-                    QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
                     var joinClause = BuildJoinFromNavigation(
                         querySourceReferenceExpression,
                         navigation,
                         targetEntityType,
                         addNullCheckToOuterKeySelector,
-                        out innerQuerySourceReferenceExpression);
+                        out var innerQuerySourceReferenceExpression);
 
                     if (optionalNavigationInChain)
                     {
@@ -1203,17 +1202,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var targetEntityType = navigation.GetTargetType();
 
-                QuerySourceReferenceExpression innerQuerySourceReferenceExpression;
                 var joinClause = BuildJoinFromNavigation(
                     outerQuerySourceReferenceExpression,
                     navigation,
                     targetEntityType,
                     false,
-                    out innerQuerySourceReferenceExpression);
+                    out var innerQuerySourceReferenceExpression);
 
                 if (navigation == collectionNavigation)
                 {
-                    NavigationJoin navigationJoin;
                     RewriteNavigationIntoGroupJoin(
                         joinClause,
                         navigations.Last(),
@@ -1222,7 +1219,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         fromSubqueryExpression.QueryModel.MainFromClause,
                         fromSubqueryExpression.QueryModel.BodyClauses,
                         fromSubqueryExpression.QueryModel.ResultOperators,
-                        out navigationJoin);
+                        out var navigationJoin);
 
                     _navigationJoins.Add(navigationJoin);
 
@@ -1348,7 +1345,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 if (!propertyExpression.Type.IsNullableType())
                 {
-                    propertyExpression = Expression.Convert(propertyExpression, propertyExpression.Type.MakeNullable()); 
+                    propertyExpression = Expression.Convert(propertyExpression, propertyExpression.Type.MakeNullable());
                 }
 
                 return Expression.Condition(
@@ -1525,8 +1522,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 if (resultOperator is AllResultOperator allResultOperator)
                 {
-                    Func<AllResultOperator, Expression> expressionExtractor = o => o.Predicate;
-                    Action<AllResultOperator, Expression> adjuster = (o, e) => o.Predicate = e;
+                    Expression expressionExtractor(AllResultOperator o) => o.Predicate;
+                    void adjuster(AllResultOperator o, Expression e) => o.Predicate = e;
                     VisitAndAdjustResultOperatorType(allResultOperator, expressionExtractor, adjuster);
 
                     return;
@@ -1534,8 +1531,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (resultOperator is ContainsResultOperator containsResultOperator)
                 {
-                    Func<ContainsResultOperator, Expression> expressionExtractor = o => o.Item;
-                    Action<ContainsResultOperator, Expression> adjuster = (o, e) => o.Item = e;
+                    Expression expressionExtractor(ContainsResultOperator o) => o.Item;
+                    void adjuster(ContainsResultOperator o, Expression e) => o.Item = e;
                     VisitAndAdjustResultOperatorType(containsResultOperator, expressionExtractor, adjuster);
 
                     return;
@@ -1543,8 +1540,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (resultOperator is SkipResultOperator skipResultOperator)
                 {
-                    Func<SkipResultOperator, Expression> expressionExtractor = o => o.Count;
-                    Action<SkipResultOperator, Expression> adjuster = (o, e) => o.Count = e;
+                    Expression expressionExtractor(SkipResultOperator o) => o.Count;
+                    void adjuster(SkipResultOperator o, Expression e) => o.Count = e;
                     VisitAndAdjustResultOperatorType(skipResultOperator, expressionExtractor, adjuster);
 
                     return;
@@ -1552,8 +1549,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (resultOperator is TakeResultOperator takeResultOperator)
                 {
-                    Func<TakeResultOperator, Expression> expressionExtractor = o => o.Count;
-                    Action<TakeResultOperator, Expression> adjuster = (o, e) => o.Count = e;
+                    Expression expressionExtractor(TakeResultOperator o) => o.Count;
+                    void adjuster(TakeResultOperator o, Expression e) => o.Count = e;
                     VisitAndAdjustResultOperatorType(takeResultOperator, expressionExtractor, adjuster);
 
                     return;

@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ArrayPropertyValues([NotNull] InternalEntityEntry internalEntry, [NotNull] object[] values)
-            : base(internalEntry)
-        {
-            _values = values;
-        }
+            : base(internalEntry) => _values = values;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

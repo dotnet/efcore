@@ -83,9 +83,7 @@ namespace JetBrains.Annotations
     internal sealed class StringFormatMethodAttribute : Attribute
     {
         public StringFormatMethodAttribute([NotNull] string formatParameterName)
-        {
-            FormatParameterName = formatParameterName;
-        }
+            => FormatParameterName = formatParameterName;
 
         [NotNull]
         public string FormatParameterName { get; }

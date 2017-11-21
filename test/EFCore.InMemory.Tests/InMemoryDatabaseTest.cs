@@ -146,10 +146,10 @@ namespace Microsoft.EntityFrameworkCore
 
             await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
 
-            var entry = log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
+            var (Level, Id, Message) = log.Single(t => t.Id.Id == InMemoryEventId.ChangesSaved.Id);
 
-            Assert.Equal(LogLevel.Information, entry.Level);
-            Assert.Equal(InMemoryStrings.LogSavedChanges.GenerateMessage(1), entry.Message);
+            Assert.Equal(LogLevel.Information, Level);
+            Assert.Equal(InMemoryStrings.LogSavedChanges.GenerateMessage(1), Message);
         }
 
         private static IModel CreateModel()

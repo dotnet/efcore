@@ -112,7 +112,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private class UserContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+            {
+                optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+            }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -435,17 +437,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
-                var primateEntry = new PropertyEntry(entry, "Primate");
-                primateEntry.OriginalValue = "Chimp";
-                primateEntry.IsModified = true;
+                var primateEntry = new PropertyEntry(entry, "Primate")
+                {
+                    OriginalValue = "Chimp",
+                    IsModified = true
+                };
 
-                var marmateEntry = new PropertyEntry(entry, "Marmate");
-                marmateEntry.OriginalValue = "Marmite";
-                marmateEntry.IsModified = true;
+                var marmateEntry = new PropertyEntry(entry, "Marmate")
+                {
+                    OriginalValue = "Marmite",
+                    IsModified = true
+                };
 
-                var requiredEntry = new PropertyEntry(entry, "RequiredPrimate");
-                requiredEntry.OriginalValue = "Bushbaby";
-                requiredEntry.IsModified = true;
+                var requiredEntry = new PropertyEntry(entry, "RequiredPrimate")
+                {
+                    OriginalValue = "Bushbaby",
+                    IsModified = true
+                };
 
                 Assert.Equal(EntityState.Modified, entry.EntityState);
                 Assert.Equal("Monkey", entity.Primate);
@@ -821,7 +829,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -835,7 +843,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public string Primate
             {
-                get { return _primate; }
+                get => _primate;
                 set
                 {
                     if (_primate != value)
@@ -849,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public string ConcurrentPrimate
             {
-                get { return _concurrentprimate; }
+                get => _concurrentprimate;
                 set
                 {
                     if (_concurrentprimate != value)
@@ -869,7 +877,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public int Id
             {
-                get { return _id; }
+                get => _id;
                 set
                 {
                     if (_id != value)
@@ -882,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             public string Primate
             {
-                get { return _primate; }
+                get => _primate;
                 set
                 {
                     if (_primate != value)
@@ -899,7 +907,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public event PropertyChangedEventHandler PropertyChanged;
 
             protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
-                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
 
         private abstract class HasChangedAndChanging : HasChanged, INotifyPropertyChanging
@@ -907,7 +917,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public event PropertyChangingEventHandler PropertyChanging;
 
             protected void OnPropertyChanging([CallerMemberName] string propertyName = "")
-                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            {
+                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
+            }
         }
 
         public static IMutableModel BuildModel(
@@ -948,10 +960,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+            {
+                optionsBuilder.UseInMemoryDatabase(GetType().FullName);
+            }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-                => BuildModel(_fullNotificationStrategy, modelBuilder);
+            {
+                BuildModel(_fullNotificationStrategy, modelBuilder);
+            }
         }
     }
 }

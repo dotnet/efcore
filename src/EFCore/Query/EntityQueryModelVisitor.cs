@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual Expression Expression
         {
-            get { return _expression; }
+            get => _expression;
             [param: NotNull]
             set
             {
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual ParameterExpression CurrentParameter
         {
-            get { return _currentParameter; }
+            get => _currentParameter;
             [param: NotNull]
             set
             {
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         new[]
                         {
                             new IncludeResultOperator(
-                                stack.Reverse().ToArray(), 
+                                stack.Reverse().ToArray(),
                                 querySourceReferenceExpression,
                                 implicitLoad: true)
                         });
@@ -1242,16 +1242,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             for (var i = 0; i < index; i++)
             {
-                var bodyClause = queryModel.BodyClauses[i] as IQuerySource;
-
-                if (bodyClause != null)
+                if (queryModel.BodyClauses[i] is IQuerySource bodyClause)
                 {
                     RescopeTransparentAccess(bodyClause, outerAccessExpression);
 
-                    var groupJoinClause = bodyClause as GroupJoinClause;
-
-                    if (groupJoinClause != null
-                        && QueryCompilationContext.QuerySourceMapping
+                    if (bodyClause is GroupJoinClause groupJoinClause && QueryCompilationContext.QuerySourceMapping
                             .ContainsMapping(groupJoinClause.JoinClause))
                     {
                         RescopeTransparentAccess(groupJoinClause.JoinClause, outerAccessExpression);

@@ -40,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+        {
+            return Fixture.CreateContext();
+        }
 
         protected virtual void ClearLog()
         {
@@ -177,7 +180,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids)
-            => context.Customers.Where(c => ids.Contains(c.CustomerID));
+        {
+            return context.Customers.Where(c => ids.Contains(c.CustomerID));
+        }
 
         [ConditionalFact]
         public void Query_composition_against_ienumerable_set()
@@ -223,7 +228,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             // ReSharper disable once UnusedParameter.Local
             public bool Check(string input1, string input2)
-                => false;
+            {
+                return false;
+            }
         }
 
         [ConditionalFact]
@@ -1136,7 +1143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj))
+                if (obj is null)
                 {
                     return false;
                 }
@@ -2260,7 +2267,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 customer => customer
                     // ReSharper disable once ConvertConditionalTernaryToNullCoalescing
                     // ReSharper disable once MergeConditionalExpression
+#pragma warning disable IDE0029 // Use coalesce expression
                     .OrderBy(c => c.Region == null ? "ZZ" : c.Region),
+#pragma warning restore IDE0029 // Use coalesce expression
                 entryCount: 91);
         }
 
@@ -2399,10 +2408,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected IQueryable<TOut> ShadowPropertySelect<TIn, TOut>(IQueryable<TIn> source, object column)
-            => source.Select(e => EF.Property<TOut>(e, (string)column));
+        {
+            return source.Select(e => EF.Property<TOut>(e, (string)column));
+        }
 
         protected IQueryable<T> ShadowPropertyWhere<T>(IQueryable<T> source, object column, string value)
-            => source.Where(e => EF.Property<string>(e, (string)column) == value);
+        {
+            return source.Where(e => EF.Property<string>(e, (string)column) == value);
+        }
 
         [ConditionalFact]
         public virtual void Where_Property_shadow_closure()
@@ -3318,7 +3331,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => from e1 in es
                       join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
                       from e2 in grouping.DefaultIfEmpty()
+#pragma warning disable IDE0031 // Use null propagation
                       select new { City1 = e1.City, City2 = e2 != null ? e2.City : null },
+#pragma warning restore IDE0031 // Use null propagation
                 e => e.City1 + " " + e.City2);
         }
 
@@ -3330,7 +3345,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o in os
                     join c in cs on o.CustomerID equals c.CustomerID into grouping
                     from c in ClientDefaultIfEmpty(grouping)
+#pragma warning disable IDE0031 // Use null propagation
                     select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
+#pragma warning restore IDE0031 // Use null propagation
                 e => e.Id1 + " " + e.Id2);
         }
 
@@ -3342,7 +3359,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o in os
                     join c in cs on new { o.CustomerID, o.OrderID } equals new { c.CustomerID, OrderID = 10000 } into grouping
                     from c in ClientDefaultIfEmpty(grouping)
+#pragma warning disable IDE0031 // Use null propagation
                     select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
+#pragma warning restore IDE0031 // Use null propagation
                 e => e.Id1 + " " + e.Id2);
         }
 
@@ -3354,7 +3373,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o in os
                     join c in cs on new { o.OrderID, o.CustomerID } equals new { OrderID = 10000, c.CustomerID } into grouping
                     from c in ClientDefaultIfEmpty(grouping)
+#pragma warning disable IDE0031 // Use null propagation
                     select new { Id1 = o.CustomerID, Id2 = c != null ? c.CustomerID : null },
+#pragma warning restore IDE0031 // Use null propagation
                 e => e.Id1 + " " + e.Id2);
         }
 
@@ -3365,7 +3386,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 es => from e1 in es
                       join e2 in es on e1.EmployeeID equals e2.ReportsTo into grouping
                       from e2 in ClientDefaultIfEmpty(grouping)
+#pragma warning disable IDE0031 // Use null propagation
                       select new { City1 = e1.City, City2 = e2 != null ? e2.City : null },
+#pragma warning restore IDE0031 // Use null propagation
                 e => e.City1 + " " + e.City2);
         }
 
@@ -3470,7 +3493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj))
+                if (obj is null)
                 {
                     return false;
                 }
@@ -3483,9 +3506,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return obj.GetType() == GetType() && Equals((DTO<T>)obj);
             }
 
-            private bool Equals(DTO<T> other) => EqualityComparer<T>.Default.Equals(Property, other.Property);
+            private bool Equals(DTO<T> other)
+            {
+                return EqualityComparer<T>.Default.Equals(Property, other.Property);
+            }
 
-            public override int GetHashCode() => Property.GetHashCode();
+            public override int GetHashCode()
+            {
+                return Property.GetHashCode();
+            }
         }
 
         [ConditionalFact]
@@ -3778,9 +3807,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static IQueryable<string> FindLike(IQueryable<Customer> cs, string prefix)
-            => from c in cs
-               where c.CustomerID.StartsWith(prefix)
-               select c.CustomerID;
+        {
+            return from c in cs
+                   where c.CustomerID.StartsWith(prefix)
+                   select c.CustomerID;
+        }
 
         [ConditionalFact]
         public virtual void Comparing_entities_using_Equals()

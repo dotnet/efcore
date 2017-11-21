@@ -103,13 +103,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Debug.Assert(lambdaExpression.Body != null);
 
-            var newExpression
-                = RemoveConvert(lambdaExpression.Body) as NewExpression;
-
             var parameterExpression
                 = lambdaExpression.Parameters.Single();
 
-            if (newExpression != null)
+            if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
                 var propertyInfos
                     = newExpression
@@ -214,8 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static TExpression GetRootExpression<TExpression>([NotNull] this Expression expression)
             where TExpression : Expression
         {
-            MemberExpression memberExpression;
-            while ((memberExpression = expression as MemberExpression) != null)
+            while (expression is MemberExpression memberExpression)
             {
                 expression = memberExpression.Expression;
             }
@@ -258,19 +254,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
-        {
-            return constantExpression.Type.GetTypeInfo().IsGenericType
-                   && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
-        }
+            => constantExpression.Type.GetTypeInfo().IsGenericType
+            && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IQuerySource TryGetReferencedQuerySource([NotNull] this Expression expression)
-        {
-            return (expression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
-        }
+            => (expression as QuerySourceReferenceExpression)?.ReferencedQuerySource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

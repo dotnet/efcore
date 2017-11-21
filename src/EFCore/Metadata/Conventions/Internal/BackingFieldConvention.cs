@@ -78,8 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var typeInfo = propertyType.GetTypeInfo();
 
-            FieldInfo fieldInfo;
-            return fields.TryGetValue("<" + propertyName + ">k__BackingField", out fieldInfo)
+            return fields.TryGetValue("<" + propertyName + ">k__BackingField", out var fieldInfo)
                    || (fields.TryGetValue(propertyName, out fieldInfo)
                        && IsConvertable(typeInfo, fieldInfo))
                    || (fields.TryGetValue(camelized, out fieldInfo)

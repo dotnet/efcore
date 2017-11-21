@@ -435,11 +435,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
 
-            Func<IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>>, string> formatter = data =>
-                {
-                    cycleData = data.ToDictionary(entry => entry.Item1);
-                    return message;
-                };
+            string formatter(IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>> data)
+            {
+                cycleData = data.ToDictionary(entry => entry.Item1);
+                return message;
+            }
 
             Assert.Equal(
                 CoreStrings.CircularDependency(message),
@@ -482,11 +482,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
 
-            Func<IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>>, string> formatter = data =>
-                {
-                    cycleData = data.ToDictionary(entry => entry.Item1);
-                    return message;
-                };
+            string formatter(IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>> data)
+            {
+                cycleData = data.ToDictionary(entry => entry.Item1);
+                return message;
+            }
 
             Assert.Equal(
                 CoreStrings.CircularDependency(message),
@@ -533,11 +533,11 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Dictionary<Vertex, Tuple<Vertex, Vertex, IEnumerable<Edge>>> cycleData = null;
 
-            Func<IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>>, string> formatter = data =>
-                {
-                    cycleData = data.ToDictionary(entry => entry.Item1);
-                    return message;
-                };
+            string formatter(IEnumerable<Tuple<Vertex, Vertex, IEnumerable<Edge>>> data)
+            {
+                cycleData = data.ToDictionary(entry => entry.Item1);
+                return message;
+            }
 
             Assert.Equal(
                 CoreStrings.CircularDependency(message),

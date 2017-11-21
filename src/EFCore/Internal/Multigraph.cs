@@ -35,11 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IEnumerable<TEdge> GetEdges([NotNull] TVertex from, [NotNull] TVertex to)
         {
-            Dictionary<TVertex, List<TEdge>> successorSet;
-            if (_successorMap.TryGetValue(from, out successorSet))
+            if (_successorMap.TryGetValue(from, out var successorSet))
             {
-                List<TEdge> edgeList;
-                if (successorSet.TryGetValue(to, out edgeList))
+                if (successorSet.TryGetValue(to, out var edgeList))
                 {
                     return edgeList;
                 }
@@ -84,15 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
             }
 
-            Dictionary<TVertex, List<TEdge>> successorSet;
-            if (!_successorMap.TryGetValue(from, out successorSet))
+            if (!_successorMap.TryGetValue(from, out var successorSet))
             {
                 successorSet = new Dictionary<TVertex, List<TEdge>>();
                 _successorMap.Add(from, successorSet);
             }
 
-            List<TEdge> edgeList;
-            if (!successorSet.TryGetValue(to, out edgeList))
+            if (!successorSet.TryGetValue(to, out var edgeList))
             {
                 edgeList = new List<TEdge>();
                 successorSet.Add(to, edgeList);
@@ -342,8 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var currentCycleVertex = _vertices.First(
                     v =>
                         {
-                            int predecessorNumber;
-                            if (predecessorCounts.TryGetValue(v, out predecessorNumber))
+                            if (predecessorCounts.TryGetValue(v, out var predecessorNumber))
                             {
                                 return predecessorNumber != 0;
                             }
@@ -355,8 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 {
                     foreach (var predecessor in GetIncomingNeighbours(currentCycleVertex))
                     {
-                        int predecessorCount;
-                        if (!predecessorCounts.TryGetValue(predecessor, out predecessorCount))
+                        if (!predecessorCounts.TryGetValue(predecessor, out var predecessorCount))
                         {
                             continue;
                         }
@@ -425,13 +419,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override IEnumerable<TVertex> GetOutgoingNeighbours(TVertex from)
-        {
-            Dictionary<TVertex, List<TEdge>> successorSet;
-
-            return _successorMap.TryGetValue(from, out successorSet)
+            => _successorMap.TryGetValue(from, out var successorSet)
                 ? successorSet.Keys
                 : Enumerable.Empty<TVertex>();
-        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

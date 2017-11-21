@@ -33,9 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (currentExpression.NodeType == ExpressionType.Equal
                 || currentExpression.NodeType == ExpressionType.NotEqual)
             {
-                var leftUnary = currentExpression.Left as UnaryExpression;
-                if (leftUnary != null
-                    && leftUnary.NodeType == ExpressionType.Not)
+                if (currentExpression.Left is UnaryExpression leftUnary && leftUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(leftUnary.Operand) != null;
                     var rightNullable = BuildIsNullExpression(currentExpression.Right) != null;
@@ -52,9 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                var rightUnary = currentExpression.Right as UnaryExpression;
-                if (rightUnary != null
-                    && rightUnary.NodeType == ExpressionType.Not)
+                if (currentExpression.Right is UnaryExpression rightUnary && rightUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(currentExpression.Left) != null;
                     var rightNullable = BuildIsNullExpression(rightUnary) != null;
@@ -91,17 +87,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             if (node.NodeType == ExpressionType.Not)
             {
-                var innerUnary = node.Operand as UnaryExpression;
-                if (innerUnary != null
-                    && innerUnary.NodeType == ExpressionType.Not)
+                if (node.Operand is UnaryExpression innerUnary && innerUnary.NodeType == ExpressionType.Not)
                 {
                     // !(!(a)) => a
                     return Visit(innerUnary.Operand);
                 }
 
                 var nullCompensatedExpression = node.Operand as NullCompensatedExpression;
-                var innerBinary = (nullCompensatedExpression?.Operand ?? node.Operand) as BinaryExpression;
-                if (innerBinary != null)
+                if ((nullCompensatedExpression?.Operand ?? node.Operand) is BinaryExpression innerBinary)
                 {
                     Expression result = null;
                     if (innerBinary.NodeType == ExpressionType.Equal

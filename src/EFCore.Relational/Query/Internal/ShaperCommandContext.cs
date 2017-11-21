@@ -27,9 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly IReadOnlyDictionary<string, object> _parameterValues;
 
             public CommandCacheKey(IReadOnlyDictionary<string, object> parameterValues)
-            {
-                _parameterValues = parameterValues;
-            }
+                => _parameterValues = parameterValues;
 
             public override bool Equals(object obj)
             {
@@ -106,10 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual IRelationalCommand GetRelationalCommand(
             [NotNull] IReadOnlyDictionary<string, object> parameters)
         {
-            IRelationalCommand relationalCommand;
             var key = new CommandCacheKey(parameters);
 
-            if (_commandCache.TryGetValue(key, out relationalCommand))
+            if (_commandCache.TryGetValue(key, out var relationalCommand))
             {
                 return relationalCommand;
             }

@@ -929,12 +929,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(LogLevel.Debug, log[0].Level);
             Assert.Equal(LogLevel.Information, log[1].Level);
 
-            foreach (var item in log)
+            foreach (var (Level, Id, Message) in log)
             {
                 Assert.EndsWith(
                     @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']" + EOL +
                     @"Logged Command",
-                    item.Message);
+                    Message);
             }
         }
 
@@ -985,12 +985,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(LogLevel.Debug, log[1].Level);
             Assert.Equal(LogLevel.Information, log[2].Level);
 
-            foreach (var item in log.Skip(1))
+            foreach (var (Level, Id, Message) in log.Skip(1))
             {
                 Assert.EndsWith(
                     @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + EOL +
                     @"Logged Command",
-                    item.Message);
+                    Message);
             }
         }
 

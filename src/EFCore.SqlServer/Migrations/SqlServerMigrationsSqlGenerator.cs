@@ -37,10 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public SqlServerMigrationsSqlGenerator(
             [NotNull] MigrationsSqlGeneratorDependencies dependencies,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
-            : base(dependencies)
-        {
-            _migrationsAnnotations = migrationsAnnotations;
-        }
+            : base(dependencies) => _migrationsAnnotations = migrationsAnnotations;
 
         /// <summary>
         ///     Generates commands from a list of operations.
@@ -81,9 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var createDatabaseOperation = operation as SqlServerCreateDatabaseOperation;
             var dropDatabaseOperation = operation as SqlServerDropDatabaseOperation;
-            if (createDatabaseOperation != null)
+            if (operation is SqlServerCreateDatabaseOperation createDatabaseOperation)
             {
                 Generate(createDatabaseOperation, model, builder);
             }

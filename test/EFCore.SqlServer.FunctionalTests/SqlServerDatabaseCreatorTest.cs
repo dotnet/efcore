@@ -220,10 +220,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Task Creates_schema_in_existing_database_test(bool async, bool ambientTransaction, bool file)
-            => TestEnvironment.IsSqlAzure
+        {
+            return TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                     (true, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
                 : Creates_physical_database_and_schema_test((true, async, ambientTransaction, file));
+        }
 
         [ConditionalTheory]
         [InlineData(true, false)]
@@ -244,15 +246,17 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static Task Creates_new_physical_database_and_schema_test(bool async, bool ambientTransaction, bool file)
-            => TestEnvironment.IsSqlAzure
+        {
+            return TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                     (false, async, ambientTransaction, file), Creates_physical_database_and_schema_test)
                 : Creates_physical_database_and_schema_test((false, async, ambientTransaction, file));
+        }
 
         private static async Task Creates_physical_database_and_schema_test(
             (bool CreateDatabase, bool Async, bool ambientTransaction, bool File) options)
         {
-            (bool createDatabase, bool async, bool ambientTransaction, bool file) = options;
+            var (createDatabase, async, ambientTransaction, file) = options;
             using (var testDatabase = SqlServerTestStore.Create("EnsureCreatedTest" + (file ? "File" : ""), file))
             {
                 using (var context = new BloggingContext(testDatabase))
@@ -633,22 +637,29 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerDatabaseCreatorTest
     {
 
+        public static IDisposable CreateTransactionScope(bool useTransaction)
+        {
 #if NET461
-        public static IDisposable CreateTransactionScope(bool useTransaction)
-            => TestStore.CreateTransactionScope(useTransaction);
+            return TestStore.CreateTransactionScope(useTransaction);
 #else
-        public static IDisposable CreateTransactionScope(bool useTransaction)
-            => TestStore.CreateTransactionScope(useTransaction: false);
+            return TestStore.CreateTransactionScope(useTransaction: false);
 #endif
+        }
 
         public static TestDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
-            => GetDatabaseCreator(testStore.ConnectionString);
+        {
+            return GetDatabaseCreator(testStore.ConnectionString);
+        }
 
         public static TestDatabaseCreator GetDatabaseCreator(string connectionString)
-            => GetDatabaseCreator(new BloggingContext(connectionString));
+        {
+            return GetDatabaseCreator(new BloggingContext(connectionString));
+        }
 
         public static TestDatabaseCreator GetDatabaseCreator(BloggingContext context)
-            => (TestDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+        {
+            return (TestDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+        }
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
@@ -659,15 +670,19 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
-                => new NoopExecutionStrategy(dependencies);
+            {
+                return new NoopExecutionStrategy(dependencies);
+            }
         }
 
         private static IServiceProvider CreateServiceProvider()
-            => new ServiceCollection()
+        {
+            return new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .AddScoped<IExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
                 .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>()
                 .BuildServiceProvider();
+        }
 
         public class BloggingContext : DbContext
         {
@@ -684,9 +699,13 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder
-                    .UseSqlServer(_connectionString, b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout))
+            {
+                optionsBuilder
+                    .UseSqlServer(
+                        _connectionString,
+                        b => b.ApplyConfiguration().CommandTimeout(SqlServerTestStore.CommandTimeout))
                     .UseInternalServiceProvider(CreateServiceProvider());
+            }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -729,10 +748,15 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public bool HasTablesBase() => HasTables();
+            public bool HasTablesBase()
+            {
+                return HasTables();
+            }
 
             public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default)
-                => HasTablesAsync(cancellationToken);
+            {
+                return HasTablesAsync(cancellationToken);
+            }
 
             public IExecutionStrategyFactory ExecutionStrategyFactory => Dependencies.ExecutionStrategyFactory;
         }

@@ -924,7 +924,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<CogTag>(
                 ts => from t in ts
+#pragma warning disable IDE0031 // Use null propagation
                       select t.Gear != null ? t.Gear.Nickname : null,
+#pragma warning restore IDE0031 // Use null propagation
                 ts => from t in ts
                       select t.Gear != null ? Maybe(t.Gear, () => t.Gear.Nickname) : null);
         }
@@ -1560,8 +1562,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      // ReSharper disable once MergeConditionalExpression
+                          // ReSharper disable once MergeConditionalExpression
+#pragma warning disable IDE0029 // Use coalesce expression
                       select g2 != null ? g2 : g1,
+#pragma warning restore IDE0029 // Use coalesce expression
                 expectedIncludes);
         }
 
@@ -1579,8 +1583,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join g2 in gs.Include(g => g.Weapons)
                           on g1.LeaderNickname equals g2.Nickname into grouping
                       from g2 in grouping.DefaultIfEmpty()
-                      // ReSharper disable once MergeConditionalExpression
+                          // ReSharper disable once MergeConditionalExpression
+#pragma warning disable IDE0029 // Use coalesce expression
                       select new { g1, g2, coalesce = g2 ?? g1, conditional = g2 != null ? g2 : g1 },
+#pragma warning restore IDE0029 // Use coalesce expression
                 expectedIncludes,
                 elementSorter: e => e.g1.Nickname + " " + e.g2?.Nickname,
                 clientProjections: new List<Func<dynamic, object>> { e => e.g1, e => e.g2, e => e.coalesce, e => e.conditional });
@@ -1933,7 +1939,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from t in ts
                     join g in gs on t.GearNickName equals g.Nickname into grouping
                     from g in ClientDefaultIfEmpty(grouping)
+#pragma warning disable IDE0031 // Use null propagation
                     select new { t.Note, Nickname = g != null ? g.Nickname : null },
+#pragma warning restore IDE0031 // Use null propagation
                 elementSorter: e => e.Note);
         }
 
@@ -2068,7 +2076,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static bool ClientEquals(string first, string second)
-            => first == second;
+        {
+            return first == second;
+        }
 
         [ConditionalFact]
         public virtual void Contains_with_local_nullable_guid_list_closure()
@@ -2413,7 +2423,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static Weapon FavoriteWeapon(IEnumerable<Weapon> weapons)
-            => weapons.OrderBy(w => w.Id).FirstOrDefault();
+        {
+            return weapons.OrderBy(w => w.Id).FirstOrDefault();
+        }
 
         private static IEnumerable<Gear> Veterans(IEnumerable<Gear> gears)
         {
@@ -3073,7 +3085,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => g.Rank.ToString()));
         }
 
-        protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
+        protected GearsOfWarContext CreateContext()
+        {
+            return Fixture.CreateContext();
+        }
 
         protected virtual void ClearLog()
         {

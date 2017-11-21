@@ -12,10 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
     {
         private readonly TextWriter _writer;
 
-        public AnsiTextWriter(TextWriter writer)
-        {
-            _writer = writer;
-        }
+        public AnsiTextWriter(TextWriter writer) => _writer = writer;
 
         public void WriteLine(string text)
         {

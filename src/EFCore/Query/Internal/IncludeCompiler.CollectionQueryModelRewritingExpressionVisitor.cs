@@ -278,10 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 private readonly List<IQuerySource> _querySources = new List<IQuerySource>();
 
-                public QuerySourcePriorityAnalyzer(Expression expression)
-                {
-                    Visit(expression);
-                }
+                public QuerySourcePriorityAnalyzer(Expression expression) => Visit(expression);
 
                 public bool AreLowerPriorityQuerySources(IQuerySource querySource)
                 {
@@ -344,12 +341,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private static bool ProcessResultOperators(QueryModel queryModel)
             {
-                var choiceResultOperator
-                    = queryModel.ResultOperators.LastOrDefault() as ChoiceResultOperatorBase;
-
                 var lastResultOperator = false;
 
-                if (choiceResultOperator != null)
+                if (queryModel.ResultOperators.LastOrDefault() is ChoiceResultOperatorBase choiceResultOperator)
                 {
                     queryModel.ResultOperators.Remove(choiceResultOperator);
                     queryModel.ResultOperators.Add(new TakeResultOperator(Expression.Constant(1)));

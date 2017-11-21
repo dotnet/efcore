@@ -93,8 +93,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     }
                     else
                     {
-                        bool boolValue;
-                        if (!bool.TryParse(value, out boolValue))
+                        if (!bool.TryParse(value, out var boolValue))
                         {
                             return false;
                         }
@@ -117,19 +116,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return true;
         }
 
-        public bool HasValue()
-        {
-            return Values.Any();
-        }
+        public bool HasValue() => Values.Any();
 
-        public string Value()
-        {
-            return HasValue() ? Values[0] : null;
-        }
+        public string Value() => HasValue() ? Values[0] : null;
 
-        private bool IsEnglishLetter(char c)
-        {
-            return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-        }
+        private bool IsEnglishLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 }

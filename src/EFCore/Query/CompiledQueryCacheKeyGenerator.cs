@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </returns>
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)
+                if (obj is null
                     || !(obj is CompiledQueryCacheKey))
                 {
                     return false;

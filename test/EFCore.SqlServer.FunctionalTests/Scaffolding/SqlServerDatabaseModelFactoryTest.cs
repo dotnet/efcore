@@ -1950,10 +1950,10 @@ CREATE TABLE Blank (
                     {
                         Assert.Empty(dbModel.Tables);
 
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqlServerStrings.LogMissingSchema.EventId, warning.Id);
-                        Assert.Equal(SqlServerStrings.LogMissingSchema.GenerateMessage("MySchema"), warning.Message);
+                        Assert.Equal(SqlServerStrings.LogMissingSchema.EventId, Id);
+                        Assert.Equal(SqlServerStrings.LogMissingSchema.GenerateMessage("MySchema"), Message);
                     },
                 "DROP TABLE Blank;");
         }
@@ -1972,10 +1972,10 @@ CREATE TABLE Blank (
                     {
                         Assert.Empty(dbModel.Tables);
 
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqlServerStrings.LogMissingTable.EventId, warning.Id);
-                        Assert.Equal(SqlServerStrings.LogMissingTable.GenerateMessage("MyTable"), warning.Message);
+                        Assert.Equal(SqlServerStrings.LogMissingTable.EventId, Id);
+                        Assert.Equal(SqlServerStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
                     },
                 "DROP TABLE Blank;");
         }
@@ -1998,10 +1998,10 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                     {
-                        var warning = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
 
-                        Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId, warning.Id);
-                        Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.GenerateMessage("MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), warning.Message);
+                        Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId, Id);
+                        Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.GenerateMessage("MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), Message);
                     },
                 @"
 DROP TABLE DependentTable;

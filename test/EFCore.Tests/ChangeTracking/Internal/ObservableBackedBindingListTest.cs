@@ -177,9 +177,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var item = new ListElement(4);
             var oc = new ObservableCollection<ListElement> { 3, 1, item, 1, 5, 9 };
-            var obbl = new ObservableBackedBindingList<ListElement>(oc);
-
-            obbl.Add(item);
+            var obbl = new ObservableBackedBindingList<ListElement>(oc)
+            {
+                item
+            };
 
             Assert.Equal(7, oc.Count);
             Assert.Equal(2, oc.Count(i => ReferenceEquals(i, item)));
@@ -362,9 +363,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var item = new ListElement(4);
             var oc = new ObservableHashSet<ListElement> { 3, 1, item, 1, 5, 9 };
-            var obbl = new ObservableBackedBindingList<ListElement>(oc);
-
-            obbl.Add(item);
+            var obbl = new ObservableBackedBindingList<ListElement>(oc)
+            {
+                item
+            };
 
             Assert.Equal(6, oc.Count);
             Assert.Equal(1, oc.Count(i => ReferenceEquals(i, item)));
@@ -422,7 +424,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public byte[] ByteArray { get; }
 
             public static PropertyDescriptor Property(string name)
-                => TypeDescriptor.GetProperties(typeof(ListElement))[name];
+            {
+                return TypeDescriptor.GetProperties(typeof(ListElement))[name];
+            }
         }
 
         private abstract class NotXNode

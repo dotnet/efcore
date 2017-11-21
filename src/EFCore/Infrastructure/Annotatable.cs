@@ -127,8 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return null;
             }
 
-            Annotation annotation;
-            return _annotations.Value.TryGetValue(name, out annotation)
+            return _annotations.Value.TryGetValue(name, out var annotation)
                 ? annotation
                 : null;
         }
