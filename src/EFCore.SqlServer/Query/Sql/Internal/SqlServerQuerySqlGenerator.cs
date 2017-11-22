@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
             if (sqlFunctionExpression.FunctionName == "COUNT"
                 && sqlFunctionExpression.Type == typeof(long))
             {
-                GenerateFunctionCall("COUNT_BIG", sqlFunctionExpression.Arguments);
+                Visit(new SqlFunctionExpression("COUNT_BIG", typeof(long), sqlFunctionExpression.Arguments));
 
                 return sqlFunctionExpression;
             }
@@ -125,12 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         }
 
         private Expression ExplicitCastToBool(Expression expression)
-        {
-            return (expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce
-                   && expression.Type.UnwrapNullableType() == typeof(bool)
+            => (expression as BinaryExpression)?.NodeType == ExpressionType.Coalesce
+            && expression.Type.UnwrapNullableType() == typeof(bool)
                 ? new ExplicitCastExpression(expression, expression.Type)
                 : expression;
-        }
 
         private class RowNumberPagingExpressionVisitor : ExpressionVisitorBase
         {

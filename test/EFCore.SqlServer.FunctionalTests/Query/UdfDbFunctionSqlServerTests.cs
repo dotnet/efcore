@@ -10,15 +10,17 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class UdfDbFunctionSqlServerTests : IClassFixture<UdfDbFunctionSqlServerTests.SqlServerUDFFixture>
     {
-        public UdfDbFunctionSqlServerTests(SqlServerUDFFixture fixture)
+        public UdfDbFunctionSqlServerTests(SqlServerUDFFixture fixture, ITestOutputHelper testOutputHelper)
         {
             Fixture = fixture;
             Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         private SqlServerUDFFixture Fixture { get; }
@@ -1524,7 +1526,7 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))");
                                                     returns int
                                                     as
                                                     begin
-	                                                    return (select count(id) from orders where customerId = @customerId);
+                                                        return (select count(id) from orders where customerId = @customerId);
                                                     end");
 
                 context.Database.ExecuteSqlCommand(@"create function[dbo].[StarValue] (@starCount int, @value nvarchar(max))
@@ -1545,28 +1547,28 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))");
                                                     returns DateTime
                                                     as
                                                     begin
-	                                                    return '1998-01-01'
+                                                        return '1998-01-01'
                                                     end");
 
                 context.Database.ExecuteSqlCommand(@"create function [dbo].[GetCustomerWithMostOrdersAfterDate] (@searchDate Date)
                                                     returns int
                                                     as
                                                     begin
-	                                                    return (select top 1 customerId
-			                                                    from orders
-			                                                    where orderDate > @searchDate
-			                                                    group by CustomerId
-			                                                    order by count(id) desc)
+                                                        return (select top 1 customerId
+                                                                from orders
+                                                                where orderDate > @searchDate
+                                                                group by CustomerId
+                                                                order by count(id) desc)
                                                     end");
 
                 context.Database.ExecuteSqlCommand(@"create function [dbo].[IsTopCustomer] (@customerId int)
                                                     returns bit
                                                     as
                                                     begin
-	                                                    if(@customerId = 1)
-		                                                    return 1
-		
-	                                                    return 0
+                                                        if(@customerId = 1)
+                                                            return 1
+
+                                                        return 0
                                                     end");
 
                 var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = new DateTime(2000, 1, 20) };
