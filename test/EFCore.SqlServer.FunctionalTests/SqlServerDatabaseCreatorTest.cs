@@ -579,18 +579,18 @@ namespace Microsoft.EntityFrameworkCore
                     "CREATE TABLE [Blogs] (" + EOL +
                     "    [Key1] nvarchar(450) NOT NULL," + EOL +
                     "    [Key2] varbinary(900) NOT NULL," + EOL +
-                    "    [AndChew] varbinary(max) NULL," + EOL +
-                    "    [AndRow] rowversion NULL," + EOL +
                     "    [Cheese] nvarchar(max) NULL," + EOL +
                     "    [ErMilan] int NOT NULL," + EOL +
-                    "    [Fuse] smallint NOT NULL," + EOL +
                     "    [George] bit NOT NULL," + EOL +
-                    "    [NotFigTime] datetime2 NOT NULL," + EOL +
-                    "    [On] real NOT NULL," + EOL +
-                    "    [OrNothing] float NOT NULL," + EOL +
                     "    [TheGu] uniqueidentifier NOT NULL," + EOL +
+                    "    [NotFigTime] datetime2 NOT NULL," + EOL +
                     "    [ToEat] tinyint NOT NULL," + EOL +
+                    "    [OrNothing] float NOT NULL," + EOL +
+                    "    [Fuse] smallint NOT NULL," + EOL +
                     "    [WayRound] bigint NOT NULL," + EOL +
+                    "    [On] real NOT NULL," + EOL +                    
+                    "    [AndChew] varbinary(max) NULL," + EOL +                    
+                    "    [AndRow] rowversion NULL," + EOL +
                     "    CONSTRAINT [PK_Blogs] PRIMARY KEY ([Key1], [Key2])" + EOL +
                     ");" + EOL +
                     "GO" + EOL + EOL + EOL,
