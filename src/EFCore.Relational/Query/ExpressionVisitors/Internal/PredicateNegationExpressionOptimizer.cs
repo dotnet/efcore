@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitBinary(BinaryExpression node)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            var currentExpression = node;
+            var currentExpression = binaryExpression;
             if (currentExpression.NodeType == ExpressionType.Equal
                 || currentExpression.NodeType == ExpressionType.NotEqual)
             {
@@ -83,18 +83,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected override Expression VisitUnary(UnaryExpression node)
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            if (node.NodeType == ExpressionType.Not)
+            if (unaryExpression.NodeType == ExpressionType.Not)
             {
-                if (node.Operand is UnaryExpression innerUnary && innerUnary.NodeType == ExpressionType.Not)
+                if (unaryExpression.Operand is ConstantExpression constantExpression
+                    && constantExpression.Type == typeof(bool))
                 {
-                    // !(!(a)) => a
+                    // !(false) -> true
+                    // !(true) -> false
+                    return Expression.Constant((bool)constantExpression.Value ? false : true);
+                }
+
+                if (unaryExpression.Operand is UnaryExpression innerUnary && innerUnary.NodeType == ExpressionType.Not)
+                {
+                    // !(!(a)) -> a
                     return Visit(innerUnary.Operand);
                 }
 
-                var nullCompensatedExpression = node.Operand as NullCompensatedExpression;
-                if ((nullCompensatedExpression?.Operand ?? node.Operand) is BinaryExpression innerBinary)
+                var nullCompensatedExpression = unaryExpression.Operand as NullCompensatedExpression;
+                if ((nullCompensatedExpression?.Operand ?? unaryExpression.Operand) is BinaryExpression innerBinary)
                 {
                     Expression result = null;
                     if (innerBinary.NodeType == ExpressionType.Equal
@@ -148,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return base.VisitUnary(node);
+            return base.VisitUnary(unaryExpression);
         }
     }
 }

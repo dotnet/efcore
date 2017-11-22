@@ -4083,5 +4083,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                  .Take(5)
                  .Count());
         }
+
+        [ConditionalFact]
+        public virtual void OrderBy_empty_list_contains()
+        {
+            var list = new List<string>();
+            AssertQuery<Customer>(cs => cs.OrderBy(c => list.Contains(c.CustomerID)),
+                entryCount: 91);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_empty_list_does_not_contains()
+        {
+            var list = new List<string>();
+            AssertQuery<Customer>(cs => cs.OrderBy(c => !list.Contains(c.CustomerID)),
+                entryCount: 91);
+        }
     }
 }
