@@ -613,7 +613,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     }
 
                     break;
-
             }
 
             if (substitutions != null)
@@ -1335,10 +1334,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            GenerateFunctionCall(
-                sqlFunctionExpression.FunctionName,
-                sqlFunctionExpression.Arguments,
-                sqlFunctionExpression.Schema);
+            var parentTypeMapping = _typeMapping;
+            _typeMapping = null;
+
+            if (sqlFunctionExpression.Instance != null)
+            {
+                Visit(sqlFunctionExpression.Instance);
+                _relationalCommandBuilder.Append(".");
+            }
+            else if (!string.IsNullOrWhiteSpace(sqlFunctionExpression.Schema))
+            {
+                _relationalCommandBuilder
+                    .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.Schema))
+                    .Append(".");
+            }
+
+            _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
+            _relationalCommandBuilder.Append("(");
+
+            _typeMapping = null;
+            GenerateList(sqlFunctionExpression.Arguments);
+
+            _relationalCommandBuilder.Append(")");
+            _typeMapping = parentTypeMapping;
 
             return sqlFunctionExpression;
         }
@@ -1349,8 +1367,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <param name="functionName">The function name</param>
         /// <param name="arguments">The function arguments</param>
         /// <param name="schema">The function schema</param>
+        [Obsolete("Override VisitSqlFunction method instead.")]
         protected virtual void GenerateFunctionCall(
-            [NotNull] string functionName, [NotNull] IReadOnlyList<Expression> arguments,
+            [NotNull] string functionName,
+            [NotNull] IReadOnlyList<Expression> arguments,
             [CanBeNull] string schema = null)
         {
             Check.NotEmpty(functionName, nameof(functionName));
@@ -1439,16 +1459,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                     if (expression.Operand is ExistsExpression)
                     {
                         _relationalCommandBuilder.Append("NOT ");
-
                         Visit(expression.Operand);
 
                         return expression;
                     }
 
                     _relationalCommandBuilder.Append("NOT (");
-
                     Visit(expression.Operand);
-
                     _relationalCommandBuilder.Append(")");
 
                     return expression;
@@ -1460,11 +1477,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
                 case ExpressionType.Negate:
                     _relationalCommandBuilder.Append("-");
-
                     Visit(expression.Operand);
 
                     return expression;
-
             }
 
             return base.VisitUnary(expression);
