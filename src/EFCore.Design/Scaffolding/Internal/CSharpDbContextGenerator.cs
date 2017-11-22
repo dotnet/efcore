@@ -114,7 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                _sb.AppendLine($"public virtual DbSet<{entityType.Name}> {entityType.Scaffolding().DbSetName} {{ get; set; }}");
+                _sb.AppendLine(
+                    $"public virtual DbSet<{entityType.Name}> {entityType.Scaffolding().DbSetName} {{ get; set; }}");
             }
 
             if (model.GetEntityTypes().Any())
@@ -165,7 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         .IncrementIndent()
                         .IncrementIndent();
 
-                    _sb.AppendLine($"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
+                    _sb.AppendLine(
+                        $"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
                 }
 
                 _sb.AppendLine("}");
@@ -193,7 +195,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.EntityTypeErrors);
 
             var annotationsToRemove = new List<IAnnotation>();
-            annotationsToRemove.AddRange(annotations.Where(a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal)));
+            annotationsToRemove.AddRange(
+                annotations.Where(
+                    a => a.Name.StartsWith(RelationalAnnotationNames.SequencePrefix, StringComparison.Ordinal)));
 
             var lines = new List<string>();
 
@@ -367,10 +371,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var explicitName = key.Relational().Name != ConstraintNamer.GetDefaultName(key);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
 
-            if (key.Properties.Count == 1)
+            if (key.Properties.Count == 1
+                && annotations.Count == 0)
             {
                 if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(new KeyDiscoveryConvention().DiscoverKeyProperties(concreteKey.DeclaringEntityType, concreteKey.DeclaringEntityType.GetProperties().ToList())))
+                    && key.Properties.SequenceEqual(
+                        new KeyDiscoveryConvention().DiscoverKeyProperties(
+                            concreteKey.DeclaringEntityType,
+                            concreteKey.DeclaringEntityType.GetProperties().ToList())))
                 {
                     return;
                 }
@@ -389,7 +397,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitName)
             {
-                lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}({_cSharpUtilities.DelimitString(key.Relational().Name)})");
+                lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
+                    $"({_cSharpUtilities.DelimitString(key.Relational().Name)})");
             }
 
             var annotationsToRemove = new List<IAnnotation>();
@@ -454,7 +463,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!string.IsNullOrEmpty((string)index[RelationalAnnotationNames.Name]))
             {
-                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasName)}({_cSharpUtilities.DelimitString(index.Relational().Name)})");
+                lines.Add(
+                    $".{nameof(RelationalIndexBuilderExtensions.HasName)}" +
+                    $"({_cSharpUtilities.DelimitString(index.Relational().Name)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
@@ -465,7 +476,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (index.Relational().Filter != null)
             {
-                lines.Add($".{nameof(RelationalIndexBuilderExtensions.HasFilter)}({_cSharpUtilities.DelimitString(index.Relational().Filter)})");
+                lines.Add(
+                    $".{nameof(RelationalIndexBuilderExtensions.HasFilter)}" +
+                    $"({_cSharpUtilities.DelimitString(index.Relational().Filter)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Filter);
             }
 
@@ -526,42 +539,56 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 if (columnName != null
                     && columnName != property.Name)
                 {
-                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}({_cSharpUtilities.DelimitString(columnName)})");
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}" +
+                        $"({_cSharpUtilities.DelimitString(columnName)})");
                 }
 
                 var columnType = property.GetConfiguredColumnType();
 
                 if (columnType != null)
                 {
-                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}({_cSharpUtilities.DelimitString(columnType)})");
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}" +
+                        $"({_cSharpUtilities.DelimitString(columnType)})");
                 }
 
                 var maxLength = property.GetMaxLength();
 
                 if (maxLength.HasValue)
                 {
-                    lines.Add($".{nameof(PropertyBuilder.HasMaxLength)}({_cSharpUtilities.GenerateLiteral(maxLength.Value)})");
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.HasMaxLength)}" +
+                        $"({_cSharpUtilities.GenerateLiteral(maxLength.Value)})");
                 }
             }
 
             if (property.IsUnicode() != null)
             {
-                lines.Add($".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? _cSharpUtilities.GenerateLiteral(false) : "")})");
+                lines.Add(
+                    $".{nameof(PropertyBuilder.IsUnicode)}" +
+                    $"({(property.IsUnicode() == false ? _cSharpUtilities.GenerateLiteral(false) : "")})");
             }
 
             if (property.Relational().DefaultValue != null)
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_cSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
+                    $"({_cSharpUtilities.GenerateLiteral((dynamic)property.Relational().DefaultValue)})");
             }
 
             if (property.Relational().DefaultValueSql != null)
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}({_cSharpUtilities.DelimitString(property.Relational().DefaultValueSql)})");
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}" +
+                    $"({_cSharpUtilities.DelimitString(property.Relational().DefaultValueSql)})");
             }
 
             if (property.Relational().ComputedColumnSql != null)
             {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}({_cSharpUtilities.DelimitString(property.Relational().ComputedColumnSql)})");
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
+                    $"({_cSharpUtilities.DelimitString(property.Relational().ComputedColumnSql)})");
             }
 
             var valueGenerated = property.ValueGenerated;
@@ -671,13 +698,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (foreignKey.DeleteBehavior != defaultOnDeleteAction)
             {
                 canUseDataAnnotations = false;
-                lines.Add($".{nameof(ReferenceReferenceBuilder.OnDelete)}({_cSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
+                lines.Add(
+                    $".{nameof(ReferenceReferenceBuilder.OnDelete)}" +
+                    $"({_cSharpUtilities.GenerateLiteral(foreignKey.DeleteBehavior)})");
             }
 
             if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
             {
                 canUseDataAnnotations = false;
-                lines.Add($".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}({_cSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
+                lines.Add(
+                    $".{nameof(RelationalReferenceReferenceBuilderExtensions.HasConstraintName)}" +
+                    $"({_cSharpUtilities.DelimitString(foreignKey.Relational().Name)})");
                 RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
             }
 
@@ -796,18 +827,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)
-        {
-            annotations.Remove(annotations.SingleOrDefault(a => a.Name == annotationName));
-        }
+            => annotations.Remove(annotations.SingleOrDefault(a => a.Name == annotationName));
 
         private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)
-        {
-            return annotations.Select(GenerateAnnotation).ToList();
-        }
+            => annotations.Select(GenerateAnnotation).ToList();
 
         private string GenerateAnnotation(IAnnotation annotation)
-        {
-            return $".HasAnnotation({_cSharpUtilities.DelimitString(annotation.Name)}, {_cSharpUtilities.GenerateLiteral((dynamic)annotation.Value)})";
-        }
+            => $".HasAnnotation({_cSharpUtilities.DelimitString(annotation.Name)}, " +
+            $"{_cSharpUtilities.GenerateLiteral((dynamic)annotation.Value)})";
     }
 }
