@@ -65,11 +65,12 @@ csharp_style_var_when_type_is_apparent = true : warning
 
 # Expression-Bodied members
 csharp_style_expression_bodied_accessors = true : warning
-csharp_style_expression_bodied_constructors = true : warning
 csharp_style_expression_bodied_indexers = true : warning
-csharp_style_expression_bodied_methods = true : warning
 csharp_style_expression_bodied_operators = true : warning
 csharp_style_expression_bodied_properties = true : warning
+# Explicitly disabled due to difference in coding style between source and tests
+#csharp_style_expression_bodied_constructors = true : warning
+#csharp_style_expression_bodied_methods = true : warning
 
 # Pattern matching
 csharp_style_pattern_matching_over_as_with_null_check = true : warning
