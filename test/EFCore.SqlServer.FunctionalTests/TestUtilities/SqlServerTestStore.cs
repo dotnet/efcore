@@ -13,13 +13,14 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable IDE0022 // Use block body for methods
 // ReSharper disable SuggestBaseTypeForParameter
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class SqlServerTestStore : RelationalTestStore
     {
         public const int CommandTimeout = 600;
-        private static string BaseDirectory => AppContext.BaseDirectory;
+        private static string CurrentDirectory => Environment.CurrentDirectory;
 
         public static SqlServerTestStore GetNorthwindStore()
             => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (useFileName)
             {
-                _fileName = Path.Combine(BaseDirectory, name + ".mdf");
+                _fileName = Path.Combine(CurrentDirectory, name + ".mdf");
             }
 
             if (scriptPath != null)
@@ -132,18 +133,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public void ExecuteScript(string scriptPath)
         {
-            // HACK: Probe for script file as current dir
-            // is different between k build and VS run.
-            if (File.Exists(@"..\..\" + scriptPath))
-            {
-                //executing in VS - so path is relative to bin\<config> dir
-                scriptPath = @"..\..\" + scriptPath;
-            }
-            else
-            {
-                scriptPath = Path.Combine(BaseDirectory, scriptPath);
-            }
-
             var script = File.ReadAllText(scriptPath);
             Execute(
                 Connection, command =>
