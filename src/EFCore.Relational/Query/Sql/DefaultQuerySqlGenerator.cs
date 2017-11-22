@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         private PredicateNegationExpressionOptimizer _predicateNegationExpressionOptimizer;
         private ReducingExpressionVisitor _reducingExpressionVisitor;
         private BooleanExpressionTranslatingVisitor _booleanExpressionTranslatingVisitor;
+        private InExpressionValuesExpandingVisitor _inExpressionValuesExpandingVisitor;
 
         private static readonly Dictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
@@ -125,6 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _parametersValues = parameterValues;
             _nullComparisonTransformingVisitor = new NullComparisonTransformingVisitor(parameterValues);
+            _inExpressionValuesExpandingVisitor = new InExpressionValuesExpandingVisitor(parameterValues);
             IsCacheable = true;
 
             Visit(SelectExpression);
@@ -331,12 +333,138 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 newExpression = ApplyNullSemantics(newExpression);
             }
 
+            newExpression = _inExpressionValuesExpandingVisitor.Visit(newExpression);
+            if (_inExpressionValuesExpandingVisitor.IsParameterDependent)
+            {
+                IsCacheable = false;
+            }
+
             newExpression = _predicateReductionExpressionOptimizer.Visit(newExpression);
             newExpression = _predicateNegationExpressionOptimizer.Visit(newExpression);
             newExpression = _reducingExpressionVisitor.Visit(newExpression);
+
             newExpression = _booleanExpressionTranslatingVisitor.Translate(newExpression, searchCondition);
 
             return newExpression;
+        }
+
+        private class InExpressionValuesExpandingVisitor : RelinqExpressionVisitor
+        {
+            private IReadOnlyDictionary<string, object> _parametersValues;
+
+            public bool IsParameterDependent { get; private set; }
+            public InExpressionValuesExpandingVisitor(IReadOnlyDictionary<string, object> parameterValues)
+                => _parametersValues = parameterValues;
+
+            protected override Expression VisitExtension(Expression node)
+            {
+                if (node is InExpression inExpression)
+                {
+                    if (inExpression.Values != null)
+                    {
+                        var inValues = ProcessInExpressionValues(inExpression.Values);
+                        var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
+
+                        if (inValues.Count != inValuesNotNull.Count)
+                        {
+                            return Expression.OrElse(
+                                new InExpression(inExpression.Operand, inValuesNotNull),
+                                new IsNullExpression(inExpression.Operand));
+                        }
+
+                        return inValuesNotNull.Count > 0
+                            ? new InExpression(inExpression.Operand, inValuesNotNull)
+                            : (Expression)Expression.Constant(false);
+                    }
+                }
+
+                return base.VisitExtension(node);
+            }
+
+            private IReadOnlyList<Expression> ProcessInExpressionValues(
+                [NotNull] IEnumerable<Expression> inExpressionValues)
+            {
+                Check.NotNull(inExpressionValues, nameof(inExpressionValues));
+
+                var inConstants = new List<Expression>();
+
+                foreach (var inValue in inExpressionValues)
+                {
+                    switch (inValue)
+                    {
+                        case ConstantExpression constantExpression:
+                            AddInExpressionValues(constantExpression.Value, inConstants, constantExpression);
+                            break;
+
+                        case ParameterExpression parameterExpression:
+                            if (_parametersValues.TryGetValue(parameterExpression.Name, out var parameterValue))
+                            {
+                                AddInExpressionValues(parameterValue, inConstants, parameterExpression);
+
+                                IsParameterDependent = true;
+                            }
+                            break;
+
+                        case ListInitExpression listInitExpression:
+                            inConstants.AddRange(
+                                    ProcessInExpressionValues(
+                                        listInitExpression.Initializers.SelectMany(i => i.Arguments)));
+                            break;
+
+                        case NewArrayExpression newArrayExpression:
+                            inConstants.AddRange(ProcessInExpressionValues(newArrayExpression.Expressions));
+                            break;
+                    }
+                }
+
+                return inConstants;
+            }
+
+            private static void AddInExpressionValues(
+                object value, List<Expression> inConstants, Expression expression)
+            {
+                if (value is IEnumerable valuesEnumerable
+                    && value.GetType() != typeof(string)
+                    && value.GetType() != typeof(byte[]))
+                {
+                    inConstants.AddRange(valuesEnumerable.Cast<object>().Select(Expression.Constant));
+                }
+                else
+                {
+                    inConstants.Add(expression);
+                }
+            }
+
+            private IReadOnlyList<Expression> ExtractNonNullExpressionValues(
+                [NotNull] IReadOnlyList<Expression> inExpressionValues)
+            {
+                var inValuesNotNull = new List<Expression>();
+
+                foreach (var inValue in inExpressionValues)
+                {
+                    switch (inValue)
+                    {
+                        case ConstantExpression constantExpression:
+                            if (constantExpression.Value != null)
+                            {
+                                inValuesNotNull.Add(inValue);
+                            }
+                            break;
+
+                        case ParameterExpression parameterExpression:
+                            if (_parametersValues.TryGetValue(parameterExpression.Name, out var parameterValue))
+                            {
+                                if (parameterValue != null)
+                                {
+                                    inValuesNotNull.Add(inValue);
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                return inValuesNotNull;
+            }
         }
 
         private Expression ApplyNullSemantics(Expression expression)
@@ -417,14 +545,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             {
                 _relationalCommandBuilder.Append(SqlGenerator.DelimitIdentifier(aliasExpression.Alias));
             }
-            else if (orderingExpression is ConstantExpression
-                     || orderingExpression is ParameterExpression)
-            {
-                _relationalCommandBuilder.Append("(SELECT 1)");
-            }
             else
             {
-                Visit(ApplyOptimizations(orderingExpression, searchCondition: false));
+                var processedExperssion = ApplyOptimizations(orderingExpression, searchCondition: false);
+                if (processedExperssion is ConstantExpression
+                     || processedExperssion is ParameterExpression)
+                {
+                    _relationalCommandBuilder.Append("(SELECT 1)");
+                }
+                else
+                {
+                    Visit(processedExperssion);
+                }
             }
 
             if (ordering.OrderingDirection == OrderingDirection.Desc)
@@ -608,7 +740,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                                 }
 
                                 break;
-
                         }
                     }
 
@@ -730,60 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// </returns>
         public virtual Expression VisitIn(InExpression inExpression)
         {
-            if (inExpression.Values != null)
-            {
-                var inValues = ProcessInExpressionValues(inExpression.Values);
-                var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
-
-                if (inValues.Count != inValuesNotNull.Count)
-                {
-                    var relationalNullsInExpression
-                        = Expression.OrElse(
-                            new InExpression(inExpression.Operand, inValuesNotNull),
-                            new IsNullExpression(inExpression.Operand));
-
-                    _relationalCommandBuilder.Append("(");
-
-                    Visit(relationalNullsInExpression);
-
-                    _relationalCommandBuilder.Append(")");
-
-                    return inExpression;
-                }
-
-                if (inValuesNotNull.Count > 0)
-                {
-                    var parentTypeMapping = _typeMapping;
-                    _typeMapping = InferTypeMappingFromColumn(inExpression.Operand) ?? parentTypeMapping;
-
-                    Visit(inExpression.Operand);
-
-                    _relationalCommandBuilder.Append(" IN (");
-
-                    GenerateList(inValuesNotNull);
-
-                    _relationalCommandBuilder.Append(")");
-
-                    _typeMapping = parentTypeMapping;
-                }
-                else
-                {
-                    _relationalCommandBuilder.Append("0 = 1");
-                }
-            }
-            else
-            {
-                var parentTypeMapping = _typeMapping;
-                _typeMapping = InferTypeMappingFromColumn(inExpression.Operand) ?? parentTypeMapping;
-
-                Visit(inExpression.Operand);
-
-                _relationalCommandBuilder.Append(" IN ");
-
-                Visit(inExpression.SubQuery);
-
-                _typeMapping = parentTypeMapping;
-            }
+            GenerateIn(inExpression, negated: false);
 
             return inExpression;
         }
@@ -795,48 +873,42 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     An Expression.
         /// </returns>
+        [Obsolete("Override GenerateIn method instead.")]
         protected virtual Expression GenerateNotIn([NotNull] InExpression inExpression)
         {
+            GenerateIn(inExpression, negated: true);
+
+            return inExpression;
+        }
+
+        /// <summary>
+        ///     Generates SQL for an InExpression.
+        /// </summary>
+        /// <param name="inExpression"> The in expression. </param>
+        /// <param name="negated"> Whether the InExpression is negated or not. </param>
+        protected virtual void GenerateIn([NotNull] InExpression inExpression, bool negated = false)
+        {
+            var parentTypeMapping = _typeMapping;
+            _typeMapping = InferTypeMappingFromColumn(inExpression.Operand) ?? parentTypeMapping;
+
+            Visit(inExpression.Operand);
+
+            _relationalCommandBuilder.Append(negated ? " NOT IN " : " IN ");
+
             if (inExpression.Values != null)
             {
-                var inValues = ProcessInExpressionValues(inExpression.Values);
-                var inValuesNotNull = ExtractNonNullExpressionValues(inValues);
+                _relationalCommandBuilder.Append("(");
 
-                if (inValues.Count != inValuesNotNull.Count)
-                {
-                    var relationalNullsNotInExpression
-                        = Expression.AndAlso(
-                            Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
-                            Expression.Not(new IsNullExpression(inExpression.Operand)));
+                GenerateList(inExpression.Values);
 
-                    return Visit(relationalNullsNotInExpression);
-                }
-
-                if (inValues.Count > 0)
-                {
-                    Visit(inExpression.Operand);
-
-                    _relationalCommandBuilder.Append(" NOT IN (");
-
-                    GenerateList(inValues);
-
-                    _relationalCommandBuilder.Append(")");
-                }
-                else
-                {
-                    _relationalCommandBuilder.Append("1 = 1");
-                }
+                _relationalCommandBuilder.Append(")");
             }
             else
             {
-                Visit(inExpression.Operand);
-
-                _relationalCommandBuilder.Append(" NOT IN ");
-
                 Visit(inExpression.SubQuery);
             }
 
-            return inExpression;
+            _typeMapping = parentTypeMapping;
         }
 
         /// <summary>
@@ -846,6 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     A list of expressions.
         /// </returns>
+        [Obsolete("If you need to override this method then raise an issue at https://github.com/aspnet/EntityFrameworkCore")]
         protected virtual IReadOnlyList<Expression> ProcessInExpressionValues(
             [NotNull] IEnumerable<Expression> inExpressionValues)
         {
@@ -914,6 +987,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         /// <returns>
         ///     The extracted non null expression values.
         /// </returns>
+        [Obsolete("If you need to override this method then raise an issue at https://github.com/aspnet/EntityFrameworkCore")]
         protected virtual IReadOnlyList<Expression> ExtractNonNullExpressionValues(
             [NotNull] IReadOnlyList<Expression> inExpressionValues)
         {
@@ -1448,7 +1522,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 case ExpressionType.Not:
                     if (expression.Operand is InExpression inExpression)
                     {
-                        return GenerateNotIn(inExpression);
+                        GenerateIn(inExpression, negated: true);
+
+                        return inExpression;
                     }
 
                     if (expression.Operand is IsNullExpression isNullExpression)

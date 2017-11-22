@@ -993,8 +993,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Gear>(
                 gs => from g in gs
                       // ReSharper disable once ConstantNullCoalescingCondition
-                      // ReSharper disable once ConstantNullCoalescingCondition
-                      // ReSharper disable once ConstantNullCoalescingCondition
                       where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
                       select g.Nickname);
         }

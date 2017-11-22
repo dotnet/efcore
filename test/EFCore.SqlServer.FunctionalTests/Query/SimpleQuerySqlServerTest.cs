@@ -4354,6 +4354,26 @@ FROM (
 ) AS [t0]");
         }
 
+        public override void OrderBy_empty_list_contains()
+        {
+            base.OrderBy_empty_list_contains();
+
+            AssertSql(
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (SELECT 1)");
+        }
+
+        public override void OrderBy_empty_list_does_not_contains()
+        {
+            base.OrderBy_empty_list_does_not_contains();
+
+            AssertSql(
+    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (SELECT 1)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

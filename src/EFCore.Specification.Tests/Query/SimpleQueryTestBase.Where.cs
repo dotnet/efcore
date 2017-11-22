@@ -1250,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_compare_tuple_constructed_multi_value_equal()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => new Tuple<string, string> (c.City, c.Country) == new Tuple<string, string>("London", "UK")));
+                cs => cs.Where(c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")));
         }
 
         [ConditionalFact]
