@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -264,6 +265,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             return false;
+        }
+
+        /// <summary>
+        ///     Generates a script to create all tables for the current model.
+        /// </summary>
+        /// <returns>
+        ///     A SQL script.
+        /// </returns>
+        public virtual string GenerateCreateScript()
+        {
+            var commands = GetCreateTablesCommands();
+            var builder = new StringBuilder();
+            foreach (var command in commands)
+            {
+                builder
+                    .Append(command.CommandText)
+                    .AppendLine(Dependencies.SqlGenerationHelper.BatchTerminator);
+            }
+
+            return builder.ToString();
         }
     }
 }

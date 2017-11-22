@@ -3,6 +3,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -88,5 +89,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation.
         /// </returns>
         Task CreateTablesAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     Generates a script to create all tables for the current model.
+        /// </summary>
+        /// <returns>
+        ///     A SQL script.
+        /// </returns>
+        string GenerateCreateScript();
     }
 }

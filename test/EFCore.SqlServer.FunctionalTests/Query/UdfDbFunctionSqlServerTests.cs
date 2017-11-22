@@ -1082,7 +1082,7 @@ WHERE [dbo].IsTopCustomer([c].[Id]) = 1");
         {
             using (var context = CreateContext())
             {
-                var startDate = DateTime.Parse("4/1/2000");
+                var startDate = new DateTime(2000, 4, 1);
 
                 var custId = (from c in context.Customers
                               where context.GetCustomerWithMostOrdersAfterDateInstance(startDate) == c.Id

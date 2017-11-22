@@ -69,5 +69,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         {
             throw new NotImplementedException();
         }
+
+        public string GenerateCreateScript()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

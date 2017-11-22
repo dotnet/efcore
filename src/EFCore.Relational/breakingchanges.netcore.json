@@ -20,6 +20,11 @@
       "Kind": "Removal"
     },
     {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreatorDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Storage.IRelationalConnection connection, Microsoft.EntityFrameworkCore.Migrations.IMigrationsModelDiffer modelDiffer, Microsoft.EntityFrameworkCore.Migrations.IMigrationsSqlGenerator migrationsSqlGenerator, Microsoft.EntityFrameworkCore.Migrations.IMigrationCommandExecutor migrationCommandExecutor, Microsoft.EntityFrameworkCore.Storage.IExecutionStrategyFactory executionStrategyFactory)",
+      "Kind": "Removal"
+    },
+    {
       "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Storage.RelationalValueBufferFactoryDependencies",
       "MemberId": "public .ctor()",
       "Kind": "Removal"
@@ -37,6 +42,11 @@
     {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper : Microsoft.EntityFrameworkCore.Storage.ITypeMapper",
       "MemberId": "System.Reflection.MethodInfo GetDataReaderMethod(System.Type type)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator",
+      "MemberId": "System.String GenerateCreateScript()",
       "Kind": "Addition"
     }
   ]
