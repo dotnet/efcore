@@ -3811,6 +3811,146 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_OrderBy_empty_list_contains(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var list = new List<string>();
+                var customers
+                    = useString
+                        ? context.Customers
+                            .Include("Orders")
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList()
+                        : context.Customers
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList();
+
+                foreach (var customer in customers)
+                {
+                    CheckIsLoaded(
+                        context,
+                        customer,
+                        ordersLoaded: true,
+                        orderDetailsLoaded: false,
+                        productLoaded: false);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var list = new List<string>();
+                var customers
+                    = useString
+                        ? context.Customers
+                            .Include("Orders")
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => !list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList()
+                        : context.Customers
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => !list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList();
+
+                foreach (var customer in customers)
+                {
+                    CheckIsLoaded(
+                        context,
+                        customer,
+                        ordersLoaded: true,
+                        orderDetailsLoaded: false,
+                        productLoaded: false);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_OrderBy_list_contains(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var list = new List<string> { "ALFKI" };
+                var customers
+                    = useString
+                        ? context.Customers
+                            .Include("Orders")
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList()
+                        : context.Customers
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList();
+
+                foreach (var customer in customers)
+                {
+                    CheckIsLoaded(
+                        context,
+                        customer,
+                        ordersLoaded: true,
+                        orderDetailsLoaded: false,
+                        productLoaded: false);
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_OrderBy_list_does_not_contains(bool useString)
+        {
+            using (var context = CreateContext())
+            {
+                var list = new List<string> { "ALFKI" };
+                var customers
+                    = useString
+                        ? context.Customers
+                            .Include("Orders")
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => !list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList()
+                        : context.Customers
+                            .Include(c => c.Orders)
+                            .Where(c => c.CustomerID.StartsWith("A"))
+                            .OrderBy(c => !list.Contains(c.CustomerID))
+                            .Skip(1)
+                            .ToList();
+
+                foreach (var customer in customers)
+                {
+                    CheckIsLoaded(
+                        context,
+                        customer,
+                        ordersLoaded: true,
+                        orderDetailsLoaded: false,
+                        productLoaded: false);
+                }
+            }
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,

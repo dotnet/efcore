@@ -1475,6 +1475,126 @@ INNER JOIN (
 ORDER BY [t].[OrderID]");
         }
 
+        public override void Include_collection_OrderBy_empty_list_contains(bool useString)
+        {
+            base.Include_collection_OrderBy_empty_list_contains(useString);
+
+            AssertSql(
+    @"@__p_1='1'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY (SELECT 1), [c].[CustomerID]
+OFFSET @__p_1 ROWS",
+    //
+    @"@__p_1='1'
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], 0 AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    ORDER BY [c], [c0].[CustomerID]
+    OFFSET @__p_1 ROWS
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [t].[CustomerID]");
+        }
+
+        public override void Include_collection_OrderBy_empty_list_does_not_contains(bool useString)
+        {
+            base.Include_collection_OrderBy_empty_list_does_not_contains(useString);
+
+            AssertSql(
+    @"@__p_1='1'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY (SELECT 1), [c].[CustomerID]
+OFFSET @__p_1 ROWS",
+    //
+    @"@__p_1='1'
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], 1 AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    ORDER BY [c], [c0].[CustomerID]
+    OFFSET @__p_1 ROWS
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [t].[CustomerID]");
+        }
+
+        public override void Include_collection_OrderBy_list_contains(bool useString)
+        {
+            base.Include_collection_OrderBy_list_contains(useString);
+
+            AssertSql(
+    @"@__p_1='1'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY CASE
+    WHEN [c].[CustomerID] IN (N'ALFKI')
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [c].[CustomerID]
+OFFSET @__p_1 ROWS",
+    //
+    @"@__p_1='1'
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], CASE
+        WHEN [c0].[CustomerID] IN (N'ALFKI')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    ORDER BY [c], [c0].[CustomerID]
+    OFFSET @__p_1 ROWS
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [t].[CustomerID]");
+        }
+
+        public override void Include_collection_OrderBy_list_does_not_contains(bool useString)
+        {
+            base.Include_collection_OrderBy_list_does_not_contains(useString);
+
+            AssertSql(
+    @"@__p_1='1'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c].[CustomerID], LEN(N'A')) = N'A')
+ORDER BY CASE
+    WHEN [c].[CustomerID] NOT IN (N'ALFKI')
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END, [c].[CustomerID]
+OFFSET @__p_1 ROWS",
+    //
+    @"@__p_1='1'
+
+SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
+FROM [Orders] AS [c.Orders]
+INNER JOIN (
+    SELECT [c0].[CustomerID], CASE
+        WHEN [c0].[CustomerID] NOT IN (N'ALFKI')
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END AS [c]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A' + N'%' AND (LEFT([c0].[CustomerID], LEN(N'A')) = N'A')
+    ORDER BY [c], [c0].[CustomerID]
+    OFFSET @__p_1 ROWS
+) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
+ORDER BY [t].[c], [t].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
