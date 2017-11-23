@@ -175,8 +175,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
         private bool Equals(InExpression other)
             => Operand.Equals(other.Operand)
-               && Values.SequenceEqual(other.Values)
-               && SubQuery.Equals(other.SubQuery);
+                && (Values == null
+                    ? other.Values == null
+                    : Values.SequenceEqual(other.Values))
+                && (SubQuery == null
+                    ? other.SubQuery == null
+                    : SubQuery.Equals(other.SubQuery));
 
         /// <summary>
         ///     Returns a hash code for this object.
@@ -198,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Creates a <see cref="String" /> representation of the Expression.
+        ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
+        /// <returns>A <see cref="string" /> representation of the Expression.</returns>
         public override string ToString()
             => Operand + " IN (" + (Values != null ? string.Join(", ", Values) : SubQuery.ToString()) + ")";
     }

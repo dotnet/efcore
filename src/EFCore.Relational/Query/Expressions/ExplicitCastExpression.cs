@@ -125,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         }
 
         /// <summary>
-        ///     Creates a <see cref="String" /> representation of the Expression.
+        ///     Creates a <see cref="string" /> representation of the Expression.
         /// </summary>
-        /// <returns>A <see cref="String" /> representation of the Expression.</returns>
+        /// <returns>A <see cref="string" /> representation of the Expression.</returns>
         public override string ToString() => "CAST(" + Operand + " AS " + _type.Name + ")";
     }
 }
