@@ -352,7 +352,8 @@ namespace Microsoft.Data.Sqlite
 
                     var timer = Stopwatch.StartNew();
                     while (raw.SQLITE_LOCKED == (rc = raw.sqlite3_step(stmt))
-                           || rc == raw.SQLITE_BUSY)
+                           || rc == raw.SQLITE_BUSY
+                           || rc == raw.SQLITE_LOCKED_SHAREDCACHE)
                     {
                         if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
                         {

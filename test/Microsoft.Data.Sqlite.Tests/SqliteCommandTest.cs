@@ -720,8 +720,10 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public Task ExecuteReader_retries_when_locked()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public Task ExecuteReader_retries_when_locked(bool extendedErrorCode)
         {
             const string connectionString = "Data Source=locked;Mode=Memory;Cache=Shared";
 
@@ -734,6 +736,10 @@ namespace Microsoft.Data.Sqlite
                             using (var connection = new SqliteConnection(connectionString))
                             {
                                 connection.Open();
+                                if (extendedErrorCode)
+                                {
+                                    raw.sqlite3_extended_result_codes(connection.Handle, 1);
+                                }
 
                                 connection.ExecuteNonQuery(
                                     "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
@@ -752,6 +758,10 @@ namespace Microsoft.Data.Sqlite
                             using (var connection = new SqliteConnection(connectionString))
                             {
                                 connection.Open();
+                                if (extendedErrorCode)
+                                {
+                                    raw.sqlite3_extended_result_codes(connection.Handle, 1);
+                                }
 
                                 selectedSignal.WaitOne();
 
