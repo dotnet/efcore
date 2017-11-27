@@ -39,6 +39,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         }
 
         /// <summary>
+        ///     Visit a BinaryExpression.
+        /// </summary>
+        /// <param name="binaryExpression"> The binary expression to visit. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            if(binaryExpression.Left is SqlFunctionExpression sqlFunctionExpression
+                && sqlFunctionExpression.FunctionName == "FREETEXT")
+            {
+                Visit(binaryExpression.Left);
+
+                return binaryExpression;
+            }
+
+            return base.VisitBinary(binaryExpression);
+        }
+
+        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
