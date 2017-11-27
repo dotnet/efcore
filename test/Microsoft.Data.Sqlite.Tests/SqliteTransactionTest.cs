@@ -103,6 +103,7 @@ namespace Microsoft.Data.Sqlite
 
                     var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
                     Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
+                    Assert.Equal(raw.SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
                 }
             }
         }
