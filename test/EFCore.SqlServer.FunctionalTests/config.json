@@ -6,7 +6,8 @@
         "SupportsSequences": true,
         "SupportsOffset": true,
         "SupportsMemoryOptimized": false,
-        "SupportsHiddenColumns": true
+        "SupportsHiddenColumns": true,
+        "SupportsFullTextSearches": false
       }
     }
 }

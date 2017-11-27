@@ -32,6 +32,33 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static bool IsTeamCity => Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
 
+        public static bool SupportsFullTextSearch
+        {
+            get
+            {
+                using (var sql = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
+                {
+                    using (var command = new SqlCommand("SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled') as result", sql))
+                    {
+                        sql.Open();
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            reader.Read();
+
+                            var result = (int)reader["result"];
+
+                            reader.Close();
+
+                            sql.Close();
+
+                            return result == 1;
+                        }
+                    }
+                }
+            }
+        }
+
         public static string ElasticPoolName => Config["ElasticPoolName"];
 
         public static bool? GetFlag(string key)

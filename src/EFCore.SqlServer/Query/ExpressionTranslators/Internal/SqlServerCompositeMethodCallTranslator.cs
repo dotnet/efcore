@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerConvertTranslator(),
             new SqlServerDateAddTranslator(),
             new SqlServerEndsWithOptimizedTranslator(),
+            new SqlServerFreeTextMethodCallTranslator(),
             new SqlServerMathTranslator(),
             new SqlServerNewGuidTranslator(),
             new SqlServerObjectToStringTranslator(),
