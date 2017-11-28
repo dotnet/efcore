@@ -81,7 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public static ConventionSet Build()
         {
-            var sqlServerTypeMapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var sqlServerTypeMapper = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(), 
+                new RelationalTypeMapperDependencies());
 
             return new SqlServerConventionSetBuilder(
                     new RelationalConventionSetBuilderDependencies(sqlServerTypeMapper, null, null),

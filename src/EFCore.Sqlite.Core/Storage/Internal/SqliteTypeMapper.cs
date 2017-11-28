@@ -31,8 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteTypeMapper([NotNull] RelationalTypeMapperDependencies dependencies)
-            : base(dependencies)
+        public SqliteTypeMapper(
+            [NotNull] CoreTypeMapperDependencies coreDependencies,
+            [NotNull] RelationalTypeMapperDependencies dependencies)
+            : base(coreDependencies, dependencies)
         {
             _storeTypeMappings
                 = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase);

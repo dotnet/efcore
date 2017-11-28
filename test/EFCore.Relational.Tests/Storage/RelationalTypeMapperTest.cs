@@ -79,7 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 property.SetMaxLength(maxLength);
             }
 
-            return new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            return new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
         }
 
         [Fact]
@@ -123,14 +125,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var property = CreateEntityType().AddProperty("MyProp", propertyType);
             property.Relational().ColumnType = typeName;
 
-            return new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            return new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
         }
 
         [Fact]
         public void Key_with_store_type_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "money",
@@ -145,7 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_key_with_max_length_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "just_string(200)",
@@ -160,7 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Binary_key_with_max_length_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "just_binary(100)",
@@ -175,7 +185,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_key_with_unicode_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "ansi_string(900)",
@@ -190,7 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Key_store_type_if_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "money",
@@ -205,7 +219,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_FK_max_length_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "just_string(200)",
@@ -220,7 +236,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Binary_FK_max_length_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "just_binary(100)",
@@ -235,7 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void String_FK_unicode_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new TestRelationalTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new TestRelationalTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "ansi_string(900)",

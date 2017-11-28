@@ -16,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                    new FakeRelationalTypeMapper(
+                        new CoreTypeMapperDependencies(),
+                        new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
@@ -32,7 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                    new FakeRelationalTypeMapper(
+                        new CoreTypeMapperDependencies(),
+                        new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
@@ -49,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())),
+                    new FakeRelationalTypeMapper(
+                        new CoreTypeMapperDependencies(),
+                        new RelationalTypeMapperDependencies())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 

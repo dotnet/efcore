@@ -43,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         public static ConventionSet Build()
         {
-            var oracleTypeMapper = new OracleTypeMapper(new RelationalTypeMapperDependencies());
+            var oracleTypeMapper = new OracleTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             return new OracleConventionSetBuilder(
                 new RelationalConventionSetBuilderDependencies(oracleTypeMapper, currentContext: null, setFinder: null))

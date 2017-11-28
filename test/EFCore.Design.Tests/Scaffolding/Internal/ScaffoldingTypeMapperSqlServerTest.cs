@@ -295,6 +295,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static ScaffoldingTypeMapper CreateMapper()
             => new ScaffoldingTypeMapper(
-                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()));
+                new SqlServerTypeMapper(
+                    new CoreTypeMapperDependencies(),
+                    new RelationalTypeMapperDependencies()));
     }
 }

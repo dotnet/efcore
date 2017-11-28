@@ -39,6 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         protected override PropertyMappingValidationConvention CreateConvention()
-            => new PropertyMappingValidationConvention(new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()));
+            => new PropertyMappingValidationConvention(
+                new TestRelationalTypeMapper(
+                    new CoreTypeMapperDependencies(),
+                    new RelationalTypeMapperDependencies()));
     }
 }

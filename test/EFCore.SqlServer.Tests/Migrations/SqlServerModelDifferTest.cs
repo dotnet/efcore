@@ -457,8 +457,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected override MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
             => new MigrationsModelDiffer(
-                new SqlServerTypeMapper(new RelationalTypeMapperDependencies()),
-                new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                new SqlServerTypeMapper(
+                    new CoreTypeMapperDependencies(),
+                    new RelationalTypeMapperDependencies()),
+                new SqlServerMigrationsAnnotationProvider(
+                    new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
                 ctx.GetService<StateManagerDependencies>(),
                 ctx.GetService<CommandBatchPreparerDependencies>());

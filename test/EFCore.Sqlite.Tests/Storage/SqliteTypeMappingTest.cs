@@ -45,13 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("", typeof(string))]
         public void It_maps_strings_to_not_null_types(string typeName, Type clrType)
         {
-            Assert.Equal(clrType, new SqliteTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeName).ClrType);
+            Assert.Equal(clrType, new SqliteTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeName).ClrType);
         }
 
         public override void GenerateSqlLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = new SqliteTypeMapper(new RelationalTypeMapperDependencies())
+            var literal = new SqliteTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
                 .GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
             Assert.Equal("'2015-03-12 13:36:37.371'", literal);
         }
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = new SqliteTypeMapper(new RelationalTypeMapperDependencies())
+            var literal = new SqliteTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
                 .GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
             Assert.Equal("'2015-03-12 13:36:37.371-07:00'", literal);
         }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override void GenerateSqlLiteral_returns_Guid_literal()
         {
             var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
-            var literal = new SqliteTypeMapper(new RelationalTypeMapperDependencies())
+            var literal = new SqliteTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
                 .GetMapping(typeof(Guid)).GenerateSqlLiteral(value);
             Assert.Equal("X'9E3AF4C6E191EF45A320832EA23B7292'", literal);
         }

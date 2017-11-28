@@ -58,8 +58,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly RelationalTypeMapping _defaultTimeSpanMapping
             = new TimeSpanTypeMapping("default_timespan_mapping");
 
-        public TestRelationalTypeMapper(RelationalTypeMapperDependencies dependencies)
-            : base(dependencies)
+        public TestRelationalTypeMapper(
+            CoreTypeMapperDependencies coreDependencies,
+            RelationalTypeMapperDependencies dependencies)
+            : base(coreDependencies, dependencies)
         {
         }
 

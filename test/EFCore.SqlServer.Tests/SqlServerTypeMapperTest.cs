@@ -204,7 +204,9 @@ namespace Microsoft.EntityFrameworkCore
             property.IsUnicode(unicode);
             property.DeclaringEntityType.SetPrimaryKey(property);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
@@ -225,7 +227,9 @@ namespace Microsoft.EntityFrameworkCore
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
@@ -247,7 +251,9 @@ namespace Microsoft.EntityFrameworkCore
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
@@ -266,7 +272,9 @@ namespace Microsoft.EntityFrameworkCore
             property.IsUnicode(unicode);
             entityType.AddIndex(property);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Null(typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
@@ -343,7 +351,9 @@ namespace Microsoft.EntityFrameworkCore
             property.IsUnicode(false);
             property.DeclaringEntityType.SetPrimaryKey(property);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(900)", typeMapping.StoreType);
@@ -362,7 +372,9 @@ namespace Microsoft.EntityFrameworkCore
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(900)", typeMapping.StoreType);
@@ -382,7 +394,9 @@ namespace Microsoft.EntityFrameworkCore
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(900)", typeMapping.StoreType);
@@ -399,7 +413,9 @@ namespace Microsoft.EntityFrameworkCore
             property.IsUnicode(false);
             entityType.AddIndex(property);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.AnsiString, typeMapping.DbType);
             Assert.Equal("varchar(900)", typeMapping.StoreType);
@@ -469,7 +485,9 @@ namespace Microsoft.EntityFrameworkCore
             var property = CreateEntityType().AddProperty("MyBinaryProp", typeof(byte[]));
             property.Relational().ColumnType = "binary(100)";
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("binary(100)", typeMapping.StoreType);
@@ -482,7 +500,9 @@ namespace Microsoft.EntityFrameworkCore
             property.IsNullable = false;
             property.DeclaringEntityType.SetPrimaryKey(property);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(900)", typeMapping.StoreType);
@@ -498,7 +518,9 @@ namespace Microsoft.EntityFrameworkCore
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(900)", typeMapping.StoreType);
@@ -515,7 +537,9 @@ namespace Microsoft.EntityFrameworkCore
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(fkProperty);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(900)", typeMapping.StoreType);
@@ -529,7 +553,9 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityType.AddProperty("MyProp", typeof(byte[]));
             entityType.AddIndex(property);
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(900)", typeMapping.StoreType);
@@ -543,7 +569,9 @@ namespace Microsoft.EntityFrameworkCore
             property.IsConcurrencyToken = true;
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("rowversion", typeMapping.StoreType);
@@ -559,7 +587,9 @@ namespace Microsoft.EntityFrameworkCore
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             property.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("rowversion", typeMapping.StoreType);
@@ -573,7 +603,9 @@ namespace Microsoft.EntityFrameworkCore
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
             property.IsConcurrencyToken = true;
 
-            var typeMapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            var typeMapping = new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.DbType);
             Assert.Equal("varbinary(max)", typeMapping.StoreType);
@@ -602,45 +634,51 @@ namespace Microsoft.EntityFrameworkCore
                 property.IsUnicode(unicode);
             }
 
-            return new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property);
+            return new SqlServerTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies()).GetMapping(property);
         }
 
         [Fact]
         public void Does_default_mappings_for_sequence_types()
         {
-            Assert.Equal("int", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeof(int)).StoreType);
-            Assert.Equal("smallint", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeof(short)).StoreType);
-            Assert.Equal("bigint", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeof(long)).StoreType);
-            Assert.Equal("tinyint", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeof(byte)).StoreType);
+            Assert.Equal("int", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeof(int)).StoreType);
+            Assert.Equal("smallint", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeof(short)).StoreType);
+            Assert.Equal("bigint", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeof(long)).StoreType);
+            Assert.Equal("tinyint", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeof(byte)).StoreType);
         }
 
         [Fact]
         public void Does_default_mappings_for_strings_and_byte_arrays()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeof(string)).StoreType);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeof(byte[])).StoreType);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeof(string)).StoreType);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeof(byte[])).StoreType);
         }
 
         [Fact]
         public void Does_default_mappings_for_values()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMappingForValue("Cheese").StoreType);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMappingForValue(new byte[1]).StoreType);
-            Assert.Equal("datetime2", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMappingForValue(new DateTime()).StoreType);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMappingForValue("Cheese").StoreType);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMappingForValue(new byte[1]).StoreType);
+            Assert.Equal("datetime2", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMappingForValue(new DateTime()).StoreType);
         }
 
         [Fact]
         public void Does_default_mappings_for_null_values()
         {
-            Assert.Equal("NULL", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMappingForValue(null).StoreType);
-            Assert.Equal("NULL", new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMappingForValue(DBNull.Value).StoreType);
+            Assert.Equal("NULL", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMappingForValue(null).StoreType);
+            Assert.Equal("NULL", new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMappingForValue(DBNull.Value).StoreType);
             Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMappingForValue(null, "Itz").StoreType);
         }
 
         [Fact]
         public void Throws_for_unrecognized_types()
         {
-            var ex = Assert.Throws<InvalidOperationException>(() => new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping("magic"));
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => new SqlServerTypeMapper(
+                    new CoreTypeMapperDependencies(),
+                    new RelationalTypeMapperDependencies()).GetMapping("magic"));
+
             Assert.Equal(RelationalStrings.UnsupportedType("magic"), ex.Message);
         }
 
@@ -648,7 +686,11 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_for_unrecognized_property_types()
         {
             var property = new Model().AddEntityType("Entity1").AddProperty("Strange", typeof(object));
-            var ex = Assert.Throws<InvalidOperationException>(() => new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(property));
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => new SqlServerTypeMapper(
+                    new CoreTypeMapperDependencies(),
+                    new RelationalTypeMapperDependencies()).GetMapping(property));
+
             Assert.Equal(RelationalStrings.UnsupportedPropertyType("Entity1", "Strange", "object"), ex.Message);
         }
 
@@ -717,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("VARCHAR", typeof(string), null, false)]
         public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode)
         {
-            var mapping = new SqlServerTypeMapper(new RelationalTypeMapperDependencies()).GetMapping(typeName);
+            var mapping = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).GetMapping(typeName);
 
             Assert.Equal(clrType, mapping.ClrType);
             Assert.Equal(size, mapping.Size);
@@ -729,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Key_with_store_type_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "money",
@@ -744,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore
         public void String_key_with_max_length_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "nvarchar(200)",
@@ -759,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Binary_key_with_max_length_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "varbinary(100)",
@@ -774,7 +816,7 @@ namespace Microsoft.EntityFrameworkCore
         public void String_key_with_unicode_is_picked_up_by_FK()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "varchar(900)",
@@ -789,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Key_store_type_if_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "money",
@@ -804,7 +846,7 @@ namespace Microsoft.EntityFrameworkCore
         public void String_FK_max_length_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "nvarchar(200)",
@@ -819,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Binary_FK_max_length_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "varbinary(100)",
@@ -834,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore
         public void String_FK_unicode_is_preferred_if_specified()
         {
             var model = CreateModel();
-            var mapper = new SqlServerTypeMapper(new RelationalTypeMapperDependencies());
+            var mapper = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies());
 
             Assert.Equal(
                 "varchar(900)",

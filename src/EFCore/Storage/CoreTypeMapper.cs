@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -34,6 +35,35 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return type == typeof(string)
                    || type.GetTypeInfo().IsValueType
                    || type == typeof(byte[]);
+        }
+
+        /// <summary>
+        ///     Describes metadata needed to decide on a type mapping for a property or type.
+        /// </summary>
+        protected class TypeMappingInfo
+        {
+            /// <summary>
+            ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+            /// </summary>
+            /// <param name="property"> The property for which mapping is needed. </param>
+            /// <param name="modelClrType"> The CLR type in the model for which mapping is needed. </param>
+            public TypeMappingInfo(
+                [CanBeNull] IProperty property = null,
+                [CanBeNull] Type modelClrType = null)
+            {
+                Property = property;
+                ModelClrType = modelClrType ?? property?.ClrType;
+            }
+
+            /// <summary>
+            ///     The property for which mapping is needed.
+            /// </summary>
+            public virtual IProperty Property { get; }
+
+            /// <summary>
+            ///     The CLR type in the model for which mapping is needed.
+            /// </summary>
+            public virtual Type ModelClrType { get; }
         }
     }
 }

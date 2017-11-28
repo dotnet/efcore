@@ -14,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         private static readonly RelationalTypeMapping _long = new LongTypeMapping("DefaultLong", DbType.Int64);
         private static readonly RelationalTypeMapping _string = new StringTypeMapping("DefaultString", DbType.String);
 
-        public FakeRelationalTypeMapper(RelationalTypeMapperDependencies dependencies)
-            : base(dependencies)
+        public FakeRelationalTypeMapper(
+            CoreTypeMapperDependencies coreDependencies,
+            RelationalTypeMapperDependencies dependencies)
+            : base(coreDependencies, dependencies)
         {
         }
 

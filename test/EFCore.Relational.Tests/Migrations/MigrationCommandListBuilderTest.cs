@@ -120,6 +120,8 @@ Statement3
             => new MigrationCommandListBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    new FakeRelationalTypeMapper(new RelationalTypeMapperDependencies())));
+                    new FakeRelationalTypeMapper(
+                        new CoreTypeMapperDependencies(),
+                        new RelationalTypeMapperDependencies())));
     }
 }

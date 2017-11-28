@@ -129,8 +129,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
         private readonly HashSet<string> _disallowedMappings;
 
-        public OracleTypeMapper([NotNull] RelationalTypeMapperDependencies dependencies)
-            : base(dependencies)
+        public OracleTypeMapper(
+            [NotNull] CoreTypeMapperDependencies coreDependencies,
+            [NotNull] RelationalTypeMapperDependencies dependencies)
+            : base(coreDependencies, dependencies)
         {
             _storeTypeMappings
                 = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)

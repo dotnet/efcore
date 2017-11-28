@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new SqliteSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
                     new SqliteTypeMapper(
+                        new CoreTypeMapperDependencies(),
                         new RelationalTypeMapperDependencies())));
 
         protected override TestHelpers TestHelpers => SqliteTestHelpers.Instance;

@@ -67,7 +67,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 new CandidateNamingService(),
                 pluralizer,
                 new CSharpUtilities(),
-                new ScaffoldingTypeMapper(new SqlServerTypeMapper(new RelationalTypeMapperDependencies())))
+                new ScaffoldingTypeMapper(
+                    new SqlServerTypeMapper(
+                        new CoreTypeMapperDependencies(), 
+                        new RelationalTypeMapperDependencies())))
         {
         }
     }

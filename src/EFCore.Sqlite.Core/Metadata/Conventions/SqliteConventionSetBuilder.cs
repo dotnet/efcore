@@ -29,7 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public static ConventionSet Build()
         {
-            var relationalTypeMapper = new SqliteTypeMapper(new RelationalTypeMapperDependencies());
+            var relationalTypeMapper = new SqliteTypeMapper(
+                new CoreTypeMapperDependencies(),
+                new RelationalTypeMapperDependencies());
 
             return new SqliteConventionSetBuilder(
                     new RelationalConventionSetBuilderDependencies(relationalTypeMapper, null, null))
