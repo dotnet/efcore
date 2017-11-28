@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private ResultOperatorBase _groupResultOperatorInQueryModel;
 
         private readonly List<GroupJoinClause> _unflattenedGroupJoinClauses = new List<GroupJoinClause>();
+        private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -497,6 +498,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(fromClause, nameof(fromClause));
             Check.NotNull(queryModel, nameof(queryModel));
+
+            if (_flattenedAdditionalFromClauses.Contains(fromClause))
+            {
+                return;
+            }
 
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
             var previousSelectExpression = TryGetQuery(previousQuerySource);
@@ -1704,38 +1710,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return false;
             }
 
-            var joinClause = groupJoinClause.JoinClause;
-
-            queryModel.BodyClauses.Insert(index, joinClause);
-            queryModel.BodyClauses.Remove(groupJoinClause);
-            queryModel.BodyClauses.Remove(additionalFromClause);
-
             _unflattenedGroupJoinClauses.Remove(groupJoinClause);
-
-            var querySourceMapping = new QuerySourceMapping();
-
-            querySourceMapping.AddMapping(
-                additionalFromClause,
-                new QuerySourceReferenceExpression(joinClause));
-
-            queryModel.TransformExpressions(
-                expression =>
-                    ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
-                        expression,
-                        querySourceMapping,
-                        throwOnUnmappedReferences: false));
-
-            foreach (var annotation in QueryCompilationContext.QueryAnnotations
-                .OfType<IncludeResultOperator>()
-                .Where(a => a.QuerySource == additionalFromClause))
-            {
-                annotation.QuerySource = joinClause;
-                annotation.PathFromQuerySource
-                    = ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
-                        annotation.PathFromQuerySource,
-                        querySourceMapping,
-                        throwOnUnmappedReferences: false);
-            }
+            _flattenedAdditionalFromClauses.Add(additionalFromClause);
 
             var groupJoinMethodCallExpression = (MethodCallExpression)Expression;
 
@@ -1755,9 +1731,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerItemParameter
                 = Expression.Parameter(
                     innerShaper.Type,
-                    joinClause.ItemName);
+                    additionalFromClause.ItemName);
 
-            QueryCompilationContext.AddOrUpdateMapping(joinClause, innerItemParameter);
+            innerShaper.UpdateQuerySource(additionalFromClause);
+
+            QueryCompilationContext.AddOrUpdateMapping(additionalFromClause, innerItemParameter);
 
             var transparentIdentifierType
                 = CreateTransparentIdentifierType(
@@ -1773,9 +1751,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 innerItemParameter);
 
             var compositeShaper
-                = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
+                = CompositeShaper.Create(additionalFromClause, outerShaper, innerShaper, materializerLambda);
 
-            IntroduceTransparentScope(joinClause, queryModel, index, transparentIdentifierType);
+            IntroduceTransparentScope(additionalFromClause, queryModel, index, transparentIdentifierType);
 
             compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
