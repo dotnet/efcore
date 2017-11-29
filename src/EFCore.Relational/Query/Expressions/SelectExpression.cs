@@ -28,13 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         internal string DebugView => ToString();
 #endif
 
-        private static readonly ExpressionEqualityComparer _expressionEqualityComparer = new ExpressionEqualityComparer();
+        private static readonly ExpressionEqualityComparer _expressionEqualityComparer
+            = new ExpressionEqualityComparer();
 
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<Ordering> _orderBy = new List<Ordering>();
-        private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping = new Dictionary<MemberInfo, Expression>();
+        private readonly Dictionary<MemberInfo, Expression> _memberInfoProjectionMapping
+            = new Dictionary<MemberInfo, Expression>();
         private readonly List<Expression> _starProjection = new List<Expression>();
         private readonly List<Expression> _groupBy = new List<Expression>();
 
@@ -102,8 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual TableExpressionBase ProjectStarTable
         {
-            get { return _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null); }
-            [param: CanBeNull] set { _projectStarTable = value; }
+            get => _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null);
+            [param: CanBeNull]
+            set => _projectStarTable = value;
         }
 
         /// <summary>
@@ -317,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             var processedQuerySource = PreProcessQuerySource(querySource);
 
-            return _tables.Any(te => te.QuerySource == processedQuerySource || te.HandlesQuerySource(processedQuerySource))
+            return _tables.Any(te => te.QuerySource == processedQuerySource
+                                     || te.HandlesQuerySource(processedQuerySource))
                    || base.HandlesQuerySource(querySource);
         }
 
@@ -445,10 +449,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                         || expression is ColumnReferenceExpression
                         || expression is AliasExpression))
                     {
-                        expression = subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)];
+                        expression
+                            = subquery.Projection[subquery.AddToProjection(expression, resetProjectStar: false)];
                     }
 
-                    _orderBy.Add(new Ordering(expression.LiftExpressionFromSubquery(subquery), ordering.OrderingDirection));
+                    _orderBy.Add(
+                        new Ordering(
+                            expression.LiftExpressionFromSubquery(subquery),
+                            ordering.OrderingDirection));
                 }
 
                 if (subquery.Limit == null
@@ -508,10 +516,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 table = joinTable.TableExpression;
             }
 
-            var projectedExpressionToSearch = table is SelectExpression subquerySelectExpression
-                ? (Expression)subquerySelectExpression.BindProperty(property, querySource)
-                    .LiftExpressionFromSubquery(table)
-                : new ColumnExpression(property.Relational().ColumnName, property, table);
+            var projectedExpressionToSearch
+                    = table is SelectExpression subquerySelectExpression
+                        ? (Expression)subquerySelectExpression
+                            .Projection[subquerySelectExpression.AddToProjection(property, querySource)]
+                            .LiftExpressionFromSubquery(table)
+                        : new ColumnExpression(property.Relational().ColumnName, property, table);
 
             return projectedExpressionToSearch;
         }
@@ -572,7 +582,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             if (!(expression is ColumnExpression || expression is ColumnReferenceExpression))
             {
-                var indexInOrderBy = _orderBy.FindIndex(o => _expressionEqualityComparer.Equals(o.Expression, expression));
+                var indexInOrderBy
+                    = _orderBy.FindIndex(
+                        o => _expressionEqualityComparer.Equals(o.Expression, expression));
 
                 if (indexInOrderBy != -1)
                 {
@@ -699,7 +711,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var uniqueAlias = uniqueAliasBase;
             var counter = 0;
 
-            while (_projection.Select(GetColumnName).Any(p => string.Equals(p, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
+            while (_projection.Select(GetColumnName)
+                .Any(p => string.Equals(p, uniqueAlias, StringComparison.OrdinalIgnoreCase)))
             {
                 uniqueAlias = uniqueAliasBase + counter++;
             }
@@ -711,7 +724,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 || expression is AliasExpression)
                 || !string.Equals(currentAlias, uniqueAlias, StringComparison.OrdinalIgnoreCase))
             {
-                updatedExpression = new AliasExpression(uniqueAlias, (expression as AliasExpression)?.Expression ?? expression);
+                updatedExpression
+                    = new AliasExpression(uniqueAlias, (expression as AliasExpression)?.Expression ?? expression);
             }
 
             var currentOrderingIndex = _orderBy.FindIndex(e => e.Expression.Equals(expression));
@@ -780,7 +794,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             return _projection
                 .FindIndex(
                     e => _expressionEqualityComparer.Equals(e, projectedExpressionToSearch)
-                         || _expressionEqualityComparer.Equals((e as AliasExpression)?.Expression, projectedExpressionToSearch));
+                         || _expressionEqualityComparer
+                            .Equals((e as AliasExpression)?.Expression, projectedExpressionToSearch));
         }
 
         /// <summary>
@@ -1122,15 +1137,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var specificVisitor = visitor as ISqlExpressionVisitor;
 
-            return specificVisitor != null
+            return visitor is ISqlExpressionVisitor specificVisitor
                 ? specificVisitor.VisitSelect(this)
                 : base.Accept(visitor);
         }
 
         /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
         /// </summary>
