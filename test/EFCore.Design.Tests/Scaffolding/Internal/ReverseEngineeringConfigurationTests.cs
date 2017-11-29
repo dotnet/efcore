@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.ReverseEngineering;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -28,13 +27,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var cSharpUtilities = new CSharpUtilities();
             var reverseEngineer = new ReverseEngineerScaffolder(
-                new RelationalDatabaseModelFactoryTest.FakeDatabaseModelFactory(),
-                new RelationalDatabaseModelFactoryTest.FakeScaffoldingModelFactory(new TestOperationReporter()),
+                new FakeDatabaseModelFactory(),
+                new FakeScaffoldingModelFactory(new TestOperationReporter()),
                 new ScaffoldingCodeGeneratorSelector(
                     new[]
                     {
                         new CSharpScaffoldingGenerator(
-                            new InMemoryFileService(),
                             new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),
                             new CSharpEntityTypeGenerator(cSharpUtilities))
                     }),
@@ -53,7 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             language: "",
                             contextName: contextName,
                             useDataAnnotations: false,
-                            overwriteFiles: false,
                             useDatabaseNames: false))
                     .Message);
         }

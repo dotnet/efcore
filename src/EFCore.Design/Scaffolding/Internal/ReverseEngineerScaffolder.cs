@@ -1,13 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ReverseEngineerFiles Generate(
+        public virtual ScaffoldedModel Generate(
             string connectionString,
             IEnumerable<string> tables,
             IEnumerable<string> schemas,
@@ -65,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string language,
             string contextName,
             bool useDataAnnotations,
-            bool overwriteFiles,
             bool useDatabaseNames)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -119,9 +120,42 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var codeGenerator = ScaffoldingCodeGeneratorSelector.Select(language);
 
-            CheckOutputFiles(codeGenerator, outputPath ?? projectPath, contextName, model, overwriteFiles);
+            return codeGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
+        }
 
-            return codeGenerator.WriteCode(model, outputPath ?? projectPath, @namespace, contextName, connectionString, useDataAnnotations);
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual ReverseEngineerFiles Save(
+            ScaffoldedModel scaffoldedModel,
+            string projectPath,
+            string outputPath,
+            bool overwriteFiles)
+        {
+            Check.NotEmpty(projectPath, nameof(projectPath));
+
+            var outputDir = outputPath == null
+                ? projectPath
+                : Path.GetFullPath(Path.Combine(projectPath, outputPath));
+
+            CheckOutputFiles(scaffoldedModel, outputDir, overwriteFiles);
+
+            var files = new ReverseEngineerFiles();
+            Directory.CreateDirectory(outputDir);
+
+            var contextPath = Path.Combine(outputDir, scaffoldedModel.ContextFile.Path);
+            File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
+            files.ContextFile = contextPath;
+
+            foreach (var entityTypeFile in scaffoldedModel.EntityTypeFiles)
+            {
+                var additionalFilePath = Path.Combine(outputDir, entityTypeFile.Path);
+                File.WriteAllText(additionalFilePath, entityTypeFile.Code, Encoding.UTF8);
+                files.EntityTypeFiles.Add(additionalFilePath);
+            }
+
+            return files;
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
@@ -143,36 +177,43 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static void CheckOutputFiles(
-            IScaffoldingCodeGenerator codeGenerator,
-            string outputPath,
-            string dbContextClassName,
-            IModel metadataModel,
+            ScaffoldedModel scaffoldedModel,
+            string outputDir,
             bool overwriteFiles)
         {
-            var readOnlyFiles = codeGenerator.GetReadOnlyFilePaths(
-                outputPath, dbContextClassName, metadataModel.GetEntityTypes());
+            var paths = scaffoldedModel.EntityTypeFiles.Select(f => f.Path).ToList();
+            paths.Insert(0, scaffoldedModel.ContextFile.Path);
 
-            if (readOnlyFiles.Count > 0)
+            var existingFiles = new List<string>();
+            var readOnlyFiles = new List<string>();
+            foreach (var path in paths)
             {
-                throw new InvalidOperationException(
-                    DesignStrings.ReadOnlyFiles(
-                        outputPath,
-                        string.Join(
-                            CultureInfo.CurrentCulture.TextInfo.ListSeparator, readOnlyFiles)));
+                var fullPath = Path.Combine(outputDir, path);
+
+                if (File.Exists(fullPath))
+                {
+                    existingFiles.Add(path);
+
+                    if (File.GetAttributes(fullPath).HasFlag(FileAttributes.ReadOnly))
+                    {
+                        readOnlyFiles.Add(path);
+                    }
+                }
             }
 
-            if (!overwriteFiles)
+            if (!overwriteFiles && existingFiles.Count != 0)
             {
-                var existingFiles = codeGenerator.GetExistingFilePaths(
-                    outputPath, dbContextClassName, metadataModel.GetEntityTypes());
-                if (existingFiles.Count > 0)
-                {
-                    throw new InvalidOperationException(
-                        DesignStrings.ExistingFiles(
-                            outputPath,
-                            string.Join(
-                                CultureInfo.CurrentCulture.TextInfo.ListSeparator, existingFiles)));
-                }
+                throw new OperationException(
+                    DesignStrings.ExistingFiles(
+                        outputDir,
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, existingFiles)));
+            }
+            if (readOnlyFiles.Count != 0)
+            {
+                throw new OperationException(
+                    DesignStrings.ReadOnlyFiles(
+                        outputDir,
+                        string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, readOnlyFiles)));
             }
         }
     }

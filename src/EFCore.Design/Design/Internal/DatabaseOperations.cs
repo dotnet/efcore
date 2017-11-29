@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var generator = services.GetRequiredService<IReverseEngineerScaffolder>();
 
-            return generator.Generate(
+            var scaffoldedModel = generator.Generate(
                 connectionString,
                 tables,
                 schemas,
@@ -81,8 +81,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _language,
                 dbContextClassName,
                 useDataAnnotations,
-                overwriteFiles,
                 useDatabaseNames);
+
+            return generator.Save(
+                scaffoldedModel,
+                _projectDir,
+                outputDir,
+                overwriteFiles);
         }
     }
 }

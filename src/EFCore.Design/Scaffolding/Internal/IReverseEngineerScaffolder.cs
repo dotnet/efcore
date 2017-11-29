@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        ReverseEngineerFiles Generate(
+        ScaffoldedModel Generate(
             [NotNull] string connectionString,
             [NotNull] IEnumerable<string> tables,
             [NotNull] IEnumerable<string> schemas,
@@ -26,7 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] string language,
             [CanBeNull] string contextName,
             bool useDataAnnotations,
-            bool overwriteFiles,
             bool useDatabaseNames);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        ReverseEngineerFiles Save(
+            [NotNull] ScaffoldedModel scaffoldedModel,
+            [NotNull] string projectPath,
+            [CanBeNull] string outputPath,
+            bool overwriteFiles);
     }
 }

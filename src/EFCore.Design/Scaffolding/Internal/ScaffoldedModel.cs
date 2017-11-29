@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Metadata;
+using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -9,23 +10,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public abstract class ScaffoldingCodeGenerator : IScaffoldingCodeGenerator
+    public class ScaffoldedModel
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract string Language { get; }
+        public virtual ScaffoldedFile ContextFile { get; [param: NotNull] set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public abstract ScaffoldedModel WriteCode(
-            IModel model,
-            string @namespace,
-            string contextName,
-            string connectionString,
-            bool dataAnnotations);
+        public virtual IList<ScaffoldedFile> EntityTypeFiles { get; } = new List<ScaffoldedFile>();
     }
 }

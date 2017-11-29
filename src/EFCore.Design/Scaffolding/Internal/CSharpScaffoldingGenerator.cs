@@ -31,10 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CSharpScaffoldingGenerator(
-            [NotNull] IFileService fileService,
             [NotNull] ICSharpDbContextGenerator cSharpDbContextGenerator,
             [NotNull] ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
-            : base(fileService)
         {
             Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));
             Check.NotNull(cSharpEntityTypeGenerator, nameof(cSharpEntityTypeGenerator));
@@ -43,11 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             CSharpEntityTypeGenerator = cSharpEntityTypeGenerator;
         }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override string FileExtension => ".cs";
+        private const string FileExtension = ".cs";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -59,29 +53,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ReverseEngineerFiles WriteCode(
+        public override ScaffoldedModel WriteCode(
             IModel model,
-            string outputPath,
             string @namespace,
             string contextName,
             string connectionString,
             bool useDataAnnotations)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(@namespace, nameof(@namespace));
             Check.NotEmpty(contextName, nameof(contextName));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            var resultingFiles = new ReverseEngineerFiles();
+            var resultingFiles = new ScaffoldedModel();
 
             var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;
-            var dbContextFileFullPath = FileService.OutputFile(
-                outputPath, dbContextFileName, generatedCode);
-            resultingFiles.ContextFile = dbContextFileFullPath;
+            resultingFiles.ContextFile = new ScaffoldedFile { Path = dbContextFileName, Code = generatedCode };
 
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -89,9 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
-                var entityTypeFileFullPath = FileService.OutputFile(
-                    outputPath, entityTypeFileName, generatedCode);
-                resultingFiles.EntityTypeFiles.Add(entityTypeFileFullPath);
+                resultingFiles.EntityTypeFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
             }
 
             return resultingFiles;
