@@ -192,6 +192,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 throw new NotImplementedException();
             }
 
+            [DbFunction(Schema = "dbo")]
+            public static string IdentityString(string s)
+            {
+                throw new NotImplementedException();
+            }
+
             #endregion
 
             public UDFSqlContext(DbContextOptions options)
@@ -852,6 +858,25 @@ FROM [Customers] AS [c]");
                     @"SELECT TOP(2) [c].[Id]
 FROM [Customers] AS [c]
 WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))");
+            }
+        }
+
+        [Fact]
+        public void Nullable_navigation_property_access_preserves_schema_for_sql_function()
+        {
+            using (var context = CreateContext())
+            {
+                var result = context.Orders
+                    .OrderBy(o => o.Id)
+                    .Select(o => UDFSqlContext.IdentityString(o.Customer.FirstName))
+                    .FirstOrDefault();
+
+                Assert.Equal("Customer", result);
+                AssertSql(
+                    @"SELECT TOP(1) [dbo].IdentityString([o.Customer].[FirstName])
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerId] = [o.Customer].[Id]
+ORDER BY [o].[Id]");
             }
         }
 
@@ -1569,6 +1594,13 @@ WHERE 3 = [dbo].CustomerOrderCount(ABS([c].[Id]))");
                                                             return 1
 
                                                         return 0
+                                                    end");
+
+                context.Database.ExecuteSqlCommand(@"create function [dbo].[IdentityString] (@customerName nvarchar(max))
+                                                    returns nvarchar(max)
+                                                    as
+                                                    begin
+                                                        return @customerName;
                                                     end");
 
                 var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = new DateTime(2000, 1, 20) };
