@@ -3,7 +3,7 @@
     ModuleToProcess = 'EntityFrameworkCore.psm1'
 
     # Version number of this module.
-    ModuleVersion = '2.0.1'
+    ModuleVersion = '2.0.2'
 
     # ID used to uniquely identify this module
     GUID = 'c126fb40-c0f1-43ae-8dd0-06bb50512eb2'
