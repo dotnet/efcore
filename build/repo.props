@@ -1,4 +1,5 @@
 ﻿<Project>
+  <Import Project="dependencies.props" />
 
   <PropertyGroup>
     <CoreOnly Condition="'$(CoreOnly)' == ''">False</CoreOnly>
@@ -7,6 +8,8 @@
   <ItemGroup>
     <!-- Only required when preparing to run the EFCore1 benchmarks project -->
     <DotNetCoreRuntime Include="1.1.4" Condition=" '$(IsBuildingBenchmarks)' == 'true' " />
+    <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp20PackageVersion)" />
+    <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
 
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.Design.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
@@ -14,7 +17,6 @@
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
     <ExcludeSolutions Include="$(RepositoryRoot)samples\Samples.sln" />
   </ItemGroup>
-
   <PropertyGroup>
     <!-- These properties are use by the automation that updates dependencies.props -->
     <LineupPackageId>Internal.AspNetCore.Universe.Lineup</LineupPackageId>
