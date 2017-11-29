@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "!%", "!"));
-                
+
                 Assert.Equal(0, count);
             }
         }
