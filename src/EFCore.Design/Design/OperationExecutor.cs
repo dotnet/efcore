@@ -432,12 +432,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
                 var useDatabaseNames = (bool)args["useDatabaseNames"];
+                var dontAddConnectionString = (bool)args["dontAddConnectionString"];
 
                 Execute(
                     () => executor.ScaffoldContextImpl(
                         provider,
                         connectionString, outputDir, dbContextClassName,
-                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames));
+                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames, dontAddConnectionString));
             }
         }
 
@@ -450,7 +451,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool dontAddConnectionString)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -466,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var files = _databaseOperations.Value.ScaffoldContext(
                 provider, connectionString, outputDir, dbContextClassName,
-                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
+                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames, dontAddConnectionString);
 
             return new Hashtable
             {
