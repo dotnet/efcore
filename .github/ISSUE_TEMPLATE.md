@@ -20,4 +20,4 @@ Console.WriteLine("Hello World!");
 EF Core version: (found in project.csproj or packages.config)
 Database Provider: (e.g. Microsoft.EntityFrameworkCore.SqlServer)
 Operating system: 
-IDE: (e.g. Visual Studio 2015)
+IDE: (e.g. Visual Studio 2017 15.4)
