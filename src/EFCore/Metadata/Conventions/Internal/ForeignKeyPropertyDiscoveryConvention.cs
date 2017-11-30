@@ -144,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var foreignKey = relationshipBuilder.Metadata;
             if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
+                && !foreignKey.IsOwnership
                 && !foreignKey.IsSelfReferencing()
                 && (foreignKey.PrincipalToDependent?.IsCollection() != true))
             {

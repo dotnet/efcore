@@ -1894,6 +1894,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("SeedDatumDerivedType", nameof(entityType), nameof(derivedType)),
                 entityType, derivedType);
 
+        /// <summary>
+        ///     The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.
+        /// </summary>
+        public static string ClashingNonOwnedEntityType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingNonOwnedEntityType", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

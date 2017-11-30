@@ -9,15 +9,18 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore
 {
     public class DataAnnotationSqliteTest : DataAnnotationTestBase<DataAnnotationSqliteTest.DataAnnotationSqliteFixture>
     {
-        public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture)
+        // ReSharper disable once UnusedParameter.Local
+        public DataAnnotationSqliteTest(DataAnnotationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -101,14 +104,14 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             Assert.Contains(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""" + EOL +
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name""" + EOL +
                 @"FROM ""Sample"" AS ""r""" + EOL +
                 @"WHERE ""r"".""UniqueNo"" = 1" + EOL +
                 @"LIMIT 1",
                 Sql);
 
             Assert.Contains(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""" + EOL +
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name""" + EOL +
                 @"FROM ""Sample"" AS ""r""" + EOL +
                 @"WHERE ""r"".""UniqueNo"" = 1" + EOL +
                 @"LIMIT 1" + EOL +
@@ -141,9 +144,11 @@ namespace Microsoft.EntityFrameworkCore
                 @"@p0='' (DbType = String)" + EOL +
                 @"@p1='Third' (Nullable = false) (Size = 5)" + EOL +
                 @"@p2='00000000-0000-0000-0000-000000000003' (DbType = String)" + EOL +
+                @"@p3='Third Additional Name' (Size = 21)" + EOL +
+                @"@p4='Third Name' (Size = 10)" + EOL +
                 EOL +
-                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
-                @"VALUES (@p0, @p1, @p2);" + EOL +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")" + EOL +
+                @"VALUES (@p0, @p1, @p2, @p3, @p4);" + EOL +
                 @"SELECT ""UniqueNo""" + EOL +
                 @"FROM ""Sample""" + EOL +
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
@@ -180,9 +185,11 @@ namespace Microsoft.EntityFrameworkCore
                 @"@p0='' (DbType = String)" + EOL +
                 @"@p1='ValidString' (Nullable = false) (Size = 11)" + EOL +
                 @"@p2='00000000-0000-0000-0000-000000000001' (DbType = String)" + EOL +
+                @"@p3='Two' (Size = 3)" + EOL +
+                @"@p4='One' (Size = 3)" + EOL +
                 EOL +
-                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
-                @"VALUES (@p0, @p1, @p2);" + EOL +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")" + EOL +
+                @"VALUES (@p0, @p1, @p2, @p3, @p4);" + EOL +
                 @"SELECT ""UniqueNo""" + EOL +
                 @"FROM ""Sample""" + EOL +
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
@@ -192,9 +199,11 @@ namespace Microsoft.EntityFrameworkCore
                 @"@p0='' (DbType = String)" + EOL +
                 @"@p1='' (Nullable = false) (DbType = String)" + EOL +
                 @"@p2='00000000-0000-0000-0000-000000000002' (DbType = String)" + EOL +
+                @"@p3='Two' (Size = 3)" + EOL +
+                @"@p4='One' (Size = 3)" + EOL +
                 EOL +
-                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")" + EOL +
-                @"VALUES (@p0, @p1, @p2);" + EOL +
+                @"INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")" + EOL +
+                @"VALUES (@p0, @p1, @p2, @p3, @p4);" + EOL +
                 @"SELECT ""UniqueNo""" + EOL +
                 @"FROM ""Sample""" + EOL +
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",

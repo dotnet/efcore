@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
-        public void Duplicate_entries_are_not_created_for_navigations_to_dependant()
+        public void Duplicate_entries_are_not_created_for_navigations_to_dependent()
         {
             using (var context = _fixture.CreateContext())
             {

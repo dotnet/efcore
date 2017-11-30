@@ -180,6 +180,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public NonGenericStringTestEntityTypeBuilder Entity(string name)
                 => new NonGenericStringTestEntityTypeBuilder(ModelBuilder.Entity(name));
 
+            public override void OwnedEntity<TEntity>()
+                => ModelBuilder.OwnedEntity(typeof(TEntity));
+
+            public void OwnedEntity(string name)
+                => ModelBuilder.OwnedEntity(name);
+
             public override TestModelBuilder Ignore<TEntity>()
             {
                 ModelBuilder.Ignore(typeof(TEntity));

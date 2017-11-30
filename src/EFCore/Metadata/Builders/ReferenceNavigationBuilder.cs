@@ -136,16 +136,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             builder = builder.IsUnique(false, ConfigurationSource.Explicit);
-            var foreingKey = builder.Metadata;
+            var foreignKey = builder.Metadata;
             if (collectionName != null
-                && foreingKey.PrincipalToDependent != null
-                && foreingKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
-                && foreingKey.PrincipalToDependent.Name != collectionName)
+                && foreignKey.PrincipalToDependent != null
+                && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                && foreignKey.PrincipalToDependent.Name != collectionName)
             {
-                ThrowForConflictingNavigation(foreingKey, collectionName, false);
+                ThrowForConflictingNavigation(foreignKey, collectionName, false);
             }
 
-            if (RelatedEntityType != foreingKey.PrincipalEntityType)
+            if (RelatedEntityType != foreignKey.PrincipalEntityType)
             {
                 return collection.Property == null && ReferenceProperty == null
                     ? builder.Navigations(ReferenceName, collection.Name, RelatedEntityType, DeclaringEntityType, ConfigurationSource.Explicit)
@@ -199,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             using (var batch = Builder.Metadata.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
-                var foreingKey = builder.Metadata;
-                if (foreingKey.IsSelfReferencing()
+                var foreignKey = builder.Metadata;
+                if (foreignKey.IsSelfReferencing()
                     && referenceName != null
                     && ReferenceName == referenceName)
                 {
@@ -209,30 +209,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                             referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
                 }
 
-                var pointsToPrincipal = !foreingKey.IsSelfReferencing()
-                                        && (!foreingKey.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
-                                            || !foreingKey.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
-                                            || (foreingKey.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
-                                                && foreingKey.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
-                                                && foreingKey.PrincipalToDependent != null
-                                                && foreingKey.PrincipalToDependent.Name == ReferenceName));
+                var pointsToPrincipal = !foreignKey.IsSelfReferencing()
+                                        && (!foreignKey.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
+                                            || !foreignKey.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
+                                            || (foreignKey.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
+                                                && foreignKey.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
+                                                && foreignKey.PrincipalToDependent != null
+                                                && foreignKey.PrincipalToDependent.Name == ReferenceName));
 
                 if (referenceName != null
                     && ((pointsToPrincipal
-                         && foreingKey.DependentToPrincipal != null
-                         && foreingKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
-                         && foreingKey.DependentToPrincipal.Name != referenceName)
+                         && foreignKey.DependentToPrincipal != null
+                         && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
+                         && foreignKey.DependentToPrincipal.Name != referenceName)
                         || (!pointsToPrincipal
-                            && foreingKey.PrincipalToDependent != null
-                            && foreingKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
-                            && foreingKey.PrincipalToDependent.Name != referenceName)))
+                            && foreignKey.PrincipalToDependent != null
+                            && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                            && foreignKey.PrincipalToDependent.Name != referenceName)))
                 {
-                    ThrowForConflictingNavigation(foreingKey, referenceName, pointsToPrincipal);
+                    ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
                 }
 
                 if (referenceName != null
                     && pointsToPrincipal
-                    && RelatedEntityType != foreingKey.DeclaringEntityType)
+                    && RelatedEntityType != foreignKey.DeclaringEntityType)
                 {
                     builder = reference.Property == null && ReferenceProperty == null
                         ? builder.Navigations(
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
                 else if (referenceName != null
                          && !pointsToPrincipal
-                         && RelatedEntityType != foreingKey.PrincipalEntityType)
+                         && RelatedEntityType != foreignKey.PrincipalEntityType)
                 {
                     builder = reference.Property == null && ReferenceProperty == null
                         ? builder.Navigations(
@@ -271,18 +271,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
         }
 
-        private static void ThrowForConflictingNavigation(ForeignKey foreingKey, string newInverseName, bool newToPrincipal)
+        private static void ThrowForConflictingNavigation(ForeignKey foreignKey, string newInverseName, bool newToPrincipal)
         {
             throw new InvalidOperationException(
                 CoreStrings.ConflictingRelationshipNavigation(
-                    foreingKey.PrincipalEntityType.DisplayName(),
-                    newToPrincipal ? foreingKey.PrincipalToDependent.Name : newInverseName,
-                    foreingKey.DeclaringEntityType.DisplayName(),
-                    newToPrincipal ? newInverseName : foreingKey.DependentToPrincipal.Name,
-                    foreingKey.PrincipalEntityType.DisplayName(),
-                    foreingKey.PrincipalToDependent.Name,
-                    foreingKey.DeclaringEntityType.DisplayName(),
-                    foreingKey.DependentToPrincipal.Name));
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    newToPrincipal ? foreignKey.PrincipalToDependent.Name : newInverseName,
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    newToPrincipal ? newInverseName : foreignKey.DependentToPrincipal.Name,
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.PrincipalToDependent.Name,
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    foreignKey.DependentToPrincipal.Name));
         }
 
         #region Hidden System.Object members

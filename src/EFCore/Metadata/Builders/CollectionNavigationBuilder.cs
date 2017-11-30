@@ -128,27 +128,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         private InternalRelationshipBuilder WithOneBuilder(PropertyIdentity reference)
         {
-            var foreingKey = Builder.Metadata;
+            var foreignKey = Builder.Metadata;
             var referenceName = reference.Name;
             if (referenceName != null
-                && foreingKey.DependentToPrincipal != null
-                && foreingKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
-                && foreingKey.DependentToPrincipal.Name != referenceName)
+                && foreignKey.DependentToPrincipal != null
+                && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
+                && foreignKey.DependentToPrincipal.Name != referenceName)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        foreingKey.PrincipalEntityType.DisplayName(),
-                        foreingKey.PrincipalToDependent.Name,
-                        foreingKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.PrincipalEntityType.DisplayName(),
+                        foreignKey.PrincipalToDependent.Name,
+                        foreignKey.DeclaringEntityType.DisplayName(),
                         referenceName,
-                        foreingKey.PrincipalEntityType.DisplayName(),
-                        foreingKey.PrincipalToDependent.Name,
-                        foreingKey.DeclaringEntityType.DisplayName(),
-                        foreingKey.DependentToPrincipal.Name));
+                        foreignKey.PrincipalEntityType.DisplayName(),
+                        foreignKey.PrincipalToDependent.Name,
+                        foreignKey.DeclaringEntityType.DisplayName(),
+                        foreignKey.DependentToPrincipal.Name));
             }
 
             if (referenceName != null
-                && RelatedEntityType != foreingKey.DeclaringEntityType)
+                && RelatedEntityType != foreignKey.DeclaringEntityType)
             {
                 return reference.Property == null && CollectionProperty == null
                     ? Builder.Navigations(reference.Name, CollectionName, DeclaringEntityType, RelatedEntityType, ConfigurationSource.Explicit)

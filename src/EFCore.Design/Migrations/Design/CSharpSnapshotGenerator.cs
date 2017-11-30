@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.DbFunction);
                     IgnoreAnnotationTypes(annotations, RelationalAnnotationNames.MaxIdentifierLength);
+                    IgnoreAnnotationTypes(annotations, CoreAnnotationNames.OwnedTypesAnnotation);
 
                     GenerateAnnotations(annotations, stringBuilder);
                 }

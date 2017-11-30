@@ -28,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore
                                 });
                     });
 
-            modelBuilder.Ignore<Location>();
-
             modelBuilder.Entity<EngineSupplier>();
 
             modelBuilder.Entity<Gearbox>();

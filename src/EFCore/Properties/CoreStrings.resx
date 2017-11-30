@@ -826,4 +826,7 @@
   <data name="SeedDatumDerivedType" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.</value>
   </data>
+  <data name="ClashingNonOwnedEntityType" xml:space="preserve">
+    <value>The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.</value>
+  </data>
 </root>

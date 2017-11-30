@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
 
@@ -269,6 +271,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
+        
+        [Fact]
+        public void Can_mark_type_as_owned_type()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.False(model.ShouldBeOwnedType(typeof(Details)));
+
+            Assert.True(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.True(model.ShouldBeOwnedType(typeof(Details)));
+
+            Assert.NotNull(entityBuilder.Owns(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
+
+            Assert.True(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.Empty(model.GetEntityTypes(typeof(Details)));
+
+            Assert.Null(entityBuilder.Owns(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
+
+            Assert.False(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.NotNull(entityBuilder.Owns(typeof(Details), nameof(Customer.Details), ConfigurationSource.DataAnnotation));
+
+            Assert.True(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.True(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.DataAnnotation));
+
+            Assert.True(model.ShouldBeOwnedType(typeof(Details)));
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)
+                .Owns(typeof(Details), nameof(Product.Details), ConfigurationSource.Convention));
+
+            Assert.False(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.Equal(2, model.GetEntityTypes(typeof(Details)).Count);
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit));
+
+            Assert.False(model.ShouldBeOwnedType(typeof(Details)));
+
+            Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => e.DefiningNavigationName != null));
+
+            Assert.False(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+
+            Assert.Equal(CoreStrings.ClashingNonOwnedEntityType(typeof(Details).Name),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Explicit)).Message);
+        }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
             => new InternalModelBuilder(model ?? new Model());
@@ -283,6 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
 
             public string Name { get; set; }
+            public Details Details { get; set; }
         }
 
         private class SpecialCustomer : Customer
@@ -300,6 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public Customer Customer { get; set; }
             public int ProductId { get; set; }
             public Product Product { get; set; }
+            public Details Details { get; set; }
         }
 
         private class Product
@@ -307,6 +364,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty("Id");
             public int Id { get; set; }
             public Order Order { get; set; }
+            public Details Details { get; set; }
+        }
+
+        private class Details
+        {
+            public string Name { get; set; }
         }
     }
 }

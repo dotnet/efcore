@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
-                c => c.Engines.Include(e => e.StorageLocation).Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
+                c => c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude = 47.642576,
                 (c, ex) =>
                     {
                         Assert.IsType<DbUpdateConcurrencyException>(ex);
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
                         entry.Reload();
                     },
                 c =>
-                    Assert.Equal(47.642576, c.Engines.Include(e => e.StorageLocation).Single(s => s.Name == "CA2010").StorageLocation.Latitude));
+                    Assert.Equal(47.642576, c.Engines.Single(s => s.Name == "CA2010").StorageLocation.Latitude));
         }
 
         #endregion

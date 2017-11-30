@@ -1342,7 +1342,13 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        context.Set<One>().Add(new One { RequiredColumn = "Third", RowVersion = new Guid("00000000-0000-0000-0000-000000000003") });
+                        context.Set<One>().Add(new One
+                        {
+                            RequiredColumn = "Third",
+                            RowVersion = new Guid("00000000-0000-0000-0000-000000000003"),
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
+                        });
 
                         context.SaveChanges();
                     });
@@ -1354,7 +1360,14 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        context.Set<One>().Add(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000001"), MaxLengthProperty = "Short" });
+                        context.Set<One>().Add(new One
+                        {
+                            RequiredColumn = "ValidString",
+                            RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
+                            MaxLengthProperty = "Short",
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
+                        });
 
                         context.SaveChanges();
                     });
@@ -1362,7 +1375,14 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        context.Set<One>().Add(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000002"), MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString" });
+                        context.Set<One>().Add(new One
+                        {
+                            RequiredColumn = "ValidString",
+                            RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
+                            MaxLengthProperty = "VeryVeryVeryVeryVeryVeryLongString",
+                            Details = new Details { Name = "Third Name" },
+                            AdditionalDetails = new Details { Name = "Third Additional Name" }
+                        });
 
                         Assert.Equal(
                             "An error occurred while updating the entries. See the inner exception for details.",
@@ -1513,6 +1533,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
             modelBuilder.Ignore<BookDetails>();
+            modelBuilder.Ignore<Details>();
             modelBuilder.Entity<SpecialBookLabel>();
             modelBuilder.Ignore<BookLabel>();
 
@@ -1568,6 +1589,8 @@ namespace Microsoft.EntityFrameworkCore
             public BookLabel AlternateLabel { get; set; }
 
             public BookDetails Details { get; set; }
+
+            public Details AdditionalDetails { get; set; }
 
             [NotMapped]
             public virtual UselessBookDetails UselessBookDetails { get; set; }
@@ -1898,8 +1921,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             ExecuteWithStrategyInTransaction(
                 context =>
+                {
+                    context.Set<One>().Add(new One
                     {
-                        context.Set<One>().Add(new One { RequiredColumn = "ValidString", RowVersion = new Guid("00000000-0000-0000-0000-000000000001") });
+                        RequiredColumn = "ValidString",
+                        RowVersion = new Guid("00000000-0000-0000-0000-000000000001"),
+                        Details = new Details { Name = "One" },
+                        AdditionalDetails = new Details { Name = "Two" }
+                    });
 
                         context.SaveChanges();
                     });
@@ -1907,7 +1936,13 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        context.Set<One>().Add(new One { RequiredColumn = null, RowVersion = new Guid("00000000-0000-0000-0000-000000000002") });
+                        context.Set<One>().Add(new One
+                        {
+                            RequiredColumn = null,
+                            RowVersion = new Guid("00000000-0000-0000-0000-000000000002"),
+                            Details = new Details { Name = "One" },
+                            AdditionalDetails = new Details { Name = "Two" }
+                        });
 
                         Assert.Equal(
                             "An error occurred while updating the entries. See the inner exception for details.",
@@ -1959,6 +1994,21 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+        [Fact]
+        public virtual void OwnedEntityTypeAttribute_configures_all_references_as_owned()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Book>();
+            modelBuilder.Entity<One>();
+
+            Assert.True(model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AdditionalDetails)).ForeignKey.IsOwnership);
+            var one = model.FindEntityType(typeof(One));
+            Assert.True(one.FindNavigation(nameof(One.Details)).ForeignKey.IsOwnership);
+            Assert.True(one.FindNavigation(nameof(One.AdditionalDetails)).ForeignKey.IsOwnership);
+        }
+
         public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<DbContext>
         {
             protected override string StoreName { get; } = "DataAnnotations";
@@ -1974,13 +2024,25 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(DbContext context)
             {
-                context.Set<One>().Add(new One { RequiredColumn = "First", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
-                context.Set<One>().Add(new One { RequiredColumn = "Second", RowVersion = new Guid("00000001-0000-0000-0000-000000000001") });
+                context.Set<One>().Add(new One
+                {
+                    RequiredColumn = "First",
+                    RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
+                    Details = new Details { Name = "First Name" },
+                    AdditionalDetails = new Details { Name = "First Additional Name" }
+                });
+                context.Set<One>().Add(new One
+                {
+                    RequiredColumn = "Second",
+                    RowVersion = new Guid("00000001-0000-0000-0000-000000000001"),
+                    Details = new Details { Name = "Second Name" },
+                    AdditionalDetails = new Details { Name = "Second Additional Name" }
+                });
 
                 context.Set<Two>().Add(new Two { Data = "First" });
                 context.Set<Two>().Add(new Two { Data = "Second" });
 
-                context.Set<Book>().Add(new Book { Id = 1 });
+                context.Set<Book>().Add(new Book { Id = 1, AdditionalDetails = new Details { Name = "Book Name" } });
 
                 context.SaveChanges();
             }
@@ -2005,6 +2067,10 @@ namespace Microsoft.EntityFrameworkCore
 
             [MaxLength(10)]
             public string MaxLengthProperty { get; set; }
+
+            public Details Details { get; set; }
+
+            public Details AdditionalDetails { get; set; }
         }
 
         protected class Two
@@ -2017,6 +2083,12 @@ namespace Microsoft.EntityFrameworkCore
 
             [Timestamp]
             public byte[] Timestamp { get; set; }
+        }
+
+        [ComplexType]
+        protected class Details
+        {
+            public string Name { get; set; }
         }
     }
 }

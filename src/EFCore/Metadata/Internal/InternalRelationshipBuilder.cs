@@ -674,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 shouldBeUnique = true;
             }
 
-            // TODO: check whether the conflictin navigations can be removed
+            // TODO: check whether the conflicting navigations can be removed
             removeConflictingNavigations = FindRelationships(
                 principalEntityType,
                 dependentEntityType,
@@ -2276,17 +2276,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && configurationSource == ConfigurationSource.Explicit
                     && inverseNavigationRemoved)
                 {
-                    var foreingKey = resolvableRelationship.Metadata;
+                    var foreignKey = resolvableRelationship.Metadata;
                     throw new InvalidOperationException(
                         CoreStrings.ConflictingRelationshipNavigation(
                             principalEntityType.DisplayName(),
                             navigationToDependent?.Name,
                             dependentEntityType.DisplayName(),
                             navigationToPrincipal?.Name,
-                            foreingKey.PrincipalEntityType.DisplayName(),
-                            foreingKey.PrincipalToDependent.Name,
-                            foreingKey.DeclaringEntityType.DisplayName(),
-                            foreingKey.DependentToPrincipal.Name));
+                            foreignKey.PrincipalEntityType.DisplayName(),
+                            foreignKey.PrincipalToDependent.Name,
+                            foreignKey.DeclaringEntityType.DisplayName(),
+                            foreignKey.DependentToPrincipal.Name));
                 }
 
                 if (resolvableRelationship == newRelationshipBuilder)

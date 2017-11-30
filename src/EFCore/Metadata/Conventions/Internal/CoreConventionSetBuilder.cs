@@ -42,6 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention(Dependencies.TypeMapper);
 
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention());
+            conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedMemberAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(new BaseTypeDiscoveryConvention());
             conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);

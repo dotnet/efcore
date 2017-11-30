@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     if (foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(
-                            foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                        foreignKey, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                     {
                         Metadata.Unignore(name);
                         return false;
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         if (property.DeclaringEntityType.Builder.RemoveProperty(
-                                property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
+                            property, configurationSource, canOverrideSameSource: configurationSource == ConfigurationSource.Explicit) == null)
                         {
                             Metadata.Unignore(name);
                             return false;
@@ -1439,28 +1439,60 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 principalProperties: null);
             if (existingRelationship != null)
             {
+                var shouldInvertNavigations = false;
                 if (navigationToTarget != null)
                 {
-                    existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                    if (navigationToTarget.Value.Name == existingRelationship.Metadata.DependentToPrincipal?.Name)
+                    {
+                        existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                    }
+                    else if (setTargetAsPrincipal)
+                    {
+                        shouldInvertNavigations = true;
+                    }
+                    else
+                    {
+                        existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                    }
+
                     if (navigationToTarget.Value.Name != null)
                     {
                         Metadata.Unignore(navigationToTarget.Value.Name);
                     }
                 }
+
                 if (inverseNavigation != null)
                 {
-                    existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                    if (inverseNavigation.Value.Name == existingRelationship.Metadata.PrincipalToDependent?.Name)
+                    {
+                        existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                    }
+                    else if (setTargetAsPrincipal)
+                    {
+                        shouldInvertNavigations = true;
+                    }
+                    else
+                    {
+                        existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                    }
+
                     if (inverseNavigation.Value.Name != null)
                     {
                         targetEntityTypeBuilder.Metadata.Unignore(inverseNavigation.Value.Name);
                     }
                 }
                 existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
-                if (!setTargetAsPrincipal)
+
+
+                if (!shouldInvertNavigations)
                 {
-                    if (required.HasValue)
+                    if (setTargetAsPrincipal)
                     {
-                        existingRelationship.IsRequired(required.Value, configurationSource);
+                        existingRelationship.Metadata.UpdatePrincipalEndConfigurationSource(configurationSource);
+                        if (required.HasValue)
+                        {
+                            existingRelationship.IsRequired(required.Value, configurationSource);
+                        }
                     }
                     return existingRelationship;
                 }
@@ -1494,10 +1526,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 existingRelationship.Metadata.UpdateConfigurationSource(configurationSource);
                 if (!setTargetAsPrincipal)
                 {
-                    if (required.HasValue)
-                    {
-                        existingRelationship.IsRequired(required.Value, configurationSource);
-                    }
                     return existingRelationship;
                 }
             }
@@ -1908,6 +1936,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var foreignKey = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource: null);
                 foreignKey.UpdateConfigurationSource(configurationSource);
+                if (isRequired.HasValue)
+                {
+                    foreignKey.UpdateIsRequiredConfigurationSource(configurationSource);
+                }
                 principalType.UpdateConfigurationSource(configurationSource);
 
                 return batch.Run(foreignKey)?.Builder;

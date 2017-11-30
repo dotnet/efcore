@@ -50,12 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(navigationPropertyInfo, nameof(navigationPropertyInfo));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (entityTypeBuilder.Metadata.HasDefiningNavigation()
-                || entityTypeBuilder.ModelBuilder.Metadata.HasEntityTypeWithDefiningNavigation(targetClrType))
-            {
-                return entityTypeBuilder;
-            }
-
             var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(targetClrType, ConfigurationSource.DataAnnotation);
             if (targetEntityTypeBuilder == null)
             {

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -191,7 +192,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_configure_chained_ownerships()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 var bookOwnershipBuilder1 = modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
                 var bookLabel1OwnershipBuilder1 = bookOwnershipBuilder1.OwnsOne(l => l.AnotherBookLabel);
@@ -206,6 +206,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Validate();
 
+                VerifyOwnedBookLabelModel(modelBuilder.Model);
+            }
+
+            [Fact]
+            public virtual void Can_configure_all_ownerships_with_one_call()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.OwnedEntity<BookLabel>();
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
+
+                modelBuilder.Validate();
+
+                VerifyOwnedBookLabelModel(modelBuilder.Model);
+            }
+
+            protected virtual void VerifyOwnedBookLabelModel(IMutableModel model)
+            {
                 var bookOwnership1 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);

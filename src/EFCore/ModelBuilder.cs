@@ -237,6 +237,39 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Marks an entity type as owned. All references to this type will be configured as
+        ///     separate owned type instances.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
+        public virtual void OwnedEntity<TEntity>()
+            where TEntity : class
+            => Builder.OwnedEntity(typeof(TEntity), ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     Marks an entity type as owned. All references to this type will be configured as
+        ///     separate owned type instances.
+        /// </summary>
+        /// <param name="type"> The entity type to be configured. </param>
+        public virtual void OwnedEntity([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            Builder.OwnedEntity(type, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
+        ///     Marks an entity type as owned. All references to this type will be configured as
+        ///     separate owned type instances.
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        public virtual void OwnedEntity([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            Builder.OwnedEntity(name, ConfigurationSource.Explicit);
+        }
+
+        /// <summary>
         ///     Configures the default <see cref="ChangeTrackingStrategy" /> to be used for this model.
         ///     This strategy indicates how the context detects changes to properties for an instance of an entity type.
         /// </summary>
