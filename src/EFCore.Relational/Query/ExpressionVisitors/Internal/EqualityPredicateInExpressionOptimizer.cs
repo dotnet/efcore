@@ -162,13 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static Expression MatchNotInExpression(
             Expression expression,
             ref IReadOnlyList<Expression> values)
-        {
-            var unaryExpression = expression as UnaryExpression;
-
-            return unaryExpression != null
-                   && unaryExpression.NodeType == ExpressionType.Not
+            => expression is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Not
                 ? MatchInExpression(unaryExpression.Operand, ref values)
                 : null;
-        }
     }
 }

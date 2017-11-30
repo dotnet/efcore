@@ -848,11 +848,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (principalKeyProperty.Name == propertyName
                     && principalKeyProperty.ClrType == navigation.ForeignKey.Properties[0].ClrType.UnwrapNullableType())
                 {
-                    var declaringMethodCallExpression = declaringExpression as MethodCallExpression;
-                    var parentDeclaringExpression = declaringMethodCallExpression != null
-                                                    && declaringMethodCallExpression.Method.IsEFPropertyMethod()
-                        ? declaringMethodCallExpression.Arguments[0]
-                        : (declaringExpression as MemberExpression)?.Expression;
+                    var parentDeclaringExpression
+                        = declaringExpression is MethodCallExpression declaringMethodCallExpression
+                        && declaringMethodCallExpression.Method.IsEFPropertyMethod()
+                            ? declaringMethodCallExpression.Arguments[0]
+                            : (declaringExpression as MemberExpression)?.Expression;
 
                     if (parentDeclaringExpression != null)
                     {

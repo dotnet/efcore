@@ -1458,7 +1458,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                          .Include(e => e.OneToMany_Optional)
                          .ThenInclude(e => e.OneToOne_Optional_FK)
                      join l2 in l2s.Include(e => e.OneToOne_Required_PK)
+#pragma warning disable IDE0031 // Use null propagation
                          on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
+#pragma warning restore IDE0031 // Use null propagation
                      where l1.Name != "L1 03"
                      orderby l1.Id
                      select new { l1, grouping }).Skip(1).Take(5),

@@ -20,13 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             if (Equals(methodCallExpression.Method, _methodInfo))
             {
                 var patternExpression = methodCallExpression.Arguments[0];
-                var patternConstantExpression = patternExpression as ConstantExpression;
 
                 var startsWithExpression = Expression.AndAlso(
                     new LikeExpression(
                         // ReSharper disable once AssignNullToNotNullAttribute
                         methodCallExpression.Object,
-                        Expression.Add(methodCallExpression.Arguments[0], Expression.Constant("%", typeof(string)), _concat)),
+                        Expression.Add(
+                            methodCallExpression.Arguments[0],
+                            Expression.Constant("%", typeof(string)),
+                            _concat)),
                     new NullCompensatedExpression(
                         Expression.Equal(
                             new SqlFunctionExpression(
@@ -41,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                 }),
                             patternExpression)));
 
-                return patternConstantExpression != null
+                return patternExpression is ConstantExpression patternConstantExpression
                     ? (string)patternConstantExpression.Value == string.Empty
                         ? (Expression)Expression.Constant(true)
                         : startsWithExpression

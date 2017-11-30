@@ -1950,7 +1950,7 @@ CREATE TABLE Blank (
                     {
                         Assert.Empty(dbModel.Tables);
 
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(_log.Where(t => t.Level == LogLevel.Warning));
 
                         Assert.Equal(SqlServerStrings.LogMissingSchema.EventId, Id);
                         Assert.Equal(SqlServerStrings.LogMissingSchema.GenerateMessage("MySchema"), Message);
@@ -1972,7 +1972,7 @@ CREATE TABLE Blank (
                     {
                         Assert.Empty(dbModel.Tables);
 
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(_log.Where(t => t.Level == LogLevel.Warning));
 
                         Assert.Equal(SqlServerStrings.LogMissingTable.EventId, Id);
                         Assert.Equal(SqlServerStrings.LogMissingTable.GenerateMessage("MyTable"), Message);
@@ -1998,7 +1998,7 @@ CREATE TABLE DependentTable (
                 Enumerable.Empty<string>(),
                 dbModel =>
                     {
-                        var (Level, Id, Message) = Assert.Single(Log.Where(t => t.Level == LogLevel.Warning));
+                        var (Level, Id, Message) = Assert.Single(_log.Where(t => t.Level == LogLevel.Warning));
 
                         Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.EventId, Id);
                         Assert.Equal(SqlServerStrings.LogPrincipalTableNotInSelectionSet.GenerateMessage("MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), Message);
@@ -2010,7 +2010,7 @@ DROP TABLE PrincipalTable;");
 
         #endregion
 
-        private readonly List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
+        private readonly List<(LogLevel Level, EventId Id, string Message)> _log = new List<(LogLevel Level, EventId Id, string Message)>();
 
         private void Test(string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
         {
@@ -2020,7 +2020,7 @@ DROP TABLE PrincipalTable;");
             {
                 var databaseModelFactory = new SqlServerDatabaseModelFactory(
                     new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
-                        new ListLoggerFactory(Log),
+                        new ListLoggerFactory(_log),
                         new LoggingOptions(),
                         new DiagnosticListener("Fake")));
 

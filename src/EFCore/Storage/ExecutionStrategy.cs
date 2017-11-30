@@ -381,11 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public static TResult CallOnWrappedException<TResult>(
             [NotNull] Exception exception, [NotNull] Func<Exception, TResult> exceptionHandler)
-        {
-            var dbUpdateException = exception as DbUpdateException;
-            return dbUpdateException != null
+            => exception is DbUpdateException dbUpdateException
                 ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
                 : exceptionHandler(exception);
-        }
     }
 }

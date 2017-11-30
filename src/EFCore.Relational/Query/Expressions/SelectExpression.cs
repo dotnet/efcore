@@ -102,8 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </value>
         public virtual TableExpressionBase ProjectStarTable
         {
-            get { return _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null); }
-            [param: CanBeNull] set { _projectStarTable = value; }
+            get => _projectStarTable ?? (_tables.Count == 1 ? _tables.Single() : null);
+            [param: CanBeNull]
+            set => _projectStarTable = value;
         }
 
         /// <summary>
@@ -1122,15 +1123,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var specificVisitor = visitor as ISqlExpressionVisitor;
-
-            return specificVisitor != null
+            return visitor is ISqlExpressionVisitor specificVisitor
                 ? specificVisitor.VisitSelect(this)
                 : base.Accept(visitor);
         }
 
         /// <summary>
-        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(System.Linq.Expressions.Expression)" /> method passing the
+        ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)" /> method passing the
         ///     reduced expression.
         ///     Throws an exception if the node isn't reducible.
         /// </summary>

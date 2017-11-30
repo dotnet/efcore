@@ -52,11 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns>
         ///     True if the object is a <see cref="ModelCacheKey" /> and is for the same context type, otherwise false.
         /// </returns>
-        public override bool Equals(object obj)
-        {
-            var otherAsKey = obj as ModelCacheKey;
-            return (otherAsKey != null) && Equals(otherAsKey);
-        }
+        public override bool Equals(object obj) => (obj is ModelCacheKey otherAsKey) && Equals(otherAsKey);
 
         /// <summary>
         ///     Gets the hash code for the key.

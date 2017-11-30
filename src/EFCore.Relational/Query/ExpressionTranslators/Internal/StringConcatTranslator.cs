@@ -50,12 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         }
 
         private static Expression HandleNullTypedConstant(Expression expression)
-        {
-            var constantExpression = expression as ConstantExpression;
-
-            return constantExpression != null && constantExpression.Type == typeof(object) && constantExpression.Value != null
+            => expression is ConstantExpression constantExpression
+            && constantExpression.Type == typeof(object)
+            && constantExpression.Value != null
                 ? Expression.Constant(constantExpression.Value)
                 : expression;
-        }
     }
 }
