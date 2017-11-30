@@ -307,6 +307,9 @@
     <value>Options: {options}</value>
   </data>
   <data name="LanguageDescription" xml:space="preserve">
-    <value>The language.  Defaults to 'C#'.</value>
+    <value>The language. Defaults to 'C#'.</value>
+  </data>
+  <data name="MigrationsRemoveRevertDescription" xml:space="preserve">
+    <value>Revert the migration if it has been applied to the database.</value>
   </data>
 </root>

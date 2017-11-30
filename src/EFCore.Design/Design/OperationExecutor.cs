@@ -295,15 +295,16 @@ namespace Microsoft.EntityFrameworkCore.Design
 
                 var contextType = (string)args["contextType"];
                 var force = (bool)args["force"];
+                var revert = (bool)args["revert"];
 
-                Execute(() => executor.RemoveMigrationImpl(contextType, force));
+                Execute(() => executor.RemoveMigrationImpl(contextType, force, revert));
             }
         }
 
-        private IDictionary RemoveMigrationImpl([CanBeNull] string contextType, bool force)
+        private IDictionary RemoveMigrationImpl([CanBeNull] string contextType, bool force, bool revert)
         {
             var files = _migrationsOperations.Value
-                .RemoveMigration(contextType, force);
+                .RemoveMigration(contextType, force, revert);
 
             return new Hashtable
             {

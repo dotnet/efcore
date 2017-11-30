@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute()
         {
-            var result = CreateExecutor().RemoveMigration(Context.Value(), _force.HasValue());
+            var result = CreateExecutor().RemoveMigration(Context.Value(), _force.HasValue(), _revert.HasValue());
             if (_json.HasValue())
             {
                 ReportJsonResults(result);

@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("TransientExceptionDetected");
 
         /// <summary>
-        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accomadate all the values using 'ForHasColumnType()'.
+        ///     No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'ForHasColumnType()'.
         /// </summary>
         public static readonly EventDefinition<string, string> LogDefaultDecimalTypeColumn
             = new EventDefinition<string, string>(

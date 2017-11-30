@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
         /// <returns> The removed migration files. </returns>
         public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace, bool force)
-            => RemoveMigration(projectDir, rootNamespace, force, language: null);
+            => RemoveMigration(projectDir, rootNamespace, force, revert: false, language: null);
 
         /// <summary>
         ///     Removes the previous migration.
@@ -214,6 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="projectDir"> The project's root directory. </param>
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
+        /// <param name="revert"> Revert if the migration has been applied to the database before removing. </param>
         /// <param name="language"> The project's language. </param>
         /// <returns> The removed migration files. </returns>
         // TODO: DRY (file names)
@@ -221,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
             bool force,
+            bool revert,
             [CanBeNull] string language)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
@@ -254,7 +256,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     else if (Dependencies.HistoryRepository.GetAppliedMigrations().Any(
                         e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        throw new OperationException(DesignStrings.RevertMigration(migration.GetId()));
+                        if (revert)
+                        {
+                            Dependencies.OperationReporter.WriteInformation(DesignStrings.RevertingMigration(migration.GetId()));
+                            Dependencies.Migrator.Migrate(
+                                migrations.Count > 1
+                                    ? migrations[migrations.Count - 2].GetId()
+                                    : Migration.InitialDatabase);
+                        }
+                        else
+                        {
+                            throw new OperationException(DesignStrings.RevertMigration(migration.GetId()));
+                        }
                     }
 
                     var migrationFileName = migration.GetId() + codeGenerator.FileExtension;

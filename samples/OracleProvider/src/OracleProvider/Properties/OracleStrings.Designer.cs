@@ -6,7 +6,6 @@ using System.Resources;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {

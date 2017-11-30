@@ -105,7 +105,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var subPath = outputDir.Substring(_projectDir.Length);
 
             return !string.IsNullOrWhiteSpace(subPath)
-                ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                ? string.Join(
+                    ".",
+                    subPath.Split(
+                        new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+                        StringSplitOptions.RemoveEmptyEntries))
                 : null;
         }
 
@@ -176,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual MigrationFiles RemoveMigration(
-            [CanBeNull] string contextType, bool force)
+            [CanBeNull] string contextType, bool force, bool revert)
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
@@ -186,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
 
-                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
+                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, revert, _language);
 
                 _reporter.WriteInformation(DesignStrings.Done);
 
