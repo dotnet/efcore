@@ -121,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string @namespace,
             string contextName,
             string connectionString,
-            bool dataAnnotations);
+            bool dataAnnotations,
+            bool dontAddConnectionString);
     }
 }

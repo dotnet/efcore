@@ -435,6 +435,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string LanguageDescription
             => GetString("LanguageDescription");
 
+        /// <summary>
+        ///     Don't add connection string to database context
+        /// </summary>
+        public static string DontAddConnectionStringDescription
+            => GetString("DontAddConnectionStringDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption _tables;
         private CommandOption _useDatabaseNames;
         private CommandOption _json;
+        private CommandOption _dontIncludeConnectionString;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -33,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _schemas = command.Option("--schema <SCHEMA_NAME>...", Resources.SchemasDescription);
             _tables = command.Option("-t|--table <TABLE_NAME>...", Resources.TablesDescription);
             _useDatabaseNames = command.Option("--use-database-names", Resources.UseDatabaseNamesDescription);
-            _json = Json.ConfigureOption(command);
+            _dontIncludeConnectionString = command.Option("--dont-add-connection-string", Resources.DontAddConnectionStringDescription);
+            _json = Json.ConfigureOption(command);            
 
             base.Configure(command);
         }

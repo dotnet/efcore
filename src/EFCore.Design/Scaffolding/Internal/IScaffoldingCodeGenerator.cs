@@ -48,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] string @namespace,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            bool dataAnnotations);
+            bool dataAnnotations,
+            bool dontAddConnectionString);
     }
 }
