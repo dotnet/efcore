@@ -167,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 args.Add(_runtime);
             }
 
+            args.Add("/p:GenerateRuntimeConfigurationFiles=True");
             args.Add("/verbosity:quiet");
             args.Add("/nologo");
 
