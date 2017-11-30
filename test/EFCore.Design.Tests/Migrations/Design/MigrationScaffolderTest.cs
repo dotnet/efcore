@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -20,7 +21,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
-    public class MigrationScaffolderTest
+    public class MigrationsScaffolderTest
     {
         [Fact]
         public void ScaffoldMigration_reuses_model_snapshot()
@@ -50,6 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var idGenerator = new MigrationsIdGenerator();
             var code = new CSharpHelper();
             var reporter = new TestOperationReporter();
+            var migrationAssembly
+                = new MigrationsAssembly(
+                    currentContext,
+                    new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
+                    idGenerator);
+            var historyRepository = new MockHistoryRepository();
 
             var services = RelationalTestHelpers.Instance.CreateContextServices();
 
@@ -57,10 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new MigrationsScaffolderDependencies(
                     currentContext,
                     new Model(),
-                    new MigrationsAssembly(
-                        currentContext,
-                        new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
-                        idGenerator),
+                    migrationAssembly,
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMapper(new RelationalTypeMapperDependencies()),
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
@@ -79,10 +83,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                         new CSharpMigrationOperationGeneratorDependencies(code)),
                                     new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(code))))
                         }),
-                    new MockHistoryRepository(),
+                    historyRepository,
                     reporter,
                     new MockProvider(),
-                    new SnapshotModelProcessor(reporter)));
+                    new SnapshotModelProcessor(reporter),
+                    new Migrator(
+                        migrationAssembly,
+                        historyRepository,
+                        services.GetRequiredService<IDatabaseCreator>(),
+                        services.GetRequiredService<IMigrationsSqlGenerator>(),
+                        services.GetRequiredService<IRawSqlCommandBuilder>(),
+                        services.GetRequiredService<IMigrationCommandExecutor>(),
+                        services.GetRequiredService<IRelationalConnection>(),
+                        services.GetRequiredService<ISqlGenerationHelper>(),
+                        services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
+                        services.GetRequiredService<IDatabaseProvider>())));
         }
 
         // ReSharper disable once UnusedTypeParameter

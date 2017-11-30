@@ -199,6 +199,9 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER Force
     Don't check to see if the migration has been applied to the database. Always implied on UWP apps.
 
+.PARAMETER Revert
+    Revert the migration if it has been applied to the database.
+
 .PARAMETER Context
     The DbContext to use.
 
@@ -215,7 +218,7 @@ Register-TabExpansion Remove-Migration @{
 function Remove-Migration
 {
     [CmdletBinding(PositionalBinding = $false)]
-    param([switch] $Force, [string] $Context, [string] $Project, [string] $StartupProject)
+    param([switch] $Force, [switch] $Revert, [string] $Context, [string] $Project, [string] $StartupProject)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
@@ -225,6 +228,11 @@ function Remove-Migration
     if ($Force)
     {
         $params += '--force'
+    }
+
+    if ($Revert)
+    {
+        $params += '--revert'
     }
 
     $params += GetParams $Context

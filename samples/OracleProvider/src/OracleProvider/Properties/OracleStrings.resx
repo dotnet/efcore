@@ -179,7 +179,7 @@
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name: {name}.</value>
     <comment>Debug OracleEventId.TableFound string</comment>
-  </data> 
+  </data>
   <data name="LogFoundIndex" xml:space="preserve">
     <value>Found index with name: {indexName}, table: {tableName}, is unique: {isUnique}.</value>
     <comment>Debug OracleEventId.IndexFound string string bool</comment>
@@ -195,5 +195,8 @@
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>For foreign key {foreignKeyName} on table {tableName}, unable to find the column called {principalColumnName} on the foreign key's principal table, {principaltableName}. Skipping foreign key.</value>
     <comment>Warning OracleEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
-  </data> 
+  </data>
+  <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
+    <value>The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.</value>
+  </data>
 </root>

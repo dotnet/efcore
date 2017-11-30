@@ -291,4 +291,7 @@
   <data name="NoBuildDescription" xml:space="preserve">
     <value>Don't build the project. Only use this when the build is up-to-date.</value>
   </data>
+  <data name="MigrationsRemoveRevertDescription" xml:space="preserve">
+    <value>Revert the migration if it has been applied to the database.</value>
+  </data>
 </root>

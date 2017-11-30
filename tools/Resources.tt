@@ -19,8 +19,15 @@ using System;
 using System.Reflection;
 using System.Resources;
 using JetBrains.Annotations;
+<#
+    if (!model.NoDiagnostics)
+    {
+#>
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+<#
+    }
+#>
 
 namespace <#= model.Namespace #>
 {
@@ -86,13 +93,13 @@ namespace <#= model.Namespace #>
                 <#= List(resource.Parameters) #>);
 <#
             }
-		    else
-		    {
+            else
+            {
 #>
         public static string <#= resource.Name #>
             => GetString("<#= resource.Name #>");
 <#
-		    }
+            }
         }
     }
 #>
@@ -122,6 +129,13 @@ namespace <#= model.Namespace #>
         var services = (IServiceProvider)Host;
         var dte = (DTE)services.GetService(typeof(DTE));
 
+        if (!Session.TryGetValue("NoDiagnostics", out var noDiagnostics))
+        {
+            noDiagnostics = false;
+        }
+
+        result.NoDiagnostics = (bool)noDiagnostics;
+
         var resourceFile = (string)Session["ResourceFile"];
         if (!Path.IsPathRooted(resourceFile))
         {
@@ -134,7 +148,7 @@ namespace <#= model.Namespace #>
         var rootNamespace = (string)project.Properties.Item("RootNamespace").Value;
         var resourceDir = Path.GetDirectoryName(resourceFile);
         var projectDir = (string)project.Properties.Item("FullPath").Value;
-        var resourceNamespace = rootNamespace + resourceDir.Substring(projectDir.Length)
+        var resourceNamespace = rootNamespace + "." + resourceDir.Substring(projectDir.Length)
             .Replace(Path.DirectorySeparatorChar, '.');
 
         result.Namespace = (string)resourceProjectItem.Properties.Item("CustomToolNamespace")?.Value;
@@ -150,7 +164,7 @@ namespace <#= model.Namespace #>
         using (var reader = new ResXResourceReader(resourceFile))
         {
             reader.UseResXDataNodes = true;
-		
+
             result.Resources = Enumerable.ToList(
                 from DictionaryEntry r in reader
                 select new Resource((ResXDataNode)r.Value));
@@ -178,6 +192,7 @@ namespace <#= model.Namespace #>
         public string Class { get; set; }
         public string ResourceName { get; set; }
         public IEnumerable<Resource> Resources { get; set; }
+        public bool NoDiagnostics { get; set; }
     }
 
     class Resource
