@@ -151,11 +151,9 @@ namespace Microsoft.EntityFrameworkCore.Extensions
                     _expectedMethodCall.Method.Name,
                     actualMethodCall.Method.Name + "Async");
 
-                var lastArgument =
-                    _expectedMethodCall.Arguments[_expectedMethodCall.Arguments.Count - 1] as MemberExpression;
-
                 var cancellationTokenPresent
-                    = (lastArgument != null) && (lastArgument.Type == typeof(CancellationToken));
+                    = (_expectedMethodCall.Arguments[_expectedMethodCall.Arguments.Count - 1] is MemberExpression lastArgument)
+                    && (lastArgument.Type == typeof(CancellationToken));
 
                 if (cancellationTokenPresent)
                 {

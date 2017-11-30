@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
     {
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         public QueryLoggingSqlServerTest(IncludeSqlServerFixture fixture)
         {
@@ -36,10 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: " + EOL +
-                    @"'from Customer <generated>_0 in DbSet<Customer>" + EOL +
-                    @"select [<generated>_0]'" + EOL +
-                    @"    Optimized query model: " + EOL +
+                    @"    Compiling query model: " + _eol +
+                    @"'from Customer <generated>_0 in DbSet<Customer>" + _eol +
+                    @"select [<generated>_0]'" + _eol +
+                    @"    Optimized query model: " + _eol +
                     @"'from Customer <generated>_0 in DbSet<Customer>",
                     Fixture.TestSqlLoggerFactory.Log);
             }
@@ -93,11 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    @"    Compiling query model: " + EOL +
-                    @"'(from Customer c in DbSet<Customer>" + EOL +
-                    @"select [c]).Include(""Orders"")'" + EOL +
-                    @"    Including navigation: '[c].Orders'" + EOL +
-                    @"    Optimized query model: " + EOL +
+                    @"    Compiling query model: " + _eol +
+                    @"'(from Customer c in DbSet<Customer>" + _eol +
+                    @"select [c]).Include(""Orders"")'" + _eol +
+                    @"    Including navigation: '[c].Orders'" + _eol +
+                    @"    Optimized query model: " + _eol +
                     @"'from Customer c in DbSet<Customer>"
                     ,
                     Fixture.TestSqlLoggerFactory.Log);

@@ -106,9 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var specificVisitor = visitor as ISqlExpressionVisitor;
-
-            return specificVisitor != null
+            return visitor is ISqlExpressionVisitor specificVisitor
                 ? specificVisitor.VisitColumnReference(this)
                 : base.Accept(visitor);
         }

@@ -63,9 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var specificVisitor = visitor as ISqlServerExpressionVisitor;
-
-            return specificVisitor != null
+            return visitor is ISqlServerExpressionVisitor specificVisitor
                 ? specificVisitor.VisitRowNumber(this)
                 : base.Accept(visitor);
         }
