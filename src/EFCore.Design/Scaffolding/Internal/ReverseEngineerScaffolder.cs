@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string contextName,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool dontAddConnectionString)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
@@ -121,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             CheckOutputFiles(codeGenerator, outputPath ?? projectPath, contextName, model, overwriteFiles);
 
-            return codeGenerator.WriteCode(model, outputPath ?? projectPath, @namespace, contextName, connectionString, useDataAnnotations);
+            return codeGenerator.WriteCode(model, outputPath ?? projectPath, @namespace, contextName, connectionString, useDataAnnotations, dontAddConnectionString);
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace

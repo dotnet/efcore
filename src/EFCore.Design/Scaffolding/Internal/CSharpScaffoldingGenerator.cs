@@ -65,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string @namespace,
             string contextName,
             string connectionString,
-            bool useDataAnnotations)
+            bool useDataAnnotations,
+            bool dontAddConnectionString)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(outputPath, nameof(outputPath));
@@ -75,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var resultingFiles = new ReverseEngineerFiles();
 
-            var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
+            var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations, dontAddConnectionString);
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;

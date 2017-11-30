@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IEnumerable<string> tables,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool dontAddConnectionString)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -82,7 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 dbContextClassName,
                 useDataAnnotations,
                 overwriteFiles,
-                useDatabaseNames);
+                useDatabaseNames,
+                dontAddConnectionString);
         }
     }
 }

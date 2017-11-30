@@ -58,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string @namespace,
             string contextName,
             string connectionString,
-            bool useDataAnnotations)
+            bool useDataAnnotations,
+            bool dontAddConnectionString)
         {
             Check.NotNull(model, nameof(model));
 
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (_sb.Indent())
             {
-                GenerateClass(model, contextName, connectionString, useDataAnnotations);
+                GenerateClass(model, contextName, connectionString, useDataAnnotations, dontAddConnectionString);
             }
 
             _sb.AppendLine("}");
@@ -90,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IModel model,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            bool useDataAnnotations)
+            bool useDataAnnotations,
+            bool dontAddConnectionString)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(contextName, nameof(contextName));
@@ -103,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 GenerateDbSets(model);
                 GenerateEntityTypeErrors(model);
-                GenerateOnConfiguring(connectionString);
+                GenerateOnConfiguring(connectionString, dontAddConnectionString);
                 GenerateOnModelCreating(model, useDataAnnotations);
             }
 
@@ -142,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void GenerateOnConfiguring(
-            [NotNull] string connectionString)
+            [NotNull] string connectionString,
+            bool dontAddConnectionString)
         {
             Check.NotNull(connectionString, nameof(connectionString));
 
@@ -154,20 +157,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _sb.AppendLine("if (!optionsBuilder.IsConfigured)");
                 _sb.AppendLine("{");
 
-                using (_sb.Indent())
+                if (!dontAddConnectionString)
                 {
-                    _sb.DecrementIndent()
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .AppendLine("#warning " + DesignStrings.SensitiveInformationWarning)
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .IncrementIndent();
+                    using (_sb.Indent())
+                    {
+                        _sb.DecrementIndent()
+                            .DecrementIndent()
+                            .DecrementIndent()
+                            .DecrementIndent()
+                            .AppendLine("#warning " + DesignStrings.SensitiveInformationWarning)
+                            .IncrementIndent()
+                            .IncrementIndent()
+                            .IncrementIndent()
+                            .IncrementIndent();
 
-                    _sb.AppendLine(
-                        $"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
+                        _sb.AppendLine(
+                            $"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
+                    }
                 }
 
                 _sb.AppendLine("}");

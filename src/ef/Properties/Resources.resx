@@ -309,4 +309,7 @@
   <data name="LanguageDescription" xml:space="preserve">
     <value>The language.  Defaults to 'C#'.</value>
   </data>
+  <data name="DontAddConnectionStringDescription" xml:space="preserve">
+    <value>Don't add connection string to database context</value>
+  </data>
 </root>
