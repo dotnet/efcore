@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             contextName: contextName,
                             useDataAnnotations: false,
                             overwriteFiles: false,
-                            useDatabaseNames: false))
+                            useDatabaseNames: false,
+                            dontAddConnectionString: false))
                     .Message);
         }
 
