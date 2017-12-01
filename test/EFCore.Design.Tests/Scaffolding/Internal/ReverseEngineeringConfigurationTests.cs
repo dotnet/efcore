@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -33,7 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new[]
                     {
                         new CSharpScaffoldingGenerator(
-                            new CSharpDbContextGenerator(new FakeScaffoldingCodeGenerator(), new FakeAnnotationCodeGenerator(), cSharpUtilities),
+                            new CSharpDbContextGenerator(
+#pragma warning disable CS0618 // Type or member is obsolete
+                                Enumerable.Empty<IScaffoldingProviderCodeGenerator>(),
+#pragma warning restore CS0618 // Type or member is obsolete
+                                new[]{ new TestProviderCodeGenerator() },
+                                new FakeAnnotationCodeGenerator(), cSharpUtilities),
                             new CSharpEntityTypeGenerator(cSharpUtilities))
                     }),
                 cSharpUtilities);
@@ -55,47 +59,64 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .Message);
         }
 
-        public class FakeScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
-        {
-            public string GenerateUseProvider(string connectionString, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public TypeScaffoldingInfo GetTypeScaffoldingInfo(DatabaseColumn column)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         public class FakeAnnotationCodeGenerator : IAnnotationCodeGenerator
         {
-            public string GenerateFluentApi(IModel model, IAnnotation annotation, string language)
+            public MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IEntityType entityType, IAnnotation annotation, string language)
+            string IAnnotationCodeGenerator.GenerateFluentApi(IModel model, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IKey key, IAnnotation annotation, string language)
+            public MethodCallCodeFragment GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IProperty property, IAnnotation annotation, string language)
+            string IAnnotationCodeGenerator.GenerateFluentApi(IEntityType entityType, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation, string language)
+            public MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
             {
                 throw new NotImplementedException();
             }
 
-            public string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
+            string IAnnotationCodeGenerator.GenerateFluentApi(IKey key, IAnnotation annotation, string language)
+            {
+                throw new NotImplementedException();
+            }
+
+            public MethodCallCodeFragment GenerateFluentApi(IProperty property, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IAnnotationCodeGenerator.GenerateFluentApi(IProperty property, IAnnotation annotation, string language)
+            {
+                throw new NotImplementedException();
+            }
+
+            public MethodCallCodeFragment GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IAnnotationCodeGenerator.GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation, string language)
+            {
+                throw new NotImplementedException();
+            }
+
+            public MethodCallCodeFragment GenerateFluentApi(IIndex index, IAnnotation annotation)
+            {
+                throw new NotImplementedException();
+            }
+
+            string IAnnotationCodeGenerator.GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
             {
                 throw new NotImplementedException();
             }

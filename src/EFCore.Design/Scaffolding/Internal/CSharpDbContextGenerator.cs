@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private const string Language = "CSharp";
 
         private readonly ICSharpUtilities _cSharpUtilities;
-        private readonly IScaffoldingProviderCodeGenerator _providerCodeGenerator;
+#pragma warning disable CS0618 // Type or member is obsolete
+        private readonly IScaffoldingProviderCodeGenerator _legacyProviderCodeGenerator;
+#pragma warning restore CS0618 // Type or member is obsolete
+        private readonly IProviderCodeGenerator _providerCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
         private IndentedStringBuilder _sb;
         private bool _entityTypeBuilderInitialized;
@@ -36,15 +39,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CSharpDbContextGenerator(
-            [NotNull] IScaffoldingProviderCodeGenerator providerCodeGenerator,
+#pragma warning disable CS0618 // Type or member is obsolete
+            [NotNull] IEnumerable<IScaffoldingProviderCodeGenerator> legacyProviderCodeGenerators,
+#pragma warning restore CS0618 // Type or member is obsolete
+            [NotNull] IEnumerable<IProviderCodeGenerator> providerCodeGenerators,
             [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
             [NotNull] ICSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(providerCodeGenerator, nameof(providerCodeGenerator));
+            Check.NotNull(legacyProviderCodeGenerators, nameof(legacyProviderCodeGenerators));
+            Check.NotNull(providerCodeGenerators, nameof(providerCodeGenerators));
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
-            _providerCodeGenerator = providerCodeGenerator;
+            if (!legacyProviderCodeGenerators.Any() && !providerCodeGenerators.Any())
+            {
+                throw new ArgumentException(CoreStrings.CollectionArgumentIsEmpty(nameof(providerCodeGenerators)));
+            }
+
+            _legacyProviderCodeGenerator = legacyProviderCodeGenerators.LastOrDefault();
+            _providerCodeGenerator = providerCodeGenerators.LastOrDefault();
             _annotationCodeGenerator = annotationCodeGenerator;
             _cSharpUtilities = cSharpUtilities;
         }
@@ -166,8 +179,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         .IncrementIndent()
                         .IncrementIndent();
 
+                    var useProviderMethod = _providerCodeGenerator?.UseProviderMethod;
+
                     _sb.AppendLine(
-                        $"optionsBuilder{_providerCodeGenerator.GenerateUseProvider(connectionString, Language)};");
+                        useProviderMethod != null
+                           ? $"optionsBuilder.{useProviderMethod}({_cSharpUtilities.GenerateVerbatimStringLiteral(connectionString)});"
+#pragma warning disable CS0618 // Type or member is obsolete
+                           : $"optionsBuilder{_legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language)};");
+#pragma warning restore CS0618 // Type or member is obsolete
                 }
 
                 _sb.AppendLine("}");
@@ -209,7 +228,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(model, annotation, Language);
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(model, annotation);
+                    var line = methodCall == null
+#pragma warning disable CS0618 // Type or member is obsolete
+                        ? _annotationCodeGenerator.GenerateFluentApi(model, annotation, Language)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        : _cSharpUtilities.Generate(methodCall);
 
                     if (line != null)
                     {
@@ -301,7 +325,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(entityType, annotation, Language);
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(entityType, annotation);
+                    var line = methodCall == null
+#pragma warning disable CS0618 // Type or member is obsolete
+                        ? _annotationCodeGenerator.GenerateFluentApi(entityType, annotation, Language)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        : _cSharpUtilities.Generate(methodCall);
 
                     if (line != null)
                     {
@@ -411,7 +440,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(key, annotation, Language);
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(key, annotation);
+                    var line = methodCall == null
+#pragma warning disable CS0618 // Type or member is obsolete
+                        ? _annotationCodeGenerator.GenerateFluentApi(key, annotation, Language)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        : _cSharpUtilities.Generate(methodCall);
 
                     if (line != null)
                     {
@@ -492,7 +526,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(index, annotation, Language);
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(index, annotation);
+                    var line = methodCall == null
+#pragma warning disable CS0618 // Type or member is obsolete
+                        ? _annotationCodeGenerator.GenerateFluentApi(index, annotation, Language)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        : _cSharpUtilities.Generate(methodCall);
 
                     if (line != null)
                     {
@@ -638,7 +677,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(property, annotation, Language);
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(property, annotation);
+                    var line = methodCall == null
+#pragma warning disable CS0618 // Type or member is obsolete
+                        ? _annotationCodeGenerator.GenerateFluentApi(property, annotation, Language)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        : _cSharpUtilities.Generate(methodCall);
 
                     if (line != null)
                     {
@@ -722,7 +766,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
                 else
                 {
-                    var line = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation, Language);
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation);
+                    var line = methodCall == null
+#pragma warning disable CS0618 // Type or member is obsolete
+                        ? _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation, Language)
+#pragma warning restore CS0618 // Type or member is obsolete
+                        : _cSharpUtilities.Generate(methodCall);
 
                     if (line != null)
                     {

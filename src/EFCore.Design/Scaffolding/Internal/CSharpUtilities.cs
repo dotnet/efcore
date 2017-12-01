@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -420,6 +421,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             return true;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual string Generate(MethodCallCodeFragment methodCallCodeFragment)
+            => "." + methodCallCodeFragment.Method + "(" +
+                string.Join(", ", methodCallCodeFragment.Arguments.Select(a => GenerateLiteral((dynamic)a))) + ")";
 
         private static bool IsIdentifierStartCharacter(char ch)
         {

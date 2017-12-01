@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => serviceCollection
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
                 .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
-                .AddSingleton<IScaffoldingProviderCodeGenerator, SqliteScaffoldingCodeGenerator>()
+                .AddSingleton<IProviderCodeGenerator, SqliteCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
     }
 }

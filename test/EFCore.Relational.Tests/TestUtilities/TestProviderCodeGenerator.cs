@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestProviderScaffoldingCodeGenerator : IScaffoldingProviderCodeGenerator
+    public class TestProviderCodeGenerator : ProviderCodeGenerator
     {
-        public string GenerateUseProvider(string connectionString, string language)
-            => $@".UseTestProvider(""{connectionString}"")";
+        public override string UseProviderMethod
+            => "UseTestProvider";
     }
 }

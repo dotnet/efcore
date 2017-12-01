@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => serviceCollection
                 .AddSingleton<IRelationalTypeMapper, OracleTypeMapper>()
                 .AddSingleton<IDatabaseModelFactory, OracleDatabaseModelFactory>()
-                .AddSingleton<IScaffoldingProviderCodeGenerator, OracleScaffoldingCodeGenerator>()
+                .AddSingleton<IProviderCodeGenerator, OracleCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, OracleAnnotationCodeGenerator>();
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
@@ -9,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///     A service typically implemented by database providers to generate code fragments
     ///     for reverse engineering.
     /// </summary>
+    [Obsolete("Use IProviderCodeGenerator instead.")]
     public interface IScaffoldingProviderCodeGenerator
     {
         /// <summary>
@@ -18,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="connectionString"> The connection string to include in the code fragment. </param>
         /// <param name="language"> The programming language to generate, such as 'CSharp'. </param>
         /// <returns> The code fragment, or <c>null</c> if the programming language is not supported. </returns>
+        [Obsolete("Use IProviderCodeGenerator.UseProviderMethod instead.")]
         string GenerateUseProvider([NotNull] string connectionString, [NotNull] string language);
     }
 }

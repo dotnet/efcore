@@ -46,30 +46,32 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string GenerateFluentApi(IKey key, IAnnotation annotation, string language)
+        public override MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
         {
-            Check.NotNull(key, nameof(key));
-            Check.NotNull(annotation, nameof(annotation));
-            Check.NotNull(language, nameof(language));
+            if (annotation.Name == SqlServerAnnotationNames.Clustered)
+            {
+                return (bool)annotation.Value == false
+                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered));
+            }
 
-            return annotation.Name == SqlServerAnnotationNames.Clustered && language == "CSharp"
-                ? $".{nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered)}({((bool)annotation.Value == false ? "false" : "")})"
-                : null;
+            return null;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
+        public override MethodCallCodeFragment GenerateFluentApi(IIndex index, IAnnotation annotation)
         {
-            Check.NotNull(index, nameof(index));
-            Check.NotNull(annotation, nameof(annotation));
-            Check.NotNull(language, nameof(language));
+            if (annotation.Name == SqlServerAnnotationNames.Clustered)
+            {
+                return (bool)annotation.Value == false
+                    ? new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered), false)
+                    : new MethodCallCodeFragment(nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered));
+            }
 
-            return annotation.Name == SqlServerAnnotationNames.Clustered && language == "CSharp"
-                ? $".{nameof(SqlServerIndexBuilderExtensions.ForSqlServerIsClustered)}({((bool)annotation.Value == false ? "false" : "")})"
-                : null;
+            return null;
         }
     }
 }

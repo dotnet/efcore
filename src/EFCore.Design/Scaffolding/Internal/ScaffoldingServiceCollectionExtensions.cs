@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public static IServiceCollection AddScaffolding([NotNull] this IServiceCollection serviceCollection, [NotNull] IOperationReporter reporter)
             => serviceCollection
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
+                .AddSingleton<CoreTypeMapperDependencies>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<ICandidateNamingService, CandidateNamingService>()

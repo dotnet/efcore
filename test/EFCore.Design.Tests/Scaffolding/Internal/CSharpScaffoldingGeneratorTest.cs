@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -51,7 +52,7 @@ namespace TestNamespace
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseTestProvider(""Data Source=Test"");
+                optionsBuilder.UseTestProvider(@""Data Source=Test"");
             }
         }
 
@@ -90,7 +91,10 @@ namespace TestNamespace
 
             return new CSharpScaffoldingGenerator(
                 new CSharpDbContextGenerator(
-                    new TestProviderScaffoldingCodeGenerator(),
+#pragma warning disable CS0618 // Type or member is obsolete
+                    Enumerable.Empty<IScaffoldingProviderCodeGenerator>(),
+#pragma warning restore CS0618 // Type or member is obsolete
+                    new[] { new TestProviderCodeGenerator() },
                     new AnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies()),
                     cSharpUtilities),
                 new CSharpEntityTypeGenerator(cSharpUtilities));

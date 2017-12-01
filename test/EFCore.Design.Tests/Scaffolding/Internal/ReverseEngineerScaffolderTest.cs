@@ -3,6 +3,7 @@
 
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -176,7 +177,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         new CSharpScaffoldingGenerator(
                             new CSharpDbContextGenerator(
-                                new TestProviderScaffoldingCodeGenerator(),
+#pragma warning disable CS0618 // Type or member is obsolete
+                                Enumerable.Empty<IScaffoldingProviderCodeGenerator>(),
+#pragma warning restore CS0618 // Type or member is obsolete
+                                new[]{ new TestProviderCodeGenerator() },
                                 new AnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies()),
                                 cSharpUtilities),
                             new CSharpEntityTypeGenerator(cSharpUtilities))

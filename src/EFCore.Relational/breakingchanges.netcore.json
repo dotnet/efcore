@@ -48,5 +48,35 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator",
       "MemberId": "System.String GenerateCreateScript()",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IEntityType entityType, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IForeignKey foreignKey, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IIndex index, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IKey key, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IModel model, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
+      "Kind": "Addition"
+    },
+    {
+      "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
+      "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
+      "Kind": "Addition"
     }
   ]
