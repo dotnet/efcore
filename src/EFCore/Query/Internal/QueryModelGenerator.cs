@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             Expression query,
             IParameterValues parameterValues,
+            Type contextType,
             bool parameterize = true,
             bool generateContextAccessors = false)
         {
@@ -57,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _evaluatableExpressionFilter,
                     parameterValues,
                     logger,
+                    contextType,
                     parameterize,
                     generateContextAccessors);
 

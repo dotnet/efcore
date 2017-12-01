@@ -2689,386 +2689,6 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
 
         #endregion
 
-        #region Bug9791
-
-        [Fact]
-        public void Exception_when_null_and_filters_disabled()
-        {
-            using (CreateDatabase9791())
-            {
-                using (var context = new MyContext9791(_options))
-                {
-                    Assert.Throws<InvalidOperationException>(() => context.Blogs
-                        .IgnoreQueryFilters()
-                        .Where(e => !e.IsDeleted && context.TenantIds.Contains(e.TenantId)).ToList());
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Context_bound_variable_works_correctly()
-        {
-            using (CreateDatabase9791())
-            {
-                using (var context = new MyContext9791(_options))
-                {
-                    // This throws because the default value of TenantIds is null which is NRE
-                    Assert.Throws<InvalidOperationException>(() => context.Blogs.ToList());
-                }
-
-                using (var context = new MyContext9791(_options))
-                {
-                    context.TenantIds = new List<int>();
-                    var query = context.Blogs.ToList();
-
-                    Assert.Empty(query);
-                }
-
-                using (var context = new MyContext9791(_options))
-                {
-                    context.TenantIds = new List<int> { 1 };
-                    var query = context.Blogs.ToList();
-
-                    Assert.Single(query);
-                }
-
-                using (var context = new MyContext9791(_options))
-                {
-                    context.TenantIds = new List<int> { 1, 2 };
-                    var query = context.Blogs.ToList();
-
-                    Assert.Equal(2, query.Count);
-                }
-
-                AssertSql(
-                    @"SELECT [e].[Id], [e].[IsDeleted], [e].[TenantId]
-FROM [Blogs] AS [e]
-WHERE 0 = 1",
-                    //
-                    @"SELECT [e].[Id], [e].[IsDeleted], [e].[TenantId]
-FROM [Blogs] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND [e].[TenantId] IN (1)",
-                    //
-                    @"SELECT [e].[Id], [e].[IsDeleted], [e].[TenantId]
-FROM [Blogs] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND [e].[TenantId] IN (1, 2)");
-            }
-        }
-
-        private SqlServerTestStore CreateDatabase9791()
-        {
-            return CreateTestStore(
-                () => new MyContext9791(_options),
-                context =>
-                    {
-                        context.AddRange(
-                            new Blog9791 { IsDeleted = false, TenantId = 1 },
-                            new Blog9791 { IsDeleted = false, TenantId = 2 },
-                            new Blog9791 { IsDeleted = false, TenantId = 3 },
-                            new Blog9791 { IsDeleted = true, TenantId = 1 },
-                            new Blog9791 { IsDeleted = true, TenantId = 2 },
-                            new Blog9791 { IsDeleted = true, TenantId = 3 }
-                        );
-                        context.SaveChanges();
-
-                        ClearLog();
-                    });
-        }
-
-        public class MyContext9791 : DbContext
-        {
-            public MyContext9791(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public List<int> TenantIds
-            {
-                get;
-                set;
-            }
-
-            public DbSet<Blog9791> Blogs { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Entity<Blog9791>()
-                    .HasQueryFilter(e => !e.IsDeleted && TenantIds.Contains(e.TenantId));
-            }
-        }
-
-        public class Blog9791
-        {
-            public int Id { get; set; }
-            public bool IsDeleted { get; set; }
-            public int TenantId { get; set; }
-        }
-
-        #endregion
-
-        #region Bug9825
-
-        [Fact]
-        public virtual void Context_bound_variable_works_correctly_in_short_circuit_optimization_9825()
-        {
-            using (CreateDatabase9825())
-            {
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IsModerated = true;
-                    var query = context.Users.ToList();
-
-                    Assert.Single(query);
-                }
-
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IsModerated = false;
-                    var query = context.Users.ToList();
-
-                    Assert.Single(query);
-                }
-
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IsModerated = null;
-                    var query = context.Users.ToList();
-
-                    Assert.Equal(2, query.Count);
-                }
-
-                AssertSql(
-                    @"@__ef_filter__IsModerated_0='True' (Nullable = true)
-@__ef_filter__IsModerated_1='True' (Nullable = true)
-
-SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
-FROM [Users] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
-                    //
-                    @"@__ef_filter__IsModerated_0='False' (Nullable = true)
-@__ef_filter__IsModerated_1='False' (Nullable = true)
-
-SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
-FROM [Users] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
-                    //
-                    @"@__ef_filter__IsModerated_0=''
-
-SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
-FROM [Users] AS [x]
-WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [x].[IsModerated] IS NULL)");
-            }
-        }
-
-        [Fact]
-        public virtual void Context_bound_variable_with_member_chain_works_correctly_9825()
-        {
-            using (CreateDatabase9825())
-            {
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IndirectionFlag = new Indirection { Enabled = true };
-                    var query = context.Chains.ToList();
-
-                    Assert.Equal(2, query.Count);
-                }
-
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IndirectionFlag = new Indirection { Enabled = false };
-                    var query = context.Chains.ToList();
-
-                    Assert.Equal(2, query.Count);
-                }
-
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IndirectionFlag = null;
-                    var exception = Assert.Throws<NullReferenceException>(() => context.Chains.ToList());
-                    Assert.Equal("Object reference not set to an instance of an object.", exception.Message);
-                    Assert.StartsWith(
-                        @"   at lambda_method(Closure , QueryContext )", exception.StackTrace);
-                }
-
-                AssertSql(
-                    @"@__ef_filter__Enabled_0='True'
-
-SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
-FROM [Chains] AS [x]
-WHERE @__ef_filter__Enabled_0 = [x].[IsDeleted]",
-                    //
-                    @"@__ef_filter__Enabled_0='False'
-
-SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
-FROM [Chains] AS [x]
-WHERE @__ef_filter__Enabled_0 = [x].[IsDeleted]");
-            }
-        }
-
-        [Fact]
-        public virtual void Local_variable_in_query_filter_throws_if_cannot_be_evaluated_9825()
-        {
-            using (CreateDatabase9825())
-            {
-                using (var context = new MyContext9825(_options))
-                {
-                    context.IsModerated = true;
-                    var exception = Assert.Throws<InvalidOperationException>(() => context.Locals.ToList());
-                    Assert.Equal(CoreStrings.ExpressionParameterizationExceptionSensitive("value(Microsoft.EntityFrameworkCore.Query.QueryBugsTest+MyContext9825+<>c__DisplayClass33_0).local.Enabled"), exception.Message);
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Local_variable_does_not_clash_with_filter_parameter()
-        {
-            using (CreateDatabase9825())
-            {
-                using (var context = new MyContext9825(_options))
-                {
-                    // ReSharper disable once ConvertToConstant.Local
-                    var IsModerated = false;
-                    var query = context.Users.Where(e => e.IsModerated == IsModerated).ToList();
-
-                    Assert.Single(query);
-
-                    AssertSql(
-                        @"@__ef_filter__IsModerated_0=''
-@__IsModerated_0='False'
-
-SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
-FROM [Users] AS [x]
-WHERE (([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [x].[IsModerated] IS NULL)) AND ([x].[IsModerated] = @__IsModerated_0)");
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Complex_filter_gets_prefixed_name()
-        {
-            using (CreateDatabase9825())
-            {
-                using (var context = new MyContext9825(_options))
-                {
-                    context.BasePrice = 1;
-                    context.CustomPrice = 2;
-                    var query = context.Complexes.ToList();
-
-                    Assert.Single(query);
-
-                    AssertSql(
-                        @"@__ef_filter__BasePrice_0='1'
-@__ef_filter__CustomPrice_1='2'
-
-SELECT [x].[Id], [x].[IsEnabled]
-FROM [Complexes] AS [x]
-WHERE ([x].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__CustomPrice_1) > 0)");
-                }
-            }
-        }
-
-        private SqlServerTestStore CreateDatabase9825()
-        {
-            return CreateTestStore(
-                () => new MyContext9825(_options),
-                context =>
-                    {
-                        context.AddRange(
-                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = false, IsModerated = false },
-                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = true, IsModerated = false },
-                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = false, IsModerated = true },
-                            new EntityWithContextBoundComplexExpression9825 { IsDeleted = true, IsModerated = true },
-                            new EntityWithContextBoundMemberChain9825 { IsDeleted = false, IsModerated = false },
-                            new EntityWithContextBoundMemberChain9825 { IsDeleted = true, IsModerated = false },
-                            new EntityWithContextBoundMemberChain9825 { IsDeleted = false, IsModerated = true },
-                            new EntityWithContextBoundMemberChain9825 { IsDeleted = true, IsModerated = true },
-                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = false },
-                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = false },
-                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = false, IsModerated = true },
-                            new EntityWithLocalVariableAccessInFilter9825 { IsDeleted = true, IsModerated = true },
-                            new EntityWithComplexContextBoundExpression9825 { IsEnabled = true },
-                            new EntityWithComplexContextBoundExpression9825 { IsEnabled = false }
-                        );
-
-                        context.SaveChanges();
-
-                        ClearLog();
-                    });
-        }
-
-        public class MyContext9825 : DbContext
-        {
-            public MyContext9825(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public bool? IsModerated { get; set; }
-            public int BasePrice { get; set; }
-            public int CustomPrice { get; set; }
-            public Indirection IndirectionFlag { get; set; }
-
-            public DbSet<EntityWithContextBoundComplexExpression9825> Users { get; set; }
-            public DbSet<EntityWithContextBoundMemberChain9825> Chains { get; set; }
-            public DbSet<EntityWithLocalVariableAccessInFilter9825> Locals { get; set; }
-            public DbSet<EntityWithComplexContextBoundExpression9825> Complexes { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Entity<EntityWithContextBoundComplexExpression9825>()
-                    .HasQueryFilter(x => !x.IsDeleted && (IsModerated == null || IsModerated == x.IsModerated));
-
-                modelBuilder.Entity<EntityWithContextBoundMemberChain9825>()
-                    .HasQueryFilter(x => IndirectionFlag.Enabled == x.IsDeleted);
-
-                var local = new Indirection();
-                local = null;
-                modelBuilder.Entity<EntityWithLocalVariableAccessInFilter9825>()
-                    .HasQueryFilter(x => local.Enabled == x.IsDeleted);
-
-                modelBuilder.Entity<EntityWithComplexContextBoundExpression9825>()
-                    .HasQueryFilter(x => x.IsEnabled && (BasePrice + CustomPrice > 0));
-            }
-        }
-
-        public class Indirection
-        {
-            public bool Enabled { get; set; }
-        }
-
-        public class EntityWithContextBoundComplexExpression9825
-        {
-            public int Id { get; set; }
-            public bool IsDeleted { get; set; }
-            public bool IsModerated { get; set; }
-        }
-
-        public class EntityWithContextBoundMemberChain9825
-        {
-            public int Id { get; set; }
-            public bool IsDeleted { get; set; }
-            public bool IsModerated { get; set; }
-        }
-
-        public class EntityWithLocalVariableAccessInFilter9825
-        {
-            public int Id { get; set; }
-            public bool IsDeleted { get; set; }
-            public bool IsModerated { get; set; }
-        }
-
-        public class EntityWithComplexContextBoundExpression9825
-        {
-            public int Id { get; set; }
-            public bool IsEnabled { get; set; }
-        }
-
-        #endregion
-
         #region Bug9892
 
         [Fact]
@@ -3241,222 +2861,6 @@ LEFT JOIN [Configuration9468] AS [t.Configuration] ON [t].[ConfigurationId] = [t
         {
             public int Id { get; set; }
             public bool Processed { get; set; }
-        }
-
-        #endregion
-
-        #region Bug10271
-
-        [Fact]
-        public virtual void Static_member_from_non_dbContext_class_is_inlined_in_queryFilter()
-        {
-            using (CreateDatabase10271())
-            {
-                using (var context = new MyContext10271(_options))
-                {
-                    var query = context.Blogs.ToList();
-
-                    var blog = Assert.Single(query);
-
-                    AssertSql(
-                        @"SELECT [b].[Id], [b].[Processed]
-FROM [Blogs] AS [b]
-WHERE [b].[Processed] = 1");
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Local_variable_from_OnModelCreating_is_inlined_in_queryFilter()
-        {
-            using (CreateDatabase10271())
-            {
-                using (var context = new MyContext10271(_options))
-                {
-                    var query = context.Posts.ToList();
-
-                    var blog = Assert.Single(query);
-
-                    AssertSql(
-                        @"SELECT [p].[Id], [p].[TenantId]
-FROM [Posts] AS [p]
-WHERE [p].[TenantId] = 1");
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Context_variable_captured_in_multi_level_expression_tree_is_parametrized()
-        {
-            using (CreateDatabase10271())
-            {
-                using (var context = new MyContext10271(_options))
-                {
-                    Assert.Empty(context.Comments.ToList());
-
-                    context.Value = 1;
-                    var query = context.Comments.ToList();
-
-                    var blog = Assert.Single(query);
-
-                    AssertSql(
-                        @"SELECT [c].[Id], [c].[Include]
-FROM [Comments] AS [c]",
-                        @"SELECT [c].[Id], [c].[Include]
-FROM [Comments] AS [c]");
-                }
-            }
-        }
-
-        private SqlServerTestStore CreateDatabase10271()
-        {
-            return CreateTestStore(
-                () => new MyContext10271(_options),
-                context =>
-                {
-                    context.AddRange(
-                        new Blog10271 { Processed = true },
-                        new Blog10271 { Processed = false },
-                        new Post10271 { TenantId = 1 },
-                        new Post10271 { TenantId = 2 },
-                        new Comment10271 { Include = true },
-                        new Comment10271 { Include = false }
-                    );
-
-                    context.SaveChanges();
-
-                    ClearLog();
-                });
-        }
-
-        public class MyContext10271 : DbContext
-        {
-            public MyContext10271(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public int Value { get; set; }
-
-            public DbSet<Blog10271> Blogs { get; set; }
-            public DbSet<Post10271> Posts { get; set; }
-            public DbSet<Comment10271> Comments { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog10271>()
-                    .HasQueryFilter(b => b.Processed == Blog10271.Enabled);
-
-                var tenantId = 1;
-                modelBuilder.Entity<Post10271>()
-                    .HasQueryFilter(p => p.TenantId == tenantId);
-
-                Expression<Func<int, bool>> predicate = c => c == Value;
-                Expression<Func<Comment10271, bool>> filter
-                    = c => c.Id == new List<int> { 1, 2, 3 }.AsQueryable().Where(predicate).FirstOrDefault();
-
-                modelBuilder.Entity<Comment10271>()
-                    .HasQueryFilter(filter);
-            }
-        }
-
-        public class Blog10271
-        {
-            public static bool Enabled = true;
-
-            public int Id { get; set; }
-            public bool Processed { get; set; }
-        }
-
-        public class Post10271
-        {
-            public int Id { get; set; }
-            public int TenantId { get; set; }
-        }
-
-        public class Comment10271
-        {
-            public int Id { get; set; }
-            public bool Include { get; set; }
-        }
-
-        #endregion
-
-        #region Bug10463
-
-        [Fact]
-        public virtual void Filter_referencing_set()
-        {
-            using (CreateDatabase10463())
-            {
-                using (var context = new MyContext10463(_options))
-                {
-                    var query = context.Blogs.ToList();
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void Filter_referencing_set_with_closure()
-        {
-            using (CreateDatabase10463())
-            {
-                using (var context = new MyContext10463(_options))
-                {
-                    var query = context.Posts.ToList();
-                }
-            }
-        }
-
-        private SqlServerTestStore CreateDatabase10463()
-        {
-            return CreateTestStore(
-                () => new MyContext10463(_options),
-                context =>
-                {
-                    context.SaveChanges();
-
-                    ClearLog();
-                });
-        }
-
-        public class MyContext10463 : DbContext
-        {
-            public MyContext10463(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public int Value { get; set; }
-
-            public DbSet<Blog10463> Blogs { get; set; }
-            public DbSet<Post10463> Posts { get; set; }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Blog10463>()
-                    .HasQueryFilter(b => Posts.Any(p => p.BlogId == b.Id));
-
-                SetPostsFilter(modelBuilder, this);
-            }
-
-            private static void SetPostsFilter(ModelBuilder modelBuilder, DbContext context)
-            {
-                modelBuilder.Entity<Post10463>()
-                    .HasQueryFilter(p => context.Set<Blog10463>().Any(b => b.Id == p.BlogId));
-            }
-        }
-
-        public class Blog10463
-        {
-            public int Id { get; set; }
-            public ICollection<Post10463> Posts { get; set; }
-        }
-
-        public class Post10463
-        {
-            public int Id { get; set; }
-            public int BlogId { get; set; }
         }
 
         #endregion
@@ -3667,6 +3071,96 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
         {
             public string Fullname { get; set; }
             public string Email { get; set; }
+        }
+
+        #endregion
+
+        #region Bug10301
+
+        [Fact]
+        public virtual void MultiContext()
+        {
+            using (CreateDatabase10301())
+            {
+                using (var context = new FilterContext10301(_options))
+                {
+                    Assert.Empty(context.Blogs.ToList());
+
+                    context.Tenant = 1;
+                    Assert.Single(context.Blogs.ToList());
+
+                    context.Tenant = 2;
+                    Assert.Equal(2, context.Blogs.Count());
+
+                    AssertSql(
+                        @"@__ef_filter__Tenant_0='0'
+
+SELECT [e].[Id], [e].[SomeValue]
+FROM [Blogs] AS [e]
+WHERE [e].[SomeValue] = @__ef_filter__Tenant_0",
+                        //
+                        @"@__ef_filter__Tenant_0='1'
+
+SELECT [e].[Id], [e].[SomeValue]
+FROM [Blogs] AS [e]
+WHERE [e].[SomeValue] = @__ef_filter__Tenant_0",
+                        //
+                        @"@__ef_filter__Tenant_0='2'
+
+SELECT COUNT(*)
+FROM [Blogs] AS [e]
+WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase10301()
+        {
+            return CreateTestStore(
+                () => new FilterContext10301(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Blog10301 { SomeValue = 1 },
+                        new Blog10301 { SomeValue = 2 },
+                        new Blog10301 { SomeValue = 2 }
+                    );
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class FilterContextBase10301 : DbContext
+        {
+            public int Tenant { get; set; }
+
+            public FilterContextBase10301(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Blog10301> Blogs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog10301>().HasQueryFilter(e => e.SomeValue == Tenant);
+            }
+        }
+
+        public class Blog10301
+        {
+            public int Id { get; set; }
+            public int SomeValue { get; set; }
+        }
+
+        public class FilterContext10301 : FilterContextBase10301
+        {
+            public FilterContext10301(DbContextOptions options)
+                : base(options)
+            {
+            }
         }
 
         #endregion
