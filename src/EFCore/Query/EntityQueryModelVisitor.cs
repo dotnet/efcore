@@ -102,7 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             LinqOperatorProvider = queryCompilationContext.LinqOperatorProvider;
 
-            _filterApplyingExpressionVisitor = new FilterApplyingExpressionVisitor(_queryCompilationContext);
+            _filterApplyingExpressionVisitor
+                = new FilterApplyingExpressionVisitor(
+                    _queryCompilationContext,
+                    dependencies.QueryProcessor);
         }
 
         /// <summary>

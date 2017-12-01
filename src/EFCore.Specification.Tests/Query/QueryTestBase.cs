@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount).GetAwaiter().GetResult();
 
         public virtual void AssertQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount).GetAwaiter().GetResult();
 
         public virtual void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
+            => Fixture.QueryAsserter.AssertQuery(query, query, elementSorter, elementAsserter, assertOrder, entryCount).GetAwaiter().GetResult();
 
         public virtual void AssertQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount).GetAwaiter().GetResult();
 
         public virtual void AssertQuery<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             where TItem3 : class
-            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync: false).Wait();
+            => Fixture.QueryAsserter.AssertQuery(actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount).GetAwaiter().GetResult();
 
         #endregion
 
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false)
             where TItem1 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).Wait();
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).GetAwaiter().GetResult();
 
         public virtual void AssertQueryScalar<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             where TItem2 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).Wait();
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).GetAwaiter().GetResult();
 
         public virtual void AssertQueryScalar<TItem1, TItem2, TItem3>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<int>> query,
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem2 : class
             where TItem3 : class
             where TResult : struct
-            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).Wait();
+            => Fixture.QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder).GetAwaiter().GetResult();
 
         #endregion
 

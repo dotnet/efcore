@@ -76,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler" /> to be used when processing the query. </param>
         /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource" /> to be used when processing the query. </param>
         /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter" /> to be used when processing the query. </param>
+        /// <param name="queryProcessor"> The <see cref="IQueryProcessor" /> to be used when processing the query. </param>
         public EntityQueryModelVisitorDependencies(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -88,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IExpressionPrinter expressionPrinter)
+            [NotNull] IExpressionPrinter expressionPrinter,
+            [NotNull] IQueryProcessor queryProcessor)
         {
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
             Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
@@ -102,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+            Check.NotNull(queryProcessor, nameof(queryProcessor));
 
             QueryOptimizer = queryOptimizer;
             NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
@@ -115,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ResultOperatorHandler = resultOperatorHandler;
             EntityMaterializerSource = entityMaterializerSource;
             ExpressionPrinter = expressionPrinter;
+            QueryProcessor = queryProcessor;
         }
 
         /// <summary>
@@ -178,6 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IQueryAnnotationExtractor QueryAnnotationExtractor { get; }
 
         /// <summary>
+        ///     Gets the <see cref="IQueryProcessor" /> to be used when processing a query.
+        /// </summary>
+        public IQueryProcessor QueryProcessor { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="resultOperatorHandler"> A replacement for the current dependency of this type. </param>
@@ -195,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 resultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -215,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -235,7 +246,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -255,7 +267,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -275,7 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -295,7 +309,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -315,7 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -335,7 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -355,7 +372,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -375,7 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 queryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -395,7 +414,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 entityMaterializerSource,
-                ExpressionPrinter);
+                ExpressionPrinter,
+                QueryProcessor);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -415,6 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 QueryAnnotationExtractor,
                 ResultOperatorHandler,
                 EntityMaterializerSource,
-                expressionPrinter);
+                expressionPrinter,
+                QueryProcessor);
     }
 }

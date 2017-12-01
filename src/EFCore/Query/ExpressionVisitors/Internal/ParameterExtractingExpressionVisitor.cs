@@ -19,9 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
+        private const string QueryFilterPrefix = "ef_filter";
+
         private static readonly TypeInfo _queryableTypeInfo = typeof(IQueryable).GetTypeInfo();
-        private static ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
-        private static readonly string QueryFilterPrefix = "ef_filter";
+
+        private readonly ContextParameterReplacingExpressionVisitor
+            _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor();
 
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
         private readonly IParameterValues _parameterValues;
@@ -365,7 +368,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             var parameterValue = Evaluate(expression, out var parameterName);
 
-            if (parameterName == null || !parameterName.StartsWith(QueryFilterPrefix))
+            if (parameterName == null
+                || !parameterName.StartsWith(QueryFilterPrefix, StringComparison.Ordinal))
             {
                 if (parameterValue is Expression valueExpression)
                 {
@@ -411,7 +415,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (typeof(DbContext).GetTypeInfo()
                     .IsAssignableFrom(constantExpression.Type.GetTypeInfo()))
                 {
-                    return ContextParameterExpression ?? (ContextParameterExpression = Expression.Parameter(constantExpression.Type, "context"));
+                    return ContextParameterExpression
+                        ?? (ContextParameterExpression
+                            = Expression.Parameter(constantExpression.Type, "context"));
                 }
 
                 return constantExpression;
@@ -437,9 +443,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (newExpression != expression)
                 {
-                    parameterName = QueryFilterPrefix + "__" + (expression is MemberExpression memberExpression
-                                        ? memberExpression.Member.Name
-                                        : QueryFilterPrefix);
+                    parameterName = QueryFilterPrefix + "__"
+                                        + (expression is MemberExpression memberExpression
+                                            ? memberExpression.Member.Name
+                                            : QueryFilterPrefix);
 
                     return Expression.Lambda(
                         newExpression,

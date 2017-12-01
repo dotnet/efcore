@@ -12,14 +12,9 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Clauses.StreamedData;
-using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
-using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
-using Remotion.Linq.Parsing.Structure;
-using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -33,18 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(IDatabase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
-        private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
-
         private readonly IQueryContextFactory _queryContextFactory;
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-        private readonly INodeTypeProviderFactory _nodeTypeProviderFactory;
+        private readonly IQueryProcessor _queryProcessor;
 
         private readonly Type _contextType;
-
-        private INodeTypeProvider _nodeTypeProvider;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -56,9 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
-            [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            [NotNull] IQueryProcessor queryProcessor)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
@@ -66,16 +56,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(database, nameof(database));
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
 
             _queryContextFactory = queryContextFactory;
             _compiledQueryCache = compiledQueryCache;
             _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
             _database = database;
             _logger = logger;
-            _nodeTypeProviderFactory = nodeTypeProviderFactory;
             _contextType = currentContext.Context.GetType();
-            _evaluatableExpressionFilter = evaluatableExpressionFilter;
+            _queryProcessor = queryProcessor;
         }
 
         /// <summary>
@@ -94,13 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = ExtractParameters(query, queryContext);
+            query = _queryProcessor.ExtractParameters(_logger, query, queryContext);
 
             var compiledQuery
                 = _compiledQueryCache
                     .GetOrAddQuery(
                         _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
-                        () => CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType));
+                        () => CompileQueryCore<TResult>(query, _queryProcessor, _database, _logger, _contextType));
 
             return compiledQuery(queryContext);
         }
@@ -113,21 +101,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = ExtractParameters(query, _queryContextFactory.Create(), parameterize: false);
+            query = _queryProcessor.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
 
-            return CompileQueryCore<TResult>(query, NodeTypeProvider, _database, _logger, _contextType);
+            return CompileQueryCore<TResult>(query, _queryProcessor, _database, _logger, _contextType);
         }
 
-        private Func<QueryContext, TResult> CompileQueryCore<TResult>(
+        private static Func<QueryContext, TResult> CompileQueryCore<TResult>(
             Expression query,
-            INodeTypeProvider nodeTypeProvider,
+            IQueryProcessor queryProcessor,
             IDatabase database,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             Type contextType)
         {
-            var queryModel
-                = CreateQueryParser(nodeTypeProvider)
-                    .GetParsedQuery(query);
+            var queryModel = queryProcessor.ParseQuery(query);
 
             var resultItemType
                 = (queryModel.GetOutputDataInfo()
@@ -139,18 +125,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var compiledQuery = database.CompileQuery<TResult>(queryModel);
 
                 return qc =>
+                {
+                    try
                     {
-                        try
-                        {
-                            return compiledQuery(qc).First();
-                        }
-                        catch (Exception exception)
-                        {
-                            logger.QueryIterationFailed(contextType, exception);
+                        return compiledQuery(qc).First();
+                    }
+                    catch (Exception exception)
+                    {
+                        logger.QueryIterationFailed(contextType, exception);
 
-                            throw;
-                        }
-                    };
+                        throw;
+                    }
+                };
             }
 
             try
@@ -177,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = ExtractParameters(query, queryContext);
+            query = _queryProcessor.ExtractParameters(_logger, query, queryContext);
 
             return CompileAsyncQuery<TResult>(query)(queryContext);
         }
@@ -190,9 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = ExtractParameters(query, _queryContextFactory.Create(), parameterize: false);
+            query = _queryProcessor.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
 
-            return CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database);
+            return CompileAsyncQueryCore<TResult>(query, _queryProcessor, _database);
         }
 
         /// <summary>
@@ -203,9 +189,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = ExtractParameters(query, _queryContextFactory.Create(), parameterize: false);
+            query = _queryProcessor.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
 
-            var compiledQuery = CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database);
+            var compiledQuery = CompileAsyncQueryCore<TResult>(query, _queryProcessor, _database);
 
             return CreateCompiledSingletonAsyncQuery(compiledQuery, _logger, _contextType);
         }
@@ -226,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             queryContext.CancellationToken = cancellationToken;
 
-            query = ExtractParameters(query, queryContext);
+            query = _queryProcessor.ExtractParameters(_logger, query, queryContext);
 
             var compiledQuery = CompileAsyncQuery<TResult>(query);
 
@@ -269,56 +255,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _compiledQueryCache
                 .GetOrAddAsyncQuery(
                     _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
-                    () => CompileAsyncQueryCore<TResult>(query, NodeTypeProvider, _database));
+                    () => CompileAsyncQueryCore<TResult>(query, _queryProcessor, _database));
         }
 
-        private Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQueryCore<TResult>(
+        private static Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQueryCore<TResult>(
             Expression query,
-            INodeTypeProvider nodeTypeProvider,
+            IQueryProcessor queryProcessor,
             IDatabase database)
         {
-            var queryModel
-                = CreateQueryParser(nodeTypeProvider)
-                    .GetParsedQuery(query);
+            var queryModel = queryProcessor.ParseQuery(query);
 
             return database.CompileAsyncQuery<TResult>(queryModel);
         }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual Expression ExtractParameters(
-            [NotNull] Expression query,
-            [NotNull] QueryContext queryContext,
-            bool parameterize = true)
-        {
-            Check.NotNull(query, nameof(query));
-            Check.NotNull(queryContext, nameof(queryContext));
-
-            var visitor
-                = new ParameterExtractingExpressionVisitor(
-                    _evaluatableExpressionFilter,
-                    queryContext,
-                    _logger,
-                    parameterize);
-
-            return visitor.ExtractParameters(query);
-        }
-
-        private QueryParser CreateQueryParser(INodeTypeProvider nodeTypeProvider)
-            => new QueryParser(
-                new ExpressionTreeParser(
-                    nodeTypeProvider,
-                    new CompoundExpressionTreeProcessor(
-                        new IExpressionTreeProcessor[]
-                        {
-                            new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
-                            new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
-                        })));
-
-        private INodeTypeProvider NodeTypeProvider
-            => _nodeTypeProvider
-               ?? (_nodeTypeProvider = _nodeTypeProviderFactory.Create());
     }
 }

@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -22,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class FilterApplyingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
+        private readonly IQueryProcessor _queryProcessor;
+
         private readonly Parameters _parameters = new Parameters();
 
         /// <summary>
@@ -34,8 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public FilterApplyingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
-            => _queryCompilationContext = queryCompilationContext;
+        public FilterApplyingExpressionVisitor(
+            [NotNull] QueryCompilationContext queryCompilationContext,
+            [NotNull] IQueryProcessor queryProcessor)
+        {
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+            Check.NotNull(queryProcessor, nameof(queryProcessor));
+
+            _queryCompilationContext = queryCompilationContext;
+            _queryProcessor = queryProcessor;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -50,16 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 if (entityType?.QueryFilter != null)
                 {
-                    var visitor
-                        = new ParameterExtractingExpressionVisitor(
-                            new EvaluatableExpressionFilter(),
-                            _parameters,
-                            _queryCompilationContext.Logger,
-                            parameterize: false,
-                            generateContextAccessors: true);
-
                     var parameterizedFilter
-                        = (LambdaExpression)visitor.ExtractParameters(entityType.QueryFilter);
+                        = (LambdaExpression)_queryProcessor
+                            .ExtractParameters(
+                                _queryCompilationContext.Logger,
+                                entityType.QueryFilter,
+                                _parameters,
+                                parameterize: false,
+                                generateContextAccessors: true);
 
                     var mainFromClause
                         = new MainFromClause(
