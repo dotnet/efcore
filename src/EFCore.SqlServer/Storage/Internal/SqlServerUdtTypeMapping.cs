@@ -69,7 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 parameter.GetType(),
                 CreateUdtTypeNameAccessor);
 
-            _udtTypeNameSetter(parameter, UdtTypeName);
+            if (parameter.Value != null && parameter.Value != DBNull.Value)
+            {
+                _udtTypeNameSetter(parameter, UdtTypeName);
+            }
         }
 
         private static Action<DbParameter, string> CreateUdtTypeNameAccessor(Type paramType)
