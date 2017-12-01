@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
             [NotNull] IParameterValues parameterValues,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            [NotNull] Type contextType,
             bool parameterize,
             bool generateContextAccessors = false)
         {
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (_generateContextAccessors)
             {
-                _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor();
+                _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor(contextType);
             }
         }
 
@@ -428,21 +429,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return Expression.Parameter(expression.Type, parameterName);
         }
 
-        private sealed class ContextParameterReplacingExpressionVisitor : ExpressionVisitor
+        private class ContextParameterReplacingExpressionVisitor : ExpressionVisitor
         {
-            public ParameterExpression ContextParameterExpression;
+            private readonly Type _contextType;
 
-            protected override Expression VisitConstant(ConstantExpression constantExpression)
+            public ContextParameterReplacingExpressionVisitor(Type contextType)
             {
-                if (typeof(DbContext).GetTypeInfo()
-                    .IsAssignableFrom(constantExpression.Type.GetTypeInfo()))
+                ContextParameterExpression = Expression.Parameter(contextType, "context");
+                _contextType = contextType;
+            }
+
+            public ParameterExpression ContextParameterExpression { get; }
+
+            public override Expression Visit(Expression expression)
+            {
+                if (expression != null
+                    && expression.Type.GetTypeInfo().IsAssignableFrom(_contextType))
                 {
-                    return ContextParameterExpression
-                           ?? (ContextParameterExpression
-                               = Expression.Parameter(constantExpression.Type, "context"));
+                    return ContextParameterExpression;
                 }
 
-                return constantExpression;
+                return base.Visit(expression);
             }
         }
 
@@ -514,7 +521,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             // Try again when we compile the delegate
                         }
                     }
-
                     break;
 
                 case ExpressionType.Constant:
@@ -522,9 +528,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 case ExpressionType.Call:
                     parameterName = ((MethodCallExpression)expression).Method.Name;
-
                     break;
-
             }
 
             try

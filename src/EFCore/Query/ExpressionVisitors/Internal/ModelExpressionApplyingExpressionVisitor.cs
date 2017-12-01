@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         public virtual void ApplyModelExpressions([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
-            
+
             _querySource = queryModel.MainFromClause;
 
             queryModel.TransformExpressions(Visit);
@@ -114,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                         _queryCompilationContext.Logger,
                                         query.Body,
                                         _parameters,
+                                        _queryCompilationContext.ContextType,
                                         parameterize: false,
                                         generateContextAccessors: true);
 
@@ -132,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                     _queryCompilationContext.Logger,
                                     entityType.QueryFilter,
                                     _parameters,
+                                    _queryCompilationContext.ContextType,
                                     parameterize: false,
                                     generateContextAccessors: true);
 
