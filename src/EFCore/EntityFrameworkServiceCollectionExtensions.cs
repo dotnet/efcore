@@ -345,6 +345,7 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
             => AddDbContext<TContext, TContext>(
                 serviceCollection,
+                 optionsAction,
                 contextLifetime,
                 optionsLifetime
                 );
