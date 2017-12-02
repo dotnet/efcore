@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly MethodInfo _longCount = GetMethod(nameof(Queryable.LongCount));
 
         /// <summary>
-        ///     Asynchronously returns an <see cref="Int64" /> that represents the total number of elements in a sequence.
+        ///     Asynchronously returns an <see cref="long" /> that represents the total number of elements in a sequence.
         /// </summary>
         /// <remarks>
         ///     Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly MethodInfo _longCountPredicate = GetMethod(nameof(Queryable.LongCount), parameterCount: 1);
 
         /// <summary>
-        ///     Asynchronously returns an <see cref="Int64" /> that represents the number of elements in a sequence
+        ///     Asynchronously returns an <see cref="long" /> that represents the number of elements in a sequence
         ///     that satisfy a condition.
         /// </summary>
         /// <remarks>

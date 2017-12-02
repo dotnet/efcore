@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
         private class InExpressionValuesExpandingVisitor : RelinqExpressionVisitor
         {
-            private IReadOnlyDictionary<string, object> _parametersValues;
+            private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public bool IsParameterDependent { get; private set; }
             public InExpressionValuesExpandingVisitor(IReadOnlyDictionary<string, object> parameterValues)
@@ -399,6 +399,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         case ParameterExpression parameterExpression:
                             if (_parametersValues.TryGetValue(parameterExpression.Name, out var parameterValue))
                             {
+                                if (parameterValue == null
+                                    && typeof(IEnumerable).IsAssignableFrom(parameterExpression.Type)
+                                    && parameterExpression.Type != typeof(string)
+                                    && parameterExpression.Type != typeof(byte[]))
+                                {
+                                    throw new InvalidOperationException(
+                                        RelationalStrings.ExpectedNonNullParameter(parameterExpression.Name));
+                                }
+
                                 AddInExpressionValues(parameterValue, inConstants, parameterExpression);
 
                                 IsParameterDependent = true;
@@ -436,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             }
 
             private IReadOnlyList<Expression> ExtractNonNullExpressionValues(
-                [NotNull] IReadOnlyList<Expression> inExpressionValues)
+                [NotNull] IEnumerable<Expression> inExpressionValues)
             {
                 var inValuesNotNull = new List<Expression>();
 
@@ -928,37 +937,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             foreach (var inValue in inExpressionValues)
             {
-                if (inValue is ConstantExpression inConstant)
+                switch (inValue)
                 {
-                    AddInExpressionValues(inConstant.Value, inConstants, inConstant);
-                }
-                else
-                {
-                    if (inValue is ParameterExpression inParameter)
-                    {
+                    case ConstantExpression inConstant:
+                        AddInExpressionValues(inConstant.Value, inConstants, inConstant);
+                        break;
+                    case ParameterExpression inParameter:
                         if (_parametersValues.TryGetValue(inParameter.Name, out var parameterValue))
                         {
                             AddInExpressionValues(parameterValue, inConstants, inParameter);
 
                             IsCacheable = false;
                         }
-                    }
-                    else
-                    {
-                        if (inValue is ListInitExpression inListInit)
-                        {
-                            inConstants.AddRange(
-                                ProcessInExpressionValues(
-                                    inListInit.Initializers.SelectMany(i => i.Arguments)));
-                        }
-                        else
-                        {
-                            if (inValue is NewArrayExpression newArray)
-                            {
-                                inConstants.AddRange(ProcessInExpressionValues(newArray.Expressions));
-                            }
-                        }
-                    }
+                        break;
+                    case ListInitExpression inListInit:
+                        inConstants.AddRange(
+                            ProcessInExpressionValues(
+                                inListInit.Initializers.SelectMany(i => i.Arguments)));
+                        break;
+                    case NewArrayExpression newArray:
+                        inConstants.AddRange(ProcessInExpressionValues(newArray.Expressions));
+                        break;
                 }
             }
 

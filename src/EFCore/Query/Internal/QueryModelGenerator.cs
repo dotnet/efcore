@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class QueryProcessor : IQueryProcessor
+    public class QueryModelGenerator : IQueryModelGenerator
     {
         private readonly INodeTypeProvider _nodeTypeProvider;
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public QueryProcessor(
+        public QueryModelGenerator(
             [NotNull] INodeTypeProviderFactory nodeTypeProviderFactory,
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {

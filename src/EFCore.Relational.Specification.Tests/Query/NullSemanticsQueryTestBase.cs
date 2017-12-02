@@ -302,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Where_multiple_ors_with_nullable_parameter()
         {
             string prm = null;
-            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => e.NullableStringA == "Foo" || e.NullableStringA == prm));
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA == "Foo" || e.NullableStringA == prm));
         }
 
         [Fact]

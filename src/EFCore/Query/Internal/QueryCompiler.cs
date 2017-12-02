@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-        private readonly IQueryProcessor _queryProcessor;
+        private readonly IQueryModelGenerator _queryModelGenerator;
 
         private readonly Type _contextType;
 
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] IDatabase database,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IQueryProcessor queryProcessor)
+            [NotNull] IQueryModelGenerator queryModelGenerator)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _database = database;
             _logger = logger;
             _contextType = currentContext.Context.GetType();
-            _queryProcessor = queryProcessor;
+            _queryModelGenerator = queryModelGenerator;
         }
 
         /// <summary>
@@ -82,13 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = _queryProcessor.ExtractParameters(_logger, query, queryContext);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
             var compiledQuery
                 = _compiledQueryCache
                     .GetOrAddQuery(
                         _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
-                        () => CompileQueryCore<TResult>(query, _queryProcessor, _database, _logger, _contextType));
+                        () => CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType));
 
             return compiledQuery(queryContext);
         }
@@ -101,19 +101,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = _queryProcessor.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
 
-            return CompileQueryCore<TResult>(query, _queryProcessor, _database, _logger, _contextType);
+            return CompileQueryCore<TResult>(query, _queryModelGenerator, _database, _logger, _contextType);
         }
 
         private static Func<QueryContext, TResult> CompileQueryCore<TResult>(
             Expression query,
-            IQueryProcessor queryProcessor,
+            IQueryModelGenerator queryModelGenerator,
             IDatabase database,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             Type contextType)
         {
-            var queryModel = queryProcessor.ParseQuery(query);
+            var queryModel = queryModelGenerator.ParseQuery(query);
 
             var resultItemType
                 = (queryModel.GetOutputDataInfo()
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = _queryProcessor.ExtractParameters(_logger, query, queryContext);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
             return CompileAsyncQuery<TResult>(query)(queryContext);
         }
@@ -176,9 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = _queryProcessor.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
 
-            return CompileAsyncQueryCore<TResult>(query, _queryProcessor, _database);
+            return CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
         }
 
         /// <summary>
@@ -189,9 +189,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(query, nameof(query));
 
-            query = _queryProcessor.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, _queryContextFactory.Create(), parameterize: false);
 
-            var compiledQuery = CompileAsyncQueryCore<TResult>(query, _queryProcessor, _database);
+            var compiledQuery = CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database);
 
             return CreateCompiledSingletonAsyncQuery(compiledQuery, _logger, _contextType);
         }
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             queryContext.CancellationToken = cancellationToken;
 
-            query = _queryProcessor.ExtractParameters(_logger, query, queryContext);
+            query = _queryModelGenerator.ExtractParameters(_logger, query, queryContext);
 
             var compiledQuery = CompileAsyncQuery<TResult>(query);
 
@@ -255,15 +255,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _compiledQueryCache
                 .GetOrAddAsyncQuery(
                     _compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
-                    () => CompileAsyncQueryCore<TResult>(query, _queryProcessor, _database));
+                    () => CompileAsyncQueryCore<TResult>(query, _queryModelGenerator, _database));
         }
 
         private static Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQueryCore<TResult>(
             Expression query,
-            IQueryProcessor queryProcessor,
+            IQueryModelGenerator queryModelGenerator,
             IDatabase database)
         {
-            var queryModel = queryProcessor.ParseQuery(query);
+            var queryModel = queryModelGenerator.ParseQuery(query);
 
             return database.CompileAsyncQuery<TResult>(queryModel);
         }

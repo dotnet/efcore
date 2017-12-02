@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="resultOperatorHandler"> The <see cref="IResultOperatorHandler" /> to be used when processing the query. </param>
         /// <param name="entityMaterializerSource"> The <see cref="IEntityMaterializerSource" /> to be used when processing the query. </param>
         /// <param name="expressionPrinter"> The <see cref="IExpressionPrinter" /> to be used when processing the query. </param>
-        /// <param name="queryProcessor"> The <see cref="IQueryProcessor" /> to be used when processing the query. </param>
+        /// <param name="queryModelGenerator"> The <see cref="IQueryModelGenerator" /> to be used when processing the query. </param>
         public EntityQueryModelVisitorDependencies(
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IExpressionPrinter expressionPrinter,
-            [NotNull] IQueryProcessor queryProcessor)
+            [NotNull] IQueryModelGenerator queryModelGenerator)
         {
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
             Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
-            Check.NotNull(queryProcessor, nameof(queryProcessor));
+            Check.NotNull(queryModelGenerator, nameof(queryModelGenerator));
 
             QueryOptimizer = queryOptimizer;
             NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ResultOperatorHandler = resultOperatorHandler;
             EntityMaterializerSource = entityMaterializerSource;
             ExpressionPrinter = expressionPrinter;
-            QueryProcessor = queryProcessor;
+            QueryModelGenerator = queryModelGenerator;
         }
 
         /// <summary>
@@ -182,9 +182,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IQueryAnnotationExtractor QueryAnnotationExtractor { get; }
 
         /// <summary>
-        ///     Gets the <see cref="IQueryProcessor" /> to be used when processing a query.
+        ///     Gets the <see cref="IQueryModelGenerator" /> to be used when processing a query.
         /// </summary>
-        public IQueryProcessor QueryProcessor { get; }
+        public IQueryModelGenerator QueryModelGenerator { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -205,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 resultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 entityMaterializerSource,
                 ExpressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -436,6 +436,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 expressionPrinter,
-                QueryProcessor);
+                QueryModelGenerator);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="queryModelGenerator"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public EntityQueryModelVisitorDependencies With([NotNull] IQueryModelGenerator queryModelGenerator)
+            => new EntityQueryModelVisitorDependencies(
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter,
+                queryModelGenerator);
     }
 }

@@ -241,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var newExpressionTypeInfo = newExpression.Type.GetTypeInfo();
                 var castResultOperatorTypes = subQueryModel.ResultOperators.OfType<CastResultOperator>().Select(cre => cre.CastItemType).ToList();
                 var type = castResultOperatorTypes.LastOrDefault(t => newExpressionTypeInfo.IsAssignableFrom(t.GetTypeInfo()));
+
                 if (type != null
                     && type != newExpression.Type)
                 {

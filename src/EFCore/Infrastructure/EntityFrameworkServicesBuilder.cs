@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IExecutionStrategyFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IAsyncQueryProvider), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryCompiler), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IQueryProcessor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IQueryModelGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryOptimizer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityResultFindingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IRequiresMaterializationExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ICompiledQueryCache, CompiledQueryCache>();
             TryAdd<IAsyncQueryProvider, EntityQueryProvider>();
             TryAdd<IQueryCompiler, QueryCompiler>();
-            TryAdd<IQueryProcessor, QueryProcessor>();
+            TryAdd<IQueryModelGenerator, QueryModelGenerator>();
             TryAdd<IQueryAnnotationExtractor, QueryAnnotationExtractor>();
             TryAdd<IQueryOptimizer, QueryOptimizer>();
             TryAdd<IEntityTrackingInfoFactory, EntityTrackingInfoFactory>();

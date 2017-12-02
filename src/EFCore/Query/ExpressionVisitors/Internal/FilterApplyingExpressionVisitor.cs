@@ -4,12 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Remotion.Linq;
-using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 using Remotion.Linq.Parsing.ExpressionVisitors;
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class FilterApplyingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly QueryCompilationContext _queryCompilationContext;
-        private readonly IQueryProcessor _queryProcessor;
+        private readonly IQueryModelGenerator _queryModelGenerator;
 
         private readonly Parameters _parameters = new Parameters();
 
@@ -39,14 +38,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public FilterApplyingExpressionVisitor(
             [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IQueryProcessor queryProcessor)
+            [NotNull] IQueryModelGenerator queryModelGenerator)
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-            Check.NotNull(queryProcessor, nameof(queryProcessor));
+            Check.NotNull(queryModelGenerator, nameof(queryModelGenerator));
 
             _queryCompilationContext = queryCompilationContext;
-            _queryProcessor = queryProcessor;
+            _queryModelGenerator = queryModelGenerator;
         }
+
+        private static readonly MethodInfo _whereMethod
+            = typeof(Queryable)
+                .GetTypeInfo()
+                .GetDeclaredMethods(nameof(Queryable.Where))
+                .Single(
+                    mi => mi.GetParameters().Length == 2
+                          && mi.GetParameters()[1].ParameterType
+                              .GetGenericArguments()[0]
+                              .GetGenericArguments().Length == 2);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -62,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (entityType?.QueryFilter != null)
                 {
                     var parameterizedFilter
-                        = (LambdaExpression)_queryProcessor
+                        = (LambdaExpression)_queryModelGenerator
                             .ExtractParameters(
                                 _queryCompilationContext.Logger,
                                 entityType.QueryFilter,
@@ -70,24 +79,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                                 parameterize: false,
                                 generateContextAccessors: true);
 
-                    var mainFromClause
-                        = new MainFromClause(
-                            type.Name.Substring(0, 1).ToLowerInvariant(),
-                            type,
-                            constantExpression);
+                    var oldParameterExpression = parameterizedFilter.Parameters[0];
+                    var newParameterExpression = Expression.Parameter(type, oldParameterExpression.Name);
 
-                    var querySourceReferenceExpression = new QuerySourceReferenceExpression(mainFromClause);
-                    var selectClause = new SelectClause(querySourceReferenceExpression);
-                    var subQueryModel = new QueryModel(mainFromClause, selectClause);
-
-                    var predicate
+                    var predicateExpression
                         = ReplacingExpressionVisitor
                             .Replace(
-                                parameterizedFilter.Parameters.Single(),
-                                querySourceReferenceExpression,
+                                oldParameterExpression,
+                                newParameterExpression,
                                 parameterizedFilter.Body);
+                    
+                    var whereExpression
+                        = Expression.Call(
+                            _whereMethod.MakeGenericMethod(type),
+                            constantExpression,
+                            Expression.Lambda(
+                                predicateExpression,
+                                newParameterExpression));
 
-                    subQueryModel.BodyClauses.Add(new WhereClause(predicate));
+                    var subQueryModel = _queryModelGenerator.ParseQuery(whereExpression);
 
                     return new SubQueryExpression(subQueryModel);
                 }

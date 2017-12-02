@@ -190,9 +190,9 @@ FROM [Products] AS [p1]",
                 //
                 @"@__ef_filter___quantity_0='50'
 
-SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE [o].[Quantity] > @__ef_filter___quantity_0");
+SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[Quantity] > @__ef_filter___quantity_0");
         }
 
         public override void Navs_query()
@@ -207,9 +207,9 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [c.Orders] ON [c].[CustomerID] = [c.Orders].[CustomerID]
 INNER JOIN (
-    SELECT [o].*
-    FROM [Order Details] AS [o]
-    WHERE [o].[Quantity] > @__ef_filter___quantity_1
+    SELECT [od].*
+    FROM [Order Details] AS [od]
+    WHERE [od].[Quantity] > @__ef_filter___quantity_1
 ) AS [t] ON [c.Orders].[OrderID] = [t].[OrderID]
 WHERE (([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = N'')) AND ([t].[Discount] < CAST(10 AS real))");
         }

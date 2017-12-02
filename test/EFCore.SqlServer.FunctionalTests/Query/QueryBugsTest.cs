@@ -2659,6 +2659,20 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
         #region Bug9791
 
         [Fact]
+        public void Exception_when_null_and_filters_disabled()
+        {
+            using (CreateDatabase9791())
+            {
+                using (var context = new MyContext9791(_options))
+                {
+                    Assert.Throws<InvalidOperationException>(() => context.Blogs
+                        .IgnoreQueryFilters()
+                        .Where(e => !e.IsDeleted && context.TenantIds.Contains(e.TenantId)).ToList());
+                }
+            }
+        }
+
+        [Fact]
         public virtual void Context_bound_variable_works_correctly()
         {
             using (CreateDatabase9791())
@@ -2666,7 +2680,7 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
                 using (var context = new MyContext9791(_options))
                 {
                     // This throws because the default value of TenantIds is null which is NRE
-                    Assert.Throws<NullReferenceException>(() => context.Blogs.ToList());
+                    Assert.Throws<InvalidOperationException>(() => context.Blogs.ToList());
                 }
 
                 using (var context = new MyContext9791(_options))
@@ -2694,17 +2708,17 @@ ORDER BY [t0].[c], [t0].[c0], [t0].[Id]");
                 }
 
                 AssertSql(
-                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
-FROM [Blogs] AS [b]
-WHERE [b].[IsDeleted] = 0",
+                    @"SELECT [e].[Id], [e].[IsDeleted], [e].[TenantId]
+FROM [Blogs] AS [e]
+WHERE 0 = 1",
                     //
-                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
-FROM [Blogs] AS [b]
-WHERE [b].[IsDeleted] = 0",
+                    @"SELECT [e].[Id], [e].[IsDeleted], [e].[TenantId]
+FROM [Blogs] AS [e]
+WHERE ([e].[IsDeleted] = 0) AND [e].[TenantId] IN (1)",
                     //
-                    @"SELECT [b].[Id], [b].[IsDeleted], [b].[TenantId]
-FROM [Blogs] AS [b]
-WHERE [b].[IsDeleted] = 0");
+                    @"SELECT [e].[Id], [e].[IsDeleted], [e].[TenantId]
+FROM [Blogs] AS [e]
+WHERE ([e].[IsDeleted] = 0) AND [e].[TenantId] IN (1, 2)");
             }
         }
 
@@ -2735,7 +2749,11 @@ WHERE [b].[IsDeleted] = 0");
             {
             }
 
-            public List<int> TenantIds { get; set; }
+            public List<int> TenantIds
+            {
+                get;
+                set;
+            }
 
             public DbSet<Blog9791> Blogs { get; set; }
 
@@ -2792,22 +2810,22 @@ WHERE [b].[IsDeleted] = 0");
                     @"@__ef_filter__IsModerated_0='True' (Nullable = true)
 @__ef_filter__IsModerated_1='True' (Nullable = true)
 
-SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
-FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [e].[IsModerated]))",
+SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
+FROM [Users] AS [x]
+WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                     //
                     @"@__ef_filter__IsModerated_0='False' (Nullable = true)
 @__ef_filter__IsModerated_1='False' (Nullable = true)
 
-SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
-FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [e].[IsModerated]))",
+SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
+FROM [Users] AS [x]
+WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                     //
                     @"@__ef_filter__IsModerated_0='' (DbType = String)
 
-SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
-FROM [Users] AS [e]
-WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)");
+SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
+FROM [Users] AS [x]
+WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [x].[IsModerated] IS NULL)");
             }
         }
 
@@ -2844,15 +2862,15 @@ WHERE ([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[IsM
                 AssertSql(
                     @"@__ef_filter__Enabled_0='True'
 
-SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
-FROM [Chains] AS [e]
-WHERE @__ef_filter__Enabled_0 = [e].[IsDeleted]",
+SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
+FROM [Chains] AS [x]
+WHERE @__ef_filter__Enabled_0 = [x].[IsDeleted]",
                     //
                     @"@__ef_filter__Enabled_0='False'
 
-SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
-FROM [Chains] AS [e]
-WHERE @__ef_filter__Enabled_0 = [e].[IsDeleted]");
+SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
+FROM [Chains] AS [x]
+WHERE @__ef_filter__Enabled_0 = [x].[IsDeleted]");
             }
         }
 
@@ -2887,9 +2905,9 @@ WHERE @__ef_filter__Enabled_0 = [e].[IsDeleted]");
                         @"@__ef_filter__IsModerated_0='' (DbType = String)
 @__IsModerated_0='False'
 
-SELECT [e].[Id], [e].[IsDeleted], [e].[IsModerated]
-FROM [Users] AS [e]
-WHERE (([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[IsModerated] IS NULL)) AND ([e].[IsModerated] = @__IsModerated_0)");
+SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
+FROM [Users] AS [x]
+WHERE (([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [x].[IsModerated] IS NULL)) AND ([x].[IsModerated] = @__IsModerated_0)");
                 }
             }
         }
@@ -2911,9 +2929,9 @@ WHERE (([e].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR [e].[Is
                         @"@__ef_filter__BasePrice_0='1'
 @__ef_filter__CustomPrice_1='2'
 
-SELECT [e].[Id], [e].[IsEnabled]
-FROM [Complexes] AS [e]
-WHERE ([e].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__CustomPrice_1) > 0)");
+SELECT [x].[Id], [x].[IsEnabled]
+FROM [Complexes] AS [x]
+WHERE ([x].[IsEnabled] = 1) AND ((@__ef_filter__BasePrice_0 + @__ef_filter__CustomPrice_1) > 0)");
                 }
             }
         }
@@ -3327,6 +3345,85 @@ FROM [Comments] AS [c]");
         {
             public int Id { get; set; }
             public bool Include { get; set; }
+        }
+
+        #endregion
+
+        #region Bug10463
+
+        [Fact]
+        public virtual void Filter_referencing_set()
+        {
+            using (CreateDatabase10463())
+            {
+                using (var context = new MyContext10463(_options))
+                {
+                    var query = context.Blogs.ToList();
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Filter_referencing_set_with_closure()
+        {
+            using (CreateDatabase10463())
+            {
+                using (var context = new MyContext10463(_options))
+                {
+                    var query = context.Posts.ToList();
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase10463()
+        {
+            return CreateTestStore(
+                () => new MyContext10463(_options),
+                context =>
+                {
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext10463 : DbContext
+        {
+            public MyContext10463(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public int Value { get; set; }
+
+            public DbSet<Blog10463> Blogs { get; set; }
+            public DbSet<Post10463> Posts { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog10463>()
+                    .HasQueryFilter(b => Posts.Any(p => p.BlogId == b.Id));
+
+                SetPostsFilter(modelBuilder, this);
+            }
+
+            private static void SetPostsFilter(ModelBuilder modelBuilder, DbContext context)
+            {
+                modelBuilder.Entity<Post10463>()
+                    .HasQueryFilter(p => context.Set<Blog10463>().Any(b => b.Id == p.BlogId));
+            }
+        }
+
+        public class Blog10463
+        {
+            public int Id { get; set; }
+            public ICollection<Post10463> Posts { get; set; }
+        }
+
+        public class Post10463
+        {
+            public int Id { get; set; }
+            public int BlogId { get; set; }
         }
 
         #endregion

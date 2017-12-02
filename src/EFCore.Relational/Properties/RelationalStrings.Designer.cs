@@ -890,6 +890,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string InvalidMinBatchSize
             => GetString("InvalidMinBatchSize");
 
+        /// <summary>
+        ///     Expected a non-null value for query parameter '{parameter}'.
+        /// </summary>
+        public static string ExpectedNonNullParameter([CanBeNull] object parameter)
+            => string.Format(
+                GetString("ExpectedNonNullParameter", nameof(parameter)),
+                parameter);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

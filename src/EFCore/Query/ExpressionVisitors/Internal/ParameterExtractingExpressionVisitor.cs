@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -23,12 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private static readonly TypeInfo _queryableTypeInfo = typeof(IQueryable).GetTypeInfo();
 
-        private readonly ContextParameterReplacingExpressionVisitor
-            _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor();
-
         private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
         private readonly IParameterValues _parameterValues;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+        private readonly ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
 
         private readonly bool _parameterize;
         private readonly bool _generateContextAccessors;
@@ -105,6 +104,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (returnTypeInfo.IsGenericType
                 && returnTypeInfo.GetGenericTypeDefinition() == typeof(DbSet<>))
             {
+                if (_generateContextAccessors)
+                {
+                    return NullAsyncQueryProvider.Instance
+                        .CreateEntityQueryableExpression(
+                            methodCallExpression.Type.GetGenericArguments()[0]);
+                }
+
                 var queryable = (IQueryable)Evaluate(methodCallExpression, out _);
 
                 return ExtractParameters(queryable.Expression);
@@ -221,6 +227,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (!_queryableTypeInfo.IsAssignableFrom(memberExpression.Type.GetTypeInfo()))
             {
                 return TryExtractParameter(memberExpression);
+            }
+
+            if (_generateContextAccessors
+                && memberExpression.Type.IsGenericType
+                && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
+            {
+                return NullAsyncQueryProvider.Instance
+                    .CreateEntityQueryableExpression(
+                        memberExpression.Type.GetGenericArguments()[0]);
             }
 
             var queryable = (IQueryable)Evaluate(memberExpression, out _);
@@ -416,8 +431,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     .IsAssignableFrom(constantExpression.Type.GetTypeInfo()))
                 {
                     return ContextParameterExpression
-                        ?? (ContextParameterExpression
-                            = Expression.Parameter(constantExpression.Type, "context"));
+                           ?? (ContextParameterExpression
+                               = Expression.Parameter(constantExpression.Type, "context"));
                 }
 
                 return constantExpression;
@@ -444,9 +459,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (newExpression != expression)
                 {
                     parameterName = QueryFilterPrefix + "__"
-                                        + (expression is MemberExpression memberExpression
-                                            ? memberExpression.Member.Name
-                                            : QueryFilterPrefix);
+                                    + (expression is MemberExpression memberExpression
+                                        ? memberExpression.Member.Name
+                                        : QueryFilterPrefix);
 
                     return Expression.Lambda(
                         newExpression,
@@ -458,54 +473,54 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             switch (expression.NodeType)
             {
                 case ExpressionType.MemberAccess:
+                {
+                    var memberExpression = (MemberExpression)expression;
+                    var @object = Evaluate(memberExpression.Expression, out parameterName);
+
+                    if (memberExpression.Member is FieldInfo fieldInfo)
                     {
-                        var memberExpression = (MemberExpression)expression;
-                        var @object = Evaluate(memberExpression.Expression, out parameterName);
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + fieldInfo.Name
+                            : fieldInfo.Name;
 
-                        if (memberExpression.Member is FieldInfo fieldInfo)
+                        try
                         {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + fieldInfo.Name
-                                : fieldInfo.Name;
-
-                            try
-                            {
-                                return fieldInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
+                            return fieldInfo.GetValue(@object);
                         }
-
-                        if (memberExpression.Member is PropertyInfo propertyInfo)
+                        catch
                         {
-                            parameterName = parameterName != null
-                                ? parameterName + "_" + propertyInfo.Name
-                                : propertyInfo.Name;
-
-                            try
-                            {
-                                return propertyInfo.GetValue(@object);
-                            }
-                            catch
-                            {
-                                // Try again when we compile the delegate
-                            }
+                            // Try again when we compile the delegate
                         }
-
-                        break;
                     }
+
+                    if (memberExpression.Member is PropertyInfo propertyInfo)
+                    {
+                        parameterName = parameterName != null
+                            ? parameterName + "_" + propertyInfo.Name
+                            : propertyInfo.Name;
+
+                        try
+                        {
+                            return propertyInfo.GetValue(@object);
+                        }
+                        catch
+                        {
+                            // Try again when we compile the delegate
+                        }
+                    }
+
+                    break;
+                }
                 case ExpressionType.Constant:
-                    {
-                        return ((ConstantExpression)expression).Value;
-                    }
+                {
+                    return ((ConstantExpression)expression).Value;
+                }
                 case ExpressionType.Call:
-                    {
-                        parameterName = ((MethodCallExpression)expression).Method.Name;
+                {
+                    parameterName = ((MethodCallExpression)expression).Method.Name;
 
-                        break;
-                    }
+                    break;
+                }
             }
 
             try

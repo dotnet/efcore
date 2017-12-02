@@ -104,8 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _filterApplyingExpressionVisitor
                 = new FilterApplyingExpressionVisitor(
-                    _queryCompilationContext,
-                    dependencies.QueryProcessor);
+                    _queryCompilationContext, dependencies.QueryModelGenerator);
         }
 
         /// <summary>
