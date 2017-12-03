@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         public const string SqliteFractionalSeconds = "'%f'";
         public const string SqliteLocalTime = "'localtime'";
         public const string SqliteNow = "'now'";
+        public const string SqliteUtc = "'utc'";
         public const string SqliteStartOfDay = "'start of day'";
     }
 }

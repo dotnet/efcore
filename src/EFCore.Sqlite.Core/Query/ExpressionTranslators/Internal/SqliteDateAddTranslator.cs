@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                             }), Expression.Constant(1000.0m)),
                                     typeof(double)),
                         new SqlFragmentExpression($"' {datePart}'")),
-                    new SqlFragmentExpression(SqliteDateTimeHelper.SqliteLocalTime)
+                        new SqlFragmentExpression(SqliteDateTimeHelper.SqliteUtc)
                 };
 
                 return new SqlFunctionExpression(
@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     returnType: methodCallExpression.Type,
                     arguments:
                         methodCallExpression.Type == typeof(DateTime)
-                            ? arguments
-                            : arguments.Take(3));
+                            ? arguments.Take(3)
+                            : arguments);
             }
 
             return null;

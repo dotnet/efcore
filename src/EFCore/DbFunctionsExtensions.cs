@@ -583,16 +583,9 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? startDate,
             DateTimeOffset? endDate)
-        {
-            if (startDate.HasValue && endDate.HasValue)
-            {
-                return DateDiffNanosecond(_, startDate.Value, endDate.Value);
-            }
-            else
-            {
-                return null;
-            }
-        }
+            => (startDate.HasValue && endDate.HasValue)
+                ? (int?)DateDiffNanosecond(_, startDate.Value, endDate.Value)
+                : null;
 
         /// <summary>
         ///     <para>
