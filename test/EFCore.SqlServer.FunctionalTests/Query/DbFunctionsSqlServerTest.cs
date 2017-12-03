@@ -1,11 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Data.SqlClient;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,216 +12,153 @@ namespace Microsoft.EntityFrameworkCore.Query
         public DbFunctionsSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            Fixture.TestSqlLoggerFactory.Clear();
+            fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void String_Like_Literal()
         {
             base.String_Like_Literal();
 
-            AssertSql(
+            Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%M%'");
+WHERE [c].[ContactName] LIKE N'%M%'",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void String_Like_Identity()
         {
             base.String_Like_Identity();
 
-            AssertSql(
+            Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE [c].[ContactName]");
+WHERE [c].[ContactName] LIKE [c].[ContactName]",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         public override void String_Like_Literal_With_Escape()
         {
             base.String_Like_Literal_With_Escape();
 
-            AssertSql(
+            Assert.Equal(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
+WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void FreeText_Search_Literal()
+        public override void String_DateDiff_Day()
         {
-            using (var context = CreateContext())
-            {
-                var result = await context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Title, "Representative"))
-                    .ToListAsync();
+            base.String_DateDiff_Day();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
-
-                AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative')");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(DAY, [c].[OrderDate], GETDATE()) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        public void FreeText_InMemoryUse_Throws()
+        public override void String_DateDiff_Month()
         {
-            Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
-            Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
+            base.String_DateDiff_Month();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(MONTH, [c].[OrderDate], GETDATE()) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_Multiple_Words()
+        public override void String_DateDiff_Year()
         {
-            using (var context = CreateContext())
-            {
-                var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Title, "Representative Sales"))
-                    .Count();
+            base.String_DateDiff_Year();
 
-                Assert.Equal(result, 9);
-
-                AssertSql(
-                    @"SELECT COUNT(*)
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative Sales')");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(YEAR, [c].[OrderDate], GETDATE()) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_With_Language()
+        public override void String_DateDiff_Hour()
         {
-            using (var context = CreateContext())
-            {
-                var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", 1033));
+            base.String_DateDiff_Hour();
 
-                Assert.Equal(result.EmployeeID, 2u);
-
-                AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(HOUR, [c].[OrderDate], GETDATE()) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_Multiple_Words_With_Language()
+        public override void String_DateDiff_Minute()
         {
-            using (var context = CreateContext())
-            {
-                var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Title, "Representative President", 1033))
-                    .ToList();
+            base.String_DateDiff_Minute();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
-
-                AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(MINUTE, [c].[OrderDate], GETDATE()) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_Multiple_FullText_Calls()
+        public override void String_DateDiff_Second()
         {
-            using (var context = CreateContext())
-            {
-                var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.City, "London")
-                        && EF.Functions.FreeText(c.Title, "Manager", 1033))
-                    .FirstOrDefault();
+            base.String_DateDiff_Second();
 
-                Assert.Equal(result.EmployeeID, 5u);
-
-                AssertSql(
-                    @"SELECT TOP(1) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', LANGUAGE 1033))");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_Throws_With_No_FullText_Index()
+        public override void String_DateDiff_Millisecond()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Throws<SqlException>(
-                    () => context.Employees.Where(c => EF.Functions.FreeText(c.FirstName, "Fred")).ToArray());
-            }
+            base.String_DateDiff_Millisecond();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_Navigation_Property()
+        public override void String_DateDiff_Microsecond()
         {
-            using (var context = CreateContext())
-            {
-                var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President")
-                        && EF.Functions.FreeText(c.Title, "Inside")
-                        && c.FirstName.Contains("Lau"))
-                    .LastOrDefault();
+            base.String_DateDiff_Microsecond();
 
-                Assert.Equal(result.EmployeeID, 8u);
-
-                AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public void FreeText_Search_Navigation_Property_With_Languages()
+        public override void String_DateDiff_Convert_To_Date()
         {
-            using (var context = CreateContext())
-            {
-                var result = context.Employees
-                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                        && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                        && c.FirstName.Contains("Lau"))
-                    .LastOrDefault();
+            base.String_DateDiff_Convert_To_Date();
 
-                Assert.Equal(result.EmployeeID, 8u);
-
-                AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([c].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
-            }
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(DAY, [c].[OrderDate], CONVERT(date, GETDATE())) = 0",
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
-        public async void FreeText_Search_Throws_When_Using_Non_Parameter_Or_Constant_Expression()
-        {
-            using (var context = CreateContext())
-            {
-                await Assert.ThrowsAsync<SqlException>(
-                    async () => await context.Employees.FirstOrDefaultAsync(
-                        e => EF.Functions.FreeText(e.City, e.FirstName)));
-
-                await Assert.ThrowsAsync<SqlException>(
-                    async () => await context.Employees.FirstOrDefaultAsync(
-                        e => EF.Functions.FreeText(e.City, "")));
-
-                await Assert.ThrowsAsync<SqlException>(
-                    async () => await context.Employees.FirstOrDefaultAsync(
-                        e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
-            }
-        }
-
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
     }
 }

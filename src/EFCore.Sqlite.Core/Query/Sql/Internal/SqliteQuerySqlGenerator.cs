@@ -68,5 +68,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This Concat Seperator
+        /// </summary>
+        protected override string ConcatSeparator => "||";
     }
 }
