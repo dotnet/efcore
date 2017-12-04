@@ -7,7 +7,7 @@
         "SupportsOffset": true,
         "SupportsMemoryOptimized": false,
         "SupportsHiddenColumns": true,
-        "SupportsFullTextSearches": false
+        "SupportsFullTextSearch": true
       }
     }
 }

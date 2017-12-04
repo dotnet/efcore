@@ -1,17 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
-using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
@@ -22,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqlServerFreeTextMethodCallTranslator : IMethodCallTranslator
     {
+        private const string FunctionName = "FREETEXT";
+
         private static readonly MethodInfo _methodInfo
             = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.FreeText),
@@ -40,30 +34,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if(Equals(methodCallExpression.Method, _methodInfo))
-            {
-                return new SqlFunctionExpression(
-                    "FREETEXT",
+            return Equals(methodCallExpression.Method, _methodInfo)
+                ? new SqlFunctionExpression(
+                    FunctionName,
                     typeof(bool),
                     new Expression[]
                     {
                         methodCallExpression.Arguments[1],
                         methodCallExpression.Arguments[2]
-                    }
-                );
-            }
-
-            return Equals(methodCallExpression.Method, _methodInfoWithLanguage) ?
-                new SqlFunctionExpression(
-                    "FREETEXT",
-                    typeof(bool),
-                    new Expression[]
-                    {
-                        methodCallExpression.Arguments[1],
-                        methodCallExpression.Arguments[2],
-                        new SqlFragmentExpression($"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
-                    }
-                ): null;
+                    })
+                : Equals(methodCallExpression.Method, _methodInfoWithLanguage)
+                    ? new SqlFunctionExpression(
+                        FunctionName,
+                        typeof(bool),
+                        new Expression[]
+                        {
+                            methodCallExpression.Arguments[1],
+                            methodCallExpression.Arguments[2],
+                            new SqlFragmentExpression(
+                                $"LANGUAGE {((ConstantExpression)methodCallExpression.Arguments[3]).Value}")
+                        })
+                    : null;
         }
     }
 }

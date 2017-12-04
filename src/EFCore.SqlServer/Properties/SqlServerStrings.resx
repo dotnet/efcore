@@ -216,4 +216,7 @@
   <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
     <value>The specified table '{table}' is not valid. Specify tables using the format '[schema].[table]'.</value>
   </data>
+  <data name="FreeTextFunctionOnClient" xml:space="preserve">
+    <value>The 'FreeText' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  </data>
 </root>

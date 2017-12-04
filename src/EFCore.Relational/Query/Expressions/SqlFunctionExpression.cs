@@ -29,7 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         public SqlFunctionExpression(
             [NotNull] string functionName,
             [NotNull] Type returnType)
-            : this(functionName, returnType, Enumerable.Empty<Expression>())
+            : this(
+                  Check.NotEmpty(functionName, nameof(functionName)),
+                  Check.NotNull(returnType, nameof(returnType)),
+                  Enumerable.Empty<Expression>())
         {
         }
 
@@ -43,7 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string functionName,
             [NotNull] Type returnType,
             [NotNull] IEnumerable<Expression> arguments)
-            : this(functionName, returnType, /*schema*/ null, arguments)
+            : this(
+                  Check.NotEmpty(functionName, nameof(functionName)),
+                  Check.NotNull(returnType, nameof(returnType)),
+                  /*schema*/ null,
+                  Check.NotNull(arguments, nameof(arguments)))
         {
         }
 
@@ -59,7 +66,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] Type returnType,
             [CanBeNull] string schema,
             [NotNull] IEnumerable<Expression> arguments)
-            : this(/*instance*/ null, functionName, schema, returnType, arguments)
+            : this(
+                  /*instance*/ null,
+                  Check.NotEmpty(functionName, nameof(functionName)),
+                  schema,
+                  Check.NotNull(returnType, nameof(returnType)),
+                  Check.NotNull(arguments, nameof(arguments)))
         {
         }
 
@@ -75,7 +87,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             [NotNull] string functionName,
             [NotNull] Type returnType,
             [NotNull] IEnumerable<Expression> arguments)
-            : this(instance, functionName, /*schema*/ null, returnType, arguments)
+            : this(
+                  Check.NotNull(instance, nameof(instance)),
+                  Check.NotEmpty(functionName, nameof(functionName)),
+                  /*schema*/ null,
+                  Check.NotNull(returnType, nameof(returnType)),
+                  Check.NotNull(arguments, nameof(arguments)))
         {
         }
 

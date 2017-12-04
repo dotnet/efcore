@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
         /// </returns>
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if(binaryExpression.Left is SqlFunctionExpression sqlFunctionExpression
+            if (binaryExpression.Left is SqlFunctionExpression sqlFunctionExpression
                 && sqlFunctionExpression.FunctionName == "FREETEXT")
             {
                 Visit(binaryExpression.Left);
