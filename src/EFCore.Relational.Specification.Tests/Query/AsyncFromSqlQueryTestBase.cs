@@ -81,6 +81,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
+        public virtual async Task From_sql_queryable_with_semicolon_composed()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = await context.Set<Customer>()
+                    .FromSql(@"SELECT * FROM ""Customers"";")
+                    .Where(c => c.ContactName.Contains("z"))
+                    .ToArrayAsync();
+
+                Assert.Equal(14, actual.Length);
+            }
+        }
+
+        [Fact]
         public virtual async Task From_sql_queryable_multiple_composed()
         {
             using (var context = CreateContext())
