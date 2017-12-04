@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Constructs a <see cref="RawSqlString" /> from a see <see cref="string" />
         /// </summary>
         /// <param name="s"> The string. </param>
-        public RawSqlString([NotNull] string s) => Format = s;
+        public RawSqlString([NotNull] string s) => Format = s?.Replace(";", string.Empty);
 
         /// <summary>
         ///     The string format.
