@@ -19,9 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
-                    new SqlServerTypeMapper(
-                        new CoreTypeMapperDependencies(),
-                        new RelationalTypeMapperDependencies())));
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
 
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 

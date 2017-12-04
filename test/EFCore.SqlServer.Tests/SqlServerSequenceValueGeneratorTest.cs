@@ -76,9 +76,7 @@ namespace Microsoft.EntityFrameworkCore
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new SqlServerTypeMapper(
-                            new CoreTypeMapperDependencies(),
-                            new RelationalTypeMapperDependencies()))),
+                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())),
                 state,
                 CreateConnection());
 
@@ -129,9 +127,7 @@ namespace Microsoft.EntityFrameworkCore
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
-                    new SqlServerTypeMapper(
-                        new CoreTypeMapperDependencies(),
-                        new RelationalTypeMapperDependencies())));
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
 
             var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -178,9 +174,7 @@ namespace Microsoft.EntityFrameworkCore
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new SqlServerTypeMapper(
-                            new CoreTypeMapperDependencies(),
-                            new RelationalTypeMapperDependencies()))),
+                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())),
                 state,
                 CreateConnection());
 

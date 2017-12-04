@@ -87,9 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
             => new MigrationsModelDiffer(
-                new ConcreteTypeMapper(
-                    new CoreTypeMapperDependencies(),
-                    new RelationalTypeMapperDependencies()),
+                TestServiceFactory.Instance.Create<ConcreteTypeMapper>(),
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),

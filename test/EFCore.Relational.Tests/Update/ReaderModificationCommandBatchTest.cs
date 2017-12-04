@@ -514,9 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping] = new TestRelationalTypeMapper(
-                new CoreTypeMapperDependencies(),
-                new RelationalTypeMapperDependencies()).GetMapping(property);
+            => property[CoreAnnotationNames.TypeMapping] = TestServiceFactory.Instance.Create<TestRelationalTypeMapper>().GetMapping(property);
 
         private static InternalEntityEntry CreateEntry(
             EntityState entityState,
@@ -543,18 +541,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                 : base(
                     new RelationalCommandBuilderFactory(
                         new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                        new FakeRelationalTypeMapper(
-                            new CoreTypeMapperDependencies(),
-                            new RelationalTypeMapperDependencies())),
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()),
                     new RelationalSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
                     sqlGenerator ?? new FakeSqlGenerator(
                         RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>()),
                     new TypedRelationalValueBufferFactoryFactory(
                         new RelationalValueBufferFactoryDependencies(
-                            new FakeRelationalTypeMapper(
-                                new CoreTypeMapperDependencies(),
-                                new RelationalTypeMapperDependencies()))))
+                            TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;

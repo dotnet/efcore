@@ -252,9 +252,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping] = new SqlServerTypeMapper(
-                new CoreTypeMapperDependencies(),
-                new RelationalTypeMapperDependencies()).GetMapping(property);
+            => property[CoreAnnotationNames.TypeMapping] = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().GetMapping(property);
 
         private class Cheese
         {
@@ -271,8 +269,6 @@ namespace Microsoft.EntityFrameworkCore
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    new SqlServerTypeMapper(
-                        new CoreTypeMapperDependencies(),
-                        new RelationalTypeMapperDependencies())));
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
     }
 }

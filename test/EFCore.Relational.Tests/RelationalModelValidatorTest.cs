@@ -797,9 +797,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping] = new TestRelationalTypeMapper(
-                new CoreTypeMapperDependencies(),
-                new RelationalTypeMapperDependencies()).GetMapping(property);
+            => property[CoreAnnotationNames.TypeMapping]
+                = TestServiceFactory.Instance.Create<TestRelationalTypeMapper>().GetMapping(property);
 
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
         {
@@ -860,9 +859,7 @@ namespace Microsoft.EntityFrameworkCore
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    new TestRelationalTypeMapper(
-                        new CoreTypeMapperDependencies(),
-                        new RelationalTypeMapperDependencies())));
+                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()));
 
         protected virtual ConventionSet CreateConventionSet() => TestRelationalConventionSetBuilder.Build();
     }

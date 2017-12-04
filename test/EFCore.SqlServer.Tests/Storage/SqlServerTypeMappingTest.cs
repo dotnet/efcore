@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override void GenerateSqlLiteral_returns_ByteArray_literal()
         {
             var value = new byte[] { 0xDA, 0x7A };
-            var literal = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
+            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
                 .GetMapping(typeof(byte[])).GenerateSqlLiteral(value);
             Assert.Equal("0xDA7A", literal);
         }
@@ -99,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override void GenerateSqlLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
+            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
                 .GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
 
             Assert.Equal("'2015-03-12T13:36:37.371'", literal);
@@ -108,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
+            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
                 .GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
 
             Assert.Equal("'2015-03-12T13:36:37.371-07:00'", literal);
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
         {
-            var literal = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
+            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
                 .GetMapping("nvarchar(max)").GenerateSqlLiteral("A Unicode String");
             Assert.Equal("N'A Unicode String'", literal);
         }
@@ -125,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
         {
-            var literal = new SqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
+            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
                 .GetMapping("varchar(max)").GenerateSqlLiteral("A Non-Unicode String");
             Assert.Equal("'A Non-Unicode String'", literal);
         }
@@ -136,8 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
         public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
         {
-            var mappings = new TestSqlServerTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies())
-                .GetClrTypeNameMappings();
+            var mappings = TestServiceFactory.Instance.Create<TestSqlServerTypeMapper>().GetClrTypeNameMappings();
 
             var mapping = mappings[typeName](typeof(Random));
 

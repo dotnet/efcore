@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     new Model(),
                     migrationAssembly,
                     new MigrationsModelDiffer(
-                        new TestRelationalTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()),
+                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>(),
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<StateManagerDependencies>(),
