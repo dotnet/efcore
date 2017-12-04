@@ -81,5 +81,12 @@ namespace Microsoft.Data.Sqlite
 
             throw new SqliteException(Resources.SqliteNativeError(rc, message), rc, extendedErrorCode);
         }
+
+        /// <summary>
+        ///     Throws an exception based on the internal error state of the database.
+        /// </summary>
+        /// <param name="db">A handle to database connection.</param>
+        public static void ThrowExceptionForDatabaseError(sqlite3 db)
+            => ThrowExceptionForRC(raw.sqlite3_errcode(db), db);
     }
 }
