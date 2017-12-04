@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
                 if(Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
                 {
-                    isMet &= TestEnvironment.SupportsFullTextSearch;
+                    isMet &= TestEnvironment.IsFullTestSearchSupported;
                 }
                 return isMet;
             }

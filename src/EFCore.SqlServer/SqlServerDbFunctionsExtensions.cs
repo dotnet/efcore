@@ -1,5 +1,9 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -11,37 +15,45 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         /// <para>
-        ///     An implementation of the T-SQL FREEETEXT method. It is used to perform full text searches on full text indexed columns
+        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
         /// </para>
         /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
         /// <param name="_">DbFunctions instance</param>
-        /// <param name="columnName">the column where the search will be performed</param>
-        /// <param name="freeText">the text that is to be searched</param>
-        /// <param name="languageTerm">language ID from sys.syslanguages table</param>
+        /// <param name="propertyName">The property on which the search will be performed.</param>
+        /// <param name="freeText">The text that will be searched for in the property.</param>
+        /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
         public static bool FreeText(
             [CanBeNull] this DbFunctions _,
-            [NotNull] string columnName,
+            [NotNull] string propertyName,
             [NotNull] string freeText,
             int languageTerm)
-            => FreeTextCore(columnName, freeText, languageTerm);
+            => FreeTextCore(propertyName, freeText, languageTerm);
 
         /// <summary>
         /// <para>
-        ///     An implementation of the T-SQL FREEETEXT method. It is used to perform full text searches on full text indexed columns
+        ///     A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
         /// </para>
         /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
         /// <param name="_">DbFunctions instance</param>
-        /// <param name="columnName">the column where the search will be performed</param>
-        /// <param name="freeText">the text that is to be searched</param>
+        /// <param name="propertyName">The property on which the search will be performed.</param>
+        /// <param name="freeText">The text that will be searched for in the property.</param>
         public static bool FreeText(
             [CanBeNull] this DbFunctions _,
-            [NotNull] string columnName,
+            [NotNull] string propertyName,
             [NotNull] string freeText)
-            => FreeTextCore(columnName, freeText, null);
+            => FreeTextCore(propertyName, freeText, null);
 
-        private static bool FreeTextCore(string columnName, string freeText, int? languageTerm)
+        private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
         {
-            throw new NotImplementedException();
+            throw new InvalidOperationException(SqlServerStrings.FreeTextFunctionOnClient);
         }
     }
 }

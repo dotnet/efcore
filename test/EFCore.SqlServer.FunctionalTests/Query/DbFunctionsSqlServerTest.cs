@@ -16,43 +16,37 @@ namespace Microsoft.EntityFrameworkCore.Query
         public DbFunctionsSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         public override void String_Like_Literal()
         {
             base.String_Like_Literal();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'%M%'",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE [c].[ContactName] LIKE N'%M%'");
         }
 
         public override void String_Like_Identity()
         {
             base.String_Like_Identity();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE [c].[ContactName]",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE [c].[ContactName] LIKE [c].[ContactName]");
         }
 
         public override void String_Like_Literal_With_Escape()
         {
             base.String_Like_Literal_With_Escape();
 
-            Assert.Equal(
+            AssertSql(
                 @"SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'",
-                Sql,
-                ignoreLineEndingDifferences: true);
+WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
         }
 
         [ConditionalFact]
@@ -61,25 +55,24 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'",
         {
             using (var context = CreateContext())
             {
-                var result = await context.Employees.Where(c => EF.Functions.FreeText(c.Title, "Representative")).ToListAsync(); 
+                var result = await context.Employees
+                    .Where(c => EF.Functions.FreeText(c.Title, "Representative"))
+                    .ToListAsync();
 
                 Assert.Equal(result.First().EmployeeID, 1u);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative')",
-                    Sql,
-                    ignoreLineEndingDifferences: true,
-                    ignoreWhiteSpaceDifferences: true);
+WHERE FREETEXT([c].[Title], N'Representative')");
             }
         }
 
         [ConditionalFact]
         public void FreeText_InMemoryUse_Throws()
         {
-            Assert.Throws<NotImplementedException>(() => EF.Functions.FreeText("teststring", "teststring"));
-            Assert.Throws<NotImplementedException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
+            Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
+            Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
         }
 
         [ConditionalFact]
@@ -88,18 +81,16 @@ WHERE FREETEXT([c].[Title], N'Representative')",
         {
             using (var context = CreateContext())
             {
-                var result = context.Employees.Where(c => EF.Functions.FreeText(c.Title, "Representative Sales")).Count();
+                var result = context.Employees
+                    .Where(c => EF.Functions.FreeText(c.Title, "Representative Sales"))
+                    .Count();
 
                 Assert.Equal(result, 9);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT COUNT(*)
 FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative Sales')",
-                    Sql,
-                    ignoreLineEndingDifferences: true,
-                    ignoreWhiteSpaceDifferences: true
-                    );
+WHERE FREETEXT([c].[Title], N'Representative Sales')");
             }
         }
 
@@ -113,12 +104,10 @@ WHERE FREETEXT([c].[Title], N'Representative Sales')",
 
                 Assert.Equal(result.EmployeeID, 2u);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)",
-                    Sql,
-                    ignoreLineEndingDifferences: true);
+WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -128,18 +117,16 @@ WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)",
         {
             using (var context = CreateContext())
             {
-                var result = context.Employees.Where(c => EF.Functions.FreeText(c.Title, "Representative President", 1033)).ToList();
+                var result = context.Employees
+                    .Where(c => EF.Functions.FreeText(c.Title, "Representative President", 1033))
+                    .ToList();
 
                 Assert.Equal(result.First().EmployeeID, 1u);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)",
-                    Sql,
-                    ignoreLineEndingDifferences: true,
-                    ignoreWhiteSpaceDifferences: true
-                    );
+WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
             }
         }
 
@@ -149,17 +136,17 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)",
         {
             using (var context = CreateContext())
             {
-                var result = context.Employees.Where(c => EF.Functions.FreeText(c.City, "London") && EF.Functions.FreeText(c.Title, "Manager", 1033)).FirstOrDefault();
+                var result = context.Employees
+                    .Where(c => EF.Functions.FreeText(c.City, "London")
+                        && EF.Functions.FreeText(c.Title, "Manager", 1033))
+                    .FirstOrDefault();
 
                 Assert.Equal(result.EmployeeID, 5u);
 
-                Assert.Equal(
+                AssertSql(
                     @"SELECT TOP(1) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
-WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', LANGUAGE 1033))",
-                    Sql,
-                    ignoreLineEndingDifferences: true,
-                    ignoreWhiteSpaceDifferences: true);
+WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', LANGUAGE 1033))");
             }
         }
 
@@ -169,7 +156,8 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<SqlException>(() => context.Employees.Where(c => EF.Functions.FreeText(c.FirstName, "Fred")).ToArray());
+                Assert.Throws<SqlException>(
+                    () => context.Employees.Where(c => EF.Functions.FreeText(c.FirstName, "Fred")).ToArray());
             }
         }
 
@@ -179,17 +167,19 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
         {
             using (var context = CreateContext())
             {
-                var result = context.Employees.Where(c => EF.Functions.FreeText(c.Manager.Title, "President") && EF.Functions.FreeText(c.Title, "Inside") && c.FirstName.Contains("Lau")).LastOrDefault();
+                var result = context.Employees
+                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President")
+                        && EF.Functions.FreeText(c.Title, "Inside")
+                        && c.FirstName.Contains("Lau"))
+                    .LastOrDefault();
 
                 Assert.Equal(result.EmployeeID, 8u);
 
-                Assert.Equal(@"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
 LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)",
-                            Sql,
-                            ignoreLineEndingDifferences: true,
-                            ignoreWhiteSpaceDifferences: true);
+WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
             }
         }
 
@@ -199,17 +189,19 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
         {
             using (var context = CreateContext())
             {
-                var result = context.Employees.Where(c => EF.Functions.FreeText(c.Manager.Title, "President", 1033) && EF.Functions.FreeText(c.Title, "Inside", 1031) && c.FirstName.Contains("Lau")).LastOrDefault();
+                var result = context.Employees
+                    .Where(c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
+                        && EF.Functions.FreeText(c.Title, "Inside", 1031)
+                        && c.FirstName.Contains("Lau"))
+                    .LastOrDefault();
 
                 Assert.Equal(result.EmployeeID, 8u);
 
-                Assert.Equal(@"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+                AssertSql(
+                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
 FROM [Employees] AS [c]
 LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([c].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)",
-                            Sql,
-                            ignoreLineEndingDifferences: true,
-                            ignoreWhiteSpaceDifferences: true);
+WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([c].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
             }
         }
 
@@ -219,12 +211,21 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
         {
             using (var context = CreateContext())
             {
-                await Assert.ThrowsAsync<SqlException>(async () => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City, e.FirstName)));
-                await Assert.ThrowsAsync<SqlException>(async () => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City, "")));
-                await Assert.ThrowsAsync<SqlException>(async () => await context.Employees.FirstOrDefaultAsync(e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
+                await Assert.ThrowsAsync<SqlException>(
+                    async () => await context.Employees.FirstOrDefaultAsync(
+                        e => EF.Functions.FreeText(e.City, e.FirstName)));
+
+                await Assert.ThrowsAsync<SqlException>(
+                    async () => await context.Employees.FirstOrDefaultAsync(
+                        e => EF.Functions.FreeText(e.City, "")));
+
+                await Assert.ThrowsAsync<SqlException>(
+                    async () => await context.Employees.FirstOrDefaultAsync(
+                        e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
             }
         }
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

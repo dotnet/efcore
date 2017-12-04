@@ -24,38 +24,45 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .GetSection("Test:SqlServer");
         }
 
-        private const string DefaultConnectionString = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30";
+        private const string DefaultConnectionString
+            = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30";
 
         public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
 
-        public static bool IsSqlAzure => new SqlConnectionStringBuilder(DefaultConnection).DataSource.Contains("database.windows.net");
+        public static bool IsSqlAzure
+            => new SqlConnectionStringBuilder(DefaultConnection).DataSource.Contains("database.windows.net");
 
         public static bool IsTeamCity => Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
 
-        public static bool SupportsFullTextSearch
+        public static bool IsFullTestSearchSupported
         {
             get
             {
-                using (var sql = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
+                var fullTextInstalled = false;
+                using (var sqlConnection = new SqlConnection(SqlServerTestStore.CreateConnectionString("master")))
                 {
-                    using (var command = new SqlCommand("SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled') as result", sql))
+                    sqlConnection.Open();
+
+                    using (var command = new SqlCommand(
+                        "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')", sqlConnection))
                     {
-                        sql.Open();
+                        var result = (int)command.ExecuteScalar();
 
-                        using (var reader = command.ExecuteReader())
-                        {
-                            reader.Read();
-
-                            var result = (int)reader["result"];
-
-                            reader.Close();
-
-                            sql.Close();
-
-                            return result == 1;
-                        }
+                        fullTextInstalled = result == 1;
                     }
                 }
+
+                if (fullTextInstalled)
+                {
+                    var flag = GetFlag("SupportsFullTextSearch");
+
+                    if (flag.HasValue)
+                    {
+                        return flag.Value;
+                    }
+                }
+
+                return false;
             }
         }
 
