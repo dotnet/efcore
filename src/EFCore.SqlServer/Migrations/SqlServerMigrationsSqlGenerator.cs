@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -1062,7 +1063,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
             }
 
-            base.Generate(operation, model, builder);
+            var sqlBuilder = new StringBuilder();
+            ((SqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
+                sqlBuilder,
+                operation.GenerateModificationCommands().ToList(),
+                0);
+
+            builder.Append(sqlBuilder.ToString());
 
             builder
                 .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'");

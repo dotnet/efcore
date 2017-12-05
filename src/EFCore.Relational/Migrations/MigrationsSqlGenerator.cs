@@ -1011,7 +1011,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             builder.Append(sqlBuilder.ToString());
-            EndStatement(builder);
+
+            if (terminate)
+            {
+                EndStatement(builder);
+            }
         }
 
         /// <summary>

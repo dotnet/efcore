@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -453,16 +452,129 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     });
         }
 
+        [Fact]
+        public void SeedData_all_operations()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
+                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                    }),
+                target => target.Entity(
+                    "EntityWithTwoProperties",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Value1");
+                        x.Property<string>("Value2");
+                        x.SeedData(
+                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
+                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
+                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                    }),
+                upOps => Assert.Collection(upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(99999, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99, v),
+                            v => Assert.Equal("not equal2", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(27, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Collection(ToJaggedArray(m.Values),
+                            r => Assert.Collection(r,
+                                v => Assert.Equal(11111, v),
+                                v => Assert.Equal(0, v),
+                                v => Assert.Equal("", v)),
+                            r => Assert.Collection(r,
+                                v => Assert.Equal(11112, v),
+                                v => Assert.Equal(1, v),
+                                v => Assert.Equal("new", v))
+                            );
+                    }),
+                downOps => Assert.Collection(downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(11111, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(11112, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(24, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(72, v),
+                            v => Assert.Equal("not equal1", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<UpdateDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(42, v));
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(32, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(99999, v),
+                            v => Assert.Equal(0, v),
+                            v => Assert.Equal("", v));
+                    }));
+        }
+
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
-        protected override MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
-            => new MigrationsModelDiffer(
+        protected override MigrationsModelDiffer CreateModelDiffer(IModel model)
+        {
+            var ctx = SqlServerTestHelpers.Instance.CreateContext(model);
+            return new MigrationsModelDiffer(
                 TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
                 new SqlServerMigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
                 ctx.GetService<StateManagerDependencies>(),
                 ctx.GetService<CommandBatchPreparerDependencies>());
+        }
 
         private bool? IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?;

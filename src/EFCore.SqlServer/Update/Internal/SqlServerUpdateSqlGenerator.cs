@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     o =>
                         !o.IsKey
                         || !o.IsRead
-                        || o.Property.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
+                        || o.Property?.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
             }
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             var defaultValuesOnly = writeOperations.Count == 0;
             var nonIdentityOperations = modificationCommands[0].ColumnModifications
-                .Where(o => o.Property.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
+                .Where(o => o.Property?.SqlServer().ValueGenerationStrategy != SqlServerValueGenerationStrategy.IdentityColumn)
                 .ToList();
 
             if (defaultValuesOnly)

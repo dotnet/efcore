@@ -1116,16 +1116,11 @@ namespace Microsoft.EntityFrameworkCore
                 "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'People'))" + EOL +
                 "    SET IDENTITY_INSERT [People] ON;" + EOL +
                 "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (0, NULL);" + EOL +
-                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (1, N'Daenerys Targaryen');" + EOL +
-                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (2, N'John Snow');" + EOL +
-                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (3, N'Arya Stark');" + EOL +
-                "INSERT INTO [People] ([Id], [Full Name])" + EOL +
-                "VALUES (4, N'Harry Strickland');" + EOL +
-                "GO" + EOL + EOL +
+                "VALUES (0, NULL)," + EOL +
+                "(1, N'Daenerys Targaryen')," + EOL +
+                "(2, N'John Snow')," + EOL +
+                "(3, N'Arya Stark')," + EOL +
+                "(4, N'Harry Strickland');" + EOL +
                 "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'People'))" + EOL +
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);

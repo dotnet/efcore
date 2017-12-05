@@ -45,16 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
 
-            var ctx = RelationalTestHelpers.Instance.CreateContext(targetModelBuilder.Model);
-            var modelDiffer = CreateModelDiffer(ctx);
+            var modelDiffer = CreateModelDiffer(targetModelBuilder.Model);
 
             var operationsUp = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
             assertActionUp(operationsUp);
 
             if (assertActionDown != null)
             {
-                ctx = RelationalTestHelpers.Instance.CreateContext(sourceModelBuilder.Model);
-                modelDiffer = CreateModelDiffer(ctx);
+                modelDiffer = CreateModelDiffer(sourceModelBuilder.Model);
 
                 var operationsDown = modelDiffer.GetDifferences(targetModelBuilder.Model, sourceModelBuilder.Model);
                 assertActionDown(operationsDown);
@@ -83,16 +81,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return result;
         }
 
+        protected static T[][] ToJaggedArray<T>(T[,] twoDimensionalArray, bool firstDimension = false)
+        {
+            var rowsFirstIndex = twoDimensionalArray.GetLowerBound(0);
+            var rowsLastIndex = twoDimensionalArray.GetUpperBound(0);
+            var numberOfRows = rowsLastIndex - rowsFirstIndex + 1;
+
+            var columnsFirstIndex = twoDimensionalArray.GetLowerBound(1);
+            var columnsLastIndex = twoDimensionalArray.GetUpperBound(1);
+            var numberOfColumns = columnsLastIndex - columnsFirstIndex + 1;
+
+            var jaggedArray = new T[numberOfRows][];
+            for (var i = 0; i < numberOfRows; i++)
+            {
+                jaggedArray[i] = new T[numberOfColumns];
+
+                for (var j = 0; j < numberOfColumns; j++)
+                {
+                    jaggedArray[i][j] = twoDimensionalArray[i + rowsFirstIndex, j + columnsFirstIndex];
+                }
+            }
+            return jaggedArray;
+        }
+
         protected abstract ModelBuilder CreateModelBuilder();
 
-        protected virtual MigrationsModelDiffer CreateModelDiffer(DbContext ctx)
-            => new MigrationsModelDiffer(
+        protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
+        {
+            var ctx = RelationalTestHelpers.Instance.CreateContext(model);
+            return new MigrationsModelDiffer(
                 TestServiceFactory.Instance.Create<ConcreteTypeMapper>(),
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
                 ctx.GetService<StateManagerDependencies>(),
                 ctx.GetService<CommandBatchPreparerDependencies>());
+        }
 
         private class ConcreteTypeMapper : RelationalTypeMapper
         {

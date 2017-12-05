@@ -5815,6 +5815,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<string>("Value2");
                         x.SeedData(
                             new { Id = 11111, Value1 = 0, Value2 = "" }, // added
+                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
                             new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
                             new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
                             new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
@@ -5850,6 +5851,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(11111, v),
                             v => Assert.Equal(0, v),
                             v => Assert.Equal("", v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        AssertMultidimensionalArray(m.Values,
+                            v => Assert.Equal(11112, v),
+                            v => Assert.Equal(1, v),
+                            v => Assert.Equal("new", v));
                     }),
                 downOps => Assert.Collection(downOps,
                     o =>
@@ -5857,6 +5866,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var m = Assert.IsType<DeleteDataOperation>(o);
                         AssertMultidimensionalArray(m.KeyValues,
                             v => Assert.Equal(11111, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(m.KeyValues,
+                            v => Assert.Equal(11112, v));
                     },
                     o =>
                     {

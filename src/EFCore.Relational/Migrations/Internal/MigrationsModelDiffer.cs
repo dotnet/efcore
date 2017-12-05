@@ -1580,43 +1580,77 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     continue;
                 }
 
-                var batchCommands = new CommandBatchPreparer(CommandBatchPreparerDependencies.With(() => stateManager))
-                    .BatchCommands(entries)
-                    .SelectMany(o => o.ModificationCommands);
+                var commandBatches = new CommandBatchPreparer(CommandBatchPreparerDependencies.With(() => stateManager))
+                    .BatchCommands(entries);
 
-                foreach (var c in batchCommands)
+                foreach (var commandBatch in commandBatches)
                 {
-                    if (c.EntityState == EntityState.Added)
+                    InsertDataOperation batchInsertOperation = null;
+                    foreach (var c in commandBatch.ModificationCommands)
                     {
-                        yield return new InsertDataOperation
+                        if (c.EntityState == EntityState.Added)
                         {
-                            Schema = c.Schema,
-                            Table = c.TableName,
-                            Columns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                            Values = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList())
-                        };
+                            if (batchInsertOperation != null)
+                            {
+                                if (batchInsertOperation.Table == c.TableName
+                                    && batchInsertOperation.Schema == c.Schema
+                                    && batchInsertOperation.Columns.SequenceEqual(c.ColumnModifications.Select(col => col.ColumnName)))
+                                {
+                                    batchInsertOperation.Values =
+                                        AddToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList(), batchInsertOperation.Values);
+                                    continue;
+                                }
+
+                                yield return batchInsertOperation;
+                            }
+
+                            batchInsertOperation = new InsertDataOperation
+                            {
+                                Schema = c.Schema,
+                                Table = c.TableName,
+                                Columns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
+                                Values = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToList())
+                            };
+                        }
+                        else if (c.EntityState == EntityState.Modified)
+                        {
+                            if (batchInsertOperation != null)
+                            {
+                                yield return batchInsertOperation;
+                                batchInsertOperation = null;
+                            }
+
+                            yield return new UpdateDataOperation
+                            {
+                                Schema = c.Schema,
+                                Table = c.TableName,
+                                KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
+                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(col => col.Value).ToList()),
+                                Columns = c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
+                                Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.Value).ToList())
+                            };
+                        }
+                        else
+                        {
+                            if (batchInsertOperation != null)
+                            {
+                                yield return batchInsertOperation;
+                                batchInsertOperation = null;
+                            }
+
+                            yield return new DeleteDataOperation
+                            {
+                                Schema = c.Schema,
+                                Table = c.TableName,
+                                KeyColumns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
+                                KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToArray())
+                            };
+                        }
                     }
-                    else if (c.EntityState == EntityState.Modified)
+
+                    if (batchInsertOperation != null)
                     {
-                        yield return new UpdateDataOperation
-                        {
-                            Schema = c.Schema,
-                            Table = c.TableName,
-                            KeyColumns = c.ColumnModifications.Where(col => col.IsKey).Select(col => col.ColumnName).ToArray(),
-                            KeyValues = ToMultidimensionalArray(c.ColumnModifications.Where(col => col.IsKey).Select(col => col.Value).ToList()),
-                            Columns = c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.ColumnName).ToArray(),
-                            Values = ToMultidimensionalArray(c.ColumnModifications.Where(col => !col.IsKey).Select(col => col.Value).ToList())
-                        };
-                    }
-                    else
-                    {
-                        yield return new DeleteDataOperation
-                        {
-                            Schema = c.Schema,
-                            Table = c.TableName,
-                            KeyColumns = c.ColumnModifications.Select(col => col.ColumnName).ToArray(),
-                            KeyValues = ToMultidimensionalArray(c.ColumnModifications.Select(col => col.Value).ToArray())
-                        };
+                        yield return batchInsertOperation;
                     }
                 }
             }
@@ -1739,6 +1773,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             {
                 result[0, i] = values[i];
             }
+            return result;
+        }
+
+        private static object[,] AddToMultidimensionalArray(IReadOnlyList<object> values, object[,] array)
+        {
+            var width = array.GetLength(0);
+            var height = array.GetLength(1);
+
+            Debug.Assert(height == values.Count);
+
+            var result = new object[width + 1, height];
+            for (var i = 0; i < width; i++)
+            {
+                Array.Copy(array, i * height, result, i * height, height);
+            }
+
+            for (var i = 0; i < values.Count; i++)
+            {
+                result[width, i] = values[i];
+            }
+
             return result;
         }
 
