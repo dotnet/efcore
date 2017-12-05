@@ -7987,21 +7987,6 @@
         },
         {
           "Kind": "Method",
-          "Name": "VisitExplicitConcat",
-          "Parameters": [
-            {
-              "Name": "explicitConcatExpression",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.ExplicitConcatExpression"
-            }
-          ],
-          "ReturnType": "System.Linq.Expressions.Expression",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Query.Sql.ISqlExpressionVisitor",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "VisitSqlFunction",
           "Parameters": [
             {
@@ -8355,18 +8340,6 @@
             {
               "Name": "likeExpression",
               "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.LikeExpression"
-            }
-          ],
-          "ReturnType": "System.Linq.Expressions.Expression",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitExplicitConcat",
-          "Parameters": [
-            {
-              "Name": "explicitConcatExpression",
-              "Type": "Microsoft.EntityFrameworkCore.Query.Expressions.ExplicitConcatExpression"
             }
           ],
           "ReturnType": "System.Linq.Expressions.Expression",
@@ -14373,135 +14346,6 @@
             },
             {
               "Name": "escapeChar",
-              "Type": "System.Linq.Expressions.Expression"
-            }
-          ],
-          "Visibility": "Public",
-          "GenericParameter": []
-        }
-      ],
-      "GenericParameters": []
-    },
-    {
-      "Name": "Microsoft.EntityFrameworkCore.Query.Expressions.ExplicitConcatExpression",
-      "Visibility": "Public",
-      "Kind": "Class",
-      "BaseType": "System.Linq.Expressions.Expression",
-      "ImplementedInterfaces": [],
-      "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_Left",
-          "Parameters": [],
-          "ReturnType": "System.Linq.Expressions.Expression",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Right",
-          "Parameters": [],
-          "ReturnType": "System.Linq.Expressions.Expression",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_NodeType",
-          "Parameters": [],
-          "ReturnType": "System.Linq.Expressions.ExpressionType",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Type",
-          "Parameters": [],
-          "ReturnType": "System.Type",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Accept",
-          "Parameters": [
-            {
-              "Name": "visitor",
-              "Type": "System.Linq.Expressions.ExpressionVisitor"
-            }
-          ],
-          "ReturnType": "System.Linq.Expressions.Expression",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "VisitChildren",
-          "Parameters": [
-            {
-              "Name": "visitor",
-              "Type": "System.Linq.Expressions.ExpressionVisitor"
-            }
-          ],
-          "ReturnType": "System.Linq.Expressions.Expression",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Equals",
-          "Parameters": [
-            {
-              "Name": "obj",
-              "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetHashCode",
-          "Parameters": [],
-          "ReturnType": "System.Int32",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ToString",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Constructor",
-          "Name": ".ctor",
-          "Parameters": [
-            {
-              "Name": "left",
-              "Type": "System.Linq.Expressions.Expression"
-            },
-            {
-              "Name": "right",
               "Type": "System.Linq.Expressions.Expression"
             }
           ],

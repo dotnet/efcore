@@ -16,6 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateDiffTranslator : IMethodCallTranslator
     {
+        private static string _sqliteCalcDay = "60 * 60 * 24";
+        private static string _sqliteCalcHour = "60 * 60";
+        private static string _sqliteCalcMonth = "60 * 60 * 24 * 366/12";
+        private static string _sqliteCalcMinute = "60";
+        private static string _sqliteCalcSecond = "1";
+        private static string _sqliteCalcYear = "60 * 60 * 24 * 366";
+        private static string _sqliteFunctionDateFormat = "strftime";
+        private static string _sqliteFractionalSeconds = "'%f'";
+
         private readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping
             = new Dictionary<MethodInfo, string>
         {
@@ -23,169 +32,169 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffYear),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteCalcYear
+                    _sqliteCalcYear
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffYear),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteCalcYear
+                    _sqliteCalcYear
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffYear),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteCalcYear
+                    _sqliteCalcYear
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffYear),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteCalcYear
+                    _sqliteCalcYear
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMonth),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteCalcMonth
+                    _sqliteCalcMonth
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMonth),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteCalcMonth
+                    _sqliteCalcMonth
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMonth),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteCalcMonth
+                    _sqliteCalcMonth
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMonth),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteCalcMonth
+                    _sqliteCalcMonth
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffDay),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteCalcDay
+                    _sqliteCalcDay
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffDay),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteCalcDay
+                    _sqliteCalcDay
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffDay),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteCalcDay
+                    _sqliteCalcDay
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffDay),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteCalcDay
+                    _sqliteCalcDay
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffHour),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteCalcHour
+                    _sqliteCalcHour
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffHour),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteCalcHour
+                    _sqliteCalcHour
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffHour),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteCalcHour
+                    _sqliteCalcHour
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffHour),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteCalcHour
+                    _sqliteCalcHour
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMinute),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteCalcMinute
+                    _sqliteCalcMinute
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMinute),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteCalcMinute
+                    _sqliteCalcMinute
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMinute),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteCalcMinute
+                    _sqliteCalcMinute
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMinute),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteCalcMinute
+                    _sqliteCalcMinute
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffSecond),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteCalcSecond
+                    _sqliteCalcSecond
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffSecond),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteCalcSecond
+                    _sqliteCalcSecond
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffSecond),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteCalcSecond
+                    _sqliteCalcSecond
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffSecond),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteCalcSecond
+                    _sqliteCalcSecond
             },
              {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMillisecond),
                     new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    SqliteDateTimeHelper.SqliteFractionalSeconds
+                    _sqliteFractionalSeconds
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMillisecond),
                     new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    SqliteDateTimeHelper.SqliteFractionalSeconds
+                    _sqliteFractionalSeconds
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMillisecond),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    SqliteDateTimeHelper.SqliteFractionalSeconds
+                    _sqliteFractionalSeconds
             },
             {
                 typeof(DbFunctionsExtensions).GetRuntimeMethod(
                     nameof(DbFunctionsExtensions.DateDiffMillisecond),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    SqliteDateTimeHelper.SqliteFractionalSeconds
+                    _sqliteFractionalSeconds
             }
         };
 
@@ -203,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     Expression.Divide(
                         Expression.Subtract(
                           new SqlFunctionExpression(
-                              SqliteDateTimeHelper.SqliteFunctionDateFormat,
+                              _sqliteFunctionDateFormat,
                               methodCallExpression.Type,
                               new[]
                               {
@@ -211,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                     methodCallExpression.Arguments[1]
                               }),
                           new SqlFunctionExpression(
-                              SqliteDateTimeHelper.SqliteFunctionDateFormat,
+                              _sqliteFunctionDateFormat,
                               methodCallExpression.Type,
                               new[]
                               {
@@ -227,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                     new SqlFragmentExpression(datePartCalculate)
                               }))
                     ,
-                    typeof(int?)); 
+                    typeof(int?));
             }
 
             return null;

@@ -16,6 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateAddTranslator : IMethodCallTranslator
     {
+        private static string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
+        private static string _sqliteFunctionDateFormat = "strftime";
+        private static string _sqliteUtc = "'utc'";
+
+        private static readonly MethodInfo _concat
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(double), typeof(string) });
+
         private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
         {
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), "years" },
@@ -23,15 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), "days" },
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), "hours" },
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), "minutes" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "seconds" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) }), "seconds" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) }), "years" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "months" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "days" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hours" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minutes" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "seconds" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) }), "seconds" }
+            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "seconds" }
+            // TODO: Future implementation, how to do the translation de TIME ZONE?
+            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) }), "years" },
+            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "months" },
+            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "days" },
+            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hours" },
+           //     { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minutes" },
+            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "seconds" }
         };
 
         /// <summary>
@@ -45,47 +51,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             if (_methodInfoDatePartMapping.TryGetValue(methodCallExpression.Method, out var datePart))
             {
-                var amountToAdd = methodCallExpression.Arguments.First();
-
-                if (!datePart.Equals("years")
-                    && !datePart.Equals("months")
-                    && amountToAdd is ConstantExpression constantExpression
-                    && ((double)constantExpression.Value >= int.MaxValue
-                        || (double)constantExpression.Value <= int.MinValue))
-                {
-                    return null;
-                }
-
-                var isMilliseconds =
-                    string.Equals(
-                        methodCallExpression.Method.Name,
-                        "AddMilliseconds",
-                        StringComparison.OrdinalIgnoreCase); 
-
                 var arguments = new List<Expression>
                 {
-                    new SqlFragmentExpression(SqliteDateTimeHelper.SqliteFormatDate),
+                    new SqlFragmentExpression(_sqliteFormatDate),
                     methodCallExpression.Object,
-                    new ExplicitConcatExpression(
-                        !isMilliseconds
-                            ? amountToAdd
-                            :
-                                new ExplicitCastExpression(
-                                    Expression.Divide(
-                                        new SqlFunctionExpression(
-                                            string.Empty,
-                                            returnType:typeof(decimal),
-                                            arguments: new[]
-                                            {
-                                                amountToAdd
-                                            }), Expression.Constant(1000.0m)),
-                                    typeof(double)),
-                        new SqlFragmentExpression($"' {datePart}'")),
-                        new SqlFragmentExpression(SqliteDateTimeHelper.SqliteUtc)
+                    new SqlFragmentExpression($"'{methodCallExpression.Arguments[0]} {datePart}'"),
+                    new SqlFragmentExpression(_sqliteUtc)
                 };
 
                 return new SqlFunctionExpression(
-                    functionName: SqliteDateTimeHelper.SqliteFunctionDateFormat,
+                    functionName: _sqliteFunctionDateFormat,
                     returnType: methodCallExpression.Type,
                     arguments:
                         methodCallExpression.Type == typeof(DateTime)

@@ -182,14 +182,5 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         ///     An Expression.
         /// </returns>
         Expression VisitColumnReference([NotNull] ColumnReferenceExpression columnReferenceExpression);
-
-        /// <summary>
-        ///     Visit an ExplicitConcatExpression.
-        /// </summary>
-        /// <param name="explicitConcatExpression"> The explicit concat expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        Expression VisitExplicitConcat([NotNull] ExplicitConcatExpression explicitConcatExpression);
     }
 }

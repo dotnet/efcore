@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 return
                     new ExplicitCastExpression(
                         new SqlFunctionExpression(
-                            functionName: SqliteDateTimeHelper.SqliteFunctionDateFormat,
+                            functionName: "strftime",
                             returnType: memberExpression.Type,
                             arguments: new[]
                             {

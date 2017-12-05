@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateTimeDateComponentTranslator : IMemberTranslator
     {
+        private static string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
+        private static string _sqliteFunctionDateFormat = "strftime";
+        private static string _sqliteLocalTime = "'localtime'";
+        private static string _sqliteStartOfDay = "'start of day'";
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -29,24 +34,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 {
                     case nameof(DateTime.Today):
                         return new SqlFunctionExpression(
-                            SqliteDateTimeHelper.SqliteFunctionDateFormat,
+                            _sqliteFunctionDateFormat,
                             memberExpression.Type,
                             new[]
                             {
-                                new SqlFragmentExpression(SqliteDateTimeHelper.SqliteFormatDate),
+                                new SqlFragmentExpression(_sqliteFormatDate),
                                 memberExpression.Expression,
-                                new SqlFragmentExpression(SqliteDateTimeHelper.SqliteLocalTime),
-                                new SqlFragmentExpression(SqliteDateTimeHelper.SqliteStartOfDay)
+                                new SqlFragmentExpression(_sqliteLocalTime),
+                                new SqlFragmentExpression(_sqliteStartOfDay)
                             });
                     case nameof(DateTime.Date):
                         return new SqlFunctionExpression(
-                            SqliteDateTimeHelper.SqliteFunctionDateFormat,
+                            _sqliteFunctionDateFormat,
                             memberExpression.Type,
                             new[]
                             {
-                                new SqlFragmentExpression(SqliteDateTimeHelper.SqliteFormatDate),
+                                new SqlFragmentExpression(_sqliteFormatDate),
                                 memberExpression.Expression,
-                                new SqlFragmentExpression(SqliteDateTimeHelper.SqliteStartOfDay)
+                                new SqlFragmentExpression(_sqliteStartOfDay)
                             });
                     default:
                         return null;

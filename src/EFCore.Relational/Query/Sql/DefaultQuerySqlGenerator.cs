@@ -172,11 +172,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         protected virtual string AliasSeparator { get; } = " AS ";
 
         /// <summary>
-        ///     The default concat separator.
-        /// </summary>
-        protected virtual string ConcatSeparator { get; } = "+";
-
-        /// <summary>
         ///     Visit a top-level SelectExpression.
         /// </summary>
         /// <param name="selectExpression"> The select expression. </param>
@@ -1508,25 +1503,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _typeMapping = parentTypeMapping;
 
             return explicitCastExpression;
-        }
-
-
-        /// <summary>
-        ///     Visit a SQL VisitExplicitConcat.
-        /// </summary>
-        /// <param name="explicitConcatExpression"> The explicit concat expression. </param>
-        /// <returns>
-        ///     An Expression.
-        /// </returns>
-        public virtual Expression VisitExplicitConcat(ExplicitConcatExpression explicitConcatExpression)
-        {
-            Visit(explicitConcatExpression.Left);
-
-            _relationalCommandBuilder.Append(ConcatSeparator);
-
-            Visit(explicitConcatExpression.Right);
-
-            return explicitConcatExpression;
         }
 
         /// <summary>
