@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-            Assert.Equal("NVARCHAR2(64)", new OracleTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+            Assert.Equal("NVARCHAR2(64)", new OracleTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-            Assert.Equal("RAW(8)", new OracleTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+            Assert.Equal("RAW(8)", new OracleTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
 
             return modelBuilder;
         }
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength_with_value();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp");
-            Assert.Equal("RAW(8)", new OracleTypeMapper(new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
+            Assert.Equal("RAW(8)", new OracleTypeMapper(new CoreTypeMapperDependencies(), new RelationalTypeMapperDependencies()).FindMapping(property).StoreType);
 
             return modelBuilder;
         }
