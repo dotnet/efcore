@@ -211,30 +211,26 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 return new ExplicitCastExpression(
                     Expression.Divide(
                         Expression.Subtract(
-                          new SqlFunctionExpression(
-                              _sqliteFunctionDateFormat,
-                              methodCallExpression.Type,
-                              new[]
-                              {
+                            new SqlFunctionExpression(
+                                _sqliteFunctionDateFormat,
+                                typeof(double),
+                                new[]
+                                {
                                     new SqlFragmentExpression("'%s'"),
                                     methodCallExpression.Arguments[1]
-                              }),
-                          new SqlFunctionExpression(
-                              _sqliteFunctionDateFormat,
-                              methodCallExpression.Type,
-                              new[]
-                              {
+                                }),
+                            new SqlFunctionExpression(
+                                _sqliteFunctionDateFormat,
+                                typeof(double),
+                                new[]
+                                {
                                     new SqlFragmentExpression("'%s'"),
                                     methodCallExpression.Arguments[2]
-                              })
+                                })
                           ),
-                        new SqlFunctionExpression(
-                              string.Empty,
-                              returnType: methodCallExpression.Type,
-                              arguments: new[]
-                              {
-                                    new SqlFragmentExpression(datePartCalculate)
-                              }))
+                        new ExplicitCastExpression(
+                            new SqlFragmentExpression($"({datePartCalculate})"),
+                            typeof(double)))
                     ,
                     typeof(int?));
             }

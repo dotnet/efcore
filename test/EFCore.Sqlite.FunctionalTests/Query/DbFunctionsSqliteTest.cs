@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60 * 24) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((60 * 60 * 24) AS REAL) AS INTEGER) = 0");
 
         }
 
@@ -33,7 +33,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60 * 24 * 366/12) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((60 * 60 * 24 * 366/12) AS REAL) AS INTEGER) = 0");
 
         }
 
@@ -44,7 +44,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60 * 24 * 366) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((60 * 60 * 24 * 366) AS REAL) AS INTEGER) = 0");
 
         }
 
@@ -55,7 +55,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((60 * 60) AS REAL) AS INTEGER) = 0");
 
         }
 
@@ -66,7 +66,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((60) AS REAL) AS INTEGER) = 0");
 
         }
 
@@ -77,7 +77,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (1) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((1) AS REAL) AS INTEGER) = 0");
 
         }
 
@@ -88,7 +88,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), 'start of day'))) / (60 * 60 * 24) AS INTEGER) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), 'start of day'))) / CAST((60 * 60 * 24) AS REAL) AS INTEGER) = 0");
 
         }
 

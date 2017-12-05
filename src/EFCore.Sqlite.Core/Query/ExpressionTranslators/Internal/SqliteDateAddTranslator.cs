@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateAddTranslator : IMethodCallTranslator
     {
-        private static string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
-        private static string _sqliteFunctionDateFormat = "strftime";
-        private static string _sqliteUtc = "'utc'";
+        private static readonly string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
+        private static readonly string _sqliteFunctionDateFormat = "strftime";
+        private static readonly string _sqliteUtc = "'utc'";
 
-        private static readonly MethodInfo _concat
-            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(double), typeof(string) });
+        private static readonly MethodInfo _concatExpression
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(Expression), typeof(string) });
 
         private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
         {
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "months" },
             //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "days" },
             //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hours" },
-           //     { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minutes" },
+            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minutes" },
             //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "seconds" }
         };
 
@@ -51,21 +51,36 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             if (_methodInfoDatePartMapping.TryGetValue(methodCallExpression.Method, out var datePart))
             {
-                var arguments = new List<Expression>
+                var firstArgument = methodCallExpression.Arguments[0];
+
+                if (firstArgument.NodeType == ExpressionType.Convert)
                 {
-                    new SqlFragmentExpression(_sqliteFormatDate),
-                    methodCallExpression.Object,
-                    new SqlFragmentExpression($"'{methodCallExpression.Arguments[0]} {datePart}'"),
-                    new SqlFragmentExpression(_sqliteUtc)
-                };
+                    firstArgument = new ExplicitCastExpression(firstArgument, typeof(string));
+                }
+
+                var concatDateAdd =
+                    firstArgument.NodeType == ExpressionType.Extension
+                        ? Expression.Add(firstArgument, new SqlFragmentExpression($"' {datePart}'"), _concatExpression)
+                        : (Expression)new SqlFragmentExpression($"'{firstArgument.ToString()}  {datePart}'");
 
                 return new SqlFunctionExpression(
                     functionName: _sqliteFunctionDateFormat,
                     returnType: methodCallExpression.Type,
                     arguments:
                         methodCallExpression.Type == typeof(DateTime)
-                            ? arguments.Take(3)
-                            : arguments);
+                            ? new[]
+                                {
+                                    new SqlFragmentExpression(_sqliteFormatDate),
+                                    methodCallExpression.Object,
+                                    concatDateAdd
+                                }
+                            : new[]
+                                {
+                                    new SqlFragmentExpression(_sqliteFormatDate),
+                                    methodCallExpression.Object,
+                                    concatDateAdd,
+                                    new SqlFragmentExpression(_sqliteUtc)
+                                });
             }
 
             return null;
