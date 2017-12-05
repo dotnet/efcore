@@ -554,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore
             DateTime? startDate,
             DateTime? endDate)
             => (startDate.HasValue && endDate.HasValue)
-                ? (int?)DateDiffMicrosecond(_, startDate.Value, endDate.Value)
+                ? (int?)DateDiffNanosecond(_, startDate.Value, endDate.Value)
                 : null;
 
         /// <summary>

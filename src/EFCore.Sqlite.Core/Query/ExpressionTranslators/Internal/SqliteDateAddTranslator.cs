@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
@@ -16,11 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateAddTranslator : IMethodCallTranslator
     {
-        private static readonly string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
-        private static readonly string _sqliteFunctionDateFormat = "strftime";
-        private static readonly string _sqliteUtc = "'utc'";
+        private const string _sqliteFunctionDateFormat = "strftime";
 
-        private static readonly MethodInfo _concatExpression
+        private static readonly string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
+
+        private static readonly MethodInfo _concat
             = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(Expression), typeof(string) });
 
         private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
@@ -31,13 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), "hours" },
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), "minutes" },
             { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "seconds" }
-            // TODO: Future implementation, how to do the translation de TIME ZONE?
-            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) }), "years" },
-            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "months" },
-            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "days" },
-            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hours" },
-            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minutes" },
-            //    { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "seconds" }
         };
 
         /// <summary>
@@ -58,29 +50,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     firstArgument = new ExplicitCastExpression(firstArgument, typeof(string));
                 }
 
-                var concatDateAdd =
-                    firstArgument.NodeType == ExpressionType.Extension
-                        ? Expression.Add(firstArgument, new SqlFragmentExpression($"' {datePart}'"), _concatExpression)
-                        : (Expression)new SqlFragmentExpression($"'{firstArgument.ToString()}  {datePart}'");
+                var expressionAdd = firstArgument.NodeType == ExpressionType.Extension
+                    ? Expression.Add(
+                        firstArgument,
+                        new SqlFragmentExpression($"' {datePart}'"),
+                        _concat)
+                    : (Expression)new SqlFragmentExpression($"'{firstArgument}   {datePart}'");
 
                 return new SqlFunctionExpression(
                     functionName: _sqliteFunctionDateFormat,
                     returnType: methodCallExpression.Type,
-                    arguments:
-                        methodCallExpression.Type == typeof(DateTime)
-                            ? new[]
-                                {
-                                    new SqlFragmentExpression(_sqliteFormatDate),
-                                    methodCallExpression.Object,
-                                    concatDateAdd
-                                }
-                            : new[]
-                                {
-                                    new SqlFragmentExpression(_sqliteFormatDate),
-                                    methodCallExpression.Object,
-                                    concatDateAdd,
-                                    new SqlFragmentExpression(_sqliteUtc)
-                                });
+                    arguments: new[]
+                    {
+                        new SqlFragmentExpression(_sqliteFormatDate),
+                        methodCallExpression.Object,
+                        expressionAdd
+                    });
             }
 
             return null;

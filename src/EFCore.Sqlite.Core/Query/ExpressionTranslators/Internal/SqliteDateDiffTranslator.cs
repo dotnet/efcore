@@ -16,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateDiffTranslator : IMethodCallTranslator
     {
-        private static string _sqliteCalcDay = "60 * 60 * 24";
-        private static string _sqliteCalcHour = "60 * 60";
-        private static string _sqliteCalcMonth = "60 * 60 * 24 * 366/12";
-        private static string _sqliteCalcMinute = "60";
-        private static string _sqliteCalcSecond = "1";
-        private static string _sqliteCalcYear = "60 * 60 * 24 * 366";
-        private static string _sqliteFunctionDateFormat = "strftime";
-        private static string _sqliteFractionalSeconds = "'%f'";
+        private const string _sqliteFunctionDateFormat = "strftime";
+
+        private static readonly string _sqliteCalcDay = "'%d'";
+        private static readonly string _sqliteCalcHour = "'%H'";
+        private static readonly string _sqliteCalcMonth = "'%m'";
+        private static readonly string _sqliteCalcMinute = "'%M'";
+        private static readonly string _sqliteCalcSecond = "'%S'";
+        private static readonly string _sqliteCalcYear = "'%Y'";
 
         private readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping
             = new Dictionary<MethodInfo, string>
@@ -171,30 +171,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     nameof(DbFunctionsExtensions.DateDiffSecond),
                     new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     _sqliteCalcSecond
-            },
-             {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
-                    _sqliteFractionalSeconds
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
-                    _sqliteFractionalSeconds
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
-                    _sqliteFractionalSeconds
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
-                    _sqliteFractionalSeconds
             }
         };
 
@@ -208,31 +184,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
 
             if (_methodInfoDateDiffMapping.TryGetValue(methodCallExpression.Method, out var datePartCalculate))
             {
-                return new ExplicitCastExpression(
-                    Expression.Divide(
-                        Expression.Subtract(
-                            new SqlFunctionExpression(
-                                _sqliteFunctionDateFormat,
-                                typeof(double),
-                                new[]
-                                {
-                                    new SqlFragmentExpression("'%s'"),
-                                    methodCallExpression.Arguments[1]
-                                }),
-                            new SqlFunctionExpression(
-                                _sqliteFunctionDateFormat,
-                                typeof(double),
-                                new[]
-                                {
-                                    new SqlFragmentExpression("'%s'"),
-                                    methodCallExpression.Arguments[2]
-                                })
-                          ),
-                        new ExplicitCastExpression(
-                            new SqlFragmentExpression($"({datePartCalculate})"),
-                            typeof(double)))
-                    ,
-                    typeof(int?));
+                return Expression.Subtract(
+                     new ExplicitCastExpression(
+                         new SqlFunctionExpression(
+                             _sqliteFunctionDateFormat,
+                             typeof(double),
+                             new[]
+                             {
+                                new SqlFragmentExpression(datePartCalculate),
+                                methodCallExpression.Arguments[1]
+                             }),
+                     typeof(int?)),
+                     new ExplicitCastExpression(
+                         new SqlFunctionExpression(
+                             _sqliteFunctionDateFormat,
+                             typeof(double),
+                             new[]
+                             {
+                                new SqlFragmentExpression(datePartCalculate),
+                                methodCallExpression.Arguments[2]
+                             }),
+                     typeof(int?)));                    
             }
 
             return null;

@@ -148,6 +148,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void String_DateDiff_Nanosecond()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffNanosecond(DateTime.Now, DateTime.Now.AddSeconds(1)) == 0);
+
+                Assert.Equal(0, count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual void String_DateDiff_Convert_To_Date()
         {
             using (var context = CreateContext())
