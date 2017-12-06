@@ -21,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource)
             : base(internalBuilder.Metadata)
         {
-            Check.NotNull(internalBuilder, nameof(internalBuilder));
-
             MetadataBuilder = internalBuilder;
             ConfigurationSource = configurationSource;
         }
