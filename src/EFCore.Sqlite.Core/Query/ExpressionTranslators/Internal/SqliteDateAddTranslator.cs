@@ -15,11 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     /// </summary>
     public class SqliteDateAddTranslator : IMethodCallTranslator
     {
-        private const string _sqliteFunctionDateFormat = "strftime";
-        private static readonly string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
-
         private static readonly MethodInfo _concat
-            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(Expression), typeof(string) });
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
         private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
         {
@@ -44,22 +41,25 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             {
                 var firstArgument = methodCallExpression.Arguments[0];
 
-                //hack - That's not what we will use !!!!
-                if (firstArgument.NodeType == ExpressionType.Convert)
-                {
-                    firstArgument = new ExplicitCastExpression(firstArgument, typeof(string));
-                }
-
-                var expressionAdd = firstArgument.NodeType == ExpressionType.Extension
-                    ? Expression.Add(firstArgument, new SqlFragmentExpression($"' {datePart}'"), _concat)
-                    : (Expression)new SqlFragmentExpression($"'{firstArgument} {datePart}'");
+                var expressionAdd = firstArgument.NodeType == ExpressionType.Convert
+                    ? Expression.Add(
+                        new SqlFunctionExpression(
+                            functionName: "strftime",
+                            returnType: typeof(string),
+                            arguments: new[]
+                            {
+                                new SqlFragmentExpression("'%d'"),
+                                methodCallExpression.Object
+                            }),
+                        Expression.Constant($" {datePart}"), _concat)
+                    : (Expression)new SqlFragmentExpression(string.Format("'{0} {1}'", firstArgument, datePart));
 
                 return new SqlFunctionExpression(
-                    functionName: _sqliteFunctionDateFormat,
+                    functionName: "strftime",
                     returnType: methodCallExpression.Type,
                     arguments: new[]
                     {
-                        new SqlFragmentExpression(_sqliteFormatDate),
+                        new SqlFragmentExpression("'%Y-%m-%d %H:%M:%S'"),
                         methodCallExpression.Object,
                         expressionAdd
                     });

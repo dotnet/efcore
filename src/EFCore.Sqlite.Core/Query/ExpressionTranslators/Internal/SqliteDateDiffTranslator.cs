@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private const string _sqliteFunctionDateFormat = "strftime";
 
-        private static readonly string _sqliteCalcMonth = "60 * 60 * 24 * 365/12";
+        private static readonly string _sqliteCalcMonth = "'%m'";
         private static readonly string _sqliteCalcDay = "60 * 60 * 24";
         private static readonly string _sqliteCalcHour = "60 * 60";
         private static readonly string _sqliteCalcMinute = "60";
@@ -186,8 +186,51 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             {
                 switch (methodCallExpression.Method.Name)
                 {
-                    case nameof(DbFunctionsExtensions.DateDiffDay):
                     case nameof(DbFunctionsExtensions.DateDiffMonth):
+                        return
+                            Expression.Multiply(
+                                Expression.Constant(12, typeof(int?)), 
+                                Expression.Add(
+                                    Expression.Subtract(
+                                        new ExplicitCastExpression(
+                                            new SqlFunctionExpression(
+                                                _sqliteFunctionDateFormat,
+                                                methodCallExpression.Type,
+                                                new[]
+                                                {
+                                                    new SqlFragmentExpression(_sqliteCalcYear),
+                                                    methodCallExpression.Arguments[1]
+                                                }), typeof(int?)),
+                                        new ExplicitCastExpression(
+                                           new SqlFunctionExpression(
+                                                _sqliteFunctionDateFormat,
+                                                methodCallExpression.Type,
+                                                new[]
+                                                {
+                                                    new SqlFragmentExpression(_sqliteCalcYear),
+                                                    methodCallExpression.Arguments[2]
+                                                }), typeof(int?))),
+                                    Expression.Subtract(
+                                        new ExplicitCastExpression(
+                                            new SqlFunctionExpression(
+                                                _sqliteFunctionDateFormat,
+                                                methodCallExpression.Type,
+                                                new[]
+                                                {
+                                                    new SqlFragmentExpression(_sqliteCalcMonth),
+                                                    methodCallExpression.Arguments[1]
+                                                }), typeof(int?)),
+                                        new ExplicitCastExpression(
+                                           new SqlFunctionExpression(
+                                                _sqliteFunctionDateFormat,
+                                                methodCallExpression.Type,
+                                                new[]
+                                                {
+                                                    new SqlFragmentExpression(_sqliteCalcMonth),
+                                                    methodCallExpression.Arguments[2]
+                                                }), typeof(int?))
+                                              )));
+                    case nameof(DbFunctionsExtensions.DateDiffDay):
                     case nameof(DbFunctionsExtensions.DateDiffHour):
                     case nameof(DbFunctionsExtensions.DateDiffMinute):
                         return new ExplicitCastExpression(
@@ -241,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                         methodCallExpression.Arguments[2]
                                      }),
                              typeof(int?)));
-                }             
+                }
             }
 
             return null;

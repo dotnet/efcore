@@ -37,17 +37,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 && (memberExpression.Expression.Type == typeof(DateTime))
                 && _datePartDictionary.TryGetValue(memberExpression.Member.Name,out var datePart))
             {
-                return
-                    new ExplicitCastExpression(
-                        new SqlFunctionExpression(
-                            functionName: "strftime",
-                            returnType: memberExpression.Type,
-                            arguments: new[]
-                            {
-                                new SqlFragmentExpression($"'{datePart}'"),
-                                memberExpression.Expression
-                            }),
-                        memberExpression.Type);
+                return new ExplicitCastExpression(
+                    new SqlFunctionExpression(
+                        functionName: "strftime",
+                        returnType: memberExpression.Type,
+                        arguments: new[]
+                        {
+                            new SqlFragmentExpression($"'{datePart}'"),
+                            memberExpression.Expression
+                        }),
+                    memberExpression.Type);
             }
             return null;
         }

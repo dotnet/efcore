@@ -33,7 +33,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60 * 24 * 365/12) AS INTEGER) = 0");
+WHERE (12 * ((CAST(strftime('%Y', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%Y', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) + (CAST(strftime('%m', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%m', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)))) = 0");
 
         }
 
