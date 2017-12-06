@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             fixture.TestSqlLoggerFactory.Clear();
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Day()
         {
             base.String_DateDiff_Day();
@@ -23,11 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE (CAST(strftime('%d', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%d', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60 * 24) AS INTEGER) = 0");
 
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Month()
         {
             base.String_DateDiff_Month();
@@ -35,11 +33,10 @@ WHERE (CAST(strftime('%d', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%d'
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE (CAST(strftime('%m', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%m', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60 * 24 * 365/12) AS INTEGER) = 0");
 
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Year()
         {
             base.String_DateDiff_Year();
@@ -51,7 +48,6 @@ WHERE (CAST(strftime('%Y', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%Y'
 
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Hour()
         {
             base.String_DateDiff_Hour();
@@ -59,11 +55,10 @@ WHERE (CAST(strftime('%Y', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%Y'
             AssertSql(
                @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE (CAST(strftime('%H', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%H', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60 * 60) AS INTEGER) = 0");
 
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Minute()
         {
             base.String_DateDiff_Minute();
@@ -71,11 +66,12 @@ WHERE (CAST(strftime('%H', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%H'
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE (CAST(strftime('%M', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%M', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / (60) AS INTEGER) = 0");
+
+
 
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Second()
         {
             base.String_DateDiff_Second();
@@ -83,11 +79,10 @@ WHERE (CAST(strftime('%M', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%M'
             AssertSql(
                 @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))) / CAST((1) AS REAL) AS INTEGER) = 0");
+WHERE (CAST(strftime('%S', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%S', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) = 0");
 
         }
 
-        [Fact(Skip = "Discuss this ...")]
         public override void String_DateDiff_Convert_To_Date()
         {
             base.String_DateDiff_Convert_To_Date();
@@ -95,7 +90,7 @@ WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m
             AssertSql(
                @"SELECT COUNT(*)
 FROM ""Orders"" AS ""c""
-WHERE (CAST(strftime('%d', ""c"".""OrderDate"") AS INTEGER) - CAST(strftime('%d', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')) AS INTEGER)) = 0");
+WHERE CAST((strftime('%s', ""c"".""OrderDate"") - strftime('%s', strftime('%Y-%m-%d %H:%M:%S', strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), 'start of day'))) / (60 * 60 * 24) AS INTEGER) = 0");
 
         }
 

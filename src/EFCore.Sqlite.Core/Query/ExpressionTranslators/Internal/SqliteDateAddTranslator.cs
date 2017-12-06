@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class SqliteDateAddTranslator : IMethodCallTranslator
     {
         private const string _sqliteFunctionDateFormat = "strftime";
-
         private static readonly string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
 
         private static readonly MethodInfo _concat
@@ -45,17 +44,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             {
                 var firstArgument = methodCallExpression.Arguments[0];
 
+                //hack - That's not what we will use !!!!
                 if (firstArgument.NodeType == ExpressionType.Convert)
                 {
                     firstArgument = new ExplicitCastExpression(firstArgument, typeof(string));
                 }
 
                 var expressionAdd = firstArgument.NodeType == ExpressionType.Extension
-                    ? Expression.Add(
-                        firstArgument,
-                        new SqlFragmentExpression($"' {datePart}'"),
-                        _concat)
-                    : (Expression)new SqlFragmentExpression($"'{firstArgument}   {datePart}'");
+                    ? Expression.Add(firstArgument, new SqlFragmentExpression($"' {datePart}'"), _concat)
+                    : (Expression)new SqlFragmentExpression($"'{firstArgument} {datePart}'");
 
                 return new SqlFunctionExpression(
                     functionName: _sqliteFunctionDateFormat,
