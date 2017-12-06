@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ReverseEngineerFiles ScaffoldContext(
+        public virtual ModelFiles ScaffoldContext(
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
@@ -69,25 +71,58 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var services = _servicesBuilder.Build(provider);
 
-            var generator = services.GetRequiredService<IReverseEngineerScaffolder>();
+            var scaffolder = services.GetRequiredService<IReverseEngineerScaffolder>();
 
-            var scaffoldedModel = generator.Generate(
+            var @namespace = _rootNamespace;
+
+            var subNamespace = SubnamespaceFromOutputPath(_projectDir, outputDir);
+            if (!string.IsNullOrEmpty(subNamespace))
+            {
+                @namespace += "." + subNamespace;
+            }
+
+            var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 tables,
                 schemas,
-                _projectDir,
-                outputDir,
-                _rootNamespace,
+                @namespace,
                 _language,
                 dbContextClassName,
                 useDataAnnotations,
                 useDatabaseNames);
 
-            return generator.Save(
+            return scaffolder.Save(
                 scaffoldedModel,
                 _projectDir,
                 outputDir,
                 overwriteFiles);
+        }
+
+        // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
+        // --output-dir $(projectFolder)/A/B/C
+        // => "namespace $(rootnamespace).A.B.C"
+        private string SubnamespaceFromOutputPath(string projectDir, string outputDir)
+        {
+            if (outputDir == null)
+            {
+                return null;
+            }
+
+            if (!Path.IsPathRooted(outputDir))
+            {
+                outputDir = Path.GetFullPath(Path.Combine(projectDir, outputDir));
+            }
+
+            if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            var subPath = outputDir.Substring(projectDir.Length);
+
+            return !string.IsNullOrWhiteSpace(subPath)
+                ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
+                : null;
         }
     }
 }

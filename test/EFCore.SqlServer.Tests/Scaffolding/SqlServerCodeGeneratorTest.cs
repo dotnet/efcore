@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [Fact]
         public virtual void Use_provider_method_is_generated_correctly()
         {
-            var codeGenerator = new SqlServerCodeGenerator();
+            var codeGenerator = new SqlServerCodeGenerator(new ProviderCodeGeneratorDependencies());
 
             Assert.Equal("UseSqlServer", codeGenerator.UseProviderMethod);
         }

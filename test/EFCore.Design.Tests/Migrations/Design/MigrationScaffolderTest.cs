@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
         }
 
-        private MigrationsScaffolder CreateMigrationScaffolder<TContext>()
+        private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
             where TContext : DbContext, new()
         {
             var currentContext = new CurrentDbContext(new TContext());

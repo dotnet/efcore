@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -24,34 +25,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void ValidateContextNameInReverseEngineerGenerator(string contextName)
         {
-            var cSharpUtilities = new CSharpUtilities();
-            var reverseEngineer = new ReverseEngineerScaffolder(
-                new FakeDatabaseModelFactory(),
-                new FakeScaffoldingModelFactory(new TestOperationReporter()),
-                new ScaffoldingCodeGeneratorSelector(
-                    new[]
-                    {
-                        new CSharpScaffoldingGenerator(
-                            new CSharpDbContextGenerator(
-#pragma warning disable CS0618 // Type or member is obsolete
-                                Enumerable.Empty<IScaffoldingProviderCodeGenerator>(),
-#pragma warning restore CS0618 // Type or member is obsolete
-                                new[]{ new TestProviderCodeGenerator() },
-                                new FakeAnnotationCodeGenerator(), cSharpUtilities),
-                            new CSharpEntityTypeGenerator(cSharpUtilities))
-                    }),
-                cSharpUtilities);
+            var reverseEngineer = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<IAnnotationCodeGenerator, FakeAnnotationCodeGenerator>()
+                .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
+                .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
+                .BuildServiceProvider()
+                .GetRequiredService<IReverseEngineerScaffolder>();
 
             Assert.Equal(
                 DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
                 Assert.Throws<ArgumentException>(
-                        () => reverseEngineer.Generate(
+                        () => reverseEngineer.ScaffoldModel(
                             connectionString: "connectionstring",
                             tables: Enumerable.Empty<string>(),
                             schemas: Enumerable.Empty<string>(),
-                            projectPath: "FakeProjectPath",
-                            outputPath: null,
-                            rootNamespace: "FakeNamespace",
+                            @namespace: "FakeNamespace",
                             language: "",
                             contextName: contextName,
                             useDataAnnotations: false,

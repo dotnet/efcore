@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Used to scaffold new migrations.
     /// </summary>
-    public class MigrationsScaffolder
+    public class MigrationsScaffolder : IMigrationsScaffolder
     {
         private readonly Type _contextType;
         private readonly string _activeProvider;
@@ -67,10 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="language"> The project's language. </param>
         /// <returns> The scaffolded migration. </returns>
         public virtual ScaffoldedMigration ScaffoldMigration(
-            [NotNull] string migrationName,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string subNamespace = null,
-            [CanBeNull] string language = null)
+            string migrationName,
+            string rootNamespace,
+            string subNamespace = null,
+            string language = null)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 Dependencies.OperationReporter.WriteWarning(DesignStrings.DestructiveOperation);
             }
 
-            var codeGenerator = Dependencies.MigrationCodeGeneratorSelector.Select(language);
+            var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
             var migrationCode = codeGenerator.GenerateMigration(
                 migrationNamespace,
                 migrationName,
@@ -219,11 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <returns> The removed migration files. </returns>
         // TODO: DRY (file names)
         public virtual MigrationFiles RemoveMigration(
-            [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
+            string projectDir,
+            string rootNamespace,
             bool force,
             bool revert,
-            [CanBeNull] string language)
+            string language)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 throw new OperationException(DesignStrings.NoSnapshot);
             }
 
-            var codeGenerator = Dependencies.MigrationCodeGeneratorSelector.Select(language);
+            var codeGenerator = Dependencies.MigrationsCodeGeneratorSelector.Select(language);
 
             IModel model = null;
             var migrations = Dependencies.MigrationsAssembly.Migrations
@@ -357,10 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="migration"> The scaffolded migration. </param>
         /// <param name="outputDir"> The directory to put files in. Paths are relative to the project directory. </param>
         /// <returns> The saved migrations files. </returns>
-        public virtual MigrationFiles Save(
-            [NotNull] string projectDir,
-            [NotNull] ScaffoldedMigration migration,
-            [CanBeNull] string outputDir)
+        public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string outputDir)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
             Check.NotNull(migration, nameof(migration));

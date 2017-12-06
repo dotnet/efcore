@@ -3,10 +3,10 @@
 
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         Path = "TestContext.cs",
                         Code = "// TestContext"
                     },
-                    EntityTypeFiles =
+                    AdditionalFiles =
                     {
                         new ScaffoldedFile
                         {
@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 Assert.Equal(contextPath, result.ContextFile);
                 Assert.Equal("// TestContext", File.ReadAllText(contextPath));
 
-                Assert.Equal(1, result.EntityTypeFiles.Count);
+                Assert.Equal(1, result.AdditionalFiles.Count);
                 var entityTypePath = Path.Combine(directory.Path, "Models", "TestEntity.cs");
-                Assert.Equal(entityTypePath, result.EntityTypeFiles[0]);
+                Assert.Equal(entityTypePath, result.AdditionalFiles[0]);
                 Assert.Equal("// TestEntity", File.ReadAllText(entityTypePath));
             }
         }
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         Path = "TestContext.cs",
                         Code = "// TestContext"
                     },
-                    EntityTypeFiles =
+                    AdditionalFiles =
                     {
                         new ScaffoldedFile
                         {
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 };
 
                 var ex = Assert.Throws<OperationException>(
-                    () => scaffolder.Save(scaffoldedModel, directory.Path, outputPath: null, overwriteFiles: false));
+                    () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: false));
 
                 Assert.Equal(
                     DesignStrings.ExistingFiles(
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 };
 
-                var result = scaffolder.Save(scaffoldedModel, directory.Path, outputPath: null, overwriteFiles: true);
+                var result = scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: true);
 
                 Assert.Equal(path, result.ContextFile);
                 Assert.Equal("// Test", File.ReadAllText(path));
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             Path = "TestContext.cs",
                             Code = "// TestContext"
                         },
-                        EntityTypeFiles =
+                        AdditionalFiles =
                     {
                         new ScaffoldedFile
                         {
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     };
 
                     var ex = Assert.Throws<OperationException>(
-                        () => scaffolder.Save(scaffoldedModel, directory.Path, outputPath: null, overwriteFiles: true));
+                        () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: true));
 
                     Assert.Equal(
                         DesignStrings.ReadOnlyFiles(
@@ -166,26 +166,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static IReverseEngineerScaffolder CreateScaffolder()
-        {
-            var cSharpUtilities = new CSharpUtilities();
-
-            return new ReverseEngineerScaffolder(
-                new FakeDatabaseModelFactory(),
-                new FakeScaffoldingModelFactory(new TestOperationReporter()),
-                new ScaffoldingCodeGeneratorSelector(
-                    new[]
-                    {
-                        new CSharpScaffoldingGenerator(
-                            new CSharpDbContextGenerator(
-#pragma warning disable CS0618 // Type or member is obsolete
-                                Enumerable.Empty<IScaffoldingProviderCodeGenerator>(),
-#pragma warning restore CS0618 // Type or member is obsolete
-                                new[]{ new TestProviderCodeGenerator() },
-                                new AnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies()),
-                                cSharpUtilities),
-                            new CSharpEntityTypeGenerator(cSharpUtilities))
-                    }),
-                cSharpUtilities);
-        }
+            => new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
+                .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
+                .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
+                .BuildServiceProvider()
+                .GetRequiredService<IReverseEngineerScaffolder>();
     }
 }

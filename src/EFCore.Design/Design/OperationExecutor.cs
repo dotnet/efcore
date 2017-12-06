@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             return new Hashtable
             {
                 ["ContextFile"] = files.ContextFile,
-                ["EntityTypeFiles"] = files.EntityTypeFiles.ToArray()
+                ["EntityTypeFiles"] = files.AdditionalFiles.ToArray()
             };
         }
 

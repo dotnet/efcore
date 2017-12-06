@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class CSharpScaffoldingGenerator : ScaffoldingCodeGenerator
+    public class CSharpModelGenerator : ModelCodeGenerator
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -30,9 +30,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public CSharpScaffoldingGenerator(
+        public CSharpModelGenerator(
+            [NotNull] ModelCodeGeneratorDependencies dependencies,
             [NotNull] ICSharpDbContextGenerator cSharpDbContextGenerator,
             [NotNull] ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
+            : base(dependencies)
         {
             Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));
             Check.NotNull(cSharpEntityTypeGenerator, nameof(cSharpEntityTypeGenerator));
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ScaffoldedModel WriteCode(
+        public override ScaffoldedModel GenerateModel(
             IModel model,
             string @namespace,
             string contextName,
@@ -79,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
-                resultingFiles.EntityTypeFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                resultingFiles.AdditionalFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
             }
 
             return resultingFiles;

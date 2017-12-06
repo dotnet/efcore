@@ -9,6 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class OracleCodeGenerator : ProviderCodeGenerator
     {
+        public OracleCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
+            : base(dependencies)
+        {
+        }
+
         public override string UseProviderMethod
             => nameof(OracleDbContextOptionsExtensions.UseOracle);
     }

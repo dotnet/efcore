@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 EnsureServices(services);
                 EnsureMigrationsAssembly(services);
 
-                var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
+                var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
                 var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace, _language);
                 var files = scaffolder.Save(_projectDir, migration, outputDir);
 
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 EnsureServices(services);
                 EnsureMigrationsAssembly(services);
 
-                var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
+                var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
 
                 var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, revert, _language);
 

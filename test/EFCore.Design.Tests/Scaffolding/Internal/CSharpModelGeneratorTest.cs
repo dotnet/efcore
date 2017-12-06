@@ -1,15 +1,15 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    public class CSharpScaffoldingGeneratorTest
+    public class CSharpModelGeneratorTest
     {
         [Fact]
         public void Language_works()
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
             modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
 
-            var result = generator.WriteCode(
+            var result = generator.GenerateModel(
                 modelBuilder.Model,
                 "TestNamespace",
                 "TestContext",
@@ -64,8 +64,8 @@ namespace TestNamespace
                 result.ContextFile.Code,
                 ignoreLineEndingDifferences: true);
 
-            Assert.Equal(1, result.EntityTypeFiles.Count);
-            Assert.Equal("TestEntity.cs", result.EntityTypeFiles[0].Path);
+            Assert.Equal(1, result.AdditionalFiles.Count);
+            Assert.Equal("TestEntity.cs", result.AdditionalFiles[0].Path);
             Assert.Equal(
                 @"using System;
 using System.Collections.Generic;
@@ -81,23 +81,16 @@ namespace TestNamespace
     }
 }
 ",
-                result.EntityTypeFiles[0].Code,
+                result.AdditionalFiles[0].Code,
                 ignoreLineEndingDifferences: true);
         }
 
-        private static IScaffoldingCodeGenerator CreateGenerator()
-        {
-            var cSharpUtilities = new CSharpUtilities();
-
-            return new CSharpScaffoldingGenerator(
-                new CSharpDbContextGenerator(
-#pragma warning disable CS0618 // Type or member is obsolete
-                    Enumerable.Empty<IScaffoldingProviderCodeGenerator>(),
-#pragma warning restore CS0618 // Type or member is obsolete
-                    new[] { new TestProviderCodeGenerator() },
-                    new AnnotationCodeGenerator(new AnnotationCodeGeneratorDependencies()),
-                    cSharpUtilities),
-                new CSharpEntityTypeGenerator(cSharpUtilities));
-        }
+        private static IModelCodeGenerator CreateGenerator()
+            => new ServiceCollection()
+            .AddEntityFrameworkDesignTimeServices()
+            .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
+            .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()
+            .BuildServiceProvider()
+            .GetRequiredService<IModelCodeGenerator>();
     }
 }

@@ -34,16 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public ReverseEngineerScaffolder(
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
-            [NotNull] ScaffoldingCodeGeneratorSelector scaffoldingCodeGeneratorSelector,
+            [NotNull] IModelCodeGeneratorSelector modelCodeGeneratorSelector,
             [NotNull] ICSharpUtilities cSharpUtilities)
         {
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
-            Check.NotNull(scaffoldingCodeGeneratorSelector, nameof(scaffoldingCodeGeneratorSelector));
+            Check.NotNull(modelCodeGeneratorSelector, nameof(modelCodeGeneratorSelector));
 
             _databaseModelFactory = databaseModelFactory;
             _factory = scaffoldingModelFactory;
-            ScaffoldingCodeGeneratorSelector = scaffoldingCodeGeneratorSelector;
+            ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
             _cSharpUtilities = cSharpUtilities;
         }
 
@@ -51,19 +51,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        private ScaffoldingCodeGeneratorSelector ScaffoldingCodeGeneratorSelector { get; }
+        private IModelCodeGeneratorSelector ModelCodeGeneratorSelector { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ScaffoldedModel Generate(
+        public virtual ScaffoldedModel ScaffoldModel(
             string connectionString,
             IEnumerable<string> tables,
             IEnumerable<string> schemas,
-            string projectPath,
-            string outputPath,
-            string rootNamespace,
+            string @namespace,
             string language,
             string contextName,
             bool useDataAnnotations,
@@ -72,8 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
             Check.NotNull(schemas, nameof(schemas));
-            Check.NotEmpty(projectPath, nameof(projectPath));
-            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
+            Check.NotEmpty(@namespace, nameof(@namespace));
             Check.NotNull(language, nameof(language));
 
             if (!string.IsNullOrWhiteSpace(contextName)
@@ -94,16 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         _factory.GetType().ShortDisplayName()));
             }
 
-            outputPath = string.IsNullOrWhiteSpace(outputPath) ? null : outputPath;
-            var subNamespace = SubnamespaceFromOutputPath(projectPath, outputPath);
-
-            var @namespace = rootNamespace;
-
-            if (!string.IsNullOrEmpty(subNamespace))
-            {
-                @namespace += "." + subNamespace;
-            }
-
             if (string.IsNullOrEmpty(contextName))
             {
                 contextName = DefaultDbContextName;
@@ -118,62 +105,44 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            var codeGenerator = ScaffoldingCodeGeneratorSelector.Select(language);
+            var codeGenerator = ModelCodeGeneratorSelector.Select(language);
 
-            return codeGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
+            return codeGenerator.GenerateModel(model, @namespace, contextName, connectionString, useDataAnnotations);
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ReverseEngineerFiles Save(
+        public virtual ModelFiles Save(
             ScaffoldedModel scaffoldedModel,
-            string projectPath,
-            string outputPath,
+            string projectDir,
+            string outputDir,
             bool overwriteFiles)
         {
-            Check.NotEmpty(projectPath, nameof(projectPath));
+            Check.NotEmpty(projectDir, nameof(projectDir));
 
-            var outputDir = outputPath == null
-                ? projectPath
-                : Path.GetFullPath(Path.Combine(projectPath, outputPath));
+            outputDir = outputDir == null
+                ? projectDir
+                : Path.GetFullPath(Path.Combine(projectDir, outputDir));
 
             CheckOutputFiles(scaffoldedModel, outputDir, overwriteFiles);
 
-            var files = new ReverseEngineerFiles();
+            var files = new ModelFiles();
             Directory.CreateDirectory(outputDir);
 
             var contextPath = Path.Combine(outputDir, scaffoldedModel.ContextFile.Path);
             File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
             files.ContextFile = contextPath;
 
-            foreach (var entityTypeFile in scaffoldedModel.EntityTypeFiles)
+            foreach (var entityTypeFile in scaffoldedModel.AdditionalFiles)
             {
                 var additionalFilePath = Path.Combine(outputDir, entityTypeFile.Path);
                 File.WriteAllText(additionalFilePath, entityTypeFile.Code, Encoding.UTF8);
-                files.EntityTypeFiles.Add(additionalFilePath);
+                files.AdditionalFiles.Add(additionalFilePath);
             }
 
             return files;
-        }
-
-        // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
-        // --output-dir $(projectFolder)/A/B/C
-        // => "namespace $(rootnamespace).A.B.C"
-        private string SubnamespaceFromOutputPath(string projectDir, string outputDir)
-        {
-            if (outputDir == null
-                || !outputDir.StartsWith(projectDir, StringComparison.Ordinal))
-            {
-                return null;
-            }
-
-            var subPath = outputDir.Substring(projectDir.Length);
-
-            return !string.IsNullOrWhiteSpace(subPath)
-                ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
-                : null;
         }
 
         private static void CheckOutputFiles(
@@ -181,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string outputDir,
             bool overwriteFiles)
         {
-            var paths = scaffoldedModel.EntityTypeFiles.Select(f => f.Path).ToList();
+            var paths = scaffoldedModel.AdditionalFiles.Select(f => f.Path).ToList();
             paths.Insert(0, scaffoldedModel.ContextFile.Path);
 
             var existingFiles = new List<string>();

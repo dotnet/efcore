@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         [Fact]
         public virtual void Use_provider_method_is_generated_correctly()
         {
-            var codeGenerator = new SqliteCodeGenerator();
+            var codeGenerator = new SqliteCodeGenerator(new ProviderCodeGeneratorDependencies());
 
             Assert.Equal("UseSqlite", codeGenerator.UseProviderMethod);
         }

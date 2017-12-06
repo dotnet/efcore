@@ -7,6 +7,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestProviderCodeGenerator : ProviderCodeGenerator
     {
+        public TestProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
+            : base(dependencies)
+        {
+        }
+
         public override string UseProviderMethod
             => "UseTestProvider";
     }
