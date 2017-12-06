@@ -17,10 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class SqliteDateDiffTranslator : IMethodCallTranslator
     {
         private const string _sqliteFunctionDateFormat = "strftime";
-
         private static readonly string _sqliteCalcMonth = "'%m'";
-        private static readonly string _sqliteCalcDay = "60 * 60 * 24";
-        private static readonly string _sqliteCalcHour = "60 * 60";
+        private static readonly string _sqliteCalcDay = "86400";
+        private static readonly string _sqliteCalcHour = "3600";
         private static readonly string _sqliteCalcMinute = "60";
         private static readonly string _sqliteCalcSecond = "'%S'";
         private static readonly string _sqliteCalcYear = "'%Y'";
@@ -253,13 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                             methodCallExpression.Arguments[2]
                                       })
                                   ),
-                                new SqlFunctionExpression(
-                                      string.Empty,
-                                      returnType: methodCallExpression.Type,
-                                      arguments: new[]
-                                      {
-                                            new SqlFragmentExpression(datePartCalculate)
-                                      }))
+                                Expression.Constant(int.Parse(datePartCalculate), typeof(int?)))
                             ,
                             typeof(int?));
                     default:

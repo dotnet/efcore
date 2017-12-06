@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     public class SqliteDateTimeDateComponentTranslator : IMemberTranslator
     {
         private const string _sqliteLocalTime = "'localtime'";
-
         private static string _sqliteFormatDate = "'%Y-%m-%d %H:%M:%S'";
         private static string _sqliteFunctionDateFormat = "strftime"; 
         private static string _sqliteStartOfDay = "'start of day'";
