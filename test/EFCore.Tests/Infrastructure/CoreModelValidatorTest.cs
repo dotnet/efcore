@@ -38,40 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_filter_with_navs()
-        {
-            var customerClrType = typeof(Customer);
-            var orderClrType = typeof(Order);
-
-            var model = new Model();
-            var customerType = model.AddEntityType(customerClrType);
-            var customerIdProperty = customerType.GetOrAddProperty(customerClrType.GetProperty("CustomerID"));
-            customerIdProperty.IsNullable = false;
-            var customerKey = customerType.SetPrimaryKey(customerIdProperty);
-
-            var orderType = model.AddEntityType(orderClrType);
-            var orderIdProperty = orderType.GetOrAddProperty(orderClrType.GetProperty("OrderID"));
-            orderType.SetPrimaryKey(orderIdProperty);
-
-            var foreignKeyProperty = orderType.GetOrAddProperty(orderClrType.GetProperty("CustomerID"));
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
-
-            customerForeignKey.HasDependentToPrincipal(orderClrType.GetProperty("Customer"));
-
-            Expression<Func<Order, bool>> badExpression3 = o => o.Customer.CustomerID == "ALFKI";
-
-            orderType.QueryFilter = badExpression3;
-
-            VerifyError(CoreStrings.BadFilterExpression(badExpression3, orderType.DisplayName(), orderType.ClrType), model);
-
-            Expression<Func<Order, bool>> badExpression4 = o => EF.Property<Customer>(o, "Customer").CustomerID == "ALFKI";
-
-            orderType.QueryFilter = badExpression4;
-
-            VerifyError(CoreStrings.BadFilterExpression(badExpression4, orderType.DisplayName(), orderType.ClrType), model);
-        }
-
-        [Fact]
         public virtual void Detects_shadow_entities()
         {
             var model = new Model();

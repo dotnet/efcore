@@ -301,6 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (!_queryCompilationContext.IgnoreQueryFilters)
             {
                 queryModel.TransformExpressions(_filterApplyingExpressionVisitor.Visit);
+
+                navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
             }
 
             // Second pass of optimizations

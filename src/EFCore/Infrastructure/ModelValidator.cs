@@ -4,11 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -64,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(model, nameof(model));
 
-            var filterValidatingExppressionVisitor = new FilterValidatingExppressionVisitor();
-
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.QueryFilter != null)
@@ -75,59 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         throw new InvalidOperationException(
                             CoreStrings.BadFilterDerivedType(entityType.QueryFilter, entityType.DisplayName()));
                     }
-
-                    if (!filterValidatingExppressionVisitor.IsValid(entityType))
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.BadFilterExpression(entityType.QueryFilter, entityType.DisplayName(), entityType.ClrType));
-                    }
                 }
-            }
-        }
-
-        private sealed class FilterValidatingExppressionVisitor : ExpressionVisitor
-        {
-            private IEntityType _entityType;
-
-            private bool _valid = true;
-
-            public bool IsValid(IEntityType entityType)
-            {
-                _entityType = entityType;
-
-                Visit(entityType.QueryFilter.Body);
-
-                return _valid;
-            }
-
-            protected override Expression VisitMember(MemberExpression memberExpression)
-            {
-                if (memberExpression.Expression == _entityType.QueryFilter.Parameters[0]
-                    && memberExpression.Member is PropertyInfo propertyInfo
-                    && _entityType.FindNavigation(propertyInfo) != null)
-                {
-                    _valid = false;
-
-                    return memberExpression;
-                }
-
-                return base.VisitMember(memberExpression);
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.IsEFProperty()
-                    && methodCallExpression.Arguments[0] == _entityType.QueryFilter.Parameters[0]
-                    && (!(methodCallExpression.Arguments[1] is ConstantExpression constantExpression)
-                        || !(constantExpression.Value is string propertyName)
-                        || _entityType.FindNavigation(propertyName) != null))
-                {
-                    _valid = false;
-
-                    return methodCallExpression;
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
             }
         }
 
