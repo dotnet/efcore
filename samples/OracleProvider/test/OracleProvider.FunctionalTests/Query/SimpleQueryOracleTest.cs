@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -2131,6 +2132,18 @@ ORDER BY ""c"".""CustomerID"" NULLS FIRST");
 FROM ""Customers"" ""c""
 WHERE ""c"".""CustomerID"" LIKE N'A' || N'%' AND (SUBSTR(""c"".""CustomerID"", 1, LENGTH(N'A')) = N'A')
 ORDER BY ""c"".""CustomerID"" DESC");
+        }
+
+        [ConditionalFact(Skip = "See issue#10513")]
+        public override void OrderBy_empty_list_contains()
+        {
+            base.OrderBy_empty_list_contains();
+        }
+
+        [ConditionalFact(Skip = "See issue#10513")]
+        public override void OrderBy_empty_list_does_not_contains()
+        {
+            base.OrderBy_empty_list_does_not_contains();
         }
 
         private void AssertSql(params string[] expected)
