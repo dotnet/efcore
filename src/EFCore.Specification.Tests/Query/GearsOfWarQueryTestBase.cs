@@ -992,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Gear>(
                 gs => from g in gs
-                      // ReSharper disable once ConstantNullCoalescingCondition
+                          // ReSharper disable once ConstantNullCoalescingCondition
                       where (new { Name = g.LeaderNickname } ?? new { Name = g.FullName }) != null
                       select g.Nickname);
         }
@@ -1026,7 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Gear>(
                 gs => from g in gs
-                      // ReSharper disable once EqualExpressionComparison
+                          // ReSharper disable once EqualExpressionComparison
                       where new { Five = 5 } == new { Five = 5 }
                       select g.Nickname);
         }
@@ -1856,7 +1856,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_Date_works()
+        public virtual void Where_datetimeoffset_now()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline != DateTimeOffset.Now
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_utcnow()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline != DateTimeOffset.UtcNow
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_date_component()
         {
             AssertQuery<Mission>(
                 ms => from m in ms
@@ -1865,11 +1883,74 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void DateTimeOffset_Datepart_works()
+        public virtual void Where_datetimeoffset_year_component()
         {
             AssertQuery<Mission>(
                 ms => from m in ms
-                      where m.Timeline.Month == 5
+                      where m.Timeline.Year == 2
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_month_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.Month == 1
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_dayofyear_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.DayOfYear == 2
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_day_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.Day == 2
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_hour_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.Hour == 10
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_minute_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.Minute == 0
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_second_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.Second == 0
+                      select m);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_datetimeoffset_millisecond_component()
+        {
+            AssertQuery<Mission>(
+                ms => from m in ms
+                      where m.Timeline.Millisecond == 0
                       select m);
         }
 
@@ -2758,7 +2839,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = from g1 in ctx.Gears
                             from g2 in ctx.Gears
-                            // ReSharper disable once PossibleUnintendedReferenceComparison
+                                // ReSharper disable once PossibleUnintendedReferenceComparison
                             where g1.Weapons == g2.Weapons
                             orderby g1.Nickname
                             select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname };
