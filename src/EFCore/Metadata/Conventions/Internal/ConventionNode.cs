@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public IReadOnlyList<ConventionNode> Children
             {
-                [DebuggerStepThrough] get { return _children; }
+                [DebuggerStepThrough] get => _children;
             }
 
             public int GetLeafCount()
