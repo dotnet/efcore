@@ -14,9 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             var translators = new List<IMemberTranslator>
             {
                 new OracleStringLengthTranslator(),
-                new OracleDateTimeNowTranslator(),
-                new OracleDateTimeDateComponentTranslator(),
-                new OracleDateTimeDatePartComponentTranslator()
+                new OracleDateTimeMemberTranslator(),
             };
 
             AddTranslators(translators);
