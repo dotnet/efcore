@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -9,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqlServerFixture>
     {
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         // ReSharper disable once UnusedParameter.Local
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -396,9 +397,9 @@ ORDER BY [t1].[FullName]");
 FROM [Tags] AS [t]");
 
             Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + EOL +
-                @"FROM [Gears] AS [g]" + EOL +
-                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + EOL +
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + _eol +
+                @"FROM [Gears] AS [g]" + _eol +
+                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
                 @"WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN (",
                 Fixture.TestSqlLoggerFactory.SqlStatements[1]);
         }
@@ -412,10 +413,10 @@ FROM [Tags] AS [t]");
 FROM [Tags] AS [t]");
 
             Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + EOL +
-                @"FROM [Gears] AS [g]" + EOL +
-                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + EOL +
-                @"INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]" + EOL +
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.Tag].[Id], [g.Tag].[GearNickName], [g.Tag].[GearSquadId], [g.Tag].[Note]" + _eol +
+                @"FROM [Gears] AS [g]" + _eol +
+                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
+                @"INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOrBirthName] = [g.CityOfBirth].[Name]" + _eol +
                 @"WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.CityOfBirth].[Location] IS NOT NULL AND [g.Tag].[Id] IN (",
                 Fixture.TestSqlLoggerFactory.SqlStatements[1]);
         }
@@ -429,9 +430,9 @@ FROM [Tags] AS [t]");
 FROM [Tags] AS [t]");
 
             Assert.Contains(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]" + EOL +
-                @"FROM [Gears] AS [g]" + EOL +
-                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + EOL +
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]" + _eol +
+                @"FROM [Gears] AS [g]" + _eol +
+                @"LEFT JOIN [Tags] AS [g.Tag] ON ([g].[Nickname] = [g.Tag].[GearNickName]) AND ([g].[SquadId] = [g.Tag].[GearSquadId])" + _eol +
                 @"WHERE [g].[Discriminator] IN (N'Officer', N'Gear') AND ([g.Tag].[Id] IS NOT NULL AND [g.Tag].[Id] IN (",
                 Fixture.TestSqlLoggerFactory.SqlStatements[1]);
         }
@@ -2817,9 +2818,29 @@ END
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
         }
 
-        public override void DateTimeOffset_Date_works()
+        public override void Where_datetimeoffset_now()
         {
-            base.DateTimeOffset_Date_works();
+            base.Where_datetimeoffset_now();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE [m].[Timeline] <> CAST(GETDATE() AS datetimeoffset)");
+        }
+
+        public override void Where_datetimeoffset_utcnow()
+        {
+            base.Where_datetimeoffset_utcnow();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE [m].[Timeline] <> CAST(GETUTCDATE() AS datetimeoffset)");
+        }
+
+        public override void Where_datetimeoffset_date_component()
+        {
+            base.Where_datetimeoffset_date_component();
 
             AssertSql(
                 @"@__Date_0='0001-01-01T00:00:00'
@@ -2829,23 +2850,84 @@ FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) > @__Date_0");
         }
 
-        public override void DateTimeOffset_Datepart_works()
+        public override void Where_datetimeoffset_year_component()
         {
-            base.DateTimeOffset_Datepart_works();
+            base.Where_datetimeoffset_year_component();
 
             AssertSql(
                 @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE DATEPART(month, [m].[Timeline]) = 5");
+WHERE DATEPART(year, [m].[Timeline]) = 2");
         }
 
-        public override void DateTimeOffset_DateAdd_AddYears()
+        public override void Where_datetimeoffset_month_component()
         {
-            base.DateTimeOffset_DateAdd_AddYears();
+            base.Where_datetimeoffset_month_component();
 
             AssertSql(
-                @"SELECT DATEADD(year, 1, [m].[Timeline])
-FROM [Missions] AS [m]");
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(month, [m].[Timeline]) = 1");
+        }
+
+        public override void Where_datetimeoffset_dayofyear_component()
+        {
+            base.Where_datetimeoffset_dayofyear_component();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(dayofyear, [m].[Timeline]) = 2");
+        }
+
+        public override void Where_datetimeoffset_day_component()
+        {
+            base.Where_datetimeoffset_day_component();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(day, [m].[Timeline]) = 2");
+        }
+
+        public override void Where_datetimeoffset_hour_component()
+        {
+            base.Where_datetimeoffset_hour_component();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(hour, [m].[Timeline]) = 10");
+        }
+
+        public override void Where_datetimeoffset_minute_component()
+        {
+            base.Where_datetimeoffset_minute_component();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(minute, [m].[Timeline]) = 0");
+        }
+
+        public override void Where_datetimeoffset_second_component()
+        {
+            base.Where_datetimeoffset_second_component();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(second, [m].[Timeline]) = 0");
+        }
+
+        public override void Where_datetimeoffset_millisecond_component()
+        {
+            base.Where_datetimeoffset_millisecond_component();
+
+            AssertSql(
+                @"SELECT [m].[Id], [m].[CodeName], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE DATEPART(millisecond, [m].[Timeline]) = 0");
         }
 
         public override void DateTimeOffset_DateAdd_AddMonths()
