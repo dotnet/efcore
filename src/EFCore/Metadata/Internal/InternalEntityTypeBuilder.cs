@@ -219,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 RemoveShadowPropertiesIfUnused(key.Properties);
                 foreach (var property in key.Properties)
                 {
-                    if (property.ClrType.IsNullableType())
+                    if (!property.IsKey()
+                        && property.ClrType.IsNullableType())
                     {
                         // TODO: This should be handled by reference tracking
                         property.Builder?.IsRequired(false, configurationSource);

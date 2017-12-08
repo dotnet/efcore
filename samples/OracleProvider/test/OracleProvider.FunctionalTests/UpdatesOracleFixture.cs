@@ -16,6 +16,10 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price).HasColumnType("decimal(18,2)");
+            modelBuilder.Entity<LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly>()
+                .Property(l => l.ProfileId9).HasColumnType("date");
+
+            modelBuilder.Entity<Profile>().Property(l => l.Id9).HasColumnType("date");
         }
     }
 }

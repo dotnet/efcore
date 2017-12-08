@@ -152,12 +152,12 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             Assert.Equal(
-                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+                @"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name""
 FROM ""Sample"" ""r""
 WHERE ""r"".""UniqueNo"" = 1
 FETCH FIRST 1 ROWS ONLY
 
-SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion"", ""r"".""UniqueNo"", ""r"".""Details_Name"", ""r"".""UniqueNo"", ""r"".""AdditionalDetails_Name""
 FROM ""Sample"" ""r""
 WHERE ""r"".""UniqueNo"" = 1
 FETCH FIRST 1 ROWS ONLY
@@ -205,6 +205,8 @@ END;",
                 @":p0='' (Size = 10) (DbType = String)
 :p1='Third' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000003' (Nullable = false)
+:p3='Third Additional Name' (Size = 2000)
+:p4='Third Name' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -219,8 +221,8 @@ BEGIN
 
 listSample_0 := efSample_0();
 listSample_0.extend(1);
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (:p0, :p1, :p2)
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
+VALUES (:p0, :p1, :p2, :p3, :p4)
 RETURNING ""UniqueNo"" INTO listSample_0(1);
 OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;",
@@ -236,6 +238,8 @@ END;",
                 @":p0='Short' (Size = 10)
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000001' (Nullable = false)
+:p3='Third Additional Name' (Size = 2000)
+:p4='Third Name' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -250,8 +254,8 @@ BEGIN
 
 listSample_0 := efSample_0();
 listSample_0.extend(1);
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (:p0, :p1, :p2)
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
+VALUES (:p0, :p1, :p2, :p3, :p4)
 RETURNING ""UniqueNo"" INTO listSample_0(1);
 OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;
@@ -259,6 +263,8 @@ END;
 :p0='VeryVeryVeryVeryVeryVeryLongString'
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000002' (Nullable = false)
+:p3='Third Additional Name' (Size = 2000)
+:p4='Third Name' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -273,8 +279,8 @@ BEGIN
 
 listSample_0 := efSample_0();
 listSample_0.extend(1);
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (:p0, :p1, :p2)
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
+VALUES (:p0, :p1, :p2, :p3, :p4)
 RETURNING ""UniqueNo"" INTO listSample_0(1);
 OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;",
@@ -303,6 +309,8 @@ END;",
                 @":p0='' (Size = 10) (DbType = String)
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000001' (Nullable = false)
+:p3='Two' (Size = 2000)
+:p4='One' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -317,8 +325,8 @@ BEGIN
 
 listSample_0 := efSample_0();
 listSample_0.extend(1);
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (:p0, :p1, :p2)
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
+VALUES (:p0, :p1, :p2, :p3, :p4)
 RETURNING ""UniqueNo"" INTO listSample_0(1);
 OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;
@@ -326,6 +334,8 @@ END;
 :p0='' (Size = 10) (DbType = String)
 :p1='' (Nullable = false) (Size = 2000) (DbType = String)
 :p2='0x00000000000000000000000000000002' (Nullable = false)
+:p3='Two' (Size = 2000)
+:p4='One' (Size = 2000)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)
 
 DECLARE
@@ -340,8 +350,8 @@ BEGIN
 
 listSample_0 := efSample_0();
 listSample_0.extend(1);
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
-VALUES (:p0, :p1, :p2)
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
+VALUES (:p0, :p1, :p2, :p3, :p4)
 RETURNING ""UniqueNo"" INTO listSample_0(1);
 OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;",

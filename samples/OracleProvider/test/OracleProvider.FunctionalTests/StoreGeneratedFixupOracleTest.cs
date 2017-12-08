@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class StoreGeneratedFixupOracleTest : StoreGeneratedFixupTestBase<StoreGeneratedFixupOracleTest.StoreGeneratedFixupOracleFixture>
+    public class StoreGeneratedFixupOracleTest : StoreGeneratedFixupRelationalTestBase<StoreGeneratedFixupOracleTest.StoreGeneratedFixupOracleFixture>
     {
         public StoreGeneratedFixupOracleTest(StoreGeneratedFixupOracleFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        public class StoreGeneratedFixupOracleFixture : StoreGeneratedFixupFixtureBase
+        public class StoreGeneratedFixupOracleFixture : StoreGeneratedFixupRelationalFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
 
