@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             var sqliteTranslators = new List<IMemberTranslator>
             {
+                new SqliteDateTimeDateComponentTranslator(),
+                new SqliteDateTimeDatePartComponentTranslator(),
+                new SqliteDateTimeNowTranslator(),
                 new SqliteStringLengthTranslator()
             };
 
