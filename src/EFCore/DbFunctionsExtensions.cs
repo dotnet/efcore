@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
         /// <param name="endDate">Ending date for the calculation.</param>
-        /// <returns>Number of minute boundaries crossed between the dates.</returns> 
+        /// <returns>Number of minute boundaries crossed between the dates.</returns>
         public static int? DateDiffMinute(
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? startDate,
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
         /// <param name="endDate">Ending date for the calculation.</param>
-        /// <returns>Number of second boundaries crossed between the dates.</returns> 
+        /// <returns>Number of second boundaries crossed between the dates.</returns>
         public static int? DateDiffSecond(
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? startDate,
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
         /// <param name="endDate">Ending date for the calculation.</param>
-        /// <returns>Number of millisecond boundaries crossed between the dates.</returns> 
+        /// <returns>Number of millisecond boundaries crossed between the dates.</returns>
         public static int? DateDiffMillisecond(
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? startDate,
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="_">The DbFunctions instance.</param>
         /// <param name="startDate">Starting date for the calculation.</param>
         /// <param name="endDate">Ending date for the calculation.</param>
-        /// <returns>Number of microsecond boundaries crossed between the dates.</returns> 
+        /// <returns>Number of microsecond boundaries crossed between the dates.</returns>
         public static int? DateDiffMicrosecond(
             [CanBeNull] this DbFunctions _,
             DateTimeOffset? startDate,

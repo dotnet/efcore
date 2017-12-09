@@ -27,5 +27,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(19, count); // TODO: case-sensitive - use REGEXP_LIKE function?
             }
         }
+
+        [ConditionalFact(Skip = "See issue#10520")]
+        public override void DateDiff_Microsecond()
+        {
+            base.DateDiff_Microsecond();
+        }
+
+        [ConditionalFact(Skip = "See issue#10520")]
+        public override void DateDiff_Millisecond()
+        {
+            base.DateDiff_Millisecond();
+        }
+
+        [ConditionalFact(Skip = "See issue#10520")]
+        public override void DateDiff_Nanosecond()
+        {
+            base.DateDiff_Nanosecond();
+        }
     }
 }

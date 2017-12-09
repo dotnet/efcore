@@ -18,224 +18,224 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     {
         private readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping
             = new Dictionary<MethodInfo, string>
-        {
             {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffYear),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffYear),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "YEAR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffYear),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffYear),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "YEAR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffYear),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffYear),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "YEAR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffYear),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffYear),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "YEAR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMonth),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMonth),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "MONTH"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMonth),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMonth),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "MONTH"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMonth),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMonth),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "MONTH"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMonth),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMonth),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "MONTH"
-            },
-             {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffDay),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                 {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffDay),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "DAY"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffDay),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffDay),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "DAY"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffDay),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffDay),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "DAY"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffDay),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffDay),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "DAY"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffHour),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffHour),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "HOUR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffHour),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffHour),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "HOUR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffHour),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffHour),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "HOUR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffHour),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffHour),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "HOUR"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMinute),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMinute),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "MINUTE"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMinute),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMinute),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "MINUTE"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMinute),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMinute),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "MINUTE"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMinute),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMinute),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "MINUTE"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffSecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffSecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "SECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffSecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffSecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "SECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffSecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffSecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "SECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffSecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffSecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "SECOND"
-            },
-             {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                 {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMillisecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "MILLISECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMillisecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "MILLISECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMillisecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "MILLISECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMillisecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMillisecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "MILLISECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMicrosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMicrosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "MICROSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMicrosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMicrosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "MICROSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMicrosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMicrosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "MICROSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffMicrosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffMicrosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "MICROSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffNanosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffNanosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime), typeof(DateTime) }),
                     "NANOSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffNanosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffNanosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTime?), typeof(DateTime?) }),
                     "NANOSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffNanosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffNanosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(DateTimeOffset) }),
                     "NANOSECOND"
-            },
-            {
-                typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                    nameof(DbFunctionsExtensions.DateDiffNanosecond),
-                    new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
+                },
+                {
+                    typeof(DbFunctionsExtensions).GetRuntimeMethod(
+                        nameof(DbFunctionsExtensions.DateDiffNanosecond),
+                        new[] { typeof(DbFunctions), typeof(DateTimeOffset?), typeof(DateTimeOffset?) }),
                     "NANOSECOND"
-            }
-        };
+                }
+            };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -713,6 +713,16 @@ FROM [Customers] AS [c]
 WHERE GETUTCDATE() <> @__myDatetime_0");
         }
 
+        public override void Where_datetime_today()
+        {
+            base.Where_datetime_today();
+
+            AssertSql(
+             @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
+        }
+
         public override void Where_datetime_date_component()
         {
             base.Where_datetime_date_component();

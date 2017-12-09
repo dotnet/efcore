@@ -23,6 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private static readonly PropertyInfo _dateTimeUtcNow
             = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
 
+        private static readonly PropertyInfo _dateTimeToday
+            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Today));
+
         private static readonly PropertyInfo _dateTimeOffsetNow
             = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.Now));
 
@@ -70,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (Equals(member, _dateTimeNow)
                 || Equals(member, _dateTimeUtcNow)
+                || Equals(member, _dateTimeToday)
                 || Equals(member, _dateTimeOffsetNow)
                 || Equals(member, _dateTimeOffsetUtcNow))
             {

@@ -225,29 +225,9 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
             }
         }
 
-        public override void String_DateDiff_Day()
+        public override void DateDiff_Year()
         {
-            base.String_DateDiff_Day();
-
-            AssertSql(
-                @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(DAY, [c].[OrderDate], GETDATE()) = 0");
-        }
-
-        public override void String_DateDiff_Month()
-        {
-            base.String_DateDiff_Month();
-
-            AssertSql(
-                @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(MONTH, [c].[OrderDate], GETDATE()) = 0");
-        }
-
-        public override void String_DateDiff_Year()
-        {
-            base.String_DateDiff_Year();
+            base.DateDiff_Year();
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -255,9 +235,29 @@ FROM [Orders] AS [c]
 WHERE DATEDIFF(YEAR, [c].[OrderDate], GETDATE()) = 0");
         }
 
-        public override void String_DateDiff_Hour()
+        public override void DateDiff_Month()
         {
-            base.String_DateDiff_Hour();
+            base.DateDiff_Month();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(MONTH, [c].[OrderDate], GETDATE()) = 0");
+        }
+
+        public override void DateDiff_Day()
+        {
+            base.DateDiff_Day();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [c]
+WHERE DATEDIFF(DAY, [c].[OrderDate], GETDATE()) = 0");
+        }
+
+        public override void DateDiff_Hour()
+        {
+            base.DateDiff_Hour();
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -265,9 +265,9 @@ FROM [Orders] AS [c]
 WHERE DATEDIFF(HOUR, [c].[OrderDate], GETDATE()) = 0");
         }
 
-        public override void String_DateDiff_Minute()
+        public override void DateDiff_Minute()
         {
-            base.String_DateDiff_Minute();
+            base.DateDiff_Minute();
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -275,9 +275,9 @@ FROM [Orders] AS [c]
 WHERE DATEDIFF(MINUTE, [c].[OrderDate], GETDATE()) = 0");
         }
 
-        public override void String_DateDiff_Second()
+        public override void DateDiff_Second()
         {
-            base.String_DateDiff_Second();
+            base.DateDiff_Second();
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -285,9 +285,9 @@ FROM [Orders] AS [c]
 WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0");
         }
 
-        public override void String_DateDiff_Millisecond()
+        public override void DateDiff_Millisecond()
         {
-            base.String_DateDiff_Millisecond();
+            base.DateDiff_Millisecond();
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -295,9 +295,9 @@ FROM [Orders] AS [c]
 WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0");
         }
 
-        public override void String_DateDiff_Microsecond()
+        public override void DateDiff_Microsecond()
         {
-            base.String_DateDiff_Microsecond();
+            base.DateDiff_Microsecond();
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -305,24 +305,14 @@ FROM [Orders] AS [c]
 WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
         }
 
-        public override void String_DateDiff_Nanosecond()
+        public override void DateDiff_Nanosecond()
         {
-            base.String_DateDiff_Nanosecond();
+            base.DateDiff_Nanosecond();
 
             AssertSql(
                 @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
-        }
-
-        public override void String_DateDiff_Convert_To_Date()
-        {
-            base.String_DateDiff_Convert_To_Date();
-
-            AssertSql(
-                @"SELECT COUNT(*)
-FROM [Orders] AS [c]
-WHERE DATEDIFF(DAY, [c].[OrderDate], CONVERT(date, GETDATE())) = 0");
         }
 
         private void AssertSql(params string[] expected)
