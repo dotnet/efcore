@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             if (declaringType == typeof(DateTime)
                 || declaringType == typeof(DateTimeOffset))
             {
-                var member = memberExpression.Member.Name;
+                var memberName = memberExpression.Member.Name;
 
-                if (_datePartMapping.TryGetValue(member, out var datePart))
+                if (_datePartMapping.TryGetValue(memberName, out var datePart))
                 {
                     if (declaringType == typeof(DateTimeOffset)
                         && (string.Equals(datePart, "HOUR")
@@ -46,23 +46,31 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         arguments: new[] { new SqlFragmentExpression(datePart), memberExpression.Expression });
                 }
 
-                switch (memberExpression.Member.Name)
+                switch (memberName)
                 {
                     case nameof(DateTime.Now):
                         var sysDate = new SqlFragmentExpression("SYSDATE");
                         return declaringType == typeof(DateTimeOffset)
                             ? (Expression)new ExplicitCastExpression(sysDate, typeof(DateTimeOffset))
                             : sysDate;
+
                     case nameof(DateTime.UtcNow):
                         var sysTimeStamp = new SqlFragmentExpression("SYSTIMESTAMP");
                         return declaringType == typeof(DateTimeOffset)
                             ? (Expression)new ExplicitCastExpression(sysTimeStamp, typeof(DateTimeOffset))
                             : sysTimeStamp;
+
                     case nameof(DateTime.Date):
                         return new SqlFunctionExpression(
                             "TRUNC",
                             memberExpression.Type,
                             new[] { memberExpression.Expression });
+
+                    case nameof(DateTime.Today):
+                        return new SqlFunctionExpression(
+                            "TRUNC",
+                            memberExpression.Type,
+                            new[] { new SqlFragmentExpression("SYSDATE") });
                 }
             }
 

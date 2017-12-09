@@ -13,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
+    // TODO: See issue#10525
+    // This translation is incorrect. Enable only after correcting translations.
     public class SqliteDateAddTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _concat

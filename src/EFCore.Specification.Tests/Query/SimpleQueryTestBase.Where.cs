@@ -654,6 +654,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Where_datetime_today()
+        {
+            AssertQuery<Employee>(
+                es => es.Where(e => DateTime.Now.Date == DateTime.Today),
+                entryCount: 9);
+        }
+
+        [ConditionalFact]
         public virtual void Where_datetime_date_component()
         {
             var myDatetime = new DateTime(1998, 5, 4);

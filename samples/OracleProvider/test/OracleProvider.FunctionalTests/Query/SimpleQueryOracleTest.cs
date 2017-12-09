@@ -62,6 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.CustomerID + " " + e.OrderID);
         }
 
+        [ConditionalFact(Skip = "See issue#10520")]
+        public override void Where_datetime_today()
+        {
+            base.Where_datetime_today();
+        }
+
         public override void Shaper_command_caching_when_parameter_names_different()
         {
             base.Shaper_command_caching_when_parameter_names_different();

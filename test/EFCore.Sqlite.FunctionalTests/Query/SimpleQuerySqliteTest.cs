@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public SimpleQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            Fixture.TestSqlLoggerFactory.Clear();
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
@@ -32,6 +33,131 @@ FROM (
 ) AS ""t""
 ORDER BY ""t"".""ContactName""
 LIMIT -1 OFFSET @__p_1");
+        }
+
+        public override void Where_datetime_now()
+        {
+            base.Where_datetime_now();
+
+            AssertSql(
+                @"@__myDatetime_0='2015-04-10T00:00:00' (DbType = String)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @__myDatetime_0");
+        }
+
+        public override void Where_datetime_utcnow()
+        {
+            base.Where_datetime_utcnow();
+
+            AssertSql(
+                @"@__myDatetime_0='2015-04-10T00:00:00' (DbType = String)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0");
+        }
+
+        public override void Where_datetime_today()
+        {
+            base.Where_datetime_today();
+
+            AssertSql(
+                @"SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
+FROM ""Employees"" AS ""e""
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.'), 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')");
+        }
+
+        public override void Where_datetime_date_component()
+        {
+            base.Where_datetime_date_component();
+
+            AssertSql(
+                @"@__myDatetime_0='1998-05-04T00:00:00' (DbType = String)
+
+SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of day'), '0'), '.') = @__myDatetime_0");
+        }
+
+        public override void Where_datetime_year_component()
+        {
+            base.Where_datetime_year_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998");
+        }
+
+        public override void Where_datetime_month_component()
+        {
+            base.Where_datetime_month_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4");
+        }
+
+        public override void Where_datetime_dayOfYear_component()
+        {
+            base.Where_datetime_dayOfYear_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68");
+        }
+
+        public override void Where_datetime_day_component()
+        {
+            base.Where_datetime_day_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4");
+        }
+
+        public override void Where_datetime_hour_component()
+        {
+            base.Where_datetime_hour_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14");
+        }
+
+        public override void Where_datetime_minute_component()
+        {
+            base.Where_datetime_minute_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23");
+        }
+
+        public override void Where_datetime_second_component()
+        {
+            base.Where_datetime_second_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
+        }
+
+        public override void Where_datetime_millisecond_component()
+        {
+            base.Where_datetime_millisecond_component();
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""");
         }
 
         public override void String_StartsWith_Literal()

@@ -37,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             if (declaringType == typeof(DateTime)
                 || declaringType == typeof(DateTimeOffset))
             {
-                var member = memberExpression.Member.Name;
+                var memberName = memberExpression.Member.Name;
 
-                if (_datePartMapping.TryGetValue(member, out var datePart))
+                if (_datePartMapping.TryGetValue(memberName, out var datePart))
                 {
                     return new SqlFunctionExpression(
                         "DATEPART",
@@ -47,23 +47,35 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         arguments: new[] { new SqlFragmentExpression(datePart), memberExpression.Expression });
                 }
 
-                switch (memberExpression.Member.Name)
+                switch (memberName)
                 {
                     case nameof(DateTime.Now):
                         var getDate = new SqlFunctionExpression("GETDATE", memberExpression.Type);
                         return declaringType == typeof(DateTimeOffset)
                             ? (Expression)new ExplicitCastExpression(getDate, typeof(DateTimeOffset))
                             : getDate;
+
                     case nameof(DateTime.UtcNow):
                         var getUtcDate = new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
                         return declaringType == typeof(DateTimeOffset)
                             ? (Expression)new ExplicitCastExpression(getUtcDate, typeof(DateTimeOffset))
                             : getUtcDate;
+
                     case nameof(DateTime.Date):
                         return new SqlFunctionExpression(
                             "CONVERT",
                             memberExpression.Type,
                             new[] { new SqlFragmentExpression("date"), memberExpression.Expression });
+
+                    case nameof(DateTime.Today):
+                        return new SqlFunctionExpression(
+                            "CONVERT",
+                            memberExpression.Type,
+                            new Expression[]
+                            {
+                                new SqlFragmentExpression("date"),
+                                new SqlFunctionExpression("GETDATE", memberExpression.Type)
+                            });
                 }
             }
 
