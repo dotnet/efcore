@@ -33,10 +33,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(model, nameof(model));
             Check.NotNull(annotation, nameof(annotation));
 
-            if (annotation.Name == RelationalAnnotationNames.DefaultSchema
-                && string.Equals("dbo", (string)annotation.Value))
+            if (annotation.Name == RelationalAnnotationNames.DefaultSchema)
             {
-                return true;
+                return string.Equals("dbo", (string)annotation.Value);
+            }
+            if (annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy)
+            {
+                return (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
             }
 
             return false;

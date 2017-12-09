@@ -39,53 +39,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 dataAnnotations: true);
 
             Assert.Equal(Path.Combine("..", "TestContextDir", "TestContext.cs"), result.ContextFile.Path);
-            Assert.Equal(
-                @"using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-
-namespace TestNamespace
-{
-    public partial class TestContext : DbContext
-    {
-        public virtual DbSet<TestEntity>  { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseTestProvider(@""Data Source=Test"");
-            }
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {}
-    }
-}
-",
-                result.ContextFile.Code,
-                ignoreLineEndingDifferences: true);
+            Assert.NotEmpty(result.ContextFile.Code);
 
             Assert.Equal(1, result.AdditionalFiles.Count);
             Assert.Equal("TestEntity.cs", result.AdditionalFiles[0].Path);
-            Assert.Equal(
-                @"using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace TestNamespace
-{
-    [Table(""TestEntity"")]
-    public partial class TestEntity
-    {
-        public int Id { get; set; }
-    }
-}
-",
-                result.AdditionalFiles[0].Code,
-                ignoreLineEndingDifferences: true);
+            Assert.NotEmpty(result.AdditionalFiles[0].Code);
         }
 
         private static IModelCodeGenerator CreateGenerator()
