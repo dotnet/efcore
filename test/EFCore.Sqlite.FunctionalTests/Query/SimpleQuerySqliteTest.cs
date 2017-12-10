@@ -182,6 +182,36 @@ FROM ""Customers"" AS ""c""
 WHERE length(""c"".""City"") = 6");
         }
 
+        public override void Where_string_indexof()
+        {
+            base.Where_string_indexof();
+
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (instr(""c"".""City"", 'Sea') - 1) <> -1");
+        }
+
+        public override void Where_string_replace()
+        {
+            base.Where_string_replace();
+
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE replace(""c"".""City"", 'Sea', 'Rea') = 'Reattle'");
+        }
+
+        public override void Where_string_substring()
+        {
+            base.Where_string_substring();
+
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE substr(""c"".""City"", 2, 2) = 'ea'");
+        }
+
         public override void Where_math_abs1()
         {
             base.Where_math_abs1();

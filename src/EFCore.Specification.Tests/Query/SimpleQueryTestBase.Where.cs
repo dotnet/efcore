@@ -611,6 +611,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Where_string_indexof()
+        {
+            // ReSharper disable once StringIndexOfIsCultureSpecific.1
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City.IndexOf("Sea") != -1),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_string_replace()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City.Replace("Sea", "Rea") == "Reattle"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_string_substring()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.City.Substring(1, 2) == "ea"),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
         public virtual void Where_datetime_now()
         {
             var myDatetime = new DateTime(2015, 4, 10);

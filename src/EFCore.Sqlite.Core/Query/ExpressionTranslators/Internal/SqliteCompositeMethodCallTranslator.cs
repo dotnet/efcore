@@ -22,7 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqliteStringToUpperTranslator(),
             new SqliteStringTrimEndTranslator(),
             new SqliteStringTrimStartTranslator(),
-            new SqliteStringTrimTranslator()
+            new SqliteStringTrimTranslator(),
+            new SqliteStringIndexOfTranslator(),
+            new SqliteStringReplaceTranslator(),
+            new SqliteStringSubstringTranslator()
         };
 
         /// <summary>
