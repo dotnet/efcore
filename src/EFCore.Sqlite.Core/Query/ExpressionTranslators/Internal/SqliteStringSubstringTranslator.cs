@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerStringSubstringTranslator : IMethodCallTranslator
+    public class SqliteStringSubstringTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
             = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
@@ -23,12 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
             => _methodInfo.Equals(methodCallExpression.Method)
                 ? new SqlFunctionExpression(
-                    "SUBSTRING",
+                    "substr",
                     methodCallExpression.Type,
                     new[]
                     {
                         methodCallExpression.Object,
-                        // Accommodate for SQL Server assumption of 1-based string indexes
                         methodCallExpression.Arguments[0] is ConstantExpression constantExpression
                             && constantExpression.Value is int value
                                 ? (Expression)Expression.Constant(value + 1)

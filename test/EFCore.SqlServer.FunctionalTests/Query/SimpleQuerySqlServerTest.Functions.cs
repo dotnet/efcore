@@ -1058,14 +1058,61 @@ FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')");
         }
 
+        public override void Indexof_with_emptystring()
+        {
+            base.Indexof_with_emptystring();
+
+            AssertSql(
+                @"@__Empty_0='' (Size = 4000)
+
+SELECT CASE
+    WHEN @__Empty_0 = N''
+    THEN 0 ELSE CHARINDEX(@__Empty_0, [c].[ContactName]) - 1
+END
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override void Replace_with_emptystring()
+        {
+            base.Replace_with_emptystring();
+
+            AssertSql(
+                @"@__Empty_0='' (Size = 4000)
+
+SELECT REPLACE([c].[ContactName], N'ari', @__Empty_0)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override void Substring_with_zero_startindex()
+        {
+            base.Substring_with_zero_startindex();
+
+            AssertSql(
+                @"SELECT SUBSTRING([c].[ContactName], 1, 3)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override void Substring_with_zero_length()
+        {
+            base.Substring_with_zero_length();
+
+            AssertSql(
+                @"SELECT SUBSTRING([c].[ContactName], 3, 0)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         public override void Substring_with_constant()
         {
             base.Substring_with_constant();
 
             AssertSql(
-                @"SELECT TOP(1) SUBSTRING([c].[ContactName], 2, 3)
+                @"SELECT SUBSTRING([c].[ContactName], 2, 3)
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override void Substring_with_closure()
@@ -1075,9 +1122,9 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"@__start_0='2'
 
-SELECT TOP(1) SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
+SELECT SUBSTRING([c].[ContactName], @__start_0 + 1, 3)
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override void Substring_with_client_eval()
@@ -1085,9 +1132,9 @@ ORDER BY [c].[CustomerID]");
             base.Substring_with_client_eval();
 
             AssertSql(
-                @"SELECT TOP(1) [c].[ContactName]
+                @"SELECT [c].[ContactName]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override void IsNullOrEmpty_in_predicate()
