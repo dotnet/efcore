@@ -732,6 +732,26 @@ FROM [Order Details] AS [od]
 WHERE ([od].[OrderID] = 11077) AND (SIGN([od].[Discount]) > 0)");
         }
 
+        public override void Where_math_min()
+        {
+            base.Where_math_min();
+
+            AssertSql(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[OrderID] = 11077");
+        }
+
+        public override void Where_math_max()
+        {
+            base.Where_math_max();
+
+            AssertSql(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+WHERE [od].[OrderID] = 11077");
+        }
+
         public override void Where_guid_newguid()
         {
             base.Where_guid_newguid();

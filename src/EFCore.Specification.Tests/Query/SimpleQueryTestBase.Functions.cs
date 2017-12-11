@@ -617,6 +617,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Where_math_max()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Max(od.OrderID, od.ProductID) == od.OrderID),
+                entryCount: 25);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_math_min()
+        {
+            AssertQuery<OrderDetail>(
+                ods => ods.Where(od => od.OrderID == 11077).Where(od => Math.Min(od.OrderID, od.ProductID) == od.ProductID),
+                entryCount: 25);
+        }
+
+        [ConditionalFact]
         public virtual void Where_guid_newguid()
         {
             AssertQuery<OrderDetail>(

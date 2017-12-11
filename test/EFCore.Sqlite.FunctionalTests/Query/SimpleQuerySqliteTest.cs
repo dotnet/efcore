@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -222,6 +221,56 @@ WHERE abs(""od"".""UnitPrice"") > 10.0");
 SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
 FROM ""Order Details"" AS ""od""
 WHERE @__Abs_0 < ""od"".""ProductID""");
+        }
+
+        public override void Where_math_round()
+        {
+            base.Where_math_round();
+
+            AssertSql(
+                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
+FROM ""Order Details"" AS ""od""
+WHERE round(""od"".""UnitPrice"") > 10.0");
+        }
+
+        public override void Select_math_round_int()
+        {
+            base.Select_math_round_int();
+
+            AssertSql(
+                @"SELECT round(""o"".""OrderID"") AS ""A""
+FROM ""Orders"" AS ""o""
+WHERE ""o"".""OrderID"" < 10250");
+        }
+
+        public override void Where_math_round2()
+        {
+            base.Where_math_round2();
+
+            AssertSql(
+                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
+FROM ""Order Details"" AS ""od""
+WHERE round(""od"".""UnitPrice"", 2) > 100.0");
+        }
+
+        public override void Where_math_min()
+        {
+            base.Where_math_min();
+
+            AssertSql(
+                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
+FROM ""Order Details"" AS ""od""
+WHERE (""od"".""OrderID"" = 11077) AND (min(""od"".""OrderID"", ""od"".""ProductID"") = ""od"".""ProductID"")");
+        }
+
+        public override void Where_math_max()
+        {
+            base.Where_math_max();
+
+            AssertSql(
+                @"SELECT ""od"".""OrderID"", ""od"".""ProductID"", ""od"".""Discount"", ""od"".""Quantity"", ""od"".""UnitPrice""
+FROM ""Order Details"" AS ""od""
+WHERE (""od"".""OrderID"" = 11077) AND (max(""od"".""OrderID"", ""od"".""ProductID"") = ""od"".""OrderID"")");
         }
 
         public override void Where_string_to_lower()

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         {
             new SqliteContainsOptimizedTranslator(),
             new SqliteEndsWithOptimizedTranslator(),
-            new SqliteMathAbsTranslator(),
+            new SqliteMathTranslator(),
             new SqliteStartsWithOptimizedTranslator(),
             new SqliteStringIsNullOrWhiteSpaceTranslator(),
             new SqliteStringToLowerTranslator(),
