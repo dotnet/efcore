@@ -21,26 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
-        {
-            if (Equals(methodCallExpression.Method, _methodInfo))
-            {
-                var patternExpression = methodCallExpression.Arguments[0];
-
-                var zeroBasedCharIndexExpression = Expression.Subtract(
+            => Equals(methodCallExpression.Method, _methodInfo)
+                ? Expression.Subtract(
                     new SqlFunctionExpression(
                         "instr",
                         typeof(int),
-                        new[] { methodCallExpression.Object, patternExpression }),
-                    Expression.Constant(1));
-
-                return patternExpression is ConstantExpression patternConstantExpression
-                    ? (string)patternConstantExpression.Value == string.Empty
-                        ? (Expression)Expression.Constant(0)
-                        : zeroBasedCharIndexExpression
-                    : zeroBasedCharIndexExpression;
-            }
-
-            return null;
-        }
+                        new[] { methodCallExpression.Object, methodCallExpression.Arguments[0] }),
+                    Expression.Constant(1))
+                : null;
     }
 }

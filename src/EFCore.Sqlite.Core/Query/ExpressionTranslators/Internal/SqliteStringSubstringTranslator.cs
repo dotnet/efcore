@@ -28,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     new[]
                     {
                         methodCallExpression.Object,
-                        methodCallExpression.Arguments[0].NodeType == ExpressionType.Constant
-                            ? (Expression)Expression.Constant(
-                                (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value + 1)
-                            : Expression.Add(
-                                methodCallExpression.Arguments[0],
-                                Expression.Constant(1)),
+                        methodCallExpression.Arguments[0] is ConstantExpression constantExpression
+                            && constantExpression.Value is int value
+                                ? (Expression)Expression.Constant(value + 1)
+                                : Expression.Add(
+                                    methodCallExpression.Arguments[0],
+                                    Expression.Constant(1)),
                         methodCallExpression.Arguments[1]
                     })
                 : null;

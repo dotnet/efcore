@@ -29,12 +29,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                     {
                         methodCallExpression.Object,
                         // Accommodate for SQL Server assumption of 1-based string indexes
-                        methodCallExpression.Arguments[0].NodeType == ExpressionType.Constant
-                            ? (Expression)Expression.Constant(
-                                (int)((ConstantExpression)methodCallExpression.Arguments[0]).Value + 1)
-                            : Expression.Add(
-                                methodCallExpression.Arguments[0],
-                                Expression.Constant(1)),
+                        methodCallExpression.Arguments[0] is ConstantExpression constantExpression
+                            && constantExpression.Value is int value
+                                ? (Expression)Expression.Constant(value + 1)
+                                : Expression.Add(
+                                    methodCallExpression.Arguments[0],
+                                    Expression.Constant(1)),
                         methodCallExpression.Arguments[1]
                     })
                 : null;
