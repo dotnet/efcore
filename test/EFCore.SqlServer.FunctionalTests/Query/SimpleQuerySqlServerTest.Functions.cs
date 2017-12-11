@@ -1038,6 +1038,51 @@ FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')");
         }
 
+        public override void Indexof_with_emptystring()
+        {
+            base.Indexof_with_emptystring();
+
+            AssertSql(
+                @"@__Empty_0='' (Size = 4000)
+
+SELECT TOP(1) [c].[ContactName], @__Empty_0
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Replace_with_emptystring()
+        {
+            base.Replace_with_emptystring();
+
+            AssertSql(
+                @"@__Empty_0='' (Size = 4000)
+
+SELECT TOP(1) REPLACE([c].[ContactName], N'ari', @__Empty_0)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Substring_with_zero_startindex()
+        {
+            base.Substring_with_zero_startindex();
+
+            AssertSql(
+                @"SELECT TOP(1) SUBSTRING([c].[ContactName], 1, 3)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override void Substring_with_zero_length()
+        {
+            base.Substring_with_zero_length();
+
+            AssertSql(
+                @"SELECT TOP(1) SUBSTRING([c].[ContactName], 3, 0)
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
+
         public override void Substring_with_constant()
         {
             base.Substring_with_constant();

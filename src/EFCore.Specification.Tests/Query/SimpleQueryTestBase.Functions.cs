@@ -817,6 +817,51 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Indexof_with_emptystring()
+        {
+            using (var context = CreateContext())
+            {
+                // ReSharper disable once StringIndexOfIsCultureSpecific.1
+                Assert.Equal(
+                    0,
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.IndexOf(string.Empty)).First());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Replace_with_emptystring()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "Ma Anders",
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.Replace("ari", string.Empty)).First());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Substring_with_zero_startindex()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    "Mar",
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.Substring(0, 3)).First());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Substring_with_zero_length()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(
+                    string.Empty,
+                    context.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => c.ContactName.Substring(2, 0)).First());
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Substring_with_constant()
         {
             using (var context = CreateContext())

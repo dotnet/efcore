@@ -192,6 +192,54 @@ FROM ""Customers"" AS ""c""
 WHERE (instr(""c"".""City"", 'Sea') - 1) <> -1");
         }
 
+        public override void Indexof_with_emptystring()
+        {
+            base.Indexof_with_emptystring();
+
+            AssertSql(
+                @"@__Empty_0=''
+
+SELECT instr(""c"".""ContactName"", @__Empty_0) - 1
+FROM ""Customers"" AS ""c""
+ORDER BY ""c"".""CustomerID""
+LIMIT 1");
+        }
+
+        public override void Replace_with_emptystring()
+        {
+            base.Replace_with_emptystring();
+
+            AssertSql(
+                @"@__Empty_0=''
+
+SELECT replace(""c"".""ContactName"", 'ari', @__Empty_0)
+FROM ""Customers"" AS ""c""
+ORDER BY ""c"".""CustomerID""
+LIMIT 1");
+        }
+
+        public override void Substring_with_zero_startindex()
+        {
+            base.Substring_with_zero_startindex();
+
+            AssertSql(
+                @"SELECT substr(""c"".""ContactName"", 1, 3)
+FROM ""Customers"" AS ""c""
+ORDER BY ""c"".""CustomerID""
+LIMIT 1");
+        }
+
+        public override void Substring_with_zero_length()
+        {
+            base.Substring_with_zero_length();
+
+            AssertSql(
+                @"SELECT substr(""c"".""ContactName"", 3, 0)
+FROM ""Customers"" AS ""c""
+ORDER BY ""c"".""CustomerID""
+LIMIT 1");
+        }
+
         public override void Where_string_replace()
         {
             base.Where_string_replace();
