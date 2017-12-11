@@ -10,6 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
+#if !Test20
     public class SqlServerDbFunctionMetadataTests
     {
         public class TestMethods
@@ -71,4 +72,5 @@ namespace Microsoft.EntityFrameworkCore
             return new ModelBuilder(conventionset);
         }
     }
+#endif
 }

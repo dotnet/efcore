@@ -119,6 +119,7 @@ namespace Microsoft.EntityFrameworkCore
             AssertStoreInitialState();
         }
 
+#if !Test20
         [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
@@ -408,6 +409,7 @@ namespace Microsoft.EntityFrameworkCore
 
             AssertStoreInitialState();
         }
+#endif
 
         [Fact]
         public virtual void SaveChanges_does_not_close_connection_opened_by_user()
@@ -862,6 +864,23 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void UseTransaction_will_not_dispose_external_transaction()
+        {
+            using (var transaction = TestStore.BeginTransaction())
+            {
+                using (var context = CreateContext())
+                {
+                    context.Database.UseTransaction(transaction);
+
+                    context.Database.GetService<IRelationalConnection>().Dispose();
+
+                    Assert.NotNull(transaction.Connection);
+                }
+            }
+        }
+
+#if !Test20
+        [Fact]
         public virtual void UseTransaction_throws_if_ambient_transaction_started()
         {
             if (!AmbientTransactionsSupported)
@@ -879,22 +898,6 @@ namespace Microsoft.EntityFrameworkCore
                             () => context.Database.UseTransaction(transaction));
                         Assert.Equal(RelationalStrings.ConflictingAmbientTransaction, ex.Message);
                     }
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void UseTransaction_will_not_dispose_external_transaction()
-        {
-            using (var transaction = TestStore.BeginTransaction())
-            {
-                using (var context = CreateContext())
-                {
-                    context.Database.UseTransaction(transaction);
-
-                    context.Database.GetService<IRelationalConnection>().Dispose();
-
-                    Assert.NotNull(transaction.Connection);
                 }
             }
         }
@@ -1113,6 +1116,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
+#endif
 
         [Theory]
         [InlineData(true)]

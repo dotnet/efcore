@@ -182,7 +182,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
+#if Test20
+                             join i in new int[] { 1, 2, 3 } on e1.EmployeeID equals i
+#else
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
+#endif
                              select e1)
                             .ToList()).Message);
             }
@@ -200,7 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             (from e1 in context.Employees
+#if Test20
+                             join i in new int[] { 1, 2, 3 } on e1.EmployeeID equals i into g
+#else
                              join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
+#endif
                              select e1)
                             .ToList()).Message);
             }

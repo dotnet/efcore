@@ -10,6 +10,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
+#if !Test20
     public class GlobalDatabaseTest
     {
         private static readonly InMemoryDatabaseRoot _databaseRoot = new InMemoryDatabaseRoot();
@@ -165,4 +166,5 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
         }
     }
+#endif
 }

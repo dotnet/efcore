@@ -10,7 +10,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
     {
         public int OrderID { get; set; }
         public string CustomerID { get; set; }
+#if Test20
+        public int? EmployeeID { get; set; }
+#else
         public uint? EmployeeID { get; set; }
+#endif
         public DateTime? OrderDate { get; set; }
         public DateTime? RequiredDate { get; set; }
         public DateTime? ShippedDate { get; set; }

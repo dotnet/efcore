@@ -10,9 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable MergeConditionalExpression
-
 // ReSharper disable ConstantNullCoalescingCondition
-
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {

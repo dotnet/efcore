@@ -569,6 +569,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+#if !Test20
         [Fact]
         public void GenerateCreateScript_works()
         {
@@ -588,8 +589,8 @@ namespace Microsoft.EntityFrameworkCore
                     "    [OrNothing] float NOT NULL," + EOL +
                     "    [Fuse] smallint NOT NULL," + EOL +
                     "    [WayRound] bigint NOT NULL," + EOL +
-                    "    [On] real NOT NULL," + EOL +                    
-                    "    [AndChew] varbinary(max) NULL," + EOL +                    
+                    "    [On] real NOT NULL," + EOL +
+                    "    [AndChew] varbinary(max) NULL," + EOL +
                     "    [AndRow] rowversion NULL," + EOL +
                     "    CONSTRAINT [PK_Blogs] PRIMARY KEY ([Key1], [Key2])" + EOL +
                     ");" + EOL +
@@ -597,6 +598,7 @@ namespace Microsoft.EntityFrameworkCore
                     script);
             }
         }
+#endif
 
         private static readonly string EOL = Environment.NewLine;
     }

@@ -1794,12 +1794,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string Bar { get; set; }
         }
 
+#if Test20
+        protected const int NonExistentID = -1;
+#else
+        protected const uint NonExistentID = uint.MaxValue;
+#endif
+
         [ConditionalFact]
         public virtual void Default_if_empty_top_level()
         {
             AssertQuery<Employee>(
                 es =>
-                    from e in es.Where(c => c.EmployeeID == uint.MaxValue).DefaultIfEmpty()
+                    from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty()
                     select e);
         }
 
@@ -1808,7 +1814,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Employee>(
                 es =>
-                    from e in es.Where(c => c.EmployeeID == uint.MaxValue).DefaultIfEmpty(new Employee())
+                    from e in es.Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
                     select e,
                 entryCount: 1);
         }
@@ -1828,7 +1834,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQueryScalar<Employee>(
                 es =>
-                    from e in es.Where(e => e.EmployeeID == uint.MaxValue).Select(e => e.EmployeeID).DefaultIfEmpty()
+                    from e in es.Where(e => e.EmployeeID == NonExistentID).Select(e => e.EmployeeID).DefaultIfEmpty()
                     select e);
         }
 

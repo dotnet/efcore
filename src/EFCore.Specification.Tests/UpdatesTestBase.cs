@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+#if !Test20
         [Fact]
         public virtual void Save_partial_update_on_concurrency_token_original_value_mismatch_throws()
         {
@@ -98,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore
                                 () => context.SaveChanges()).Message);
                     });
         }
+#endif
 
         [Fact]
         public virtual void Can_remove_partial()
@@ -143,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
+#if !Test20
         [Fact]
         public virtual void Remove_partial_on_concurrency_token_original_value_mismatch_throws()
         {
@@ -164,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore
                                 () => context.SaveChanges()).Message);
                     });
         }
+#endif
 
         [Fact]
         public virtual void Save_replaced_principal()
@@ -337,7 +341,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected abstract string UpdateConcurrencyMessage { get; }
+
+#if !Test20
         protected abstract string UpdateConcurrencyTokenMessage { get; }
+#endif
 
         protected virtual void ExecuteWithStrategyInTransaction(
             Action<UpdatesContext> testOperation,

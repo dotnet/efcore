@@ -26,7 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         protected override string UpdateConcurrencyMessage
             => RelationalStrings.UpdateConcurrencyException(1, 0);
 
+#if !Test20
         protected override string UpdateConcurrencyTokenMessage
             => RelationalStrings.UpdateConcurrencyException(1, 0);
+#endif
     }
 }

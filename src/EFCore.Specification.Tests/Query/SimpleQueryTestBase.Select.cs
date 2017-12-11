@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Customer>(
                 cs => cs.Select(c => string.Join(", ", c.Orders.Select(o => o.CustomerID))));
         }
-        
+
         [ConditionalFact]
         public virtual void Project_to_object_array()
         {
@@ -63,7 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQuery<Employee>(
                 es => es.Where(e => e.EmployeeID == 1)
                     .Select(e => new[] { e.EmployeeID, e.ReportsTo }),
+#if Test20
+                elementAsserter: (e, a) => AssertArrays<int?>(e, a, 2));
+#else
                 elementAsserter: (e, a) => AssertArrays<uint?>(e, a, 2));
+#endif
         }
 
         private static void AssertArrays<T>(object e, object a, int count)
@@ -493,7 +497,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
+#if Test20
+                    .Select(o => (int)o.EmployeeID),
+#else
                     .Select(o => (uint)o.EmployeeID),
+#endif
                 assertOrder: true);
         }
 

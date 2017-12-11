@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+#if !Test20
         protected override string UpdateConcurrencyTokenMessage
             => InMemoryStrings.UpdateConcurrencyTokenException("Product", "{'Price'}");
+#endif
     }
 }

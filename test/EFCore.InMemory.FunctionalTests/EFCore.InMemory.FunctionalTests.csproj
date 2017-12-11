@@ -11,9 +11,20 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  
+  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
+   <DefineConstants>$(DefineConstants);Test20</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">
+    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' != '0.0.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(FunctionalTests_PackageVersion)" />
+  </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>
 

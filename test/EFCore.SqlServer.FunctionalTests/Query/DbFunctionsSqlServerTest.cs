@@ -49,6 +49,7 @@ FROM [Customers] AS [c]
 WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
         }
 
+#if !Test20
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public async void FreeText_Search_Literal()
@@ -224,6 +225,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                         e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
             }
         }
+#endif
 
         public override void DateDiff_Year()
         {
