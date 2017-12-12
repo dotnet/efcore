@@ -201,8 +201,7 @@ WHERE (instr(""c"".""City"", 'Sea') - 1) <> -1");
 
 SELECT instr(""c"".""ContactName"", @__Empty_0) - 1
 FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 1");
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
         public override void Where_string_replace()
@@ -224,8 +223,7 @@ WHERE replace(""c"".""City"", 'Sea', 'Rea') = 'Reattle'");
 
 SELECT replace(""c"".""ContactName"", 'ari', @__Empty_0)
 FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 1");
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
         public override void Where_string_substring()
@@ -245,8 +243,39 @@ WHERE substr(""c"".""City"", 2, 2) = 'ea'");
             AssertSql(
                 @"SELECT substr(""c"".""ContactName"", 1, 3)
 FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 1");
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
+        }
+
+        public override void Substring_with_constant()
+        {
+            base.Substring_with_constant();
+
+            AssertSql(
+                @"SELECT substr(""c"".""ContactName"", 2, 3)
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
+        }
+
+        public override void Substring_with_closure()
+        {
+            base.Substring_with_closure();
+
+            AssertSql(
+                @"@__start_0='2' (DbType = String)
+
+SELECT substr(""c"".""ContactName"", @__start_0 + 1, 3)
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
+        }
+
+        public override void Substring_with_client_eval()
+        {
+            base.Substring_with_client_eval();
+
+            AssertSql(
+                @"SELECT ""c"".""ContactName""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
         public override void Substring_with_zero_length()
@@ -256,8 +285,7 @@ LIMIT 1");
             AssertSql(
                 @"SELECT substr(""c"".""ContactName"", 3, 0)
 FROM ""Customers"" AS ""c""
-ORDER BY ""c"".""CustomerID""
-LIMIT 1");
+WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
         public override void Where_math_abs1()
