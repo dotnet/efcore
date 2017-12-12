@@ -665,7 +665,8 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+FROM [Customers] AS [c]
+WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1");
         }
 
         public override void Where_string_replace()

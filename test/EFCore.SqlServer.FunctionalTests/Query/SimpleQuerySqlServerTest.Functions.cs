@@ -1045,7 +1045,10 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar
             AssertSql(
                 @"@__Empty_0='' (Size = 4000)
 
-SELECT TOP(1) [c].[ContactName], @__Empty_0
+SELECT TOP(1) CASE
+    WHEN @__Empty_0 = N''
+    THEN 0 ELSE CHARINDEX(@__Empty_0, [c].[ContactName]) - 1
+END
 FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }

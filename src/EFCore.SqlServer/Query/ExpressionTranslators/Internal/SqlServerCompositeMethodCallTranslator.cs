@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerStringToUpperTranslator(),
             new SqlServerStringTrimEndTranslator(),
             new SqlServerStringTrimStartTranslator(),
-            new SqlServerStringTrimTranslator()
+            new SqlServerStringTrimTranslator(),
+            new SqlServerStringIndexOfTranslator()
         };
 
         /// <summary>
