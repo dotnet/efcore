@@ -792,8 +792,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
         if ($projectAssetsFile)
         {
-            # NB: -Raw is here to support ConvertFrom-Json on PowerShell 3.0
-            $projectAssets = Get-Content $projectAssetsFile -Raw | ConvertFrom-Json
+            # NB: Don't use Get-Content. It doesn't handle UTF-8 without a signature
+            $projectAssets = [IO.File]::ReadAllLines($projectAssetsFile) | ConvertFrom-Json
             $projectAssets.packageFolders.psobject.Properties.Name | %{
                 $dotnetParams += '--additionalprobingpath', $_.TrimEnd('\')
             }
