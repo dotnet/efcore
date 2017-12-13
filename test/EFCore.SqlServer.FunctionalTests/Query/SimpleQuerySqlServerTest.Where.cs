@@ -659,6 +659,36 @@ FROM [Customers] AS [c]
 WHERE CAST(LEN([c].[City]) AS int) = 6");
         }
 
+        public override void Where_string_indexof()
+        {
+            base.Where_string_indexof();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1");
+        }
+
+        public override void Where_string_replace()
+        {
+            base.Where_string_replace();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE REPLACE([c].[City], N'Sea', N'Rea') = N'Reattle'");
+        }
+
+        public override void Where_string_substring()
+        {
+            base.Where_string_substring();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE SUBSTRING([c].[City], 2, 2) = N'ea'");
+        }
+
         public override void Where_datetime_now()
         {
             base.Where_datetime_now();

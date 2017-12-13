@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqlServerNewGuidTranslator(),
             new SqlServerObjectToStringTranslator(),
             new SqlServerStartsWithOptimizedTranslator(),
+            new SqlServerStringIndexOfTranslator(),
             new SqlServerStringIsNullOrWhiteSpaceTranslator(),
             new SqlServerStringReplaceTranslator(),
             new SqlServerStringSubstringTranslator(),
