@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class DiagnosticsLoggerTest
@@ -21,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Fact]
         public void Can_filter_for_messages_of_one_subcategory()
         {
-            FilterTest(c => c.StartsWith(DbLoggerCategory.Database.Name), "DB1", "SQL1", "DB2", "SQL2");
+            FilterTest(c => c.StartsWith(DbLoggerCategory.Database.Name, StringComparison.Ordinal), "DB1", "SQL1", "DB2", "SQL2");
         }
 
         [Fact]
         public void Can_filter_for_all_EF_messages()
         {
-            FilterTest(c => c.StartsWith(DbLoggerCategory.Name), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
+            FilterTest(c => c.StartsWith(DbLoggerCategory.Name, StringComparison.Ordinal), "DB1", "SQL1", "Query1", "DB2", "SQL2", "Query2");
         }
 
         [Fact]

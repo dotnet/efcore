@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -29,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 TestStore.OpenConnection();
             }
+
+            Fixture.Log.Clear();
         }
 
         protected TFixture Fixture { get; set; }
@@ -146,6 +150,8 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                 }
+
+                Assert.Equal(RelationalStrings.LogExplicitTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
 
                 using (var context = CreateContext())
                 {
@@ -280,6 +286,8 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                     }
                 }
+
+                Assert.Equal(RelationalStrings.LogAmbientTransactionEnlisted.GenerateMessage("Serializable"), Fixture.Log.Single().Message);
 
                 if (closeConnection)
                 {
@@ -1167,8 +1175,13 @@ namespace Microsoft.EntityFrameworkCore
 
         public abstract class TransactionFixtureBase : SharedStoreFixtureBase<DbContext>
         {
+            public List<(LogLevel Level, EventId Id, string Message)> Log = new List<(LogLevel Level, EventId Id, string Message)>();
             protected override string StoreName { get; } = "TransactionTest";
             protected override bool UsePooling => false;
+
+            protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+                => base.AddServices(serviceCollection).AddSingleton<ILoggerFactory>(
+                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Database.Transaction.Name));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

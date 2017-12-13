@@ -137,6 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         public virtual void EnlistTransaction(Transaction transaction)
         {
+            if (transaction != null)
+            {
+                Dependencies.TransactionLogger.ExplicitTransactionEnlisted(this, transaction);
+            }
+
             DbConnection.EnlistTransaction(transaction);
 
             EnlistedTransaction = transaction;
@@ -486,6 +491,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (Equals(current, _ambientTransaction))
             {
                 return;
+            }
+
+            if (current != null)
+            {
+                Dependencies.TransactionLogger.AmbientTransactionEnlisted(this, current);
             }
 
             DbConnection.EnlistTransaction(current);

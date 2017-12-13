@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -20,6 +21,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Extensions.DependencyInjection;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
@@ -33,8 +36,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var constantExpression = Expression.Constant("A");
-            var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
+            var model = new Model(new ConventionSet());
+            var entityType = new EntityType(typeof(object), model, ConfigurationSource.Convention);
             var property = new Property("A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
+            var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model);
 
             var queryModel = new QueryModel(new MainFromClause("A", typeof(object), constantExpression), new SelectClause(constantExpression));
 
@@ -42,10 +47,15 @@ namespace Microsoft.EntityFrameworkCore
             {
                 { typeof(string), () => "Fake" },
                 { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
+                { typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry> { new InternalClrEntityEntry(
+                    contextServices.GetRequiredService<IStateManager>(),
+                    entityType,
+                    new object()) } },
                 { typeof(IRelationalConnection), () => new FakeRelationalConnection() },
                 { typeof(DbCommand), () => new FakeDbCommand() },
                 { typeof(DbTransaction), () => new FakeDbTransaction() },
                 { typeof(DbDataReader), () => new FakeDbDataReader() },
+                { typeof(System.Transactions.Transaction), () => new System.Transactions.CommittableTransaction() },
                 { typeof(IMigrator), () => new FakeMigrator() },
                 { typeof(Migration), () => new FakeMigration() },
                 { typeof(IMigrationsAssembly), () => new FakeMigrationsAssembly() },

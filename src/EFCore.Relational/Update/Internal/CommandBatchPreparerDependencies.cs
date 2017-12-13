@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             [NotNull] IKeyValueIndexFactorySource keyValueIndexFactorySource,
             [NotNull] Func<IStateManager> stateManager,
             [NotNull] ILoggingOptions loggingOptions,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
             [NotNull] IDbContextOptions options)
         {
             ModificationCommandBatchFactory = modificationCommandBatchFactory;
@@ -62,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             KeyValueIndexFactorySource = keyValueIndexFactorySource;
             StateManager = stateManager;
             LoggingOptions = loggingOptions;
+            UpdateLogger = updateLogger;
             Options = options;
         }
 
@@ -105,6 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public IDbContextOptions Options { get; }
 
         /// <summary>
@@ -120,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 KeyValueIndexFactorySource,
                 StateManager,
                 LoggingOptions,
+                UpdateLogger,
                 Options);
 
         /// <summary>
@@ -135,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 KeyValueIndexFactorySource,
                 StateManager,
                 LoggingOptions,
+                UpdateLogger,
                 Options);
 
         /// <summary>
@@ -150,6 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 KeyValueIndexFactorySource,
                 StateManager,
                 LoggingOptions,
+                UpdateLogger,
                 Options);
 
         /// <summary>
@@ -165,6 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 keyValueIndexFactorySource,
                 StateManager,
                 LoggingOptions,
+                UpdateLogger,
                 Options);
 
         /// <summary>
@@ -180,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 KeyValueIndexFactorySource,
                 stateManager,
                 LoggingOptions,
+                UpdateLogger,
                 Options);
 
         /// <summary>
@@ -195,6 +208,23 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 KeyValueIndexFactorySource,
                 StateManager,
                 loggingOptions,
+                UpdateLogger,
+                Options);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="updateLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CommandBatchPreparerDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+            => new CommandBatchPreparerDependencies(
+                ModificationCommandBatchFactory,
+                ParameterNameGeneratorFactory,
+                ModificationCommandComparer,
+                KeyValueIndexFactorySource,
+                StateManager,
+                LoggingOptions,
+                updateLogger,
                 Options);
 
         /// <summary>
@@ -210,6 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 KeyValueIndexFactorySource,
                 StateManager,
                 LoggingOptions,
+                UpdateLogger,
                 options);
     }
 }

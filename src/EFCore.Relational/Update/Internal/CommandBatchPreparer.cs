@@ -79,10 +79,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         if (batch.ModificationCommands.Count == 1
                             || batch.ModificationCommands.Count >= _minBatchSize)
                         {
+                            if (batch.ModificationCommands.Count > 1)
+                            {
+                                Dependencies.UpdateLogger.BatchReadyForExecution(
+                                    batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
+                            }
+
                             yield return batch;
                         }
                         else
                         {
+                            Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
+                                batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
+
                             foreach (var command in batch.ModificationCommands)
                             {
                                 yield return StartNewBatch(parameterNameGenerator, command);
@@ -96,10 +105,19 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 if (batch.ModificationCommands.Count == 1
                     || batch.ModificationCommands.Count >= _minBatchSize)
                 {
+                    if (batch.ModificationCommands.Count > 1)
+                    {
+                        Dependencies.UpdateLogger.BatchReadyForExecution(
+                            batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
+                    }
+
                     yield return batch;
                 }
                 else
                 {
+                    Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
+                        batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
+
                     foreach (var command in batch.ModificationCommands)
                     {
                         yield return StartNewBatch(parameterNameGenerator, command);

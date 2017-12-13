@@ -446,4 +446,20 @@
   <data name="ExpectedNonNullParameter" xml:space="preserve">
     <value>Expected a non-null value for query parameter '{parameter}'.</value>
   </data>
+  <data name="LogAmbientTransactionEnlisted" xml:space="preserve">
+    <value>Enlisted in an ambient transaction with isolation level '{isolationLevel}'.</value>
+    <comment>Debug RelationalEventId.AmbientTransactionEnlisted string</comment>
+  </data>
+  <data name="LogExplicitTransactionEnlisted" xml:space="preserve">
+    <value>Enlisted in an explicit transaction with isolation level '{isolationLevel}'.</value>
+    <comment>Debug RelationalEventId.ExplicitTransactionEnlisted string</comment>
+  </data>
+  <data name="LogBatchSmallerThanMinBatchSize" xml:space="preserve">
+    <value>Executing update commands individually as the number of batchable commands ({batchableCommandsCount}) is smaller than the minimum batch size ({minBatchSize}).</value>
+    <comment>Debug RelationalEventId.BatchSmallerThanMinBatchSize int int</comment>
+  </data>
+  <data name="LogBatchReadyForExecution" xml:space="preserve">
+    <value>Executing {batchCommandsCount} update commands as a batch.</value>
+    <comment>Debug RelationalEventId.BatchReadyForExecution int</comment>
+  </data>
 </root>

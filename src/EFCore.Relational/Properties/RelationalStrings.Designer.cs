@@ -898,6 +898,54 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("ExpectedNonNullParameter", nameof(parameter)),
                 parameter);
 
+        /// <summary>
+        ///     Enlisted in an ambient transaction with isolation level '{isolationLevel}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogAmbientTransactionEnlisted
+            = new EventDefinition<string>(
+                RelationalEventId.AmbientTransactionEnlisted,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    RelationalEventId.AmbientTransactionEnlisted,
+                    _resourceManager.GetString("LogAmbientTransactionEnlisted")));
+
+        /// <summary>
+        ///     Enlisted in an explicit transaction with isolation level '{isolationLevel}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogExplicitTransactionEnlisted
+            = new EventDefinition<string>(
+                RelationalEventId.ExplicitTransactionEnlisted,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    RelationalEventId.ExplicitTransactionEnlisted,
+                    _resourceManager.GetString("LogExplicitTransactionEnlisted")));
+
+        /// <summary>
+        ///     Executing update commands individually as the number of batchable commands ({batchableCommandsCount}) is smaller than the minimum batch size ({minBatchSize}).
+        /// </summary>
+        public static readonly EventDefinition<int, int> LogBatchSmallerThanMinBatchSize
+            = new EventDefinition<int, int>(
+                RelationalEventId.BatchSmallerThanMinBatchSize,
+                LogLevel.Debug,
+                LoggerMessage.Define<int, int>(
+                    LogLevel.Debug,
+                    RelationalEventId.BatchSmallerThanMinBatchSize,
+                    _resourceManager.GetString("LogBatchSmallerThanMinBatchSize")));
+
+        /// <summary>
+        ///     Executing {batchCommandsCount} update commands as a batch.
+        /// </summary>
+        public static readonly EventDefinition<int> LogBatchReadyForExecution
+            = new EventDefinition<int>(
+                RelationalEventId.BatchReadyForExecution,
+                LogLevel.Debug,
+                LoggerMessage.Define<int>(
+                    LogLevel.Debug,
+                    RelationalEventId.BatchReadyForExecution,
+                    _resourceManager.GetString("LogBatchReadyForExecution")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

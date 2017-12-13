@@ -2,10 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -14,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Update;
 using Remotion.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -677,6 +680,72 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void AmbientTransactionEnlisted(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] Transaction transaction)
+        {
+            var definition = RelationalStrings.LogAmbientTransactionEnlisted;
+
+            definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new TransactionEnlistedEventData(
+                        definition,
+                        AmbientTransactionEnlisted,
+                        transaction,
+                        connection.DbConnection,
+                        connection.ConnectionId));
+            }
+        }
+
+        private static string AmbientTransactionEnlisted(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (TransactionEnlistedEventData)payload;
+            return d.GenerateMessage(p.Transaction.IsolationLevel.ToString("G"));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ExplicitTransactionEnlisted(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] Transaction transaction)
+        {
+            var definition = RelationalStrings.LogExplicitTransactionEnlisted;
+
+            definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new TransactionEnlistedEventData(
+                        definition,
+                        ExplicitTransactionEnlisted,
+                        transaction,
+                        connection.DbConnection,
+                        connection.ConnectionId));
+            }
+        }
+
+        private static string ExplicitTransactionEnlisted(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (TransactionEnlistedEventData)payload;
+            return d.GenerateMessage(p.Transaction.IsolationLevel.ToString("G"));
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void DataReaderDisposing(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1136,6 +1205,72 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (PropertyEventData)payload;
             return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void BatchReadyForExecution(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] IEnumerable<IUpdateEntry> entries,
+            int commandCount)
+        {
+            var definition = RelationalStrings.LogBatchReadyForExecution;
+
+            definition.Log(diagnostics, commandCount);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new BatchEventData(
+                        definition,
+                        BatchReadyForExecution,
+                        entries,
+                        commandCount));
+            }
+        }
+
+        private static string BatchReadyForExecution(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<int>)definition;
+            var p = (BatchEventData)payload;
+            return d.GenerateMessage(p.CommandCount);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void BatchSmallerThanMinBatchSize(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            [NotNull] IEnumerable<IUpdateEntry> entries,
+            int commandCount,
+            int minBatchSize)
+        {
+            var definition = RelationalStrings.LogBatchSmallerThanMinBatchSize;
+
+            definition.Log(diagnostics, commandCount, minBatchSize);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new MinBatchSizeEventData(
+                        definition,
+                        BatchSmallerThanMinBatchSize,
+                        entries,
+                        commandCount,
+                        minBatchSize));
+            }
+        }
+
+        private static string BatchSmallerThanMinBatchSize(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<int, int>)definition;
+            var p = (MinBatchSizeEventData)payload;
+            return d.GenerateMessage(p.CommandCount, p.MinBatchSize);
         }
     }
 }

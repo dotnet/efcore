@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -175,6 +176,11 @@ namespace Microsoft.EntityFrameworkCore
 
                         context.SaveChanges();
 
+                        Assert.Contains(minBatchSize == 3
+                            ? RelationalStrings.LogBatchReadyForExecution.GenerateMessage(3)
+                            : RelationalStrings.LogBatchSmallerThanMinBatchSize.GenerateMessage(3, 4),
+                            Fixture.TestSqlLoggerFactory.Log);
+
                         Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
                     }, context => AssertDatabaseState(context, false, expectedBlogs));
         }
@@ -257,10 +263,9 @@ namespace Microsoft.EntityFrameworkCore
 
         public class BatchingTestFixture : SharedStoreFixtureBase<DbContext>
         {
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
             protected override string StoreName { get; } = "BatchingTest";
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
-
             protected override Type ContextType { get; } = typeof(BloggingContext);
 
             protected override void Seed(DbContext context)

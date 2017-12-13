@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Logger category for messages related to <see cref="DbContext.SaveChanges()" />, excluding
         ///     messages specifically relating to database interactions which are covered by
-        ///     the <see cref="DbLoggerCategory.Database" /> categories.
+        ///     the <see cref="Database" /> categories.
         /// </summary>
         public class Update : LoggerCategory<Update>
         {

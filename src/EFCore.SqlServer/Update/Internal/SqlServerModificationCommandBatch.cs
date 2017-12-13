@@ -94,8 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     return false;
                 }
 
-                var avarageCommandLength = commandTextLength / ModificationCommands.Count;
-                var expectedAdditionalCommandCapacity = (MaxScriptLength - commandTextLength) / avarageCommandLength;
+                var averageCommandLength = commandTextLength / ModificationCommands.Count;
+                var expectedAdditionalCommandCapacity = (MaxScriptLength - commandTextLength) / averageCommandLength;
                 _commandsLeftToLengthCheck = Math.Max(1, expectedAdditionalCommandCapacity / 4);
             }
 
