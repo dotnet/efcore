@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             var noColor = command.Option("--no-color", Resources.NoColorDescription);
             var prefixOutput = command.Option("--prefix-output", Resources.PrefixDescription);
 
+            command.HandleResponseFiles = true;
+
             command.OnExecute(
                 () =>
                     {
