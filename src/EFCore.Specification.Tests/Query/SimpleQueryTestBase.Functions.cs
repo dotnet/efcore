@@ -821,14 +821,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             // ReSharper disable once StringIndexOfIsCultureSpecific.1
             AssertSingleResult<Customer>(
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf(string.Empty)));
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("")));
         }
 
         [ConditionalFact]
         public virtual void Replace_with_emptystring()
         {
             AssertSingleResult<Customer>(
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace("ari", string.Empty)));
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace("ari", "")));
         }
 
         [ConditionalFact]
@@ -863,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Substring_with_client_eval()
+        public virtual void Substring_with_IndexOf()
         {
             AssertSingleResult<Customer>(
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(c.ContactName.IndexOf('a'), 3)));

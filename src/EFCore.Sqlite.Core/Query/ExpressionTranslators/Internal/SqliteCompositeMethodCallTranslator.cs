@@ -17,15 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             new SqliteEndsWithOptimizedTranslator(),
             new SqliteMathAbsTranslator(),
             new SqliteStartsWithOptimizedTranslator(),
+            new SqliteStringIndexOfTranslator(),
             new SqliteStringIsNullOrWhiteSpaceTranslator(),
+            new SqliteStringReplaceTranslator(),
+            new SqliteStringSubstringTranslator(),
             new SqliteStringToLowerTranslator(),
             new SqliteStringToUpperTranslator(),
             new SqliteStringTrimEndTranslator(),
             new SqliteStringTrimStartTranslator(),
-            new SqliteStringTrimTranslator(),
-            new SqliteStringIndexOfTranslator(),
-            new SqliteStringReplaceTranslator(),
-            new SqliteStringSubstringTranslator()
+            new SqliteStringTrimTranslator()
         };
 
         /// <summary>

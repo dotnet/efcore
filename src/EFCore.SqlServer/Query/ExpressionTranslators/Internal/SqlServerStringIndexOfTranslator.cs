@@ -34,14 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                         new[] { patternExpression, methodCallExpression.Object }),
                     Expression.Constant(1));
 
-                return patternExpression is ConstantExpression patternConstantExpression
-                    ? (string)patternConstantExpression.Value == string.Empty
-                        ? (Expression)Expression.Constant(0)
-                        : charIndexExpression
-                    : Expression.Condition(
-                        Expression.Equal(patternExpression, Expression.Constant(string.Empty)),
-                        Expression.Constant(0),
-                        charIndexExpression);
+                return patternExpression is ConstantExpression constantExpression
+                    && !string.IsNullOrEmpty((string)constantExpression.Value)
+                        ? (Expression)charIndexExpression
+                        : Expression.Condition(
+                            Expression.Equal(patternExpression, Expression.Constant(string.Empty)),
+                            Expression.Constant(0),
+                            charIndexExpression);
             }
 
             return null;
