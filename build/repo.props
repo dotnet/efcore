@@ -12,10 +12,9 @@
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
 
     <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
-    <ExcludeFromTest Include="$(RepositoryRoot)test\EFCore.SqlServer.Design.FunctionalTests\*.csproj" Condition="'$(TRAVIS)' == 'true'" />
+    <ExcludeFromTest Include="$(RepositoryRoot)samples\OracleProvider\test\OracleProvider.FunctionalTests\*.csproj" />
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Benchmarks.sln" />
     <ExcludeSolutions Include="$(RepositoryRoot)EFCore.Runtime.sln" />
-    <ExcludeSolutions Include="$(RepositoryRoot)samples\Samples.sln" />
   </ItemGroup>
   <PropertyGroup>
     <!-- These properties are use by the automation that updates dependencies.props -->
