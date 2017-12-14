@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -25,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Fixture = fixture;
             Fixture.TestStore.CloseConnection();
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected ExecutionStrategyFixture Fixture { get; }
@@ -105,6 +107,18 @@ namespace Microsoft.EntityFrameworkCore
                 context.Products.Add(new Product());
                 execute(new TestSqlServerRetryingExecutionStrategy(context), context);
                 context.ChangeTracker.AcceptAllChanges();
+
+                var retryMessage =
+                    "A transient exception has been encountered during execution and the operation will be retried after 0ms." + Environment.NewLine +
+                    "System.Data.SqlClient.SqlException (0x80131904): Bang!";
+                if (realFailure)
+                {
+                    Assert.Contains(retryMessage, Fixture.TestSqlLoggerFactory.Log);
+                }
+                else
+                {
+                    Assert.DoesNotContain(retryMessage, Fixture.TestSqlLoggerFactory.Log);
+                }
 
                 Assert.Equal(realFailure ? 3 : 2, connection.OpenCount);
             }

@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         this.GetDbTransaction().Commit();
                     }
                     _testConnection.DbConnection.Close();
-                    throw SqlExceptionFactory.CreateSqlException(_testConnection.ErrorNumber);
+                    throw SqlExceptionFactory.CreateSqlException(_testConnection.ErrorNumber, _testConnection.ConnectionId);
                 }
             }
 

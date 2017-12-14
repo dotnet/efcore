@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public static class SqlExceptionFactory
     {
-        public static SqlException CreateSqlException(int number)
+        public static SqlException CreateSqlException(int number, Guid? connectionId = null)
         {
             var errorCtors = typeof(SqlError)
                 .GetTypeInfo()
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .DeclaredConstructors;
 
             return (SqlException)exceptionCtors.First(c => c.GetParameters().Length == 4)
-                .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
+                .Invoke(new object[] { "Bang!", errors, null, connectionId ?? Guid.NewGuid() });
         }
     }
 }

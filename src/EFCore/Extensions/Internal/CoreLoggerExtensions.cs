@@ -551,5 +551,41 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 p.Context.Database.ProviderName,
                 p.ContextOptions.BuildOptionsFragment());
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ExecutionStrategyRetrying(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] IReadOnlyList<Exception> exceptionsEncountered,
+            TimeSpan delay,
+            bool async)
+        {
+            var definition = CoreStrings.LogExecutionStrategyRetrying;
+
+            var lastException = exceptionsEncountered[exceptionsEncountered.Count - 1];
+            definition.Log(diagnostics, (int)delay.TotalMilliseconds, Environment.NewLine, lastException, lastException);
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ExecutionStrategyEventData(
+                        definition,
+                        ExecutionStrategyRetrying,
+                        exceptionsEncountered,
+                        delay,
+                        async));
+            }
+        }
+
+        private static string ExecutionStrategyRetrying(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<int, string, Exception>)definition;
+            var p = (ExecutionStrategyEventData)payload;
+            return d.GenerateMessage(
+                (int)p.Delay.TotalMilliseconds, Environment.NewLine, p.ExceptionsEncountered[p.ExceptionsEncountered.Count - 1]);
+        }
     }
 }

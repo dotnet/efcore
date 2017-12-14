@@ -199,6 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
                     }
 
+                    Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
+
                     OnRetry();
                 }
 
@@ -291,6 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         throw new RetryLimitExceededException(CoreStrings.RetryLimitExceeded(MaxRetryCount, GetType().Name), ex);
                     }
+
+                    Dependencies.Logger.ExecutionStrategyRetrying(ExceptionsEncountered, delay.Value, async: true);
 
                     OnRetry();
                 }

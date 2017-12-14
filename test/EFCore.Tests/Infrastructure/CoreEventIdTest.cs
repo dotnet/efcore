@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IServiceProvider), () => new FakeServiceProvider() },
                 { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
                 { typeof(IReadOnlyCollection<IPropertyBase>), () => new[] { property } },
-                { typeof(IncludeResultOperator), () => includeResultOperator }
+                { typeof(IncludeResultOperator), () => includeResultOperator },
+                { typeof(IReadOnlyList<System.Exception>), () => new[] { new Exception() } }
             };
 
             InMemoryTestHelpers.Instance.TestEventLogging(typeof(CoreEventId), typeof(CoreLoggerExtensions), fakeFactories);

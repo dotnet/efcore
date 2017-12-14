@@ -1908,6 +1908,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static string TransactionsNotSupported
             => GetString("TransactionsNotSupported");
 
+        /// <summary>
+        ///     A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}
+        /// </summary>
+        public static readonly EventDefinition<int, string, Exception> LogExecutionStrategyRetrying
+            = new EventDefinition<int, string, Exception>(
+                CoreEventId.ExecutionStrategyRetrying,
+                LogLevel.Information,
+                LoggerMessage.Define<int, string, Exception>(
+                    LogLevel.Information,
+                    CoreEventId.ExecutionStrategyRetrying,
+                    _resourceManager.GetString("LogExecutionStrategyRetrying")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

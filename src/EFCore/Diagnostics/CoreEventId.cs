@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
             ServiceProviderCreated,
             ManyServiceProvidersCreatedWarning,
-            ContextInitialized
+            ContextInitialized,
+            ExecutionStrategyRetrying
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -277,5 +278,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ContextInitialized = MakeInfraId(Id.ContextInitialized);
+
+        /// <summary>
+        ///     <para>
+        ///         A transient exception has been encountered during execution and the operation will be retried.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ContextInitializedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ExecutionStrategyRetrying = MakeInfraId(Id.ExecutionStrategyRetrying);
     }
 }
