@@ -3,6 +3,7 @@
 
 using System;
 using System.Data;
+using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 
@@ -390,6 +391,34 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
+        
+        [Fact]
+        public void Add_range_of_parameters_using_DbCommand_base_class()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand() as DbCommand;
+                command.CommandText = "SELECT @Value1, @Value2;";
+
+                var parameterValue1 = new SqliteParameter("@Value1", SqliteType.Text);
+                parameterValue1.Value = "ABCDE";
+
+                var parameterValue2 = new SqliteParameter("@Value2", SqliteType.Text);
+                parameterValue2.Value = "FGHIJ";
+
+                var parameters = new[] { parameterValue1, parameterValue2 };
+
+                command.Parameters.AddRange(parameters);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal(parameterValue1.Value, reader.GetString(0));
+                    Assert.Equal(parameterValue2.Value, reader.GetString(1));
+                }
+            }
+        }      
 
         private enum MyEnum
         {
