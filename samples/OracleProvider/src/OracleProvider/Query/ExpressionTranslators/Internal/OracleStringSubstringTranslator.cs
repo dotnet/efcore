@@ -13,8 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
             = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
-            => _methodInfo.Equals(methodCallExpression.Method)
-                ? new SqlFunctionExpression(
+        {
+            if (_methodInfo.Equals(methodCallExpression.Method)
+                // Oracle returns null if length is not greater than 0
+                && (!(methodCallExpression.Arguments[1] is ConstantExpression constantExpression)
+                    || (int)constantExpression.Value > 0))
+            {
+                return new SqlFunctionExpression(
                     "SUBSTR",
                     methodCallExpression.Type,
                     new[]
@@ -28,7 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                                 methodCallExpression.Arguments[0],
                                 Expression.Constant(1)),
                         methodCallExpression.Arguments[1]
-                    })
-                : null;
+                    });
+            }
+
+            return null;
+        }
     }
 }

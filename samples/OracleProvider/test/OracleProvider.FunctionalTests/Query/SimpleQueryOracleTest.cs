@@ -43,6 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             // Oracle doesn't short-circuit AND
         }
 
+        [ConditionalFact(Skip = "See issue#10563")]
+        public override void Indexof_with_emptystring()
+        {
+            base.Indexof_with_emptystring();
+        }
+
         public override void DefaultIfEmpty_in_subquery_nested()
         {
             AssertQuery<Customer, Order>(
