@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.OwnedEntity<BookLabel>();
+                modelBuilder.Owned<BookLabel>();
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
 
                 modelBuilder.Validate();

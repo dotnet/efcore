@@ -1793,6 +1793,7 @@ namespace Microsoft.EntityFrameworkCore
             public Author Author { get; set; }
         }
 
+        [ComplexType]
         protected class PostDetails
         {
             public int Id { get; set; }
@@ -2085,7 +2086,7 @@ namespace Microsoft.EntityFrameworkCore
             public byte[] Timestamp { get; set; }
         }
 
-        [ComplexType]
+        [Owned]
         protected class Details
         {
             public string Name { get; set; }

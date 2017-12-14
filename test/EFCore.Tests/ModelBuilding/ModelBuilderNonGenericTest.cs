@@ -70,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
-            public override void OwnedEntity<TEntity>()
-                => ModelBuilder.OwnedEntity(typeof(TEntity));
+            public override void Owned<TEntity>()
+                => ModelBuilder.Owned(typeof(TEntity));
 
             public override TestModelBuilder Ignore<TEntity>()
             {

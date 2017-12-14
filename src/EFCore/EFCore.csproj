@@ -32,6 +32,10 @@ Microsoft.EntityFrameworkCore.DbSet
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EFCore.Attributes\EFCore.Attributes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Properties\CoreStrings.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CoreStrings.Designer.cs</LastGenOutput>

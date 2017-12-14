@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 where TEntity : class;
 
 
-            public abstract void OwnedEntity<TEntity>()
+            public abstract void Owned<TEntity>()
                 where TEntity : class;
 
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)

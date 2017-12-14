@@ -205,19 +205,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool OwnedEntity(
+        public virtual bool Owned(
             [NotNull] string name, ConfigurationSource configurationSource)
-            => OwnedEntity(new TypeIdentity(name), configurationSource);
+            => Owned(new TypeIdentity(name), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool OwnedEntity(
+        public virtual bool Owned(
             [NotNull] Type type, ConfigurationSource configurationSource)
-            => OwnedEntity(new TypeIdentity(type), configurationSource);
+            => Owned(new TypeIdentity(type), configurationSource);
 
-        private bool OwnedEntity(
+        private bool Owned(
             TypeIdentity type, ConfigurationSource configurationSource)
         {
             if (IsIgnored(type, configurationSource))

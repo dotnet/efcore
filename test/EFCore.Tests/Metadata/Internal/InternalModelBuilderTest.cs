@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.False(model.ShouldBeOwnedType(typeof(Details)));
 
-            Assert.True(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+            Assert.True(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
             Assert.True(model.ShouldBeOwnedType(typeof(Details)));
 
@@ -296,13 +296,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(entityBuilder.Owns(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
 
-            Assert.False(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+            Assert.False(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
             Assert.NotNull(entityBuilder.Owns(typeof(Details), nameof(Customer.Details), ConfigurationSource.DataAnnotation));
 
-            Assert.True(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+            Assert.True(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.True(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.DataAnnotation));
+            Assert.True(modelBuilder.Owned(typeof(Details), ConfigurationSource.DataAnnotation));
 
             Assert.True(model.ShouldBeOwnedType(typeof(Details)));
 
@@ -319,10 +319,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => e.DefiningNavigationName != null));
 
-            Assert.False(modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Convention));
+            Assert.False(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
             Assert.Equal(CoreStrings.ClashingNonOwnedEntityType(typeof(Details).Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.OwnedEntity(typeof(Details), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
         }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)

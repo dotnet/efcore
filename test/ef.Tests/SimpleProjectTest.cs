@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Tools
 {
     [Collection("OperationExecutorTests")]
@@ -134,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         BuildReference.ByName("System.Interactive.Async", true),
                         BuildReference.ByName("System.Data.SqlClient", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore", true),
+                        BuildReference.ByName("Microsoft.EntityFrameworkCore.Attributes", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Design", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational", true),
                         BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer", true),

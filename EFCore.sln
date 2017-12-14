@@ -83,6 +83,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.SqlServer.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Tests", "test\EFCore.Tests\EFCore.Tests.csproj", "{313F46FE-9962-4A15-805F-FCBDF5A6181E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Attributes", "src\EFCore.Attributes\EFCore.Attributes.csproj", "{11B51A41-47CB-4EDB-9D8A-17095A65034A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -197,6 +199,10 @@ Global
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -232,6 +238,7 @@ Global
 		{87AB43B7-767B-467B-9AA9-47BADF850D6A} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{7D1C4E40-0DE6-4C50-AB84-CA8647EA92DF} = {258D5057-81B9-40EC-A872-D21E27452749}
 		{313F46FE-9962-4A15-805F-FCBDF5A6181E} = {258D5057-81B9-40EC-A872-D21E27452749}
+		{11B51A41-47CB-4EDB-9D8A-17095A65034A} = {CE6B50B2-34AE-44C9-940A-4E48C3E1B3BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {285A5EB4-BCF4-40EB-B9E1-DF6DBCB5E705}

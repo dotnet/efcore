@@ -61,7 +61,6 @@ namespace Microsoft.EntityFrameworkCore
                   from method in type.GetMethods(PublicInstance)
                   where method.DeclaringType == type
                         && method.ReturnType == typeof(void)
-                        && method.Name != nameof(ModelBuilder.OwnedEntity)
                   select type.Name + "." + method.Name;
 
             Assert.Equal("", string.Join(Environment.NewLine, voidMethods));

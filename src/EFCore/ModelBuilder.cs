@@ -240,33 +240,27 @@ namespace Microsoft.EntityFrameworkCore
         ///     Marks an entity type as owned. All references to this type will be configured as
         ///     separate owned type instances.
         /// </summary>
-        /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
-        public virtual void OwnedEntity<TEntity>()
-            where TEntity : class
-            => Builder.OwnedEntity(typeof(TEntity), ConfigurationSource.Explicit);
-
-        /// <summary>
-        ///     Marks an entity type as owned. All references to this type will be configured as
-        ///     separate owned type instances.
-        /// </summary>
-        /// <param name="type"> The entity type to be configured. </param>
-        public virtual void OwnedEntity([NotNull] Type type)
+        /// <typeparam name="T"> The entity type to be configured. </typeparam>
+        public virtual OwnedEntityTypeBuilder<T> Owned<T>()
+            where T : class
         {
-            Check.NotNull(type, nameof(type));
+            Builder.Owned(typeof(T), ConfigurationSource.Explicit);
 
-            Builder.OwnedEntity(type, ConfigurationSource.Explicit);
+            return null;
         }
 
         /// <summary>
         ///     Marks an entity type as owned. All references to this type will be configured as
         ///     separate owned type instances.
         /// </summary>
-        /// <param name="name"> The name of the entity type to be configured. </param>
-        public virtual void OwnedEntity([NotNull] string name)
+        /// <param name="type"> The entity type to be configured. </param>
+        public virtual OwnedEntityTypeBuilder Owned([NotNull] Type type)
         {
-            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
 
-            Builder.OwnedEntity(name, ConfigurationSource.Explicit);
+            Builder.Owned(type, ConfigurationSource.Explicit);
+
+            return null;
         }
 
         /// <summary>
