@@ -345,4 +345,13 @@ Change your target project to the migrations project by using the Package Manage
   <data name="RevertingMigration" xml:space="preserve">
     <value>Reverting migration '{name}'.</value>
   </data>
+  <data name="FindingReferencedServices" xml:space="preserve">
+    <value>Finding design-time services referenced by assembly '{startupAssembly}'.</value>
+  </data>
+  <data name="NoReferencedServices" xml:space="preserve">
+    <value>No referenced design-time services were found.</value>
+  </data>
+  <data name="UsingReferencedServices" xml:space="preserve">
+    <value>Using design-time services from assembly '{referencedAssembly}'.</value>
+  </data>
 </root>

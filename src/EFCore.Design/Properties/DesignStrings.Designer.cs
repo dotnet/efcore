@@ -588,6 +588,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("RevertingMigration", nameof(name)),
                 name);
 
+        /// <summary>
+        ///     Finding design-time services referenced by assembly '{startupAssembly}'.
+        /// </summary>
+        public static string FindingReferencedServices([CanBeNull] object startupAssembly)
+            => string.Format(
+                GetString("FindingReferencedServices", nameof(startupAssembly)),
+                startupAssembly);
+
+        /// <summary>
+        ///     No referenced design-time services were found.
+        /// </summary>
+        public static string NoReferencedServices
+            => GetString("NoReferencedServices");
+
+        /// <summary>
+        ///     Using design-time services from assembly '{referencedAssembly}'.
+        /// </summary>
+        public static string UsingReferencedServices([CanBeNull] object referencedAssembly)
+            => string.Format(
+                GetString("UsingReferencedServices", nameof(referencedAssembly)),
+                referencedAssembly);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
