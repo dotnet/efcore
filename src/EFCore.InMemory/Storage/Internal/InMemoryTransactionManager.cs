@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class InMemoryTransactionManager : IDbContextTransactionManager
+    public class InMemoryTransactionManager : IDbContextTransactionManager, ITransactionEnlistmentManager
     {
         private static readonly InMemoryTransaction _stubTransaction = new InMemoryTransaction();
 
@@ -86,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public virtual void EnlistTransaction(Transaction transaction)
         {
+            _logger.TransactionIgnoredWarning();
         }
 
         /// <summary>

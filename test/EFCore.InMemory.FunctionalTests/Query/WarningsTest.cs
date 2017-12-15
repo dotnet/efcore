@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class WarningsTest
@@ -28,6 +30,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                         InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction()).Message);
+            }
+        }
+
+        [Fact]
+        public void Should_throw_by_default_when_transaction_enlisted()
+        {
+            var optionsBuilder
+                = new DbContextOptionsBuilder()
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            using (var context = new DbContext(optionsBuilder.Options))
+            {
+                Assert.Equal(
+                    CoreStrings.WarningAsErrorTemplate(
+                        InMemoryEventId.TransactionIgnoredWarning,
+                        InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
             }
         }
 

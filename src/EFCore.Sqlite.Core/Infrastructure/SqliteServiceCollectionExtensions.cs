@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///          public void ConfigureServices(IServiceCollection services)
         ///          {
         ///              var connectionString = "connection string to database";
-        /// 
+        ///
         ///              services
         ///                  .AddEntityFrameworkSqlite()
         ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
@@ -79,8 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ICompositeMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
                 .TryAddProviderSpecificServices(
-                    b => b
-                        .TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
+                    b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 
             builder.TryAddCoreServices();
 

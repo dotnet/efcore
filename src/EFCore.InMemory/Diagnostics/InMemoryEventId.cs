@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Changes were saved to the database.
+        ///         A transaction operation was requested, but ignored because in-memory does not support transactions.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A transaction operation was requested, but ignored because in-memory does not support transactions.
+        ///         Changes were saved to the database.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.

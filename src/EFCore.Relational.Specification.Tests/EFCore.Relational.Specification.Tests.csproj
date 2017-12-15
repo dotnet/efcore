@@ -10,7 +10,7 @@
     <EnableApiCheck>false</EnableApiCheck>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
    <DefineConstants>$(DefineConstants);Test20</DefineConstants>
   </PropertyGroup>

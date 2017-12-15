@@ -1902,6 +1902,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("ClashingNonOwnedEntityType", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     Current provider doesn't support System.Transaction.
+        /// </summary>
+        public static string TransactionsNotSupported
+            => GetString("TransactionsNotSupported");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

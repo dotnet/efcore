@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalConnection : IRelationalConnection
+    public abstract class RelationalConnection : IRelationalConnection, ITransactionEnlistmentManager
     {
         private readonly string _connectionString;
         private readonly LazyRef<DbConnection> _connection;

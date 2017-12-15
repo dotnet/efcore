@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,7 +23,17 @@ namespace System.Transactions
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction"> The transaction to be used. </param>
         public static void EnlistTransaction([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] Transaction transaction)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IDbContextTransactionManager>().EnlistTransaction(transaction);
+        {
+            Check.NotNull(databaseFacade, nameof(databaseFacade));
+            if (databaseFacade.GetService<IDbContextTransactionManager>() is ITransactionEnlistmentManager transactionManager)
+            {
+                transactionManager.EnlistTransaction(transaction);
+            }
+            else
+            {
+                throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
+            }
+        }
 
         /// <summary>
         ///     Returns the currently enlisted transaction.
@@ -30,6 +41,16 @@ namespace System.Transactions
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The currently enlisted transaction. </returns>
         public static Transaction GetEnlistedTransaction([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IDbContextTransactionManager>().EnlistedTransaction;
+        {
+            Check.NotNull(databaseFacade, nameof(databaseFacade));
+            if (databaseFacade.GetService<IDbContextTransactionManager>() is ITransactionEnlistmentManager transactionManager)
+            {
+                return transactionManager.EnlistedTransaction;
+            }
+            else
+            {
+                throw new NotSupportedException(CoreStrings.TransactionsNotSupported);
+            }
+        }
     }
 }

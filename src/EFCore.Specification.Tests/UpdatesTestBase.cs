@@ -167,7 +167,6 @@ namespace Microsoft.EntityFrameworkCore
                                 () => context.SaveChanges()).Message);
                     });
         }
-#endif
 
         [Fact]
         public virtual void Save_replaced_principal()
@@ -195,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(2, products.Count);
                     });
         }
+#endif
 
         [Fact]
         public virtual void SaveChanges_processes_all_tracked_entities()

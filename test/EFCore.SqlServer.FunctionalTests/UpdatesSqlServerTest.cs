@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
+#if !Test20
         public override void Save_replaced_principal()
         {
             base.Save_replaced_principal();
@@ -32,6 +33,7 @@ WHERE [Id] = @p1;
 SELECT @@ROWCOUNT;"
             }, assertOrder: false);
         }
+#endif
 
         public override void Identifiers_are_generated_correctly()
         {

@@ -829,4 +829,7 @@
   <data name="ClashingNonOwnedEntityType" xml:space="preserve">
     <value>The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.</value>
   </data>
+  <data name="TransactionsNotSupported" xml:space="preserve">
+    <value>Current provider doesn't support System.Transaction.</value>
+  </data>
 </root>

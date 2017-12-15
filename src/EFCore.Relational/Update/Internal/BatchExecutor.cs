@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             try
             {
                 if (connection.CurrentTransaction == null
-                    && connection.EnlistedTransaction == null
+                    && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             try
             {
                 if (connection.CurrentTransaction == null
-                    && connection.EnlistedTransaction == null
+                    && (connection as ITransactionEnlistmentManager)?.EnlistedTransaction == null
                     && Transaction.Current == null
                     && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
