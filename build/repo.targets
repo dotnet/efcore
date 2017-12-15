@@ -1,12 +1,5 @@
 ﻿<Project>
 
-  <ItemGroup>
-    <!-- Exclude benchmark projects on CI builds unless IsBuildingBenchmarks is true. -->
-    <Solutions Update="$(RepositoryRoot)EFCore.sln" Condition=" '$(IsBuildingBenchmarks)' != 'true' ">
-      <AdditionalProperties>Configuration=$(Configuration)NoBenchmarks</AdditionalProperties>
-    </Solutions>
-  </ItemGroup>
-
   <Target Name="_FilterTestProjects" BeforeTargets="TestProjects">
     <ItemGroup Condition="'$(TestFilter)' != ''">
       <ProjectsToTest Remove="@(ProjectsToTest)"/>

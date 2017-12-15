@@ -4,24 +4,23 @@
     <!-- New Framework must be added and not replaced. -->
     <!-- Old frameworks are here for benchmark runs of older versions. -->
     <TargetFrameworks>net461;netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1;netcoreapp2.0</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.Benchmarks</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="$(BenchmarkDotNetPackageVersion)" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.10.9" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(Benchmarks_11_MicrosoftExtensionsConfigurationPackageVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(Benchmarks_11_MicrosoftExtensionsConfigurationPackageVersion)" />
-    <PackageReference Include="System.Data.SqlClient" Version="$(Benchmarks_11_SystemDataSqlClientPackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp1.1'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="$(Benchmarks_20_MicrosoftExtensionsConfigurationPackageVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="$(Benchmarks_20_MicrosoftExtensionsConfigurationPackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">

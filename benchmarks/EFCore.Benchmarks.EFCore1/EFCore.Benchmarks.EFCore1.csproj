@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp1.1</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' != 'Windows_NT'">netcoreapp1.1</TargetFrameworks>
     <RootNamespace>Microsoft.EntityFrameworkCore.Benchmarks.EFCore1</RootNamespace>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -19,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(Benchmarks_11_EFCorePackageVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="1.1.2" />
     <PackageReference Include="xunit.assert" Version="$(XunitAssertPackageVersion)" />
   </ItemGroup>
 
