@@ -219,7 +219,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            if (!_partialEvaluationInfo.IsEvaluatableExpression(memberExpression))
+            if (memberExpression.Member is FieldInfo fieldInfo
+                && fieldInfo.IsStatic && fieldInfo.IsInitOnly
+                || !_partialEvaluationInfo.IsEvaluatableExpression(memberExpression))
             {
                 return base.VisitMember(memberExpression);
             }

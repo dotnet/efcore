@@ -2559,10 +2559,9 @@ BEGIN
                     Assert.Equal(1, result.Count);
 
                     AssertSql(
-                        @"@__p_1='2'
-@__Empty_0='' (Size = 4000)
+                        @"@__p_0='2'
 
-SELECT TOP(@__p_1) [b].[Id], [b].[AddressId], [b].[CustomerDetailsId], [b].[Name]
+SELECT TOP(@__p_0) [b].[Id], [b].[AddressId], [b].[CustomerDetailsId], [b].[Name]
 FROM [Customers] AS [b]
 LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails] ON [b].[CustomerDetailsId] = [b.CustomerDetails].[Id]
 ORDER BY CASE
@@ -2570,23 +2569,22 @@ ORDER BY CASE
     THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
 END, CASE
     WHEN [b].[CustomerDetailsId] IS NOT NULL
-    THEN [b.CustomerDetails].[Name] ELSE @__Empty_0
+    THEN [b.CustomerDetails].[Name] ELSE N''
 END, [b].[Id]",
                         //
-                        @"@__p_1='2'
-@__Empty_0='' (Size = 4000)
+                        @"@__p_0='2'
 
 SELECT [b.Orders].[Id], [b.Orders].[CustomerId], [b.Orders].[Name]
 FROM [Order9735] AS [b.Orders]
 INNER JOIN (
     SELECT DISTINCT [t].*
     FROM (
-        SELECT TOP(@__p_1) [b0].[Id], CASE
+        SELECT TOP(@__p_0) [b0].[Id], CASE
             WHEN [b0].[AddressId] > 0
             THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
         END AS [c], CASE
             WHEN [b0].[CustomerDetailsId] IS NOT NULL
-            THEN [b.CustomerDetails0].[Name] ELSE @__Empty_0
+            THEN [b.CustomerDetails0].[Name] ELSE N''
         END AS [c0], [b0].[AddressId], [b0].[CustomerDetailsId], [b.CustomerDetails0].[Name]
         FROM [Customers] AS [b0]
         LEFT JOIN [CustomerDetails9735] AS [b.CustomerDetails0] ON [b0].[CustomerDetailsId] = [b.CustomerDetails0].[Id]

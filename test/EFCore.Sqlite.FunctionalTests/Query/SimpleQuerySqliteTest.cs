@@ -321,9 +321,7 @@ WHERE (instr(""c"".""City"", 'Sea') - 1) <> -1");
             base.Indexof_with_emptystring();
 
             AssertSql(
-                @"@__Empty_0=''
-
-SELECT instr(""c"".""ContactName"", @__Empty_0) - 1
+                @"SELECT instr(""c"".""ContactName"", '') - 1
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
@@ -343,9 +341,7 @@ WHERE replace(""c"".""City"", 'Sea', 'Rea') = 'Reattle'");
             base.Replace_with_emptystring();
 
             AssertSql(
-                @"@__Empty_0=''
-
-SELECT replace(""c"".""ContactName"", 'ari', @__Empty_0)
+                @"SELECT replace(""c"".""ContactName"", 'ari', '')
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
