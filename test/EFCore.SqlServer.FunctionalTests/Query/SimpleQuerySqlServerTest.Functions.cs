@@ -1063,11 +1063,9 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar
             base.Indexof_with_emptystring();
 
             AssertSql(
-                @"@__Empty_0='' (Size = 4000)
-
-SELECT CASE
-    WHEN @__Empty_0 = N''
-    THEN 0 ELSE CHARINDEX(@__Empty_0, [c].[ContactName]) - 1
+                @"SELECT CASE
+    WHEN N'' = N''
+    THEN 0 ELSE CHARINDEX(N'', [c].[ContactName]) - 1
 END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
@@ -1078,9 +1076,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             base.Replace_with_emptystring();
 
             AssertSql(
-                @"@__Empty_0='' (Size = 4000)
-
-SELECT REPLACE([c].[ContactName], N'ari', @__Empty_0)
+                @"SELECT REPLACE([c].[ContactName], N'ari', N'')
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
