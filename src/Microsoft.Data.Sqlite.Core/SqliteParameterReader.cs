@@ -8,18 +8,20 @@ namespace Microsoft.Data.Sqlite
 {
     internal class SqliteParameterReader : SqliteValueReader
     {
+        private readonly string _function;
         private readonly sqlite3_value[] _values;
 
-        public SqliteParameterReader(sqlite3_value[] values, string name)
+        public SqliteParameterReader(string function, sqlite3_value[] values)
         {
+            _function = function;
             _values = values;
-            OnNullErrorMsg = Resources.UDFCalledWithNull(name);
         }
 
         public override int FieldCount
             => _values.Length;
 
-        protected override string OnNullErrorMsg { get; }
+        protected override string GetOnNullErrorMsg(int ordinal)
+            => Resources.UDFCalledWithNull(_function, ordinal);
 
         protected override double GetDoubleCore(int ordinal)
             => raw.sqlite3_value_double(_values[ordinal]);

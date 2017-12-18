@@ -221,18 +221,20 @@ namespace Microsoft.Data.Sqlite.Properties
                 propertyName);
 
         /// <summary>
-        /// The data is NULL. This method can't be called on NULL values. Check using IsDBNull before calling.
+        /// The data is NULL at ordinal {ordinal}. This method can't be called on NULL values. Check using IsDBNull before calling.
         /// </summary>
-        public static string CalledOnNullValue
-            => GetString("CalledOnNullValue");
+        public static string CalledOnNullValue(object ordinal)
+            => string.Format(
+                GetString("CalledOnNullValue", nameof(ordinal)),
+                ordinal);
 
         /// <summary>
-        /// The user defined function '{name}' is called with parameter(s) being NULL. Redefine the function to accept a nullable type in this place(s) or filter NULL values.
+        /// The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.
         /// </summary>
-        public static string UDFCalledWithNull(object name)
+        public static string UDFCalledWithNull(object function, object ordinal)
             => string.Format(
-                GetString("UDFCalledWithNull", nameof(name)),
-                name);
+                GetString("UDFCalledWithNull", nameof(function), nameof(ordinal)),
+                function, ordinal);
 
         private static string GetString(string name, params string[] formatterNames)
         {

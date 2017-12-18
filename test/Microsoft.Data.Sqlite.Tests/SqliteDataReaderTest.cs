@@ -1124,7 +1124,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.True(hasData);
                     var ex = Assert.Throws<InvalidOperationException>(() => action(reader));
-                    Assert.Equal(Resources.CalledOnNullValue, ex.Message);
+                    Assert.Equal(Resources.CalledOnNullValue(0), ex.Message);
                 }
             }
         }

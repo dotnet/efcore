@@ -205,9 +205,9 @@
     <value>An open reader is associated with this command. Close it before changing the {propertyName} property.</value>
   </data>
   <data name="CalledOnNullValue" xml:space="preserve">
-    <value>The data is NULL. This method can't be called on NULL values. Check using IsDBNull before calling.</value>
+    <value>The data is NULL at ordinal {ordinal}. This method can't be called on NULL values. Check using IsDBNull before calling.</value>
   </data>
   <data name="UDFCalledWithNull" xml:space="preserve">
-    <value>The user defined function '{name}' is called with parameter(s) being NULL. Redefine the function to accept a nullable type in this place(s) or filter NULL values.</value>
+    <value>The SQL function '{function}' was called with a NULL argument at ordinal {ordinal}. Create the function using a Nullable parameter or rewrite your query to avoid passing NULL.</value>
   </data>
 </root>

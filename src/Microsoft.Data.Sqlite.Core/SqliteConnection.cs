@@ -402,7 +402,7 @@ namespace Microsoft.Data.Sqlite
                 func = (ctx, user_data, args) =>
                     {
                         // TODO: Avoid allocation when niladic
-                        var values = new SqliteParameterReader(args, name);
+                        var values = new SqliteParameterReader(name, args);
 
                         try
                         {
@@ -457,7 +457,7 @@ namespace Microsoft.Data.Sqlite
                         }
 
                         // TODO: Avoid allocation when niladic
-                        var reader = new SqliteParameterReader(args, name);
+                        var reader = new SqliteParameterReader(name, args);
 
                         try
                         {

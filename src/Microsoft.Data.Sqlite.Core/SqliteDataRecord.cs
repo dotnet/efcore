@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 
 namespace Microsoft.Data.Sqlite
@@ -25,9 +24,6 @@ namespace Microsoft.Data.Sqlite
 
         public override int FieldCount
             => raw.sqlite3_column_count(_stmt);
-
-        protected override string OnNullErrorMsg
-            => Resources.CalledOnNullValue;
 
         protected override double GetDoubleCore(int ordinal)
             => raw.sqlite3_column_double(_stmt, ordinal);
@@ -54,10 +50,10 @@ namespace Microsoft.Data.Sqlite
             return type;
         }
 
-        protected override T GetNull<T>()
+        protected override T GetNull<T>(int ordinal)
             => typeof(T) == typeof(DBNull) || typeof(T) == typeof(object)
                 ? (T)(object)DBNull.Value
-                : throw new InvalidOperationException(Resources.CalledOnNullValue);
+                : throw new InvalidOperationException(GetOnNullErrorMsg(ordinal));
 
         public virtual string GetName(int ordinal)
         {
