@@ -220,6 +220,20 @@ namespace Microsoft.Data.Sqlite.Properties
                 GetString("SetRequiresNoOpenReader", nameof(propertyName)),
                 propertyName);
 
+        /// <summary>
+        /// The data is NULL. This method can't be called on NULL values. Check using IsDBNull before calling.
+        /// </summary>
+        public static string CalledOnNullValue
+            => GetString("CalledOnNullValue");
+
+        /// <summary>
+        /// The user defined function '{name}' is called with parameter(s) being NULL. Redefine the function to accept a nullable type in this place(s) or filter NULL values.
+        /// </summary>
+        public static string UDFCalledWithNull(object name)
+            => string.Format(
+                GetString("UDFCalledWithNull", nameof(name)),
+                name);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
