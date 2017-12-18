@@ -10,6 +10,10 @@ using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using Xunit;
 
+#if !NETCOREAPP2_0
+using System.Data.Common;
+#endif
+
 namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionTest
@@ -927,5 +931,17 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(Resources.CallRequiresOpenConnection("EnableExtensions"), ex.Message);
             }
         }
+
+#if !NETCOREAPP2_0
+        [Fact]
+        public void DbProviderFactory_works()
+        {
+            var connection = new SqliteConnection();
+
+            var result = DbProviderFactories.GetFactory(connection);
+
+            Assert.Same(SqliteFactory.Instance, result);
+        }
+#endif
     }
 }

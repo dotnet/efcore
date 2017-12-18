@@ -114,6 +114,13 @@ namespace Microsoft.Data.Sqlite
             => _state;
 
         /// <summary>
+        ///     Gets the <see cref="DbProviderFactory" /> for this connection.
+        /// </summary>
+        /// <value>The <see cref="DbProviderFactory" />.</value>
+        protected override DbProviderFactory DbProviderFactory
+            => SqliteFactory.Instance;
+
+        /// <summary>
         ///     Gets or sets the transaction currently being used by the connection, or null if none.
         /// </summary>
         /// <value>The transaction currently being used by the connection.</value>
