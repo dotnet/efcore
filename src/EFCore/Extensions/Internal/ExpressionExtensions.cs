@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             do
             {
-                memberExpression = RemoveConvert(propertyAccessExpression) as MemberExpression;
+                memberExpression = RemoveTypeAs(RemoveConvert(propertyAccessExpression)) as MemberExpression;
 
                 var propertyInfo = memberExpression?.Member as PropertyInfo;
 
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 propertyAccessExpression = memberExpression.Expression;
             }
-            while (memberExpression.Expression.RemoveConvert() != parameterExpression);
+            while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
 
             return propertyInfos;
         }
@@ -203,6 +203,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return expression;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
+        {
+            while (expression != null
+                   && (expression.NodeType == ExpressionType.TypeAs))
+            {
+                expression = RemoveConvert(((UnaryExpression)expression).Operand);
+            }
+
+            return expression;
+        }
+
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

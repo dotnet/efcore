@@ -3048,7 +3048,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Include_reference_on_derived_type_using_lambda()
         {
             AssertIncludeQuery<LocustLeader>(
-                lls => lls.Include((LocustCommander ll) => ll.DefeatedBy),
+                lls => lls.Include(ll => ((LocustCommander)ll).DefeatedBy),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_reference_on_derived_type_using_lambda_with_soft_cast()
+        {
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include(ll => (ll as LocustCommander).DefeatedBy),
                 new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
         }
 
@@ -3056,7 +3064,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Include_reference_on_derived_type_using_lambda_with_tracking()
         {
             AssertIncludeQuery<LocustLeader>(
-                lls => lls.AsTracking().Include((LocustCommander ll) => ll.DefeatedBy),
+                lls => lls.AsTracking().Include(ll => ((LocustCommander)ll).DefeatedBy),
                 new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") },
                 entryCount: 7);
         }
@@ -3073,7 +3081,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Include_collection_on_derived_type_using_lambda()
         {
             AssertIncludeQuery<Gear>(
-                gs => gs.Include((Officer g) => g.Reports),
+                gs => gs.Include(g => ((Officer)g).Reports),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_on_derived_type_using_lambda_with_soft_cast()
+        {
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => (g as Officer).Reports),
                 new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
         }
 
@@ -3087,7 +3103,79 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
 
             AssertIncludeQuery<Gear>(
-                gs => gs.Include((Officer g) => g.Tag).Include((Officer g) => g.Weapons),
+                gs => gs.Include(g => ((Officer)g).Tag).Include(g => ((Officer)g).Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void ThenInclude_collection_on_derived_after_base_reference()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<CogTag>(e => e.Gear, "Gear"),
+                new ExpectedInclude<Officer>(e => e.Weapons, "Weapons", "Gear")
+            };
+
+            AssertIncludeQuery<CogTag>(
+                ts => ts.Include(t => t.Gear).ThenInclude(g => (g as Officer).Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void ThenInclude_collection_on_derived_after_derived_reference()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy"),
+            };
+
+            AssertIncludeQuery<Faction>(
+                fs => fs.Include(f => (f as LocustHorde).Commander).ThenInclude(c => (c.DefeatedBy as Officer).Reports),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void ThenInclude_collection_on_derived_after_derived_collection()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Reports"),
+            };
+
+            AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => ((Officer)g).Reports).ThenInclude(g => ((Officer)g).Reports),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void ThenInclude_reference_on_derived_after_derived_collection()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustHorde>(e => e.Leaders, "Leaders"),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Leaders")
+            };
+
+            AssertIncludeQuery<Faction>(
+                fs => fs.Include(f => ((LocustHorde)f).Leaders).ThenInclude(l => ((LocustCommander)l).DefeatedBy),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_derived_included_on_one_method()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy" )
+            };
+
+            AssertIncludeQuery<Faction>(
+                fs => fs.Include(f => (((LocustHorde)f).Commander.DefeatedBy as Officer).Reports),
                 expectedIncludes);
         }
 
@@ -3102,25 +3190,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             };
 
             AssertIncludeQuery<Gear>(
-                gs => gs.Include((Officer g) => g.Reports).ThenInclude(g => g.Squad.Missions),
+                gs => gs.Include(g => ((Officer)g).Reports).ThenInclude(g => g.Squad.Missions),
                 expectedIncludes);
-        }
-
-        [ConditionalFact]
-        public virtual void Include_on_derived_using_as_operator_throws()
-        {
-            Assert.Equal(
-                CoreStrings.InvalidIncludeLambdaExpression("Include", "g => (g As Officer).Reports"),
-                Assert.Throws<ArgumentException>(
-                    () =>
-                        {
-                            using (var context = CreateContext())
-                            {
-                                var query = context.Gears
-                                    .Include(g => (g as Officer).Reports)
-                                    .ToList();
-                            }
-                        }).Message);
         }
 
         [ConditionalFact]

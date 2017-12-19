@@ -4150,6 +4150,27 @@ END = [t].[SquadId])
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
         }
 
+        public override void Include_reference_on_derived_type_using_lambda_with_soft_cast()
+        {
+            base.Include_reference_on_derived_type_using_lambda_with_soft_cast();
+
+            AssertSql(
+                @"SELECT [ll].[Name], [ll].[Discriminator], [ll].[LocustHordeId], [ll].[ThreatLevel], [ll].[DefeatedByNickname], [ll].[DefeatedBySquadId], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [LocustLeaders] AS [ll]
+LEFT JOIN (
+    SELECT [ll.DefeatedBy].*
+    FROM [Gears] AS [ll.DefeatedBy]
+    WHERE [ll.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON (CASE
+    WHEN [ll].[Discriminator] = N'LocustCommander'
+    THEN [ll].[DefeatedByNickname] ELSE NULL
+END = [t].[Nickname]) AND (CASE
+    WHEN [ll].[Discriminator] = N'LocustCommander'
+    THEN [ll].[DefeatedBySquadId] ELSE NULL
+END = [t].[SquadId])
+WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')");
+        }
+
         public override void Include_reference_on_derived_type_using_lambda_with_tracking()
         {
             base.Include_reference_on_derived_type_using_lambda_with_tracking();
@@ -4213,6 +4234,27 @@ WHERE [g.Reports].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t].[Nickname], [t].[SquadId]");
         }
 
+        public override void Include_collection_on_derived_type_using_lambda_with_soft_cast()
+        {
+            base.Include_collection_on_derived_type_using_lambda_with_soft_cast();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                //
+                @"SELECT [g.Reports].[Nickname], [g.Reports].[SquadId], [g.Reports].[AssignedCityName], [g.Reports].[CityOrBirthName], [g.Reports].[Discriminator], [g.Reports].[FullName], [g.Reports].[HasSoulPatch], [g.Reports].[LeaderNickname], [g.Reports].[LeaderSquadId], [g.Reports].[Rank]
+FROM [Gears] AS [g.Reports]
+INNER JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON ([g.Reports].[LeaderNickname] = [t].[Nickname]) AND ([g.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [g.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[Nickname], [t].[SquadId]");
+        }
+
         public override void Include_base_navigation_on_derived_entity()
         {
             base.Include_base_navigation_on_derived_entity();
@@ -4233,6 +4275,196 @@ INNER JOIN (
     WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[FullName]");
+        }
+
+        public override void ThenInclude_collection_on_derived_after_base_reference()
+        {
+            base.ThenInclude_collection_on_derived_after_base_reference();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [t.Gear].*
+    FROM [Gears] AS [t.Gear]
+    WHERE [t.Gear].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
+ORDER BY [t0].[FullName]",
+                //
+                @"SELECT [t.Gear.Weapons].[Id], [t.Gear.Weapons].[AmmunitionType], [t.Gear.Weapons].[IsAutomatic], [t.Gear.Weapons].[Name], [t.Gear.Weapons].[OwnerFullName], [t.Gear.Weapons].[SynergyWithId]
+FROM [Weapons] AS [t.Gear.Weapons]
+INNER JOIN (
+    SELECT DISTINCT [t2].[FullName]
+    FROM [Tags] AS [t1]
+    LEFT JOIN (
+        SELECT [t.Gear0].*
+        FROM [Gears] AS [t.Gear0]
+        WHERE [t.Gear0].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t2] ON ([t1].[GearNickName] = [t2].[Nickname]) AND ([t1].[GearSquadId] = [t2].[SquadId])
+) AS [t3] ON [t.Gear.Weapons].[OwnerFullName] = [t3].[FullName]
+ORDER BY [t3].[FullName]");
+        }
+
+        public override void ThenInclude_collection_on_derived_after_derived_reference()
+        {
+            base.ThenInclude_collection_on_derived_after_derived_reference();
+
+            AssertSql(
+                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+FROM [Factions] AS [f]
+LEFT JOIN (
+    SELECT [f.Commander].*
+    FROM [LocustLeaders] AS [f.Commander]
+    WHERE [f.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON CASE
+    WHEN [f].[Discriminator] = N'LocustHorde'
+    THEN [f].[CommanderName] ELSE NULL
+END = [t].[Name]
+LEFT JOIN (
+    SELECT [f.Commander.DefeatedBy].*
+    FROM [Gears] AS [f.Commander.DefeatedBy]
+    WHERE [f.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
+WHERE [f].[Discriminator] = N'LocustHorde'
+ORDER BY [t0].[Nickname], [t0].[SquadId]",
+                //
+                @"SELECT [f.Commander.DefeatedBy.Reports].[Nickname], [f.Commander.DefeatedBy.Reports].[SquadId], [f.Commander.DefeatedBy.Reports].[AssignedCityName], [f.Commander.DefeatedBy.Reports].[CityOrBirthName], [f.Commander.DefeatedBy.Reports].[Discriminator], [f.Commander.DefeatedBy.Reports].[FullName], [f.Commander.DefeatedBy.Reports].[HasSoulPatch], [f.Commander.DefeatedBy.Reports].[LeaderNickname], [f.Commander.DefeatedBy.Reports].[LeaderSquadId], [f.Commander.DefeatedBy.Reports].[Rank]
+FROM [Gears] AS [f.Commander.DefeatedBy.Reports]
+INNER JOIN (
+    SELECT DISTINCT [t2].[Nickname], [t2].[SquadId]
+    FROM [Factions] AS [f0]
+    LEFT JOIN (
+        SELECT [f.Commander0].*
+        FROM [LocustLeaders] AS [f.Commander0]
+        WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
+    ) AS [t1] ON CASE
+        WHEN [f0].[Discriminator] = N'LocustHorde'
+        THEN [f0].[CommanderName] ELSE NULL
+    END = [t1].[Name]
+    LEFT JOIN (
+        SELECT [f.Commander.DefeatedBy0].*
+        FROM [Gears] AS [f.Commander.DefeatedBy0]
+        WHERE [f.Commander.DefeatedBy0].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t2] ON ([t1].[DefeatedByNickname] = [t2].[Nickname]) AND ([t1].[DefeatedBySquadId] = [t2].[SquadId])
+    WHERE [f0].[Discriminator] = N'LocustHorde'
+) AS [t3] ON ([f.Commander.DefeatedBy.Reports].[LeaderNickname] = [t3].[Nickname]) AND ([f.Commander.DefeatedBy.Reports].[LeaderSquadId] = [t3].[SquadId])
+WHERE [f.Commander.DefeatedBy.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t3].[Nickname], [t3].[SquadId]");
+        }
+
+        public override void ThenInclude_collection_on_derived_after_derived_collection()
+        {
+            base.ThenInclude_collection_on_derived_after_derived_collection();
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname], [g].[SquadId]",
+                //
+                @"SELECT [g.Reports].[Nickname], [g.Reports].[SquadId], [g.Reports].[AssignedCityName], [g.Reports].[CityOrBirthName], [g.Reports].[Discriminator], [g.Reports].[FullName], [g.Reports].[HasSoulPatch], [g.Reports].[LeaderNickname], [g.Reports].[LeaderSquadId], [g.Reports].[Rank]
+FROM [Gears] AS [g.Reports]
+INNER JOIN (
+    SELECT [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON ([g.Reports].[LeaderNickname] = [t].[Nickname]) AND ([g.Reports].[LeaderSquadId] = [t].[SquadId])
+WHERE [g.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t].[Nickname], [t].[SquadId], [g.Reports].[Nickname], [g.Reports].[SquadId]",
+                //
+                @"SELECT [g.Reports.Reports].[Nickname], [g.Reports.Reports].[SquadId], [g.Reports.Reports].[AssignedCityName], [g.Reports.Reports].[CityOrBirthName], [g.Reports.Reports].[Discriminator], [g.Reports.Reports].[FullName], [g.Reports.Reports].[HasSoulPatch], [g.Reports.Reports].[LeaderNickname], [g.Reports.Reports].[LeaderSquadId], [g.Reports.Reports].[Rank]
+FROM [Gears] AS [g.Reports.Reports]
+INNER JOIN (
+    SELECT DISTINCT [g.Reports0].[Nickname], [g.Reports0].[SquadId], [t0].[Nickname] AS [Nickname0], [t0].[SquadId] AS [SquadId0]
+    FROM [Gears] AS [g.Reports0]
+    INNER JOIN (
+        SELECT [g1].[Nickname], [g1].[SquadId]
+        FROM [Gears] AS [g1]
+        WHERE [g1].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t0] ON ([g.Reports0].[LeaderNickname] = [t0].[Nickname]) AND ([g.Reports0].[LeaderSquadId] = [t0].[SquadId])
+    WHERE [g.Reports0].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t1] ON ([g.Reports.Reports].[LeaderNickname] = [t1].[Nickname]) AND ([g.Reports.Reports].[LeaderSquadId] = [t1].[SquadId])
+WHERE [g.Reports.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t1].[Nickname0], [t1].[SquadId0], [t1].[Nickname], [t1].[SquadId]");
+        }
+
+        public override void ThenInclude_reference_on_derived_after_derived_collection()
+        {
+            base.ThenInclude_reference_on_derived_after_derived_collection();
+
+            AssertSql(
+                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
+FROM [Factions] AS [f]
+WHERE [f].[Discriminator] = N'LocustHorde'
+ORDER BY [f].[Id]",
+                //
+                @"SELECT [f.Leaders].[Name], [f.Leaders].[Discriminator], [f.Leaders].[LocustHordeId], [f.Leaders].[ThreatLevel], [f.Leaders].[DefeatedByNickname], [f.Leaders].[DefeatedBySquadId], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [LocustLeaders] AS [f.Leaders]
+LEFT JOIN (
+    SELECT [l.DefeatedBy].*
+    FROM [Gears] AS [l.DefeatedBy]
+    WHERE [l.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON (CASE
+    WHEN [f.Leaders].[Discriminator] = N'LocustCommander'
+    THEN [f.Leaders].[DefeatedByNickname] ELSE NULL
+END = [t].[Nickname]) AND (CASE
+    WHEN [f.Leaders].[Discriminator] = N'LocustCommander'
+    THEN [f.Leaders].[DefeatedBySquadId] ELSE NULL
+END = [t].[SquadId])
+INNER JOIN (
+    SELECT [f0].[Id]
+    FROM [Factions] AS [f0]
+    WHERE [f0].[Discriminator] = N'LocustHorde'
+) AS [t0] ON [f.Leaders].[LocustHordeId] = [t0].[Id]
+WHERE [f.Leaders].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
+ORDER BY [t0].[Id]");
+        }
+
+        public override void Multiple_derived_included_on_one_method()
+        {
+            base.Multiple_derived_included_on_one_method();
+
+            AssertSql(
+                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated], [t].[Name], [t].[Discriminator], [t].[LocustHordeId], [t].[ThreatLevel], [t].[DefeatedByNickname], [t].[DefeatedBySquadId], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+FROM [Factions] AS [f]
+LEFT JOIN (
+    SELECT [f.Commander].*
+    FROM [LocustLeaders] AS [f.Commander]
+    WHERE [f.Commander].[Discriminator] = N'LocustCommander'
+) AS [t] ON CASE
+    WHEN [f].[Discriminator] = N'LocustHorde'
+    THEN [f].[CommanderName] ELSE NULL
+END = [t].[Name]
+LEFT JOIN (
+    SELECT [f.Commander.DefeatedBy].*
+    FROM [Gears] AS [f.Commander.DefeatedBy]
+    WHERE [f.Commander.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON ([t].[DefeatedByNickname] = [t0].[Nickname]) AND ([t].[DefeatedBySquadId] = [t0].[SquadId])
+WHERE [f].[Discriminator] = N'LocustHorde'
+ORDER BY [t0].[Nickname], [t0].[SquadId]",
+                //
+                @"SELECT [f.Commander.DefeatedBy.Reports].[Nickname], [f.Commander.DefeatedBy.Reports].[SquadId], [f.Commander.DefeatedBy.Reports].[AssignedCityName], [f.Commander.DefeatedBy.Reports].[CityOrBirthName], [f.Commander.DefeatedBy.Reports].[Discriminator], [f.Commander.DefeatedBy.Reports].[FullName], [f.Commander.DefeatedBy.Reports].[HasSoulPatch], [f.Commander.DefeatedBy.Reports].[LeaderNickname], [f.Commander.DefeatedBy.Reports].[LeaderSquadId], [f.Commander.DefeatedBy.Reports].[Rank]
+FROM [Gears] AS [f.Commander.DefeatedBy.Reports]
+INNER JOIN (
+    SELECT DISTINCT [t2].[Nickname], [t2].[SquadId]
+    FROM [Factions] AS [f0]
+    LEFT JOIN (
+        SELECT [f.Commander0].*
+        FROM [LocustLeaders] AS [f.Commander0]
+        WHERE [f.Commander0].[Discriminator] = N'LocustCommander'
+    ) AS [t1] ON CASE
+        WHEN [f0].[Discriminator] = N'LocustHorde'
+        THEN [f0].[CommanderName] ELSE NULL
+    END = [t1].[Name]
+    LEFT JOIN (
+        SELECT [f.Commander.DefeatedBy0].*
+        FROM [Gears] AS [f.Commander.DefeatedBy0]
+        WHERE [f.Commander.DefeatedBy0].[Discriminator] IN (N'Officer', N'Gear')
+    ) AS [t2] ON ([t1].[DefeatedByNickname] = [t2].[Nickname]) AND ([t1].[DefeatedBySquadId] = [t2].[SquadId])
+    WHERE [f0].[Discriminator] = N'LocustHorde'
+) AS [t3] ON ([f.Commander.DefeatedBy.Reports].[LeaderNickname] = [t3].[Nickname]) AND ([f.Commander.DefeatedBy.Reports].[LeaderSquadId] = [t3].[SquadId])
+WHERE [f.Commander.DefeatedBy.Reports].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [t3].[Nickname], [t3].[SquadId]");
         }
 
         public override void Include_on_derived_multi_level()

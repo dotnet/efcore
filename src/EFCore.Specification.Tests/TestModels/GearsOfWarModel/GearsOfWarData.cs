@@ -217,12 +217,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<Faction> CreateFactions()
             => new List<Faction>
             {
-                new LocustHorde { Id = 1, Name = "Locust", Eradicated = true },
-                //    Commander = myrrah,
-                //Leaders = new List<LocustLeader> { karn, raam, skorge, myrrah }
-                new LocustHorde { Id = 2, Name = "Swarm", Eradicated = false }
-                //    Commander = swarmCommander,
-                //Leaders = new List<LocustLeader> { theSpeaker },
+                new LocustHorde { Id = 1, Name = "Locust", Eradicated = true, CommanderName = "Queen Myrrah" },
+                new LocustHorde { Id = 2, Name = "Swarm", Eradicated = false, CommanderName = "Unknown" }
             };
 
         public static void WireUp(

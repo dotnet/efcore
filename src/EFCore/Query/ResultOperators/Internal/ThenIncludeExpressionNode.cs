@@ -25,9 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         public static readonly IReadOnlyCollection<MethodInfo> SupportedMethods = new[]
         {
             EntityFrameworkQueryableExtensions.ThenIncludeAfterEnumerableMethodInfo,
-            EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo,
-            EntityFrameworkQueryableExtensions.ThenIncludeOnDerivedAfterEnumerableMethodInfo,
-            EntityFrameworkQueryableExtensions.ThenIncludeOnDerivedAfterReferenceMethodInfo,
+            EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
         };
 
         /// <summary>
