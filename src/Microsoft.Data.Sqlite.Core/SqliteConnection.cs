@@ -380,6 +380,41 @@ namespace Microsoft.Data.Sqlite
             SqliteException.ThrowExceptionForRC(rc, _db);
         }
 
+        /// <summary>
+        ///     Backup of the connected database.
+        /// </summary>
+        /// <param name="destination">The destination of the backup.</param>
+        public virtual void BackupDatabase(SqliteConnection destination)
+            => BackupDatabase(destination, "main", "main");
+
+        /// <summary>
+        ///     Backup of the connected database.
+        /// </summary>
+        /// <param name="destination">The destination of the backup.</param>
+        /// <param name="destinationName">The name of the destination database.</param>
+        /// <param name="sourceName">The name of the source database.</param>
+        public virtual void BackupDatabase(SqliteConnection destination, string destinationName, string sourceName)
+        {
+            if (_db == null
+                || _db.ptr == IntPtr.Zero
+                || destination.Handle == null
+                || destination.Handle.ptr == IntPtr.Zero)
+            {
+                throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BackupDatabase)));
+            }
+
+            using (var backup = raw.sqlite3_backup_init(destination.Handle, destinationName, _db, sourceName))
+            {
+                if (backup.ptr == IntPtr.Zero)
+                {
+                    SqliteException.ThrowExceptionForDatabaseError(_db);
+                }
+
+                var rc = raw.sqlite3_backup_step(backup, -1);
+                SqliteException.ThrowExceptionForRC(rc, _db);
+            }
+        }
+
         private void CreateFunctionCore<TState, TResult>(
             string name,
             int arity,

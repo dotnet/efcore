@@ -214,6 +214,28 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void BackupDatabase_works()
+        {
+            using (var connection1 = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection1.Open();
+
+                connection1.ExecuteNonQuery(
+                    "CREATE TABLE Person (Name TEXT);" +
+                    "INSERT INTO Person VALUES ('Waldo');");
+
+                using (var connection2 = new SqliteConnection("Data Source=:memory:"))
+                {
+                    connection2.Open();
+                    connection1.BackupDatabase(connection2);
+
+                    var name = connection2.ExecuteScalar<string>("SELECT Name FROM Person;");
+                    Assert.Equal("Waldo", name);
+                }
+            }
+        }
+
+        [Fact]
         public void Open_works_when_uri()
         {
             using (var connection = new SqliteConnection("Data Source=file:readwrite.db?mode=rw"))
