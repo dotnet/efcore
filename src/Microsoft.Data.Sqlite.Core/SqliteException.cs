@@ -68,7 +68,7 @@ namespace Microsoft.Data.Sqlite
 
             string message;
             int extendedErrorCode;
-            if (db == null || db.ptr == IntPtr.Zero)
+            if (db == null || db.ptr == IntPtr.Zero || rc != raw.sqlite3_errcode(db))
             {
                 message = raw.sqlite3_errstr(rc) + " " + Resources.DefaultNativeError;
                 extendedErrorCode = rc;
@@ -81,12 +81,5 @@ namespace Microsoft.Data.Sqlite
 
             throw new SqliteException(Resources.SqliteNativeError(rc, message), rc, extendedErrorCode);
         }
-
-        /// <summary>
-        ///     Throws an exception based on the internal error state of the database.
-        /// </summary>
-        /// <param name="db">A handle to database connection.</param>
-        public static void ThrowExceptionForDatabaseError(sqlite3 db)
-            => ThrowExceptionForRC(raw.sqlite3_errcode(db), db);
     }
 }

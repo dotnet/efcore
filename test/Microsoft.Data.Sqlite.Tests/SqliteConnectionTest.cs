@@ -236,6 +236,63 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void BackupDatabase_works_when_destination_closed()
+        {
+            using (var source = new SqliteConnection("Data Source=:memory:"))
+            using (var destination = new SqliteConnection("Data Source=:memory:"))
+            {
+                source.Open();
+                source.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                source.BackupDatabase(destination);
+            }
+        }
+
+        [Fact]
+        public void BackupDatabase_throws_when_closed()
+        {
+            var source = new SqliteConnection();
+            var destination = new SqliteConnection();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => source.BackupDatabase(destination));
+
+            Assert.Equal(Resources.CallRequiresOpenConnection("BackupDatabase"), ex.Message);
+        }
+
+        [Fact]
+        public void BackupDatabase_throws_when_destination_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                var ex = Assert.Throws<ArgumentNullException>(() => connection.BackupDatabase(null));
+
+                Assert.Equal("destination", ex.ParamName);
+            }
+        }
+
+        [Fact]
+        public void BackupDatabase_throws_with_correct_message()
+        {
+            using (var source = new SqliteConnection("Data Source=:memory:"))
+            using (var destination = new SqliteConnection("Data Source=:memory:"))
+            {
+                source.Open();
+                source.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                using (source.BeginTransaction())
+                {
+                    source.ExecuteNonQuery("UPDATE Data SET Value = 1;");
+
+                    var ex = Assert.Throws<SqliteException>(() => source.BackupDatabase(destination));
+                    Assert.Equal(raw.SQLITE_BUSY, ex.SqliteErrorCode);
+                    Assert.Contains(raw.sqlite3_errstr(raw.SQLITE_BUSY), ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void Open_works_when_uri()
         {
             using (var connection = new SqliteConnection("Data Source=file:readwrite.db?mode=rw"))

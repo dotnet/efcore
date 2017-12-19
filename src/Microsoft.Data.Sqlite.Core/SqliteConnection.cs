@@ -385,7 +385,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="destination">The destination of the backup.</param>
         public virtual void BackupDatabase(SqliteConnection destination)
-            => BackupDatabase(destination, "main", "main");
+            => BackupDatabase(destination, MainDatabaseName, MainDatabaseName);
 
         /// <summary>
         ///     Backup of the connected database.
@@ -396,22 +396,42 @@ namespace Microsoft.Data.Sqlite
         public virtual void BackupDatabase(SqliteConnection destination, string destinationName, string sourceName)
         {
             if (_db == null
-                || _db.ptr == IntPtr.Zero
-                || destination.Handle == null
-                || destination.Handle.ptr == IntPtr.Zero)
+                || _db.ptr == IntPtr.Zero)
             {
                 throw new InvalidOperationException(Resources.CallRequiresOpenConnection(nameof(BackupDatabase)));
             }
-
-            using (var backup = raw.sqlite3_backup_init(destination.Handle, destinationName, _db, sourceName))
+            if (destination == null)
             {
-                if (backup.ptr == IntPtr.Zero)
-                {
-                    SqliteException.ThrowExceptionForDatabaseError(_db);
-                }
+                throw new ArgumentNullException(nameof(destination));
+            }
 
-                var rc = raw.sqlite3_backup_step(backup, -1);
-                SqliteException.ThrowExceptionForRC(rc, _db);
+            var close = false;
+            if (destination.State != ConnectionState.Open)
+            {
+                destination.Open();
+                close = true;
+            }
+            try
+            {
+                using (var backup = raw.sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
+                {
+                    int rc;
+                    if (backup.ptr == IntPtr.Zero)
+                    {
+                        rc = raw.sqlite3_errcode(destination._db);
+                        SqliteException.ThrowExceptionForRC(rc, destination._db);
+                    }
+
+                    rc = raw.sqlite3_backup_step(backup, -1);
+                    SqliteException.ThrowExceptionForRC(rc, destination._db);
+                }
+            }
+            finally
+            {
+                if (close)
+                {
+                    destination.Close();
+                }
             }
         }
 
