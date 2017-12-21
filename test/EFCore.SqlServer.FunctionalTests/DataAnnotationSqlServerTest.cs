@@ -244,11 +244,11 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p1='1'" + EOL,
+                @"@p1='1'" + _eol,
                 Sql);
 
             Assert.Contains(
-                @"@p1='' (Nullable = false) (DbType = Int32)" + EOL,
+                @"@p1='' (Nullable = false) (DbType = Int32)" + _eol,
                 Sql);
         }
 
@@ -320,7 +320,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
             // row version value is not stable.
         }
 
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 

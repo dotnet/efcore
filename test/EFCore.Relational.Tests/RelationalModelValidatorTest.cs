@@ -8,7 +8,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_incompatible_primary_keys_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().HasKey(a => a.Id).HasName("Key");
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_incompatible_primary_key_columns_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.Id).HasColumnName("Key");
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_incompatible_shared_columns_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
@@ -169,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact] // #8973
         public virtual void Detects_derived_principal_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<D>().HasOne<B>().WithOne().IsRequired().HasForeignKey<B>(a => a.Id).HasPrincipalKey<D>(b => b.Id);
             modelBuilder.Entity<D>().HasBaseType<A>().ToTable("Table");
@@ -184,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_compatible_shared_table()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().ToTable("Table");
@@ -196,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_compatible_shared_table_inverted()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasPrincipalKey<A>(a => a.Id).HasForeignKey<B>(b => b.Id);
             modelBuilder.Entity<A>().ToTable("Table");
@@ -208,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
             GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").Metadata);
@@ -223,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
             GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").Metadata);
@@ -237,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
             GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasMaxLength(30).Metadata);
@@ -251,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_ComputedColumnSql()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasComputedColumnSql("1");
             modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
@@ -264,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValue()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasDefaultValueSql("1");
             modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed").HasDefaultValue("1");
@@ -277,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_DefaultValueSql()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasDefaultValueSql("1");
             modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
@@ -290,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_nullability()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>();
             modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Id");
@@ -303,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_compatible_duplicate_column_names_within_hierarchy()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(
                 eb =>
@@ -330,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_principal_tables()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Animal>().WithMany().HasForeignKey("FriendId").HasConstraintName("FK");
@@ -348,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_count()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<int>("FriendId");
             modelBuilder.Entity<Animal>().Property<string>("Shadow");
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey("FriendId", "Shadow").HasPrincipalKey(p => new { p.Id, p.Name }).HasConstraintName("FK");
@@ -367,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_column_order()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(et =>
@@ -400,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_mapped_to_different_columns()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => new { c.Name, c.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
             modelBuilder.Entity<Dog>().HasOne<Person>().WithMany().HasForeignKey(d => new { d.Name, d.Breed }).HasPrincipalKey(p => new { p.Name, p.FavoriteBreed }).HasConstraintName("FK");
@@ -419,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_referencing_different_columns()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>()
                 .HasOne<Person>().WithMany()
@@ -442,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_uniqueness()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
                 .HasConstraintName("FK_Animal_Person_Name");
@@ -460,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_foreignKey_names_within_hierarchy_with_different_delete_behavior()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
                 .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name");
@@ -479,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
                 .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name").Metadata;
@@ -495,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_compatible_duplicate_foreignKey_names_within_hierarchy()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             IForeignKey fk1 = null;
             IForeignKey fk2 = null;
 
@@ -532,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_column_count()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<int>("Shadow");
             modelBuilder.Entity<Cat>().HasIndex(nameof(Cat.Name), "Shadow").HasName("IX");
             modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasName("IX");
@@ -550,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_column_order()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(et =>
@@ -577,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_mapped_to_different_columns()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(c => new { c.Name, c.Breed }).HasName("IX");
             modelBuilder.Entity<Dog>().HasIndex(d => new { d.Name, d.Breed }).HasName("IX");
@@ -596,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_uniqueness()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name");
             modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).HasName("IX_Animal_Name");
@@ -612,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name").Metadata;
             var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
@@ -626,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_compatible_duplicate_index_names_within_hierarchy()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             IMutableIndex index1 = null;
             IMutableIndex index2 = null;
             modelBuilder.Entity<Animal>();
@@ -704,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_missing_non_string_discriminator_values()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<C>();
             modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
                 .HasValue<A>(0)
@@ -717,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_discriminator_values()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
                 .HasValue<A>(1)
                 .HasValue<C>(1)
@@ -730,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Does_not_detect_missing_discriminator_value_for_abstract_class()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Abstract>();
             modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType")
                 .HasValue<A>(0)
@@ -744,7 +743,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_function_with_invalid_return_type_throws()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             var methodInfo
                 = typeof(DbFunctionMetadataTests.TestMethods)
@@ -762,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_function_with_invalid_parameter_type_but_translate_callback_does_not_throw()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             var methodInfo
                 = typeof(DbFunctionMetadataTests.TestMethods)
@@ -780,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_function_with_invalid_parameter_type_but_no_translate_callback_throws()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             var methodInfo
                 = typeof(DbFunctionMetadataTests.TestMethods)
@@ -865,6 +864,7 @@ namespace Microsoft.EntityFrameworkCore
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()));
 
-        protected virtual ConventionSet CreateConventionSet() => TestRelationalConventionSetBuilder.Build();
+        protected virtual ModelBuilder CreateConventionalModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
     }
 }

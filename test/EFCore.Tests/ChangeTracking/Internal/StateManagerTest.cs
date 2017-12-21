@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,12 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -821,8 +822,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static IMutableModel BuildModel()
         {
-            var builder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
-            var model = builder.Model;
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<Product>().HasOne<Category>().WithOne()
                 .HasForeignKey<Product>(e => e.DependentId)
@@ -845,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         eb.HasKey("Id");
                     });
 
-            return model;
+            return builder.Model;
         }
     }
 }

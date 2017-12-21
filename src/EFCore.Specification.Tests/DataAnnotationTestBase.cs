@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -26,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore
         protected DataAnnotationTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
+
+        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; }
+            = new List<(LogLevel, EventId, string)>();
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
@@ -39,12 +44,28 @@ namespace Microsoft.EntityFrameworkCore
         public virtual ModelBuilder CreateModelBuilder()
         {
             var context = CreateContext();
-            var conventionSetBuilder = context.GetService<IConventionSetBuilder>();
-            var conventionSet = context.GetService<ICoreConventionSetBuilder>().CreateConventionSet();
+            var conventionSetBuilder = CreateConventionSetBuilder(context);
+            var conventionSet = new CoreConventionSetBuilder(
+                    context.GetService<CoreConventionSetBuilderDependencies>().With(CreateLogger()))
+                .CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
                 : conventionSetBuilder.AddConventions(conventionSet);
             return new ModelBuilder(conventionSet);
+        }
+
+        protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
+            => context.GetService<IConventionSetBuilder>();
+
+        protected virtual DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
+        {
+            var options = new LoggingOptions();
+            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+            var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
+                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                options,
+                new DiagnosticListener("Fake"));
+            return modelLogger;
         }
 
         protected virtual void Validate(ModelBuilder modelBuilder)
@@ -1736,6 +1757,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
+            modelBuilder.Ignore<Author>();
+            modelBuilder.Ignore<AuthorDetails>();
             modelBuilder.Entity<Post>();
 
             Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
@@ -1743,13 +1766,24 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(CoreStrings.LogForeignKeyAttributesOnBothProperties.GenerateMessage(
+                nameof(PostDetails), nameof(PostDetails.Post),
+                nameof(Post), nameof(Post.PostDetails),
+                nameof(PostDetails.PostId),
+                nameof(Post.PostDetailsId)),
+                Log[0].Message);
         }
 
         [Fact]
-        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigations_on_both_side_and_values_do_not_match()
+        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigations_on_both_sides_and_values_do_not_match()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
+            modelBuilder.Ignore<PostDetails>();
+            modelBuilder.Ignore<AuthorDetails>();
             modelBuilder.Entity<Post>();
 
             Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
@@ -1757,13 +1791,20 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
             Assert.Equal("PostId", model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(CoreStrings.LogForeignKeyAttributesOnBothNavigations.GenerateMessage(
+                nameof(Post), nameof(Post.Author), nameof(Author), nameof(Author.Post)), Log[0].Message);
         }
 
         [Fact]
-        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_side_and_values_do_not_match()
+        public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_sides_and_values_do_not_match()
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
+            modelBuilder.Ignore<PostDetails>();
+            modelBuilder.Ignore<Post>();
             modelBuilder.Entity<Author>();
 
             var authorDetails = model.FindEntityType(typeof(AuthorDetails));
@@ -1777,7 +1818,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("AuthorDetailsIdByAttribute", secondFk.Properties.First().Name);
 
             Assert.Equal(new[] { "Id", "AuthorId" }, authorDetails.GetProperties().Select(p => p.Name));
-            Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute", "PostId" }, author.GetProperties().Select(p => p.Name));
+            Assert.Equal(new[] { "Id", "AuthorDetailsIdByAttribute" }, author.GetProperties().Select(p => p.Name));
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty.GenerateMessage(
+                nameof(Author), nameof(Author.AuthorDetails), nameof(AuthorDetails), nameof(AuthorDetails.AuthorId)), Log[0].Message);
         }
 
         protected class Post

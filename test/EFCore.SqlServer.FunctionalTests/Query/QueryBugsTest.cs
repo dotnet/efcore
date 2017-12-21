@@ -840,10 +840,10 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
                         {
                             b.ToTable("Customer3758");
 
-                            b.HasMany(e => e.Orders1).WithOne();
-                            b.HasMany(e => e.Orders2).WithOne();
-                            b.HasMany(e => e.Orders3).WithOne();
-                            b.HasMany(e => e.Orders4).WithOne();
+                            b.HasMany(e => e.Orders1).WithOne().HasForeignKey("CustomerId1");
+                            b.HasMany(e => e.Orders2).WithOne().HasForeignKey("CustomerId2");
+                            b.HasMany(e => e.Orders3).WithOne().HasForeignKey("CustomerId3");
+                            b.HasMany(e => e.Orders4).WithOne().HasForeignKey("CustomerId4");
                         });
 
                 modelBuilder.Entity<Order3758>().ToTable("Order3758");

@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         public override void Detects_duplicate_column_names()
         {
-            var modelBuilder = new ModelBuilder(
-                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
             GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").Metadata);
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
             GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").Metadata);
@@ -51,8 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(
-                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
@@ -71,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_schemas()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().ToTable("Animals", "pet");
 
             VerifyWarning(SqliteStrings.LogSchemaConfigured.GenerateMessage("Animal", "pet"), modelBuilder.Model);
@@ -80,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_sequences()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.HasSequence("Fibonacci");
 
             VerifyWarning(SqliteStrings.LogSequenceConfigured.GenerateMessage("Fibonacci"), modelBuilder.Model);
@@ -103,5 +101,8 @@ namespace Microsoft.EntityFrameworkCore
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<SqliteTypeMapper>()));
+
+        protected override ModelBuilder CreateConventionalModelBuilder()
+            => SqliteTestHelpers.Instance.CreateConventionBuilder();
     }
 }

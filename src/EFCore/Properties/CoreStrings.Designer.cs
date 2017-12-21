@@ -1161,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, entityType);
 
         /// <summary>
-        ///     Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.
+        ///     Invalid relationship has been specified using InversePropertyAttribute and ForeignKeyAttribute. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.
         /// </summary>
         public static string InvalidRelationshipUsingDataAnnotations([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
             => string.Format(
@@ -1225,7 +1225,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property, propertyType);
 
         /// <summary>
-        ///     The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
         public static string InterfacePropertyNotAdded([CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object propertyType)
             => string.Format(
@@ -2059,6 +2059,138 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ErrorNavCannotTargetQueryType", nameof(type)),
                 type);
+
+        /// <summary>
+        ///     The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogRedundantIndexRemoved
+            = new EventDefinition<string, string>(
+                CoreEventId.RedundantIndexRemoved,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    CoreEventId.RedundantIndexRemoved,
+                    _resourceManager.GetString("LogRedundantIndexRemoved")));
+
+        /// <summary>
+        ///     The best match for foreign key properties {foreignKey} are incompatible with the principal key {principalKey}.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogIncompatibleMatchingForeignKeyProperties
+            = new EventDefinition<string, string>(
+                CoreEventId.IncompatibleMatchingForeignKeyProperties,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    CoreEventId.IncompatibleMatchingForeignKeyProperties,
+                    _resourceManager.GetString("LogIncompatibleMatchingForeignKeyProperties")));
+
+        /// <summary>
+        ///     The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogRequiredAttributeOnDependent
+            = new EventDefinition<string, string>(
+                CoreEventId.RequiredAttributeOnDependent,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    CoreEventId.RequiredAttributeOnDependent,
+                    _resourceManager.GetString("LogRequiredAttributeOnDependent")));
+
+        /// <summary>
+        ///     The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored bacause there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogRequiredAttributeOnBothNavigations
+            = new EventDefinition<string, string, string, string>(
+                CoreEventId.RequiredAttributeOnBothNavigations,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.RequiredAttributeOnBothNavigations,
+                    _resourceManager.GetString("LogRequiredAttributeOnBothNavigations")));
+
+        /// <summary>
+        ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogForeignKeyAttributesOnBothNavigations
+            = new EventDefinition<string, string, string, string>(
+                CoreEventId.ForeignKeyAttributesOnBothNavigations,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.ForeignKeyAttributesOnBothNavigations,
+                    _resourceManager.GetString("LogForeignKeyAttributesOnBothNavigations")));
+
+        /// <summary>
+        ///     Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string, string, string> LogForeignKeyAttributesOnBothProperties
+            = new EventDefinition<string, string, string, string, string, string>(
+                CoreEventId.ForeignKeyAttributesOnBothProperties,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string, string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.ForeignKeyAttributesOnBothProperties,
+                    _resourceManager.GetString("LogForeignKeyAttributesOnBothProperties")));
+
+        /// <summary>
+        ///     The relationship was separated into two relationships because ForeignKeyAttribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the ForeignKeyAttribute specified on the property '{propertyEntityType}.{property}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogConflictingForeignKeyAttributesOnNavigationAndProperty
+            = new EventDefinition<string, string, string, string>(
+                CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty,
+                    _resourceManager.GetString("LogConflictingForeignKeyAttributesOnNavigationAndProperty")));
+
+        /// <summary>
+        ///     There are multiple navigations ({navigations}) configured with InversePropertyAttribute that point to the same inverse navigation '{inverseNavigation}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogMultipleInversePropertiesSameTarget
+            = new EventDefinition<string, string>(
+                CoreEventId.MultipleInversePropertiesSameTarget,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    CoreEventId.MultipleInversePropertiesSameTarget,
+                    _resourceManager.GetString("LogMultipleInversePropertiesSameTarget")));
+
+        /// <summary>
+        ///     There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeys
+            = new EventDefinition<string, string, string>(
+                CoreEventId.ConflictingShadowForeignKeys,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.ConflictingShadowForeignKeys,
+                    _resourceManager.GetString("LogConflictingShadowForeignKeys")));
+
+        /// <summary>
+        ///     Relationship from '{firstEntityType}' to '{secondEntityType}' not configured because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string> LogMultipleNavigationProperties
+            = new EventDefinition<string, string, string, string>(
+                CoreEventId.MultipleNavigationProperties,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.MultipleNavigationProperties,
+                    _resourceManager.GetString("LogMultipleNavigationProperties")));
+
+        /// <summary>
+        ///     Primary key not configured as both properties '{firstProperty}' and '{secondProperty}' could be used as the primary key for the entity type '{entityType}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogMultiplePrimaryKeyCandidates
+            = new EventDefinition<string, string, string>(
+                CoreEventId.MultiplePrimaryKeyCandidates,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Information,
+                    CoreEventId.MultiplePrimaryKeyCandidates,
+                    _resourceManager.GetString("LogMultiplePrimaryKeyCandidates")));
 
         private static string GetString(string name, params string[] formatterNames)
         {

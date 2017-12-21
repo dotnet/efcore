@@ -1,10 +1,12 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable ClassWithVirtualMembersNeverInherited.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ForeignKeyIndexConventionTest
@@ -12,10 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_override_foreign_key_index_uniqueness_when_referenced_key_changes()
         {
-            var modelBuilder
-                = new ModelBuilder(
-                    TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()
-                        .CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             var principalTypeBuilder = modelBuilder.Entity<PrincipalEntity>();
             var dependentTypeBuilder = modelBuilder.Entity<DependentEntity>();

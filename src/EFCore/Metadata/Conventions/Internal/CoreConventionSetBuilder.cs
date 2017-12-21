@@ -37,9 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var conventionSet = new ConventionSet();
 
             var propertyDiscoveryConvention = new PropertyDiscoveryConvention(Dependencies.TypeMapper);
-            var keyDiscoveryConvention = new KeyDiscoveryConvention();
-            var inversePropertyAttributeConvention = new InversePropertyAttributeConvention(Dependencies.TypeMapper);
-            var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention(Dependencies.TypeMapper);
+            var keyDiscoveryConvention = new KeyDiscoveryConvention(Dependencies.Logger);
+            var inversePropertyAttributeConvention =
+                new InversePropertyAttributeConvention(Dependencies.TypeMapper, Dependencies.Logger);
+            var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention(Dependencies.TypeMapper, Dependencies.Logger);
 
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention());
@@ -52,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention());
             conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
 
-            var foreignKeyIndexConvention = new ForeignKeyIndexConvention();
+            var foreignKeyIndexConvention = new ForeignKeyIndexConvention(Dependencies.Logger);
             var valueGeneratorConvention = new ValueGeneratorConvention();
 
             conventionSet.BaseEntityTypeChangedConventions.Add(propertyDiscoveryConvention);
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention();
-            var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention();
+            var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention(Dependencies.Logger);
             var backingFieldConvention = new BackingFieldConvention();
             var concurrencyCheckAttributeConvention = new ConcurrencyCheckAttributeConvention();
             var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention();
@@ -98,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var cascadeDeleteConvention = new CascadeDeleteConvention();
 
-            conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention(Dependencies.TypeMapper));
+            conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention(Dependencies.TypeMapper, Dependencies.Logger));
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyAddedConventions.Add(valueGeneratorConvention);
@@ -124,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ModelBuiltConventions.Add(new ConstructorBindingConvention(Dependencies.ConstructorBindingFactory));
 
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
-            conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());
+            conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies.Logger));
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);

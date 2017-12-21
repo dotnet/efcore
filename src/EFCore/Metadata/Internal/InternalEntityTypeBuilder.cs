@@ -35,17 +35,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalKeyBuilder PrimaryKey([CanBeNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
+        public virtual InternalKeyBuilder PrimaryKey(
+            [CanBeNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalKeyBuilder PrimaryKey([CanBeNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+        public virtual InternalKeyBuilder PrimaryKey(
+            [CanBeNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
             => PrimaryKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
-        private InternalKeyBuilder PrimaryKey(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalKeyBuilder PrimaryKey(
+            [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             var previousPrimaryKey = Metadata.FindPrimaryKey();
             if (properties == null)
@@ -2006,8 +2013,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         var keyPropertyName = principalPropertyNamesEnumerator.Current;
                         var keyPropertyType = principalPropertyTypesEnumerator.Current;
-                        var keyModifiedBaseName = (keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
-                                                  + keyPropertyName;
+                        var keyModifiedBaseName =
+                            (keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase) ? "" : baseName)
+                            + keyPropertyName;
                         string propertyName;
                         var clrType = isRequired ? keyPropertyType : keyPropertyType.MakeNullable();
                         var index = -1;

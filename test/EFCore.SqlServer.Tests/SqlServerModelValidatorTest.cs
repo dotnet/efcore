@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         public override void Detects_duplicate_column_names()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
             GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").Metadata);
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
             GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).HasColumnName("Type").Metadata);
@@ -47,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
-            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnType("someInt");
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public override void Detects_duplicate_column_names_within_hierarchy_with_different_MaxLength()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasMaxLength(30).Metadata);
             GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasMaxLength(15).Metadata);
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_unicode()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
             GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").IsUnicode(false).Metadata);
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(cb =>
                 {
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_incompatible_foreignKeys_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             var fk1 = modelBuilder.Entity<Cat>().HasOne<Person>().WithMany().HasForeignKey(c => c.Name).HasPrincipalKey(p => p.Name)
                 .OnDelete(DeleteBehavior.Cascade).HasConstraintName("FK_Animal_Person_Name").Metadata;
@@ -128,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly_for_sqlServer()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             var index1 = modelBuilder.Entity<Cat>().HasIndex(c => c.Name).IsUnique().HasName("IX_Animal_Name").Metadata;
             var index2 = modelBuilder.Entity<Dog>().HasIndex(d => d.Name).IsUnique(false).Metadata;
@@ -144,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_incompatible_momory_optimized_shared_table()
         {
-            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
@@ -158,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Throws_for_unsupported_data_types()
         {
-            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("nvarchar");
 
             Assert.Equal(
@@ -169,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_default_decimal_mapping()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal>("Price");
 
             VerifyWarning(SqlServerStrings.LogDefaultDecimalTypeColumn.GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
@@ -178,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public virtual void Detects_default_nullable_decimal_mapping()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
             VerifyWarning(SqlServerStrings.LogDefaultDecimalTypeColumn.GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
@@ -187,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_byte_identity_column()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
 
             VerifyWarning(SqlServerStrings.LogByteIdentityColumn.GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
@@ -196,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Detects_nullable_byte_identity_column()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
 
             VerifyWarning(SqlServerStrings.LogByteIdentityColumn.GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
@@ -205,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Passes_for_non_key_identity()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
 
             Validate(modelBuilder.Model);
@@ -214,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_multiple_identity_properties()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
             modelBuilder.Entity<Dog>().Property<int?>("Tag").UseSqlServerIdentityColumn();
 
@@ -224,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_for_non_key_SequenceHiLo()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseSequenceHiLo();
 
             VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
@@ -233,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Passes_for_non_key_identity_on_model()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.ForSqlServerUseIdentityColumns();
             modelBuilder.Entity<Dog>().Property(c => c.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
@@ -244,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Passes_for_non_key_SequenceHiLo_on_model()
         {
-            var modelBuilder = new ModelBuilder(CreateConventionSet());
+            var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.ForSqlServerUseSequenceHiLo();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
@@ -274,5 +273,8 @@ namespace Microsoft.EntityFrameworkCore
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
+
+        protected override ModelBuilder CreateConventionalModelBuilder()
+            => SqlServerTestHelpers.Instance.CreateConventionBuilder();
     }
 }

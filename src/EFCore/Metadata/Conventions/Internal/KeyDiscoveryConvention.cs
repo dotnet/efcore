@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -25,6 +27,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IForeignKeyRemovedConvention
     {
         private const string KeySuffix = "Id";
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public KeyDiscoveryConvention([CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+        {
+            _logger = logger;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -38,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (entityType.BaseType == null
                 && ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
             {
-                IReadOnlyList<string> keyPropertyNames = null;
+                IReadOnlyList<Property> keyProperties = null;
                 if (entityType.HasDefiningNavigation())
                 {
                     var definingFk = entityType.FindDefiningNavigation()?.ForeignKey;
@@ -46,27 +58,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     {
                         // Make sure that the properties won't be reuniquified
                         definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
-                        keyPropertyNames = definingFk.Properties.Select(p => p.Name).ToList();
+                        keyProperties = definingFk.Properties.ToList();
                     }
                 }
 
-                if (keyPropertyNames == null)
+                if (keyProperties == null)
                 {
                     var candidateProperties = entityType.GetProperties().Where(
-                        p =>
-                            !p.IsShadowProperty
-                            || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
-                    keyPropertyNames = DiscoverKeyProperties(entityType, candidateProperties).Select(p => p.Name).ToList();
-                    if (keyPropertyNames.Count > 1)
+                        p => !p.IsShadowProperty
+                             || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
+                    keyProperties = DiscoverKeyProperties(entityType, candidateProperties).ToList();
+                    if (keyProperties.Count > 1)
                     {
-                        //TODO - log using Strings.MultiplePropertiesMatchedAsKeys()
+                        _logger?.MultiplePrimaryKeyCandidates(keyProperties[0], keyProperties[1]);
                         return entityTypeBuilder;
                     }
                 }
 
-                if (keyPropertyNames.Any())
+                if (keyProperties.Any())
                 {
-                    entityTypeBuilder.PrimaryKey(keyPropertyNames, ConfigurationSource.Convention);
+                    entityTypeBuilder.PrimaryKey(keyProperties, ConfigurationSource.Convention);
                 }
             }
 

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     public class RelationalPropertyAttributeConventionTest
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             var entityBuilder = modelBuilder.Entity<A>();
 
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [Fact]
         public void ColumnAttribute_on_field_sets_column_name_and_type_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = CreateConventionalModelBuilder();
 
             var entityBuilder = modelBuilder.Entity<F>();
 
@@ -78,6 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
+
+        protected virtual ModelBuilder CreateConventionalModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         private class A
         {

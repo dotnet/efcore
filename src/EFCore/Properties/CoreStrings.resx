@@ -550,7 +550,7 @@
     <value>The property list specified using ForeignKeyAttribute on navigation '{navigation}' in entity type '{entityType}' is incorrect. The attribute value should be comma-separated list of property names.</value>
   </data>
   <data name="InvalidRelationshipUsingDataAnnotations" xml:space="preserve">
-    <value>Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
+    <value>Invalid relationship has been specified using InversePropertyAttribute and ForeignKeyAttribute. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
   </data>
   <data name="ConflictingNavigation" xml:space="preserve">
     <value>The property '{property}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
@@ -574,7 +574,7 @@
     <value>The property '{entityType}.{property}' is of type '{propertyType}' which is not supported by current database provider. Either change the property CLR type or ignore the property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
   <data name="InterfacePropertyNotAdded" xml:space="preserve">
-    <value>The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+    <value>The property '{entityType}.{navigation}' is of an interface type ('{propertyType}'). If it is a navigation property manually configure the relationship for this property by casting it to a mapped entity type, otherwise ignore the property using the NotMappedAttribute or 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
@@ -886,5 +886,49 @@
   </data>
   <data name="ErrorNavCannotTargetQueryType" xml:space="preserve">
     <value>Cannot create a navigation targeting type '{type}' because it is a query type. Only entity types can be used as navigation target types.</value>
+  </data>
+  <data name="LogRedundantIndexRemoved" xml:space="preserve">
+    <value>The index {redundantIndex} was not created as the properties are already covered by the index {otherIndex}.</value>
+    <comment>Information CoreEventId.RedundantIndexRemoved string string</comment>
+  </data>
+  <data name="LogIncompatibleMatchingForeignKeyProperties" xml:space="preserve">
+    <value>The best match for foreign key properties {foreignKey} are incompatible with the principal key {principalKey}.</value>
+    <comment>Information CoreEventId.IncompatibleMatchingForeignKeyProperties string string</comment>
+  </data>
+  <data name="LogRequiredAttributeOnDependent" xml:space="preserve">
+    <value>The navigation property '{navigation}' has a RequiredAttribute causing the entity type '{entityType}' to be configured as the dependent side in the corresponding relationship.</value>
+    <comment>Information CoreEventId.RequiredAttributeOnDependent string string</comment>
+  </data>
+  <data name="LogRequiredAttributeOnBothNavigations" xml:space="preserve">
+    <value>The RequiredAttribute on '{principalEntityType}.{principalNavigation}' was ignored bacause there is also a RequiredAttribute on '{dependentEntityType}.{dependentNavigation}'.</value>
+    <comment>Information CoreEventId.RequiredAttributeOnBothNavigations string string string string</comment>
+  </data>
+  <data name="LogForeignKeyAttributesOnBothNavigations" xml:space="preserve">
+    <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on navigations on both sides.</value>
+    <comment>Information CoreEventId.ForeignKeyAttributesOnBothNavigations string string string string</comment>
+  </data>
+  <data name="LogForeignKeyAttributesOnBothProperties" xml:space="preserve">
+    <value>Navigations '{dependentEntityType}.{dependentNavigation}' and '{principalEntityType}.{principalNavigation}' were separated into two relationships as ForeignKeyAttribute was specified on properties '{dependentProperty}' and '{principalProperty}' on both sides.</value>
+    <comment>Information CoreEventId.ForeignKeyAttributesOnBothProperties string string string string string string</comment>
+  </data>
+  <data name="LogConflictingForeignKeyAttributesOnNavigationAndProperty" xml:space="preserve">
+    <value>The relationship was separated into two relationships because ForeignKeyAttribute specified on the navigation '{navigationEntityType}.{navigation}' doesn't match the ForeignKeyAttribute specified on the property '{propertyEntityType}.{property}'.</value>
+    <comment>Information CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty string string string string</comment>
+  </data>
+  <data name="LogMultipleInversePropertiesSameTarget" xml:space="preserve">
+    <value>There are multiple navigations ({navigations}) configured with InversePropertyAttribute that point to the same inverse navigation '{inverseNavigation}'.</value>
+    <comment>Information CoreEventId.MultipleInversePropertiesSameTarget string string</comment>
+  </data>
+  <data name="LogConflictingShadowForeignKeys" xml:space="preserve">
+    <value>There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.</value>
+    <comment>Warning CoreEventId.ConflictingShadowForeignKeys string string string</comment>
+  </data>
+  <data name="LogMultipleNavigationProperties" xml:space="preserve">
+    <value>Relationship from '{firstEntityType}' to '{secondEntityType}' not configured because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}.</value>
+    <comment>Information CoreEventId.MultipleNavigationProperties string string string string</comment>
+  </data>
+  <data name="LogMultiplePrimaryKeyCandidates" xml:space="preserve">
+    <value>Primary key not configured as both properties '{firstProperty}' and '{secondProperty}' could be used as the primary key for the entity type '{entityType}'.</value>
+    <comment>Information CoreEventId.MultiplePrimaryKeyCandidates string string string</comment>
   </data>
 </root>

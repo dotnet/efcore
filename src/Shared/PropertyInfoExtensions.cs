@@ -45,20 +45,6 @@ namespace System.Reflection
             return targetType;
         }
 
-        public static bool IsSameAs(this PropertyInfo propertyInfo, PropertyInfo otherPropertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-            Check.NotNull(otherPropertyInfo, nameof(otherPropertyInfo));
-
-            return Equals(propertyInfo, otherPropertyInfo)
-                   || propertyInfo.Name == otherPropertyInfo.Name
-                   && (propertyInfo.DeclaringType == otherPropertyInfo.DeclaringType
-                       || propertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(otherPropertyInfo.DeclaringType)
-                       || otherPropertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(propertyInfo.DeclaringType)
-                       || propertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(otherPropertyInfo.DeclaringType)
-                       || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces.Contains(propertyInfo.DeclaringType));
-        }
-
         public static PropertyInfo FindGetterProperty([NotNull] this PropertyInfo propertyInfo)
             => propertyInfo.DeclaringType
                 .GetPropertiesInHierarchy(propertyInfo.Name)

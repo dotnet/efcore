@@ -1,6 +1,8 @@
 ﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
@@ -69,7 +71,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             NavigationLazyLoading,
 
             // Model events
-            ShadowPropertyCreated = CoreBaseId + 600
+            ShadowPropertyCreated = CoreBaseId + 600,
+            RedundantIndexRemoved,
+            IncompatibleMatchingForeignKeyProperties,
+            RequiredAttributeOnDependent,
+            RequiredAttributeOnBothNavigations,
+            ConflictingShadowForeignKeys,
+            MultiplePrimaryKeyCandidates,
+            MultipleNavigationProperties,
+            MultipleInversePropertiesSameTarget,
+            ForeignKeyAttributesOnBothProperties,
+            ForeignKeyAttributesOnBothNavigations,
+            ConflictingForeignKeyAttributesOnNavigationAndProperty
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -338,5 +351,161 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ShadowPropertyCreated = MakeModelId(Id.ShadowPropertyCreated);
+
+        /// <summary>
+        ///     <para>
+        ///         An index was not created as the properties are already covered.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RedundantIndexRemoved = MakeModelId(Id.RedundantIndexRemoved);
+
+        /// <summary>
+        ///     <para>
+        ///         The best match for foreign key properties are incompatible with the principal key.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId IncompatibleMatchingForeignKeyProperties = MakeModelId(Id.IncompatibleMatchingForeignKeyProperties);
+
+        /// <summary>
+        ///     <para>
+        ///         The entity type with the navigation property that has the <see cref="RequiredAttribute" />
+        ///         was configured as the dependent side in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="NavigationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RequiredAttributeOnDependent = MakeModelId(Id.RequiredAttributeOnDependent);
+
+        /// <summary>
+        ///     <para>
+        ///         Navigations separated into two relationships as <see cref="RequiredAttribute" /> was specified on both navigations.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RequiredAttributeOnBothNavigations = MakeModelId(Id.RequiredAttributeOnBothNavigations);
+
+        /// <summary>
+        ///     <para>
+        ///         The properties that best match the foreign key convention are already used by a different foreign key.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ConflictingShadowForeignKeys = MakeModelId(Id.ConflictingShadowForeignKeys);
+
+        /// <summary>
+        ///     <para>
+        ///         There are multiple properties that could be used as the primary key.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MultiplePrimaryKeyCandidates = MakeModelId(Id.MultiplePrimaryKeyCandidates);
+
+        /// <summary>
+        ///     <para>
+        ///         There are multiple properties that could be navigations to the same type.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoUnmappedPropertyCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MultipleNavigationProperties = MakeModelId(Id.MultipleNavigationProperties);
+
+        /// <summary>
+        ///     <para>
+        ///         There are multiple navigations with <see cref="InversePropertyAttribute" /> that point
+        ///         to the same inverse navigation.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MultipleInversePropertiesSameTarget = MakeModelId(Id.MultipleInversePropertiesSameTarget);
+
+        /// <summary>
+        ///     <para>
+        ///         Navigations separated into two relationships as <see cref="ForeignKeyAttribute" /> was specified on properties
+        ///         on both sides.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ForeignKeyAttributesOnBothProperties = MakeModelId(Id.ForeignKeyAttributesOnBothProperties);
+
+        /// <summary>
+        ///     <para>
+        ///         Navigations separated into two relationships as <see cref="ForeignKeyAttribute" /> was specified on navigations
+        ///         on both sides.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ForeignKeyAttributesOnBothNavigations = MakeModelId(Id.ForeignKeyAttributesOnBothNavigations);
+
+        /// <summary>
+        ///     <para>
+        ///         The <see cref="ForeignKeyAttribute" /> specified on the navigation doesn't match the <see cref="ForeignKeyAttribute" />
+        ///         specified on the property.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoPropertyBaseCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ConflictingForeignKeyAttributesOnNavigationAndProperty = MakeModelId(Id.ConflictingForeignKeyAttributesOnNavigationAndProperty);
     }
 }

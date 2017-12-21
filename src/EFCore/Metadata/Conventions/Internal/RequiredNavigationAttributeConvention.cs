@@ -3,6 +3,9 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -14,11 +17,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class RequiredNavigationAttributeConvention : NavigationAttributeNavigationConvention<RequiredAttribute>
     {
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation, RequiredAttribute attribute)
+        public RequiredNavigationAttributeConvention([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+        {
+            _logger = logger;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public override InternalRelationshipBuilder Apply(
+            InternalRelationshipBuilder relationshipBuilder, Navigation navigation, RequiredAttribute attribute)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
@@ -26,20 +41,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (!navigation.IsDependentToPrincipal())
             {
-                if (!navigation.ForeignKey.IsUnique
-                    || (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null))
-                {
-                    return relationshipBuilder;
-                }
-
                 var inverse = navigation.FindInverse();
                 if (inverse != null)
                 {
                     var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse.Name);
                     if (attributes.Any())
                     {
+                        _logger.RequiredAttributeOnBothNavigations(navigation, inverse);
                         return relationshipBuilder;
                     }
+                }
+
+                if (!navigation.ForeignKey.IsUnique
+                    || relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
+                {
+                    return relationshipBuilder;
                 }
 
                 var newRelationshipBuilder = relationshipBuilder.RelatedEntityTypes(
@@ -51,6 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     return relationshipBuilder;
                 }
+
+                _logger.RequiredAttributeOnDependent(newRelationshipBuilder.Metadata.DependentToPrincipal);
                 relationshipBuilder = newRelationshipBuilder;
             }
 

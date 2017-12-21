@@ -1,8 +1,9 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
@@ -15,8 +16,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static ConventionSet Build()
             => new TestRelationalConventionSetBuilder(
-                    new RelationalConventionSetBuilderDependencies(
-                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>(), null, null))
+                new RelationalConventionSetBuilderDependencies(
+                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>(),
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Model>(),
+                    null,
+                    null))
                 .AddConventions(
                     TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()
                         .CreateConventionSet());

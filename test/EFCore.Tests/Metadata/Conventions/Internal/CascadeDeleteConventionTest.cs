@@ -1,11 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable CollectionNeverUpdated.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class CascadeDeleteConventionTest
@@ -126,7 +130,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private static ModelBuilder CreateModelBuilder()
-            => new ModelBuilder(
-                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
     }
 }

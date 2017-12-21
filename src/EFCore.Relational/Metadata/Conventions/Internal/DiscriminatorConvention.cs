@@ -47,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 if (entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null) == null)
                 {
-                    // TODO: log warning that the current discriminator couldn't be removed
                     return true;
                 }
 

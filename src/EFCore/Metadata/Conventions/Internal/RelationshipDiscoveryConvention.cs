@@ -7,6 +7,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,16 +27,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         INavigationAddedConvention
     {
         private readonly ITypeMapper _typeMapper;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public RelationshipDiscoveryConvention([NotNull] ITypeMapper typeMapper)
+        public RelationshipDiscoveryConvention(
+            [NotNull] ITypeMapper typeMapper, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             _typeMapper = typeMapper;
+            _logger = logger;
         }
 
         /// <summary>
@@ -408,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return filteredRelationshipCandidates;
         }
 
-        private static void CreateRelationships(
+        private void CreateRelationships(
             IEnumerable<RelationshipCandidate> relationshipCandidates, InternalEntityTypeBuilder entityTypeBuilder)
         {
             var unusedEntityTypes = new List<EntityType>();
@@ -433,6 +438,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         AddAmbiguous(entityTypeBuilder, relationshipCandidate.NavigationProperties, targetEntityType.ClrType);
 
                         AddAmbiguous(targetEntityType.Builder, relationshipCandidate.InverseProperties, entityType.ClrType);
+
+                        _logger.MultipleNavigationProperties(
+                            relationshipCandidate.NavigationProperties.Count == 0
+                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
+                                : relationshipCandidate.NavigationProperties.Select(n => new Tuple<MemberInfo, Type>(n, entityType.ClrType)),
+                            relationshipCandidate.InverseProperties.Count == 0
+                                ? new[] { new Tuple<MemberInfo, Type>(null, targetEntityType.ClrType) }
+                                : relationshipCandidate.InverseProperties.Select(n => new Tuple<MemberInfo, Type>(n, targetEntityType.ClrType)));
                     }
 
                     foreach (var navigationProperty in relationshipCandidate.NavigationProperties)
@@ -708,25 +721,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {
-            var navigationCandidates = entityType.FindAnnotation(NavigationCandidatesAnnotationName)?.Value
-                as ImmutableSortedDictionary<PropertyInfo, Type>;
-            if (navigationCandidates == null)
+            if (entityType.FindAnnotation(NavigationCandidatesAnnotationName)?.Value
+                is ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             {
-                var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(PropertyInfoNameComparer.Instance);
-                if (entityType.HasClrType())
+                return navigationCandidates;
+            }
+
+            var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(PropertyInfoNameComparer.Instance);
+            if (entityType.HasClrType())
+            {
+                foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
-                    foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
+                    var targetType = FindCandidateNavigationPropertyType(propertyInfo);
+                    if (targetType != null)
                     {
-                        var targetType = FindCandidateNavigationPropertyType(propertyInfo);
-                        if (targetType != null)
-                        {
-                            dictionaryBuilder[propertyInfo] = targetType;
-                        }
+                        dictionaryBuilder[propertyInfo] = targetType;
                     }
                 }
-                navigationCandidates = dictionaryBuilder.ToImmutable();
-                SetNavigationCandidates(entityType.Builder, navigationCandidates);
             }
+            navigationCandidates = dictionaryBuilder.ToImmutable();
+            SetNavigationCandidates(entityType.Builder, navigationCandidates);
             return navigationCandidates;
         }
 

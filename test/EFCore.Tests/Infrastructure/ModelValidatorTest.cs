@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
         }
 
+        // ReSharper disable once UnusedTypeParameter
         protected class Generic<T> : Abstract
         {
         }
@@ -146,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             CreateModelValidator().Validate(model);
         }
 
-        protected virtual DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateLogger(bool sensitiveDataLoggingEnabled = false)
+        protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateLogger(bool sensitiveDataLoggingEnabled = false)
         {
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
@@ -156,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 new DiagnosticListener("Fake"));
         }
 
-        protected virtual DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
+        protected DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
         {
             var options = new LoggingOptions();
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);

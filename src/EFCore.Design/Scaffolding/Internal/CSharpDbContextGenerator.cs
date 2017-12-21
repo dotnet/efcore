@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 if (key is Key concreteKey
                     && key.Properties.SequenceEqual(
-                        new KeyDiscoveryConvention().DiscoverKeyProperties(
+                        new KeyDiscoveryConvention(null).DiscoverKeyProperties(
                             concreteKey.DeclaringEntityType,
                             concreteKey.DeclaringEntityType.GetProperties().ToList())))
                 {

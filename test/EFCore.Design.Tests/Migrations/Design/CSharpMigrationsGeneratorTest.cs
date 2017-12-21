@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,6 +23,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpMigrationsGeneratorTest
@@ -451,7 +454,7 @@ namespace MyNamespace
                         new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
                     new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
 
-            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity<EntityWithEveryPrimitive>(
                 eb =>
                     {

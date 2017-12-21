@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -105,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore
             public ConcreteModelSource(IDbSetFinder setFinder)
                 : base(
                     new ModelSourceDependencies(
-                        TestServiceFactory.Instance.Create<CoreConventionSetBuilder>(),
+                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ICoreConventionSetBuilder>(),
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                        new ModelCacheKeyFactory(new ModelCacheKeyFactoryDependencies())))
+                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>()))
             {
             }
         }

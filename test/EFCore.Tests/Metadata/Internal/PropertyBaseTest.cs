@@ -3,16 +3,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ConvertToAutoProperty
@@ -626,29 +629,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private class FakeLogger : IDiagnosticsLogger<DbLoggerCategory.Model.Validation>, ILogger
-        {
-            public void Log<TState>(
-                LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            {
-                throw new InvalidOperationException(formatter(state, exception));
-            }
-
-            public bool IsEnabled(LogLevel logLevel) => true;
-
-            public WarningBehavior GetLogBehavior(EventId eventId, LogLevel logLevel) => WarningBehavior.Log;
-
-            public IDisposable BeginScope<TState>(TState state) => null;
-
-            public ILoggingOptions Options { get; }
-
-            public bool ShouldLogSensitiveData() => false;
-
-            public ILogger Logger => this;
-
-            public DiagnosticSource DiagnosticSource { get; } = new DiagnosticListener("Fake");
-        }
-
         [Fact]
         public virtual void Access_mode_can_be_overriden_at_entity_and_property_levels()
         {
@@ -754,20 +734,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Foo
             {
-                get { return _foo; }
-                set { _foo = value; }
+                get => _foo;
+                set => _foo = value;
             }
 
             public FullProp Reference
             {
-                get { return _reference; }
-                set { _reference = value; }
+                get => _reference;
+                set => _reference = value;
             }
 
             public IEnumerable<FullProp> Collection
             {
-                get { return _collection; }
-                set { _collection = value; }
+                get => _collection;
+                set => _collection = value;
             }
         }
 
@@ -835,17 +815,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public int Foo
             {
-                set { _foo = value; }
+                set => _foo = value;
             }
 
             public WriteOnlyProp Reference
             {
-                set { _reference = value; }
+                set => _reference = value;
             }
 
             public IEnumerable<WriteOnlyProp> Collection
             {
-                set { _collection = value; }
+                set => _collection = value;
             }
         }
 

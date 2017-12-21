@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ValueGeneratorConventionTest
@@ -340,6 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal(ValueGenerated.Never, numberProperty.ValueGenerated);
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Number" }, ConfigurationSource.Convention);
+            Assert.NotNull(keyBuilder);
 
             Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
@@ -439,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(
                 TestServiceFactory.Instance.Create<CoreTypeMapper>()));
-            conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
+            conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(new TestLogger<DbLoggerCategory.Model>()));
 
             var keyConvention = new ValueGeneratorConvention();
 

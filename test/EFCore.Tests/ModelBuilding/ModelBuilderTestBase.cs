@@ -3,14 +3,20 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
@@ -124,13 +130,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             protected TestModelBuilder(TestHelpers testHelpers)
             {
-                ModelBuilder = testHelpers.CreateConventionBuilder();
-                ModelValidator = testHelpers.CreateModelValidator();
+                Log = new List<(LogLevel, EventId, string)>();
+                var options = new LoggingOptions();
+                options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(false).Options);
+                var validationLogger = new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
+                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+                    options,
+                    new DiagnosticListener("Fake"));
+                var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
+                    new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                    options,
+                    new DiagnosticListener("Fake"));
+
+                var contextServices = testHelpers.CreateContextServices();
+
+                ModelBuilder = new ModelBuilder(contextServices.GetRequiredService<IConventionSetBuilder>().AddConventions(new CoreConventionSetBuilder(
+                    contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
+                    .CreateConventionSet()));
+
+                ModelValidator = new ModelValidator(new ModelValidatorDependencies(validationLogger, modelLogger));
             }
 
             public virtual IMutableModel Model => ModelBuilder.Model;
             protected ModelBuilder ModelBuilder { get; }
             protected IModelValidator ModelValidator { get; }
+            public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
 
             public TestModelBuilder HasAnnotation(string annotation, object value)
             {

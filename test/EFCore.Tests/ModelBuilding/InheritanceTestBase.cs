@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -487,6 +489,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
+                Assert.Equal(1, modelBuilder.Log.Count);
+                Assert.Equal(LogLevel.Information, modelBuilder.Log[0].Level);
+                Assert.Equal(CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}"), modelBuilder.Log[0].Message);
+
                 principalEntityBuilder.HasOne<Order>().WithOne()
                     .HasPrincipalKey<Customer>(c => new { c.Id })
                     .HasForeignKey<Order>(o => new { o.CustomerId });
@@ -535,6 +541,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var initialIndexes = backOrderClone.GetIndexes().ToList();
                 var initialForeignKeys = backOrderClone.GetForeignKeys().ToList();
 
+                var indexRemoveMessage =
+                    CoreStrings.LogRedundantIndexRemoved.GenerateMessage("{'CustomerId'}", "{'CustomerId', 'AnotherCustomerId'}");
+                Assert.Equal(1, modelBuilder.Log.Count(l => l.Message == indexRemoveMessage));
+
                 derivedDependentEntityBuilder.HasBaseType(null);
 
                 var derivedFk = derivedDependentEntityType.GetForeignKeys()
@@ -556,6 +566,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
                 AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
                 AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+
+                Assert.Equal(2, modelBuilder.Log.Count(l => l.Message == indexRemoveMessage));
 
                 dependentEntityBuilder.HasIndex(o => new { o.CustomerId, o.AnotherCustomerId })
                     .IsUnique(false);

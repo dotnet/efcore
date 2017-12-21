@@ -1,9 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -86,17 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var sqlServerTypeMapper = new SqlServerTypeMapper(
                 new CoreTypeMapperDependencies(
                     new ValueConverterSelector(
-                        new ValueConverterSelectorDependencies())), 
+                        new ValueConverterSelectorDependencies())),
                 new RelationalTypeMapperDependencies());
 
             return new SqlServerConventionSetBuilder(
-                    new RelationalConventionSetBuilderDependencies(sqlServerTypeMapper, null, null),
-                    new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))
+                new RelationalConventionSetBuilderDependencies(sqlServerTypeMapper, null, null, null),
+                new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                            new CoreConventionSetBuilderDependencies(
-                                sqlServerTypeMapper,
-                                new ConstructorBindingFactory()))
+                        new CoreConventionSetBuilderDependencies(sqlServerTypeMapper, null, null))
                         .CreateConventionSet());
         }
     }

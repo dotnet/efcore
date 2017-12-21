@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpModelGeneratorTest
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public void WriteCode_works()
         {
             var generator = CreateGenerator();
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
 
             var result = generator.GenerateModel(

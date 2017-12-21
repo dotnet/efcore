@@ -30,7 +30,7 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class RelationalEventIdTest
+    public class RelationalEventIdTest : EventIdTestBase
     {
         [Fact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
@@ -46,11 +46,22 @@ namespace Microsoft.EntityFrameworkCore
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
                 { typeof(string), () => "Fake" },
-                { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
-                { typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry> { new InternalClrEntityEntry(
-                    contextServices.GetRequiredService<IStateManager>(),
-                    entityType,
-                    new object()) } },
+                {
+                    typeof(IList<string>), () => new List<string>
+                    {
+                        "Fake1",
+                        "Fake2"
+                    }
+                },
+                {
+                    typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry>
+                    {
+                        new InternalClrEntityEntry(
+                            contextServices.GetRequiredService<IStateManager>(),
+                            entityType,
+                            new object())
+                    }
+                },
                 { typeof(IRelationalConnection), () => new FakeRelationalConnection() },
                 { typeof(DbCommand), () => new FakeDbCommand() },
                 { typeof(DbTransaction), () => new FakeDbTransaction() },
@@ -65,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(IProperty), () => property }
             };
 
-            RelationalTestHelpers.Instance.TestEventLogging(
+            TestEventLogging(
                 typeof(RelationalEventId),
                 typeof(RelationalLoggerExtensions),
                 fakeFactories);

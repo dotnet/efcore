@@ -4,16 +4,17 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqliteEventIdTest
+    public class SqliteEventIdTest : EventIdTestBase
     {
         [Fact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(ISequence), () => new FakeSequence() }
             };
 
-            SqliteTestHelpers.Instance.TestEventLogging(
+            TestEventLogging(
                 typeof(SqliteEventId),
                 typeof(SqliteLoggerExtensions),
                 fakeFactories);

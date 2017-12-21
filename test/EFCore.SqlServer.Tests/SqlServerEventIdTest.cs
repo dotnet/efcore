@@ -4,16 +4,17 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
-    public class SqlServerEventIdTest
+    public class SqlServerEventIdTest : EventIdTestBase
     {
         [Fact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
@@ -23,12 +24,17 @@ namespace Microsoft.EntityFrameworkCore
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
-                { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
+                { typeof(IList<string>), () => new List<string>
+                {
+                    "Fake1",
+                    "Fake2"
+                }
+                },
                 { typeof(IProperty), () => property },
                 { typeof(string), () => "Fake" }
             };
 
-            SqlServerTestHelpers.Instance.TestEventLogging(
+            TestEventLogging(
                 typeof(SqlServerEventId),
                 typeof(SqlServerLoggerExtensions),
                 fakeFactories);
