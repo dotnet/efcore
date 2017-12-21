@@ -867,6 +867,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         CreateNoWindow = $true;
         RedirectStandardOutput = $true;
         StandardOutputEncoding = [Text.Encoding]::UTF8;
+        RedirectStandardError = $true;
         WorkingDirectory = $startupProjectDir;
     }
 
@@ -909,6 +910,11 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
 
     if ($process.ExitCode)
     {
+        while ($line = $process.StandardError.ReadLine())
+        {
+            WriteErrorLine $line
+        }
+
         exit
     }
 }
