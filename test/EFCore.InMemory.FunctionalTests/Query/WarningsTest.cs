@@ -42,12 +42,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = new DbContext(optionsBuilder.Options))
             {
+#if Test20
+                Assert.Equal(
+                    CoreStrings.TransactionsNotSupported,
+                    Assert.Throws<NotSupportedException>(
+                        () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
+#else
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
                         InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
+#endif
             }
         }
 

@@ -190,6 +190,7 @@ FROM ""Customers"" AS ""c""
 WHERE (""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%' AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')");
         }
 
+#if !Test20
         public override void String_StartsWith_MethodCall()
         {
             base.String_StartsWith_MethodCall();
@@ -201,6 +202,7 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE (""c"".""ContactName"" LIKE @__LocalMethod1_0 || '%' AND (substr(""c"".""ContactName"", 1, length(@__LocalMethod1_0)) = @__LocalMethod1_0)) OR (@__LocalMethod1_0 = '')");
         }
+#endif
 
         public override void String_EndsWith_Literal()
         {
@@ -274,6 +276,7 @@ FROM ""Customers"" AS ""c""
 WHERE (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0) OR (""c"".""ContactName"" = '')");
         }
 
+#if !Test20
         public override void String_Contains_MethodCall()
         {
             base.String_Contains_MethodCall();
@@ -285,6 +288,7 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE (instr(""c"".""ContactName"", @__LocalMethod1_0) > 0) OR (@__LocalMethod1_0 = '')");
         }
+#endif
 
         public override void IsNullOrWhiteSpace_in_predicate()
         {

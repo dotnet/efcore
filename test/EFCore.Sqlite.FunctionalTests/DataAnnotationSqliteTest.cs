@@ -99,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
+#if !Test20
         public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
@@ -154,6 +155,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
         }
+#endif
 
         // Sqlite does not support length
         public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -176,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore
                 @"@p1='' (Nullable = false) (DbType = String)" + EOL,
                 Sql);
         }
-
+        
+#if !Test20
         public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
@@ -209,6 +212,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
                 Sql);
         }
+#endif
 
         // Sqlite does not support length
         public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
