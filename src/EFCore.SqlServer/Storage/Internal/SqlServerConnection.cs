@@ -33,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
 
-        // TODO use clone connection method once implemented see #1406
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.

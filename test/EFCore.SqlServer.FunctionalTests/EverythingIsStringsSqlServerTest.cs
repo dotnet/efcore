@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -27,101 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            const string query
-                = @"SELECT
-                        TABLE_NAME,
-                        COLUMN_NAME,
-                        DATA_TYPE,
-                        IS_NULLABLE,
-                        CHARACTER_MAXIMUM_LENGTH,
-                        NUMERIC_PRECISION,
-                        NUMERIC_SCALE,
-                        DATETIME_PRECISION
-                    FROM INFORMATION_SCHEMA.COLUMNS";
-
-            var columns = new List<BuiltInDataTypesSqlServerTest.ColumnInfo>();
-
-            using (var context = CreateContext())
-            {
-                var connection = context.Database.GetDbConnection();
-
-                var command = connection.CreateCommand();
-                command.CommandText = query;
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var columnInfo = new BuiltInDataTypesSqlServerTest.ColumnInfo
-                        {
-                            TableName = reader.GetString(0),
-                            ColumnName = reader.GetString(1),
-                            DataType = reader.GetString(2),
-                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
-                        };
-
-                        columns.Add(columnInfo);
-                    }
-                }
-            }
-
-            var builder = new StringBuilder();
-
-            foreach (var column in columns.OrderBy(e => e.TableName).ThenBy(e => e.ColumnName))
-            {
-                builder.Append(column.TableName);
-                builder.Append(".");
-                builder.Append(column.ColumnName);
-                builder.Append(" ---> [");
-
-                if (column.IsNullable == true)
-                {
-                    builder.Append("nullable ");
-                }
-
-                builder.Append(column.DataType);
-                builder.Append("]");
-
-                if (column.MaxLength.HasValue)
-                {
-                    builder.Append(" [MaxLength = ");
-                    builder.Append(column.MaxLength);
-                    builder.Append("]");
-                }
-
-                if (column.NumericPrecision.HasValue)
-                {
-                    builder.Append(" [Precision = ");
-                    builder.Append(column.NumericPrecision);
-                }
-
-                if (column.DateTimePrecision.HasValue)
-                {
-                    builder.Append(" [Precision = ");
-                    builder.Append(column.DateTimePrecision);
-                }
-
-                if (column.NumericScale.HasValue)
-                {
-                    builder.Append(" Scale = ");
-                    builder.Append(column.NumericScale);
-                }
-
-                if (column.NumericPrecision.HasValue
-                    || column.DateTimePrecision.HasValue
-                    || column.NumericScale.HasValue)
-                {
-                    builder.Append("]");
-                }
-
-                builder.AppendLine();
-            }
-
-            var actual = builder.ToString();
+            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
@@ -152,6 +56,32 @@ BuiltInDataTypes.TestTimeSpan ---> [nvarchar] [MaxLength = 48]
 BuiltInDataTypes.TestUnsignedInt16 ---> [nvarchar] [MaxLength = 64]
 BuiltInDataTypes.TestUnsignedInt32 ---> [nvarchar] [MaxLength = 64]
 BuiltInDataTypes.TestUnsignedInt64 ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.Enum16 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.Enum32 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.Enum64 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.Enum8 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.EnumS8 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.EnumU16 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.EnumU32 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.EnumU64 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypesShadow.Id ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.PartitionId ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestBoolean ---> [nvarchar] [MaxLength = 1]
+BuiltInDataTypesShadow.TestByte ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestCharacter ---> [nvarchar] [MaxLength = 1]
+BuiltInDataTypesShadow.TestDateTime ---> [nvarchar] [MaxLength = 48]
+BuiltInDataTypesShadow.TestDateTimeOffset ---> [nvarchar] [MaxLength = 48]
+BuiltInDataTypesShadow.TestDecimal ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestDouble ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestInt16 ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestInt32 ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestInt64 ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestSignedByte ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestSingle ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestTimeSpan ---> [nvarchar] [MaxLength = 48]
+BuiltInDataTypesShadow.TestUnsignedInt16 ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestUnsignedInt32 ---> [nvarchar] [MaxLength = 64]
+BuiltInDataTypesShadow.TestUnsignedInt64 ---> [nvarchar] [MaxLength = 64]
 BuiltInNullableDataTypes.Enum16 ---> [nullable nvarchar] [MaxLength = 512]
 BuiltInNullableDataTypes.Enum32 ---> [nullable nvarchar] [MaxLength = 512]
 BuiltInNullableDataTypes.Enum64 ---> [nullable nvarchar] [MaxLength = 512]
@@ -180,6 +110,34 @@ BuiltInNullableDataTypes.TestNullableUnsignedInt16 ---> [nullable nvarchar] [Max
 BuiltInNullableDataTypes.TestNullableUnsignedInt32 ---> [nullable nvarchar] [MaxLength = 64]
 BuiltInNullableDataTypes.TestNullableUnsignedInt64 ---> [nullable nvarchar] [MaxLength = 64]
 BuiltInNullableDataTypes.TestString ---> [nullable nvarchar] [MaxLength = -1]
+BuiltInNullableDataTypesShadow.Enum16 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.Enum32 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.Enum64 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.Enum8 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.EnumS8 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.EnumU16 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.EnumU32 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.EnumU64 ---> [nullable nvarchar] [MaxLength = 512]
+BuiltInNullableDataTypesShadow.Id ---> [nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.PartitionId ---> [nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestByteArray ---> [nullable nvarchar] [MaxLength = -1]
+BuiltInNullableDataTypesShadow.TestNullableBoolean ---> [nullable nvarchar] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.TestNullableByte ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableCharacter ---> [nullable nvarchar] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.TestNullableDateTime ---> [nullable nvarchar] [MaxLength = 48]
+BuiltInNullableDataTypesShadow.TestNullableDateTimeOffset ---> [nullable nvarchar] [MaxLength = 48]
+BuiltInNullableDataTypesShadow.TestNullableDecimal ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableDouble ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableInt16 ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableInt32 ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableInt64 ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableSignedByte ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableSingle ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableTimeSpan ---> [nullable nvarchar] [MaxLength = 48]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable nvarchar] [MaxLength = 64]
+BuiltInNullableDataTypesShadow.TestString ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.ByteArray5 ---> [nullable nvarchar] [MaxLength = 8]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [nvarchar] [MaxLength = 64]

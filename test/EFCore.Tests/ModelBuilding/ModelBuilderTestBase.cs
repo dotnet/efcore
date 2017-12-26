@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
@@ -256,6 +257,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
             public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TStore>();
+            public abstract TestPropertyBuilder<TProperty> HasConversion(Type storeType);
+
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TStore>(
+                Expression<Func<TProperty, TStore>> convertToStoreExpression,
+                Expression<Func<TStore, TProperty>> convertFromStoreExpression);
+
+            public abstract TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter);
+            public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter);
         }
 
         public abstract class TestCollectionNavigationBuilder<TEntity, TRelatedEntity>

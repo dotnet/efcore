@@ -51,6 +51,7 @@ Microsoft.EntityFrameworkCore.DbSet
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>CoreStrings.Designer.tt</DependentUpon>
+      <SubType>Designer</SubType>
     </Compile>
   </ItemGroup>
 

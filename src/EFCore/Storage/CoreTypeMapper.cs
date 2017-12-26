@@ -71,12 +71,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     var principals = property.FindPrincipals().ToList();
 
                     StoreClrType = principals
-                        .Select(p => (Type)p[CoreAnnotationNames.StoreClrType])
+                        .Select(p => p.GetStoreClrType())
                         .FirstOrDefault(t => t != null)
                         ?.UnwrapNullableType();
 
                     _customConverter = principals
-                        .Select(p => (ValueConverter)p[CoreAnnotationNames.ValueConverter])
+                        .Select(p => p.GetValueConverter())
                         .FirstOrDefault(c => c != null);
 
                     var mappingHints = _customConverter?.MappingHints ?? default;
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     ValueConverterInfo = new ValueConverterInfo(
                         _customConverter.ModelType,
                         builtInConverter.StoreClrType,
-                        i => ValueConverter.Compose(_customConverter, builtInConverter.Create()),
+                        i => _customConverter.ComposeWith(builtInConverter.Create()),
                         _customConverter.MappingHints.With(builtInConverter.MappingHints));
                 }
                 else

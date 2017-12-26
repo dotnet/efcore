@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal('A', converter("A"));
             Assert.Equal('z', converter("z"));
             Assert.Equal('F', converter("Funkadelic"));
-            Assert.Equal('\0', converter(null));
+            Assert.Null(converter(null));
         }
     }
 }

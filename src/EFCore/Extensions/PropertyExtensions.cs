@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -142,5 +143,21 @@ namespace Microsoft.EntityFrameworkCore
         public static IEnumerable<IKey> GetContainingKeys([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().Keys
                ?? Enumerable.Empty<IKey>();
+
+        /// <summary>
+        ///     Gets the type that the property value will be converted to before being saved to the store.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The store type, or <c>null</c> if none has been set. </returns>
+        public static Type GetStoreClrType([NotNull] this IProperty property)
+            => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.StoreClrType];
+
+        /// <summary>
+        ///     Gets the custom <see cref="ValueConverter"/> set for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The converter, or <c>null</c> if none has been set. </returns>
+        public static ValueConverter GetValueConverter([NotNull] this IProperty property)
+            => (ValueConverter)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueConverter];
     }
 }

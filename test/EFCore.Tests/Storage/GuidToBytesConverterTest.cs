@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Guid.Empty,
                 converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
 
-            Assert.Equal(Guid.Empty, converter(null));
+            Assert.Null(converter(null));
         }
     }
 }

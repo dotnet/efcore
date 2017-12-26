@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(property, nameof(property));
 
             return _typeMapper.IsTypeMapped(
-                ((ValueConverter)property[CoreAnnotationNames.ValueConverter])?.StoreType
+                property.GetValueConverter()?.StoreType
                 ?? property.ClrType);
         }
 

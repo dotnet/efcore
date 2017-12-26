@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -12,6 +15,61 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 {
     public class PropertyExtensionsTest
     {
+        [Fact]
+        public virtual void Properties_can_have_store_type_set()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType("Entity");
+            var property = entityType.AddProperty("Property", typeof(int));
+
+            Assert.Null(property.GetStoreClrType());
+
+            property.SetStoreClrType(typeof(long));
+            Assert.Same(typeof(long), property.GetStoreClrType());
+
+            property.SetStoreClrType(null);
+            Assert.Null(property.GetStoreClrType());
+        }
+
+        [Fact]
+        public virtual void Properties_can_have_value_converter_set()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType("Entity");
+            var property = entityType.AddProperty("Property", typeof(int));
+            var converter = CastingConverter<int, decimal>.DefaultInfo.Create();
+
+            Assert.Null(property.GetValueConverter());
+
+            property.SetValueConverter(converter);
+            Assert.Same(converter, property.GetValueConverter());
+
+            property.SetValueConverter(null);
+            Assert.Null(property.GetValueConverter());
+        }
+
+        [Fact]
+        public virtual void Value_converter_type_is_checked()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType("Entity");
+            var property1 = entityType.AddProperty("Property1", typeof(int));
+            var property2 = entityType.AddProperty("Property2", typeof(int?));
+
+            property1.SetValueConverter(new CastingConverter<int, decimal>());
+            property1.SetValueConverter(new CastingConverter<int?, decimal>());
+            property2.SetValueConverter(new CastingConverter<int, decimal>());
+            property2.SetValueConverter(new CastingConverter<int?, decimal>());
+
+            Assert.Equal(
+                CoreStrings.ConverterPropertyMismatch("long", "Entity", "Property1", "int"),
+                Assert.Throws<ArgumentException>(
+                    () => property1.SetValueConverter(new CastingConverter<long, decimal>())).Message);
+        }
+
         [Fact]
         public void Get_generation_property_returns_null_for_property_without_generator()
         {

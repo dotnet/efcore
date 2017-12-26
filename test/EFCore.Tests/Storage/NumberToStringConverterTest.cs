@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((ulong)77, converter("77"));
             Assert.Equal((ulong)0, converter("-1"));
             Assert.Equal((ulong)0, converter("0"));
-            Assert.Equal((ulong)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<long> _longToNaturalString
@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((long)77, converter("77"));
             Assert.Equal((long)-77, converter("-77"));
             Assert.Equal((long)0, converter("0"));
-            Assert.Equal((long)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<uint> _uintToNaturalString
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((uint)77, converter("77"));
             Assert.Equal((uint)0, converter("-1"));
             Assert.Equal((uint)0, converter("0"));
-            Assert.Equal((uint)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<int> _intToNaturalString
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<ushort> _ushortToNaturalString
@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((ushort)77, converter("77"));
             Assert.Equal((ushort)0, converter("-1"));
             Assert.Equal((ushort)0, converter("0"));
-            Assert.Equal((ushort)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<short> _shortToNaturalString
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((short)77, converter("77"));
             Assert.Equal((short)-77, converter("-77"));
             Assert.Equal((short)0, converter("0"));
-            Assert.Equal((short)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<byte> _byteToNaturalString
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((byte)77, converter("77"));
             Assert.Equal((byte)0, converter("-1"));
             Assert.Equal((byte)0, converter("0"));
-            Assert.Equal((byte)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<sbyte> _sbyteToNaturalString
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte)77, converter("77"));
             Assert.Equal((sbyte)-77, converter("-77"));
             Assert.Equal((sbyte)0, converter("0"));
-            Assert.Equal((sbyte)0, converter(null));
+            Assert.Null(converter(null));
         }
 
         private static readonly NumberToStringConverter<decimal> _decimalToNaturalString

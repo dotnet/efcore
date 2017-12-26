@@ -37,29 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         }
 
         private static Func<object, object> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
-        {
-            var compiled = convertExpression.Compile();
+            => v => v == null
+                ? (object)null
+                : convertExpression.Compile()(Sanitize<TIn>(v));
 
-            return typeof(TIn).IsNullableType()
-                ? (Func<object, object>)(v => compiled(SanitizeNullable<TIn>(v)))
-                : (v => v == null ? (object)null : compiled(SanitizeNonNullable<TIn>(v)));
-        }
-
-        private static T SanitizeNullable<T>(object value)
+        private static T Sanitize<T>(object value)
         {
             var unwrappedType = typeof(T).UnwrapNullableType();
 
-            return value == null
-                ? (T)value
-                : (T)(unwrappedType != value.GetType()
+            return (T)(unwrappedType != value.GetType()
                     ? Convert.ChangeType(value, unwrappedType)
                     : value);
         }
-
-        private static T SanitizeNonNullable<T>(object value)
-            => (T)(typeof(T) != value.GetType()
-                ? Convert.ChangeType(value, typeof(T))
-                : value);
 
         /// <summary>
         ///     Gets the expression to convert objects when writing data to the store,

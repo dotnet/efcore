@@ -3,10 +3,12 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
@@ -661,6 +663,127 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up").GetPropertyAccessMode());
+            }
+            
+            [Fact]
+            public virtual void Properties_can_have_store_type_set()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down).HasConversion<byte[]>();
+                        b.Property<int>("Charm").HasConversion(typeof(long));
+                        b.Property<string>("Strange").HasConversion<byte[]>();
+                        b.Property<string>("Strange").HasConversion((Type)null);
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetStoreClrType());
+                Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetStoreClrType());
+                Assert.Same(typeof(long), entityType.FindProperty("Charm").GetStoreClrType());
+                Assert.Null(entityType.FindProperty("Strange").GetStoreClrType());
+            }
+
+            
+            [Fact]
+            public virtual void Properties_can_have_value_converter_set_non_generic()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                ValueConverter stringConverter = new StringToBytesConverter(Encoding.UTF8);
+                ValueConverter intConverter = new CastingConverter<int, long>();
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down).HasConversion(stringConverter);
+                        b.Property<int>("Charm").HasConversion(intConverter);
+                        b.Property<string>("Strange").HasConversion(stringConverter);
+                        b.Property<string>("Strange").HasConversion((ValueConverter)null);
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetValueConverter());
+                Assert.Same(stringConverter, entityType.FindProperty("Down").GetValueConverter());
+                Assert.Same(intConverter, entityType.FindProperty("Charm").GetValueConverter());
+                Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
+            }
+
+            [Fact]
+            public virtual void Properties_can_have_value_converter_set_generic()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                var stringConverter = new StringToBytesConverter(Encoding.UTF8);
+                var intConverter = new CastingConverter<int, long>();
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down).HasConversion(stringConverter);
+                        b.Property<int>("Charm").HasConversion(intConverter);
+                        b.Property<string>("Strange").HasConversion(stringConverter);
+                        b.Property<string>("Strange").HasConversion((ValueConverter)null);
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetValueConverter());
+                Assert.Same(stringConverter, entityType.FindProperty("Down").GetValueConverter());
+                Assert.Same(intConverter, entityType.FindProperty("Charm").GetValueConverter());
+                Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
+            }
+
+
+            [Fact]
+            public virtual void Properties_can_have_value_converter_set_inline()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down).HasConversion(v => v.ToCharArray(), v => new string(v));
+                        b.Property<int>("Charm").HasConversion(v => (long)v, v => (int)v);
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetValueConverter());
+                Assert.NotNull(entityType.FindProperty("Down").GetValueConverter());
+                Assert.NotNull(entityType.FindProperty("Charm").GetValueConverter());
+            }
+
+            [Fact]
+            public virtual void Value_converter_type_is_checked()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        Assert.Equal(
+                            CoreStrings.ConverterPropertyMismatch("string", "Quarks", "Up", "int"),
+                            Assert.Throws<ArgumentException>(
+                                () => b.Property(e => e.Up).HasConversion(
+                                    new StringToBytesConverter(Encoding.UTF8))).Message);
+                    });
+
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
+                Assert.Null(entityType.FindProperty("Up").GetValueConverter());
             }
 
             [Fact]

@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             AssertConverters(
                 _selector.ForTypes(typeof(double)).ToList(),
-                (typeof(CastingConverter<double, decimal>), default),
+                (typeof(CastingConverter<double, decimal>), new ConverterMappingHints(precision: 38, scale: 17)),
                 (typeof(NumberToStringConverter<double>), new ConverterMappingHints(size: 64)),
                 (typeof(NumberToBytesConverter<double>), new ConverterMappingHints(size: 8)),
                 (typeof(CastingConverter<double, int>), default),
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             AssertConverters(
                 _selector.ForTypes(typeof(float)).ToList(),
                 (typeof(CastingConverter<float, double>), default),
-                (typeof(CastingConverter<float, decimal>), default),
+                (typeof(CastingConverter<float, decimal>), new ConverterMappingHints(precision: 38, scale: 17)),
                 (typeof(NumberToStringConverter<float>), new ConverterMappingHints(size: 64)),
                 (typeof(NumberToBytesConverter<float>), new ConverterMappingHints(size: 4)),
                 (typeof(CastingConverter<float, int>), default),

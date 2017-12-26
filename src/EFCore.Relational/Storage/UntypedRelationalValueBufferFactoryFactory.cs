@@ -134,21 +134,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         arrayAccess,
                         converter.StoreType);
 
-                    var passNullToConverter
-                        = converter.StoreType.IsNullableType()
-                          && !modelType.IsNullableType();
-
-                    if (passNullToConverter)
-                    {
-                        valueExpression
-                            = Expression.Condition(
-                                Expression.ReferenceEqual(
-                                    arrayAccess,
-                                    Expression.Constant(DBNull.Value)),
-                                Expression.Default(converter.StoreType),
-                                valueExpression);
-                    }
-
                     valueExpression
                         = Expression.Convert(
                             ReplacingExpressionVisitor.Replace(
@@ -157,16 +142,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 converter.ConvertFromStoreExpression.Body),
                             typeof(object));
 
-                    if (!passNullToConverter)
-                    {
-                        valueExpression
-                            = Expression.Condition(
-                                Expression.ReferenceEqual(
-                                    arrayAccess,
-                                    Expression.Constant(DBNull.Value)),
-                                Expression.Constant(null),
-                                valueExpression);
-                    }
+                    valueExpression
+                        = Expression.Condition(
+                            Expression.ReferenceEqual(
+                                arrayAccess,
+                                Expression.Constant(DBNull.Value)),
+                            Expression.Constant(null),
+                            valueExpression);
 
                     conversions.Add(
                         Expression.Assign(

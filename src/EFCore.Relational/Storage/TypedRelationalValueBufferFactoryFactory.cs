@@ -157,22 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var converter = materializationInfo.Mapping?.Converter;
 
-            var passNullToConverter
-                = converter != null
-                  && converter.StoreType.IsNullableType()
-                  && !materializationInfo.ModelType.IsNullableType();
-
             if (converter != null)
             {
-                if (passNullToConverter)
-                {
-                    expression
-                        = Expression.Condition(
-                            Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
-                            Expression.Default(converter.StoreType),
-                            expression);
-                }
-
                 expression = ReplacingExpressionVisitor.Replace(
                         converter.ConvertFromStoreExpression.Parameters.Single(),
                         expression,
@@ -209,8 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 expression = Expression.Convert(expression, typeof(object));
             }
 
-            if (!passNullToConverter
-                 && expression.Type.IsNullableType())
+            if (expression.Type.IsNullableType())
             {
                 expression
                     = Expression.Condition(

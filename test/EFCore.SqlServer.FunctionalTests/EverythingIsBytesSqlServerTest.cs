@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -28,101 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            const string query
-                = @"SELECT
-                        TABLE_NAME,
-                        COLUMN_NAME,
-                        DATA_TYPE,
-                        IS_NULLABLE,
-                        CHARACTER_MAXIMUM_LENGTH,
-                        NUMERIC_PRECISION,
-                        NUMERIC_SCALE,
-                        DATETIME_PRECISION
-                    FROM INFORMATION_SCHEMA.COLUMNS";
-
-            var columns = new List<BuiltInDataTypesSqlServerTest.ColumnInfo>();
-
-            using (var context = CreateContext())
-            {
-                var connection = context.Database.GetDbConnection();
-
-                var command = connection.CreateCommand();
-                command.CommandText = query;
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var columnInfo = new BuiltInDataTypesSqlServerTest.ColumnInfo
-                        {
-                            TableName = reader.GetString(0),
-                            ColumnName = reader.GetString(1),
-                            DataType = reader.GetString(2),
-                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
-                        };
-
-                        columns.Add(columnInfo);
-                    }
-                }
-            }
-
-            var builder = new StringBuilder();
-
-            foreach (var column in columns.OrderBy(e => e.TableName).ThenBy(e => e.ColumnName))
-            {
-                builder.Append(column.TableName);
-                builder.Append(".");
-                builder.Append(column.ColumnName);
-                builder.Append(" ---> [");
-
-                if (column.IsNullable == true)
-                {
-                    builder.Append("nullable ");
-                }
-
-                builder.Append(column.DataType);
-                builder.Append("]");
-
-                if (column.MaxLength.HasValue)
-                {
-                    builder.Append(" [MaxLength = ");
-                    builder.Append(column.MaxLength);
-                    builder.Append("]");
-                }
-
-                if (column.NumericPrecision.HasValue)
-                {
-                    builder.Append(" [Precision = ");
-                    builder.Append(column.NumericPrecision);
-                }
-
-                if (column.DateTimePrecision.HasValue)
-                {
-                    builder.Append(" [Precision = ");
-                    builder.Append(column.DateTimePrecision);
-                }
-
-                if (column.NumericScale.HasValue)
-                {
-                    builder.Append(" Scale = ");
-                    builder.Append(column.NumericScale);
-                }
-
-                if (column.NumericPrecision.HasValue
-                    || column.DateTimePrecision.HasValue
-                    || column.NumericScale.HasValue)
-                {
-                    builder.Append("]");
-                }
-
-                builder.AppendLine();
-            }
-
-            var actual = builder.ToString();
+            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
@@ -153,6 +57,32 @@ BuiltInDataTypes.TestTimeSpan ---> [varbinary] [MaxLength = 8]
 BuiltInDataTypes.TestUnsignedInt16 ---> [varbinary] [MaxLength = 2]
 BuiltInDataTypes.TestUnsignedInt32 ---> [varbinary] [MaxLength = 4]
 BuiltInDataTypes.TestUnsignedInt64 ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.Enum16 ---> [varbinary] [MaxLength = 2]
+BuiltInDataTypesShadow.Enum32 ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.Enum64 ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.Enum8 ---> [varbinary] [MaxLength = 1]
+BuiltInDataTypesShadow.EnumS8 ---> [varbinary] [MaxLength = 1]
+BuiltInDataTypesShadow.EnumU16 ---> [varbinary] [MaxLength = 2]
+BuiltInDataTypesShadow.EnumU32 ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.EnumU64 ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.Id ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.PartitionId ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.TestBoolean ---> [varbinary] [MaxLength = 1]
+BuiltInDataTypesShadow.TestByte ---> [varbinary] [MaxLength = 1]
+BuiltInDataTypesShadow.TestCharacter ---> [varbinary] [MaxLength = 2]
+BuiltInDataTypesShadow.TestDateTime ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.TestDateTimeOffset ---> [varbinary] [MaxLength = 12]
+BuiltInDataTypesShadow.TestDecimal ---> [varbinary] [MaxLength = 16]
+BuiltInDataTypesShadow.TestDouble ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.TestInt16 ---> [varbinary] [MaxLength = 2]
+BuiltInDataTypesShadow.TestInt32 ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.TestInt64 ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.TestSignedByte ---> [varbinary] [MaxLength = 1]
+BuiltInDataTypesShadow.TestSingle ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.TestTimeSpan ---> [varbinary] [MaxLength = 8]
+BuiltInDataTypesShadow.TestUnsignedInt16 ---> [varbinary] [MaxLength = 2]
+BuiltInDataTypesShadow.TestUnsignedInt32 ---> [varbinary] [MaxLength = 4]
+BuiltInDataTypesShadow.TestUnsignedInt64 ---> [varbinary] [MaxLength = 8]
 BuiltInNullableDataTypes.Enum16 ---> [nullable varbinary] [MaxLength = 2]
 BuiltInNullableDataTypes.Enum32 ---> [nullable varbinary] [MaxLength = 4]
 BuiltInNullableDataTypes.Enum64 ---> [nullable varbinary] [MaxLength = 8]
@@ -181,6 +111,34 @@ BuiltInNullableDataTypes.TestNullableUnsignedInt16 ---> [nullable varbinary] [Ma
 BuiltInNullableDataTypes.TestNullableUnsignedInt32 ---> [nullable varbinary] [MaxLength = 4]
 BuiltInNullableDataTypes.TestNullableUnsignedInt64 ---> [nullable varbinary] [MaxLength = 8]
 BuiltInNullableDataTypes.TestString ---> [nullable varbinary] [MaxLength = -1]
+BuiltInNullableDataTypesShadow.Enum16 ---> [nullable varbinary] [MaxLength = 2]
+BuiltInNullableDataTypesShadow.Enum32 ---> [nullable varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.Enum64 ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.Enum8 ---> [nullable varbinary] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.EnumS8 ---> [nullable varbinary] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.EnumU16 ---> [nullable varbinary] [MaxLength = 2]
+BuiltInNullableDataTypesShadow.EnumU32 ---> [nullable varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.EnumU64 ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.Id ---> [varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.PartitionId ---> [varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.TestByteArray ---> [nullable varbinary] [MaxLength = -1]
+BuiltInNullableDataTypesShadow.TestNullableBoolean ---> [nullable varbinary] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.TestNullableByte ---> [nullable varbinary] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.TestNullableCharacter ---> [nullable varbinary] [MaxLength = 2]
+BuiltInNullableDataTypesShadow.TestNullableDateTime ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.TestNullableDateTimeOffset ---> [nullable varbinary] [MaxLength = 12]
+BuiltInNullableDataTypesShadow.TestNullableDecimal ---> [nullable varbinary] [MaxLength = 16]
+BuiltInNullableDataTypesShadow.TestNullableDouble ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.TestNullableInt16 ---> [nullable varbinary] [MaxLength = 2]
+BuiltInNullableDataTypesShadow.TestNullableInt32 ---> [nullable varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.TestNullableInt64 ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.TestNullableSignedByte ---> [nullable varbinary] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.TestNullableSingle ---> [nullable varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.TestNullableTimeSpan ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable varbinary] [MaxLength = 2]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable varbinary] [MaxLength = 4]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable varbinary] [MaxLength = 8]
+BuiltInNullableDataTypesShadow.TestString ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.ByteArray5 ---> [nullable varbinary] [MaxLength = 5]
 MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [varbinary] [MaxLength = 4]

@@ -133,36 +133,39 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         }
 
         /// <summary>
-        ///     Composes two <see cref="ValueConverter" /> instances together such that
+        ///     Composes another <see cref="ValueConverter" /> instance with this one such that
         ///     the result of the first conversion is used as the input to the second conversion.
         /// </summary>
-        /// <param name="firstConverter"> The first converter. </param>
         /// <param name="secondConverter"> The second converter. </param>
-        /// <param name="mappingHints">
-        ///     Hints that can be used by the type mapper to create data types with appropriate
-        ///     facets for the converted data.
-        /// </param>
         /// <returns> The composed converter. </returns>
-        public static ValueConverter Compose(
-            [CanBeNull] ValueConverter firstConverter,
-            [CanBeNull] ValueConverter secondConverter,
-            ConverterMappingHints mappingHints = default)
+        public virtual ValueConverter ComposeWith(
+            [CanBeNull] ValueConverter secondConverter)
         {
-            if (firstConverter == null
-                || secondConverter == null)
+            if (secondConverter == null)
             {
-                return firstConverter ?? secondConverter;
+                return this;
             }
 
-            if (firstConverter.StoreType != secondConverter.ModelType)
+            if (StoreType.UnwrapNullableType() != secondConverter.ModelType.UnwrapNullableType())
             {
                 throw new ArgumentException(
                     CoreStrings.ConvertersCannotBeComposed(
-                        firstConverter.ModelType.ShortDisplayName(),
-                        firstConverter.StoreType.ShortDisplayName(),
+                        ModelType.ShortDisplayName(),
+                        StoreType.ShortDisplayName(),
                         secondConverter.ModelType.ShortDisplayName(),
                         secondConverter.StoreType.ShortDisplayName()));
             }
+
+            var firstConverter
+                = StoreType.IsNullableType()
+                  && !secondConverter.ModelType.IsNullableType()
+                    ? ComposeWith(
+                        (ValueConverter)Activator.CreateInstance(
+                            typeof(CastingConverter<,>).MakeGenericType(
+                                StoreType,
+                                secondConverter.ModelType),
+                            MappingHints))
+                    : this;
 
             return (ValueConverter)Activator.CreateInstance(
                 typeof(CompositeValueConverter<,,>).MakeGenericType(
@@ -171,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
                     secondConverter.StoreType),
                 firstConverter,
                 secondConverter,
-                mappingHints.With(secondConverter.MappingHints));
+                firstConverter.MappingHints.With(secondConverter.MappingHints));
         }
     }
 }

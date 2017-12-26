@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(Beatles.Ringo, converter("-1"));
             Assert.Equal((Beatles)77, converter("77"));
             Assert.Equal(default(Beatles), converter("0"));
-            Assert.Equal(default(Beatles), converter(null));
+            Assert.Null(converter(null));
         }
 
         [Fact]

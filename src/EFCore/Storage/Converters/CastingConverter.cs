@@ -17,12 +17,24 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
 
         private static ConverterMappingHints CreateDefaultHints()
         {
-            var underlyingModelType = typeof(TModel).UnwrapEnumType();
+            if (typeof(TStore).UnwrapNullableType() == typeof(decimal))
+            {
+                var underlyingModelType = typeof(TModel).UnwrapNullableType().UnwrapEnumType();
 
-            return (underlyingModelType == typeof(long) || underlyingModelType == typeof(ulong))
-                   && typeof(TStore) == typeof(decimal)
-                ? new ConverterMappingHints(precision: 20, scale: 0)
-                : default;
+                if (underlyingModelType == typeof(long)
+                    || underlyingModelType == typeof(ulong))
+                {
+                    return new ConverterMappingHints(precision: 20, scale: 0);
+                }
+
+                if (underlyingModelType == typeof(float)
+                    || underlyingModelType == typeof(double))
+                {
+                    return new ConverterMappingHints(precision: 38, scale: 17);
+                }
+            }
+
+            return default;
         }
 
         /// <summary>

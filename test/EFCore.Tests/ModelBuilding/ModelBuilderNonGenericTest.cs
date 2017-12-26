@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -220,6 +221,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
+
+            public override TestPropertyBuilder<TProperty> HasConversion<TStore>()
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TStore>());
+
+            public override TestPropertyBuilder<TProperty> HasConversion(Type storeType)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(storeType));
+
+            public override TestPropertyBuilder<TProperty> HasConversion<TStore>(
+                Expression<Func<TProperty, TStore>> convertToStoreExpression,
+                Expression<Func<TStore, TProperty>> convertFromStoreExpression)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(
+                    new ValueConverter<TProperty, TStore>(convertToStoreExpression, convertFromStoreExpression)));
+
+            public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
+
+            public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
 
             PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
         }

@@ -2228,101 +2228,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
         [ConditionalFact]
         public virtual void Columns_have_expected_data_types()
         {
-            const string query
-                = @"SELECT
-                        TABLE_NAME,
-                        COLUMN_NAME,
-                        DATA_TYPE,
-                        IS_NULLABLE,
-                        CHARACTER_MAXIMUM_LENGTH,
-                        NUMERIC_PRECISION,
-                        NUMERIC_SCALE,
-                        DATETIME_PRECISION
-                    FROM INFORMATION_SCHEMA.COLUMNS";
-
-            var columns = new List<ColumnInfo>();
-
-            using (var context = CreateContext())
-            {
-                var connection = context.Database.GetDbConnection();
-
-                var command = connection.CreateCommand();
-                command.CommandText = query;
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var columnInfo = new ColumnInfo
-                        {
-                            TableName = reader.GetString(0),
-                            ColumnName = reader.GetString(1),
-                            DataType = reader.GetString(2),
-                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
-                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
-                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
-                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
-                        };
-
-                        columns.Add(columnInfo);
-                    }
-                }
-            }
-
-            var builder = new StringBuilder();
-
-            foreach (var column in columns.OrderBy(e => e.TableName).ThenBy(e => e.ColumnName))
-            {
-                builder.Append(column.TableName);
-                builder.Append(".");
-                builder.Append(column.ColumnName);
-                builder.Append(" ---> [");
-
-                if (column.IsNullable == true)
-                {
-                    builder.Append("nullable ");
-                }
-
-                builder.Append(column.DataType);
-                builder.Append("]");
-
-                if (column.MaxLength.HasValue)
-                {
-                    builder.Append(" [MaxLength = ");
-                    builder.Append(column.MaxLength);
-                    builder.Append("]");
-                }
-
-                if (column.NumericPrecision.HasValue)
-                {
-                    builder.Append(" [Precision = ");
-                    builder.Append(column.NumericPrecision);
-                }
-
-                if (column.DateTimePrecision.HasValue)
-                {
-                    builder.Append(" [Precision = ");
-                    builder.Append(column.DateTimePrecision);
-                }
-
-                if (column.NumericScale.HasValue)
-                {
-                    builder.Append(" Scale = ");
-                    builder.Append(column.NumericScale);
-                }
-
-                if (column.NumericPrecision.HasValue
-                    || column.DateTimePrecision.HasValue
-                    || column.NumericScale.HasValue)
-                {
-                    builder.Append("]");
-                }
-
-                builder.AppendLine();
-            }
-
-            var actual = builder.ToString();
+            var actual = QueryForColumnTypes(CreateContext());
 
             const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
@@ -2353,6 +2259,32 @@ BuiltInDataTypes.TestTimeSpan ---> [time] [Precision = 7]
 BuiltInDataTypes.TestUnsignedInt16 ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestUnsignedInt32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestUnsignedInt64 ---> [decimal] [Precision = 20 Scale = 0]
+BuiltInDataTypesShadow.Enum16 ---> [smallint] [Precision = 5 Scale = 0]
+BuiltInDataTypesShadow.Enum32 ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypesShadow.Enum64 ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypesShadow.Enum8 ---> [tinyint] [Precision = 3 Scale = 0]
+BuiltInDataTypesShadow.EnumS8 ---> [smallint] [Precision = 5 Scale = 0]
+BuiltInDataTypesShadow.EnumU16 ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypesShadow.EnumU32 ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypesShadow.EnumU64 ---> [decimal] [Precision = 20 Scale = 0]
+BuiltInDataTypesShadow.Id ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypesShadow.PartitionId ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypesShadow.TestBoolean ---> [bit]
+BuiltInDataTypesShadow.TestByte ---> [tinyint] [Precision = 3 Scale = 0]
+BuiltInDataTypesShadow.TestCharacter ---> [nvarchar] [MaxLength = 1]
+BuiltInDataTypesShadow.TestDateTime ---> [datetime2] [Precision = 7]
+BuiltInDataTypesShadow.TestDateTimeOffset ---> [datetimeoffset] [Precision = 7]
+BuiltInDataTypesShadow.TestDecimal ---> [decimal] [Precision = 18 Scale = 2]
+BuiltInDataTypesShadow.TestDouble ---> [float] [Precision = 53]
+BuiltInDataTypesShadow.TestInt16 ---> [smallint] [Precision = 5 Scale = 0]
+BuiltInDataTypesShadow.TestInt32 ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypesShadow.TestInt64 ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypesShadow.TestSignedByte ---> [smallint] [Precision = 5 Scale = 0]
+BuiltInDataTypesShadow.TestSingle ---> [real] [Precision = 24]
+BuiltInDataTypesShadow.TestTimeSpan ---> [time] [Precision = 7]
+BuiltInDataTypesShadow.TestUnsignedInt16 ---> [int] [Precision = 10 Scale = 0]
+BuiltInDataTypesShadow.TestUnsignedInt32 ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypesShadow.TestUnsignedInt64 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypes.Enum16 ---> [nullable smallint] [Precision = 5 Scale = 0]
 BuiltInNullableDataTypes.Enum32 ---> [nullable int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.Enum64 ---> [nullable bigint] [Precision = 19 Scale = 0]
@@ -2381,6 +2313,34 @@ BuiltInNullableDataTypes.TestNullableUnsignedInt16 ---> [nullable int] [Precisio
 BuiltInNullableDataTypes.TestNullableUnsignedInt32 ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestNullableUnsignedInt64 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypes.TestString ---> [nullable nvarchar] [MaxLength = -1]
+BuiltInNullableDataTypesShadow.Enum16 ---> [nullable smallint] [Precision = 5 Scale = 0]
+BuiltInNullableDataTypesShadow.Enum32 ---> [nullable int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypesShadow.Enum64 ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypesShadow.Enum8 ---> [nullable tinyint] [Precision = 3 Scale = 0]
+BuiltInNullableDataTypesShadow.EnumS8 ---> [nullable smallint] [Precision = 5 Scale = 0]
+BuiltInNullableDataTypesShadow.EnumU16 ---> [nullable int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypesShadow.EnumU32 ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypesShadow.EnumU64 ---> [nullable decimal] [Precision = 20 Scale = 0]
+BuiltInNullableDataTypesShadow.Id ---> [int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypesShadow.PartitionId ---> [int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypesShadow.TestByteArray ---> [nullable varbinary] [MaxLength = -1]
+BuiltInNullableDataTypesShadow.TestNullableBoolean ---> [nullable bit]
+BuiltInNullableDataTypesShadow.TestNullableByte ---> [nullable tinyint] [Precision = 3 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableCharacter ---> [nullable nvarchar] [MaxLength = 1]
+BuiltInNullableDataTypesShadow.TestNullableDateTime ---> [nullable datetime2] [Precision = 7]
+BuiltInNullableDataTypesShadow.TestNullableDateTimeOffset ---> [nullable datetimeoffset] [Precision = 7]
+BuiltInNullableDataTypesShadow.TestNullableDecimal ---> [nullable decimal] [Precision = 18 Scale = 2]
+BuiltInNullableDataTypesShadow.TestNullableDouble ---> [nullable float] [Precision = 53]
+BuiltInNullableDataTypesShadow.TestNullableInt16 ---> [nullable smallint] [Precision = 5 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableInt32 ---> [nullable int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableInt64 ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableSignedByte ---> [nullable smallint] [Precision = 5 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableSingle ---> [nullable real] [Precision = 24]
+BuiltInNullableDataTypesShadow.TestNullableTimeSpan ---> [nullable time] [Precision = 7]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable int] [Precision = 10 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable decimal] [Precision = 20 Scale = 0]
+BuiltInNullableDataTypesShadow.TestString ---> [nullable nvarchar] [MaxLength = -1]
 MappedDataTypes.BoolAsBit ---> [bit]
 MappedDataTypes.ByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypes.BytesAsBinaryVaryingMax ---> [varbinary] [MaxLength = -1]
@@ -2693,6 +2653,106 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             }
         }
 
+        public static string QueryForColumnTypes(DbContext context)
+        {
+            const string query
+                = @"SELECT
+                        TABLE_NAME,
+                        COLUMN_NAME,
+                        DATA_TYPE,
+                        IS_NULLABLE,
+                        CHARACTER_MAXIMUM_LENGTH,
+                        NUMERIC_PRECISION,
+                        NUMERIC_SCALE,
+                        DATETIME_PRECISION
+                    FROM INFORMATION_SCHEMA.COLUMNS";
+
+            var columns = new List<ColumnInfo>();
+
+            using (context)
+            {
+                var connection = context.Database.GetDbConnection();
+
+                var command = connection.CreateCommand();
+                command.CommandText = query;
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var columnInfo = new ColumnInfo
+                        {
+                            TableName = reader.GetString(0),
+                            ColumnName = reader.GetString(1),
+                            DataType = reader.GetString(2),
+                            IsNullable = reader.IsDBNull(3) ? null : (bool?)(reader.GetString(3) == "YES"),
+                            MaxLength = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
+                            NumericPrecision = reader.IsDBNull(5) ? null : (int?)reader.GetByte(5),
+                            NumericScale = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
+                            DateTimePrecision = reader.IsDBNull(7) ? null : (int?)reader.GetInt16(7)
+                        };
+
+                        columns.Add(columnInfo);
+                    }
+                }
+            }
+
+            var builder = new StringBuilder();
+
+            foreach (var column in columns.OrderBy(e => e.TableName).ThenBy(e => e.ColumnName))
+            {
+                builder.Append(column.TableName);
+                builder.Append(".");
+                builder.Append(column.ColumnName);
+                builder.Append(" ---> [");
+
+                if (column.IsNullable == true)
+                {
+                    builder.Append("nullable ");
+                }
+
+                builder.Append(column.DataType);
+                builder.Append("]");
+
+                if (column.MaxLength.HasValue)
+                {
+                    builder.Append(" [MaxLength = ");
+                    builder.Append(column.MaxLength);
+                    builder.Append("]");
+                }
+
+                if (column.NumericPrecision.HasValue)
+                {
+                    builder.Append(" [Precision = ");
+                    builder.Append(column.NumericPrecision);
+                }
+
+                if (column.DateTimePrecision.HasValue)
+                {
+                    builder.Append(" [Precision = ");
+                    builder.Append(column.DateTimePrecision);
+                }
+
+                if (column.NumericScale.HasValue)
+                {
+                    builder.Append(" Scale = ");
+                    builder.Append(column.NumericScale);
+                }
+
+                if (column.NumericPrecision.HasValue
+                    || column.DateTimePrecision.HasValue
+                    || column.NumericScale.HasValue)
+                {
+                    builder.Append("]");
+                }
+
+                builder.AppendLine();
+            }
+
+            var actual = builder.ToString();
+            return actual;
+        }
+
         private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
@@ -2705,14 +2765,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                 base.OnModelCreating(modelBuilder, context);
 
                 MakeRequired<MappedDataTypes>(modelBuilder);
-
-                modelBuilder.Entity<BuiltInDataTypes>()
-                    .Property(dt => dt.TestDecimal)
-                    .HasColumnType("decimal(18,2)");
-
-                modelBuilder.Entity<BuiltInNullableDataTypes>()
-                    .Property(dt => dt.TestNullableDecimal)
-                    .HasColumnType("decimal(18,2)");
 
                 modelBuilder.Entity<MappedDataTypes>(
                     b =>
@@ -2760,7 +2812,8 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(
                     c => c
-                        .Log(RelationalEventId.QueryClientEvaluationWarning));
+                        .Log(RelationalEventId.QueryClientEvaluationWarning)
+                        .Log(SqlServerEventId.DecimalTypeDefaultWarning));
 
             public override bool SupportsBinaryKeys => true;
 

@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
@@ -105,5 +107,33 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IEnumerable<IMutableKey> GetContainingKeys([NotNull] this IMutableProperty property)
             => ((IProperty)property).GetContainingKeys().Cast<IMutableKey>();
+
+        /// <summary>
+        ///     Sets the type that the property value will be converted to before being saved to the store.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
+        public static void SetStoreClrType([NotNull] this IMutableProperty property, [CanBeNull] Type storeClrType)
+            => property[CoreAnnotationNames.StoreClrType] = storeClrType;
+
+        /// <summary>
+        ///     Gets the custom <see cref="ValueConverter"/> set for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="converter"> The converter, or <c>null</c> to remove any previously set converter. </param>
+        public static void SetValueConverter([NotNull] this IMutableProperty property, [CanBeNull] ValueConverter converter)
+        {
+            if (converter != null
+                && converter.ModelType.UnwrapNullableType() != property.ClrType.UnwrapNullableType())
+            {
+                throw new ArgumentException(CoreStrings.ConverterPropertyMismatch(
+                    converter.ModelType.ShortDisplayName(),
+                    property.DeclaringEntityType.DisplayName(),
+                    property.Name,
+                    property.ClrType.ShortDisplayName()));
+            }
+
+            property[CoreAnnotationNames.ValueConverter] = converter;
+        }
     }
 }

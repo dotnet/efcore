@@ -164,14 +164,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var typeMappingUsed = typeMappingInfo;
 
-            var mapping = mappingFunc(typeMappingUsed, blockClrTypeFallback);
+            var mapping = typeMappingInfo.StoreClrType == null
+                          || typeMappingInfo.StoreClrType == typeMappingInfo.ModelClrType
+                ? mappingFunc(typeMappingUsed, blockClrTypeFallback)
+                : null;
 
             if (mapping == null
                 && typeMappingInfo.TargetClrType != null)
             {
                 foreach (var converterInfo in Dependencies
                     .ValueConverterSelector
-                    .ForTypes(typeMappingInfo.TargetClrType, typeMappingInfo.StoreClrType))
+                    .ForTypes(
+                        typeMappingInfo.ValueConverterInfo?.StoreClrType
+                        ?? typeMappingInfo.ModelClrType,
+                        typeMappingInfo.StoreClrType))
                 {
                     typeMappingUsed = (RelationalTypeMappingInfo)typeMappingInfo.WithBuiltInConverter(converterInfo);
                     mapping = mappingFunc(typeMappingUsed, blockClrTypeFallback);

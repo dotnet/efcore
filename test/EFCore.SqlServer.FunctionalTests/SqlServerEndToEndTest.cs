@@ -832,15 +832,15 @@ namespace Microsoft.EntityFrameworkCore
                     TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
                     NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
                     ToEat = 64,
-                    //CupOfChar = 'C', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
+                    CupOfChar = 'C',
                     OrNothing = 0.123456789,
                     Fuse = 777,
                     WayRound = 9876543210,
-                    //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
+                    NotToEat = -64,
                     Away = 0.12345f,
-                    //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
-                    //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
-                    //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
+                    OrULong = 888,
+                    OrUSkint = 8888888,
+                    OrUShort = 888888888888888,
                     AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
                 }).Entity;
             var blog2 = context.Add(
@@ -851,15 +851,15 @@ namespace Microsoft.EntityFrameworkCore
                     TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9CF"),
                     NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 778),
                     ToEat = 65,
-                    //CupOfChar = 'D', // TODO: Conversion failed when converting the nvarchar value 'C' to data type int.
+                    CupOfChar = 'D',
                     OrNothing = 0.987654321,
                     Fuse = 778,
                     WayRound = 98765432100,
-                    //NotToEat = -64, // TODO: The parameter data type of SByte is invalid.
+                    NotToEat = -64,
                     Away = 0.12345f,
-                    //OrULong = 888, // TODO: The parameter data type of UInt16 is invalid.
-                    //OrUSkint = 8888888, // TODO: The parameter data type of UInt32 is invalid.
-                    //OrUShort = 888888888888888, // TODO: The parameter data type of UInt64 is invalid.
+                    OrULong = 888,
+                    OrUSkint = 8888888,
+                    OrUShort = 888888888888888,
                     AndChew = new byte[16]
                 }).Entity;
             await context.SaveChangesAsync();
@@ -912,19 +912,19 @@ namespace Microsoft.EntityFrameworkCore
 
             public byte ToEat { get; set; }
 
-            //public char CupOfChar { get; set; }
+            public char CupOfChar { get; set; }
             public double OrNothing { get; set; }
 
             public short Fuse { get; set; }
 
             public long WayRound { get; set; }
 
-            //public sbyte NotToEat { get; set; }
+            public sbyte NotToEat { get; set; }
             public float Away { get; set; }
 
-            //public ushort OrULong { get; set; }
-            //public uint OrUSkint { get; set; }
-            //public ulong OrUShort { get; set; }
+            public ushort OrULong { get; set; }
+            public uint OrUSkint { get; set; }
+            public ulong OrUShort { get; set; }
             public byte[] AndChew { get; set; }
         }
 
@@ -962,19 +962,19 @@ namespace Microsoft.EntityFrameworkCore
 
             byte ToEat { get; set; }
 
-            //char CupOfChar { get; set; }
+            char CupOfChar { get; set; }
             double OrNothing { get; set; }
 
             short Fuse { get; set; }
 
             long WayRound { get; set; }
 
-            //sbyte NotToEat { get; set; }
+            sbyte NotToEat { get; set; }
             float Away { get; set; }
 
-            //ushort OrULong { get; set; }
-            //uint OrUSkint { get; set; }
-            //ulong OrUShort { get; set; }
+            ushort OrULong { get; set; }
+            uint OrUSkint { get; set; }
+            ulong OrUShort { get; set; }
             byte[] AndChew { get; set; }
         }
 
@@ -988,19 +988,19 @@ namespace Microsoft.EntityFrameworkCore
 
             private byte _toEat;
 
-            //private char _cupOfChar;
+            private char _cupOfChar;
             private double _orNothing;
 
             private short _fuse;
 
             private long _wayRound;
 
-            //private sbyte _notToEat;
+            private sbyte _notToEat;
             private float _away;
 
-            //private ushort _orULong;
-            //private uint _orUSkint;
-            //private ulong _orUShort;
+            private ushort _orULong;
+            private uint _orUSkint;
+            private ulong _orUShort;
             private byte[] _andChew;
 
             public int Id
@@ -1087,19 +1087,19 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            //public char CupOfChar
-            //{
-            //    get { return _cupOfChar; }
-            //    set
-            //    {
-            //        if (_cupOfChar != value)
-            //        {
-            //            NotifyChanging();
-            //            _cupOfChar = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public char CupOfChar
+            {
+                get { return _cupOfChar; }
+                set
+                {
+                    if (_cupOfChar != value)
+                    {
+                        NotifyChanging();
+                        _cupOfChar = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
             public double OrNothing
             {
@@ -1143,19 +1143,19 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            //public sbyte NotToEat
-            //{
-            //    get { return _notToEat; }
-            //    set
-            //    {
-            //        if (_notToEat != value)
-            //        {
-            //            NotifyChanging();
-            //            _notToEat = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public sbyte NotToEat
+            {
+                get { return _notToEat; }
+                set
+                {
+                    if (_notToEat != value)
+                    {
+                        NotifyChanging();
+                        _notToEat = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
             public float Away
             {
@@ -1171,47 +1171,47 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            //public ushort OrULong
-            //{
-            //    get { return _orULong; }
-            //    set
-            //    {
-            //        if (_orULong != value)
-            //        {
-            //            NotifyChanging();
-            //            _orULong = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public ushort OrULong
+            {
+                get { return _orULong; }
+                set
+                {
+                    if (_orULong != value)
+                    {
+                        NotifyChanging();
+                        _orULong = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
-            //public uint OrUSkint
-            //{
-            //    get { return _orUSkint; }
-            //    set
-            //    {
-            //        if (_orUSkint != value)
-            //        {
-            //            NotifyChanging();
-            //            _orUSkint = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public uint OrUSkint
+            {
+                get { return _orUSkint; }
+                set
+                {
+                    if (_orUSkint != value)
+                    {
+                        NotifyChanging();
+                        _orUSkint = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
-            //public ulong OrUShort
-            //{
-            //    get { return _orUShort; }
-            //    set
-            //    {
-            //        if (_orUShort != value)
-            //        {
-            //            NotifyChanging();
-            //            _orUShort = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public ulong OrUShort
+            {
+                get { return _orUShort; }
+                set
+                {
+                    if (_orUShort != value)
+                    {
+                        NotifyChanging();
+                        _orUShort = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
             public byte[] AndChew
             {
@@ -1247,19 +1247,19 @@ namespace Microsoft.EntityFrameworkCore
 
             private byte _toEat;
 
-            //private char _cupOfChar;
+            private char _cupOfChar;
             private double _orNothing;
 
             private short _fuse;
 
             private long _wayRound;
 
-            //private sbyte _notToEat;
+            private sbyte _notToEat;
             private float _away;
 
-            //private ushort _orULong;
-            //private uint _orUSkint;
-            //private ulong _orUShort;
+            private ushort _orULong;
+            private uint _orUSkint;
+            private ulong _orUShort;
             private byte[] _andChew;
 
             public int Id
@@ -1340,18 +1340,18 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            //public char CupOfChar
-            //{
-            //    get { return _cupOfChar; }
-            //    set
-            //    {
-            //        if (_cupOfChar != value)
-            //        {
-            //            _cupOfChar = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public char CupOfChar
+            {
+                get { return _cupOfChar; }
+                set
+                {
+                    if (_cupOfChar != value)
+                    {
+                        _cupOfChar = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
             public double OrNothing
             {
@@ -1392,18 +1392,18 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            //public sbyte NotToEat
-            //{
-            //    get { return _notToEat; }
-            //    set
-            //    {
-            //        if (_notToEat != value)
-            //        {
-            //            _notToEat = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public sbyte NotToEat
+            {
+                get { return _notToEat; }
+                set
+                {
+                    if (_notToEat != value)
+                    {
+                        _notToEat = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
             public float Away
             {
@@ -1418,44 +1418,44 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            //public ushort OrULong
-            //{
-            //    get { return _orULong; }
-            //    set
-            //    {
-            //        if (_orULong != value)
-            //        {
-            //            _orULong = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public ushort OrULong
+            {
+                get { return _orULong; }
+                set
+                {
+                    if (_orULong != value)
+                    {
+                        _orULong = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
-            //public uint OrUSkint
-            //{
-            //    get { return _orUSkint; }
-            //    set
-            //    {
-            //        if (_orUSkint != value)
-            //        {
-            //            _orUSkint = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public uint OrUSkint
+            {
+                get { return _orUSkint; }
+                set
+                {
+                    if (_orUSkint != value)
+                    {
+                        _orUSkint = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
-            //public ulong OrUShort
-            //{
-            //    get { return _orUShort; }
-            //    set
-            //    {
-            //        if (_orUShort != value)
-            //        {
-            //            _orUShort = value;
-            //            NotifyChanged();
-            //        }
-            //    }
-            //}
+            public ulong OrUShort
+            {
+                get { return _orUShort; }
+                set
+                {
+                    if (_orUShort != value)
+                    {
+                        _orUShort = value;
+                        NotifyChanged();
+                    }
+                }
+            }
 
             public byte[] AndChew
             {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -182,6 +183,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool UsePropertyAccessMode(PropertyAccessMode propertyAccessMode, ConfigurationSource configurationSource)
             => HasAnnotation(CoreAnnotationNames.PropertyAccessModeAnnotation, propertyAccessMode, configurationSource);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool HasConversion([CanBeNull] ValueConverter valueConverter, ConfigurationSource configurationSource)
+        {
+            if (valueConverter != null
+                && valueConverter.ModelType.UnwrapNullableType() != Metadata.ClrType.UnwrapNullableType())
+            {
+                throw new ArgumentException(CoreStrings.ConverterPropertyMismatch(
+                    valueConverter.ModelType.ShortDisplayName(),
+                    Metadata.DeclaringEntityType.DisplayName(),
+                    Metadata.Name,
+                    Metadata.ClrType.ShortDisplayName()));
+            }
+
+            return HasAnnotation(CoreAnnotationNames.ValueConverter, valueConverter, configurationSource);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool HasConversion([CanBeNull] Type storeType, ConfigurationSource configurationSource)
+            => HasAnnotation(CoreAnnotationNames.StoreClrType, storeType, configurationSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -60,6 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The new converter. </param>
         /// <returns> The composed converter. </returns>
         protected virtual ValueConverter ComposeConverter([CanBeNull] ValueConverter converter)
-            => ValueConverter.Compose(converter, Converter);
+            => converter == null ? Converter : converter.ComposeWith(Converter);
     }
 }

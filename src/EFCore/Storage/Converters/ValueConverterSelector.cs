@@ -117,8 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
                         k => new ValueConverterInfo(
                             underlyingModelType,
                             typeof(byte[]),
-                            info => ValueConverter.Compose(
-                                new BoolToZeroOneConverter<byte>(),
+                            info => new BoolToZeroOneConverter<byte>().ComposeWith(
                                 NumberToBytesConverter<byte>.DefaultInfo.Create()),
                             new ConverterMappingHints(size: 1)));
                 }
@@ -212,11 +211,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
                             k => new ValueConverterInfo(
                                 underlyingModelType,
                                 typeof(byte[]),
-                                i =>
-                                    ValueConverter.Compose(
-                                        i.ModelClrType == typeof(DateTime)
-                                            ? DateTimeToBinaryConverter.DefaultInfo.Create()
-                                            : TimeSpanToTicksConverter.DefaultInfo.Create(),
+                                i => (i.ModelClrType == typeof(DateTime)
+                                        ? DateTimeToBinaryConverter.DefaultInfo.Create()
+                                        : TimeSpanToTicksConverter.DefaultInfo.Create())
+                                    .ComposeWith(
                                         NumberToBytesConverter<long>.DefaultInfo.Create()),
                                 NumberToBytesConverter<long>.DefaultInfo.MappingHints));
                     }
@@ -224,6 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
             }
             else if (_numerics.Contains(underlyingModelType)
                      && (underlyingStoreType == null
+                         || underlyingStoreType == typeof(byte[])
+                         || underlyingStoreType == typeof(string)
                          || _numerics.Contains(underlyingStoreType)))
             {
                 foreach (var converterInfo in FindNumericConvertions(
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
                         return new ValueConverterInfo(
                             underlyingModelType,
                             typeof(byte[]),
-                            i => ValueConverter.Compose(toNumber.Create(), toBytes.Create()),
+                            i => toNumber.Create().ComposeWith(toBytes.Create()),
                             toBytes.MappingHints);
                     });
 

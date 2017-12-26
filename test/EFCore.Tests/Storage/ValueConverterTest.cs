@@ -186,25 +186,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private static readonly ValueConverter<string, int?> _stringConverter
-            = new ValueConverter<string, int?>(
-                v => v.Equals("<null>", StringComparison.OrdinalIgnoreCase)
-                    ? null
-                    : (int?)int.Parse(v, CultureInfo.InvariantCulture),
-                v => v != null
-                    ? v.Value.ToString(CultureInfo.InvariantCulture)
-                    : "<null>");
-
-        [Fact]
-        public void Can_convert_nulls_to_non_nulls()
-        {
-            Assert.Equal(1234, _stringConverter.ConvertToStore("1234"));
-            Assert.Equal("1234", _stringConverter.ConvertFromStore(1234));
-
-            Assert.Null(_stringConverter.ConvertToStore("<null>"));
-            Assert.Equal("<null>", _stringConverter.ConvertFromStore(null));
-        }
-
         private static readonly ValueConverter<int, string> _intToString
             = new ValueConverter<int, string>(
                 v => v.ToString(),
@@ -220,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_convert_compose_to_strings()
         {
             var converter
-                = ((ValueConverter<Beatles, string>)ValueConverter.Compose(_enumToNumber, _intToString))
+                = ((ValueConverter<Beatles, string>)_enumToNumber.ComposeWith(_intToString))
                 .ConvertToStoreExpression.Compile();
 
             Assert.Equal("7", converter(Beatles.John));
@@ -234,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_compose_to_strings_object()
         {
-            var converter = ValueConverter.Compose(_enumToNumber, _intToString).ConvertToStore;
+            var converter = _enumToNumber.ComposeWith(_intToString).ConvertToStore;
 
             Assert.Equal("7", converter(Beatles.John));
             Assert.Equal("4", converter(Beatles.Paul));
@@ -249,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Can_convert_compose_to_enums()
         {
             var converter
-                = ((ValueConverter<Beatles, string>)ValueConverter.Compose(_enumToNumber, _intToString))
+                = ((ValueConverter<Beatles, string>)_enumToNumber.ComposeWith(_intToString))
                 .ConvertFromStoreExpression.Compile();
 
             Assert.Equal(Beatles.John, converter("7"));
@@ -263,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_convert_compose_to_enums_object()
         {
-            var converter = ValueConverter.Compose(_enumToNumber, _intToString).ConvertFromStore;
+            var converter = _enumToNumber.ComposeWith(_intToString).ConvertFromStore;
 
             Assert.Equal(Beatles.John, converter("7"));
             Assert.Equal(Beatles.Paul, converter("4"));
@@ -271,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(Beatles.Ringo, converter("-1"));
             Assert.Equal((Beatles)77, converter("77"));
             Assert.Equal(default(Beatles), converter("0"));
-            Assert.Equal(default(Beatles), converter(null));
+            Assert.Null(converter(null));
         }
 
         private enum Beatles
@@ -288,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(
                 CoreStrings.ConvertersCannotBeComposed("Beatles", "int", "uint", "int"),
                 Assert.Throws<ArgumentException>(
-                    () => ValueConverter.Compose(_enumToNumber, _uIntToInt)).Message);
+                    () => _enumToNumber.ComposeWith(_uIntToInt)).Message);
         }
 
         public static void OrderingTest<TModel, TStore>(
