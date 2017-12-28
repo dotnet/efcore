@@ -5,6 +5,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
     public class TitleSponsor : Sponsor
     {
-        public SponsorDetails Details { get; set; }
+        private readonly ILazyLoader _loader;
+        private SponsorDetails _details;
+
+        public TitleSponsor()
+        {
+        }
+
+        private TitleSponsor(ILazyLoader loader)
+        {
+            _loader = loader;
+        }
+
+        public SponsorDetails Details
+        {
+            get => _loader.Load(this, ref _details);
+            set => _details = value;
+        }
     }
 }

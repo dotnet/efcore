@@ -771,14 +771,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Empty(stateManager.GetDependents(categoryEntry4, fk).ToArray());
         }
 
-        [Fact] // Issue #743
-        public void Throws_when_instance_of_unmapped_derived_type_is_used()
+        [Fact]
+        public void Does_not_throws_when_instance_of_unmapped_derived_type_is_used()
         {
             var model = BuildModel();
             var stateManager = CreateStateManager(model);
-            Assert.Equal(
-                CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
-                Assert.Throws<InvalidOperationException>(() => stateManager.GetOrCreateEntry(new SpecialProduct())).Message);
+
+            var entry = stateManager.GetOrCreateEntry(new SpecialProduct());
+
+            Assert.Same(model.FindEntityType(typeof(Product)), entry.EntityType);
         }
 
         private static IStateManager CreateStateManager(IModel model)
@@ -820,11 +821,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static IMutableModel BuildModel()
         {
-            var builder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                    new CoreConventionSetBuilderDependencies(
-                        TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet());
-
+            var builder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
             var model = builder.Model;
 
             builder.Entity<Product>().HasOne<Category>().WithOne()

@@ -6106,17 +6106,51 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private class Blog
         {
+            private readonly Action<object, string> _loader;
+            private ICollection<Post> _posts;
+
+            public Blog()
+            {
+            }
+
+            private Blog(Action<object, string> lazyLoader)
+            {
+                _loader = lazyLoader;
+            }
+
             public int BlogId { get; set; }
             public string Url { get; set; }
-            public ICollection<Post> Posts { get; set; }
+
+            public ICollection<Post> Posts
+            {
+                get => _loader.Load(this, ref _posts);
+                set => _posts = value;
+            }
         }
 
         private class Post
         {
+            private readonly ILazyLoader _loader;
+            private Blog _blog;
+
+            public Post()
+            {
+            }
+
+            private Post(ILazyLoader loader)
+            {
+                _loader = loader;
+            }
+
             public int PostId { get; set; }
             public string Title { get; set; }
             public int? BlogId { get; set; }
-            public Blog Blog { get; set; }
+
+            public Blog Blog
+            {
+                get => _loader.Load(this, ref _blog);
+                set => _blog = value;
+            }
         }
 
         protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();

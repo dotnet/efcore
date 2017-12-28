@@ -5,6 +5,16 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
     public class SponsorDetails
     {
+        public SponsorDetails()
+        {
+        }
+
+        private SponsorDetails(int days, decimal space)
+        {
+            Days = days;
+            Space = space;
+        }
+
         public int Days { get; set; }
         public decimal Space { get; set; }
     }

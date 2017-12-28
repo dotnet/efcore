@@ -38,12 +38,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
+            [NotNull] Expression contextExpression,
             [CanBeNull] int[] indexMap = null);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        Func<ValueBuffer, object> GetMaterializer([NotNull] IEntityType entityType);
+        Func<ValueBuffer, DbContext, object> GetMaterializer([NotNull] IEntityType entityType);
     }
 }

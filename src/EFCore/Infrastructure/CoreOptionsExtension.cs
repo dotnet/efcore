@@ -38,8 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private int? _maxPoolSize;
         private long? _serviceProviderHash;
         private string _logFragment;
-        private WarningsConfiguration _warningsConfiguration = new WarningsConfiguration();
 
+        private WarningsConfiguration _warningsConfiguration 
+                    = new WarningsConfiguration().TryWithExplicit(CoreEventId.LazyLoadOnDisposedContextWarning, WarningBehavior.Throw);
         /// <summary>
         ///     Creates a new set of options with everything set to default values.
         /// </summary>

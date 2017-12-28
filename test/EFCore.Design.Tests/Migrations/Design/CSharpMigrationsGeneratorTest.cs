@@ -235,12 +235,7 @@ namespace MyNamespace
                         new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
                     new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
 
-            var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(
-                            TestServiceFactory.Instance.Create<CoreTypeMapper>()))
-                    .CreateConventionSet());
-
+            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
             modelBuilder.Entity<EntityWithEveryPrimitive>(
                 eb =>
                     {

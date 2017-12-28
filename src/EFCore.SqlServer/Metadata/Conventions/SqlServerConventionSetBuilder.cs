@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -93,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                            new CoreConventionSetBuilderDependencies(sqlServerTypeMapper))
+                            new CoreConventionSetBuilderDependencies(
+                                sqlServerTypeMapper,
+                                new ConstructorBindingFactory()))
                         .CreateConventionSet());
         }
     }

@@ -278,13 +278,18 @@ namespace Microsoft.EntityFrameworkCore
             => _dbContextDependencies ?? (_dbContextDependencies = InternalServiceProvider.GetRequiredService<IDbContextDependencies>());
 
         [DebuggerStepThrough]
-        internal void CheckDisposed()
+        private void CheckDisposed()
         {
             if (_disposed)
             {
                 throw new ObjectDisposedException(GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
             }
         }
+
+        /// <summary>
+        ///     Returns whether or not the context has been disposed.
+        /// </summary>
+        public virtual bool IsDisposed => _disposed;
 
         /// <summary>
         ///     <para>

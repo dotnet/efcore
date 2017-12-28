@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -47,11 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         directly from your code. This API may change or be removed in future releases.
         ///     </para>
         /// </summary>
-        public CoreConventionSetBuilderDependencies([NotNull] ITypeMapper typeMapper)
+        public CoreConventionSetBuilderDependencies(
+            [NotNull] ITypeMapper typeMapper,
+            [NotNull] IConstructorBindingFactory constructorBindingFactory)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(constructorBindingFactory, nameof(constructorBindingFactory));
 
             TypeMapper = typeMapper;
+            ConstructorBindingFactory = constructorBindingFactory;
         }
 
         /// <summary>
@@ -61,11 +66,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public ITypeMapper TypeMapper { get; }
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IConstructorBindingFactory ConstructorBindingFactory { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] ITypeMapper typeMapper)
-            => new CoreConventionSetBuilderDependencies(typeMapper);
+            => new CoreConventionSetBuilderDependencies(typeMapper, ConstructorBindingFactory);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="constructorBindingFactory"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public CoreConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
+            => new CoreConventionSetBuilderDependencies(TypeMapper, constructorBindingFactory);
     }
 }

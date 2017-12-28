@@ -587,5 +587,81 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return d.GenerateMessage(
                 (int)p.Delay.TotalMilliseconds, Environment.NewLine, p.ExceptionsEncountered[p.ExceptionsEncountered.Count - 1]);
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void LazyLoadOnDisposedContextWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] object entityType,
+            [NotNull] string navigationName)
+        {
+            var definition = CoreStrings.LazyLoadOnDisposedContextWarning;
+
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new LazyLoadingEventData(
+                        definition,
+                        LazyLoadOnDisposedContextWarning,
+                        context,
+                        entityType,
+                        navigationName));
+            }
+        }
+
+        private static string LazyLoadOnDisposedContextWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (LazyLoadingEventData)payload;
+            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void NavigationLazyLoading(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] DbContext context,
+            [NotNull] object entityType,
+            [NotNull] string navigationName)
+        {
+            var definition = CoreStrings.NavigationLazyLoading;
+
+            // Checking for enabled here to avoid string formatting if not needed.
+            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new LazyLoadingEventData(
+                        definition,
+                        NavigationLazyLoading,
+                        context,
+                        entityType,
+                        navigationName));
+            }
+        }
+
+        private static string NavigationLazyLoading(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (LazyLoadingEventData)payload;
+            return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+        }
     }
 }

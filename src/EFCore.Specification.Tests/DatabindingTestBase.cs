@@ -862,7 +862,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateF1Context())
             {
-                var ferrari = context.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.Ferrari);
+                var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
 
                 var larry = new Driver
@@ -882,7 +882,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateF1Context())
             {
-                var ferrari = context.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.Ferrari);
+                var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
                 var localDrivers = context.Drivers.Local;
 
@@ -909,7 +909,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateF1Context())
             {
-                var ferrari = context.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.Ferrari);
+                var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
                 var localDrivers = context.Drivers.Local;
 

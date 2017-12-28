@@ -10,11 +10,48 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
     public class Team
     {
+        private readonly ILazyLoader _loader;
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
         private readonly ObservableCollection<Sponsor> _sponsors = new ObservableCollection<Sponsor>();
+        private Engine _engine;
+        private Chassis _chassis;
+        private Gearbox _gearbox;
+
+        public Team()
+        {
+        }
+
+        private Team(
+            ILazyLoader loader,
+            int id,
+            string name,
+            string constructor,
+            string tire,
+            string principal,
+            int constructorsChampionships,
+            int driversChampionships,
+            int races,
+            int victories,
+            int poles,
+            int fastestLaps,
+            int? gearboxId)
+        {
+            _loader = loader;
+            Id = id;
+            Name = name;
+            Constructor = constructor;
+            Tire = tire;
+            Principal = principal;
+            ConstructorsChampionships = constructorsChampionships;
+            DriversChampionships = driversChampionships;
+            Races = races;
+            Victories = victories;
+            Poles = poles;
+            FastestLaps = fastestLaps;
+            GearboxId = gearboxId;
+        }
 
         public int Id { get; set; }
-
         public string Name { get; set; }
         public string Constructor { get; set; }
         public string Tire { get; set; }
@@ -26,17 +63,37 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         public int Poles { get; set; }
         public int FastestLaps { get; set; }
 
-        public virtual Engine Engine { get; set; } // Independent Association
+        public virtual Engine Engine
+        {
+            get => _loader.Load(this, ref _engine);
+            set => _engine = value;
+        }
 
-        public virtual Chassis Chassis { get; set; }
+        public virtual Chassis Chassis
+        {
+            get => _loader.Load(this, ref _chassis);
+            set => _chassis = value;
+        }
 
-        public virtual ICollection<Driver> Drivers => _drivers;
+        public virtual ICollection<Driver> Drivers
+        {
+            get
+            {
+                _loader?.Load(this);
+                return _drivers;
+            }
+        }
 
         [NotMapped]
         public virtual ICollection<Sponsor> Sponsors => _sponsors;
 
         public int? GearboxId { get; set; }
-        public virtual Gearbox Gearbox { get; set; } // Uni-directional
+
+        public virtual Gearbox Gearbox
+        {
+            get => _loader.Load(this, ref _gearbox);
+            set => _gearbox = value;
+        }
 
         public const int McLaren = 1;
         public const int Mercedes = 2;

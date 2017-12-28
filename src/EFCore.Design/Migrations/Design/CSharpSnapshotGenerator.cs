@@ -668,7 +668,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations,
                 RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
                 RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
-                InversePropertyAttributeConvention.InverseNavigationsAnnotationName);
+                InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
+                CoreAnnotationNames.ConstructorBinding);
 
             if (annotations.Any())
             {

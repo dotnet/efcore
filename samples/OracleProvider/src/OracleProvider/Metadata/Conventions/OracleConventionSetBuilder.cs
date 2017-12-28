@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -54,7 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 new RelationalConventionSetBuilderDependencies(oracleTypeMapper, currentContext: null, setFinder: null))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(oracleTypeMapper))
+                        new CoreConventionSetBuilderDependencies(
+                            oracleTypeMapper,
+                            new ConstructorBindingFactory()))
                         .CreateConventionSet());
         }
     }

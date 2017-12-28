@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
@@ -154,8 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         if (!isCollectionNav)
                         {
-                            errorMessage = CoreStrings.NoBackingField(
-                                propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                            errorMessage = GetNoFieldErrorMessage(propertyBase);
                             return false;
                         }
                         return true;
@@ -219,10 +219,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     if (!forSet
                         || !isCollectionNav)
                     {
-                        errorMessage = CoreStrings.NoBackingField(
-                            propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                        errorMessage = GetNoFieldErrorMessage(propertyBase);
                         return false;
                     }
+
                     return true;
                 }
 
@@ -270,6 +270,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             memberInfo = getterProperty;
             return true;
+        }
+
+        private static string GetNoFieldErrorMessage(IPropertyBase propertyBase)
+        {
+            var constructorBinding = (ConstructorBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
+
+            return constructorBinding != null
+                   && constructorBinding.ParameterBindings
+                       .OfType<ServiceParameterBinding>()
+                       .Any(b => b.ServiceType == typeof(ILazyLoader))
+                ? CoreStrings.NoBackingFieldLazyLoading(
+                    propertyBase.Name, propertyBase.DeclaringType.DisplayName())
+                : CoreStrings.NoBackingField(
+                    propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
         }
 
         /// <summary>

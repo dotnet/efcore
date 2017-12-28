@@ -5,8 +5,41 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
 {
     public class Driver
     {
-        public int Id { get; set; }
+        private readonly ILazyLoader _loader;
+        private Team _team;
 
+        public Driver()
+        {
+        }
+
+        protected Driver(
+            ILazyLoader loader,
+            int id,
+            string name,
+            int? carNumber,
+            int championships,
+            int races,
+            int wins,
+            int podiums,
+            int poles,
+            int fastestLaps,
+            int teamId)
+        {
+            _loader = loader;
+
+            Id = id;
+            Name = name;
+            CarNumber = carNumber;
+            Championships = championships;
+            Races = races;
+            Wins = wins;
+            Podiums = podiums;
+            Poles = poles;
+            FastestLaps = fastestLaps;
+            TeamId = teamId;
+        }
+
+        public int Id { get; set; }
         public string Name { get; set; }
         public int? CarNumber { get; set; }
         public int Championships { get; set; }
@@ -16,7 +49,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         public int Poles { get; set; }
         public int FastestLaps { get; set; }
 
-        public virtual Team Team { get; set; }
+        public virtual Team Team
+        {
+            get => _loader.Load(this, ref _team);
+            set => _team = value;
+        }
+
         public int TeamId { get; set; }
     }
 }

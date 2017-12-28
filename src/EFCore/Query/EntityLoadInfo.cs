@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public struct EntityLoadInfo
     {
-        private readonly Func<ValueBuffer, object> _materializer;
+        private readonly Func<ValueBuffer, DbContext, object> _materializer;
         private readonly Dictionary<Type, int[]> _typeIndexMap;
+        private readonly DbContext _context;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="EntityLoadInfo" /> struct.
@@ -30,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="valueBuffer"> The row of data that represents this entity. </param>
         /// <param name="materializer"> The method to materialize the data into an entity instance. </param>
         /// <param name="typeIndexMap"> Dictionary containing mapping from property indexes to values in ValueBuffer. </param>
+        [Obsolete("Use the constructor that also takes a DbContext.")]
         public EntityLoadInfo(
             ValueBuffer valueBuffer,
             [NotNull] Func<ValueBuffer, object> materializer,
@@ -39,6 +41,30 @@ namespace Microsoft.EntityFrameworkCore.Query
             Debug.Assert(materializer != null);
 
             ValueBuffer = valueBuffer;
+            _context = null;
+            _materializer = (v, c) => materializer(v);
+            _typeIndexMap = typeIndexMap;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="EntityLoadInfo" /> struct.
+        /// </summary>
+        /// <param name="valueBuffer"> The row of data that represents this entity. </param>
+        /// <param name="context"> The current <see cref="DbContext"/> for injecting services into the entity. </param>
+        /// <param name="materializer"> The method to materialize the data into an entity instance. </param>
+        /// <param name="typeIndexMap"> Dictionary containing mapping from property indexes to values in ValueBuffer. </param>
+        public EntityLoadInfo(
+            ValueBuffer valueBuffer,
+            [NotNull] DbContext context,
+            [NotNull] Func<ValueBuffer, DbContext, object> materializer,
+            [CanBeNull] Dictionary<Type, int[]> typeIndexMap = null)
+        {
+            // hot path
+            Debug.Assert(materializer != null);
+            Debug.Assert(context != null);
+
+            ValueBuffer = valueBuffer;
+            _context = context;
             _materializer = materializer;
             _typeIndexMap = typeIndexMap;
         }
@@ -52,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Materializes the data into an entity instance.
         /// </summary>
         /// <returns> The entity instance. </returns>
-        public object Materialize() => _materializer(ValueBuffer);
+        public object Materialize() => _materializer(ValueBuffer, _context);
 
         /// <summary>
         ///     Creates a new ValueBuffer containing only the values needed for entities of a given type.

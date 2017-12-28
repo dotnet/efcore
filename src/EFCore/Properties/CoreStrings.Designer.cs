@@ -271,12 +271,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 field, fieldType, entityType, property, propertyType);
 
         /// <summary>
-        ///     No field was found backing property '{property}' of entity type '{entity}'. Either configure a backing field or use a different '{pam}'.
+        ///     No field was found backing property '{property}' of entity type '{entity}'. Either name the backing field so that it is picked up by convention, configure the backing field to use, or use a different '{pam}'.
         /// </summary>
         public static string NoBackingField([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object pam)
             => string.Format(
                 GetString("NoBackingField", nameof(property), nameof(entity), nameof(pam)),
                 property, entity, pam);
+
+        /// <summary>
+        ///     No field was found backing property '{property}' of entity type '{entity}'. Lazy-loaded navigation properties must have backing fields. Either name the backing field so that it is picked up by convention or configure the backing field to use.
+        /// </summary>
+        public static string NoBackingFieldLazyLoading([CanBeNull] object property, [CanBeNull] object entity)
+            => string.Format(
+                GetString("NoBackingFieldLazyLoading", nameof(property), nameof(entity)),
+                property, entity);
 
         /// <summary>
         ///     No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.
@@ -1911,6 +1919,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, derivedType);
 
         /// <summary>
+        ///     No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.
+        /// </summary>
+        public static string ConstructorNotFound([CanBeNull] object entityType, [CanBeNull] object parameters)
+            => string.Format(
+                GetString("ConstructorNotFound", nameof(entityType), nameof(parameters)),
+                entityType, parameters);
+
+        /// <summary>
+        ///     Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.
+        /// </summary>
+        public static string ConstructorConflict([CanBeNull] object firstConstructor, [CanBeNull] object secondConstructor)
+            => string.Format(
+                GetString("ConstructorConflict", nameof(firstConstructor), nameof(secondConstructor)),
+                firstConstructor, secondConstructor);
+
+        /// <summary>
         ///     The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.
         /// </summary>
         public static string ClashingNonOwnedEntityType([CanBeNull] object entityType)
@@ -1935,6 +1959,30 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Information,
                     CoreEventId.ExecutionStrategyRetrying,
                     _resourceManager.GetString("LogExecutionStrategyRetrying")));
+
+        /// <summary>
+        ///     Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.
+        /// </summary>
+        public static readonly EventDefinition<string, string> NavigationLazyLoading
+            = new EventDefinition<string, string>(
+                CoreEventId.NavigationLazyLoading,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    CoreEventId.NavigationLazyLoading,
+                    _resourceManager.GetString("NavigationLazyLoading")));
+
+        /// <summary>
+        ///     An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LazyLoadOnDisposedContextWarning
+            = new EventDefinition<string, string>(
+                CoreEventId.LazyLoadOnDisposedContextWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.LazyLoadOnDisposedContextWarning,
+                    _resourceManager.GetString("LazyLoadOnDisposedContextWarning")));
 
         private static string GetString(string name, params string[] formatterNames)
         {

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -106,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public void Logs_by_default_for_ignored_includes()
         {
             var messages = new List<string>();
-            using (var context = new WarningAsErrorContext(messages))
+            using (var context = new WarningAsErrorContext(new FakeLoggerFactory(messages)))
             {
                 context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
@@ -130,6 +131,94 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
+        public void Throws_by_default_for_lazy_load_with_disposed_context()
+        {
+            var messages = new List<string>();
+            var loggerFactory = new FakeLoggerFactory(messages);
+
+            using (var context = new WarningAsErrorContext(loggerFactory))
+            {
+                context.Add(new WarningAsErrorEntity { Nav = new IncludedEntity() });
+                context.SaveChanges();
+            }
+
+            WarningAsErrorEntity entity;
+            
+            using (var context = new WarningAsErrorContext(loggerFactory))
+            {
+                entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
+            }
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                    CoreStrings.LazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity")),
+                Assert.Throws<InvalidOperationException>(
+                    () => entity.Nav).Message);
+        }
+
+        [Fact]
+        public void Lazy_load_with_disposed_context_can_be_configured_to_log()
+        {
+            var messages = new List<string>();
+            var loggerFactory = new FakeLoggerFactory(messages);
+
+            using (var context = new WarningAsErrorContext(
+                loggerFactory,
+                CoreEventId.LazyLoadOnDisposedContextWarning))
+            {
+                context.Add(new WarningAsErrorEntity { Nav = new IncludedEntity() });
+                context.SaveChanges();
+            }
+
+            WarningAsErrorEntity entity;
+
+            using (var context = new WarningAsErrorContext(
+                loggerFactory,
+                CoreEventId.LazyLoadOnDisposedContextWarning))
+            {
+                entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
+            }
+
+            Assert.Null(entity.Nav);
+
+            Assert.Contains(
+                CoreStrings.LazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                messages);
+        }
+
+        [Fact]
+        public void Lazy_loading_is_logged_only_when_actually_loading()
+        {
+            var messages = new List<string>();
+            var loggerFactory = new FakeLoggerFactory(messages);
+
+            using (var context = new WarningAsErrorContext(loggerFactory))
+            {
+                context.Add(new WarningAsErrorEntity { Nav = new IncludedEntity() });
+                context.SaveChanges();
+            }
+
+            using (var context = new WarningAsErrorContext(loggerFactory))
+            {
+                var entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
+
+                messages.Clear();
+                Assert.NotNull(entity.Nav);
+
+                Assert.Contains(
+                    CoreStrings.NavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    messages);
+
+                messages.Clear();
+                Assert.NotNull(entity.Nav);
+                Assert.DoesNotContain(
+                    CoreStrings.NavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    messages);
+            }
+        }
+
+        [Fact]
         public void No_throw_when_event_id_not_registered()
         {
             using (var context = new WarningAsErrorContext(toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning))
@@ -141,12 +230,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class WarningAsErrorContext : DbContext
         {
-            private readonly IList<string> _sink;
+            private readonly FakeLoggerFactory _sink;
             private readonly EventId? _toLog;
             private readonly EventId? _toThrow;
 
             public WarningAsErrorContext(
-                IList<string> sink = null,
+                FakeLoggerFactory sink = null,
                 EventId? toLog = null,
                 EventId? toThrow = null)
             {
@@ -159,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(new FakeLoggerFactory(_sink))
+                    .UseLoggerFactory(_sink ?? new FakeLoggerFactory(null))
                     .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
                         c =>
                             {
@@ -180,7 +269,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class WarningAsErrorEntity
         {
-            public IncludedEntity Nav { get; set; }
+            private readonly Action<object, string> _loader;
+            private IncludedEntity _nav;
+
+            public WarningAsErrorEntity()
+            {
+            }
+
+            private WarningAsErrorEntity(Action<object, string> lazyLoader)
+            {
+                _loader = lazyLoader;
+            }
+
+            public IncludedEntity Nav
+            {
+                get => _loader.Load(this, ref _nav);
+                set => _nav = value;
+            }
 
             public string Id { get; set; }
         }

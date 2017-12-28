@@ -621,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77));
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 40;
+            var expectedMethodCount = 41;
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
@@ -631,7 +631,13 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
             Assert.Throws<ObjectDisposedException>(() => context.Model);
 
-            var expectedProperties = new List<string> { "ChangeTracker", "Database", "Model" };
+            var expectedProperties = new List<string>
+            {
+                nameof(DbContext.ChangeTracker),
+                nameof(DbContext.Database),
+                nameof(DbContext.IsDisposed),
+                nameof(DbContext.Model)
+            };
 
             Assert.True(
                 expectedProperties.SequenceEqual(

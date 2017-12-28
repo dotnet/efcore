@@ -39,7 +39,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        // ReSharper disable once EmptyConstructor
         public ModelCustomizerDependencies([NotNull] IDbSetFinder setFinder)
         {
             Check.NotNull(setFinder, nameof(setFinder));

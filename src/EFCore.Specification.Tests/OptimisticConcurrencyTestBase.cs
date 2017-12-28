@@ -123,13 +123,13 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c =>
                     {
-                        var team = c.Teams.Include(t => t.Chassis).Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Chassis.Name = "MP4-25b";
                         team.Principal = "Larry David";
                     },
                 c =>
                     {
-                        var team = c.Teams.Include(t => t.Chassis).Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Chassis.Name = "MP4-25c";
                         team.Principal = "Jerry Seinfeld";
                     },
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 c =>
                     {
-                        var team = c.Teams.Include(t => t.Chassis).Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         Assert.Equal("MP4-25b", team.Chassis.Name);
                         Assert.Equal("Larry David", team.Principal);
                     });
@@ -167,13 +167,13 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c =>
                     {
-                        var team = c.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 1;
                         team.Principal = "Larry David";
                     },
                 c =>
                     {
-                        var team = c.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
                         team.Principal = "Jerry Seinfeld";
                     },
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 c =>
                     {
-                        var team = c.Teams.Include(t => t.Drivers).Single(t => t.Id == Team.McLaren);
+                        var team = c.Teams.Single(t => t.Id == Team.McLaren);
                         Assert.Equal(1, team.Drivers.Single(d => d.Name == "Jenson Button").Poles);
                         Assert.Equal("Larry David", team.Principal);
                     });
@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore
                 c =>
                     Assert.Equal(
                         "Cosworth",
-                        c.Engines.Include(e => e.EngineSupplier).Single(e => e.Name == "056").EngineSupplier.Name));
+                        c.Engines.Single(e => e.Name == "056").EngineSupplier.Name));
         }
 
         #endregion

@@ -14,9 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder
                 = new ModelBuilder(
-                    new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(
-                            TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet());
+                    TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()
+                        .CreateConventionSet());
 
             var principalTypeBuilder = modelBuilder.Entity<PrincipalEntity>();
             var dependentTypeBuilder = modelBuilder.Entity<DependentEntity>();

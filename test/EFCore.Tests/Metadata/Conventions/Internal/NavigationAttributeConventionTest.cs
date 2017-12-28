@@ -69,10 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void NotMappedAttribute_ignores_navigation_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                    new CoreConventionSetBuilderDependencies(CreateTypeMapper())).CreateConventionSet());
-
+            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
             var model = modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>();
 
@@ -180,10 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void RequiredAttribute_sets_is_required_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                    new CoreConventionSetBuilderDependencies(CreateTypeMapper())).CreateConventionSet());
-
+            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
             var model = (Model)modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>();
 
@@ -549,10 +543,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Fact]
         public void Navigation_attribute_convention_runs_for_private_property()
         {
-            var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                    new CoreConventionSetBuilderDependencies(CreateTypeMapper())).CreateConventionSet());
-
+            var modelBuilder = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
             var referenceBuilder = modelBuilder.Entity<BlogDetails>().HasOne(typeof(Post), "Post").WithOne();
 
             Assert.False(referenceBuilder.Metadata.Properties.First().IsNullable);

@@ -20,9 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         public override void Detects_duplicate_column_names()
         {
             var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                    new CoreConventionSetBuilderDependencies(
-                        TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet());
+                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
 
             GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
             GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).HasColumnName("Name").Metadata);
@@ -54,9 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         public override void Detects_incompatible_shared_columns_with_shared_table()
         {
             var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                    new CoreConventionSetBuilderDependencies(
-                        TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet());
+                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
             modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");

@@ -22,9 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             _modelBuilder
                 = new ModelBuilder(
-                    new CoreConventionSetBuilder(
-                            new CoreConventionSetBuilderDependencies(
-                                TestServiceFactory.Instance.Create<CoreTypeMapper>()))
+                    TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()
                         .CreateConventionSet());
 
             _provider = new SqliteMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());

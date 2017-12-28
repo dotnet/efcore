@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContext queryContext,
             IEntityType entityType,
             IKey key,
-            Func<IEntityType, ValueBuffer, object> materializer,
+            Func<IEntityType, ValueBuffer, DbContext, object> materializer,
             bool queryStateManager)
             where TEntity : class
             => ((InMemoryQueryContext)queryContext).Store
@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                             key,
                                             new EntityLoadInfo(
                                                 valueBuffer,
-                                                vr => materializer(t.EntityType, vr)),
+                                                queryContext.Context,
+                                                (vr, c) => materializer(t.EntityType, vr, c)),
                                             queryStateManager,
                                             throwOnNullKey: false);
                                 }));

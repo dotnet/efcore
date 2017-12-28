@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression<Func<IEntityType, ValueBuffer, object>> CreateMaterializer(IEntityType entityType)
+        public virtual Expression<Func<IEntityType, ValueBuffer, DbContext, object>> CreateMaterializer(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -45,17 +45,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var valueBufferParameter
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
+            var contextParameter
+                = Expression.Parameter(typeof(DbContext), "context");
+
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToList();
 
             if (concreteEntityTypes.Count == 1)
             {
-                return Expression.Lambda<Func<IEntityType, ValueBuffer, object>>(
+                return Expression.Lambda<Func<IEntityType, ValueBuffer, DbContext, object>>(
                     _entityMaterializerSource
                         .CreateMaterializeExpression(
-                            concreteEntityTypes[0], valueBufferParameter),
+                            concreteEntityTypes[0], valueBufferParameter, contextParameter),
                     entityTypeParameter,
-                    valueBufferParameter);
+                    valueBufferParameter,
+                    contextParameter);
             }
 
             var returnLabelTarget = Expression.Label(typeof(object));
@@ -71,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             returnLabelTarget,
                             _entityMaterializerSource
                                 .CreateMaterializeExpression(
-                                    concreteEntityTypes[0], valueBufferParameter))),
+                                    concreteEntityTypes[0], valueBufferParameter, contextParameter))),
                     Expression.Label(
                         returnLabelTarget,
                         Expression.Default(returnLabelTarget.Type))
@@ -87,14 +91,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         Expression.Return(
                             returnLabelTarget,
                             _entityMaterializerSource
-                                .CreateMaterializeExpression(concreteEntityType, valueBufferParameter)),
+                                .CreateMaterializeExpression(concreteEntityType, valueBufferParameter, contextParameter)),
                         blockExpressions[0]);
             }
 
-            return Expression.Lambda<Func<IEntityType, ValueBuffer, object>>(
+            return Expression.Lambda<Func<IEntityType, ValueBuffer, DbContext, object>>(
                 Expression.Block(blockExpressions),
                 entityTypeParameter,
-                valueBufferParameter);
+                valueBufferParameter,
+                contextParameter);
         }
     }
 }

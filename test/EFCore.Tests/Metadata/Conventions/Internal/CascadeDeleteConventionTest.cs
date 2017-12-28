@@ -127,9 +127,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static ModelBuilder CreateModelBuilder()
             => new ModelBuilder(
-                new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(
-                            TestServiceFactory.Instance.Create<CoreTypeMapper>()))
-                    .CreateConventionSet());
+                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
     }
 }

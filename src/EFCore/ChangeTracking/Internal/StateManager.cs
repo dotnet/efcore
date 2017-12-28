@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 _trackingQueryMode = TrackingQueryMode.Multiple;
 
-                var entityType = _model.FindEntityType(entity.GetType());
+                var entityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (entityType == null)
                 {
                     if (_model.HasEntityTypeWithDefiningNavigation(entity.GetType()))
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             var valueBuffer = new ValueBuffer(valuesArray);
 
-            var entity = entityType.HasClrType() ? EntityMaterializerSource.GetMaterializer(entityType)(valueBuffer) : null;
+            var entity = entityType.HasClrType() ? EntityMaterializerSource.GetMaterializer(entityType)(valueBuffer, Context) : null;
             var entry = _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
 
             AddToReferenceMap(entry);
@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 this,
                 baseEntityType.ClrType == clrType
                     ? baseEntityType
-                    : _model.FindEntityType(clrType),
+                    : _model.FindRuntimeEntityType(clrType),
                 entity, valueBuffer);
 
             foreach (var key in baseEntityType.GetKeys())
@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 foreach (var keyValuePair in _referencedUntrackedEntities.Value.ToList())
                 {
-                    var untrackedEntityType = _model.FindEntityType(keyValuePair.Key.GetType());
+                    var untrackedEntityType = _model.FindRuntimeEntityType(keyValuePair.Key.GetType());
                     if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(untrackedEntityType))
                         || untrackedEntityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entityType)))
                     {

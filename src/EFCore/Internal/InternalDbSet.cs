@@ -47,7 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get
             {
-                _context.CheckDisposed();
+                if (_context.IsDisposed)
+                {
+                    throw new ObjectDisposedException(_context.GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
+                }
 
                 if (_entityType != null)
                 {

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -18,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
-        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> _materializers;
+        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, DbContext, object>> _materializers;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -119,16 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,
             Expression valueBufferExpression,
+            Expression contextExpression,
             int[] indexMap = null)
         {
-            if (entityType is IEntityMaterializer materializer)
-            {
-                return Expression.Call(
-                    Expression.Constant(materializer),
-                    ((Func<ValueBuffer, object>)materializer.CreateEntity).GetMethodInfo(),
-                    valueBufferExpression);
-            }
-
             if (!entityType.HasClrType())
             {
                 throw new InvalidOperationException(CoreStrings.NoClrType(entityType.DisplayName()));
@@ -139,25 +133,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
             }
 
-            var constructorInfo = entityType.ClrType.GetDeclaredConstructor(null);
+            var constructorBinding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
-            if (constructorInfo == null)
+            if (constructorBinding == null)
             {
-                throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+                var constructorInfo = entityType.ClrType.GetDeclaredConstructor(null);
+
+                if (constructorInfo == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+                }
+
+                constructorBinding = new DirectConstructorBinding(constructorInfo, new ParameterBinding[0]);
             }
 
             var instanceVariable = Expression.Variable(entityType.ClrType, "instance");
+
+            var bindingInfo = new ParameterBindingInfo(
+                entityType,
+                valueBufferExpression,
+                contextExpression,
+                indexMap);
 
             var blockExpressions
                 = new List<Expression>
                 {
                     Expression.Assign(
                         instanceVariable,
-                        Expression.New(constructorInfo))
+                        constructorBinding.CreateConstructorExpression(bindingInfo))
                 };
 
             blockExpressions.AddRange(
-                from property in entityType.GetProperties().Where(p => !p.IsShadowProperty)
+                from property in entityType.GetProperties().Where(
+                    p => !p.IsShadowProperty
+                         && constructorBinding.ParameterBindings.All(b => b.ConsumedProperty != p))
                 let targetMember = Expression.MakeMemberAccess(
                     instanceVariable,
                     property.GetMemberInfo(forConstruction: true, forSet: true))
@@ -175,23 +184,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return Expression.Block(new[] { instanceVariable }, blockExpressions);
         }
 
-        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>> Materializers
-            => _materializers
-               ?? (_materializers = new ConcurrentDictionary<IEntityType, Func<ValueBuffer, object>>());
+        private ConcurrentDictionary<IEntityType, Func<ValueBuffer, DbContext, object>> Materializers
+            => LazyInitializer.EnsureInitialized(
+                ref _materializers,
+                () => new ConcurrentDictionary<IEntityType, Func<ValueBuffer, DbContext, object>>());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Func<ValueBuffer, object> GetMaterializer(IEntityType entityType)
+        public virtual Func<ValueBuffer, DbContext, object> GetMaterializer(IEntityType entityType)
             => Materializers.GetOrAdd(
                 entityType, e =>
                     {
                         var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer), "values");
+                        var contextParameter = Expression.Parameter(typeof(DbContext), "context");
 
-                        return Expression.Lambda<Func<ValueBuffer, object>>(
-                                CreateMaterializeExpression(e, valueBufferParameter),
-                                valueBufferParameter)
+                        return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
+                                CreateMaterializeExpression(e, valueBufferParameter, contextParameter),
+                                valueBufferParameter,
+                                contextParameter)
                             .Compile();
                     });
     }

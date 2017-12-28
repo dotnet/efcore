@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class ModelExtensions
     {
         /// <summary>
-        ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given name is found
+        ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given CLR type is found
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="model"> The model to find the entity type in. </param>
@@ -25,6 +25,25 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The entity type, or null if none if found. </returns>
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
             => Check.NotNull(model, nameof(model)).AsModel().FindEntityType(Check.NotNull(type, nameof(type)));
+
+        /// <summary>
+        ///     Gets the entity that maps the given entity class, where the class may be a proxy derived from the
+        ///     actual entity type. Returns null if no entity type with the given CLR type is found
+        ///     or the entity type has a defining navigation.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type to find the corresponding entity type for. </param>
+        /// <returns> The entity type, or null if none if found. </returns>
+        public static IEntityType FindRuntimeEntityType([NotNull] this IModel model, [NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+            var realModel = Check.NotNull(model, nameof(model)).AsModel();
+
+            return realModel.FindEntityType(type)
+                   ?? (type.BaseType == null
+                       ? null
+                       : realModel.FindEntityType(type.BaseType));
+        }
 
         /// <summary>
         ///     Gets the entity type for the given type, defining navigation name

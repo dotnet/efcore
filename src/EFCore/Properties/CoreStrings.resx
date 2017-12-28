@@ -214,7 +214,10 @@
     <value>The specified field '{field}' of type '{fieldType}' cannot be used for the property '{entityType}.{property}' of type '{propertyType}'. Only backing fields of types that are assignable from the property type can be used.</value>
   </data>
   <data name="NoBackingField" xml:space="preserve">
-    <value>No field was found backing property '{property}' of entity type '{entity}'. Either configure a backing field or use a different '{pam}'.</value>
+    <value>No field was found backing property '{property}' of entity type '{entity}'. Either name the backing field so that it is picked up by convention, configure the backing field to use, or use a different '{pam}'.</value>
+  </data>
+  <data name="NoBackingFieldLazyLoading" xml:space="preserve">
+    <value>No field was found backing property '{property}' of entity type '{entity}'. Lazy-loaded navigation properties must have backing fields. Either name the backing field so that it is picked up by convention or configure the backing field to use.</value>
   </data>
   <data name="NoFieldOrSetter" xml:space="preserve">
     <value>No backing field could be found for property '{property}' of entity type '{entity}' and the property does not have a setter.</value>
@@ -832,6 +835,12 @@
   <data name="SeedDatumDerivedType" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because the value provided is of a derived type '{derivedType}'. Add the derived seed entities to the corresponding entity type.</value>
   </data>
+  <data name="ConstructorNotFound" xml:space="preserve">
+    <value>No suitable constructor found for entity type '{entityType}'. The following parameters could not be bound to properties of the entity: '{parameters}'.</value>
+  </data>
+  <data name="ConstructorConflict" xml:space="preserve">
+    <value>Two constructors were found with the same number of parameters that could both be used by Entity Framework. The constructor to use must be configured explicitly. The two constructors are '{firstConstructor}' and '{secondConstructor}'.</value>
+  </data>
   <data name="ClashingNonOwnedEntityType" xml:space="preserve">
     <value>The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.</value>
   </data>
@@ -841,5 +850,13 @@
   <data name="LogExecutionStrategyRetrying" xml:space="preserve">
     <value>A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}</value>
     <comment>Information CoreEventId.ExecutionStrategyRetrying int string Exception</comment>
+  </data>
+  <data name="NavigationLazyLoading" xml:space="preserve">
+    <value>Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.</value>
+    <comment>Information CoreEventId.NavigationLazyLoading DbContext object string</comment>
+  </data>
+  <data name="LazyLoadOnDisposedContextWarning" xml:space="preserve">
+    <value>An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.</value>
+    <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning DbContext object string</comment>
   </data>
 </root>

@@ -343,11 +343,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
+                var constructorBinding = (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+
                 foreach (var propertyBase in entityType
                     .GetDeclaredProperties()
                     .Cast<IPropertyBase>()
                     .Concat(entityType.GetDeclaredNavigations())
-                    .Where(e => !e.IsShadowProperty))
+                    .Where(
+                        e => !e.IsShadowProperty
+                             && (constructorBinding == null
+                                 || constructorBinding.ParameterBindings.All(p => p.ConsumedProperty != e))))
                 {
                     if (!propertyBase.TryGetMemberInfo(
                         forConstruction: true,

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Expression<Func<ValueBuffer, object>> CreateMaterializer(
+        public virtual Expression<Func<ValueBuffer, DbContext, object>> CreateMaterializer(
             IEntityType entityType,
             SelectExpression selectExpression,
             Func<IProperty, SelectExpression, int> projectionAdder,
@@ -56,6 +56,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             var valueBufferParameter
                 = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
+
+            var contextParameter
+                = Expression.Parameter(typeof(DbContext), "context");
 
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToList();
@@ -72,12 +75,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var materializer
                 = _entityMaterializerSource
                     .CreateMaterializeExpression(
-                        concreteEntityTypes[0], valueBufferParameter, indexMap);
+                        concreteEntityTypes[0], valueBufferParameter, contextParameter, indexMap);
 
             if (concreteEntityTypes.Count == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
-                return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
+                return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
+                    materializer, valueBufferParameter, contextParameter);
             }
 
             var discriminatorProperty = concreteEntityTypes[0].Relational().DiscriminatorProperty;
@@ -98,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 selectExpression.Predicate
                     = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
 
-                return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
+                return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
+                    materializer, valueBufferParameter, contextParameter);
             }
 
             var discriminatorValueVariable
@@ -160,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                 materializer
                     = _entityMaterializerSource
-                        .CreateMaterializeExpression(concreteEntityType, valueBufferParameter, indexMap);
+                        .CreateMaterializeExpression(
+                            concreteEntityType, valueBufferParameter, contextParameter, indexMap);
 
                 blockExpressions[1]
                     = Expression.IfThenElse(
@@ -177,9 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             selectExpression.Predicate
                 = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
 
-            return Expression.Lambda<Func<ValueBuffer, object>>(
+            return Expression.Lambda<Func<ValueBuffer, DbContext, object>>(
                 Expression.Block(new[] { discriminatorValueVariable }, blockExpressions),
-                valueBufferParameter);
+                valueBufferParameter,
+                contextParameter);
         }
 
         private static readonly MethodInfo _createUnableToDiscriminateException

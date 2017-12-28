@@ -24,9 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         protected virtual ConventionSet GetConventionSet()
-            => new CoreConventionSetBuilder(
-                new CoreConventionSetBuilderDependencies(
-                    TestServiceFactory.Instance.Create<CoreTypeMapper>())).CreateConventionSet();
+            => TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet();
 
         [Table("ProductTable")]
         protected class Product

@@ -73,6 +73,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
+        ///         Gets or sets a value indicating whether navigation properties for tracked entities
+        ///         will be loaded on first access.
+        ///     </para>
+        ///     <para>
+        ///         The default value is true. However, lazy loading will only occur for navigation properties
+        ///         of entities that have also been configured in the model for lazy loading.
+        ///     </para>
+        /// </summary>
+        public virtual bool LazyLoadingEnabled { get; set; } = true;
+
+        /// <summary>
+        ///     <para>
         ///         Gets or sets the tracking behavior for LINQ queries run against the context. Disabling change tracking
         ///         is useful for read-only scenarios because it avoids the overhead of setting up change tracking for each
         ///         entity instance. You should not disable change tracking if you want to manipulate entity instances and

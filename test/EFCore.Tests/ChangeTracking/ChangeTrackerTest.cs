@@ -1345,14 +1345,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [Fact] // Issue #743
-        public void Throws_when_instance_of_unmapped_derived_type_is_used()
+        [Fact]
+        public void Does_not_throw_when_instance_of_unmapped_derived_type_is_used()
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Equal(
-                    CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
-                    Assert.Throws<InvalidOperationException>(() => context.Add(new SpecialProduct())).Message);
+                Assert.Same(
+                    context.Model.FindEntityType(typeof(Product)),
+                    context.Add(new SpecialProduct()).Metadata);
             }
         }
 

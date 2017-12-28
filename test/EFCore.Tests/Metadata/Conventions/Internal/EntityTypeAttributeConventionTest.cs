@@ -42,9 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void NotMappedAttribute_ignores_entityTypes_with_conventional_builder()
         {
             var modelBuilder = new ModelBuilder(
-                new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(
-                            TestServiceFactory.Instance.Create<CoreTypeMapper>()))
+                TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()
                     .CreateConventionSet());
 
             modelBuilder.Entity<B>();
