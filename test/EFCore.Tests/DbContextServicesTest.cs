@@ -20,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
@@ -3236,6 +3237,51 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider();
 
             Assert.Equal(typeof(NonGenericOptions2), services.GetService<DbContextOptions>().ContextType);
+        }
+
+        [Fact]
+        public void Can_resolve_multiple_contexts_in_hierarchy_with_appropriate_constructors()
+        {
+            var services = new ServiceCollection()
+                .AddDbContext<DerivedContext1>(b => b.UseInMemoryDatabase(nameof(DerivedContext1)))
+                .AddDbContext<DerivedContext2>(b => b.UseInMemoryDatabase(nameof(DerivedContext2)))
+                .BuildServiceProvider();
+
+            using (var scope = services.CreateScope())
+            {
+                var context1 = scope.ServiceProvider.GetService<DerivedContext1>();
+                Assert.IsType<DerivedContext1>(context1);
+                Assert.Equal(
+                    nameof(DerivedContext1),
+                    context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+
+                var context2 = scope.ServiceProvider.GetService<DerivedContext2>();
+                Assert.IsType<DerivedContext2>(context2);
+                Assert.Equal(
+                    nameof(DerivedContext2),
+                    context2.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+            }
+        }
+
+        private class DerivedContext1 : DbContext
+        {
+            public DerivedContext1(DbContextOptions<DerivedContext1> options)
+                : base(options)
+            {
+            }
+
+            protected DerivedContext1(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        private class DerivedContext2 : DerivedContext1
+        {
+            public DerivedContext2(DbContextOptions<DerivedContext2> options)
+                : base(options)
+            {
+            }
         }
     }
 }
