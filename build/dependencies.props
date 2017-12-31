@@ -4,22 +4,22 @@
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
-    <InternalAspNetCoreSdkPackageVersion>2.1.0-preview1-15626</InternalAspNetCoreSdkPackageVersion>
-    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.0-preview1-27807</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.1.0-preview1-15651</InternalAspNetCoreSdkPackageVersion>
+    <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.0-preview1-27942</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
-    <MicrosoftCSharpPackageVersion>4.5.0-preview1-26006-06</MicrosoftCSharpPackageVersion>
-    <MicrosoftDataSqliteCorePackageVersion>2.1.0-preview1-27807</MicrosoftDataSqliteCorePackageVersion>
-    <MicrosoftExtensionsCachingMemoryPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftCSharpPackageVersion>4.5.0-preview1-26016-05</MicrosoftCSharpPackageVersion>
+    <MicrosoftDataSqliteCorePackageVersion>2.1.0-preview1-27942</MicrosoftDataSqliteCorePackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsConfigurationAbstractionsPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsDependencyInjectionPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>2.1.0-preview2-25711-01</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>2.1.0-preview1-27807</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>2.1.0-preview1-27942</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftNETCoreApp11PackageVersion>1.1.2</MicrosoftNETCoreApp11PackageVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
-    <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-26008-01</MicrosoftNETCoreApp21PackageVersion>
+    <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-26016-05</MicrosoftNETCoreApp21PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
     <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
@@ -27,9 +27,9 @@
     <SQLitePCLRawBundleGreenPackageVersion>1.1.8</SQLitePCLRawBundleGreenPackageVersion>
     <StyleCopAnalyzersPackageVersion>1.0.0</StyleCopAnalyzersPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.5.0-preview1-25914-04</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>4.5.0-preview1-26006-06</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDataSqlClientPackageVersion>4.5.0-preview1-26006-06</SystemDataSqlClientPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.0-preview1-26006-06</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>4.5.0-preview1-26016-05</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDataSqlClientPackageVersion>4.5.0-preview1-26016-05</SystemDataSqlClientPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.0-preview1-26016-05</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemInteractiveAsyncPackageVersion>3.1.1</SystemInteractiveAsyncPackageVersion>
     <XunitAssertPackageVersion>2.3.1</XunitAssertPackageVersion>
     <XunitCorePackageVersion>2.3.1</XunitCorePackageVersion>
