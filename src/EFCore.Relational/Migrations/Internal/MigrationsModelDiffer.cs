@@ -749,27 +749,84 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                 t => Add(t, diffContext),
                 Remove,
-                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                    && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, diffContext),
                 (s, t) => string.Equals(
                     s.Relational().ColumnName,
                     t.Relational().ColumnName,
                     StringComparison.OrdinalIgnoreCase),
-                (s, t) =>
-                    {
-                        var sAnnotations = s.Relational();
-                        var tAnnotations = t.Relational();
+                (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
+                    && PropertyStructureEquals(s, t),
+                (s, t) => EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, diffContext)
+                    && PropertyStructureEquals(s, t),
+                (s, t) => PropertyStructureEquals(s, t));
 
-                        return s.ClrType == t.ClrType
-                               && s.IsConcurrencyToken == t.IsConcurrencyToken
-                               && s.ValueGenerated == t.ValueGenerated
-                               && s.GetMaxLength() == t.GetMaxLength()
-                               && s.IsColumnNullable() == t.IsColumnNullable()
-                               && s.IsUnicode() == t.IsUnicode()
-                               && s.GetConfiguredColumnType() == t.GetConfiguredColumnType()
-                               && sAnnotations.ComputedColumnSql == tAnnotations.ComputedColumnSql
-                               && Equals(sAnnotations.DefaultValue, tAnnotations.DefaultValue)
-                               && sAnnotations.DefaultValueSql == tAnnotations.DefaultValueSql;
-                    });
+        private static bool PropertyStructureEquals(IProperty source, IProperty target)
+            => source.ClrType == target.ClrType
+                && source.IsConcurrencyToken == target.IsConcurrencyToken
+                && source.ValueGenerated == target.ValueGenerated
+                && source.GetMaxLength() == target.GetMaxLength()
+                && source.IsColumnNullable() == target.IsColumnNullable()
+                && source.IsUnicode() == target.IsUnicode()
+                && source.GetConfiguredColumnType() == target.GetConfiguredColumnType()
+                && source.Relational().ComputedColumnSql == target.Relational().ComputedColumnSql
+                && Equals(source.Relational().DefaultValue, target.Relational().DefaultValue)
+                && source.Relational().DefaultValueSql == target.Relational().DefaultValueSql;
+
+        private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
+        {
+            var sourceTable = diffContext.FindSourceTable(source);
+            var targetTable = diffContext.FindTargetTable(target);
+
+            if (sourceTable.EntityTypes.Count == 1
+                && targetTable.EntityTypes.Count == 1)
+            {
+                return true;
+            }
+
+            if (!string.Equals(
+                GetDefiningNavigationName(source),
+                GetDefiningNavigationName(target),
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var nextSource = source.DefiningEntityType ?? source.BaseType;
+            var nextTarget = target.DefiningEntityType ?? target.BaseType;
+            if (nextSource == null
+                || !sourceTable.EntityTypes.Contains(nextSource)
+                || nextTarget == null
+                || !targetTable.EntityTypes.Contains(nextTarget))
+            {
+                return true;
+            }
+
+            return EntityTypePathEquals(nextSource, nextTarget, diffContext);
+        }
+
+        private static string GetDefiningNavigationName(IEntityType entityType)
+        {
+            if (entityType.DefiningNavigationName != null)
+            {
+                return entityType.DefiningNavigationName;
+            }
+
+            var primaryKey = entityType.FindDeclaredPrimaryKey();
+            if (primaryKey != null)
+            {
+                var definingForeignKey = entityType.FindForeignKeys(primaryKey.Properties)
+                    .Where(fk => fk.PrincipalEntityType.Relational().TableName == entityType.Relational().TableName)
+                    .FirstOrDefault();
+                if (definingForeignKey?.DependentToPrincipal != null)
+                {
+                    return definingForeignKey.DependentToPrincipal.Name;
+                }
+            }
+
+            return entityType.Name;
+        }
+
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

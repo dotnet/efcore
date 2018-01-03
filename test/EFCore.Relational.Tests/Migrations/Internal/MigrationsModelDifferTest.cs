@@ -6104,6 +6104,263 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
+        private class OldOrder
+        {
+            public int Id { get; set; }
+
+            public string AddressLine1 { get; set; }
+            public string AddressLine2 { get; set; }
+
+            public Address Billing { get; set; }
+        }
+
+        private class Order
+        {
+            public int Id { get; set; }
+
+            public Address Billing { get; set; }
+            public Address Shipping { get; set; }
+        }
+
+        private class Address
+        {
+            public string AddressLine1 { get; set; }
+            public string AddressLine2 { get; set; }
+        }
+
+        [Fact]
+        public void Add_property_on_owned_type()
+        {
+            Execute(
+                common => common.Entity<Order>(
+                    x =>
+                    {
+                        x.OwnsOne(y => y.Billing);
+                        x.OwnsOne(y => y.Shipping);
+                    }),
+                source => source.Entity<Order>().OwnsOne(y => y.Shipping).Ignore("AddressLine2"),
+                target => { },
+                upOperations =>
+                {
+                    var operation = Assert.IsType<AddColumnOperation>(Assert.Single(upOperations));
+                    Assert.Equal("Order", operation.Table);
+                    Assert.Equal("Shipping_AddressLine2", operation.Name);
+                },
+                downOperations =>
+                {
+                    var operation = Assert.IsType<DropColumnOperation>(Assert.Single(downOperations));
+                    Assert.Equal("Order", operation.Table);
+                    Assert.Equal("Shipping_AddressLine2", operation.Name);
+                });
+        }
+
+        [Fact]
+        public void Add_ownership()
+        {
+            Execute(
+                common => { },
+                source => source.Entity<OldOrder>().ToTable("Order").Ignore(x => x.AddressLine1)
+                    .Ignore(x => x.AddressLine2).OwnsOne(y => y.Billing),
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.OwnsOne(y => y.Billing);
+                        x.OwnsOne(y => y.Shipping);
+                    }),
+                upOperations =>
+                {
+                    Assert.Equal(2, upOperations.Count);
+
+                    var operation1 = Assert.IsType<AddColumnOperation>(upOperations[0]);
+                    Assert.Equal("Order", operation1.Table);
+                    Assert.Equal("Shipping_AddressLine1", operation1.Name);
+
+                    var operation2 = Assert.IsType<AddColumnOperation>(upOperations[1]);
+                    Assert.Equal("Order", operation2.Table);
+                    Assert.Equal("Shipping_AddressLine2", operation2.Name);
+                },
+                downOperations =>
+                {
+                    Assert.Equal(2, downOperations.Count);
+
+                    var operation1 = Assert.IsType<DropColumnOperation>(downOperations[0]);
+                    Assert.Equal("Order", operation1.Table);
+                    Assert.Equal("Shipping_AddressLine1", operation1.Name);
+
+                    var operation2 = Assert.IsType<DropColumnOperation>(downOperations[1]);
+                    Assert.Equal("Order", operation2.Table);
+                    Assert.Equal("Shipping_AddressLine2", operation2.Name);
+                });
+        }
+
+        [Fact]
+        public void Move_properties_to_owned_type()
+        {
+            Execute(
+                source => source.Ignore<Address>().Entity<OldOrder>(),
+                target => target.Entity<OldOrder>().Ignore(x => x.AddressLine1).Ignore(x => x.AddressLine2)
+                    .OwnsOne(y => y.Billing),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("OldOrder", operation1.Table);
+                    Assert.Equal("AddressLine2", operation1.Name);
+                    Assert.Equal("Billing_AddressLine2", operation1.NewName);
+
+                    var operation2 = Assert.IsType<RenameColumnOperation>(operations[1]);
+                    Assert.Equal("OldOrder", operation2.Table);
+                    Assert.Equal("AddressLine1", operation2.Name);
+                    Assert.Equal("Billing_AddressLine1", operation2.NewName);
+                });
+        }
+
+        [Fact]
+        public void Move_properties_to_owned_type_with_existing_ownership()
+        {
+            Execute(
+                source => source.Entity<OldOrder>().ToTable("Order").OwnsOne(o => o.Billing),
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.OwnsOne(o => o.Billing);
+                        x.OwnsOne(o => o.Shipping);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Order", operation1.Table);
+                    Assert.Equal("AddressLine2", operation1.Name);
+                    Assert.Equal("Shipping_AddressLine2", operation1.NewName);
+
+                    var operation2 = Assert.IsType<RenameColumnOperation>(operations[1]);
+                    Assert.Equal("Order", operation2.Table);
+                    Assert.Equal("AddressLine1", operation2.Name);
+                    Assert.Equal("Shipping_AddressLine1", operation2.NewName);
+                });
+        }
+
+        [Fact]
+        public void Rename_property_on_owned_type_and_add_similar_to_owner()
+        {
+            Execute(
+                source => source.Entity<Order>().OwnsOne(o => o.Billing).Property<int>("OldZip"),
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.Property<int>("NotZip");
+                        x.OwnsOne(o => o.Billing).Property<int>("NewZip");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Order", operation1.Table);
+                    Assert.Equal("Billing_OldZip", operation1.Name);
+                    Assert.Equal("Billing_NewZip", operation1.NewName);
+
+                    var operation2 = Assert.IsType<AddColumnOperation>(operations[1]);
+                    Assert.Equal("Order", operation2.Table);
+                    Assert.Equal("NotZip", operation2.Name);
+                });
+        }
+
+        [Fact]
+        public void Rename_property_on_owning_type_and_add_similar_to_owned()
+        {
+            Execute(
+                source => source.Entity<Order>(
+                    x =>
+                    {
+                        x.Property<DateTime>("OldDate");
+                        x.OwnsOne(o => o.Billing);
+                    }),
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.Property<DateTime>("NewDate");
+                        x.OwnsOne(o => o.Billing).Property<DateTime>("AnotherDate");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Order", operation1.Table);
+                    Assert.Equal("OldDate", operation1.Name);
+                    Assert.Equal("NewDate", operation1.NewName);
+
+                    var operation2 = Assert.IsType<AddColumnOperation>(operations[1]);
+                    Assert.Equal("Order", operation2.Table);
+                    Assert.Equal("Billing_AnotherDate", operation2.Name);
+                });
+        }
+
+        [Fact]
+        public void Rename_property_on_dependent_and_add_similar_to_principal_with_shared_table()
+        {
+            Execute(
+                source => source
+                    .Entity<OldOrder>(x => x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"))
+                    .Entity<Address>().ToTable("OldOrder").Property<int>("OldZip"),
+                target => target
+                    .Entity<OldOrder>(
+                        x =>
+                        {
+                            x.Property<int>("NotZip");
+                            x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id");
+                        })
+                    .Entity<Address>().ToTable("OldOrder").Property<int>("NewZip"),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("OldOrder", operation1.Table);
+                    Assert.Equal("OldZip", operation1.Name);
+                    Assert.Equal("NewZip", operation1.NewName);
+
+                    var operation2 = Assert.IsType<AddColumnOperation>(operations[1]);
+                    Assert.Equal("OldOrder", operation2.Table);
+                    Assert.Equal("NotZip", operation2.Name);
+                });
+        }
+
+        [Fact]
+        public void Rename_property_on_subtype_and_add_similar_to_base()
+        {
+            Execute(
+                source => source
+                    .Entity("AddressBase", x => x.Property<int>("Id"))
+                    .Entity("Address").HasBaseType("AddressBase").Property<int>("OldZip"),
+                target => target
+                    .Entity(
+                        "AddressBase",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Property<int>("NotZip");
+                        })
+                    .Entity("Address").HasBaseType("AddressBase").Property<int>("NewZip"),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var operation1 = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("AddressBase", operation1.Table);
+                    Assert.Equal("OldZip", operation1.Name);
+                    Assert.Equal("NewZip", operation1.NewName);
+
+                    var operation2 = Assert.IsType<AddColumnOperation>(operations[1]);
+                    Assert.Equal("AddressBase", operation2.Table);
+                    Assert.Equal("NotZip", operation2.Name);
+                });
+        }
+
         private class Blog
         {
             private readonly Action<object, string> _loader;
