@@ -1949,6 +1949,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("TransactionsNotSupported");
 
         /// <summary>
+        ///     The property '{property}' on entity type '{entityType}' was created in shadow state because there are no eligible CLR members with a matching name.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogShadowPropertyCreated
+            = new EventDefinition<string, string>(
+                CoreEventId.ShadowPropertyCreated,
+                LogLevel.Information,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Information,
+                    CoreEventId.ShadowPropertyCreated,
+                    _resourceManager.GetString("LogShadowPropertyCreated")));
+
+        /// <summary>
         ///     A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}
         /// </summary>
         public static readonly EventDefinition<int, string, Exception> LogExecutionStrategyRetrying
@@ -1963,26 +1975,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.
         /// </summary>
-        public static readonly EventDefinition<string, string> NavigationLazyLoading
+        public static readonly EventDefinition<string, string> LogNavigationLazyLoading
             = new EventDefinition<string, string>(
                 CoreEventId.NavigationLazyLoading,
                 LogLevel.Information,
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.NavigationLazyLoading,
-                    _resourceManager.GetString("NavigationLazyLoading")));
+                    _resourceManager.GetString("LogNavigationLazyLoading")));
 
         /// <summary>
         ///     An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.
         /// </summary>
-        public static readonly EventDefinition<string, string> LazyLoadOnDisposedContextWarning
+        public static readonly EventDefinition<string, string> LogLazyLoadOnDisposedContextWarning
             = new EventDefinition<string, string>(
                 CoreEventId.LazyLoadOnDisposedContextWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     CoreEventId.LazyLoadOnDisposedContextWarning,
-                    _resourceManager.GetString("LazyLoadOnDisposedContextWarning")));
+                    _resourceManager.GetString("LogLazyLoadOnDisposedContextWarning")));
 
         private static string GetString(string name, params string[] formatterNames)
         {

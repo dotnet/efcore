@@ -847,16 +847,20 @@
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>Current provider doesn't support System.Transaction.</value>
   </data>
+  <data name="LogShadowPropertyCreated" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
+    <comment>Information CoreEventId.ShadowPropertyCreated string string</comment>
+  </data>
   <data name="LogExecutionStrategyRetrying" xml:space="preserve">
     <value>A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}</value>
     <comment>Information CoreEventId.ExecutionStrategyRetrying int string Exception</comment>
   </data>
-  <data name="NavigationLazyLoading" xml:space="preserve">
+  <data name="LogNavigationLazyLoading" xml:space="preserve">
     <value>Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.</value>
-    <comment>Information CoreEventId.NavigationLazyLoading DbContext object string</comment>
+    <comment>Information CoreEventId.NavigationLazyLoading string string</comment>
   </data>
-  <data name="LazyLoadOnDisposedContextWarning" xml:space="preserve">
+  <data name="LogLazyLoadOnDisposedContextWarning" xml:space="preserve">
     <value>An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.</value>
-    <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning DbContext object string</comment>
+    <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning string string</comment>
   </data>
 </root>

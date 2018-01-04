@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
@@ -66,7 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ContextInitialized,
             ExecutionStrategyRetrying,
             LazyLoadOnDisposedContextWarning,
-            NavigationLazyLoading
+            NavigationLazyLoading,
+
+            // Model events
+            ShadowPropertyCreated = CoreBaseId + 600
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -319,5 +322,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId LazyLoadOnDisposedContextWarning = MakeInfraId(Id.LazyLoadOnDisposedContextWarning);
+
+        private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
+        private static EventId MakeModelId(Id id) => new EventId((int)id, _modelPrefix + id);
+
+        /// <summary>
+        ///     <para>
+        ///         A shadow property has been created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ShadowPropertyCreated = MakeModelId(Id.ShadowPropertyCreated);
     }
 }

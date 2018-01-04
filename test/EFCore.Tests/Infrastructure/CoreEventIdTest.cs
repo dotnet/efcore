@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -16,6 +16,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class CoreEventIdTest
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
                 { typeof(IReadOnlyCollection<IPropertyBase>), () => new[] { property } },
                 { typeof(IncludeResultOperator), () => includeResultOperator },
-                { typeof(IReadOnlyList<System.Exception>), () => new[] { new Exception() } }
+                { typeof(IReadOnlyList<System.Exception>), () => new[] { new Exception() } },
+                { typeof(IProperty), () => property }
             };
 
             InMemoryTestHelpers.Instance.TestEventLogging(typeof(CoreEventId), typeof(CoreLoggerExtensions), fakeFactories);

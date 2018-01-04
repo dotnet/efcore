@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             WarningAsErrorEntity entity;
-            
+
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
                 entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreStrings.LazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity")),
+                    CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity")),
                 Assert.Throws<InvalidOperationException>(
                     () => entity.Nav).Message);
         }
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(entity.Nav);
 
             Assert.Contains(
-                CoreStrings.LazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity"),
                 messages);
         }
 
@@ -207,13 +207,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(entity.Nav);
 
                 Assert.Contains(
-                    CoreStrings.NavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreStrings.LogNavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
                     messages);
 
                 messages.Clear();
                 Assert.NotNull(entity.Nav);
                 Assert.DoesNotContain(
-                    CoreStrings.NavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    CoreStrings.LogNavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
                     messages);
             }
         }

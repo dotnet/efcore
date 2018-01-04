@@ -116,11 +116,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Log = new List<(LogLevel, EventId, string)>();
             Logger = CreateLogger();
+            ModelLogger = CreateModelLogger();
         }
 
         protected List<(LogLevel Level, EventId Id, string Message)> Log { get; }
 
         protected IDiagnosticsLogger<DbLoggerCategory.Model.Validation> Logger { get; set; }
+
+        protected IDiagnosticsLogger<DbLoggerCategory.Model> ModelLogger { get; set; }
 
         protected virtual void VerifyWarning(string expectedMessage, IModel model)
         {
@@ -149,6 +152,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
             return new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                 new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
+                options,
+                new DiagnosticListener("Fake"));
+        }
+
+        protected virtual DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
+        {
+            var options = new LoggingOptions();
+            options.Initialize(new DbContextOptionsBuilder().EnableSensitiveDataLogging(sensitiveDataLoggingEnabled).Options);
+            return new DiagnosticsLogger<DbLoggerCategory.Model>(
+                new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
                 options,
                 new DiagnosticListener("Fake"));
         }

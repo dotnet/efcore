@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IReadOnlyList<string> propertyNames, [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
             => HasForeignKey(
                 dependentEntityType.Builder.GetOrCreateProperties(
-                    propertyNames, configurationSource, Metadata.PrincipalKey.Properties, required: Metadata.IsRequired, useDefaultType: true),
+                    propertyNames, configurationSource, Metadata.PrincipalKey.Properties, Metadata.IsRequired, useDefaultType: true),
                 dependentEntityType,
                 configurationSource);
 

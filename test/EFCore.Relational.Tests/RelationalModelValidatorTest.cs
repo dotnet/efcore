@@ -857,6 +857,10 @@ namespace Microsoft.EntityFrameworkCore
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                         new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Validation.Name),
                         new LoggingOptions(),
+                        new DiagnosticListener("Fake")),
+                    new DiagnosticsLogger<DbLoggerCategory.Model>(
+                        new ListLoggerFactory(Log, l => l == DbLoggerCategory.Model.Name),
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()));

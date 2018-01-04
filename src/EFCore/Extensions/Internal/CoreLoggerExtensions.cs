@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -598,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] object entityType,
             [NotNull] string navigationName)
         {
-            var definition = CoreStrings.LazyLoadOnDisposedContextWarning;
+            var definition = CoreStrings.LogLazyLoadOnDisposedContextWarning;
 
             // Checking for enabled here to avoid string formatting if not needed.
             if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
@@ -636,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] object entityType,
             [NotNull] string navigationName)
         {
-            var definition = CoreStrings.NavigationLazyLoading;
+            var definition = CoreStrings.LogNavigationLazyLoading;
 
             // Checking for enabled here to avoid string formatting if not needed.
             if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
@@ -662,6 +662,39 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string, string>)definition;
             var p = (LazyLoadingEventData)payload;
             return d.GenerateMessage(p.NavigationPropertyName, p.Entity.GetType().ShortDisplayName());
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void ShadowPropertyCreated(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] IProperty property)
+        {
+            var definition = CoreStrings.LogShadowPropertyCreated;
+
+            definition.Log(
+                diagnostics,
+                property.Name,
+                property.DeclaringEntityType.DisplayName());
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new PropertyEventData(
+                        definition,
+                        ShadowPropertyCreated,
+                        property));
+            }
+        }
+
+        private static string ShadowPropertyCreated(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (PropertyEventData)payload;
+            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
         }
     }
 }

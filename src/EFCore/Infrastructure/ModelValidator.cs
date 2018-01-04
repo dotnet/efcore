@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateFieldMapping(model);
             ValidateQueryFilters(model);
             ValidateSeedData(model);
+            LogShadowProperties(model);
         }
 
         /// <summary>
@@ -479,6 +480,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     entry = new InternalShadowEntityEntry(null, entityType);
 
                     identityMap.Add(keyValues, entry);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void LogShadowProperties([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            foreach (var entityType in model.GetEntityTypes().Where(t => t.ClrType != null))
+            {
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    if (property.IsShadowProperty)
+                    {
+                        Dependencies.ModelLogger.ShadowPropertyCreated(property);
+                    }
                 }
             }
         }

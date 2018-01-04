@@ -2187,6 +2187,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     new DiagnosticsLogger<DbLoggerCategory.Model.Validation>(
                         new ListLoggerFactory(new List<(LogLevel, EventId, string)>(), l => l == DbLoggerCategory.Model.Validation.Name),
                         new LoggingOptions(),
+                        new DiagnosticListener("Fake")),
+                    new DiagnosticsLogger<DbLoggerCategory.Model>(
+                        new ListLoggerFactory(new List<(LogLevel, EventId, string)>(), l => l == DbLoggerCategory.Model.Name),
+                        new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));

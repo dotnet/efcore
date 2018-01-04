@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable UnusedMember.Local
@@ -55,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityType.AddKey(keyProperty);
 
             Validate(model);
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), Log[0].Message);
         }
 
         [Fact]
@@ -66,6 +71,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityType.SetPrimaryKey(keyProperty);
 
             Validate(model);
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Information, Log[0].Level);
+            Assert.Equal(CoreStrings.LogShadowPropertyCreated.GenerateMessage("Key", "A"), Log[0].Message);
         }
 
         [Fact]
@@ -650,6 +659,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected override IModelValidator CreateModelValidator()
-            => new ModelValidator(new ModelValidatorDependencies(Logger));
+            => new ModelValidator(new ModelValidatorDependencies(Logger, ModelLogger));
     }
 }

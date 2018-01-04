@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "TypeId": "public static class Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId",
     "MemberId": "public const System.Int32 CoreBaseId = 100000",
@@ -37,6 +37,11 @@
   {
     "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Storage.CoreTypeMapperDependencies",
     "MemberId": "public .ctor()",
+    "Kind": "Removal"
+  },
+  {
+    "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies",
+    "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Model+Validation> logger)",
     "Kind": "Removal"
   }
 ]
