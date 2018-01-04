@@ -3,6 +3,7 @@
 
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
-    public interface IUpdateSqlGenerator
+    public interface IUpdateSqlGenerator : ISingletonUpdateSqlGenerator
     {
         /// <summary>
         ///     Generates SQL that will obtain the next value in the given sequence.

@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -78,6 +79,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Parameter object containing dependencies for this service.
         /// </summary>
         protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     The <see cref="IUpdateSqlGenerator"/>.
+        /// </summary>
+        protected virtual IUpdateSqlGenerator SqlGenerator
+            => (IUpdateSqlGenerator)Dependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Generates commands from a list of operations.
@@ -1004,7 +1011,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sqlBuilder = new StringBuilder();
             foreach (var modificationCommand in operation.GenerateModificationCommands())
             {
-                Dependencies.UpdateSqlGenerator.AppendInsertOperation(
+                SqlGenerator.AppendInsertOperation(
                     sqlBuilder,
                     modificationCommand,
                     0);
@@ -1036,7 +1043,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sqlBuilder = new StringBuilder();
             foreach (var modificationCommand in operation.GenerateModificationCommands())
             {
-                Dependencies.UpdateSqlGenerator.AppendDeleteOperation(
+                SqlGenerator.AppendDeleteOperation(
                     sqlBuilder,
                     modificationCommand,
                     0);
@@ -1064,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sqlBuilder = new StringBuilder();
             foreach (var modificationCommand in operation.GenerateModificationCommands())
             {
-                Dependencies.UpdateSqlGenerator.AppendUpdateOperation(
+                SqlGenerator.AppendUpdateOperation(
                     sqlBuilder,
                     modificationCommand,
                     0);

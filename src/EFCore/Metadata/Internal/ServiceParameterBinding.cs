@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class ServiceParameterBinding : ParameterBinding
     {
         private static readonly MethodInfo _getServiceMethod
-            = typeof(AccessorExtensions).GetMethod(nameof(AccessorExtensions.GetService));
+            = typeof(InternalAccessorExtensions).GetMethod(nameof(InternalAccessorExtensions.GetService));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

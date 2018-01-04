@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class InMemoryEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {
         private readonly IModel _model;
-        private readonly IMaterializerFactory _materializerFactory;
+        private readonly IInMemoryMaterializerFactory _materializerFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public InMemoryEntityQueryableExpressionVisitorFactory(
             [NotNull] IModel model,
-            [NotNull] IMaterializerFactory materializerFactory)
+            [NotNull] IInMemoryMaterializerFactory materializerFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(materializerFactory, nameof(materializerFactory));

@@ -130,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+#if !Test20 // Uses lazy-loading (doesn't work with 2.0 in-memory provider)
         [Fact]
         public void Throws_by_default_for_lazy_load_with_disposed_context()
         {
@@ -217,6 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     messages);
             }
         }
+#endif
 
         [Fact]
         public void No_throw_when_event_id_not_registered()

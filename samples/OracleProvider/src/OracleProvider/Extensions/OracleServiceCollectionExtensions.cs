@@ -75,6 +75,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IModelValidator, OracleModelValidator>()
                 .TryAdd<IConventionSetBuilder, OracleConventionSetBuilder>()
                 .TryAdd<IUpdateSqlGenerator, OracleUpdateSqlGenerator>()
+                .TryAdd<ISingletonUpdateSqlGenerator, OracleUpdateSqlGenerator>()
                 .TryAdd<IModificationCommandBatchFactory, OracleModificationCommandBatchFactory>()
                 .TryAdd<IValueGeneratorSelector, OracleValueGeneratorSelector>()
                 .TryAdd<IRelationalConnection>(p => p.GetService<IOracleConnection>())

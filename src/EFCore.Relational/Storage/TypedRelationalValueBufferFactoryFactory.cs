@@ -138,14 +138,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private Expression CreateGetValueExpression(
-            Expression dataReaderExpression, 
+            Expression dataReaderExpression,
             Expression indexExpression,
             TypeMaterializationInfo materializationInfo)
         {
-            var storeType = materializationInfo.StoreType;
-            var underlyingStoreType = storeType.UnwrapNullableType().UnwrapEnumType();
-
-            var getMethod = Dependencies.TypeMapper.GetDataReaderMethod(underlyingStoreType);
+            var getMethod = Dependencies.TypeMapper.GetDataReaderMethod(materializationInfo.StoreType);
 
             Expression expression
                 = Expression.Call(
@@ -160,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (converter != null)
             {
                 expression = ReplacingExpressionVisitor.Replace(
-                        converter.ConvertFromStoreExpression.Parameters.Single(),
-                        expression,
-                        converter.ConvertFromStoreExpression.Body);
+                    converter.ConvertFromStoreExpression.Parameters.Single(),
+                    expression,
+                    converter.ConvertFromStoreExpression.Body);
             }
 
             if (expression.Type != materializationInfo.ModelType)
@@ -195,14 +192,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 expression = Expression.Convert(expression, typeof(object));
             }
 
-            if (expression.Type.IsNullableType())
-            {
-                expression
-                    = Expression.Condition(
-                        Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
-                        Expression.Default(expression.Type),
-                        expression);
-            }
+            expression
+                = Expression.Condition(
+                    Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
+                    Expression.Default(expression.Type),
+                    expression);
 
             return expression;
         }

@@ -45,20 +45,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
 
             var serviceVariable = Expression.Variable(ServiceType, "service");
+            var delegateVariable = Expression.Variable(ParameterType, "delegate");
 
             return Expression.Block(
-                new[] { serviceVariable },
+                new[] { serviceVariable, delegateVariable },
                 new List<Expression>
                 {
                     Expression.Assign(
                         serviceVariable,
                         base.BindToParameter(bindingInfo)),
-                    Expression.Lambda(
-                        Expression.Call(
-                            serviceVariable,
-                            Method,
-                            parameters),
-                        parameters)
+                    Expression.Assign(
+                        delegateVariable,
+                        Expression.Condition(
+                            Expression.ReferenceEqual(serviceVariable, Expression.Constant(null)),
+                            Expression.Constant(null, ParameterType),
+                            Expression.Lambda(
+                                Expression.Call(
+                                    serviceVariable,
+                                    Method,
+                                    parameters),
+                                parameters))),
+                    delegateVariable
                 });
         }
     }

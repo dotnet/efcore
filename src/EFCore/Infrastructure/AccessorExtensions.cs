@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -43,25 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="accessor"> The object exposing the service provider. </param>
         /// <returns> The requested service. </returns>
         public static TService GetService<TService>([NotNull] this IInfrastructure<IServiceProvider> accessor)
-        {
-            Check.NotNull(accessor, nameof(accessor));
-
-            var internalServiceProvider = accessor.Instance;
-
-            var service = internalServiceProvider.GetService(typeof(TService))
-                          ?? internalServiceProvider.GetService<IDbContextOptions>()
-                              ?.Extensions.OfType<CoreOptionsExtension>().FirstOrDefault()
-                              ?.ApplicationServiceProvider
-                              ?.GetService(typeof(TService));
-
-            if (service == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NoProviderConfiguredFailedToResolveService(typeof(TService).DisplayName()));
-            }
-
-            return (TService)service;
-        }
+            => (TService)InternalAccessorExtensions.GetService<TService>(Check.NotNull(accessor, nameof(accessor)));
 
         /// <summary>
         ///     <para>

@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
                         .TryAddSingleton<IInMemoryStoreCache, InMemoryStoreCache>()
                         .TryAddSingleton<IInMemoryTableFactory, InMemoryTableFactory>()
                         .TryAddScoped<IInMemoryDatabase, InMemoryDatabase>()
-                        .TryAddScoped<IMaterializerFactory, MaterializerFactory>());
+                        .TryAddScoped<IInMemoryMaterializerFactory, InMemoryMaterializerFactory>());
 
             builder.TryAddCoreServices();
 

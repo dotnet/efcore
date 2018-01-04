@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     public class InMemoryEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private readonly IModel _model;
-        private readonly IMaterializerFactory _materializerFactory;
+        private readonly IInMemoryMaterializerFactory _materializerFactory;
         private readonly IQuerySource _querySource;
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public InMemoryEntityQueryableExpressionVisitor(
             [NotNull] IModel model,
-            [NotNull] IMaterializerFactory materializerFactory,
+            [NotNull] IInMemoryMaterializerFactory materializerFactory,
             [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
             [CanBeNull] IQuerySource querySource)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))

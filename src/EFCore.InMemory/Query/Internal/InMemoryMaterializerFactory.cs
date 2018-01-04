@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class MaterializerFactory : IMaterializerFactory
+    public class InMemoryMaterializerFactory : IInMemoryMaterializerFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
 
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public MaterializerFactory([NotNull] IEntityMaterializerSource entityMaterializerSource)
+        public InMemoryMaterializerFactory([NotNull] IEntityMaterializerSource entityMaterializerSource)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
 
