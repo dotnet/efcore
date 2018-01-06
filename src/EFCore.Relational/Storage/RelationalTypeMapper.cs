@@ -52,6 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private readonly ConcurrentDictionary<RelationalTypeMappingInfo, RelationalTypeMapping> _explicitMappings
             = new ConcurrentDictionary<RelationalTypeMappingInfo, RelationalTypeMapping>();
 
+        private readonly bool _legacyMode;
+
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new ValueConverterSelector(
                         new ValueConverterSelectorDependencies())), dependencies)
         {
+            _legacyMode = true;
         }
 
         /// <summary>
@@ -139,7 +142,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            return FindMapping(new RelationalTypeMappingInfo(modelClrType: clrType)) != null;
+            return (_legacyMode
+                       ? FindMapping(clrType)
+                       : FindMapping(new RelationalTypeMappingInfo(modelClrType: clrType))) != null;
         }
 
         private RelationalTypeMapping FindMapping(
@@ -223,6 +228,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(property, nameof(property));
 
+            if (_legacyMode)
+            {
+                var storeType = GetColumnType(property);
+
+                if (storeType == null)
+                {
+                    var principalProperty = property.FindPrincipal();
+                    if (principalProperty != null)
+                    {
+                        storeType = GetColumnType(principalProperty);
+                    }
+                }
+
+                return (storeType != null ? FindMapping(storeType) : null)
+                       ?? FindCustomMapping(property)
+                       ?? FindMapping(property.ClrType);
+            }
+
             return FindMapping(new RelationalTypeMappingInfo(property));
         }
 
@@ -234,8 +257,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The type mapping to be used.
         /// </returns>
-        public virtual RelationalTypeMapping FindMapping(Type clrType) 
-            => FindMapping(new RelationalTypeMappingInfo(modelClrType: Check.NotNull(clrType, nameof(clrType))), blockClrTypeFallback: true);
+        public virtual RelationalTypeMapping FindMapping(Type clrType)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+
+            return _legacyMode
+                ? (GetClrTypeMappings().TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out var mapping)
+                    ? mapping
+                    : null)
+                : FindMapping(new RelationalTypeMappingInfo(modelClrType: clrType), blockClrTypeFallback: true);
+        }
 
         private RelationalTypeMapping FindClrTypeMapping(RelationalTypeMappingInfo typeMappingInfo)
         {
