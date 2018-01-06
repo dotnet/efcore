@@ -223,12 +223,11 @@ namespace Microsoft.Data.Sqlite
 
             SetState(ConnectionState.Open);
 
-            raw.sqlite3_update_hook(
-                _db,
-                (_, type, database, table, rowid)
-                    => OnUpdate(new UpdateEventArgs((UpdateEventType)type, database, table, rowid)),
-                null);
+            raw.sqlite3_update_hook(_db, UpdateHook, null);
         }
+
+        private void UpdateHook(object user_data, int type, string database, string table, long rowid)
+            => OnUpdate(new UpdateEventArgs((UpdateEventType)type, database, table, rowid));
 
         /// <summary>
         ///     Closes the connection to the database. Open transactions are rolled back.
@@ -240,6 +239,8 @@ namespace Microsoft.Data.Sqlite
             {
                 return;
             }
+
+            raw.sqlite3_update_hook(_db, null, null);
 
             Transaction?.Dispose();
 
