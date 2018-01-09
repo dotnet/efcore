@@ -43,9 +43,10 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentException(Resources.InvalidIsolationLevel(isolationLevel));
             }
 
-            // TODO: Register transaction hooks to detect when a user manually completes a transaction created using
-            //       this API
-            connection.ExecuteNonQuery("BEGIN;");
+            connection.ExecuteNonQuery(
+                IsolationLevel == IsolationLevel.Serializable
+                    ? "BEGIN IMMEDIATE;"
+                    : "BEGIN;");
         }
 
         /// <summary>
