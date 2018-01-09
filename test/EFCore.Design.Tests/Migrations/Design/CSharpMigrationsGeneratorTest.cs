@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,18 +10,233 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     public class CSharpMigrationsGeneratorTest
     {
+        private static readonly string _nl = Environment.NewLine;
+        private static readonly string _nl2 = Environment.NewLine + Environment.NewLine;
+        private static readonly string _toTable = _nl2 + @"modelBuilder.ToTable(""WithAnnotations"");";
+
+        [Fact]
+        public void Test_new_annotations_handled_for_entity_types()
+        {
+            var model = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var entityType = model.Entity<WithAnnotations>().Metadata;
+
+            // Only add the annotation here if it will never be present on IEntityType
+            var notForEntityType = new HashSet<string>
+            {
+                CoreAnnotationNames.MaxLengthAnnotation,
+                CoreAnnotationNames.UnicodeAnnotation,
+                CoreAnnotationNames.ProductVersionAnnotation,
+                CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
+                CoreAnnotationNames.OwnedTypesAnnotation,
+                CoreAnnotationNames.TypeMapping,
+                CoreAnnotationNames.ValueConverter,
+                CoreAnnotationNames.StoreClrType,
+                RelationalAnnotationNames.ColumnName,
+                RelationalAnnotationNames.ColumnType,
+                RelationalAnnotationNames.DefaultValueSql,
+                RelationalAnnotationNames.ComputedColumnSql,
+                RelationalAnnotationNames.DefaultValue,
+                RelationalAnnotationNames.Name,
+                RelationalAnnotationNames.SequencePrefix,
+                RelationalAnnotationNames.DefaultSchema,
+                RelationalAnnotationNames.Filter,
+                RelationalAnnotationNames.DbFunction,
+                RelationalAnnotationNames.MaxIdentifierLength
+            };
+
+            // Add a line here if the code generator is supposed to handle this annotation
+            // Note that other tests should be added to check code is generated correctly
+            var forEntityType = new Dictionary<string, (object, string)>
+            {
+                {
+                    CoreAnnotationNames.PropertyAccessModeAnnotation,
+                    (PropertyAccessMode.Property, _toTable + _nl2 + @"modelBuilder.HasAnnotation(""PropertyAccessMode"", PropertyAccessMode.Property);" + _nl)
+                },
+                {
+                    RelationalAnnotationNames.TableName,
+                    ("MyTable", _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""MyTable"");" + _nl)
+                },
+                {
+                    RelationalAnnotationNames.Schema,
+                    ("MySchema", _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""WithAnnotations"",""MySchema"");" + _nl)
+                },
+                {
+                    RelationalAnnotationNames.DiscriminatorProperty,
+                    ("Id", _toTable + _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator) + @"<int>(""Id"");" + _nl)
+                },
+                {
+                    RelationalAnnotationNames.DiscriminatorValue,
+                    ("MyDiscriminatorValue",
+                    _toTable + _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.HasDiscriminator)
+                                                      + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
+                }
+            };
+            
+            MissingAnnotationCheck(
+                entityType, notForEntityType, forEntityType,
+                _toTable + _nl,
+                (g, m, b) => g.TestGenerateEntityTypeAnnotations("modelBuilder", (IEntityType)m, b));
+        }
+
+        [Fact]
+        public void Test_new_annotations_handled_for_properties()
+        {
+            var model = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var property = model.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
+
+            // Only add the annotation here if it will never be present on IProperty
+            var notForProperty = new HashSet<string>
+            {
+                CoreAnnotationNames.ProductVersionAnnotation,
+                CoreAnnotationNames.OwnedTypesAnnotation,
+                CoreAnnotationNames.ConstructorBinding,
+                RelationalAnnotationNames.TableName,
+                RelationalAnnotationNames.Schema,
+                RelationalAnnotationNames.DefaultSchema,
+                RelationalAnnotationNames.Name,
+                RelationalAnnotationNames.SequencePrefix,
+                RelationalAnnotationNames.DiscriminatorProperty,
+                RelationalAnnotationNames.DiscriminatorValue,
+                RelationalAnnotationNames.Filter,
+                RelationalAnnotationNames.DbFunction,
+                RelationalAnnotationNames.MaxIdentifierLength
+            };
+
+            // Add a line here if the code generator is supposed to handle this annotation
+            // Note that other tests should be added to check code is generated correctly
+            var forProperty = new Dictionary<string, (object, string)>
+            {
+                {
+                    CoreAnnotationNames.PropertyAccessModeAnnotation,
+                    (PropertyAccessMode.Property, _nl + @".HasAnnotation(""PropertyAccessMode"", PropertyAccessMode.Property)")
+                },
+                {
+                    CoreAnnotationNames.MaxLengthAnnotation,
+                    (256, _nl + "." + nameof(PropertyBuilder.HasMaxLength) + "(256)")
+                },
+                {
+                    CoreAnnotationNames.UnicodeAnnotation,
+                    (false, _nl + "." + nameof(PropertyBuilder.IsUnicode) + "(false)")
+                },
+                {
+                    CoreAnnotationNames.ValueConverter,
+                    (new ValueConverter<int, long>(v => v, v => (int)v), _nl + "." + nameof(PropertyBuilder.HasConversion) + "<long>()")
+                },
+                {
+                    CoreAnnotationNames.StoreClrType,
+                    (typeof(long), _nl + "." + nameof(PropertyBuilder.HasConversion) + "<long>()")
+                },
+                {
+                    RelationalAnnotationNames.ColumnName,
+                    ("MyColumn", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasColumnName) + @"(""MyColumn"")")
+                },
+                {
+                    RelationalAnnotationNames.ColumnType,
+                    ("int", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasColumnType) + @"(""int"")")
+                },
+                {
+                    RelationalAnnotationNames.DefaultValueSql,
+                    ("some SQL", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql) + @"(""some SQL"")")
+                },
+                {
+                    RelationalAnnotationNames.ComputedColumnSql,
+                    ("some SQL", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql) + @"(""some SQL"")")
+                },
+                {
+                    RelationalAnnotationNames.DefaultValue,
+                    ("1", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasDefaultValue) + @"(""1"")")
+                }
+            };
+
+            MissingAnnotationCheck(
+                property, notForProperty, forProperty,
+                "",
+                (g, m, b) => g.TestGeneratePropertyAnnotations((IProperty)m, b));
+        }
+
+        private static void MissingAnnotationCheck(
+            IMutableAnnotatable metadataItem,
+            HashSet<string> invalidAnnotations,
+            Dictionary<string, (object Value, string Expected)> validAnnotations,
+            string generationDefault,
+            Action<TestCSharpSnapshotGenerator, IMutableAnnotatable, IndentedStringBuilder> test)
+        {
+            var codeHelper = new CSharpHelper();
+            var generator = new TestCSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper));
+
+            foreach (var field in typeof(CoreAnnotationNames).GetFields().Concat(
+                typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
+            {
+                var annotationName = (string)field.GetValue(null);
+
+                if (!invalidAnnotations.Contains(annotationName))
+                {
+                    metadataItem[annotationName] = validAnnotations.ContainsKey(annotationName)
+                        ? validAnnotations[annotationName].Value
+                        : new Random(); // Something that cannot be scaffolded by default
+
+                    var sb = new IndentedStringBuilder();
+
+                    try
+                    {
+                        // Generator should not throw--either update above, or add to ignored list in generator
+                        test(generator, metadataItem, sb);
+                    }
+                    catch (Exception e)
+                    {
+                        Assert.False(true, $"Annotation '{annotationName}' was not handled by the code generator: {e.Message}");
+                    }
+
+                    if (validAnnotations.ContainsKey(annotationName))
+                    {
+                        Assert.Equal(validAnnotations[annotationName].Expected, sb.ToString());
+                    }
+                    else
+                    {
+                        Assert.Equal(generationDefault, sb.ToString());
+                    }
+
+                    metadataItem[annotationName] = null;
+                }
+            }
+        }
+
+        private class TestCSharpSnapshotGenerator : CSharpSnapshotGenerator
+        {
+            public TestCSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
+            public virtual void TestGenerateEntityTypeAnnotations(string builderName, IEntityType entityType, IndentedStringBuilder stringBuilder)
+                => GenerateEntityTypeAnnotations(builderName, entityType, stringBuilder);
+
+            public virtual void TestGeneratePropertyAnnotations(IProperty property, IndentedStringBuilder stringBuilder)
+                => GeneratePropertyAnnotations(property, stringBuilder);
+        }
+
+        private class WithAnnotations
+        {
+            public int Id { get; set; }
+        }
+
         [Fact]
         public void Migrations_compile()
         {

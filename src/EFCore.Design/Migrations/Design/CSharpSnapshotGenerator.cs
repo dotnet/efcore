@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
@@ -431,6 +432,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.StoreClrType, null, nameof(PropertyBuilder.HasConversion), a => new[] { (Type)a?.Value },stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.ValueConverter, null, nameof(PropertyBuilder.HasConversion), a => new[] { ((ValueConverter)a?.Value)?.StoreType }, stringBuilder);
 
             IgnoreAnnotations(
                 annotations,
@@ -909,18 +912,81 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] string annotationName,
             [NotNull] string fluentApiMethodName,
             [NotNull] IndentedStringBuilder stringBuilder)
+            => GenerateFluentApiForAnnotation(
+                ref annotations,
+                annotationName,
+                a => a?.Value,
+                fluentApiMethodName,
+                stringBuilder);
+
+        /// <summary>
+        ///     Generates a Fluent API calls for an annotation.
+        /// </summary>
+        /// <param name="annotations"> The list of annotations. </param>
+        /// <param name="annotationName"> The name of the annotation to generate code for. </param>
+        /// <param name="annotationValueFunc"> A delegate to generate the value from the annotation. </param>
+        /// <param name="fluentApiMethodName"> The Fluent API method name. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateFluentApiForAnnotation(
+            [NotNull] ref List<IAnnotation> annotations,
+            [NotNull] string annotationName,
+            [NotNull] Func<IAnnotation, object> annotationValueFunc,
+            [NotNull] string fluentApiMethodName,
+            [NotNull] IndentedStringBuilder stringBuilder)
+            => GenerateFluentApiForAnnotation(
+                ref annotations,
+                annotationName,
+                a => a?.Value,
+                fluentApiMethodName,
+                null,
+                stringBuilder);
+
+        /// <summary>
+        ///     Generates a Fluent API calls for an annotation.
+        /// </summary>
+        /// <param name="annotations"> The list of annotations. </param>
+        /// <param name="annotationName"> The name of the annotation to generate code for. </param>
+        /// <param name="annotationValueFunc"> A delegate to generate the value from the annotation. </param>
+        /// <param name="fluentApiMethodName"> The Fluent API method name. </param>
+        /// <param name="genericTypesFunc"> A delegate to generate the generic types to use for the method call. </param>
+        /// <param name="stringBuilder"> The builder code is added to. </param>
+        protected virtual void GenerateFluentApiForAnnotation(
+            [NotNull] ref List<IAnnotation> annotations,
+            [NotNull] string annotationName,
+            [CanBeNull] Func<IAnnotation, object> annotationValueFunc,
+            [NotNull] string fluentApiMethodName,
+            [CanBeNull] Func<IAnnotation, IReadOnlyList<Type>> genericTypesFunc,
+            [NotNull] IndentedStringBuilder stringBuilder)
         {
             var annotation = annotations.FirstOrDefault(a => a.Name == annotationName);
+            var annotationValue = annotationValueFunc?.Invoke(annotation);
+            var genericTypes = genericTypesFunc?.Invoke(annotation);
+            var hasGenericTypes = genericTypes?.All(t => t != null) == true;
 
-            if (annotation?.Value != null)
+            if (annotationValue != null
+                || hasGenericTypes)
             {
                 stringBuilder
                     .AppendLine()
                     .Append(".")
-                    .Append(fluentApiMethodName)
-                    .Append("(")
-                    .Append(Code.UnknownLiteral(annotation.Value))
-                    .Append(")");
+                    .Append(fluentApiMethodName);
+
+                if (hasGenericTypes)
+                {
+                    stringBuilder
+                        .Append("<")
+                        .Append(string.Join(", ", genericTypes.Select(t => Code.Reference(t))))
+                        .Append(">");
+                }
+
+                stringBuilder.Append("(");
+
+                if (annotationValue != null)
+                {
+                    stringBuilder.Append(Code.UnknownLiteral(annotationValue));
+                }
+
+                stringBuilder.Append(")");
 
                 annotations.Remove(annotation);
             }
