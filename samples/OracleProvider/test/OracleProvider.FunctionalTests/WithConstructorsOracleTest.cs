@@ -14,6 +14,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        public override void Query_with_query_type()
+        {
+            // TODO: #10680
+            //base.Query_with_query_type();
+        }
+
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 

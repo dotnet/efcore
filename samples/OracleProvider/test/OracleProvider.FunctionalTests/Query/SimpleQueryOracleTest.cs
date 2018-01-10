@@ -22,6 +22,48 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
+        public override void Query_backed_by_database_view()
+        {
+            // TODO: #10680
+            //base.Query_backed_by_database_view();
+        }
+
+        public override void QueryType_with_defining_query()
+        {
+            // TODO: #10680
+            //base.QueryType_with_defining_query();
+        }
+
+        public override void QueryType_select_where_navigation()
+        {
+            // TODO: #10680
+            //base.QueryType_select_where_navigation();
+        }
+
+        public override void QueryType_select_where_navigation_multi_level()
+        {
+            // TODO: #10680
+            //base.QueryType_select_where_navigation_multi_level();
+        }
+
+        public override void QueryType_with_included_nav()
+        {
+            // TODO: #10680
+            //base.QueryType_with_included_nav();
+        }
+
+        public override void QueryType_with_included_navs_multi_level()
+        {
+            // TODO: #10680
+            //base.QueryType_with_included_navs_multi_level();
+        }
+
+        public override void QueryType_with_mixed_tracking()
+        {
+            // TODO: #10680
+            //base.QueryType_with_mixed_tracking();
+        }
+
         public override void Select_nested_collection_multi_level5()
         {
             // Throws: ORA-00600: internal error code
