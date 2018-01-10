@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     materializer,
                     Expression.Constant(
                         QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
-                        && !entityType.IsQueryType()));
+                        && !entityType.IsQueryType));
             }
 
             return Expression.Call(

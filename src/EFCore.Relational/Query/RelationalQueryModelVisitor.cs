@@ -90,6 +90,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual IDbContextOptions ContextOptions { get; }
 
         /// <summary>
+        ///     Determine whether a defining query should be applied when querying the target entity type.
+        /// </summary>
+        /// <param name="entityType">The target entity type.</param>
+        /// <param name="querySource">The target query source.</param>
+        /// <returns>true if the target type should have a defining query applied.</returns>
+        public override bool ShouldApplyDefiningQuery(IEntityType entityType, IQuerySource querySource)
+        {
+            return !(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionalAnnotation tableNameAnnotation)
+                    || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention
+                   && QueryCompilationContext.QueryAnnotations
+                       .OfType<FromSqlResultOperator>()
+                       .All(a => a.QuerySource != querySource);
+        }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether the query requires client eval.
         /// </summary>
         /// <value>

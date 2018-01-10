@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
                 }
 
-                if (entityType.IsQueryType())
+                if (entityType.IsQueryType)
                 {
                     throw new InvalidOperationException(CoreStrings.QueryTypeNotValid(entityType.DisplayName()));
                 }

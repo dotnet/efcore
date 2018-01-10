@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 setInfo.Setter.SetClrValue(
                     context,
-                    !setInfo.IsQueryType
-                        ? ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType)
-                        : ((IDbQueryCache)context).GetOrAddQuery(_querySource, setInfo.ClrType));
+                    setInfo.IsQueryType
+                        ? ((IDbQueryCache)context).GetOrAddQuery(_querySource, setInfo.ClrType)
+                        : ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.ClrType));
             }
         }
     }

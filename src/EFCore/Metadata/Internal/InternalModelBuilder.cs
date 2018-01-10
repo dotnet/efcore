@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                if (throwOnQuery && entityType.IsQueryType())
+                if (throwOnQuery && entityType.IsQueryType)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.CannotAccessQueryAsEntity(entityType.DisplayName()));
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                if (!entityType.IsQueryType())
+                if (!entityType.IsQueryType)
                 {
                     throw new InvalidOperationException(
                         CoreStrings.CannotAccessEntityAsQuery(entityType.DisplayName()));

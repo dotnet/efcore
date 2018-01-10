@@ -30,9 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IMutableEntityType BaseType { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
+        ///     Gets or sets the LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
         new LambdaExpression QueryFilter { get; [param: CanBeNull] set; }
+
+        /// <summary>
+        ///     Gets or sets whether this entity type is a query type.
+        /// </summary>
+        /// <returns> true if the entity type is a query type; otherwise false. </returns>
+        new bool IsQueryType { get; set; }
+
+        /// <summary>
+        ///     Gets the LINQ query used as the default source for queries of this type.
+        /// </summary>
+        new LambdaExpression DefiningQuery { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Sets the primary key for this entity.

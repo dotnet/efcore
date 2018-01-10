@@ -66,8 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention());
 
-            conventionSet.EntityTypeAnnotationChangedConventions.Add(new DefiningQueryOrExplicitTableConvention());
-
             return conventionSet;
         }
 

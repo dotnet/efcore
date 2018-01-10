@@ -7,9 +7,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Remotion.Linq;
+using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
 using Remotion.Linq.Parsing.ExpressionVisitors;
@@ -24,8 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     {
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IQueryModelGenerator _queryModelGenerator;
+        private readonly EntityQueryModelVisitor _entityQueryModelVisitor;
 
         private readonly Parameters _parameters = new Parameters();
+
+        private IQuerySource _querySource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -39,13 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public ModelExpressionApplyingExpressionVisitor(
             [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IQueryModelGenerator queryModelGenerator)
+            [NotNull] IQueryModelGenerator queryModelGenerator,
+            [NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
             Check.NotNull(queryModelGenerator, nameof(queryModelGenerator));
+            Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor));
 
             _queryCompilationContext = queryCompilationContext;
             _queryModelGenerator = queryModelGenerator;
+            _entityQueryModelVisitor = entityQueryModelVisitor;
         }
 
         /// <summary>
@@ -68,6 +75,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void ApplyModelExpressions([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+            
+            _querySource = queryModel.MainFromClause;
+
+            queryModel.TransformExpressions(Visit);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
             if (constantExpression.IsEntityQueryable())
@@ -79,16 +99,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     Expression newExpression = constantExpression;
 
-                    if (entityType.IsQueryType())
+                    if (entityType.IsQueryType)
                     {
                         IsViewTypeQuery = true;
 
-                        var annotation = entityType.FindAnnotation(CoreAnnotationNames.DefiningQuery);
+                        var query = entityType.DefiningQuery;
 
-                        if (annotation != null)
+                        if (query != null
+                            && _entityQueryModelVisitor.ShouldApplyDefiningQuery(entityType, _querySource))
                         {
-                            var query = (LambdaExpression)annotation.Value;
-
                             var parameterizedQuery
                                 = _queryModelGenerator
                                     .ExtractParameters(
@@ -179,7 +198,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
+            var querySource = _querySource;
+
+            _querySource = subQueryExpression.QueryModel.MainFromClause;
+
             subQueryExpression.QueryModel.TransformExpressions(Visit);
+
+            _querySource = querySource;
 
             return subQueryExpression;
         }

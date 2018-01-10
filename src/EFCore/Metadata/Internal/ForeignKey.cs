@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
-            if (principalEntityType.IsQueryType())
+            if (principalEntityType.IsQueryType)
             {
                 throw new InvalidOperationException(CoreStrings.QueryTypeCannotBePrincipal(principalEntityType.DisplayName()));
             }
@@ -264,6 +264,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             bool pointsToPrincipal)
         {
+            if (PrincipalEntityType.IsQueryType)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ErrorNavCannotTargetQueryType(PrincipalEntityType.DisplayName()));
+            }
+            
             var name = propertyIdentity?.Name;
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
             if (name == oldNavigation?.Name)

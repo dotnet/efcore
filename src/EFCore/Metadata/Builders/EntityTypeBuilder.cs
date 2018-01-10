@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            if (builder.Metadata.IsQueryType())
+            if (builder.Metadata.IsQueryType)
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotAccessQueryAsEntity(builder.Metadata.DisplayName()));

@@ -867,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var entityOrQueryType = context.Model.FindEntityType(typeof(TEntity));
 
-                return entityOrQueryType.IsQueryType()
+                return entityOrQueryType.IsQueryType
                         ? (IQueryable<TEntity>)context.Query<TEntity>()
                         : context.Set<TEntity>();
             }

@@ -71,6 +71,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return this;
             }
 
+            public override void Query<TQuery>()
+                => ModelBuilder.Query(typeof(TQuery));
+
             public override void Owned<TEntity>()
                 => ModelBuilder.Owned(typeof(TEntity));
 

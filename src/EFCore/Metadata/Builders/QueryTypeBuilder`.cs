@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             (QueryTypeBuilder<TQuery>)base.HasAnnotation(annotation, value);
 
         /// <summary>
-        ///     Sets the base type of this view in an inheritance hierarchy.
+        ///     Sets the base type of this query type in an inheritance hierarchy.
         /// </summary>
         /// <param name="name"> The name of the base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             new QueryTypeBuilder<TQuery>(Builder.HasBaseType(name, ConfigurationSource.Explicit));
 
         /// <summary>
-        ///     Sets the base type of this view in an inheritance hierarchy.
+        ///     Sets the base type of this query type in an inheritance hierarchy.
         /// </summary>
         /// <param name="queryType"> The base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             new QueryTypeBuilder<TQuery>(Builder.HasBaseType(queryType, ConfigurationSource.Explicit));
 
         /// <summary>
-        ///     Sets the base type of this view in an inheritance hierarchy.
+        ///     Sets the base type of this query type in an inheritance hierarchy.
         /// </summary>
         /// <typeparam name="TBaseType"> The base type. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         {
             Check.NotNull(query, nameof(query));
 
-            Builder.Metadata[CoreAnnotationNames.DefiningQuery] = query;
+            Builder.HasDefiningQuery(query);
 
             return this;
         }

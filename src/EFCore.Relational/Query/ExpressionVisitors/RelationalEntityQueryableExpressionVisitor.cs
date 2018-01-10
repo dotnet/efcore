@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             Check.NotNull(expression, nameof(expression));
 
             var queryModelVisitor = (RelationalQueryModelVisitor)CreateQueryModelVisitor();
-
             var queryModelMapping = new Dictionary<QueryModel, QueryModel>();
+
             expression.QueryModel.PopulateQueryModelMapping(queryModelMapping);
 
             queryModelVisitor.VisitQueryModel(expression.QueryModel);
@@ -151,12 +151,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 
-            var name = entityType.Relational().TableName;
+            var tableName = entityType.Relational().TableName;
 
             var tableAlias
                 = relationalQueryCompilationContext.CreateUniqueTableAlias(
                     _querySource.HasGeneratedItemName()
-                        ? name[0].ToString().ToLowerInvariant()
+                        ? tableName[0].ToString().ToLowerInvariant()
                         : (_querySource as GroupJoinClause)?.JoinClause.ItemName
                           ?? _querySource.ItemName);
 
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             {
                 selectExpression.AddTable(
                     new TableExpression(
-                        name,
+                        tableName,
                         entityType.Relational().Schema,
                         tableAlias,
                         _querySource));
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                     .QuerySourceRequiresMaterialization(_querySource)
                 || QueryModelVisitor.RequiresClientEval)
             {
-                var materializerExpression 
+                var materializerExpression
                     = _materializerFactory
                         .CreateMaterializer(
                             entityType,
@@ -259,17 +259,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 shaper
                     = (Shaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
                         .Invoke(
-                            obj: null, 
+                            obj: null,
                             parameters: new object[]
                             {
                                 _querySource,
                                 QueryModelVisitor.QueryCompilationContext.IsTrackingQuery
-                                    && !entityType.IsQueryType(),
+                                && !entityType.IsQueryType,
                                 entityType.FindPrimaryKey(),
                                 materializer,
                                 typeIndexMap,
                                 QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
-                                    && !entityType.IsQueryType()
+                                && !entityType.IsQueryType
                             });
             }
             else

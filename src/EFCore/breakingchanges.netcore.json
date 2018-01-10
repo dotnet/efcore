@@ -43,5 +43,40 @@
     "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.ModelValidatorDependencies",
     "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Diagnostics.IDiagnosticsLogger<Microsoft.EntityFrameworkCore.DbLoggerCategory+Model+Validation> logger)",
     "Kind": "Removal"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableModel : Microsoft.EntityFrameworkCore.Metadata.IModel, Microsoft.EntityFrameworkCore.Metadata.IMutableAnnotatable",
+    "MemberId": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType AddQueryType(System.Type type)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+    "MemberId": "System.Boolean get_IsQueryType()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IEntityType : Microsoft.EntityFrameworkCore.Metadata.ITypeBase",
+    "MemberId": "System.Linq.Expressions.LambdaExpression get_DefiningQuery()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Boolean get_IsQueryType()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Linq.Expressions.LambdaExpression get_DefiningQuery()",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Void set_DefiningQuery(System.Linq.Expressions.LambdaExpression value)",
+    "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
+    "MemberId": "System.Void set_IsQueryType(System.Boolean value)",
+    "Kind": "Addition"
   }
 ]

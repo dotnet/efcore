@@ -306,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var entityType = _model.FindEntityType(entityQueryable.ElementType);
 
                     if (entityType != null
-                        && !entityType.IsQueryType()
+                        && !entityType.IsQueryType
                         && (_referencedEntityTypes > 0
                             || entityType.ShadowPropertyCount() > 0))
                     {

@@ -105,7 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _modelExpressionApplyingExpressionVisitor
                 = new ModelExpressionApplyingExpressionVisitor(
                     _queryCompilationContext,
-                    dependencies.QueryModelGenerator);
+                    dependencies.QueryModelGenerator,
+                    this);
         }
 
         /// <summary>
@@ -297,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             includeCompiler.LogIgnoredIncludes();
 
-            queryModel.TransformExpressions(_modelExpressionApplyingExpressionVisitor.Visit);
+            _modelExpressionApplyingExpressionVisitor.ApplyModelExpressions(queryModel);
 
             // Second pass of optimizations
             
@@ -310,6 +311,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             // Log results
 
             QueryCompilationContext.Logger.QueryModelOptimized(queryModel);
+        }
+
+        /// <summary>
+        ///     Determine whether a defining query should be applied when querying the target entity type.
+        /// </summary>
+        /// <param name="entityType">The target entity type.</param>
+        /// <param name="querySource">The target query source.</param>
+        /// <returns>true if the target type should have a defining query applied.</returns>
+        public virtual bool ShouldApplyDefiningQuery(
+            [NotNull] IEntityType entityType, [NotNull] IQuerySource querySource)
+        {
+            return true;
         }
 
         private class EagerLoadingExpressionVisitor : QueryModelVisitorBase

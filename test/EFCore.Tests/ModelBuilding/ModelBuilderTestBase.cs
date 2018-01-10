@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
@@ -18,6 +19,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public abstract class ModelBuilderTestBase
         {
+            [Fact]
+            public void Entity_throws_when_called_for_query()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Query<Customer>();
+
+                Assert.Equal(
+                    CoreStrings.CannotAccessQueryAsEntity(nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<Customer>()).Message);
+            }
+
             protected void AssertEqual(
                 IEnumerable<string> expectedNames,
                 IEnumerable<string> actualNames,
@@ -134,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Entity<TEntity>(Action<TestEntityTypeBuilder<TEntity>> buildAction)
                 where TEntity : class;
 
-            public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
+            public virtual void Query<TQuery>()
                 where TQuery : class
                 => ModelBuilder.Query<TQuery>();
 

@@ -122,13 +122,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(type, nameof(type));
 
-            var queryType = new EntityType(type, this, ConfigurationSource.Explicit);
-
-            queryType.SetAnnotation(
-                CoreAnnotationNames.IsQueryTypeAnnotation,
-                new object(), 
-                ConfigurationSource.Explicit);
-
+            var queryType = new EntityType(type, this, ConfigurationSource.Explicit)
+            {
+                IsQueryType = true
+            };
+            
             _clrTypeMap[type] = queryType;
 
             return AddEntityType(queryType);
@@ -509,6 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
         IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
         IMutableEntityType IMutableModel.AddEntityType(Type type) => AddEntityType(type);
+        IMutableEntityType IMutableModel.AddQueryType(Type type) => AddQueryType(type);
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
 
         IEntityType IModel.FindEntityType(string name, string definingNavigationName, IEntityType definingEntityType)

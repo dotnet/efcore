@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder
                 .Append(indent)
-                .Append(!entityType.IsQueryType() ? "EntityType: " : "QueryType: ")
+                .Append(!entityType.IsQueryType ? "EntityType: " : "QueryType: ")
                 .Append(entityType.DisplayName());
 
             if (entityType.BaseType != null)

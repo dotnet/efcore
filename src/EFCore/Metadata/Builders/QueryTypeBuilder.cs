@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Sets the base type of this view in an inheritance hierarchy.
+        ///     Sets the base type of this query type in an inheritance hierarchy.
         /// </summary>
         /// <param name="name"> The name of the base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Sets the base type of this view in an inheritance hierarchy.
+        ///     Sets the base type of this query type in an inheritance hierarchy.
         /// </summary>
         /// <param name="queryType"> The base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -94,11 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         When adding a new property, if a property with the same name exists in the view class
-        ///         then it will be added to the model. If no property exists in the view class, then
+        ///         When adding a new property, if a property with the same name exists in the query type class
+        ///         then it will be added to the model. If no property exists in the query type class, then
         ///         a new shadow state property will be added. A shadow state property is one that does not have a
-        ///         corresponding property in the view class. The current value for the property is stored in
-        ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the view class.
+        ///         corresponding property in the query type class. The current value for the property is stored in
+        ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the query type class.
         ///     </para>
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
@@ -119,11 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         When adding a new property, if a property with the same name exists in the view class
-        ///         then it will be added to the model. If no property exists in the view class, then
+        ///         When adding a new property, if a property with the same name exists in the query type class
+        ///         then it will be added to the model. If no property exists in the query type class, then
         ///         a new shadow state property will be added. A shadow state property is one that does not have a
-        ///         corresponding property in the view class. The current value for the property is stored in
-        ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the view class.
+        ///         corresponding property in the query type class. The current value for the property is stored in
+        ///         the <see cref="ChangeTracker" /> rather than being stored in instances of the query type class.
         ///     </para>
         /// </summary>
         /// <param name="propertyType"> The type of the property to be configured. </param>
@@ -225,8 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotNull(relatedType, nameof(relatedType));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            var relatedEntityType = Builder.Metadata.FindInDefinitionPath(relatedType) ??
-                                    Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+            var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder(
                 Builder.Metadata,
@@ -264,8 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NotEmpty(relatedTypeName, nameof(relatedTypeName));
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
-            var relatedEntityType = Builder.Metadata.FindInDefinitionPath(relatedTypeName) ??
-                                    Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+            var relatedEntityType = Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder(
                 Builder.Metadata,

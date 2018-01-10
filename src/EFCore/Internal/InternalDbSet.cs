@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TEntity).ShortDisplayName()));
                 }
 
-                if (_entityType.IsQueryType())
+                if (_entityType.IsQueryType)
                 {
                     _entityType = null;
 

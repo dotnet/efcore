@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var targetClrType = candidateTuple.Value;
                 
                 if (entityTypeBuilder.IsIgnored(navigationPropertyInfo.Name, ConfigurationSource.Convention)
-                    || (entityTypeBuilder.Metadata.IsQueryType()
+                    || (entityTypeBuilder.Metadata.IsQueryType
                         && navigationPropertyInfo.PropertyType.TryGetSequenceType() != null))
                 {
                     continue;
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 var candidateTargetEntityType = candidateTargetEntityTypeBuilder.Metadata;
 
-                if (candidateTargetEntityType.IsQueryType())
+                if (candidateTargetEntityType.IsQueryType)
                 {
                     continue;
                 }
@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     if (inverseTargetType != entityType.ClrType
                         || navigationPropertyInfo.IsSameAs(inversePropertyInfo)
                         || candidateTargetEntityTypeBuilder.IsIgnored(inversePropertyInfo.Name, ConfigurationSource.Convention)
-                        || entityType.IsQueryType()
+                        || entityType.IsQueryType
                         || (entityType.HasDefiningNavigation()
                             && entityType.DefiningEntityType == candidateTargetEntityType
                             && entityType.DefiningNavigationName != inversePropertyInfo.Name))

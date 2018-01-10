@@ -235,8 +235,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Creates a <see cref="DbQuery{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
         /// </summary>
-        /// <typeparam name="TQuery"> The type of view for which a view should be returned. </typeparam>
-        /// <returns> A view for the given query type. </returns>
+        /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
+        /// <returns> A DbQuery for the given query type. </returns>
         public virtual DbQuery<TQuery> Query<TQuery>()
             where TQuery : class
             => (DbQuery<TQuery>)((IDbQueryCache)this).GetOrAddQuery(DbContextDependencies.QuerySource, typeof(TQuery));
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 
-            if (entityType.IsQueryType())
+            if (entityType.IsQueryType)
             {
                 throw new InvalidOperationException(CoreStrings.InvalidSetTypeQuery(type.ShortDisplayName()));
             }
