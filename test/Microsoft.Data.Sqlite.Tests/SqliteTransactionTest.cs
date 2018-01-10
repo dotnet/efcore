@@ -93,15 +93,19 @@ namespace Microsoft.Data.Sqlite
                 connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
 
                 using (connection1.BeginTransaction())
-                using (connection2.BeginTransaction(IsolationLevel.Serializable))
                 {
                     connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                    var command = connection2.CreateCommand();
-                    command.CommandText = "SELECT * FROM Data;";
-                    command.CommandTimeout = 0;
+                    var ex = Assert.Throws<SqliteException>(
+                        () =>
+                        {
+                            // TODO: Set timeout to zero (issue #473)
+                            using (connection2.BeginTransaction(IsolationLevel.Serializable))
+                            {
+                                connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                            }
+                        });
 
-                    var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
                     Assert.Equal(raw.SQLITE_LOCKED, ex.SqliteErrorCode);
                     Assert.Equal(raw.SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
                 }
