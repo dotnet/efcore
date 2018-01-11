@@ -1377,7 +1377,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 typeName);
 
         /// <summary>
-        ///     The child/dependent side could not be determined for the one-to-one relationship that was detected between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
+        ///     The child/dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.
         /// </summary>
         public static string AmbiguousOneToOneRelationship([CanBeNull] object dependentToPrincipalNavigationSpecification, [CanBeNull] object principalToDependentNavigationSpecification)
             => string.Format(
@@ -1621,7 +1621,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("PoolingOptionsModified");
 
         /// <summary>
-        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a dependent entity type.
+        ///     The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a weak entity type.
         /// </summary>
         public static string ForeignKeySelfReferencingDependentEntityType([CanBeNull] object dependentType)
             => string.Format(
@@ -1637,35 +1637,35 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, referencedEntityType, foreignKey);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be added to the model because a dependent entity type with the same name already exists.
+        ///     The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.
         /// </summary>
-        public static string ClashingDependentEntityType([CanBeNull] object entityType)
+        public static string ClashingWeakEntityType([CanBeNull] object entityType)
             => string.Format(
-                GetString("ClashingDependentEntityType", nameof(entityType)),
+                GetString("ClashingWeakEntityType", nameof(entityType)),
                 entityType);
 
         /// <summary>
-        ///     The dependent entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
+        ///     The weak entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.
         /// </summary>
-        public static string ClashingNonDependentEntityType([CanBeNull] object entityType)
+        public static string ClashingNonWeakEntityType([CanBeNull] object entityType)
             => string.Format(
-                GetString("ClashingNonDependentEntityType", nameof(entityType)),
+                GetString("ClashingNonWeakEntityType", nameof(entityType)),
                 entityType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot have dependent entity type '{baseType}' as the base type.
+        ///     The type '{entityType}' cannot have weak entity type '{baseType}' as the base type.
         /// </summary>
-        public static string DependentBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
+        public static string WeakBaseType([CanBeNull] object entityType, [CanBeNull] object baseType)
             => string.Format(
-                GetString("DependentBaseType", nameof(entityType), nameof(baseType)),
+                GetString("WeakBaseType", nameof(entityType), nameof(baseType)),
                 entityType, baseType);
 
         /// <summary>
-        ///     The dependent entity type '{entityType}' cannot have a base type.
+        ///     The weak entity type '{entityType}' cannot have a base type.
         /// </summary>
-        public static string DependentDerivedType([CanBeNull] object entityType)
+        public static string WeakDerivedType([CanBeNull] object entityType)
             => string.Format(
-                GetString("DependentDerivedType", nameof(entityType)),
+                GetString("WeakDerivedType", nameof(entityType)),
                 entityType);
 
         /// <summary>
@@ -1699,7 +1699,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     The ownership navigation '{ownershipNavigation}' should be the same as the defining navigation '{definingNavigation}' for entity type '{entityType}'
+        ///     The ownership by '{ownershipNavigation}' should use defining navigation '{definingNavigation}' for the owned type '{entityType}'
         /// </summary>
         public static string NonDefiningOwnership([CanBeNull] object ownershipNavigation, [CanBeNull] object definingNavigation, [CanBeNull] object entityType)
             => string.Format(
@@ -1715,15 +1715,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ownedEntityType, nonOwnedEntityType);
 
         /// <summary>
-        ///     The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the owner entity type can declare a navigation to an owned entity type.
+        ///     The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type.
         /// </summary>
-        public static string InverseToOwnedType([CanBeNull] object principalEntityType, [CanBeNull] object navigation, [CanBeNull] object ownedType)
+        public static string InverseToOwnedType([CanBeNull] object principalEntityType, [CanBeNull] object navigation, [CanBeNull] object ownedType, [CanBeNull] object ownerType)
             => string.Format(
-                GetString("InverseToOwnedType", nameof(principalEntityType), nameof(navigation), nameof(ownedType)),
-                principalEntityType, navigation, ownedType);
+                GetString("InverseToOwnedType", nameof(principalEntityType), nameof(navigation), nameof(ownedType), nameof(ownerType)),
+                principalEntityType, navigation, ownedType, ownerType);
 
         /// <summary>
-        ///     The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' is not supported because the owned entity type '{ownedType}' cannot be on the principal side.
+        ///     The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' is not supported because the owned entity type '{ownedType}' cannot be on the principal side of a non-ownership relationship.
         /// </summary>
         public static string PrincipalOwnedType([CanBeNull] object referencingEntityTypeOrNavigation, [CanBeNull] object referencedEntityTypeOrNavigation, [CanBeNull] object ownedType)
             => string.Format(
@@ -1803,7 +1803,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     _resourceManager.GetString("LogPossibleUnintendedReferenceComparison")));
 
         /// <summary>
-        ///     The same entity is being tracked as different dependent entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
+        ///     The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.
         /// </summary>
         public static readonly EventDefinition<string, string> LogDuplicateDependentEntityTypeInstance
             = new EventDefinition<string, string>(
@@ -2191,6 +2191,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Information,
                     CoreEventId.MultiplePrimaryKeyCandidates,
                     _resourceManager.GetString("LogMultiplePrimaryKeyCandidates")));
+
+        /// <summary>
+        ///     The owned entity type '{entityType}' cannot have a base type.
+        /// </summary>
+        public static string OwnedDerivedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("OwnedDerivedType", nameof(entityType)),
+                entityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

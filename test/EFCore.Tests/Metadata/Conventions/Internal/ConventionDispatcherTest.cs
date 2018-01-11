@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class ConventionDispatcherTest
@@ -23,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeAddedConvention(terminate: false, dependent: false);
-            var convention2 = new EntityTypeAddedConvention(terminate: true, dependent: false);
-            var convention3 = new EntityTypeAddedConvention(terminate: false, dependent: false);
+            var convention1 = new EntityTypeAddedConvention(terminate: false, onlyWeak: false);
+            var convention2 = new EntityTypeAddedConvention(terminate: true, onlyWeak: false);
+            var convention3 = new EntityTypeAddedConvention(terminate: false, onlyWeak: false);
             conventions.EntityTypeAddedConventions.Add(convention1);
             conventions.EntityTypeAddedConventions.Add(convention2);
             conventions.EntityTypeAddedConventions.Add(convention3);
@@ -67,32 +68,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false, true)]
         [InlineData(true, true)]
         [Theory]
-        public void OnEntityTypeAdded_calls_apply_on_conventions_in_order_for_dependent_entity_types(bool useBuilder, bool useScope)
+        public void OnEntityTypeAdded_calls_apply_on_conventions_in_order_for_weak_entity_types(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
 
-            var convention1 = new EntityTypeAddedConvention(terminate: false, dependent: true);
-            var convention2 = new EntityTypeAddedConvention(terminate: true, dependent: true);
-            var convention3 = new EntityTypeAddedConvention(terminate: false, dependent: true);
+            var convention1 = new EntityTypeAddedConvention(terminate: false, onlyWeak: true);
+            var convention2 = new EntityTypeAddedConvention(terminate: true, onlyWeak: true);
+            var convention3 = new EntityTypeAddedConvention(terminate: false, onlyWeak: true);
             conventions.EntityTypeAddedConventions.Add(convention1);
             conventions.EntityTypeAddedConventions.Add(convention2);
             conventions.EntityTypeAddedConventions.Add(convention3);
 
             var builder = new InternalModelBuilder(new Model(conventions));
-            var orderDetails = builder.Entity(typeof(OrderDetails), ConfigurationSource.Explicit);
+            var owner = builder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
             if (useBuilder)
             {
-                var result = orderDetails.Owns(typeof(Order), nameof(OrderDetails.Order), ConfigurationSource.Convention);
+                // Add another owned type to trigger making them weak
+                owner.Owns(typeof(OrderDetails), nameof(Order.OtherOrderDetails), ConfigurationSource.Convention);
+                var result = owner.Owns(typeof(OrderDetails), nameof(Order.OrderDetails), ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
             else
             {
                 var result = builder.Metadata.AddEntityType(
-                    typeof(Order), nameof(OrderDetails.Order), orderDetails.Metadata, ConfigurationSource.Convention);
+                    typeof(OrderDetails), nameof(Order.OrderDetails), owner.Metadata, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -104,30 +107,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 scope.Dispose();
             }
 
-            Assert.Equal(1, convention1.Calls);
-            Assert.Equal(1, convention2.Calls);
+            Assert.Equal(useBuilder ? 2 : 1, convention1.Calls);
+            Assert.Equal(useBuilder ? 2 : 1, convention2.Calls);
             Assert.Equal(0, convention3.Calls);
 
             Assert.Empty(builder.Metadata.GetEntityTypes().Where(e => e.HasDefiningNavigation()));
-            Assert.Null(builder.Metadata.FindEntityType(typeof(Order)));
+            Assert.Null(builder.Metadata.FindEntityType(typeof(OrderDetails)));
         }
 
         private class EntityTypeAddedConvention : IEntityTypeAddedConvention
         {
             private readonly bool _terminate;
-            private readonly bool _dependent;
+            private readonly bool _onlyWeak;
             public int Calls;
 
-            public EntityTypeAddedConvention(bool terminate, bool dependent)
+            public EntityTypeAddedConvention(bool terminate, bool onlyWeak)
             {
                 _terminate = terminate;
-                _dependent = dependent;
+                _onlyWeak = onlyWeak;
             }
 
             public InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder)
             {
                 Assert.Same(entityTypeBuilder, entityTypeBuilder.Metadata.Builder);
-                if (entityTypeBuilder.Metadata.HasDefiningNavigation() == _dependent)
+                if (entityTypeBuilder.Metadata.HasDefiningNavigation() == _onlyWeak)
                 {
                     Calls++;
                 }
@@ -136,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     if (entityTypeBuilder.Metadata.HasDefiningNavigation())
                     {
-                        if (_dependent)
+                        if (_onlyWeak)
                         {
                             entityTypeBuilder.ModelBuilder.RemoveEntityType(
                                 entityTypeBuilder.Metadata, ConfigurationSource.Convention);
@@ -144,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                     else
                     {
-                        if (!_dependent)
+                        if (!_onlyWeak)
                         {
                             entityTypeBuilder.Metadata.Model.RemoveEntityType(entityTypeBuilder.Metadata.Name);
                         }
@@ -2116,7 +2119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [InlineData(false)]
         [InlineData(true)]
         [Theory]
-        public void OnModelInitializd_calls_apply_on_conventions_in_order(bool useBuilder)
+        public void OnModelInitialized_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -2223,6 +2226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public string Name { get; set; }
 
             public virtual OrderDetails OrderDetails { get; set; }
+            public virtual OrderDetails OtherOrderDetails { get; set; }
         }
 
         private class SpecialOrder : Order

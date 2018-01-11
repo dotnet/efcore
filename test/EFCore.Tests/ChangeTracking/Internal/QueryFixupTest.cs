@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -895,7 +897,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             var dependentEntry = principalEntry.Reference(p => p.OrderDetails).TargetEntry;
                             Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
                             Assert.Equal(EntityState.Unchanged, dependentEntry.State);
-                            Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.DefiningNavigationName);
+                            Assert.Equal(nameof(OrderDetails), dependentEntry.Metadata.FindOwnership().PrincipalToDependent.Name);
 
                             var subDependent1Entry = dependentEntry.Reference(p => p.BillingAddress).TargetEntry;
                             Assert.Equal(principal.Id, subDependent1Entry.Property("OrderDetailsId").CurrentValue);
@@ -960,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             var dependentEntry = context.Entry(owned);
                             Assert.Equal(principal.Id, dependentEntry.Property("OrderId").CurrentValue);
-                            Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.DefiningNavigationName);
+                            Assert.Equal(nameof(Order.OrderDetails), dependentEntry.Metadata.FindOwnership().PrincipalToDependent.Name);
                         });
             }
         }

@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class SqlServerModelBuilderGenericTest : ModelBuilderGenericTest
@@ -147,10 +148,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
 
-                var bookOwnershipBuilder2 = modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel);
-                var bookLabel2OwnershipBuilder1 = bookOwnershipBuilder2.OwnsOne(l => l.AnotherBookLabel);
-                var bookOwnershipBuilder1 = modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
-                var bookLabel1OwnershipBuilder2 = bookOwnershipBuilder1.OwnsOne(l => l.SpecialBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.AnotherBookLabel).OwnsOne(s => s.SpecialBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).OwnsOne(l => l.SpecialBookLabel).OwnsOne(a => a.AnotherBookLabel);
+
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).OwnsOne(l => l.AnotherBookLabel).OwnsOne(a => a.SpecialBookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).OwnsOne(l => l.SpecialBookLabel).OwnsOne(s => s.AnotherBookLabel);
+
+                modelBuilder.Validate();
 
                 var book = model.FindEntityType(typeof(Book));
                 var bookOwnership1 = book.FindNavigation(nameof(Book.Label)).ForeignKey;
@@ -159,23 +163,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var bookLabel1Ownership2 = bookOwnership1.DeclaringEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
                 var bookLabel2Ownership1 = bookOwnership2.DeclaringEntityType.FindNavigation(nameof(BookLabel.AnotherBookLabel)).ForeignKey;
                 var bookLabel2Ownership2 = bookOwnership2.DeclaringEntityType.FindNavigation(nameof(BookLabel.SpecialBookLabel)).ForeignKey;
-
-                // Only owned types have the table name set
-                Assert.Equal(book.SqlServer().TableName, bookOwnership1.DeclaringEntityType.SqlServer().TableName);
-                Assert.Equal(book.SqlServer().TableName, bookOwnership2.DeclaringEntityType.SqlServer().TableName);
-                Assert.NotEqual(book.SqlServer().TableName, bookLabel1Ownership1.DeclaringEntityType.SqlServer().TableName);
-                Assert.Equal(book.SqlServer().TableName, bookLabel1Ownership2.DeclaringEntityType.SqlServer().TableName);
-                Assert.Equal(book.SqlServer().TableName, bookLabel2Ownership1.DeclaringEntityType.SqlServer().TableName);
-                Assert.NotEqual(book.SqlServer().TableName, bookLabel2Ownership2.DeclaringEntityType.SqlServer().TableName);
-
-                var bookLabel1OwnershipBuilder1 = bookOwnershipBuilder1.OwnsOne(l => l.AnotherBookLabel);
-                var bookLabel2OwnershipBuilder2 = bookOwnershipBuilder2.OwnsOne(l => l.SpecialBookLabel);
-                bookLabel1OwnershipBuilder1.OwnsOne(l => l.SpecialBookLabel);
-                bookLabel1OwnershipBuilder2.OwnsOne(l => l.AnotherBookLabel);
-                bookLabel2OwnershipBuilder1.OwnsOne(l => l.SpecialBookLabel);
-                bookLabel2OwnershipBuilder2.OwnsOne(l => l.AnotherBookLabel);
-
-                modelBuilder.Validate();
 
                 Assert.Equal(book.SqlServer().TableName, bookOwnership1.DeclaringEntityType.SqlServer().TableName);
                 Assert.Equal(book.SqlServer().TableName, bookOwnership2.DeclaringEntityType.SqlServer().TableName);
@@ -206,8 +193,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(Book.AlternateLabel) + "_" + nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).SqlServer().ColumnName);
 
-                bookOwnershipBuilder1.ToTable("Label");
-                bookOwnershipBuilder2.ToTable("AlternateLabel");
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).ToTable("AlternateLabel");
 
                 Assert.Equal(
                     nameof(BookLabel.Id),

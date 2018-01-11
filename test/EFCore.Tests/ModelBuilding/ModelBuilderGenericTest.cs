@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public class ModelBuilderGenericTest : ModelBuilderTest

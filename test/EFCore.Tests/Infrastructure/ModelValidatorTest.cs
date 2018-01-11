@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -71,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int? P3 { get; set; }
 
             public A A { get; set; }
+            [NotMapped]
+            public A AnotherA { get; set; }
         }
 
         protected class D : A

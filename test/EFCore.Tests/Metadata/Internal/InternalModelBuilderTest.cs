@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalModelBuilderTest
@@ -284,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
-        
+
         [Fact]
         public void Can_mark_type_as_owned_type()
         {

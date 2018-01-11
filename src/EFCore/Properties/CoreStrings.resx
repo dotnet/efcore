@@ -632,7 +632,7 @@
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
   </data>
   <data name="AmbiguousOneToOneRelationship" xml:space="preserve">
-    <value>The child/dependent side could not be determined for the one-to-one relationship that was detected between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
+    <value>The child/dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the child/dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship configure them without specifying the inverse. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
   </data>
   <data name="AmbiguousForeignKeyPropertyCandidates" xml:space="preserve">
     <value>Both relationships between '{firstDependentToPrincipalNavigationSpecification}' and '{firstPrincipalToDependentNavigationSpecification}' and between '{secondDependentToPrincipalNavigationSpecification}' and '{secondPrincipalToDependentNavigationSpecification}' could use {foreignKeyProperties} as the foreign key. To resolve this configure the foreign key properties explicitly on at least one of the relationships.</value>
@@ -725,22 +725,22 @@
     <value>OnConfiguring cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
   </data>
   <data name="ForeignKeySelfReferencingDependentEntityType" xml:space="preserve">
-    <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a dependent entity type.</value>
+    <value>The foreign keys on entity type '{dependentType}' cannot target the same entity type because it is a weak entity type.</value>
   </data>
   <data name="EntityTypeInUseByForeignKey" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.</value>
   </data>
-  <data name="ClashingDependentEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be added to the model because a dependent entity type with the same name already exists.</value>
+  <data name="ClashingWeakEntityType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.</value>
   </data>
-  <data name="ClashingNonDependentEntityType" xml:space="preserve">
-    <value>The dependent entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
+  <data name="ClashingNonWeakEntityType" xml:space="preserve">
+    <value>The weak entity type '{entityType}' cannot be added to the model because an entity type with the same name already exists.</value>
   </data>
-  <data name="DependentBaseType" xml:space="preserve">
-    <value>The type '{entityType}' cannot have dependent entity type '{baseType}' as the base type.</value>
+  <data name="WeakBaseType" xml:space="preserve">
+    <value>The type '{entityType}' cannot have weak entity type '{baseType}' as the base type.</value>
   </data>
-  <data name="DependentDerivedType" xml:space="preserve">
-    <value>The dependent entity type '{entityType}' cannot have a base type.</value>
+  <data name="WeakDerivedType" xml:space="preserve">
+    <value>The weak entity type '{entityType}' cannot have a base type.</value>
   </data>
   <data name="DuplicatePropertyInList" xml:space="preserve">
     <value>The property list {propertyList} cannot be used, because it contains a duplicate - '{property}'.</value>
@@ -755,16 +755,16 @@
     <value>The entity type '{entityType}' is the target of multiple ownership relationships.</value>
   </data>
   <data name="NonDefiningOwnership" xml:space="preserve">
-    <value>The ownership navigation '{ownershipNavigation}' should be the same as the defining navigation '{definingNavigation}' for entity type '{entityType}'</value>
+    <value>The ownership by '{ownershipNavigation}' should use defining navigation '{definingNavigation}' for the owned type '{entityType}'</value>
   </data>
   <data name="InconsistentOwnership" xml:space="preserve">
     <value>The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. All entity types sharing a CLR type must be configured as owned.</value>
   </data>
   <data name="InverseToOwnedType" xml:space="preserve">
-    <value>The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the owner entity type can declare a navigation to an owned entity type.</value>
+    <value>The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type.</value>
   </data>
   <data name="PrincipalOwnedType" xml:space="preserve">
-    <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' is not supported because the owned entity type '{ownedType}' cannot be on the principal side.</value>
+    <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' is not supported because the owned entity type '{ownedType}' cannot be on the principal side of a non-ownership relationship.</value>
   </data>
   <data name="AmbiguousDependentEntity" xml:space="preserve">
     <value>The entity type '{entityType}' has a defining navigation and the supplied entity is currently referenced from several owner entities. To access the entry for a particular reference call '{targetEntryCall}' on the owner entry.</value>
@@ -793,7 +793,7 @@
     <comment>Warning CoreEventId.PossibleUnintendedReferenceComparisonWarning object object</comment>
   </data>
   <data name="LogDuplicateDependentEntityTypeInstance" xml:space="preserve">
-    <value>The same entity is being tracked as different dependent entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
+    <value>The same entity is being tracked as different weak entity types '{dependent1}' and '{dependent2}'. If a property value changes it will result in two store changes, which might not be the desired outcome.</value>
     <comment>Warning CoreEventId.DuplicateDependentEntityTypeInstanceWarning string string</comment>
   </data>
   <data name="IdentityConflictOwned" xml:space="preserve">
@@ -930,5 +930,8 @@
   <data name="LogMultiplePrimaryKeyCandidates" xml:space="preserve">
     <value>Primary key not configured as both properties '{firstProperty}' and '{secondProperty}' could be used as the primary key for the entity type '{entityType}'.</value>
     <comment>Information CoreEventId.MultiplePrimaryKeyCandidates string string string</comment>
+  </data>
+  <data name="OwnedDerivedType" xml:space="preserve">
+    <value>The owned entity type '{entityType}' cannot have a base type.</value>
   </data>
 </root>

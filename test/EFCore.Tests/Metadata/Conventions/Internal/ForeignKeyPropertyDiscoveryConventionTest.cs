@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -728,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Does_not_invert_if_dependent_entity_type_can_have_non_pk_fk_property()
+        public void Does_not_invert_if_weak_entity_type_can_have_non_pk_fk_property()
         {
             var fkProperty = DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention).Metadata;
 
@@ -775,7 +778,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Does_not_invert_if_principal_entity_type_is_defining_the_dependent_entity_type()
+        public void Does_not_invert_if_principal_entity_type_is_defining_the_weak_entity_type()
+        {
+            PrincipalType.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
+            PrincipalType.Metadata.Model.RemoveEntityType(typeof(DependentEntity));
+
+            var dependentType = PrincipalType.Metadata.Model.AddEntityType(
+                typeof(DependentEntity), nameof(PrincipalEntity.InverseReferenceNav), PrincipalType.Metadata, ConfigurationSource.Convention);
+            var relationshipBuilder = dependentType.Builder.Relationship(
+                PrincipalType, null, nameof(PrincipalEntity.InverseReferenceNav), ConfigurationSource.Convention);
+            dependentType.Builder.PrimaryKey(new[] { nameof(DependentEntity.KayPee) }, ConfigurationSource.Convention);
+
+            var convention = CreateForeignKeyPropertyDiscoveryConvention();
+            var newRelationshipBuilder = convention.Apply(relationshipBuilder);
+            Assert.Same(dependentType, newRelationshipBuilder.Metadata.DeclaringEntityType);
+
+            newRelationshipBuilder = convention.Apply(newRelationshipBuilder);
+
+            var fk = (IForeignKey)dependentType.GetForeignKeys().Single();
+            Assert.Same(dependentType, fk.DeclaringEntityType);
+            Assert.Same(fk, newRelationshipBuilder.Metadata);
+            Assert.Same(PrimaryKey, fk.PrincipalKey.Properties.Single());
+            Assert.True(fk.IsUnique);
+
+            convention.Apply(relationshipBuilder.Metadata.DeclaringEntityType.Model.Builder);
+        }
+
+        [Fact]
+        public void Does_not_invert_if_principal_entity_type_owns_the_weak_entity_type()
         {
             PrincipalType.Property(nameof(PrincipalEntity.DependentEntityKayPee), ConfigurationSource.Convention);
             PrincipalType.Metadata.Model.RemoveEntityType(typeof(DependentEntity));

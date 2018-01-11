@@ -51,15 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && ConfigurationSource.Convention.Overrides(entityType.GetPrimaryKeyConfigurationSource()))
             {
                 IReadOnlyList<Property> keyProperties = null;
-                if (entityType.HasDefiningNavigation())
+                var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
+                                 ?? entityType.FindOwnership();
+                if (definingFk != null
+                    && definingFk.DeclaringEntityType == entityType)
                 {
-                    var definingFk = entityType.FindDefiningNavigation()?.ForeignKey;
-                    if (definingFk != null)
-                    {
-                        // Make sure that the properties won't be reuniquified
-                        definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
-                        keyProperties = definingFk.Properties.ToList();
-                    }
+                    // Make sure that the properties won't be reuniquified
+                    definingFk.UpdateForeignKeyPropertiesConfigurationSource(ConfigurationSource.Convention);
+                    keyProperties = definingFk.Properties.ToList();
                 }
 
                 if (keyProperties == null)

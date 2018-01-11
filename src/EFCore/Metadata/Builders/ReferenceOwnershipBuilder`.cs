@@ -340,14 +340,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TNewRelatedEntity : class
         {
             InternalRelationshipBuilder relationship;
-            using (RelatedEntityType.Model.ConventionDispatcher.StartBatch())
+            using (var batch = RelatedEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 relationship = RelatedEntityType.Builder.Owns(typeof(TNewRelatedEntity), navigation, ConfigurationSource.Explicit);
                 relationship.IsUnique(true, ConfigurationSource.Explicit);
+                relationship = batch.Run(relationship.Metadata).Builder;
             }
 
             return new ReferenceOwnershipBuilder<TRelatedEntity, TNewRelatedEntity>(
-                RelatedEntityType,
+                relationship.Metadata.PrincipalEntityType,
                 relationship.Metadata.DeclaringEntityType,
                 relationship);
         }

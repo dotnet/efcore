@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2010
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 15.0.26730.03
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore", "src\EFCore\EFCore.csproj", "{715C38E9-B2F5-4DB2-8025-0C6492DEBDD4}"
 EndProject
@@ -57,6 +57,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Attributes", "src\EFCore.Attributes\EFCore.Attributes.csproj", "{11B51A41-47CB-4EDB-9D8A-17095A65034A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Proxies", "src\EFCore.Proxies\EFCore.Proxies.csproj", "{467616E6-30EA-4861-B96B-9ABD46BE41EA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Proxies.Tests", "test\EFCore.Proxies.Tests\EFCore.Proxies.Tests.csproj", "{92C1AEF8-D4FC-4631-98B1-F16FB7103398}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -132,6 +134,10 @@ Global
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7583E3F0-8B29-4BEA-A55E-E8B66E6FD508}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92C1AEF8-D4FC-4631-98B1-F16FB7103398}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92C1AEF8-D4FC-4631-98B1-F16FB7103398}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92C1AEF8-D4FC-4631-98B1-F16FB7103398}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92C1AEF8-D4FC-4631-98B1-F16FB7103398}.Release|Any CPU.Build.0 = Release|Any CPU
 		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11B51A41-47CB-4EDB-9D8A-17095A65034A}.Release|Any CPU.ActiveCfg = Release|Any CPU

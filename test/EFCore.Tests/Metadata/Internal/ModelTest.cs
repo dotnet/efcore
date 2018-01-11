@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class ModelTest
@@ -102,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Can_add_dependent_entity_types()
+        public void Can_add_weak_entity_types()
         {
             IMutableModel model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
@@ -130,10 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 model.FindEntityType(typeof(Order).DisplayName(), nameof(Customer.Orders), (IEntityType)customerType));
 
             Assert.Equal(
-                CoreStrings.ClashingDependentEntityType(typeof(Order).DisplayName(fullName: false)),
+                CoreStrings.ClashingWeakEntityType(typeof(Order).DisplayName(fullName: false)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Order))).Message);
             Assert.Equal(
-                CoreStrings.ClashingNonDependentEntityType(
+                CoreStrings.ClashingNonWeakEntityType(
                     nameof(Customer) + "." + nameof(Customer.Orders) + "#"
                     + nameof(Order) + "." + nameof(Order.Customer) + "#" + nameof(Customer)),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer), nameof(Order.Customer), dependentOrderType)).Message);

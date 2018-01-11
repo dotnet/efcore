@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -64,6 +65,7 @@ LEFT JOIN [Level1] AS [OneToOne_Required_PK.OneToOne_Required_PK.OneToOne_Requir
 WHERE ([l1].[Id] IS NOT NULL AND [l1].[Id] IS NOT NULL) AND [l1].[Id] IS NOT NULL");
         }
 
+        [Fact(Skip = "#9093")]
         public override void Nested_group_join_with_take()
         {
             base.Nested_group_join_with_take();

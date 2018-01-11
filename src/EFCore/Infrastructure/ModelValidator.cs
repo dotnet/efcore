@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateNoMutableKeys(model);
             ValidateClrInheritance(model);
             ValidateChangeTrackingStrategy(model);
-            ValidateOwnership(model);
             ValidateDefiningNavigations(model);
+            ValidateOwnership(model);
             ValidateFieldMapping(model);
             ValidateQueryFilters(model);
             ValidateSeedData(model);
@@ -202,21 +202,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return;
             }
 
-            var baseClrType = entityType.ClrType?.GetTypeInfo().BaseType;
-            while (baseClrType != null)
+            if (!entityType.HasDefiningNavigation()
+                && entityType.FindDeclaredOwnership() == null)
             {
-                var baseEntityType = model.FindEntityType(baseClrType);
-                if (baseEntityType != null)
+                var baseClrType = entityType.ClrType?.GetTypeInfo().BaseType;
+                while (baseClrType != null)
                 {
-                    if (!baseEntityType.IsAssignableFrom(entityType))
+                    var baseEntityType = model.FindEntityType(baseClrType);
+                    if (baseEntityType != null)
                     {
-                        throw new InvalidOperationException(
-                            CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
+                        if (!baseEntityType.IsAssignableFrom(entityType))
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
+                        }
+                        ValidateClrInheritance(model, baseEntityType, validEntityTypes);
+                        break;
                     }
-                    ValidateClrInheritance(model, baseEntityType, validEntityTypes);
-                    break;
+                    baseClrType = baseClrType.GetTypeInfo().BaseType;
                 }
-                baseClrType = baseClrType.GetTypeInfo().BaseType;
             }
 
             if (entityType.ClrType?.IsInstantiable() == false
@@ -261,6 +265,39 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (ownerships.Count > 1)
                 {
                     throw new InvalidOperationException(CoreStrings.MultipleOwnerships(entityType.DisplayName()));
+                }
+
+                if (ownerships.Count == 1)
+                {
+                    if (entityType.BaseType != null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
+                    }
+
+                    foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.PrincipalOwnedType(
+                                referencingFk.DeclaringEntityType.DisplayName() +
+                                (referencingFk.DependentToPrincipal == null
+                                    ? ""
+                                    : "." + referencingFk.DependentToPrincipal.Name),
+                                referencingFk.PrincipalEntityType.DisplayName() +
+                                (referencingFk.PrincipalToDependent == null
+                                    ? ""
+                                    : "." + referencingFk.PrincipalToDependent.Name),
+                                entityType.DisplayName()));
+                    }
+
+                    foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.InverseToOwnedType(
+                                fk.PrincipalEntityType.DisplayName(),
+                                fk.PrincipalToDependent.Name,
+                                entityType.DisplayName(),
+                                ownerships[0].PrincipalEntityType.DisplayName()));
+                    }
                 }
             }
         }
@@ -307,30 +344,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 throw new InvalidOperationException(
                                     CoreStrings.InconsistentOwnership(entityType.DisplayName(), otherEntityType.DisplayName()));
                             }
-                        }
-
-                        foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(fk => !fk.IsOwnership))
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.PrincipalOwnedType(
-                                    referencingFk.DeclaringEntityType.DisplayName() +
-                                    (referencingFk.DependentToPrincipal == null
-                                        ? ""
-                                        : "." + referencingFk.DependentToPrincipal.Name),
-                                    referencingFk.PrincipalEntityType.DisplayName() +
-                                    (referencingFk.PrincipalToDependent == null
-                                        ? ""
-                                        : "." + referencingFk.PrincipalToDependent.Name),
-                                    entityType.DisplayName()));
-                        }
-
-                        foreach (var fk in entityType.GetDeclaredForeignKeys().Where(fk => !fk.IsOwnership && fk.PrincipalToDependent != null))
-                        {
-                            throw new InvalidOperationException(
-                                CoreStrings.InverseToOwnedType(
-                                    fk.PrincipalEntityType.DisplayName(),
-                                    fk.PrincipalToDependent.Name,
-                                    entityType.DisplayName()));
                         }
                     }
                 }

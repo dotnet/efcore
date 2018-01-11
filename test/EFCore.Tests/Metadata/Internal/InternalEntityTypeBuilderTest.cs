@@ -13,6 +13,10 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     public class InternalEntityTypeBuilderTest
@@ -854,7 +858,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var keyBuilder = entityBuilder.HasKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+            entityBuilder.HasKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
 
             var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
@@ -1280,7 +1284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            var relationshipBuilder = dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Explicit)
+            dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Explicit)
                 .DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Explicit)
                 .PrincipalToDependent(Customer.OrdersProperty.Name, ConfigurationSource.Explicit);
 
@@ -2008,7 +2012,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Can_ignore_lower_source_dependent_entity_type()
+        public void Can_ignore_lower_source_weak_entity_type()
         {
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);

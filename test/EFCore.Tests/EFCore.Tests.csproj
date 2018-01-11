@@ -34,19 +34,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="ModelBuilderTest\GiantModel.cs">
+    <Compile Update="ModelBuilding\GiantModel.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>GiantModel.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
 
-  <ItemGroup>
     <None Update="ModelBuilding\GiantModel.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="ModelBuilding\GiantModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GiantModel.cs</LastGenOutput>
     </None>
   </ItemGroup>
 

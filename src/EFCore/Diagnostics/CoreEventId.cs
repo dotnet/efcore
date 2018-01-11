@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId SaveChangesFailed = MakeUpdateId(Id.SaveChangesFailed);
 
         /// <summary>
-        ///     The same entity is being tracked as a different dependent entity type.
+        ///     The same entity is being tracked as a different weak entity type.
         ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
         /// </summary>
         public static readonly EventId DuplicateDependentEntityTypeInstanceWarning = MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
