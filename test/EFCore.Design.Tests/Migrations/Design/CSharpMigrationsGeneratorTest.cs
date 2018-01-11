@@ -13,14 +13,12 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -37,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [Fact]
         public void Test_new_annotations_handled_for_entity_types()
         {
-            var model = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var model = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             var entityType = model.Entity<WithAnnotations>().Metadata;
 
             // Only add the annotation here if it will never be present on IEntityType
@@ -91,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                                       + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
                 }
             };
-            
+
             MissingAnnotationCheck(
                 entityType, notForEntityType, forEntityType,
                 _toTable + _nl,
@@ -101,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         [Fact]
         public void Test_new_annotations_handled_for_properties()
         {
-            var model = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var model = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             var property = model.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
 
             // Only add the annotation here if it will never be present on IProperty
