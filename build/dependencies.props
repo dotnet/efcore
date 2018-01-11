@@ -1,6 +1,7 @@
 ﻿<Project>
   <PropertyGroup>
-    <InternalAspNetCoreSdkPackageVersion>2.0.2-rc1-15526</InternalAspNetCoreSdkPackageVersion>
+    <InternalAspNetCoreSdkPackageVersion>2.0.3-rtm-10011</InternalAspNetCoreSdkPackageVersion>
+    <MicrosoftNETCoreApp20PackageVersion>2.0.5</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
     <SQLitePCLRawBundle_greenPackageVersion>1.1.7</SQLitePCLRawBundle_greenPackageVersion>
     <SQLitePCLRawCorePackageVersion>1.1.7</SQLitePCLRawCorePackageVersion>
