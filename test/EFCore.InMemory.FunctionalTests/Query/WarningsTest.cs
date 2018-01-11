@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -106,12 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Logs_by_default_for_ignored_includes()
         {
-            var messages = new List<string>();
-            using (var context = new WarningAsErrorContext(new FakeLoggerFactory(messages)))
+            using (var context = new WarningAsErrorContext(new ListLoggerFactory(Log, m => true)))
             {
-                context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
+                var _ = context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList();
 
-                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), messages);
+                Assert.Contains(CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"), Log.Select(l => l.Message));
             }
         }
 
@@ -134,12 +135,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Throws_by_default_for_lazy_load_with_disposed_context()
         {
-            var messages = new List<string>();
-            var loggerFactory = new FakeLoggerFactory(messages);
+            var loggerFactory = new ListLoggerFactory(Log, m => true);
 
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
-                context.Add(new WarningAsErrorEntity { Nav = new IncludedEntity() });
+                context.Add(new WarningAsErrorEntity
+                {
+                    Nav = new IncludedEntity()
+                });
                 context.SaveChanges();
             }
 
@@ -161,14 +164,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Lazy_load_with_disposed_context_can_be_configured_to_log()
         {
-            var messages = new List<string>();
-            var loggerFactory = new FakeLoggerFactory(messages);
+            var loggerFactory = new ListLoggerFactory(Log, m => true);
 
             using (var context = new WarningAsErrorContext(
                 loggerFactory,
                 CoreEventId.LazyLoadOnDisposedContextWarning))
             {
-                context.Add(new WarningAsErrorEntity { Nav = new IncludedEntity() });
+                context.Add(new WarningAsErrorEntity
+                {
+                    Nav = new IncludedEntity()
+                });
                 context.SaveChanges();
             }
 
@@ -185,18 +190,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Contains(
                 CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity"),
-                messages);
+                Log.Select(l => l.Message));
         }
 
         [Fact]
         public void Lazy_loading_is_logged_only_when_actually_loading()
         {
-            var messages = new List<string>();
-            var loggerFactory = new FakeLoggerFactory(messages);
+            var loggerFactory = new ListLoggerFactory(Log, m => true);
 
             using (var context = new WarningAsErrorContext(loggerFactory))
             {
-                context.Add(new WarningAsErrorEntity { Nav = new IncludedEntity() });
+                context.Add(new WarningAsErrorEntity
+                {
+                    Nav = new IncludedEntity()
+                });
                 context.SaveChanges();
             }
 
@@ -204,18 +211,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var entity = context.WarningAsErrorEntities.OrderBy(e => e.Id).First();
 
-                messages.Clear();
+                Log.Clear();
                 Assert.NotNull(entity.Nav);
 
                 Assert.Contains(
                     CoreStrings.LogNavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
-                    messages);
+                    Log.Select(l => l.Message));
 
-                messages.Clear();
+                Log.Clear();
                 Assert.NotNull(entity.Nav);
                 Assert.DoesNotContain(
                     CoreStrings.LogNavigationLazyLoading.GenerateMessage("Nav", "WarningAsErrorEntity"),
-                    messages);
+                    Log.Select(l => l.Message));
             }
         }
 #endif
@@ -232,12 +239,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class WarningAsErrorContext : DbContext
         {
-            private readonly FakeLoggerFactory _sink;
+            private readonly ILoggerFactory _sink;
             private readonly EventId? _toLog;
             private readonly EventId? _toThrow;
 
             public WarningAsErrorContext(
-                FakeLoggerFactory sink = null,
+                ILoggerFactory sink = null,
                 EventId? toLog = null,
                 EventId? toThrow = null)
             {
@@ -250,23 +257,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(_sink ?? new FakeLoggerFactory(null))
+                    .UseLoggerFactory(_sink ?? new ListLoggerFactory(null, m => false))
                     .UseInMemoryDatabase(nameof(WarningAsErrorContext)).ConfigureWarnings(
                         c =>
+                        {
+                            if (_toThrow != null)
                             {
-                                if (_toThrow != null)
-                                {
-                                    c.Throw(_toThrow.Value);
-                                }
-                                else if (_toLog != null)
-                                {
-                                    c.Log(_toLog.Value);
-                                }
-                                else if (_sink == null)
-                                {
-                                    c.Default(WarningBehavior.Throw);
-                                }
-                            });
+                                c.Throw(_toThrow.Value);
+                            }
+                            else if (_toLog != null)
+                            {
+                                c.Log(_toLog.Value);
+                            }
+                            else if (_sink == null)
+                            {
+                                c.Default(WarningBehavior.Throw);
+                            }
+                        });
         }
 
         private class WarningAsErrorEntity
@@ -297,42 +304,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int Id { get; set; }
         }
 
-        private class FakeLoggerFactory : ILoggerFactory
-        {
-            private readonly IList<string> _sink;
-
-            public FakeLoggerFactory(IList<string> sink) => _sink = sink;
-
-            public void Dispose()
-            {
-            }
-
-            public ILogger CreateLogger(string categoryName) => new FakeLogger(_sink);
-
-            private class FakeLogger : ILogger
-            {
-                private readonly IList<string> _sink;
-
-                public FakeLogger(IList<string> sink) => _sink = sink;
-
-                public void Log<TState>(
-                    LogLevel logLevel,
-                    EventId eventId,
-                    TState state,
-                    Exception exception,
-                    Func<TState, Exception, string> formatter)
-                {
-                    _sink?.Add(formatter(state, exception));
-                }
-
-                public bool IsEnabled(LogLevel logLevel) => true;
-
-                public IDisposable BeginScope<TState>(TState state) => null;
-            }
-
-            public void AddProvider(ILoggerProvider provider)
-            {
-            }
-        }
+        protected List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
     }
 }

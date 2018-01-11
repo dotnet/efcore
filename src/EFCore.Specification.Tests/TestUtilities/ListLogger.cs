@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            LogMessages.Add((logLevel, eventId, message.ToString()));
+            LogMessages?.Add((logLevel, eventId, message.ToString()));
         }
 
         public bool IsEnabled(LogLevel logLevel) => true;

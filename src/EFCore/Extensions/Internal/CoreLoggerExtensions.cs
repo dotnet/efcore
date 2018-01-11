@@ -36,10 +36,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogExceptionDuringSaveChanges;
 
-            definition.Log(
-                diagnostics,
-                context.GetType(), Environment.NewLine, exception,
-                exception);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    context.GetType(), Environment.NewLine, exception,
+                    exception);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -71,7 +76,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogDuplicateDependentEntityTypeInstance;
 
-            definition.Log(diagnostics, dependent1.DisplayName(), dependent2.DisplayName());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    dependent1.DisplayName(), dependent2.DisplayName());
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -103,10 +115,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogExceptionDuringQueryIteration;
 
-            definition.Log(
-                diagnostics,
-                contextType, Environment.NewLine, exception,
-                exception);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    contextType, Environment.NewLine, exception,
+                    exception);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -137,11 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogCompilingQueryModel;
 
-            // Checking for enabled here to avoid printing query model if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     Environment.NewLine, queryModel.Print());
             }
 
@@ -173,11 +191,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogRowLimitingOperationWithoutOrderBy;
 
-            // Checking for enabled here to avoid printing query model if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
             }
 
@@ -209,11 +228,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogFirstWithoutOrderByAndFilter;
 
-            // Checking for enabled here to avoid printing query model if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     queryModel.Print(removeFormatting: true, characterLimit: QueryModelStringLengthLimit));
             }
 
@@ -245,11 +265,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogOptimizedQueryModel;
 
-            // Checking for enabled here to avoid printing query model if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     Environment.NewLine, queryModel.Print());
             }
 
@@ -281,9 +302,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogIncludingNavigation;
 
-            definition.Log(
-                diagnostics,
-                includeResultOperator.DisplayString());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    includeResultOperator.DisplayString());
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -314,11 +340,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogQueryExecutionPlanned;
 
-            // Checking for enabled here to avoid printing query model if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     expressionPrinter.Print(queryExecutorExpression));
             }
 
@@ -351,7 +378,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogSensitiveDataLoggingEnabled;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -373,9 +404,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogIgnoredInclude;
 
-            definition.Log(
-                diagnostics,
-                includeResultOperator.DisplayString());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    includeResultOperator.DisplayString());
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -405,9 +441,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogPossibleUnintendedCollectionNavigationNullComparison;
 
-            definition.Log(
-                diagnostics,
-                string.Join(".", navigationPath.Select(p => p.Name)));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    string.Join(".", navigationPath.Select(p => p.Name)));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -438,10 +479,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogPossibleUnintendedReferenceComparison;
 
-            definition.Log(
-                diagnostics,
-                left,
-                right);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    left, right);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -472,7 +517,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogServiceProviderCreated;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -495,7 +544,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogManyServiceProvidersCreated;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -519,11 +572,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogContextInitialized;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     ProductInfo.GetVersion(),
                     context.GetType().ShortDisplayName(),
                     context.Database.ProviderName,
@@ -565,8 +619,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogExecutionStrategyRetrying;
 
-            var lastException = exceptionsEncountered[exceptionsEncountered.Count - 1];
-            definition.Log(diagnostics, (int)delay.TotalMilliseconds, Environment.NewLine, lastException, lastException);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                var lastException = exceptionsEncountered[exceptionsEncountered.Count - 1];
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    (int)delay.TotalMilliseconds, Environment.NewLine, lastException,
+                    lastException);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -601,10 +663,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogLazyLoadOnDisposedContextWarning;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigationName, entityType.GetType().ShortDisplayName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -639,10 +704,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogNavigationLazyLoading;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics, navigationName, entityType.GetType().ShortDisplayName());
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigationName, entityType.GetType().ShortDisplayName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -675,10 +743,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogShadowPropertyCreated;
 
-            definition.Log(
-                diagnostics,
-                property.Name,
-                property.DeclaringEntityType.DisplayName());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    property.Name, property.DeclaringEntityType.DisplayName());
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -709,10 +781,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogRedundantIndexRemoved;
 
-            definition.Log(
-                diagnostics,
-                Property.Format(redundantIndex),
-                Property.Format(otherIndex));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    Property.Format(redundantIndex), Property.Format(otherIndex));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -746,10 +822,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogIncompatibleMatchingForeignKeyProperties;
 
-            definition.Log(
-                diagnostics,
-                Property.Format(foreignKeyProperties, includeTypes: true),
-                Property.Format(principalKeyProperties, includeTypes: true));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    Property.Format(foreignKeyProperties, includeTypes: true),
+                    Property.Format(principalKeyProperties, includeTypes: true));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -782,10 +863,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogRequiredAttributeOnDependent;
 
-            definition.Log(
-                diagnostics,
-                navigation.Name,
-                navigation.DeclaringEntityType.DisplayName());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigation.Name, navigation.DeclaringEntityType.DisplayName());
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -816,12 +901,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogRequiredAttributeOnBothNavigations;
 
-            definition.Log(
-                diagnostics,
-                firstNavigation.DeclaringEntityType.DisplayName(),
-                firstNavigation.Name,
-                secondNavigation.DeclaringEntityType.DisplayName(),
-                secondNavigation.Name);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    firstNavigation.DeclaringEntityType.DisplayName(),
+                    firstNavigation.Name,
+                    secondNavigation.DeclaringEntityType.DisplayName(),
+                    secondNavigation.Name);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -858,11 +948,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogConflictingShadowForeignKeys;
 
-            definition.Log(
-                diagnostics,
-                foreignKey.DeclaringEntityType.DisplayName(),
-                foreignKey.PrincipalEntityType.DisplayName(),
-                foreignKey.DeclaringEntityType.DisplayName());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                var declaringTypeName = foreignKey.DeclaringEntityType.DisplayName();
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    declaringTypeName,
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    declaringTypeName);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -896,11 +992,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogMultiplePrimaryKeyCandidates;
 
-            definition.Log(
-                diagnostics,
-                firstProperty.Name,
-                secondProperty.Name,
-                firstProperty.DeclaringEntityType.DisplayName());
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    firstProperty.Name,
+                    secondProperty.Name,
+                    firstProperty.DeclaringEntityType.DisplayName());
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -937,12 +1038,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogMultipleNavigationProperties;
 
-            definition.Log(
-                diagnostics,
-                firstPropertyCollection.First().Item2.ShortDisplayName(),
-                secondPropertyCollection.First().Item2.ShortDisplayName(),
-                Property.Format(firstPropertyCollection.Select(p => p.Item1?.Name)),
-                Property.Format(secondPropertyCollection.Select(p => p.Item1?.Name)));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    firstPropertyCollection.First().Item2.ShortDisplayName(),
+                    secondPropertyCollection.First().Item2.ShortDisplayName(),
+                    Property.Format(firstPropertyCollection.Select(p => p.Item1?.Name)),
+                    Property.Format(secondPropertyCollection.Select(p => p.Item1?.Name)));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -979,10 +1085,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogMultipleInversePropertiesSameTarget;
 
-            definition.Log(
-                diagnostics, string.Join(
-                    ", ", conflictingNavigations.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
-                inverseNavigation.Name);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    string.Join(", ", conflictingNavigations.Select(n => n.Item2.ShortDisplayName() + "." + n.Item1.Name)),
+                    inverseNavigation.Name);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -992,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         definition,
                         MultipleInversePropertiesSameTarget,
                         conflictingNavigations,
-                        new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType)  }));
+                        new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType) }));
             }
         }
 
@@ -1018,14 +1129,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogForeignKeyAttributesOnBothProperties;
 
-            definition.Log(
-                diagnostics,
-                firstNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                firstNavigation.PropertyInfo.Name,
-                secondNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                secondNavigation.PropertyInfo.Name,
-                firstProperty.Name,
-                secondProperty.Name);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    firstNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
+                    firstNavigation.PropertyInfo.Name,
+                    secondNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
+                    secondNavigation.PropertyInfo.Name,
+                    firstProperty.Name,
+                    secondProperty.Name);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1034,10 +1150,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
                         ForeignKeyAttributesOnBothProperties,
-                        new[] { new Tuple<MemberInfo, Type>(firstNavigation.PropertyInfo, firstNavigation.DeclaringEntityType.ClrType),
-                            new Tuple<MemberInfo, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType) },
-                        new[] { new Tuple<MemberInfo, Type>(secondNavigation.PropertyInfo, secondNavigation.DeclaringEntityType.ClrType),
-                            new Tuple<MemberInfo, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType) }));
+                        new[]
+                        {
+                            new Tuple<MemberInfo, Type>(firstNavigation.PropertyInfo, firstNavigation.DeclaringEntityType.ClrType),
+                            new Tuple<MemberInfo, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType)
+                        },
+                        new[]
+                        {
+                            new Tuple<MemberInfo, Type>(secondNavigation.PropertyInfo, secondNavigation.DeclaringEntityType.ClrType),
+                            new Tuple<MemberInfo, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType)
+                        }));
             }
         }
 
@@ -1069,12 +1191,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogForeignKeyAttributesOnBothNavigations;
 
-            definition.Log(
-                diagnostics,
-                firstNavigation.DeclaringEntityType.DisplayName(),
-                firstNavigation.Name,
-                secondNavigation.DeclaringEntityType.DisplayName(),
-                secondNavigation.Name);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    firstNavigation.DeclaringEntityType.DisplayName(),
+                    firstNavigation.Name,
+                    secondNavigation.DeclaringEntityType.DisplayName(),
+                    secondNavigation.Name);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1112,12 +1239,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = CoreStrings.LogConflictingForeignKeyAttributesOnNavigationAndProperty;
 
-            definition.Log(
-                diagnostics,
-                navigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                navigation.PropertyInfo.Name,
-                property.DeclaringType.ShortDisplayName(),
-                property.Name);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    navigation.DeclaringEntityType.ClrType.ShortDisplayName(),
+                    navigation.PropertyInfo.Name,
+                    property.DeclaringType.ShortDisplayName(),
+                    property.Name);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {

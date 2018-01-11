@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,10 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = SqlServerStrings.LogDefaultDecimalTypeColumn;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    property.Name, property.DeclaringEntityType.DisplayName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -62,10 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = SqlServerStrings.LogByteIdentityColumn;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    property.Name, property.DeclaringEntityType.DisplayName());
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -106,16 +111,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string defaultValue,
             [CanBeNull] string computedValue)
         {
-            // No DiagnosticsSource events because these are purely design-time messages
-
             var definition = SqlServerStrings.LogFoundColumn;
 
-            Debug.Assert(LogLevel.Debug == definition.Level);
-
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     l => l.LogDebug(
                         definition.EventId,
                         null,
@@ -132,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         defaultValue,
                         computedValue));
             }
+            // No DiagnosticsSource events because these are purely design-time messages
         }
 
         /// <summary>
@@ -144,8 +148,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string tableName,
             [NotNull] string principalTableName,
             [NotNull] string onDeleteAction)
+        {
+            var definition = SqlServerStrings.LogFoundForeignKey;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    foreignKeyName, tableName, principalTableName, onDeleteAction);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundForeignKey.Log(diagnostics, foreignKeyName, tableName, principalTableName, onDeleteAction);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -154,8 +169,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void DefaultSchemaFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string schemaName)
+        {
+            var definition = SqlServerStrings.LogFoundDefaultSchema;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    schemaName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundDefaultSchema.Log(diagnostics, schemaName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -165,8 +191,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string typeAliasName,
             [NotNull] string systemTypeName)
+        {
+            var definition = SqlServerStrings.LogFoundTypeAlias;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    typeAliasName, systemTypeName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundTypeAlias.Log(diagnostics, typeAliasName, systemTypeName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -176,8 +213,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string primaryKeyName,
             [NotNull] string tableName)
+        {
+            var definition = SqlServerStrings.LogFoundPrimaryKey;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    primaryKeyName, tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundPrimaryKey.Log(diagnostics, primaryKeyName, tableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -187,8 +235,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string uniqueConstraintName,
             [NotNull] string tableName)
+        {
+            var definition = SqlServerStrings.LogFoundUniqueConstraint;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    uniqueConstraintName, tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundUniqueConstraint.Log(diagnostics, uniqueConstraintName, tableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -199,8 +258,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string indexName,
             [NotNull] string tableName,
             bool unique)
+        {
+            var definition = SqlServerStrings.LogFoundIndex;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    indexName, tableName, unique);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundIndex.Log(diagnostics, indexName, tableName, unique);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -211,8 +281,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string foreignKeyName,
             [CanBeNull] string tableName,
             [CanBeNull] string principalTableName)
+        {
+            var definition = SqlServerStrings.LogPrincipalTableNotInSelectionSet;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    foreignKeyName, tableName, principalTableName);
+            }
+
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogPrincipalTableNotInSelectionSet.Log(diagnostics, foreignKeyName, tableName, principalTableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -224,8 +306,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] string tableName,
             [NotNull] string principalColumnName,
             [NotNull] string principalTableName)
+        {
+            var definition = SqlServerStrings.LogPrincipalColumnNotFound;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    foreignKeyName, tableName, principalColumnName, principalTableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogPrincipalColumnNotFound.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -234,8 +327,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MissingSchemaWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string schemaName)
+        {
+            var definition = SqlServerStrings.LogMissingSchema;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    schemaName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogMissingSchema.Log(diagnostics, schemaName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -244,8 +348,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
+        {
+            var definition = SqlServerStrings.LogMissingTable;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogMissingTable.Log(diagnostics, tableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -264,12 +379,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             // No DiagnosticsSource events because these are purely design-time messages
             var definition = SqlServerStrings.LogFoundSequence;
 
-            Debug.Assert(LogLevel.Debug == definition.Level);
-
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     l => l.LogDebug(
                         definition.EventId,
                         null,
@@ -291,7 +406,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TableFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [NotNull] string tableName)
+        {
+            var definition = SqlServerStrings.LogFoundTable;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqlServerStrings.LogFoundTable.Log(diagnostics, tableName);
+        }
     }
 }

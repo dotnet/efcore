@@ -25,10 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = SqliteStrings.LogSchemaConfigured;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics, entityType.DisplayName(), schema);
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    entityType.DisplayName(), schema);
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -62,7 +65,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = SqliteStrings.LogSequenceConfigured;
 
-            definition.Log(diagnostics, sequence.Name);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    sequence.Name);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -93,8 +103,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string dataTypeName,
             bool notNull,
             [CanBeNull] string defaultValue)
+        {
+            var definition = SqliteStrings.LogFoundColumn;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    tableName, columnName, dataTypeName, notNull, defaultValue);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogFoundColumn.Log(diagnostics, tableName, columnName, dataTypeName, notNull, defaultValue);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -102,8 +123,16 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static void SchemasNotSupportedWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics)
+        {
+            var definition = SqliteStrings.LogUsingSchemaSelectionsWarning;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogUsingSchemaSelectionsWarning.Log(diagnostics);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -112,8 +141,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void ForeignKeyReferencesMissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string foreignKeyName)
+        {
+            var definition = SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    foreignKeyName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogForeignKeyScaffoldErrorPrincipalTableNotFound.Log(diagnostics, foreignKeyName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -122,8 +162,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void TableFound(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
+        {
+            var definition = SqliteStrings.LogFoundTable;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogFoundTable.Log(diagnostics, tableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -132,8 +183,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static void MissingTableWarning(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string tableName)
+        {
+            var definition = SqliteStrings.LogMissingTable;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogMissingTable.Log(diagnostics, tableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -145,8 +207,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string tableName,
             [CanBeNull] string principalColumnName,
             [CanBeNull] string principalTableName)
+        {
+            var definition = SqliteStrings.LogPrincipalColumnNotFound;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    foreignKeyName, tableName, principalColumnName, principalTableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogPrincipalColumnNotFound.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -157,8 +230,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] string indexName,
             [CanBeNull] string tableName,
             bool? unique)
+        {
+            var definition = SqliteStrings.LogFoundIndex;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    indexName, tableName, unique);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogFoundIndex.Log(diagnostics, indexName, tableName, unique);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -170,8 +254,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             long id,
             [CanBeNull] string principalTableName,
             [CanBeNull] string deleteAction)
+        {
+            var definition = SqliteStrings.LogFoundForeignKey;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    tableName, id, principalTableName, deleteAction);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogFoundForeignKey.Log(diagnostics, tableName, id, principalTableName, deleteAction);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -181,8 +276,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string primaryKeyName,
             [CanBeNull] string tableName)
+        {
+            var definition = SqliteStrings.LogFoundPrimaryKey;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    primaryKeyName, tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogFoundPrimaryKey.Log(diagnostics, primaryKeyName, tableName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -192,7 +298,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             [CanBeNull] string uniqueConstraintName,
             [CanBeNull] string tableName)
+        {
+            var definition = SqliteStrings.LogFoundUniqueConstraint;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    uniqueConstraintName, tableName);
+            }
             // No DiagnosticsSource events because these are purely design-time messages
-            => SqliteStrings.LogFoundUniqueConstraint.Log(diagnostics, uniqueConstraintName, tableName);
+        }
     }
 }

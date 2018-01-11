@@ -43,6 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => new InvalidOperationException(CoreStrings.WarningAsErrorTemplate(EventId.ToString(), message));
 
         /// <summary>
+        ///     Gets the log behavior for this event. This determines whether it should be logged, thrown as an exception or ignored.
+        /// </summary>
+        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
+        /// <param name="logger"> The logger to which the event would be logged. </param>
+        /// <returns> Whether the event should be logged, thrown as an exception or ignored. </returns>
+        public virtual WarningBehavior GetLogBehavior<TLoggerCategory>([NotNull] IDiagnosticsLogger<TLoggerCategory> logger)
+            where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
+            => logger.GetLogBehavior(EventId, Level);
+
+        /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>

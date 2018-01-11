@@ -42,11 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerExecutingCommand;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
                     command.CommandType,
                     command.CommandTimeout,
@@ -106,11 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerExecutedCommand;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
                     command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
                     command.CommandType,
@@ -168,11 +170,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerCommandFailed;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     string.Format(CultureInfo.InvariantCulture, "{0:N0}", duration.TotalMilliseconds),
                     command.Parameters.FormatParameters(ShouldLogParameterValues(diagnostics, command)),
                     command.CommandType,
@@ -227,13 +230,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerOpeningConnection;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
-                    connection.DbConnection.Database,
-                    connection.DbConnection.DataSource);
+                    warningBehavior,
+                    connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -272,13 +275,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerOpenedConnection;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
-                    connection.DbConnection.Database,
-                    connection.DbConnection.DataSource);
+                    warningBehavior,
+                    connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -316,13 +319,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerClosingConnection;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
-                    connection.DbConnection.Database,
-                    connection.DbConnection.DataSource);
+                    warningBehavior,
+                    connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -360,13 +363,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerClosedConnection;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
-                    connection.DbConnection.Database,
-                    connection.DbConnection.DataSource);
+                    warningBehavior,
+                    connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -410,13 +413,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 ? RelationalStrings.LogRelationalLoggerConnectionErrorAsDebug
                 : RelationalStrings.LogRelationalLoggerConnectionError;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
-                    connection.DbConnection.Database,
-                    connection.DbConnection.DataSource,
+                    warningBehavior,
+                    connection.DbConnection.Database, connection.DbConnection.DataSource,
                     exception);
             }
 
@@ -458,9 +461,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerBeginningTransaction;
 
-            definition.Log(
-                diagnostics,
-                transaction.IsolationLevel.ToString("G"));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    transaction.IsolationLevel.ToString("G"));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -497,9 +505,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerUsingTransaction;
 
-            definition.Log(
-                diagnostics,
-                transaction.IsolationLevel.ToString("G"));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    transaction.IsolationLevel.ToString("G"));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -537,7 +550,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerCommittingTransaction;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -568,7 +585,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerRollingbackTransaction;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -598,7 +619,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerDisposingTransaction;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -630,7 +655,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRelationalLoggerTransactionError;
 
-            definition.Log(diagnostics, exception);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior, exception);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -660,7 +689,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogAmbientTransaction;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -687,7 +720,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogAmbientTransactionEnlisted;
 
-            definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    transaction.IsolationLevel.ToString("G"));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -720,7 +760,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogExplicitTransactionEnlisted;
 
-            definition.Log(diagnostics, transaction.IsolationLevel.ToString("G"));
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    transaction.IsolationLevel.ToString("G"));
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -759,7 +806,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogDisposingDataReader;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -790,15 +841,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogMigrating;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 var dbConnection = connection.DbConnection;
 
                 definition.Log(
                     diagnostics,
-                    dbConnection.Database,
-                    dbConnection.DataSource);
+                    warningBehavior,
+                    dbConnection.Database, dbConnection.DataSource);
             }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
@@ -834,11 +885,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogRevertingMigration;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     migration.GetId());
             }
 
@@ -872,11 +924,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogApplyingMigration;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     migration.GetId());
             }
 
@@ -913,11 +966,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogGeneratingDown;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     migration.GetId());
             }
 
@@ -957,11 +1011,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogGeneratingUp;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     migration.GetId());
             }
 
@@ -997,7 +1052,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogNoMigrationsApplied;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1021,11 +1080,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogNoMigrationsFound;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     migrationsAssembly.Assembly.GetName().Name);
             }
 
@@ -1059,7 +1119,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogClientEvalWarning;
 
-            definition.Log(diagnostics, queryModelElement);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics,
+                    warningBehavior,
+                    queryModelElement);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1090,7 +1156,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogPossibleUnintendedUseOfEquals;
 
-            definition.Log(diagnostics, methodCallExpression);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics,
+                    warningBehavior,
+                    methodCallExpression);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1119,7 +1191,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogQueryPossibleExceptionWithAggregateOperator;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1141,11 +1217,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogKeyHasDefaultValue;
 
-            // Checking for enabled here to avoid string formatting if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     property.Name,
                     property.DeclaringEntityType.DisplayName());
             }
@@ -1180,11 +1257,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogBoolWithDefaultWarning;
 
-            // Checking for enabled here to avoid building strings if not needed.
-            if (diagnostics.GetLogBehavior(definition.EventId, definition.Level) != WarningBehavior.Ignore)
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
                     diagnostics,
+                    warningBehavior,
                     property.Name,
                     property.DeclaringEntityType.DisplayName());
             }
@@ -1218,7 +1296,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogBatchReadyForExecution;
 
-            definition.Log(diagnostics, commandCount);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics,
+                    warningBehavior,
+                    commandCount);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -1251,7 +1335,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = RelationalStrings.LogBatchSmallerThanMinBatchSize;
 
-            definition.Log(diagnostics, commandCount, minBatchSize);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics,
+                    warningBehavior,
+                    commandCount, minBatchSize);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {

@@ -24,7 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = InMemoryStrings.LogTransactionsNotSupported;
 
-            definition.Log(diagnostics);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
@@ -47,7 +51,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             var definition = InMemoryStrings.LogSavedChanges;
 
-            definition.Log(diagnostics, rowsAffected);
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    rowsAffected);
+            }
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {

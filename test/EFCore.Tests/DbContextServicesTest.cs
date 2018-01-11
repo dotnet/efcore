@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private void DebugLogTest(bool useLoggerFactory, bool configureForDebug, bool shouldLog)
         {
-            MyLoggerProvider.LogList = new List<(EventId EventId, LogLevel Level)>();
+            Log.Clear();
 
             using (var context = new InfoLogContext(useLoggerFactory, configureForDebug))
             {
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 logger.ServiceProviderCreated(new ServiceCollection().BuildServiceProvider());
 
-                var resultQuery = MyLoggerProvider.LogList.Where(e => e.EventId.Id == CoreEventId.ServiceProviderCreated.Id);
+                var resultQuery = Log.Where(e => e.Id.Id == CoreEventId.ServiceProviderCreated.Id);
 
                 if (shouldLog)
                 {
@@ -72,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
         }
+
+        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
 
         private class InfoLogContext : DbContext
         {
@@ -114,24 +116,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private class MyLoggerProvider : ILoggerProvider
         {
-            public static IList<(EventId EventId, LogLevel Level)> LogList;
-
-            public ILogger CreateLogger(string categoryName) => new MyLogger();
+            public ILogger CreateLogger(string categoryName) => new ListLogger(Log);
 
             public void Dispose()
             {
-            }
-
-            private class MyLogger : ILogger
-            {
-                public bool IsEnabled(LogLevel logLevel) => true;
-
-                public void Log<TState>(
-                    LogLevel logLevel, EventId eventId, TState state, Exception exception,
-                    Func<TState, Exception, string> formatter)
-                    => LogList.Add((eventId, logLevel));
-
-                public IDisposable BeginScope<TState>(TState state) => null;
             }
         }
 
@@ -269,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Required_low_level_services_are_not_added_if_already_present()
         {
             var serviceCollection = new ServiceCollection();
-            var loggerFactory = new FakeLoggerFactory();
+            var loggerFactory = new ListLoggerFactory(Log);
 
             serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
@@ -284,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Low_level_services_can_be_replaced_after_being_added()
         {
             var serviceCollection = new ServiceCollection();
-            var loggerFactory = new FakeLoggerFactory();
+            var loggerFactory = new ListLoggerFactory(Log);
 
             new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
 
@@ -465,22 +453,9 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        private class FakeLoggerFactory : ILoggerFactory
-        {
-            public ILogger CreateLogger(string name) => null;
-
-            public void AddProvider(ILoggerProvider provider)
-            {
-            }
-
-            public void Dispose()
-            {
-            }
-        }
-
         private class FakeModelSource : IModelSource
         {
-            public IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null)
+            public IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
                 => new Model();
         }
 
@@ -2610,7 +2585,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseLoggerFactory(new FakeLoggerFactory())
+                    .UseLoggerFactory(new ListLoggerFactory(Log))
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
@@ -2627,7 +2602,7 @@ namespace Microsoft.EntityFrameworkCore
                     new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .BuildServiceProvider())
-                .UseLoggerFactory(new FakeLoggerFactory())
+                .UseLoggerFactory(new ListLoggerFactory(Log))
                 .Options;
 
             Assert.Equal(
@@ -2644,7 +2619,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProivder = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContextWithOC3A>(
-                    (p, b) => b.UseLoggerFactory(new FakeLoggerFactory())
+                    (p, b) => b.UseLoggerFactory(new ListLoggerFactory(Log))
                         .UseInMemoryDatabase(Guid.NewGuid().ToString())
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
