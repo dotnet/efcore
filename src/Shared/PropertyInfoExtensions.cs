@@ -22,7 +22,7 @@ namespace System.Reflection
                && (!needsWrite || propertyInfo.CanWrite)
                && propertyInfo.GetMethod != null && propertyInfo.GetMethod.IsPublic;
 
-        public static Type FindCandidateNavigationPropertyType(this PropertyInfo propertyInfo, Func<Type, bool> isPrimitiveProperty)
+        public static Type FindCandidateNavigationPropertyType(this PropertyInfo propertyInfo, Func<MemberInfo, bool> isPrimitiveProperty)
         {
             var targetType = propertyInfo.PropertyType;
             var targetSequenceType = targetType.TryGetSequenceType();
@@ -34,7 +34,7 @@ namespace System.Reflection
             targetType = targetSequenceType ?? targetType;
             targetType = targetType.UnwrapNullableType();
 
-            if (isPrimitiveProperty(targetType)
+            if (isPrimitiveProperty(propertyInfo)
                 || targetType.GetTypeInfo().IsInterface
                 || targetType.GetTypeInfo().IsValueType
                 || targetType == typeof(object))

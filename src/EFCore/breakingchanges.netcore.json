@@ -78,5 +78,10 @@
     "TypeId": "public interface Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType : Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.Metadata.IMutableTypeBase",
     "MemberId": "System.Void set_IsQueryType(System.Boolean value)",
     "Kind": "Addition"
+  },
+  {
+    "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.ITypeMapper",
+    "MemberId": "System.Boolean IsTypeMapped(System.Reflection.MemberInfo member)",
+    "Kind": "Addition"
   }
 ]

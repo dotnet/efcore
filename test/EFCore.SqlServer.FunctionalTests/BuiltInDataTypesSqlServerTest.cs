@@ -144,7 +144,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                         CharAsNtext = 'H',
                         CharAsInt = 'I',
                         EnumAsNvarchar20 = StringEnumU16.Value4,
-                        EnumAsVarcharMax = StringEnum16.Value2
+                        EnumAsVarcharMax = StringEnum16.Value2,
+                        SqlVariantString = "Bang!",
+                        SqlVariantInt = 887876
                     });
 
                 Assert.Equal(1, context.SaveChanges());
@@ -285,6 +287,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 
                 StringEnum16? param60 = StringEnum16.Value2;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.EnumAsVarcharMax == param60));
+
+                object param61 = "Bang!";
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantString.Equals(param61)));
+
+                object param62 = 887876;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.SqlVariantInt.Equals(param62)));
             }
         }
 
@@ -453,6 +461,12 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 
                 StringEnum16? param60 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.EnumAsVarcharMax == param60));
+
+                object param61 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantString == param61));
+
+                object param62 = null;
+                Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantInt == param62));
             }
         }
 
@@ -510,21 +524,23 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p32='-128'
 @p33='128' (Size = 1)
 @p34='79'
-@p35='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p36='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p37='help' (Nullable = false) (Size = 4000)
-@p38='anyone!' (Nullable = false) (Size = 4000)
-@p39='Gumball Rules OK!' (Nullable = false) (Size = 4000)
-@p40='" + entity.StringAsNvarcharMax + @"' (Nullable = false) (Size = -1)
-@p41='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p42='" + entity.StringAsVarcharMax + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
-@p43='11:15:12'
-@p44='65535'
-@p45='-1'
-@p46='4294967295'
+@p35='887876'
+@p36='Bang!' (Nullable = false) (Size = 5)
+@p37='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p38='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p39='help' (Nullable = false) (Size = 4000)
+@p40='anyone!' (Nullable = false) (Size = 4000)
+@p41='Gumball Rules OK!' (Nullable = false) (Size = 4000)
+@p42='" + entity.StringAsNvarcharMax + @"' (Nullable = false) (Size = -1)
+@p43='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p44='" + entity.StringAsVarcharMax + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
+@p45='11:15:12'
+@p46='65535'
 @p47='-1'
-@p48='-1'
-@p49='18446744073709551615'",
+@p48='4294967295'
+@p49='-1'
+@p50='-1'
+@p51='18446744073709551615'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -590,6 +606,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('I', entity.CharAsInt);
             Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
             Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
+            Assert.Equal("Bang!", entity.SqlVariantString);
+            Assert.Equal(887876, entity.SqlVariantInt);
         }
 
         private static MappedDataTypes CreateMappedDataTypes(int id)
@@ -644,7 +662,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNtext = 'H',
                 CharAsInt = 'I',
                 EnumAsNvarchar20 = StringEnumU16.Value4,
-                EnumAsVarcharMax = StringEnum16.Value2
+                EnumAsVarcharMax = StringEnum16.Value2,
+                SqlVariantString = "Bang!",
+                SqlVariantInt = 887876
             };
 
         [Fact]
@@ -694,21 +714,23 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p32='-128' (Nullable = true)
 @p33='128' (Nullable = true) (Size = 1)
 @p34='79' (Nullable = true)
-@p35='Your' (Size = 8000) (DbType = AnsiString)
-@p36='strong' (Size = 8000) (DbType = AnsiString)
-@p37='help' (Size = 4000)
-@p38='anyone!' (Size = 4000)
-@p39='Gumball Rules OK!' (Size = 4000)
-@p40='don't' (Size = 4000)
-@p41='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p42='C' (Size = 8000) (DbType = AnsiString)
-@p43='11:15:12' (Nullable = true)
-@p44='65535' (Nullable = true)
-@p45='-1' (Nullable = true)
-@p46='4294967295' (Nullable = true)
+@p35='887876' (Nullable = true)
+@p36='Bang!' (Size = 5)
+@p37='Your' (Size = 8000) (DbType = AnsiString)
+@p38='strong' (Size = 8000) (DbType = AnsiString)
+@p39='help' (Size = 4000)
+@p40='anyone!' (Size = 4000)
+@p41='Gumball Rules OK!' (Size = 4000)
+@p42='don't' (Size = 4000)
+@p43='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p44='C' (Size = 8000) (DbType = AnsiString)
+@p45='11:15:12' (Nullable = true)
+@p46='65535' (Nullable = true)
 @p47='-1' (Nullable = true)
-@p48='-1' (Nullable = true)
-@p49='18446744073709551615' (Nullable = true)",
+@p48='4294967295' (Nullable = true)
+@p49='-1' (Nullable = true)
+@p50='-1' (Nullable = true)
+@p51='18446744073709551615' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -770,6 +792,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('I', entity.CharAsInt);
             Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
             Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
+            Assert.Equal("Bang!", entity.SqlVariantString);
+            Assert.Equal(887876, entity.SqlVariantInt);
         }
 
         private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
@@ -824,7 +848,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNtext = 'H',
                 CharAsInt = 'I',
                 EnumAsNvarchar20 = StringEnumU16.Value4,
-                EnumAsVarcharMax = StringEnum16.Value2
+                EnumAsVarcharMax = StringEnum16.Value2,
+                SqlVariantString = "Bang!",
+                SqlVariantInt = 887876
             };
 
         [Fact]
@@ -874,21 +900,23 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p32='' (DbType = Int16)
 @p33='' (DbType = Byte)
 @p34='' (DbType = Int16)
-@p35='' (Size = 8000)
-@p36='' (Size = 8000)
-@p37='' (Size = 4000) (DbType = String)
-@p38='' (Size = 4000) (DbType = String)
+@p35='' (DbType = String)
+@p36='' (DbType = String)
+@p37='' (Size = 8000)
+@p38='' (Size = 8000)
 @p39='' (Size = 4000) (DbType = String)
 @p40='' (Size = 4000) (DbType = String)
-@p41='' (Size = 8000)
-@p42='' (Size = 8000)
-@p43='' (DbType = String)
-@p44='' (DbType = Int32)
-@p45='' (DbType = Int16)
-@p46='' (DbType = Int64)
-@p47='' (DbType = Int32)
+@p41='' (Size = 4000) (DbType = String)
+@p42='' (Size = 4000) (DbType = String)
+@p43='' (Size = 8000)
+@p44='' (Size = 8000)
+@p45='' (DbType = String)
+@p46='' (DbType = Int32)
+@p47='' (DbType = Int16)
 @p48='' (DbType = Int64)
-@p49='' (DbType = String)",
+@p49='' (DbType = Int32)
+@p50='' (DbType = Int64)
+@p51='' (DbType = String)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -950,6 +978,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Null(entity.CharAsInt);
             Assert.Null(entity.EnumAsNvarchar20);
             Assert.Null(entity.EnumAsVarcharMax);
+            Assert.Null(entity.SqlVariantString);
+            Assert.Null(entity.SqlVariantInt);
         }
 
         [Fact]
@@ -1217,9 +1247,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal(
                 @"@p0='True'
 @p1='80' (Size = 1)
-@p2='0x5D5E5F60' (Size = 8000)
-@p3='0x61626364' (Size = 8000)
-@p4='0x595A5B5C' (Size = 8000)
+@p2='0x5D5E5F60' (Nullable = false) (Size = 8000)
+@p3='0x61626364' (Nullable = false) (Size = 8000)
+@p4='0x595A5B5C' (Nullable = false) (Size = 8000)
 @p5='B' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p6='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p7='73'
@@ -1250,21 +1280,23 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p32='-128'
 @p33='128' (Size = 1)
 @p34='79'
-@p35='Your' (Size = 8000) (DbType = AnsiString)
-@p36='strong' (Size = 8000) (DbType = AnsiString)
-@p37='help' (Size = 4000)
-@p38='anyone!' (Size = 4000)
-@p39='Gumball Rules OK!' (Size = 4000)
-@p40='don't' (Size = 4000)
-@p41='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p42='C' (Size = 8000) (DbType = AnsiString)
-@p43='11:15:12'
-@p44='65535'
-@p45='-1'
-@p46='4294967295'
+@p35='887876'
+@p36='Bang!' (Nullable = false) (Size = 5)
+@p37='Your' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p38='strong' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p39='help' (Nullable = false) (Size = 4000)
+@p40='anyone!' (Nullable = false) (Size = 4000)
+@p41='Gumball Rules OK!' (Nullable = false) (Size = 4000)
+@p42='don't' (Nullable = false) (Size = 4000)
+@p43='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p44='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
+@p45='11:15:12'
+@p46='65535'
 @p47='-1'
-@p48='-1'
-@p49='18446744073709551615'",
+@p48='4294967295'
+@p49='-1'
+@p50='-1'
+@p51='18446744073709551615'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1326,6 +1358,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('I', entity.CharAsInt);
             Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
             Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
+            Assert.Equal("Bang!", entity.SqlVariantString);
+            Assert.Equal(887876, entity.SqlVariantInt);
         }
 
         private static MappedDataTypesWithIdentity CreateMappedDataTypesWithIdentity(int id)
@@ -1380,7 +1414,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNtext = 'H',
                 CharAsInt = 'I',
                 EnumAsNvarchar20 = StringEnumU16.Value4,
-                EnumAsVarcharMax = StringEnum16.Value2
+                EnumAsVarcharMax = StringEnum16.Value2,
+                SqlVariantString = "Bang!",
+                SqlVariantInt = 887876
             };
 
         [Fact]
@@ -1430,21 +1466,23 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p32='-128' (Nullable = true)
 @p33='128' (Nullable = true) (Size = 1)
 @p34='79' (Nullable = true)
-@p35='Your' (Size = 8000) (DbType = AnsiString)
-@p36='strong' (Size = 8000) (DbType = AnsiString)
-@p37='help' (Size = 4000)
-@p38='anyone!' (Size = 4000)
-@p39='Gumball Rules OK!' (Size = 4000)
-@p40='don't' (Size = 4000)
-@p41='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
-@p42='C' (Size = 8000) (DbType = AnsiString)
-@p43='11:15:12' (Nullable = true)
-@p44='65535' (Nullable = true)
-@p45='4294967295' (Nullable = true)
-@p46='-1' (Nullable = true)
-@p47='-1' (Nullable = true)
-@p48='18446744073709551615' (Nullable = true)
-@p49='-1' (Nullable = true)",
+@p35='887876' (Nullable = true)
+@p36='Bang!' (Size = 5)
+@p37='Your' (Size = 8000) (DbType = AnsiString)
+@p38='strong' (Size = 8000) (DbType = AnsiString)
+@p39='help' (Size = 4000)
+@p40='anyone!' (Size = 4000)
+@p41='Gumball Rules OK!' (Size = 4000)
+@p42='don't' (Size = 4000)
+@p43='Gumball Rules!' (Size = 8000) (DbType = AnsiString)
+@p44='C' (Size = 8000) (DbType = AnsiString)
+@p45='11:15:12' (Nullable = true)
+@p46='65535' (Nullable = true)
+@p47='4294967295' (Nullable = true)
+@p48='-1' (Nullable = true)
+@p49='-1' (Nullable = true)
+@p50='18446744073709551615' (Nullable = true)
+@p51='-1' (Nullable = true)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1506,6 +1544,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal('I', entity.CharAsInt);
             Assert.Equal(StringEnum16.Value2, entity.EnumAsVarcharMax);
             Assert.Equal(StringEnumU16.Value4, entity.EnumAsNvarchar20);
+            Assert.Equal("Bang!", entity.SqlVariantString);
+            Assert.Equal(887876, entity.SqlVariantInt);
         }
 
         private static MappedNullableDataTypesWithIdentity CreateMappedNullableDataTypesWithIdentity(int id)
@@ -1560,7 +1600,9 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 CharAsNtext = 'H',
                 CharAsInt = 'I',
                 EnumAsNvarchar20 = StringEnumU16.Value4,
-                EnumAsVarcharMax = StringEnum16.Value2
+                EnumAsVarcharMax = StringEnum16.Value2,
+                SqlVariantString = "Bang!",
+                SqlVariantInt = 887876
             };
 
         [Fact]
@@ -1610,21 +1652,23 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p32='' (DbType = Int16)
 @p33='' (DbType = Byte)
 @p34='' (DbType = Int16)
-@p35='' (Size = 8000)
-@p36='' (Size = 8000)
-@p37='' (Size = 4000) (DbType = String)
-@p38='' (Size = 4000) (DbType = String)
+@p35='' (DbType = String)
+@p36='' (DbType = String)
+@p37='' (Size = 8000)
+@p38='' (Size = 8000)
 @p39='' (Size = 4000) (DbType = String)
 @p40='' (Size = 4000) (DbType = String)
-@p41='' (Size = 8000)
-@p42='' (Size = 8000)
-@p43='' (DbType = String)
-@p44='' (DbType = Int32)
-@p45='' (DbType = Int64)
+@p41='' (Size = 4000) (DbType = String)
+@p42='' (Size = 4000) (DbType = String)
+@p43='' (Size = 8000)
+@p44='' (Size = 8000)
+@p45='' (DbType = String)
 @p46='' (DbType = Int32)
 @p47='' (DbType = Int64)
-@p48='' (DbType = String)
-@p49='' (DbType = Int16)",
+@p48='' (DbType = Int32)
+@p49='' (DbType = Int64)
+@p50='' (DbType = String)
+@p51='' (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1687,6 +1731,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Null(entity.CharAsInt);
             Assert.Null(entity.EnumAsNvarchar20);
             Assert.Null(entity.EnumAsVarcharMax);
+            Assert.Null(entity.SqlVariantString);
+            Assert.Null(entity.SqlVariantInt);
         }
 
         [Fact]
@@ -2376,6 +2422,8 @@ MappedDataTypes.LongAsBigInt ---> [bigint] [Precision = 19 Scale = 0]
 MappedDataTypes.SByteAsSmallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypes.SByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypes.ShortAsSmallint ---> [smallint] [Precision = 5 Scale = 0]
+MappedDataTypes.SqlVariantInt ---> [sql_variant] [MaxLength = 0]
+MappedDataTypes.SqlVariantString ---> [sql_variant] [MaxLength = 0]
 MappedDataTypes.StringAsAsCharVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypes.StringAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypes.StringAsNationalCharacterVaryingMax ---> [nvarchar] [MaxLength = -1]
@@ -2393,9 +2441,9 @@ MappedDataTypes.UShortAsInt ---> [int] [Precision = 10 Scale = 0]
 MappedDataTypes.UShortAsSmallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypesWithIdentity.BoolAsBit ---> [bit]
 MappedDataTypesWithIdentity.ByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
-MappedDataTypesWithIdentity.BytesAsBinaryVaryingMax ---> [nullable varbinary] [MaxLength = -1]
-MappedDataTypesWithIdentity.BytesAsImage ---> [nullable image] [MaxLength = 2147483647]
-MappedDataTypesWithIdentity.BytesAsVarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
+MappedDataTypesWithIdentity.BytesAsBinaryVaryingMax ---> [varbinary] [MaxLength = -1]
+MappedDataTypesWithIdentity.BytesAsImage ---> [image] [MaxLength = 2147483647]
+MappedDataTypesWithIdentity.BytesAsVarbinaryMax ---> [varbinary] [MaxLength = -1]
 MappedDataTypesWithIdentity.CharAsAsCharVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.CharAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.CharAsInt ---> [int] [Precision = 10 Scale = 0]
@@ -2427,14 +2475,16 @@ MappedDataTypesWithIdentity.LongAsBigint ---> [bigint] [Precision = 19 Scale = 0
 MappedDataTypesWithIdentity.SByteAsSmallint ---> [smallint] [Precision = 5 Scale = 0]
 MappedDataTypesWithIdentity.SbyteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypesWithIdentity.ShortAsSmallint ---> [smallint] [Precision = 5 Scale = 0]
-MappedDataTypesWithIdentity.StringAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
-MappedDataTypesWithIdentity.StringAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
-MappedDataTypesWithIdentity.StringAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
-MappedDataTypesWithIdentity.StringAsNationalCharVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
-MappedDataTypesWithIdentity.StringAsNtext ---> [nullable ntext] [MaxLength = 1073741823]
-MappedDataTypesWithIdentity.StringAsNvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
-MappedDataTypesWithIdentity.StringAsText ---> [nullable text] [MaxLength = 2147483647]
-MappedDataTypesWithIdentity.StringAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.SqlVariantInt ---> [sql_variant] [MaxLength = 0]
+MappedDataTypesWithIdentity.SqlVariantString ---> [sql_variant] [MaxLength = 0]
+MappedDataTypesWithIdentity.StringAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsCharVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsNationalCharacterVaryingMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsNationalCharVaryingMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsNtext ---> [ntext] [MaxLength = 1073741823]
+MappedDataTypesWithIdentity.StringAsNvarcharMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.StringAsText ---> [text] [MaxLength = 2147483647]
+MappedDataTypesWithIdentity.StringAsVarcharMax ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.TimeSpanAsTime ---> [time] [Precision = 7]
 MappedDataTypesWithIdentity.UintAsBigint ---> [bigint] [Precision = 19 Scale = 0]
 MappedDataTypesWithIdentity.UintAsInt ---> [int] [Precision = 10 Scale = 0]
@@ -2477,6 +2527,8 @@ MappedNullableDataTypes.LongAsBigint ---> [nullable bigint] [Precision = 19 Scal
 MappedNullableDataTypes.SByteAsSmallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypes.SbyteAsTinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
 MappedNullableDataTypes.ShortAsSmallint ---> [nullable smallint] [Precision = 5 Scale = 0]
+MappedNullableDataTypes.SqlVariantInt ---> [nullable sql_variant] [MaxLength = 0]
+MappedNullableDataTypes.SqlVariantString ---> [nullable sql_variant] [MaxLength = 0]
 MappedNullableDataTypes.StringAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.StringAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
@@ -2528,6 +2580,8 @@ MappedNullableDataTypesWithIdentity.LongAsBigint ---> [nullable bigint] [Precisi
 MappedNullableDataTypesWithIdentity.SByteAsSmallint ---> [nullable smallint] [Precision = 5 Scale = 0]
 MappedNullableDataTypesWithIdentity.SbyteAsTinyint ---> [nullable tinyint] [Precision = 3 Scale = 0]
 MappedNullableDataTypesWithIdentity.ShortAsSmallint ---> [nullable smallint] [Precision = 5 Scale = 0]
+MappedNullableDataTypesWithIdentity.SqlVariantInt ---> [nullable sql_variant] [MaxLength = 0]
+MappedNullableDataTypesWithIdentity.SqlVariantString ---> [nullable sql_variant] [MaxLength = 0]
 MappedNullableDataTypesWithIdentity.StringAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.StringAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
@@ -2757,14 +2811,15 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
-
-                MakeRequired<MappedDataTypes>(modelBuilder);
 
                 modelBuilder.Entity<MappedDataTypes>(
                     b =>
@@ -2780,6 +2835,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                             b.Property(e => e.Int).ValueGeneratedNever();
                         });
 
+                modelBuilder.Entity<MappedDataTypesWithIdentity>();
+                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>();
+
                 modelBuilder.Entity<MappedSizedDataTypes>()
                     .Property(e => e.Id)
                     .ValueGeneratedNever();
@@ -2792,28 +2850,31 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     .Property(e => e.Id)
                     .ValueGeneratedNever();
 
-                modelBuilder.Entity<MappedDataTypes>();
-                modelBuilder.Entity<MappedNullableDataTypes>();
+                MakeRequired<MappedDataTypes>(modelBuilder);
+                MakeRequired<MappedDataTypesWithIdentity>(modelBuilder);
+
                 modelBuilder.Entity<MappedSizedDataTypes>();
                 modelBuilder.Entity<MappedScaledDataTypes>();
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>();
-                modelBuilder.Entity<MappedDataTypesWithIdentity>();
-                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>();
-                modelBuilder.Entity<MappedDataTypesWithIdentity>();
-                modelBuilder.Entity<MappedNullableDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
                 modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>();
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(
+            {
+                var options = base.AddOptions(builder).ConfigureWarnings(
                     c => c
                         .Log(RelationalEventId.QueryClientEvaluationWarning)
                         .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+                new SqlServerDbContextOptionsBuilder(options).MinBatchSize(1);
+
+                return options;
+            }
 
             public override bool SupportsBinaryKeys => true;
 
@@ -2985,6 +3046,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "nvarchar(20)")]
             public StringEnumU16 EnumAsNvarchar20 { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantString { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantInt { get; set; }
         }
 
         protected class MappedSizedDataTypes
@@ -3240,6 +3307,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "nvarchar(20)")]
             public StringEnumU16? EnumAsNvarchar20 { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantString { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantInt { get; set; }
         }
 
         protected class MappedDataTypesWithIdentity
@@ -3395,6 +3468,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "nvarchar(20)")]
             public StringEnumU16 EnumAsNvarchar20 { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantString { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantInt { get; set; }
         }
 
         protected class MappedSizedDataTypesWithIdentity
@@ -3655,6 +3734,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "nvarchar(20)")]
             public StringEnumU16? EnumAsNvarchar20 { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantString { get; set; }
+
+            [Column(TypeName = "sql_variant")]
+            public object SqlVariantInt { get; set; }
         }
 
         public class ColumnInfo

@@ -49,6 +49,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
+        ///     Gets a value indicating whether the property or field is/will be mapped.
+        /// </summary>
+        /// <param name="member"> The property or field. </param>
+        /// <returns> True if the member can be mapped; otherwise false. </returns>
+        public virtual bool IsTypeMapped(MemberInfo member)
+        {
+            Check.NotNull(member, nameof(member));
+
+            return IsTypeMapped(member.GetMemberType());
+        }
+
+        /// <summary>
         ///     Describes metadata needed to decide on a type mapping for a property or type.
         /// </summary>
         protected class TypeMappingInfo
@@ -110,6 +122,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 ModelClrType = (modelClrType ?? property?.ClrType)?.UnwrapNullableType();
+            }
+
+            /// <summary>
+            ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+            /// </summary>
+            /// <param name="member"> The property or field for which mapping is needed. </param>
+            public TypeMappingInfo([NotNull] MemberInfo member)
+            {
+                Check.NotNull(member, nameof(member));
+
+                ModelClrType = member.GetMemberType().UnwrapNullableType();
             }
 
             private static int? CalculateSize(ConverterMappingHints mappingHints, int? size)

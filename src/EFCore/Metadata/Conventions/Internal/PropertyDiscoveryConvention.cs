@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
             return propertyInfo.IsCandidateProperty()
-                   && _typeMapper.IsTypeMapped(propertyInfo.PropertyType);
+                   && _typeMapper.IsTypeMapped(propertyInfo);
         }
 
         /// <summary>

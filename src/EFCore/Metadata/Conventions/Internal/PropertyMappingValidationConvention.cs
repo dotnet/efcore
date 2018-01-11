@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
@@ -134,9 +133,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(property, nameof(property));
 
-            return _typeMapper.IsTypeMapped(
+            if (_typeMapper.IsTypeMapped(
                 property.GetValueConverter()?.StoreType
-                ?? property.ClrType);
+                ?? property.ClrType))
+            {
+                return true;
+            }
+
+            var memberInfo = property.PropertyInfo ?? (MemberInfo)property.FieldInfo;
+
+            return memberInfo != null && _typeMapper.IsTypeMapped(memberInfo);
         }
 
         /// <summary>

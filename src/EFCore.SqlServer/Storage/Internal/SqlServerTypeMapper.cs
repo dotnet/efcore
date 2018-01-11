@@ -80,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly DecimalTypeMapping _decimal = new DecimalTypeMapping("decimal(18, 2)");
 
+        private readonly RelationalTypeMapping _sqlVariant = new SqlServerSqlVariantTypeMapping("sql_variant");
+
         private readonly TimeSpanTypeMapping _time = new SqlServerTimeSpanTypeMapping("time");
 
         private readonly SqlServerStringTypeMapping _xml = new SqlServerStringTypeMapping("xml", dbType: null, unicode: true);
@@ -139,6 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     { "smalldatetime", new List<RelationalTypeMapping> { _datetime } },
                     { "smallint", new List<RelationalTypeMapping> { _short } },
                     { "smallmoney", new List<RelationalTypeMapping> { _decimal } },
+                    { "sql_variant", new List<RelationalTypeMapping> { _sqlVariant } },
                     { "text", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
                     { "time", new List<RelationalTypeMapping> { _time } },
                     { "timestamp", new List<RelationalTypeMapping> { _rowversion } },

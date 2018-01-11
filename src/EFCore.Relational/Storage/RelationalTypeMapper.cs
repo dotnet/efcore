@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -145,6 +146,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return (_legacyMode
                        ? FindMapping(clrType)
                        : FindMapping(new RelationalTypeMappingInfo(modelClrType: clrType))) != null;
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the property or field is/will be mapped.
+        /// </summary>
+        /// <param name="member"> The property or field. </param>
+        /// <returns> True if the member can be mapped; otherwise false. </returns>
+        public override bool IsTypeMapped(MemberInfo member)
+        {
+            Check.NotNull(member, nameof(member));
+
+            return (_legacyMode
+                       ? FindMapping(member.GetMemberType())
+                       : FindMapping(new RelationalTypeMappingInfo(member))) != null;
         }
 
         private RelationalTypeMapping FindMapping(
@@ -563,6 +578,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
 
                 StoreTypeName = storeTypeName;
+            }
+
+            /// <summary>
+            ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
+            /// </summary>
+            /// <param name="member"> The property or field for which mapping is needed. </param>
+            public RelationalTypeMappingInfo([NotNull] MemberInfo member)
+                : base(member)
+            {
+                Check.NotNull(member, nameof(member));
+
+                var attribute = member.GetCustomAttributes<ColumnAttribute>(true)?.FirstOrDefault();
+                if (attribute != null)
+                {
+                    StoreTypeName = attribute.TypeName;
+                }
             }
 
             /// <summary>
