@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -425,6 +426,77 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = property.GetAnnotations().ToList();
 
+            var valueConverter = property.GetValueConverter();
+            if (valueConverter != null)
+            {
+                var storeType = Code.Reference(valueConverter.StoreType);
+                var modelType = Code.Reference(valueConverter.ModelType);
+
+                stringBuilder
+                    .AppendLine()
+                    .Append(".")
+                    .Append(nameof(PropertyBuilder.HasConversion))
+                    .Append("(new ")
+                    .Append(nameof(ValueConverter))
+                    .Append("<")
+                    .Append(modelType)
+                    .Append(", ")
+                    .Append(storeType)
+                    .Append(">(v => default(")
+                    .Append(storeType)
+                    .Append("), v => default(")
+                    .Append(modelType);
+
+                var hints = valueConverter.MappingHints;
+
+                if (!hints.IsEmpty)
+                {
+                    var nonNulls = new List<string>();
+
+                    if (hints.Size != null)
+                    {
+                        nonNulls.Add("size: " + Code.Literal(hints.Size.Value));
+                    }
+                    else if (hints.SizeFunction != null)
+                    {
+                        var maxLength = property.GetMaxLength();
+                        if (maxLength != null)
+                        {
+                            nonNulls.Add("size: " + Code.Literal(hints.SizeFunction(maxLength.Value)));
+                        }
+                    }
+
+                    if (hints.Precision != null)
+                    {
+                        nonNulls.Add("precision: " + Code.Literal(hints.Precision.Value));
+                    }
+
+                    if (hints.Scale != null)
+                    {
+                        nonNulls.Add("scale: " + Code.Literal(hints.Scale.Value));
+                    }
+
+                    if (hints.IsUnicode != null)
+                    {
+                        nonNulls.Add("unicode: " + Code.Literal(hints.IsUnicode.Value));
+                    }
+
+                    if (hints.IsFixedLength != null)
+                    {
+                        nonNulls.Add("fixedLength: " + Code.Literal(hints.IsFixedLength.Value));
+                    }
+
+                    stringBuilder
+                        .Append("), new ConverterMappingHints(")
+                        .Append(string.Join(", ", nonNulls));
+                }
+
+                stringBuilder
+                    .Append(")))");
+
+                annotations.Remove(annotations.First(a => a.Name == CoreAnnotationNames.ValueConverter));
+            }
+
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
@@ -432,8 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.StoreClrType, null, nameof(PropertyBuilder.HasConversion), a => new[] { (Type)a?.Value },stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.ValueConverter, null, nameof(PropertyBuilder.HasConversion), a => new[] { ((ValueConverter)a?.Value)?.StoreType }, stringBuilder);
+            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.StoreClrType, null, nameof(PropertyBuilder.HasConversion), a => new[] { (Type)a?.Value }, stringBuilder);
 
             IgnoreAnnotations(
                 annotations,

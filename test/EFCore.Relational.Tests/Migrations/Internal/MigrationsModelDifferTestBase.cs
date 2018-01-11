@@ -141,7 +141,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), new IntTypeMapping("int") },
-                    { typeof(bool), new BoolTypeMapping("boolean") }
+                    { typeof(short), new ShortTypeMapping("smallint") },
+                    { typeof(long), new ShortTypeMapping("bigint") },
+                    { typeof(bool), new BoolTypeMapping("boolean") },
+                    { typeof(DateTime), new DateTimeTypeMapping("datetime2") }
                 };
 
             private readonly IReadOnlyDictionary<string, IList<RelationalTypeMapping>> _simpleNameMappings

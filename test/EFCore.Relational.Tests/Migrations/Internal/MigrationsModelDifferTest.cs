@@ -42,6 +42,117 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [Fact]
+        public void Model_differ_detects_adding_store_type()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x => { x.Property<short>("Id"); });
+                },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x => { x.Property<short>("Id").HasConversion<int>(); });
+                },
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Id", m.Name);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Same(typeof(int), m.ClrType);
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Id", m.Name);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Same(typeof(short), m.ClrType);
+                    }));
+        }
+
+        [Fact]
+        public void Model_differ_detects_adding_value_converter()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x => { x.Property<short>("Id"); });
+                },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x => { x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v); });
+                },
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Id", m.Name);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Same(typeof(long), m.ClrType);
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Id", m.Name);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Same(typeof(short), m.ClrType);
+                    }));
+        }
+
+        [Fact]
+        public void Model_differ_detects_changing_store_type_to_conversions()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x => { x.Property<short>("Id").HasConversion<int>(); });
+                },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Cat",
+                        x => { x.Property<short>("Id").HasConversion(v => (long)v, v => (short)v); });
+                },
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Id", m.Name);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Same(typeof(long), m.ClrType);
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<AlterColumnOperation>(o);
+                        Assert.Equal("Id", m.Name);
+                        Assert.Equal("Cat", m.Table);
+                        Assert.Same(typeof(int), m.ClrType);
+                    }));
+        }
+
+        [Fact]
         public void Model_differ_breaks_foreign_key_cycles_in_create_table_operations()
         {
             Execute(

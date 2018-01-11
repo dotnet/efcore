@@ -138,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     CoreAnnotationNames.ValueConverter,
-                    (new ValueConverter<int, long>(v => v, v => (int)v), _nl + "." + nameof(PropertyBuilder.HasConversion) + "<long>()")
+                    (new ValueConverter<int, long>(v => v, v => (int)v),
+                    _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<int, long>(v => default(long), v => default(int)))")
                 },
                 {
                     CoreAnnotationNames.StoreClrType,
@@ -236,6 +237,63 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private class WithAnnotations
         {
             public int Id { get; set; }
+        }
+
+        [Fact]
+        public void Value_converters_with_mapping_hints_are_scaffolded_correctly()
+        {
+            var commonPrefix
+                = _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<int, long>(v => default(long), v => default(int)";
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v),
+                commonPrefix + "))");
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(size: 10)),
+                commonPrefix + ", new ConverterMappingHints(size: 10)))");
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(precision: 10)),
+                commonPrefix + ", new ConverterMappingHints(precision: 10)))");
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(scale: 10)),
+                commonPrefix + ", new ConverterMappingHints(scale: 10)))");
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(unicode: true)),
+                commonPrefix + ", new ConverterMappingHints(unicode: true)))");
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(fixedLength: false)),
+                commonPrefix + ", new ConverterMappingHints(fixedLength: false)))");
+
+            AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(fixedLength: false, size: 77, scale: -1)),
+                commonPrefix + ", new ConverterMappingHints(size: 77, scale: -1, fixedLength: false)))");
+
+           AssertConverter(
+                new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(sizeFunction: s => s / 10)),
+                commonPrefix + ", new ConverterMappingHints(size: 100)))");
+        }
+
+        private static void AssertConverter(ValueConverter valueConverter, string expected)
+        {
+            var model = new ModelBuilder(TestServiceFactory.Instance.Create<CoreConventionSetBuilder>().CreateConventionSet());
+            var property = model.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
+            property.SetMaxLength(1000);
+
+            var codeHelper = new CSharpHelper();
+            var generator = new TestCSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper));
+
+            property.SetValueConverter(valueConverter);
+
+            var sb = new IndentedStringBuilder();
+
+            generator.TestGeneratePropertyAnnotations(property, sb);
+
+            Assert.Equal(expected + _nl + ".HasMaxLength(1000)", sb.ToString());
         }
 
         [Fact]
@@ -395,7 +453,8 @@ namespace MyNamespace
 
             var model = new Model { ["Some:EnumValue"] = RegexOptions.Multiline, ["Relational:DbFunction:MyFunc"] = new object() };
             var entityType = model.AddEntityType("Cheese");
-            entityType.AddProperty("Pickle", typeof(StringBuilder));
+            var property = entityType.AddProperty("Pickle", typeof(StringBuilder));
+            property.SetValueConverter(new ValueConverter<StringBuilder, string>(v => v.ToString(), v => new StringBuilder(v), new ConverterMappingHints(size: 10)));
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -412,6 +471,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 
 namespace MyNamespace
 {
@@ -426,7 +486,8 @@ namespace MyNamespace
 
             modelBuilder.Entity(""Cheese"", b =>
                 {
-                    b.Property<StringBuilder>(""Pickle"");
+                    b.Property<StringBuilder>(""Pickle"")
+                        .HasConversion(new ValueConverter<StringBuilder, string>(v => default(string), v => default(StringBuilder), new ConverterMappingHints(size: 10)));
 
                     b.ToTable(""Cheese"");
                 });

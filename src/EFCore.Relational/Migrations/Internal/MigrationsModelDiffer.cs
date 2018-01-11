@@ -842,10 +842,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
             }
 
+            var sourceTypeMapping = TypeMapper.GetMapping(source);
+            var targetTypeMapping = TypeMapper.GetMapping(target);
+
             var sourceColumnType = sourceAnnotations.ColumnType
-                                   ?? TypeMapper.GetMapping(source).StoreType;
+                                   ?? sourceTypeMapping.StoreType;
             var targetColumnType = targetAnnotations.ColumnType
-                                   ?? TypeMapper.GetMapping(target).StoreType;
+                                   ?? targetTypeMapping.StoreType;
 
             var sourceMigrationsAnnotations = MigrationsAnnotations.For(source).ToList();
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target).ToList();
@@ -875,10 +878,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
 
                 Initialize(
-                    alterColumnOperation, target, isTargetColumnNullable, targetAnnotations, targetMigrationsAnnotations, true);
+                    alterColumnOperation, target, targetTypeMapping, isTargetColumnNullable, targetAnnotations, targetMigrationsAnnotations, true);
 
                 Initialize(
-                    alterColumnOperation.OldColumn, source, isSourceColumnNullable, sourceAnnotations, sourceMigrationsAnnotations, true);
+                    alterColumnOperation.OldColumn, source, sourceTypeMapping, isSourceColumnNullable, sourceAnnotations, sourceMigrationsAnnotations, true);
 
                 yield return alterColumnOperation;
             }
@@ -902,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Table = targetEntityTypeAnnotations.TableName,
                 Name = targetAnnotations.ColumnName
             };
-            Initialize(operation, target, target.IsColumnNullable(), targetAnnotations, MigrationsAnnotations.For(target), inline);
+            Initialize(operation, target, TypeMapper.GetMapping(target), target.IsColumnNullable(), targetAnnotations, MigrationsAnnotations.For(target), inline);
 
             yield return operation;
         }
@@ -929,12 +932,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void Initialize(
             ColumnOperation columnOperation,
             IProperty property,
+            CoreTypeMapping typeMapping,
             bool isNullable,
             IRelationalPropertyAnnotations annotations,
             IEnumerable<IAnnotation> migrationsAnnotations,
             bool inline = false)
         {
-            columnOperation.ClrType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+            columnOperation.ClrType
+                = typeMapping.Converter?.StoreType
+                  ?? typeMapping.ClrType.UnwrapNullableType().UnwrapEnumType();
+
             columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();
             columnOperation.IsUnicode = property.IsUnicode();

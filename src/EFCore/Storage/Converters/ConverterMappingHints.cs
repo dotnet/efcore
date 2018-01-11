@@ -68,6 +68,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         }
 
         /// <summary>
+        ///     Returns <c>true</c> if all properties are <c>null</c>.
+        /// </summary>
+        public bool IsEmpty
+            => Size == null
+               && Precision == null
+               && Scale == null
+               && IsUnicode == null
+               && IsFixedLength == null
+               && SizeFunction == null;
+
+        /// <summary>
         ///     The suggested size of the mapped data type.
         /// </summary>
         public int? Size { get; }
