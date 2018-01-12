@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 
@@ -19,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected ParameterBinding(
             [NotNull] Type parameterType,
-            [CanBeNull] IPropertyBase consumedProperty)
+            [NotNull] params IPropertyBase[] consumedProperties)
         {
             ParameterType = parameterType;
-            ConsumedProperty = consumedProperty;
+            ConsumedProperties = consumedProperties;
         }
 
         /// <summary>
@@ -35,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IPropertyBase ConsumedProperty { get; }
+        public virtual IReadOnlyList<IPropertyBase> ConsumedProperties { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

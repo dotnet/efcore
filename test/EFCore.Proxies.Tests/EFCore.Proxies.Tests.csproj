@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+    <AssemblyName>Microsoft.EntityFrameworkCore.Proxies.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
+    <ProjectReference Include="..\EFCore.Tests\EFCore.Tests.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="TestUtilities\FakeProvider\FakeDbCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
+</Project>

@@ -54,9 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             _model = new LazyRef<IModel>(
                 () =>
                     {
-                        var modelBuilder = new ModelBuilder(
-                            Dependencies.ConventionSetBuilder.AddConventions(
-                                Dependencies.CoreConventionSetBuilder.CreateConventionSet()));
+                        var conventionSet = Dependencies.CoreConventionSetBuilder.CreateConventionSet();
+                        foreach (var conventionSetBuilder in Dependencies.ConventionSetBuilders)
+                        {
+                            conventionSet = conventionSetBuilder.AddConventions(conventionSet);
+                        }
+
+                        var modelBuilder = new ModelBuilder(conventionSet);
+
                         modelBuilder.Entity<HistoryRow>(
                             x =>
                                 {

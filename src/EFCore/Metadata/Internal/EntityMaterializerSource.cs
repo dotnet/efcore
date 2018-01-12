@@ -178,10 +178,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constructorBinding.CreateConstructorExpression(bindingInfo))
                 };
 
+            var properties = new HashSet<IProperty>(
+                entityType
+                    .GetProperties()
+                    .Where(p => !p.IsShadowProperty));
+
+            foreach (var consumedProperty in constructorBinding
+                .ParameterBindings
+                .SelectMany(p => p.ConsumedProperties)
+                .OfType<IProperty>())
+            {
+                properties.Remove(consumedProperty);
+            }
+
             blockExpressions.AddRange(
-                from property in entityType.GetProperties().Where(
-                    p => !p.IsShadowProperty
-                         && constructorBinding.ParameterBindings.All(b => b.ConsumedProperty != p))
+                from property in properties
                 let targetMember = Expression.MakeMemberAccess(
                     instanceVariable,
                     property.GetMemberInfo(forConstruction: true, forSet: true))

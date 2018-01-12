@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -70,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 return _scopedProvider.GetService<IModelSource>().GetModel(
                     _currentContext.Context,
-                    _scopedProvider.GetService<IConventionSetBuilder>(),
+                    new CompositeConventionSetBuilder(_scopedProvider.GetService<IEnumerable<IConventionSetBuilder>>().ToList()), 
                     _scopedProvider.GetService<IModelValidator>());
             }
             finally

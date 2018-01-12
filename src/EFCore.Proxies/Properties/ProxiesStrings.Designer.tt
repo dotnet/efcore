@@ -1,0 +1,4 @@
+<#
+    Session["ResourceFile"] = "ProxiesStrings.resx";
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

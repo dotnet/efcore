@@ -18,11 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ParameterBinding TryBindParameter(IMutableEntityType enityType, ParameterInfo parameter)
+        public override ParameterBinding TryBindParameter(IMutableEntityType entityType, ParameterInfo parameter)
         {
             if (parameter.ParameterType == typeof(ILazyLoader))
             {
-                EnsureFieldAccess(enityType);
+                EnsureFieldAccess(entityType);
 
                 return new ServiceParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader));
             }
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (parameter.ParameterType == typeof(Action<object, string>)
                 && parameter.Name.Equals("lazyLoader", StringComparison.OrdinalIgnoreCase))
             {
-                EnsureFieldAccess(enityType);
+                EnsureFieldAccess(entityType);
 
                 return new ServiceMethodParameterBinding(typeof(Action<object, string>), typeof(ILazyLoader), _loadMethod);
             }
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return null;
         }
 
-        private static void EnsureFieldAccess(IMutableEntityType enityType)
+        private static void EnsureFieldAccess(IMutableEntityType entityType)
         {
-            foreach (var navigation in enityType.GetNavigations())
+            foreach (var navigation in entityType.GetNavigations())
             {
                 navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
             }

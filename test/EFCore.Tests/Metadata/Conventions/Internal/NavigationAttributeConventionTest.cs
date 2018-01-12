@@ -702,7 +702,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private ModelBuilder CreateModelBuilder()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
-            return new ModelBuilder(contextServices.GetRequiredService<IConventionSetBuilder>()
+            return new ModelBuilder(new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
                 .AddConventions(new CoreConventionSetBuilder(
                     contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(CreateLogger()))
                     .CreateConventionSet()));

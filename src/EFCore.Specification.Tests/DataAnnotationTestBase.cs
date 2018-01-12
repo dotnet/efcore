@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected virtual IConventionSetBuilder CreateConventionSetBuilder(DbContext context)
-            => context.GetService<IConventionSetBuilder>();
+            => new CompositeConventionSetBuilder(context.GetService<IEnumerable<IConventionSetBuilder>>().ToList());
 
         protected virtual DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

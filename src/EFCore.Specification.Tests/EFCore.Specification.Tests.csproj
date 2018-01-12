@@ -17,6 +17,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\EFCore.Proxies\EFCore.Proxies.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">

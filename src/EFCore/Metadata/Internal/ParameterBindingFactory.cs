@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public abstract ParameterBinding TryBindParameter(
-            [NotNull] IMutableEntityType enityType,
+            [NotNull] IMutableEntityType entityType,
             [NotNull] ParameterInfo parameter);
     }
 }

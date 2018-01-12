@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ParameterBinding TryBindParameter(IMutableEntityType enityType, ParameterInfo parameter)
+        public override ParameterBinding TryBindParameter(IMutableEntityType entityType, ParameterInfo parameter)
         {
             var candidateNames = GetCandidatePropertyNames(parameter);
 
-            return enityType.GetProperties().Where(
+            return entityType.GetProperties().Where(
                 p => p.ClrType == parameter.ParameterType
                      && candidateNames.Any(c => c.Equals(p.Name, StringComparison.Ordinal)))
                 .Select(p => new PropertyParameterBinding(p)).FirstOrDefault();

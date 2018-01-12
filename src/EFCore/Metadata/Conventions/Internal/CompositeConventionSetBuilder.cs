@@ -1,39 +1,40 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Linq.Expressions;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ContextParameterBinding : ParameterBinding
+    public class CompositeConventionSetBuilder : IConventionSetBuilder
     {
+        private readonly IReadOnlyList<IConventionSetBuilder> _builders;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ContextParameterBinding([NotNull] Type contextType)
-            : base(contextType)
+        public CompositeConventionSetBuilder([NotNull] IReadOnlyList<IConventionSetBuilder> builders)
         {
-            ContextType = contextType;
+            _builders = builders;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type ContextType { get; }
+        public virtual ConventionSet AddConventions(ConventionSet conventionSet)
+        {
+            foreach (var builder in _builders)
+            {
+                builder.AddConventions(conventionSet);
+            }
 
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
-            => Expression.TypeAs(bindingInfo.ContextExpression, ContextType);
+            return conventionSet;
+        }
     }
 }

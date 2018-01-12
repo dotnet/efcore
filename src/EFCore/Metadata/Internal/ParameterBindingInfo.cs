@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ParameterBindingInfo(
-            [NotNull] IEntityType enityType,
+            [NotNull] IEntityType entityType,
             [NotNull] Expression valueBufferExpression,
             [NotNull] Expression contextExpression,
             [CanBeNull] int[] indexMap)
         {
             _indexMap = indexMap;
-            EnityType = enityType;
+            EntityType = entityType;
             ValueBufferExpression = valueBufferExpression;
             ContextExpression = contextExpression;
         }
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public IEntityType EnityType { get; }
+        public IEntityType EntityType { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

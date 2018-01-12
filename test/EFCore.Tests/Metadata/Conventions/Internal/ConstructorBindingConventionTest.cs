@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -43,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("shadow", parameters[1].Name);
             Assert.Equal("id", parameters[2].Name);
 
-            Assert.Equal("Title", bindings[0].ConsumedProperty.Name);
-            Assert.Equal("Shadow", bindings[1].ConsumedProperty.Name);
-            Assert.Equal("Id", bindings[2].ConsumedProperty.Name);
+            Assert.Equal("Title", bindings[0].ConsumedProperties.First().Name);
+            Assert.Equal("Shadow", bindings[1].ConsumedProperties.First().Name);
+            Assert.Equal("Id", bindings[2].ConsumedProperties.First().Name);
         }
 
         private class BlogSeveral : Blog
@@ -120,15 +121,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("FooBaar5", parameters[7].Name);
             Assert.Equal("FooBaar6", parameters[8].Name);
 
-            Assert.Equal("FooBaar1", bindings[0].ConsumedProperty.Name);
-            Assert.Equal("fooBaar2", bindings[1].ConsumedProperty.Name);
-            Assert.Equal("_fooBaar3", bindings[2].ConsumedProperty.Name);
-            Assert.Equal("m_fooBaar4", bindings[3].ConsumedProperty.Name);
-            Assert.Equal("_FooBaar5", bindings[4].ConsumedProperty.Name);
-            Assert.Equal("m_FooBaar6", bindings[5].ConsumedProperty.Name);
-            Assert.Equal("FooBaar1", bindings[6].ConsumedProperty.Name);
-            Assert.Equal("_FooBaar5", bindings[7].ConsumedProperty.Name);
-            Assert.Equal("m_FooBaar6", bindings[8].ConsumedProperty.Name);
+            Assert.Equal("FooBaar1", bindings[0].ConsumedProperties.First().Name);
+            Assert.Equal("fooBaar2", bindings[1].ConsumedProperties.First().Name);
+            Assert.Equal("_fooBaar3", bindings[2].ConsumedProperties.First().Name);
+            Assert.Equal("m_fooBaar4", bindings[3].ConsumedProperties.First().Name);
+            Assert.Equal("_FooBaar5", bindings[4].ConsumedProperties.First().Name);
+            Assert.Equal("m_FooBaar6", bindings[5].ConsumedProperties.First().Name);
+            Assert.Equal("FooBaar1", bindings[6].ConsumedProperties.First().Name);
+            Assert.Equal("_FooBaar5", bindings[7].ConsumedProperties.First().Name);
+            Assert.Equal("m_FooBaar6", bindings[8].ConsumedProperties.First().Name);
         }
 
         private class BlogSpanner : Blog
@@ -166,8 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("content", parameters[0].Name);
             Assert.Equal("follows", parameters[1].Name);
 
-            Assert.Equal("_content", bindings[0].ConsumedProperty.Name);
-            Assert.Equal("m_follows", bindings[1].ConsumedProperty.Name);
+            Assert.Equal("_content", bindings[0].ConsumedProperties.First().Name);
+            Assert.Equal("m_follows", bindings[1].ConsumedProperties.First().Name);
         }
 
         private class BlogWierdScience : Blog
@@ -194,10 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("context", parameters[1].Name);
 
             Assert.IsType<PropertyParameterBinding>(bindings[0]);
-            Assert.Equal("Id", bindings[0].ConsumedProperty.Name);
+            Assert.Equal("Id", bindings[0].ConsumedProperties.First().Name);
 
             Assert.IsType<ContextParameterBinding>(bindings[1]);
-            Assert.Null(bindings[1].ConsumedProperty);
+            Assert.Empty(bindings[1].ConsumedProperties);
             Assert.Same(typeof(DbContext), ((ContextParameterBinding)bindings[1]).ContextType);
         }
 
@@ -224,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("context", parameters[0].Name);
 
             Assert.IsType<ContextParameterBinding>(bindings[0]);
-            Assert.Null(bindings[0].ConsumedProperty);
+            Assert.Empty(bindings[0].ConsumedProperties);
             Assert.Same(typeof(TypedContext), ((ContextParameterBinding)bindings[0]).ContextType);
         }
 
@@ -251,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("loader", parameters[0].Name);
 
             Assert.IsType<ServiceParameterBinding>(bindings[0]);
-            Assert.Null(bindings[0].ConsumedProperty);
+            Assert.Empty(bindings[0].ConsumedProperties);
             Assert.Same(typeof(ILazyLoader), ((ServiceParameterBinding)bindings[0]).ServiceType);
         }
 
@@ -278,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("lazyLoader", parameters[0].Name);
 
             Assert.IsType<ServiceMethodParameterBinding>(bindings[0]);
-            Assert.Null(bindings[0].ConsumedProperty);
+            Assert.Empty(bindings[0].ConsumedProperties);
             Assert.Same(typeof(ILazyLoader), ((ServiceMethodParameterBinding)bindings[0]).ServiceType);
         }
 
@@ -305,7 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.Equal("entityType", parameters[0].Name);
 
             Assert.IsType<EntityTypeParameterBinding>(bindings[0]);
-            Assert.Null(bindings[0].ConsumedProperty);
+            Assert.Empty(bindings[0].ConsumedProperties);
         }
 
         private class BlogWithEntityType : Blog

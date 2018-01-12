@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -61,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="migrationsSqlGenerator"> The SQL generator for Migrations operations. </param>
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         /// <param name="coreConventionSetBuilder"> The core convention set to use when creating the model. </param>
-        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
+        /// <param name="conventionSetBuilders"> The convention sets to use when creating the model. </param>
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -71,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IConventionSetBuilder conventionSetBuilder)
+            [NotNull] IEnumerable<IConventionSetBuilder> conventionSetBuilders)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
@@ -81,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
-            Check.NotNull(conventionSetBuilder, nameof(conventionSetBuilder));
+            Check.NotNull(conventionSetBuilders, nameof(conventionSetBuilders));
 
             DatabaseCreator = databaseCreator;
             RawSqlCommandBuilder = rawSqlCommandBuilder;
@@ -91,7 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationsSqlGenerator = migrationsSqlGenerator;
             SqlGenerationHelper = sqlGenerationHelper;
             CoreConventionSetBuilder = coreConventionSetBuilder;
-            ConventionSetBuilder = conventionSetBuilder;
+            ConventionSetBuilders = conventionSetBuilders;
+#pragma warning disable 618
+            ConventionSetBuilder = new CompositeConventionSetBuilder((IReadOnlyList<IConventionSetBuilder>)ConventionSetBuilders);
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -137,7 +143,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The convention set to use when creating the model.
         /// </summary>
+        [Obsolete("Use ConventionSetBuilders")]
         public IConventionSetBuilder ConventionSetBuilder { get; }
+
+        /// <summary>
+        ///     The convention set to use when creating the model.
+        /// </summary>
+        public IEnumerable<IConventionSetBuilder> ConventionSetBuilders { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -154,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -171,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -188,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -205,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -222,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -239,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 migrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -256,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 sqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -273,13 +285,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 coreConventionSetBuilder,
-                ConventionSetBuilder);
+                ConventionSetBuilders);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [Obsolete("Use With(IEnumerable<IConventionSetBuilder>)")]
         public HistoryRepositoryDependencies With([NotNull] IConventionSetBuilder conventionSetBuilder)
             => new HistoryRepositoryDependencies(
                 DatabaseCreator,
@@ -290,6 +303,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                conventionSetBuilder);
+                new[] { conventionSetBuilder });
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="conventionSetBuilders"> The convention sets to use when creating the model. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IEnumerable<IConventionSetBuilder> conventionSetBuilders)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                SqlGenerationHelper,
+                CoreConventionSetBuilder,
+                conventionSetBuilders);
     }
 }

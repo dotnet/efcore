@@ -57,11 +57,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             entityType[CoreAnnotationNames.ConstructorBinding]
                 = new FactoryMethodConstructorBinding(
-                    typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod("Factory"),
+                    typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.Factory)),
                     new List<ParameterBinding>
                     {
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
+                    }
+                );
+
+            var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
+
+            var gu = Guid.NewGuid();
+            var entity = (SomeEntity)factory(new ValueBuffer(new object[] { SomeEnum.EnumValue, "Fu", gu, 77, SomeEnum.EnumValue }), null);
+
+            Assert.Equal(77, entity.Id);
+            Assert.Equal("Fu", entity.Foo);
+            Assert.Equal(gu, entity.Goo);
+            Assert.Equal(SomeEnum.EnumValue, entity.Enum);
+            Assert.Equal(SomeEnum.EnumValue, entity.MaybeEnum);
+
+            Assert.True(entity.FactoryUsed);
+            Assert.True(entity.ParameterizedConstructorUsed);
+            Assert.False(entity.IdSetterCalled);
+            Assert.False(entity.GooSetterCalled);
+        }
+
+        [Fact]
+        public void Can_create_materializer_for_entity_with_factory_method_with_object_array()
+        {
+            var entityType = CreateEntityType();
+
+            entityType[CoreAnnotationNames.ConstructorBinding]
+                = new FactoryMethodConstructorBinding(
+                    typeof(SomeEntity).GetTypeInfo().GetDeclaredMethod(nameof(SomeEntity.GeneralFactory)),
+                    new List<ParameterBinding>
+                    {
+                        new ObjectArrayParameterBinding(
+                            new List<ParameterBinding>
+                            {
+                                new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
+                                new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
+                            })
                     }
                 );
 
@@ -252,6 +288,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public static SomeEntity Factory(int id, Guid? goo)
                 => new SomeEntity(id, goo) { FactoryUsed = true };
+
+            public static SomeEntity GeneralFactory(object[] constructorArguments)
+            {
+                Assert.Equal(2, constructorArguments.Length);
+
+                return Factory((int)constructorArguments[0], (Guid?)constructorArguments[1]);
+            }
 
             public bool FactoryUsed { get; set; }
             public bool ParameterizedConstructorUsed { get; set; }

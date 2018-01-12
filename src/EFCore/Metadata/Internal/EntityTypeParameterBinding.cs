@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityTypeParameterBinding()
-            : base(typeof(IEntityType), null)
+            : base(typeof(IEntityType))
         {
         }
 
@@ -25,6 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
-            => Expression.Constant(bindingInfo.EnityType, typeof(IEntityType));
+            => Expression.Constant(bindingInfo.EntityType, typeof(IEntityType));
     }
 }

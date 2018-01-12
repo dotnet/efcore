@@ -2,38 +2,33 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ContextParameterBinding : ParameterBinding
+    public interface IProxyFactory
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ContextParameterBinding([NotNull] Type contextType)
-            : base(contextType)
-        {
-            ContextType = contextType;
-        }
+        object CreateLazyLoadingProxy(
+            [NotNull] IEntityType entityType,
+            [NotNull] ILazyLoader loader,
+            [NotNull] object[] constructorArguments);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type ContextType { get; }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
-            => Expression.TypeAs(bindingInfo.ContextExpression, ContextType);
+        object Create(
+            [NotNull] DbContext context,
+            [NotNull] Type entityClrType,
+            [NotNull] params object[] constructorArguments);
     }
 }

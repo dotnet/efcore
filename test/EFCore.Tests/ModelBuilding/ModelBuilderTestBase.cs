@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -144,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextServices = testHelpers.CreateContextServices();
 
-                ModelBuilder = new ModelBuilder(contextServices.GetRequiredService<IConventionSetBuilder>().AddConventions(new CoreConventionSetBuilder(
+                ModelBuilder = new ModelBuilder(new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList())
+                    .AddConventions(new CoreConventionSetBuilder(
                     contextServices.GetRequiredService<CoreConventionSetBuilderDependencies>().With(modelLogger))
                     .CreateConventionSet()));
 

@@ -45,7 +45,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var serviceProperties = typeof(TDependencies).GetTypeInfo()
                 .DeclaredProperties
-                .Where(p => !ignoreProperties.Contains(p.Name))
+                .Where(
+                    p => !ignoreProperties.Contains(p.Name)
+                         && p.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute)))
                 .ToList();
 
             Assert.Equal(constructorParameters.Length, serviceProperties.Count);
@@ -54,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
                     .Single(
-                        m => m.Name == "With"
+                        m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
+                            && m.Name == "With"
                              && m.GetParameters()[0].ParameterType == serviceType);
 
                 var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
@@ -189,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var contextServices = CreateContextServices();
 
-            var conventionSetBuilder = contextServices.GetRequiredService<IConventionSetBuilder>();
+            var conventionSetBuilder = new CompositeConventionSetBuilder(contextServices.GetRequiredService<IEnumerable<IConventionSetBuilder>>().ToList());
             var conventionSet = contextServices.GetRequiredService<ICoreConventionSetBuilder>().CreateConventionSet();
             conventionSet = conventionSetBuilder == null
                 ? conventionSet

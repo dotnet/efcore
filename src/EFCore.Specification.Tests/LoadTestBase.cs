@@ -1217,7 +1217,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Lazy_load_collection_for_detached_throws()
+        public virtual void Lazy_load_collection_for_detached_is_no_op()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
@@ -1225,15 +1225,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Entry(parent).State = EntityState.Detached;
 
-                Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Children).Message);
+                Assert.Null(parent.Children);
             }
         }
 
         [Fact]
-        public virtual void Lazy_load_reference_to_principal_for_detached_throws()
+        public virtual void Lazy_load_reference_to_principal_for_detached_is_no_op()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
@@ -1241,15 +1238,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Entry(child).State = EntityState.Detached;
 
-                Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => child.Parent).Message);
+                Assert.Null(child.Parent);
             }
         }
 
         [Fact]
-        public virtual void Lazy_load_reference_to_dependent_for_detached_throws()
+        public virtual void Lazy_load_reference_to_dependent_for_detached_is_no_op()
         {
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
@@ -1257,10 +1251,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Entry(parent).State = EntityState.Detached;
 
-                Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Single).Message);
+                Assert.Null(parent.Single);
             }
         }
 
