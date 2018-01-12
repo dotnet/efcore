@@ -606,7 +606,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         context.Database.AutoTransactionsEnabled = autoTransaction;
 
-                        using (context.Database.BeginTransaction())
+                        using (context.Database.BeginTransaction(IsolationLevel.ReadUncommitted))
                         {
                             var ex = Assert.Throws<InvalidOperationException>(() =>
                                     context.Database.UseTransaction(transaction));

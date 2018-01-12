@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
             return SqliteTestStore.GetOrCreateShared(DatabaseName, false, true, () =>
                 {
                     var optionsBuilder = new DbContextOptionsBuilder()
-                        .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName))
+                        .UseSqlite(SqliteTestStore.CreateConnectionString(DatabaseName, sharedCache: true))
                         .UseInternalServiceProvider(_serviceProvider);
 
                     using (var context = new DbContext(optionsBuilder.Options))
