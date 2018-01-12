@@ -793,7 +793,8 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
         if ($projectAssetsFile)
         {
             # NB: Don't use Get-Content. It doesn't handle UTF-8 without a signature
-            $projectAssets = [IO.File]::ReadAllLines($projectAssetsFile) | ConvertFrom-Json
+            # NB: Don't use ReadAllLines. ConvertFrom-Json won't work on PowerShell 3.0
+            $projectAssets = [IO.File]::ReadAllText($projectAssetsFile) | ConvertFrom-Json
             $projectAssets.packageFolders.psobject.Properties.Name | %{
                 $dotnetParams += '--additionalprobingpath', $_.TrimEnd('\')
             }
