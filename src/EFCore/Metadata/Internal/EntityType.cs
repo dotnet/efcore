@@ -830,7 +830,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!this.IsQueryType)
+            if (!IsQueryType)
             {
                 if (principalKey.ReferencingForeignKeys == null)
                 {

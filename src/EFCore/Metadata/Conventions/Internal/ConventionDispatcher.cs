@@ -290,7 +290,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 _dispatcher = dispatcher;
                 var currentScope = _dispatcher._scope;
-                dispatcher._scope = new ConventionScope(currentScope, children: null);
+
+                if (currentScope.Children != null
+                    && currentScope.Children[currentScope.Children.Count - 1] is ConventionScope lastScope
+                    && lastScope.Children == null)
+                {
+                    dispatcher._scope = lastScope;
+                    return;
+                }
+
+                dispatcher._scope = new ConventionScope(currentScope);
 
                 if (currentScope != _dispatcher._immediateConventionScope)
                 {
@@ -314,6 +323,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
 
                     _dispatcher._scope = currentScope.Parent;
+
+                    if (currentScope.Children == null)
+                    {
+                        return;
+                    }
+
                     currentScope.MakeReadonly();
 
                     if (currentScope.Parent != _dispatcher._immediateConventionScope
@@ -323,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
 
                     // Capture all nested convention invocations to unwind the stack
-                    _dispatcher._scope = new ConventionScope(_dispatcher._immediateConventionScope, children: null);
+                    _dispatcher._scope = new ConventionScope(_dispatcher._immediateConventionScope);
                     new RunVisitor(_dispatcher).VisitConventionScope(currentScope);
                 }
             }

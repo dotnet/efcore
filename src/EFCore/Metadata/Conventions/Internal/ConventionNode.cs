@@ -20,13 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private class ConventionScope : ConventionNode
         {
-            private readonly List<ConventionNode> _children;
+            private List<ConventionNode> _children;
+#if DEBUG
             private bool _readonly;
+#endif
 
-            public ConventionScope(ConventionScope parent, List<ConventionNode> children)
+            public ConventionScope(ConventionScope parent, List<ConventionNode> children = null)
             {
                 Parent = parent;
-                _children = children ?? new List<ConventionNode>();
+                _children = children;
             }
 
             public ConventionScope Parent { [DebuggerStepThrough] get; }
@@ -38,12 +40,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public int GetLeafCount()
             {
+                if (Children == null)
+                {
+                    return 0;
+                }
+
                 var scopesToVisit = new Queue<ConventionScope>();
                 scopesToVisit.Enqueue(this);
                 var leafCount = 0;
                 while (scopesToVisit.Count > 0)
                 {
                     var scope = scopesToVisit.Dequeue();
+                    if (scope.Children == null)
+                    {
+                        continue;
+                    }
+
                     foreach (var conventionNode in scope.Children)
                     {
                         if (conventionNode is ConventionScope nextScope)
@@ -62,14 +74,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public void Add(ConventionNode node)
             {
-                if (_readonly)
+#if DEBUG
+                Debug.Assert(!_readonly);
+#endif
+
+                if (_children == null)
                 {
-                    throw new InvalidOperationException();
+                    _children = new List<ConventionNode>();
                 }
+
                 _children.Add(node);
             }
 
-            public void MakeReadonly() => _readonly = true;
+            public void MakeReadonly()
+            {
+#if DEBUG
+                _readonly = true;
+#endif
+            }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitConventionScope(this);
 
@@ -235,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private readonly ConventionSet _conventionSet;
 
             public ImmediateConventionScope([NotNull] ConventionSet conventionSet)
-                : base(parent: null, children: null)
+                : base(parent: null)
             {
                 _conventionSet = conventionSet;
                 MakeReadonly();
