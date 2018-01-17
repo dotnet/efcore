@@ -44,7 +44,8 @@ namespace Microsoft.Data.Sqlite
             }
 
             connection.ExecuteNonQuery(
-                IsolationLevel == IsolationLevel.Serializable
+                !(AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue474", out var enabled) && enabled)
+                        && IsolationLevel == IsolationLevel.Serializable
                     ? "BEGIN IMMEDIATE;"
                     : "BEGIN;");
         }
