@@ -852,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = CreateContextWithConnectionString())
                 {
-                    using (context.Database.BeginTransaction())
+                    using (context.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
                     {
                         var ex = Assert.Throws<InvalidOperationException>(
                             () =>
