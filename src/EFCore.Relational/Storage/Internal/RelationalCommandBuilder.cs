@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public RelationalCommandBuilder(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalCoreTypeMapper typeMapper)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(typeMapper, nameof(typeMapper));

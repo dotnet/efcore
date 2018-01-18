@@ -8,21 +8,12 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Oracle.ManagedDataAccess.Client;
-using Oracle.ManagedDataAccess.Types;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     public class OracleTypeMapper : RelationalTypeMapper
     {
-        private static readonly IDictionary<Type, MethodInfo> _getXMethods
-            = new Dictionary<Type, MethodInfo>
-            {
-                { typeof(OracleTimeStampTZ), typeof(OracleDataReader).GetTypeInfo().GetDeclaredMethod(nameof(OracleDataReader.GetOracleTimeStampTZ)) }
-            };
-
         private readonly OracleStringTypeMapping _defaultUnicodeString
             = new OracleStringTypeMapping("NVARCHAR2(2000)", dbType: null, unicode: true);
 
@@ -81,11 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         private readonly DoubleTypeMapping _double = new OracleDoubleTypeMapping("FLOAT(49)");
 
         private readonly OracleDateTimeOffsetTypeMapping _datetimeoffset
-            = new OracleDateTimeOffsetTypeMapping(
-                "TIMESTAMP WITH TIME ZONE",
-                new ValueConverter<DateTimeOffset, OracleTimeStampTZ>(
-                    v => new OracleTimeStampTZ(v.DateTime, v.Offset.ToString()),
-                    v => new DateTimeOffset(v.Value, v.GetTimeZoneOffset())));
+            = new OracleDateTimeOffsetTypeMapping("TIMESTAMP WITH TIME ZONE");
+
+        private readonly OracleDateTimeOffsetTypeMapping _datetimeoffset3
+            = new OracleDateTimeOffsetTypeMapping("TIMESTAMP(3) WITH TIME ZONE");
 
         private readonly FloatTypeMapping _real = new OracleFloatTypeMapping("REAL");
 
@@ -95,37 +85,37 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private readonly OracleStringTypeMapping _xml = new OracleStringTypeMapping("XML", dbType: null, unicode: true);
 
-        private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
+        private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
         private readonly HashSet<string> _disallowedMappings;
 
         public OracleTypeMapper(
-            [NotNull] CoreTypeMapperDependencies coreDependencies,
             [NotNull] RelationalTypeMapperDependencies dependencies)
-            : base(coreDependencies, dependencies)
+            : base(dependencies)
         {
             _storeTypeMappings
-                = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
+                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "number(19)", new List<RelationalTypeMapping> { _long } },
-                    { "blob", new List<RelationalTypeMapping> { _variableLengthBinary } },
-                    { "raw", new List<RelationalTypeMapping> { _fixedLengthBinary } },
-                    { "char", new List<RelationalTypeMapping> { _fixedLengthAnsiString } },
-                    { "date", new List<RelationalTypeMapping> { _date } },
-                    { "timestamp", new List<RelationalTypeMapping> { _datetime } },
-                    { "timestamp(3) with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
-                    { "timestamp with time zone", new List<RelationalTypeMapping> { _datetimeoffset } },
-                    { "number(29,4)", new List<RelationalTypeMapping> { _decimal } },
-                    { "float(49)", new List<RelationalTypeMapping> { _double } },
-                    { "number(10)", new List<RelationalTypeMapping> { _int } },
-                    { "nchar", new List<RelationalTypeMapping> { _fixedLengthUnicodeString } },
-                    { "nvarchar2", new List<RelationalTypeMapping> { _variableLengthUnicodeString } },
-                    { "number(6)", new List<RelationalTypeMapping> { _short } },
-                    { "interval", new List<RelationalTypeMapping> { _time } },
-                    { "number(3)", new List<RelationalTypeMapping> { _byte } },
-                    { "varchar2", new List<RelationalTypeMapping> { _variableLengthAnsiString } },
-                    { "clob", new List<RelationalTypeMapping> { _unboundedUnicodeString, _unboundedAnsiString } },
-                    { "xml", new List<RelationalTypeMapping> { _xml } }
+                    { "number(19)", _long },
+                    { "blob", _variableLengthBinary },
+                    { "raw", _fixedLengthBinary },
+                    { "char", _fixedLengthAnsiString },
+                    { "date", _date },
+                    { "timestamp", _datetime },
+                    { "timestamp(3) with time zone", _datetimeoffset3 },
+                    { "timestamp with time zone", _datetimeoffset },
+                    { "number(29,4)", _decimal },
+                    { "float(49)", _double },
+                    { "number(10)", _int },
+                    { "nchar", _fixedLengthUnicodeString },
+                    { "nvarchar2", _variableLengthUnicodeString },
+                    { "number(6)", _short },
+                    { "interval", _time },
+                    { "number(3)", _byte },
+                    { "varchar2", _variableLengthAnsiString },
+                    { "clob", _unboundedUnicodeString },
+                    { "xml", _xml },
+                    { "number", _int }
                 };
 
             _clrTypeMappings
@@ -213,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _clrTypeMappings;
 
-        protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _storeTypeMappings;
 
         public override RelationalTypeMapping FindMapping(Type clrType)
@@ -233,10 +223,5 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         protected override bool RequiresKeyMapping(IProperty property)
             => base.RequiresKeyMapping(property) || property.IsIndex();
-
-        public override MethodInfo GetDataReaderMethod(Type type)
-            => _getXMethods.TryGetValue(type, out var method)
-                ? method
-                : base.GetDataReaderMethod(type);
     }
 }

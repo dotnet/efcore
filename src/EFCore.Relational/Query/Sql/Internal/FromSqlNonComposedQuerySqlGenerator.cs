@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql.Internal
                         types[i] = new TypeMaterializationInfo(
                             columnExpression.Type,
                             columnExpression.Property,
-                            Dependencies.RelationalTypeMapper,
+                            Dependencies.CoreTypeMapper,
                             readerColumn.Ordinal);
                     }
                 }

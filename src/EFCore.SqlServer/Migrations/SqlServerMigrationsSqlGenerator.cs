@@ -596,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 return;
             }
 
-            var stringTypeMapping = Dependencies.TypeMapper.GetMapping(typeof(string));
+            var stringTypeMapping = Dependencies.CoreTypeMapper.FindMapping(typeof(string));
 
             builder
                 .Append("IF SCHEMA_ID(")
@@ -1289,7 +1289,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotEmpty(newName, nameof(newName));
             Check.NotNull(builder, nameof(builder));
 
-            var stringTypeMapping = Dependencies.TypeMapper.GetMapping(typeof(string));
+            var stringTypeMapping = Dependencies.CoreTypeMapper.FindMapping(typeof(string));
 
             builder
                 .Append("EXEC sp_rename ")

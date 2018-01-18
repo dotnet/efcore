@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Expression indexExpression,
             TypeMaterializationInfo materializationInfo)
         {
-            var getMethod = Dependencies.TypeMapper.GetDataReaderMethod(materializationInfo.StoreType);
+            var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
 
             Expression expression
                 = Expression.Call(
@@ -156,6 +156,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (converter != null)
             {
+                if (expression.Type != converter.StoreType)
+                {
+                    expression = Expression.Convert(expression, converter.StoreType);
+                }
+
                 expression = ReplacingExpressionVisitor.Replace(
                     converter.ConvertFromStoreExpression.Parameters.Single(),
                     expression,

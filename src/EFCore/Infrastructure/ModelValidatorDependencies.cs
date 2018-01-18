@@ -50,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger)
         {
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(modelLogger, nameof(modelLogger));
 
             Logger = logger;
             ModelLogger = modelLogger;

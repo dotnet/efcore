@@ -23,13 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention
         where TAttribute : Attribute
     {
-        private readonly ITypeMapper _typeMapper;
+        private readonly ICoreTypeMapper _typeMapper;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected NavigationAttributeEntityTypeConvention([NotNull] ITypeMapper typeMapper)
+        protected NavigationAttributeEntityTypeConvention(
+            [NotNull] ICoreTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
@@ -212,7 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
+            return propertyInfo.FindCandidateNavigationPropertyType(
+                m => _typeMapper.FindMapping(m) != null);
         }
 
         /// <summary>

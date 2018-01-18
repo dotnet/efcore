@@ -1155,8 +1155,10 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p3='102.2'
 @p4='101.1'
 @p5='103.3'
-@p6='85.5'
-@p7='83.3'",
+@p6='85.5500030517578'
+@p7='85.5'
+@p8='83.3300018310547'
+@p9='83.3'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1171,6 +1173,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal(id, entity.Id);
             Assert.Equal(83.3f, entity.FloatAsFloat3);
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
+            Assert.Equal(83.33f, entity.FloatAsFloat25);
+            Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
             Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
@@ -1184,6 +1188,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 Id = id,
                 FloatAsFloat3 = 83.3f,
                 FloatAsDoublePrecision3 = 85.5f,
+                FloatAsFloat25 = 83.33f,
+                FloatAsDoublePrecision25 = 85.55f,
                 DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
                 DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12),
                 DecimalAsDecimal3 = 101.1m,
@@ -1907,9 +1913,11 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p2='102.2'
 @p3='101.1'
 @p4='103.3'
-@p5='85.5'
-@p6='83.3'
-@p7='77'",
+@p5='85.5500030517578'
+@p6='85.5'
+@p7='83.3300018310547'
+@p8='83.3'
+@p9='77'",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1924,6 +1932,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
             Assert.Equal(id, entity.Int);
             Assert.Equal(83.3f, entity.FloatAsFloat3);
             Assert.Equal(85.5f, entity.FloatAsDoublePrecision3);
+            Assert.Equal(83.33f, entity.FloatAsFloat25);
+            Assert.Equal(85.55f, entity.FloatAsDoublePrecision25);
             Assert.Equal(new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero), entity.DateTimeOffsetAsDatetimeoffset3);
             Assert.Equal(new DateTime(2017, 1, 2, 12, 11, 12), entity.DateTimeAsDatetime23);
             Assert.Equal(101m, entity.DecimalAsDecimal3);
@@ -1937,6 +1947,8 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 Int = id,
                 FloatAsFloat3 = 83.3f,
                 FloatAsDoublePrecision3 = 85.5f,
+                FloatAsFloat25 = 83.33f,
+                FloatAsDoublePrecision25 = 85.55f,
                 DateTimeOffsetAsDatetimeoffset3 = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
                 DateTimeAsDatetime23 = new DateTime(2017, 1, 2, 12, 11, 12),
                 DecimalAsDecimal3 = 101.1m,
@@ -2611,7 +2623,9 @@ MappedScaledDataTypes.DateTimeOffsetAsDatetimeoffset3 ---> [datetimeoffset] [Pre
 MappedScaledDataTypes.DecimalAsDec3 ---> [decimal] [Precision = 3 Scale = 0]
 MappedScaledDataTypes.DecimalAsDecimal3 ---> [decimal] [Precision = 3 Scale = 0]
 MappedScaledDataTypes.DecimalAsNumeric3 ---> [numeric] [Precision = 3 Scale = 0]
+MappedScaledDataTypes.FloatAsDoublePrecision25 ---> [float] [Precision = 53]
 MappedScaledDataTypes.FloatAsDoublePrecision3 ---> [real] [Precision = 24]
+MappedScaledDataTypes.FloatAsFloat25 ---> [float] [Precision = 53]
 MappedScaledDataTypes.FloatAsFloat3 ---> [real] [Precision = 24]
 MappedScaledDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MappedScaledDataTypesWithIdentity.DateTimeAsDatetime23 ---> [datetime2] [Precision = 3]
@@ -2619,7 +2633,9 @@ MappedScaledDataTypesWithIdentity.DateTimeOffsetAsDatetimeoffset3 ---> [datetime
 MappedScaledDataTypesWithIdentity.DecimalAsDec3 ---> [decimal] [Precision = 3 Scale = 0]
 MappedScaledDataTypesWithIdentity.DecimalAsDecimal3 ---> [decimal] [Precision = 3 Scale = 0]
 MappedScaledDataTypesWithIdentity.DecimalAsNumeric3 ---> [numeric] [Precision = 3 Scale = 0]
+MappedScaledDataTypesWithIdentity.FloatAsDoublePrecision25 ---> [float] [Precision = 53]
 MappedScaledDataTypesWithIdentity.FloatAsDoublePrecision3 ---> [real] [Precision = 24]
+MappedScaledDataTypesWithIdentity.FloatAsFloat25 ---> [float] [Precision = 53]
 MappedScaledDataTypesWithIdentity.FloatAsFloat3 ---> [real] [Precision = 24]
 MappedScaledDataTypesWithIdentity.Id ---> [int] [Precision = 10 Scale = 0]
 MappedScaledDataTypesWithIdentity.Int ---> [int] [Precision = 10 Scale = 0]
@@ -2690,7 +2706,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         {
             using (var context = CreateContext())
             {
-                var typeMapper = context.GetService<IRelationalTypeMapper>();
+                var typeMapper = context.GetService<IRelationalCoreTypeMapper>();
 
                 foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
                 {
@@ -3126,6 +3142,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             [Column(TypeName = "double precision(3)")]
             public float FloatAsDoublePrecision3 { get; set; }
 
+            [Column(TypeName = "float(25)")]
+            public float FloatAsFloat25 { get; set; }
+
+            [Column(TypeName = "double precision(25)")]
+            public float FloatAsDoublePrecision25 { get; set; }
+
             [Column(TypeName = "datetimeoffset(3)")]
             public DateTimeOffset DateTimeOffsetAsDatetimeoffset3 { get; set; }
 
@@ -3549,6 +3571,12 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             [Column(TypeName = "double precision(3)")]
             public float FloatAsDoublePrecision3 { get; set; }
+
+            [Column(TypeName = "float(25)")]
+            public float FloatAsFloat25 { get; set; }
+
+            [Column(TypeName = "double precision(25)")]
+            public float FloatAsDoublePrecision25 { get; set; }
 
             [Column(TypeName = "datetimeoffset(3)")]
             public DateTimeOffset DateTimeOffsetAsDatetimeoffset3 { get; set; }

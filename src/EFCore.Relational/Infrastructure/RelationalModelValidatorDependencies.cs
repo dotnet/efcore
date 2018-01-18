@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -44,18 +45,30 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="coreTypeMapper"> The type mapper. </param>
         public RelationalModelValidatorDependencies(
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalCoreTypeMapper coreTypeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(coreTypeMapper, nameof(coreTypeMapper));
 
+#pragma warning disable 618
             TypeMapper = typeMapper;
+#pragma warning restore 618
+            CoreTypeMapper = coreTypeMapper;
         }
 
         /// <summary>
         ///     Gets the type mapper.
         /// </summary>
+        [Obsolete("Use CoreTypeMapper instead.")]
         public IRelationalTypeMapper TypeMapper { get; }
+
+        /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalCoreTypeMapper CoreTypeMapper { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -63,6 +76,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMapper typeMapper)
-            => new RelationalModelValidatorDependencies(typeMapper);
+            => new RelationalModelValidatorDependencies(typeMapper, CoreTypeMapper);
+        
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="coreTypeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalModelValidatorDependencies With([NotNull] IRelationalCoreTypeMapper coreTypeMapper)
+#pragma warning disable 618
+            => new RelationalModelValidatorDependencies(TypeMapper, coreTypeMapper);
+#pragma warning restore 618
     }
 }

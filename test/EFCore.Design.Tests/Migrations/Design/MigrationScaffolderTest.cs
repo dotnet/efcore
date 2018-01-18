@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -66,7 +67,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     new Model(),
                     migrationAssembly,
                     new MigrationsModelDiffer(
-                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>(),
+                        new FallbackRelationalCoreTypeMapper(
+                            TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                            TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()),
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<StateManagerDependencies>(),

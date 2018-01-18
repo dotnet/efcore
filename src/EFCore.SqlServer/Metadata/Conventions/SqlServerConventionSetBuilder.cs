@@ -82,18 +82,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public static ConventionSet Build()
         {
+            var coreTypeMapperDependencies = new CoreTypeMapperDependencies(
+                new ValueConverterSelector(
+                    new ValueConverterSelectorDependencies()));
+
             var sqlServerTypeMapper = new SqlServerTypeMapper(
-                new CoreTypeMapperDependencies(
-                    new ValueConverterSelector(
-                        new ValueConverterSelectorDependencies())),
                 new RelationalTypeMapperDependencies());
 
+            var convertingTypeMapper = new FallbackRelationalCoreTypeMapper(
+                coreTypeMapperDependencies,
+                new RelationalTypeMapperDependencies(), 
+                sqlServerTypeMapper);
+
             return new SqlServerConventionSetBuilder(
-                new RelationalConventionSetBuilderDependencies(sqlServerTypeMapper, null, null, null),
+                new RelationalConventionSetBuilderDependencies(convertingTypeMapper, null, null, null),
                 new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(sqlServerTypeMapper, null, null))
+                        new CoreConventionSetBuilderDependencies(convertingTypeMapper, null, null))
                         .CreateConventionSet());
         }
     }

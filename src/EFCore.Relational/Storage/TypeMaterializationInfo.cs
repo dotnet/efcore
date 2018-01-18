@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public TypeMaterializationInfo(
             [NotNull] Type modelType,
             [CanBeNull] IProperty property,
-            [CanBeNull] IRelationalTypeMapper typeMapper, 
+            [CanBeNull] IRelationalCoreTypeMapper typeMapper, 
             int index = -1)
         {
             Check.NotNull(modelType, nameof(modelType));

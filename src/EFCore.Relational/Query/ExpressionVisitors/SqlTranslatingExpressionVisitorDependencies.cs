@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -48,21 +49,27 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <param name="methodCallTranslator"> The method call translator. </param>
         /// <param name="memberTranslator"> The member translator. </param>
         /// <param name="relationalTypeMapper"> The relational type mapper. </param>
+        /// <param name="coreTypeMapper"> The type mapper. </param>
         public SqlTranslatingExpressionVisitorDependencies(
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] ICompositeMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator,
-            [NotNull] IRelationalTypeMapper relationalTypeMapper)
+            [NotNull] IRelationalTypeMapper relationalTypeMapper,
+            [NotNull] IRelationalCoreTypeMapper coreTypeMapper)
         {
             Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
             Check.NotNull(memberTranslator, nameof(memberTranslator));
             Check.NotNull(relationalTypeMapper, nameof(relationalTypeMapper));
+            Check.NotNull(coreTypeMapper, nameof(coreTypeMapper));
 
             CompositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
             MethodCallTranslator = methodCallTranslator;
             MemberTranslator = memberTranslator;
+#pragma warning disable 618
             RelationalTypeMapper = relationalTypeMapper;
+#pragma warning restore 618
+            CoreTypeMapper = coreTypeMapper;
         }
 
         /// <summary>
@@ -83,7 +90,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         /// <summary>
         ///     The relational type mapper.
         /// </summary>
+        [Obsolete("Use CoreTypeMapper.")]
         public IRelationalTypeMapper RelationalTypeMapper { get; }
+
+        /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalCoreTypeMapper CoreTypeMapper { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -95,7 +108,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 compositeExpressionFragmentTranslator,
                 MethodCallTranslator,
                 MemberTranslator,
-                RelationalTypeMapper);
+#pragma warning disable 618
+                RelationalTypeMapper,
+#pragma warning restore 618
+                CoreTypeMapper);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -107,7 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 CompositeExpressionFragmentTranslator,
                 methodCallTranslator,
                 MemberTranslator,
-                RelationalTypeMapper);
+#pragma warning disable 618
+                RelationalTypeMapper,
+#pragma warning restore 618
+                CoreTypeMapper);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -119,7 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 CompositeExpressionFragmentTranslator,
                 MethodCallTranslator,
                 memberTranslator,
-                RelationalTypeMapper);
+#pragma warning disable 618
+                RelationalTypeMapper,
+#pragma warning restore 618
+                CoreTypeMapper);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -131,6 +153,22 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 CompositeExpressionFragmentTranslator,
                 MethodCallTranslator,
                 MemberTranslator,
-                relationalTypeMapper);
+                relationalTypeMapper,
+                CoreTypeMapper);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="coreTypeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public SqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalCoreTypeMapper coreTypeMapper)
+            => new SqlTranslatingExpressionVisitorDependencies(
+                CompositeExpressionFragmentTranslator,
+                MethodCallTranslator,
+                MemberTranslator,
+#pragma warning disable 618
+                RelationalTypeMapper,
+#pragma warning restore 618
+                coreTypeMapper);
     }
 }
