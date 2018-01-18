@@ -2193,6 +2193,10 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));
     }
 }

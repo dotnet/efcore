@@ -45,27 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         /// <returns> The combined hints. </returns>
         public ConverterMappingHints With(ConverterMappingHints hints)
             => new ConverterMappingHints(
-                CalculateSize(hints),
+                Size ?? hints.Size,
                 Precision ?? hints.Precision,
                 Scale ?? hints.Scale,
                 IsUnicode ?? hints.IsUnicode,
                 IsFixedLength ?? hints.IsFixedLength,
-                Size != null ? null : (SizeFunction ?? hints.SizeFunction));
-
-        private int? CalculateSize(ConverterMappingHints hints)
-        {
-            var size = Size ?? hints.Size;
-            if (size != null)
-            {
-                var sizeFunc = SizeFunction ?? hints.SizeFunction;
-                if (sizeFunc != null)
-                {
-                    return sizeFunc(size.Value);
-                }
-            }
-
-            return size;
-        }
+                SizeFunction ?? hints.SizeFunction);
 
         /// <summary>
         ///     Returns <c>true</c> if all properties are <c>null</c>.

@@ -16,7 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()),
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
@@ -32,7 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()),
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 
@@ -49,7 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var builder = new RawSqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()),
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())),
                 new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()),
                 new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()));
 

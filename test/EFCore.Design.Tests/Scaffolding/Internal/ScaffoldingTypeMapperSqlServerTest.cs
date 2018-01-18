@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -294,6 +295,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static ScaffoldingTypeMapper CreateMapper()
-            => new ScaffoldingTypeMapper(TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
+            => new ScaffoldingTypeMapper(
+                new FallbackRelationalCoreTypeMapper(
+                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
     }
 }

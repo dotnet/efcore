@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -568,7 +569,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var ctx = SqlServerTestHelpers.Instance.CreateContext(model);
             return new MigrationsModelDiffer(
-                TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
+                new FallbackRelationalCoreTypeMapper(
+                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()),
                 new SqlServerMigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),

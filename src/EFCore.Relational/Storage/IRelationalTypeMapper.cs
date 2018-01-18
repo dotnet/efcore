@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -12,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     <para>
     ///         Maps .NET types to their corresponding relational database types.
+    ///     </para>
+    ///     <para>
+    ///         Note: Use <see cref="IRelationalCoreTypeMapper" /> going forward.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -37,13 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         RelationalTypeMapping FindMapping([NotNull] Type clrType);
 
         /// <summary>
-        ///     <para>
-        ///         Gets the mapping that represents the given database type.
-        ///         Returns null if no mapping is found.
-        ///     </para>
-        ///     <para>
-        ///         Note that sometimes the same store type can have different mappings; this method returns the default.
-        ///     </para>
+        ///     Gets the mapping that represents the given database type.
+        ///     Returns null if no mapping is found.
         /// </summary>
         /// <param name="storeType"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
@@ -65,13 +61,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the mapper to be used for string properties.
         /// </summary>
         IStringRelationalTypeMapper StringMapper { get; }
-
-        /// <summary>
-        ///     The method to use when reading values of the given type. The method must be defined
-        ///     on <see cref="DbDataReader" /> or one of its subclasses.
-        /// </summary>
-        /// <param name="type"> The type of the value to be read. </param>
-        /// <returns> The method to use to read the value. </returns>
-        MethodInfo GetDataReaderMethod([NotNull] Type type);
     }
 }

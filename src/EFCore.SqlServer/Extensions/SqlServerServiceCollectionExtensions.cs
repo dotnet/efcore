@@ -70,6 +70,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDatabaseProvider, DatabaseProvider<SqlServerOptionsExtension>>()
                 .TryAdd<IValueGeneratorCache>(p => p.GetService<ISqlServerValueGeneratorCache>())
                 .TryAdd<IRelationalTypeMapper, SqlServerTypeMapper>()
+                .TryAdd<IRelationalCoreTypeMapper, SqlServerCoreTypeMapper>()
                 .TryAdd<ISqlGenerationHelper, SqlServerSqlGenerationHelper>()
                 .TryAdd<IMigrationsAnnotationProvider, SqlServerMigrationsAnnotationProvider>()
                 .TryAdd<IRelationalValueBufferFactoryFactory, UntypedRelationalValueBufferFactoryFactory>()

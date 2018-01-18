@@ -152,13 +152,13 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder
                     .Entity<NumNum>()
                     .Property(e => e.Id)
-                    .HasColumnType("numeric(18, 0)")
+                    .HasColumnType("number(18, 0)")
                     .UseOracleIdentityColumn();
 
                 modelBuilder
                     .Entity<AdNum>()
                     .Property(e => e.Id)
-                    .HasColumnType("decimal(10, 0)")
+                    .HasColumnType("number(10, 0)")
                     .ValueGeneratedOnAdd();
 
                 modelBuilder
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class AnNum
         {
-            [Column(TypeName = "decimal(18, 0)")]
+            [Column(TypeName = "number(18, 0)")]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public decimal Id { get; set; }
 

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -119,6 +120,9 @@ Statement3
             => new MigrationCommandListBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                    TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()));
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())));
     }
 }

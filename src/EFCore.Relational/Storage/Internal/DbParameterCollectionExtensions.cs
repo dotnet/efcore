@@ -135,7 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 builder.Append('\'');
                 return;
             }
-            else if (parameterValue.GetType() == typeof(DateTime))
+
+            if (parameterValue.GetType() == typeof(DateTime))
             {
                 builder.Append(((DateTime)parameterValue).ToString("s"));
             }
@@ -155,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         builder.Append("...");
                         break;
                     }
+
                     builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
                 }
             }

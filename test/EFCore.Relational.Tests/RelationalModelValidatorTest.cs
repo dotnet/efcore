@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -797,7 +798,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
-                = TestServiceFactory.Instance.Create<TestRelationalTypeMapper>().GetMapping(property);
+                = new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>())
+                    .FindMapping(property);
 
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
         {
@@ -862,7 +867,11 @@ namespace Microsoft.EntityFrameworkCore
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()));
+                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>(),
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>())));
 
         protected virtual ModelBuilder CreateConventionalModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();

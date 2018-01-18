@@ -44,17 +44,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         public static ConventionSet Build()
         {
+            var coreTypeMapperDependencies = new CoreTypeMapperDependencies(
+                new ValueConverterSelector(
+                    new ValueConverterSelectorDependencies()));
+
             var oracleTypeMapper = new OracleTypeMapper(
-                new CoreTypeMapperDependencies(
-                    new ValueConverterSelector(
-                        new ValueConverterSelectorDependencies())),
                 new RelationalTypeMapperDependencies());
 
+            var convertingMapper = new FallbackRelationalCoreTypeMapper(
+                coreTypeMapperDependencies,
+                new RelationalTypeMapperDependencies(), 
+                oracleTypeMapper);
+
             return new OracleConventionSetBuilder(
-                new RelationalConventionSetBuilderDependencies(oracleTypeMapper, null, null, null))
+                new RelationalConventionSetBuilderDependencies(convertingMapper, null, null, null))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(oracleTypeMapper, null, null))
+                        new CoreConventionSetBuilderDependencies(convertingMapper, null, null))
                         .CreateConventionSet());
         }
     }

@@ -10,6 +10,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -345,28 +346,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             if (typeName == null)
             {
                 var principalProperty = property.FindPrincipal();
-                typeName = principalProperty?.SqlServer().ColumnType;
-                if (typeName == null)
-                {
-                    if (property.ClrType == typeof(string))
-                    {
-                        typeName = Dependencies.RelationalTypeMapper.StringMapper?.FindMapping(
-                            property.IsUnicode() ?? principalProperty?.IsUnicode() ?? true,
-                            keyOrIndex: false,
-                            maxLength: null).StoreType;
-                    }
-                    else if (property.ClrType == typeof(byte[]))
-                    {
-                        typeName = Dependencies.RelationalTypeMapper.ByteArrayMapper?.FindMapping(
-                            rowVersion: false,
-                            keyOrIndex: false,
-                            size: null).StoreType;
-                    }
-                    else
-                    {
-                        typeName = Dependencies.RelationalTypeMapper.FindMapping(property.ClrType).StoreType;
-                    }
-                }
+
+                typeName = principalProperty?.SqlServer().ColumnType
+                           ?? Dependencies.CoreTypeMapper.FindMapping(property.ClrType)?.StoreType;
             }
 
             if (property.ClrType == typeof(byte[])
