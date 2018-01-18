@@ -17,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <param name="namespace"> The namespace. </param>
+        /// <param name="contextDir"> The directory of the <see cref="DbContext"/>. </param>
         /// <param name="contextName"> The name of the <see cref="DbContext"/>. </param>
         /// <param name="connectionString"> The connection string. </param>
         /// <param name="dataAnnotations"> A value indicating whether to use data annotations. </param>
@@ -24,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ScaffoldedModel GenerateModel(
             [NotNull] IModel model,
             [NotNull] string @namespace,
+            [NotNull] string contextDir,
             [NotNull] string contextName,
             [NotNull] string connectionString,
             bool dataAnnotations);

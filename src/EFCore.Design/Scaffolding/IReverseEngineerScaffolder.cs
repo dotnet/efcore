@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="schemas"> A list of schemas to include. Empty to include all schemas. </param>
         /// <param name="namespace"> The namespace of the model. </param>
         /// <param name="language"> The programming language to scaffold for. </param>
+        /// <param name="outputDbContextDir"> The DbContext output dirctory. </param>
         /// <param name="contextName"> The <see cref="DbContext"/> name. </param>
         /// <param name="useDataAnnotations"> True to scaffold data annotations. </param>
         /// <param name="useDatabaseNames"> True to use the database schema names directly. </param>
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             [NotNull] IEnumerable<string> schemas,
             [NotNull] string @namespace,
             [NotNull] string language,
+            [CanBeNull] string outputDbContextDir,
             [CanBeNull] string contextName,
             bool useDataAnnotations,
             bool useDatabaseNames);
@@ -39,14 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="scaffoldedModel"> The scaffolded model. </param>
         /// <param name="projectDir"> The project directory. </param>
         /// <param name="outputDir"> The output dirctory. </param>
-        /// <param name="outputDbContextDir"> The DbContext output dirctory. </param>
         /// <param name="overwriteFiles"> True to overwrite any existing files. </param>
         /// <returns> The model files. </returns>
         ModelFiles Save(
             [NotNull] ScaffoldedModel scaffoldedModel,
             [NotNull] string projectDir,
             [CanBeNull] string outputDir,
-            [CanBeNull] string outputDbContextDir,
             bool overwriteFiles);
     }
 }

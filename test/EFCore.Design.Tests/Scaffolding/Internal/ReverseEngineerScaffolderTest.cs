@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     ContextFile = new ScaffoldedFile
                     {
-                        Path = "TestContext.cs",
+                        Path = Path.Combine("..", "Data", "TestContext.cs"),
                         Code = "// TestContext"
                     },
                     AdditionalFiles =
@@ -36,9 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 };
 
-                var result = scaffolder.Save(scaffoldedModel, directory.Path, "Models", "Models", overwriteFiles: false);
+                var result = scaffolder.Save(scaffoldedModel, directory.Path, "Models", overwriteFiles: false);
 
-                var contextPath = Path.Combine(directory.Path, "Models", "TestContext.cs");
+                var contextPath = Path.Combine(directory.Path, "Data", "TestContext.cs");
                 Assert.Equal(contextPath, result.ContextFile);
                 Assert.Equal("// TestContext", File.ReadAllText(contextPath));
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 };
 
                 var ex = Assert.Throws<OperationException>(
-                    () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, outputDbContextDir: null, overwriteFiles: false));
+                    () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: false));
 
                 Assert.Equal(
                     DesignStrings.ExistingFiles(
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 };
 
-                var result = scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, outputDbContextDir: null, overwriteFiles: true);
+                var result = scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: true);
 
                 Assert.Equal(path, result.ContextFile);
                 Assert.Equal("// Test", File.ReadAllText(path));
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     };
 
                     var ex = Assert.Throws<OperationException>(
-                        () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, outputDbContextDir: null, overwriteFiles: true));
+                        () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: true));
 
                     Assert.Equal(
                         DesignStrings.ReadOnlyFiles(

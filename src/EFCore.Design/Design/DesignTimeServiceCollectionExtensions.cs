@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -51,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<ModelCodeGeneratorDependencies>()
                 .AddSingleton<ProviderCodeGeneratorDependencies>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
+                .AddSingleton<ValueConverterSelectorDependencies>()
                 .AddSingleton<ICandidateNamingService, CandidateNamingService>()
                 .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
                 .AddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
@@ -70,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
+                .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                 .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<IMigrationsScaffolder, MigrationsScaffolder>()
                 .AddTransient<ISnapshotModelProcessor, SnapshotModelProcessor>()

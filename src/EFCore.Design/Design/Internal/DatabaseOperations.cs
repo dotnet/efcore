@@ -82,12 +82,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 @namespace += "." + subNamespace;
             }
 
+            var absoluteOutputDir = outputDir != null
+                ? Path.GetFullPath(Path.Combine(_projectDir, outputDir))
+                : _projectDir;
+            var absoluteContextDir = outputContextDir != null
+                ? Path.GetFullPath(Path.Combine(_projectDir, outputContextDir))
+                : absoluteOutputDir;
+            var relativeContextDir = MakeDirRelative(absoluteOutputDir, absoluteContextDir);
+
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 tables,
                 schemas,
                 @namespace,
                 _language,
+                relativeContextDir,
                 dbContextClassName,
                 useDataAnnotations,
                 useDatabaseNames);
@@ -96,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 scaffoldedModel,
                 _projectDir,
                 outputDir,
-                outputContextDir,
                 overwriteFiles);
         }
 
@@ -125,6 +133,30 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             return !string.IsNullOrWhiteSpace(subPath)
                 ? string.Join(".", subPath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
                 : null;
+        }
+
+        private static string MakeDirRelative(string root, string path)
+        {
+            var relativeUri = new Uri(NormalizeDir(root)).MakeRelativeUri(new Uri(NormalizeDir(path)));
+
+            return Uri.UnescapeDataString(relativeUri.ToString()).Replace('/', Path.DirectorySeparatorChar);
+        }
+
+        private static string NormalizeDir(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return path;
+            }
+
+            var last = path[path.Length - 1];
+            if (last == Path.DirectorySeparatorChar
+                || last == Path.AltDirectorySeparatorChar)
+            {
+                return path;
+            }
+
+            return path + Path.DirectorySeparatorChar;
         }
     }
 }

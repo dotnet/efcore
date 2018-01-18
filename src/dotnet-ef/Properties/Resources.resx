@@ -294,4 +294,7 @@
   <data name="MigrationsRemoveRevertDescription" xml:space="preserve">
     <value>Revert the migration if it has been applied to the database.</value>
   </data>
+  <data name="OutputDbContextDirDescription" xml:space="preserve">
+    <value>The directory to put DbContext file in. Paths are relative to the project directory.</value>
+  </data>
 </root>

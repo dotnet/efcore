@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IEnumerable<string> schemas,
             string @namespace,
             string language,
+            string outputDbContextDir,
             string contextName,
             bool useDataAnnotations,
             bool useDatabaseNames)
@@ -107,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var codeGenerator = ModelCodeGeneratorSelector.Select(language);
 
-            return codeGenerator.GenerateModel(model, @namespace, contextName, connectionString, useDataAnnotations);
+            return codeGenerator.GenerateModel(model, @namespace, outputDbContextDir ?? string.Empty, contextName, connectionString, useDataAnnotations);
         }
 
         /// <summary>
@@ -118,7 +119,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             ScaffoldedModel scaffoldedModel,
             string projectDir,
             string outputDir,
-            string outputDbContextDir,
             bool overwriteFiles)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
@@ -127,26 +127,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 ? projectDir
                 : Path.GetFullPath(Path.Combine(projectDir, outputDir));
 
-            string outputDbContextDir1 = null;
-            if (outputDbContextDir == null)
-            {
-                outputDbContextDir1 = outputDir;
-            }
-            else
-            {
-                outputDbContextDir1 = Path.IsPathRooted(outputDbContextDir)
-                    ? outputDbContextDir
-                    : Path.GetFullPath(Path.Combine(projectDir, outputDbContextDir));
-            }
-
             CheckOutputFiles(scaffoldedModel, outputDir, overwriteFiles);
-            CheckOutputFiles(scaffoldedModel, outputDbContextDir1, overwriteFiles);
 
             var files = new ModelFiles();
             Directory.CreateDirectory(outputDir);
-            Directory.CreateDirectory(outputDbContextDir1);
 
-            var contextPath = Path.Combine(outputDbContextDir1, scaffoldedModel.ContextFile.Path);
+            var contextPath = Path.GetFullPath(Path.Combine(outputDir, scaffoldedModel.ContextFile.Path));
+            Directory.CreateDirectory(Path.GetDirectoryName(contextPath));
             File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
             files.ContextFile = contextPath;
 

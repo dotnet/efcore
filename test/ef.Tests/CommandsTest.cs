@@ -26,18 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Tools
             }
         }
 
-        private static CommandLineApplication GetScaffoldCommand()
-        {
-            var app = new CommandLineApplication
-            {
-                Name = "ef"
-            };
-
-            new DbContextCommand().Configure(app);
-
-            return app;
-        }
-
         private static IEnumerable<CommandLineApplication> GetCommands()
         {
             var app = new CommandLineApplication

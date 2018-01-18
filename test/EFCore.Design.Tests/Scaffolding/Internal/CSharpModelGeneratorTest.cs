@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -32,11 +33,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var result = generator.GenerateModel(
                 modelBuilder.Model,
                 "TestNamespace",
+                Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
                 "TestContext",
                 "Data Source=Test",
                 dataAnnotations: true);
 
-            Assert.Equal("TestContext.cs", result.ContextFile.Path);
+            Assert.Equal(Path.Combine("..", "TestContextDir", "TestContext.cs"), result.ContextFile.Path);
             Assert.Equal(
                 @"using System;
 using Microsoft.EntityFrameworkCore;

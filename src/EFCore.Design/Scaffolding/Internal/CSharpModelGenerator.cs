@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -58,12 +59,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         public override ScaffoldedModel GenerateModel(
             IModel model,
             string @namespace,
+            string contextDir,
             string contextName,
             string connectionString,
             bool useDataAnnotations)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(@namespace, nameof(@namespace));
+            Check.NotNull(contextDir, nameof(contextDir));
             Check.NotEmpty(contextName, nameof(contextName));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
@@ -73,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;
-            resultingFiles.ContextFile = new ScaffoldedFile { Path = dbContextFileName, Code = generatedCode };
+            resultingFiles.ContextFile = new ScaffoldedFile { Path = Path.Combine(contextDir, dbContextFileName), Code = generatedCode };
 
             foreach (var entityType in model.GetEntityTypes())
             {
