@@ -494,5 +494,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         #endregion
+
+        #region Helpers - Maybe
+
+        public static TResult Maybe<TResult>(object caller, Func<TResult> expression)
+            where TResult : class
+        {
+            if (caller == null)
+            {
+                return null;
+            }
+
+            return expression();
+        }
+
+        public static TResult? MaybeScalar<TResult>(object caller, Func<TResult?> expression)
+            where TResult : struct
+        {
+            if (caller == null)
+            {
+                return null;
+            }
+
+            return expression();
+        }
+
+        #endregion
     }
 }

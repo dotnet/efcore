@@ -61,6 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             LinqOperatorProvider = linqOperatorProvider;
             ContextType = dependencies.CurrentContext.Context.GetType();
             TrackQueryResults = trackQueryResults;
+            AsyncQuery = LinqOperatorProvider.Select.ReturnType.GetGenericTypeDefinition() == typeof(IAsyncEnumerable<>);
         }
 
         /// <summary>
@@ -115,6 +116,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The query source mapping.
         /// </value>
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
+
+        /// <summary>
+        ///     Get a value indicating whether query that is being processed is asynchronous.
+        /// </summary>
+        public virtual bool AsyncQuery { get; }
 
         /// <summary>
         ///     Gets the entity type mapped to the given query source

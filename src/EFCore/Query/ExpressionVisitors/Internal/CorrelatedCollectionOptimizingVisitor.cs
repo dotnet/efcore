@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -37,6 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static MethodInfo _correlateSubqueryMethodInfo
             = typeof(IQueryBuffer).GetMethod(nameof(IQueryBuffer.CorrelateSubquery));
 
+        private static MethodInfo _correlateSubqueryAsyncMethodInfo
+            = typeof(IQueryBuffer).GetMethod(nameof(IQueryBuffer.CorrelateSubqueryAsync));
+
         private static MethodInfo _getCollectionAccessorMethodInfo
             = typeof(Metadata.Internal.NavigationExtensions).GetTypeInfo().GetDeclaredMethod(nameof(Metadata.Internal.NavigationExtensions.GetCollectionAccessor));
 
@@ -44,6 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             = typeof(IClrCollectionAccessor).GetRuntimeMethod(nameof(IClrCollectionAccessor.Create), new Type[] { });
 
         private List<Ordering> _parentOrderings { get; } = new List<Ordering>();
+
+        private static readonly ParameterExpression _cancellationTokenParameter
+            = Expression.Parameter(typeof(CancellationToken), name: "ct");
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -225,9 +232,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             if (navigation.ForeignKey.DeclaringEntityType.ClrType == collectionQueryModel.SelectClause.Selector.Type)
             {
-                correlateSubqueryMethod = _correlateSubqueryMethodInfo.MakeGenericMethod(
-                    collectionQueryModel.SelectClause.Selector.Type,
-                    navigation.GetCollectionAccessor().CollectionType);
+                if (_queryCompilationContext.AsyncQuery)
+                {
+                    correlateSubqueryMethod = _correlateSubqueryAsyncMethodInfo.MakeGenericMethod(
+                        collectionQueryModel.SelectClause.Selector.Type,
+                        navigation.GetCollectionAccessor().CollectionType);
+                }
+                else
+                {
+                    correlateSubqueryMethod = _correlateSubqueryMethodInfo.MakeGenericMethod(
+                        collectionQueryModel.SelectClause.Selector.Type,
+                        navigation.GetCollectionAccessor().CollectionType);
+                }
 
                 resultCollectionFactoryExpressionBody
                     = Expression.Convert(
@@ -241,9 +257,18 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var resultCollectionType = typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type);
                 var resultCollectionCtor = resultCollectionType.GetTypeInfo().GetDeclaredConstructor(new Type[] { });
 
-                correlateSubqueryMethod = _correlateSubqueryMethodInfo.MakeGenericMethod(
-                    collectionQueryModel.SelectClause.Selector.Type,
-                    typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type));
+                if (_queryCompilationContext.AsyncQuery)
+                {
+                    correlateSubqueryMethod = _correlateSubqueryAsyncMethodInfo.MakeGenericMethod(
+                        collectionQueryModel.SelectClause.Selector.Type,
+                        typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type));
+                }
+                else
+                {
+                    correlateSubqueryMethod = _correlateSubqueryMethodInfo.MakeGenericMethod(
+                        collectionQueryModel.SelectClause.Selector.Type,
+                        typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type));
+                }
 
                 resultCollectionFactoryExpressionBody = Expression.New(resultCollectionCtor);
 
@@ -273,6 +298,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 ? typeof(IOrderedEnumerable<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type)
                 : typeof(IEnumerable<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type);
 
+            var lambda = (Expression)Expression.Lambda(new SubQueryExpression(collectionQueryModel));
+            if (_queryCompilationContext.AsyncQuery)
+            {
+                lambda = Expression.Convert(
+                    lambda,
+                    typeof(Func<>).MakeGenericType(
+                        typeof(IAsyncEnumerable<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type)));
+            }
+
             // since we cloned QM, we need to check if it's query sources require materialization (e.g. TypeIs operation for InMemory)
             _queryCompilationContext.FindQuerySourcesRequiringMaterialization(_queryModelVisitor, collectionQueryModel);
 
@@ -285,9 +319,14 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         resultCollectionFactoryExpression,
                         outerKey,
                         Expression.Constant(trackingQuery),
-                        Expression.Lambda(new SubQueryExpression(collectionQueryModel)),
+                        lambda,
                         correlationPredicate
                     };
+
+            if (_queryCompilationContext.AsyncQuery)
+            {
+                arguments.Add(_cancellationTokenParameter);
+            }
 
             var result = Expression.Call(
                 Expression.Property(
@@ -296,13 +335,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 correlateSubqueryMethod,
                 arguments);
 
-            if (collectionQueryModel.ResultTypeOverride.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>))
+            if (_queryCompilationContext.AsyncQuery)
             {
-                return
-                    Expression.Call(
-                        _queryCompilationContext.LinqOperatorProvider.ToOrdered
-                            .MakeGenericMethod(result.Type.GetSequenceType()),
-                        result);
+                var taskResultExpression = new TaskBlockingExpressionVisitor().Visit(result);
+
+                return taskResultExpression;
             }
 
             return result;
