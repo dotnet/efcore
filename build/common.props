@@ -1,5 +1,4 @@
-<Project>
-  <Import Project="..\version.props" />
+﻿<Project>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
     <PackageTags>Entity Framework Core;entity-framework-core;EF;Data;O/RM</PackageTags>
