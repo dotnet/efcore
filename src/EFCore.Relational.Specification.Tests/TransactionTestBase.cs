@@ -852,7 +852,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = CreateContextWithConnectionString())
                 {
-                    using (context.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))
+                    using (context.Database.BeginTransaction(
+                        DirtyReadsOccur
+                            ? System.Data.IsolationLevel.ReadUncommitted
+                            : System.Data.IsolationLevel.Unspecified))
                     {
                         var ex = Assert.Throws<InvalidOperationException>(
                             () =>
@@ -978,7 +981,10 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnlistTransaction(transaction);
 
                     var ex = Assert.Throws<InvalidOperationException>(
-                        () => context.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted));
+                        () => context.Database.BeginTransaction(
+                            DirtyReadsOccur
+                                ? System.Data.IsolationLevel.ReadUncommitted
+                                : System.Data.IsolationLevel.Unspecified));
                     Assert.Equal(RelationalStrings.ConflictingEnlistedTransaction, ex.Message);
                     context.Database.CloseConnection();
                 }
