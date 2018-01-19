@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
 
             referenceReferenceBuilder.GetInfrastructure<InternalRelationshipBuilder>()
                 .Relational(ConfigurationSource.Explicit)
-                .HasName(name);
+                .HasConstraintName(name);
 
             return referenceReferenceBuilder;
         }

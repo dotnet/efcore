@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
 
             referenceCollectionBuilder.GetInfrastructure<InternalRelationshipBuilder>()
                 .Relational(ConfigurationSource.Explicit)
-                .HasName(name);
+                .HasConstraintName(name);
 
             return referenceCollectionBuilder;
         }
