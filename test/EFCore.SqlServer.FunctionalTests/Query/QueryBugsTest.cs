@@ -2107,7 +2107,7 @@ WHERE [c].[Id] IN (
 
         #endregion
 
-        #region Bug9202
+        #region Bug9202/9210
 
         [Fact]
         public void Include_collection_for_entity_with_owned_type_works()
@@ -2122,13 +2122,45 @@ WHERE [c].[Id] IN (
                     Assert.Equal(1, result.Count);
                     Assert.Equal(3, result[0].Cast.Count);
                     Assert.NotNull(result[0].Details);
+                    Assert.True(result[0].Cast.All(a => a.Details != null));
 
                     AssertSql(
                         @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
 FROM [Movies] AS [m]
 ORDER BY [m].[Id]",
                         //
-                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name]
+                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [m.Cast].[Id], [m.Cast].[Details_Info]
+FROM [Actors] AS [m.Cast]
+INNER JOIN (
+    SELECT DISTINCT [m0].[Id]
+    FROM [Movies] AS [m0]
+) AS [t] ON [m.Cast].[Movie9202Id] = [t].[Id]
+ORDER BY [t].[Id]");
+                }
+            }
+        }
+
+        [Fact]
+        public void Include_collection_for_entity_with_owned_type_works_string()
+        {
+            using (CreateDatabase9202())
+            {
+                using (var context = new MyContext9202(_options))
+                {
+                    var query = context.Movies.Include("Cast");
+                    var result = query.ToList();
+
+                    Assert.Equal(1, result.Count);
+                    Assert.Equal(3, result[0].Cast.Count);
+                    Assert.NotNull(result[0].Details);
+                    Assert.True(result[0].Cast.All(a => a.Details != null));
+
+                    AssertSql(
+                        @"SELECT [m].[Id], [m].[Title], [m].[Id], [m].[Details_Info]
+FROM [Movies] AS [m]
+ORDER BY [m].[Id]",
+                        //
+                        @"SELECT [m.Cast].[Id], [m.Cast].[Movie9202Id], [m.Cast].[Name], [m.Cast].[Id], [m.Cast].[Details_Info]
 FROM [Actors] AS [m.Cast]
 INNER JOIN (
     SELECT DISTINCT [m0].[Id]
@@ -2145,9 +2177,9 @@ ORDER BY [t].[Id]");
                 () => new MyContext9202(_options),
                 context =>
                     {
-                        var av = new Actor9202 { Name = "Alicia Vikander" };
-                        var oi = new Actor9202 { Name = "Oscar Isaac" };
-                        var dg = new Actor9202 { Name = "Domhnall Gleeson" };
+                        var av = new Actor9202 { Name = "Alicia Vikander", Details = new Details9202 { Info = "Best actor ever made" } };
+                        var oi = new Actor9202 { Name = "Oscar Isaac", Details = new Details9202 { Info = "Best actor ever made" } };
+                        var dg = new Actor9202 { Name = "Domhnall Gleeson", Details = new Details9202 { Info = "Best actor ever made" } };
                         var em = new Movie9202 { Title = "Ex Machina", Cast = new List<Actor9202> { av, oi, dg }, Details = new Details9202 { Info = "Best movie ever made" } };
                         context.Actors.AddRange(av, oi, dg);
                         context.Movies.Add(em);
@@ -2171,6 +2203,7 @@ ORDER BY [t].[Id]");
             {
                 modelBuilder.Entity<Movie9202>().HasMany(m => m.Cast).WithOne();
                 modelBuilder.Entity<Movie9202>().OwnsOne(m => m.Details);
+                modelBuilder.Entity<Actor9202>().OwnsOne(m => m.Details);
             }
         }
 
@@ -2188,6 +2221,7 @@ ORDER BY [t].[Id]");
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public Details9202 Details { get; set; }
         }
 
         public class Details9202

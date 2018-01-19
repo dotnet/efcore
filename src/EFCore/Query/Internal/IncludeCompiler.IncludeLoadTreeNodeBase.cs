@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -33,6 +34,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (childNode == null)
                     {
                         node.Children.Add(childNode = new IncludeLoadTreeNode(navigation));
+
+                        var targetType = navigation.GetTargetType();
+
+                        var outboundNavigations
+                            = targetType.GetNavigations()
+                                .Concat(targetType.GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations()))
+                                .Where(n => n.IsEagerLoaded);
+
+                        foreach (var outboundNavigation in outboundNavigations)
+                        {
+                            AddLoadPath(childNode, new[] { outboundNavigation }, index: 0);
+                        }
                     }
 
                     node = childNode;
@@ -56,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var propertyExpressions = new List<Expression>();
                 var blockExpressions = new List<Expression>();
 
-                var entityType 
+                var entityType
                     = queryCompilationContext.FindEntityType(targetQuerySourceReferenceExpression.ReferencedQuerySource)
-                          ?? queryCompilationContext.Model.FindEntityType(entityParameter.Type);
+                      ?? queryCompilationContext.Model.FindEntityType(entityParameter.Type);
 
                 if (entityType.IsQueryType)
                 {
@@ -183,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         blockExpressions.Add(
                             taskExpressions.Count == 1
-                                ? taskExpressions[0]
+                                ? taskExpressions[index: 0]
                                 : Expression.Call(
                                     _awaitManyMethodInfo,
                                     Expression.NewArrayInit(
