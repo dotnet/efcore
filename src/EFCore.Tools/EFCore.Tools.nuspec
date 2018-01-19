@@ -13,7 +13,7 @@
     <repository type="git" url="https://github.com/aspnet/EntityFramework.Tools.git" />
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" exclude="Analyzers" />
       </group>
     </dependencies>
     <licenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</licenseUrl>

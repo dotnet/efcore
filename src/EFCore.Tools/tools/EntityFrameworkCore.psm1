@@ -761,8 +761,7 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
     }
 
     $startupProjectDir = GetProperty $startupProject.Properties 'FullPath'
-    $activeConfiguration = $startupProject.ConfigurationManager.ActiveConfiguration
-    $outputPath = GetProperty $activeConfiguration.Properties 'OutputPath'
+    $outputPath = GetProperty $startupProject.ConfigurationManager.ActiveConfiguration.Properties 'OutputPath'
     $targetDir = Join-Path $startupProjectDir $outputPath -Resolve | Convert-Path
     $startupTargetFileName = GetOutputFileName $startupProject
     $startupTargetPath = Join-Path $targetDir $startupTargetFileName
@@ -808,15 +807,6 @@ function EF($project, $startupProject, $params, [switch] $skipBuild)
             $projectAssets.packageFolders.psobject.Properties.Name | %{
                 $dotnetParams += '--additionalprobingpath', $_.TrimEnd('\')
             }
-        }
-
-        if (!(Test-Path $runtimeConfig))
-        {
-            $configuration = $activeConfiguration.ConfigurationName
-            $platformTarget = GetPlatformTarget $startupProject
-            $projectPath = $startupProject.FullName
-
-            dotnet msbuild /t:GenerateBuildRuntimeConfigurationFiles "/p:GenerateRuntimeConfigurationFiles=True;Configuration=$configuration;Platform=$platformTarget" /verbosity:quiet /nologo $projectPath | Out-Null
         }
 
         if (Test-Path $runtimeConfig)

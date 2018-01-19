@@ -4,6 +4,13 @@
             "AdxVerificationCompositeRule"
         ],
         "packages": {
+            "Microsoft.EntityFrameworkCore.Design": {
+                "Exclusions": {
+                    "BUILD_ITEMS_FRAMEWORK": {
+                        "*": "False negative. aspnet/BuildTools#554"
+                    }
+                }
+            },
             "Microsoft.EntityFrameworkCore.Tools.DotNet": {
                 "packageTypes": [
                     "DotnetCliTool"
