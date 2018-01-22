@@ -23,8 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual string HiLoSequenceName
         {
-            get { return (string)Annotations.Metadata[OracleAnnotationNames.HiLoSequenceName]; }
-            [param: CanBeNull] set { SetHiLoSequenceName(value); }
+            get => (string)Annotations.Metadata[OracleAnnotationNames.HiLoSequenceName];
+            [param: CanBeNull]
+            set => SetHiLoSequenceName(value);
         }
 
         protected virtual bool SetHiLoSequenceName([CanBeNull] string value)
@@ -50,8 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public virtual OracleValueGenerationStrategy? ValueGenerationStrategy
         {
-            get { return GetOracleValueGenerationStrategy(fallbackToModel: true); }
-            [param: CanBeNull] set { SetValueGenerationStrategy(value); }
+            get => GetOracleValueGenerationStrategy(fallbackToModel: true);
+            [param: CanBeNull]
+            set => SetValueGenerationStrategy(value);
         }
 
         public virtual OracleValueGenerationStrategy? GetOracleValueGenerationStrategy(bool fallbackToModel)

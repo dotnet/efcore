@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_unicode_no_model();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" VARCHAR2(4000) NULL",
+                "ALTER TABLE \"Person\" ADD \"Name\" VARCHAR2(4000)",
                 Sql);
         }
 
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(30) NULL",
+                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(30)",
                 Sql);
         }
 
@@ -94,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_overridden();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(32) NULL",
+                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(32)",
                 Sql);
         }
 
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_on_derived();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(30) NULL",
+                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(30)",
                 Sql);
         }
 
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_ansi();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" VARCHAR2(4000) NULL",
+                "ALTER TABLE \"Person\" ADD \"Name\" VARCHAR2(4000)",
                 Sql);
         }
 
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_unicode_overridden();
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(2000) NULL",
+                "ALTER TABLE \"Person\" ADD \"Name\" NVARCHAR2(2000)",
                 Sql);
         }
 
@@ -130,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_shared_column();
 
             Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" NVARCHAR2(2000) NULL",
+                "ALTER TABLE \"Base\" ADD \"Foo\" NVARCHAR2(2000)",
                 Sql);
         }
 
@@ -149,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"RowVersion\" RAW(8) NULL",
+                "ALTER TABLE \"Person\" ADD \"RowVersion\" RAW(8)",
                 Sql);
         }
 
@@ -167,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "ALTER TABLE \"Person\" ADD \"RowVersion\" RAW(8) NULL",
+                "ALTER TABLE \"Person\" ADD \"RowVersion\" RAW(8)",
                 Sql);
         }
 
@@ -186,40 +185,53 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public override void AlterColumnOperation()
         {
             base.AlterColumnOperation();
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'dbo.People') AND \"c\".\"name\" = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"dbo\".\"People\" ALTER COLUMN \"LuckyNumber\" int NOT NULL;" + EOL +
-                "ALTER TABLE \"dbo\".\"People\" ADD DEFAULT 7 FOR \"LuckyNumber\";" + EOL,
+@"DECLARE
+   v_Count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO v_Count
+  FROM ALL_TAB_IDENTITY_COLS T
+  WHERE T.TABLE_NAME = N'People'
+  AND T.COLUMN_NAME = 'LuckyNumber';
+  IF v_Count > 0 THEN
+    EXECUTE IMMEDIATE 'ALTER  TABLE ""People"" MODIFY ""LuckyNumber"" DROP IDENTITY';
+  END IF;
+END;
+GO
+
+ALTER TABLE ""People"" MODIFY ""LuckyNumber"" int NOT NULL DEFAULT 7",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public override void AlterColumnOperation_without_column_type()
         {
             base.AlterColumnOperation_without_column_type();
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'People') AND \"c\".\"name\" = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"People\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"People\" ALTER COLUMN \"LuckyNumber\" int NOT NULL;" + EOL,
-                Sql);
+@"DECLARE
+   v_Count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO v_Count
+  FROM ALL_TAB_IDENTITY_COLS T
+  WHERE T.TABLE_NAME = N'People'
+  AND T.COLUMN_NAME = 'LuckyNumber';
+  IF v_Count > 0 THEN
+    EXECUTE IMMEDIATE 'ALTER  TABLE ""People"" MODIFY ""LuckyNumber"" DROP IDENTITY';
+  END IF;
+END;
+GO
+
+ALTER TABLE ""People"" MODIFY ""LuckyNumber"" NUMBER(10) NOT NULL",
+           Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_with_identity()
         {
             Generate(
@@ -233,17 +245,11 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'People') AND \"c\".\"name\" = N'Id');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"People\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"People\" ALTER COLUMN \"Id\" int NOT NULL;" + EOL,
+                "ALTER TABLE \"People\" MODIFY \"Id\" NUMBER(10) GENERATED BY DEFAULT ON NULL AS IDENTITY",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_computed()
         {
             Generate(
@@ -256,18 +262,17 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'People') AND \"c\".\"name\" = N'FullName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"People\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"People\" DROP COLUMN \"FullName\";" + EOL +
-                "ALTER TABLE \"People\" ADD \"FullName\" AS \"FirstName\" + ' ' + \"LastName\";" + EOL,
+@"ALTER TABLE ""People"" MODIFY ""FullName"" DEFAULT NULL
+GO
+
+ALTER TABLE ""People"" DROP COLUMN ""FullName""
+GO
+
+ALTER TABLE ""People"" ADD ""FullName"" AS (""FirstName"" + ' ' + ""LastName"")",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_computed_with_index()
         {
             Generate(
@@ -293,20 +298,27 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DROP INDEX \"IX_Person_FullName\" ON \"Person\";" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'FullName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" DROP COLUMN \"FullName\";" + EOL +
-                "ALTER TABLE \"Person\" ADD \"FullName\" AS \"FirstName\" + ' ' + \"LastName\";" + EOL +
-                "CREATE INDEX \"IX_Person_FullName\" ON \"Person\" (\"FullName\");" + EOL,
+@"BEGIN
+    EXECUTE IMMEDIATE 'DROP INDEX ""IX_Person_FullName""';
+END;
+GO
+
+ALTER TABLE ""Person"" MODIFY ""FullName"" DEFAULT NULL
+GO
+
+ALTER TABLE ""Person"" DROP COLUMN ""FullName""
+GO
+
+ALTER TABLE ""Person"" ADD ""FullName"" AS (""FirstName"" + ' ' + ""LastName"")
+GO
+
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"")';
+END;",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_with_index_no_narrowing()
         {
             Generate(
@@ -332,17 +344,11 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" ALTER COLUMN \"Name\" NVARCHAR2(450) NULL;" + EOL,
+                "ALTER TABLE \"Person\" MODIFY \"Name\" NVARCHAR2(450)",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_with_index()
         {
             Generate(
@@ -369,19 +375,24 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DROP INDEX \"IX_Person_Name\" ON \"Person\";" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" ALTER COLUMN \"Name\" NVARCHAR2(30) NULL;" + EOL +
-                "CREATE INDEX \"IX_Person_Name\" ON \"Person\" (\"Name\");" + EOL,
+@"BEGIN
+    EXECUTE IMMEDIATE 'DROP INDEX ""IX_Person_Name""';
+END;
+GO
+
+ALTER TABLE ""Person"" MODIFY ""Name"" DEFAULT NULL
+GO
+
+ALTER TABLE ""Person"" MODIFY ""Name"" NVARCHAR2(30)
+GO
+
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE INDEX ""IX_Person_Name"" ON ""Person"" (""Name"")';
+END;",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_with_index_no_oldColumn()
         {
             Generate(
@@ -404,17 +415,24 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" ALTER COLUMN \"Name\" NVARCHAR2(30) NULL;" + EOL,
+@"DECLARE
+   v_Count INTEGER;
+BEGIN
+  SELECT COUNT(*) INTO v_Count
+  FROM ALL_TAB_IDENTITY_COLS T
+  WHERE T.TABLE_NAME = N'Person'
+  AND T.COLUMN_NAME = 'Name';
+  IF v_Count > 0 THEN
+    EXECUTE IMMEDIATE 'ALTER  TABLE ""Person"" MODIFY ""Name"" DROP IDENTITY';
+  END IF;
+END;
+GO
+
+ALTER TABLE ""Person"" MODIFY ""Name"" NVARCHAR2(30)",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_with_composite_index()
         {
             Generate(
@@ -441,19 +459,24 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DROP INDEX \"IX_Person_FirstName_LastName\" ON \"Person\";" + EOL +
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'FirstName');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" ALTER COLUMN \"FirstName\" NVARCHAR2(450) NOT NULL;" + EOL +
-                "CREATE INDEX \"IX_Person_FirstName_LastName\" ON \"Person\" (\"FirstName\", \"LastName\");" + EOL,
+@"BEGIN
+    EXECUTE IMMEDIATE 'DROP INDEX ""IX_Person_FirstName_LastName""';
+END;
+GO
+
+ALTER TABLE ""Person"" MODIFY ""FirstName"" DEFAULT NULL
+GO
+
+ALTER TABLE ""Person"" MODIFY ""FirstName"" NVARCHAR2(450) NOT NULL
+GO
+
+BEGIN
+    EXECUTE IMMEDIATE 'CREATE INDEX ""IX_Person_FirstName_LastName"" ON ""Person"" (""FirstName"", ""LastName"")';
+END;",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_with_added_index()
         {
             Generate(
@@ -486,20 +509,17 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'Name');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" ALTER COLUMN \"Name\" NVARCHAR2(30) NULL;" + EOL +
-                "GO" + EOL +
-                EOL +
-                "CREATE INDEX \"IX_Person_Name\" ON \"Person\" (\"Name\");" + EOL,
+@"ALTER TABLE ""Person"" MODIFY ""Name"" DEFAULT NULL
+GO
+
+ALTER TABLE ""Person"" MODIFY ""Name"" NVARCHAR2(30)
+GO
+
+CREATE INDEX ""IX_Person_Name"" ON ""Person"" (""Name"")",
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public virtual void AlterColumnOperation_identity()
         {
             Generate(
@@ -518,13 +538,10 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'Person') AND \"c\".\"name\" = N'Id');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"Person\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"Person\" ALTER COLUMN \"Id\" bigint NOT NULL;" + EOL,
+@"ALTER TABLE ""Person"" MODIFY ""Id"" DEFAULT NULL
+GO
+
+ALTER TABLE ""Person"" MODIFY ""Id"" NUMBER(19) GENERATED BY DEFAULT ON NULL AS IDENTITY",
                 Sql);
         }
 
@@ -597,8 +614,8 @@ namespace Microsoft.EntityFrameworkCore
             base.CreateIndexOperation_unique();
 
             Assert.Equal(
-                "CREATE UNIQUE INDEX \"IX_People_Name\" ON \"People\" (\"FirstName\", \"LastName\")",
-                Sql);
+               "CREATE UNIQUE INDEX \"IX_People_Name\" ON \"People\" (\"FirstName\", \"LastName\")",
+               Sql);
         }
 
         [Fact]
@@ -619,30 +636,27 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact]
-        public virtual void CreateSchemaOperation_dbo()
+        [Fact(Skip = "TODO")]
+        public virtual void CreateSchemaOperation_SYSTEM()
         {
-            Generate(new EnsureSchemaOperation { Name = "dbo" });
-
+            //TODO: Then the schema creation test will be implemented here.
+            Generate(new EnsureSchemaOperation { Name = "SYSTEM" });
             Assert.Equal(
-                "",
+                null,
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
         public override void DropColumnOperation()
         {
             base.DropColumnOperation();
 
             Assert.Equal(
-                "DECLARE @var0 sysname;" + EOL +
-                "SELECT @var0 = \"d\".\"name\"" + EOL +
-                "FROM \"sys\".\"default_constraints\" \"d\"" + EOL +
-                "INNER JOIN \"sys\".\"columns\" \"c\" ON \"d\".\"parent_column_id\" = \"c\".\"column_id\" AND \"d\".\"parent_object_id\" = \"c\".\"object_id\"" + EOL +
-                "WHERE (\"d\".\"parent_object_id\" = OBJECT_ID(N'dbo.People') AND \"c\".\"name\" = N'LuckyNumber');" + EOL +
-                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE \"dbo\".\"People\" DROP CONSTRAINT \"' + @var0 + '\";');" + EOL +
-                "ALTER TABLE \"dbo\".\"People\" DROP COLUMN \"LuckyNumber\";" + EOL,
-                Sql);
+@"ALTER TABLE ""People"" MODIFY ""LuckyNumber"" DEFAULT NULL
+GO
+
+ALTER TABLE ""People"" DROP COLUMN ""LuckyNumber""",
+            Sql);
+
         }
 
         [Fact]
@@ -664,9 +678,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.DropIndexOperation();
 
-            Assert.Equal(
-                "DROP INDEX \"IX_People_Name\" ON \"People\"",
-                Sql);
+            Assert.Equal("DROP INDEX \"IX_People_Name\"", Sql);
         }
 
         [Fact]
@@ -676,13 +688,13 @@ namespace Microsoft.EntityFrameworkCore
                 new RenameColumnOperation
                 {
                     Table = "People",
-                    Schema = "dbo",
+                    Schema = "SYSTEM",
                     Name = "Name",
                     NewName = "FullName"
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.Name', N'FullName', N'COLUMN'",
+                "ALTER TABLE \"SYSTEM\".\"People\" RENAME COLUMN \"Name\" TO \"FullName\"",
                 Sql);
         }
 
@@ -693,29 +705,14 @@ namespace Microsoft.EntityFrameworkCore
                 new RenameIndexOperation
                 {
                     Table = "People",
-                    Schema = "dbo",
+                    Schema = "SYSTEM",
                     Name = "IX_People_Name",
                     NewName = "IX_People_FullName"
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', N'INDEX'",
+                "ALTER INDEX \"IX_People_Name\" RENAME TO \"IX_People_FullName\"",
                 Sql);
-        }
-
-        [Fact]
-        public virtual void RenameIndexOperations_throws_when_no_table()
-        {
-            var migrationBuilder = new MigrationBuilder("Oracle");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_OldIndex",
-                newName: "IX_NewIndex");
-
-            var ex = Assert.Throws<InvalidOperationException>(
-                () => Generate(migrationBuilder.Operations.ToArray()));
-
-            Assert.Equal(OracleStrings.IndexTableRequired, ex.Message);
         }
 
         [Fact]
@@ -725,12 +722,12 @@ namespace Microsoft.EntityFrameworkCore
                 new RenameSequenceOperation
                 {
                     Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo",
+                    Schema = "SYSTEM",
                     NewName = "MySequence"
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.EntityFrameworkHiLoSequence', N'MySequence'",
+                "RENAME \"EntityFrameworkHiLoSequence\" TO \"MySequence\"",
                 Sql);
         }
 
@@ -741,12 +738,12 @@ namespace Microsoft.EntityFrameworkCore
                 new RenameTableOperation
                 {
                     Name = "People",
-                    Schema = "dbo",
+                    Schema = "SYSTEM",
                     NewName = "Person"
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People', N'Person'",
+                "ALTER TABLE \"People\" RENAME TO \"Person\"",
                 Sql);
         }
 
@@ -765,28 +762,36 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [Fact(Skip = "TODO")]
+        [Fact]
         public override void InsertDataOperation()
         {
             base.InsertDataOperation();
 
             Assert.Equal(
-                "IF EXISTS (SELECT * FROM \"sys\".\"identity_columns\" WHERE \"object_id\" = OBJECT_ID(N'People'))" + EOL +
-                "    SET IDENTITY_INSERT \"People\" ON;" + EOL +
-                "INSERT INTO \"People\" (\"Id\", \"Full Name\")" + EOL +
-                "VALUES (0, NULL)," + EOL +
-                "       (1, N'Daenerys Targaryen')," + EOL +
-                "       (2, N'John Snow')," + EOL +
-                "       (3, N'Arya Stark')," + EOL +
-                "       (4, N'Harry Strickland');" + EOL +
-                "IF EXISTS (SELECT * FROM \"sys\".\"identity_columns\" WHERE \"object_id\" = OBJECT_ID(N'People'))" + EOL +
-                "    SET IDENTITY_INSERT \"People\" OFF;" + EOL,
+@"BEGIN
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (0, NULL);
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (1, N'Daenerys Targaryen');
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (2, N'John Snow');
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (3, N'Arya Stark');
+INSERT INTO ""People"" (""Id"", ""Full Name"")
+VALUES (4, N'Harry Strickland');
+END;",
                 Sql);
         }
 
         public OracleMigrationSqlGeneratorTest()
             : base(OracleTestHelpers.Instance)
         {
+        }
+
+        protected override string Sql
+        {
+            get => base.Sql;
+            set => base.Sql = value.Replace("GO", $"{EOL}GO");
         }
     }
 }
