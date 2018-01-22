@@ -3460,6 +3460,145 @@ FROM [Comments] AS [c]");
 
         #endregion
 
+        #region Bug10635
+
+        [Fact]
+        public void Include_with_order_by_on_interface_key()
+        {
+            using (CreateDatabase10635())
+            {
+                using (var context = new MyContext10635(_options))
+                {
+                    var query1 = context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList();
+
+                    AssertSql(
+                        @"SELECT [p].[Id], [p].[Name]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                        //
+                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId]
+FROM [Children] AS [p.Children]
+INNER JOIN (
+    SELECT [p0].[Id]
+    FROM [Parents] AS [p0]
+) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
+ORDER BY [t].[Id]");
+
+                    ClearLog();
+
+                    var query2 = context.Parents.Include(p => p.Children).OrderBy(p => EF.Property<int>((IEntity10635)p, "Id")).ToList();
+
+                    AssertSql(
+                        @"SELECT [p].[Id], [p].[Name]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                        //
+                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId]
+FROM [Children] AS [p.Children]
+INNER JOIN (
+    SELECT [p0].[Id]
+    FROM [Parents] AS [p0]
+) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
+ORDER BY [t].[Id]");
+                }
+            }
+        }
+
+        [Fact]
+        public void Correlated_collection_with_order_by_on_interface_key()
+        {
+            using (CreateDatabase10635())
+            {
+                using (var context = new MyContext10635(_options))
+                {
+                    var query1 = context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList();
+
+                    AssertSql(
+                        @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                        //
+                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId], [t].[Id]
+FROM [Children] AS [p.Children]
+INNER JOIN (
+    SELECT [p0].[Id]
+    FROM [Parents] AS [p0]
+) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
+ORDER BY [t].[Id]");
+
+                    ClearLog();
+
+                    var query2 = context.Parents.OrderBy(p => EF.Property<int>((IEntity10635)p, "Id")).Select(p => p.Children.ToList()).ToList();
+
+                    AssertSql(
+                        @"SELECT [p].[Id]
+FROM [Parents] AS [p]
+ORDER BY [p].[Id]",
+                        //
+                        @"SELECT [p.Children].[Id], [p.Children].[Name], [p.Children].[Parent10635Id], [p.Children].[ParentId], [t].[Id]
+FROM [Children] AS [p.Children]
+INNER JOIN (
+    SELECT [p0].[Id]
+    FROM [Parents] AS [p0]
+) AS [t] ON [p.Children].[Parent10635Id] = [t].[Id]
+ORDER BY [t].[Id]");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase10635()
+        {
+            return CreateTestStore(
+                () => new MyContext10635(_options),
+                context =>
+                {
+                    var c11 = new Child10635 { Name = "Child111" };
+                    var c12 = new Child10635 { Name = "Child112" };
+                    var c13 = new Child10635 { Name = "Child113" };
+                    var c21 = new Child10635 { Name = "Child121" };
+
+                    var p1 = new Parent10635 { Name = "Parent1", Children = new[] { c11, c12, c13 } };
+                    var p2 = new Parent10635 { Name = "Parent2", Children = new[] { c21 } };
+                    context.Parents.AddRange(p1, p2);
+                    context.Children.AddRange(c11, c12, c13, c21);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext10635 : DbContext
+        {
+            public MyContext10635(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Parent10635> Parents { get; set; }
+            public DbSet<Child10635> Children { get; set; }
+        }
+
+        public interface IEntity10635
+        {
+            int Id { get; set; }
+        }
+
+        public class Parent10635 : IEntity10635
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public virtual ICollection<Child10635> Children { get; set; }
+        }
+
+        public class Child10635 : IEntity10635
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public int ParentId { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

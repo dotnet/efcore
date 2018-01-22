@@ -425,24 +425,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (expressionWithoutNullConditional1 is MethodCallExpression methodCallExpression1
                && methodCallExpression1.IsEFProperty())
             {
-                qsre1 = methodCallExpression1.Arguments[0] as QuerySourceReferenceExpression;
+                qsre1 = methodCallExpression1.Arguments[0].RemoveConvert() as QuerySourceReferenceExpression;
                 propertyName1 = (methodCallExpression1.Arguments[1] as ConstantExpression)?.Value as string;
             }
             else if (expressionWithoutNullConditional1 is MemberExpression memberExpression1)
             {
-                qsre1 = memberExpression1.Expression as QuerySourceReferenceExpression;
+                qsre1 = memberExpression1.Expression.RemoveConvert() as QuerySourceReferenceExpression;
                 propertyName1 = memberExpression1.Member.Name;
             }
 
             if (expressionWithoutNullConditional2 is MethodCallExpression methodCallExpression2
                && methodCallExpression2.IsEFProperty())
             {
-                qsre2 = methodCallExpression2.Arguments[0] as QuerySourceReferenceExpression;
+                qsre2 = methodCallExpression2.Arguments[0].RemoveConvert() as QuerySourceReferenceExpression;
                 propertyName2 = (methodCallExpression2.Arguments[1] as ConstantExpression)?.Value as string;
             }
             else if (expressionWithoutNullConditional2 is MemberExpression memberExpression2)
             {
-                qsre2 = memberExpression2.Expression as QuerySourceReferenceExpression;
+                qsre2 = memberExpression2.Expression.RemoveConvert() as QuerySourceReferenceExpression;
                 propertyName2 = memberExpression2.Member.Name;
             }
 
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         if (projectionExpression is MethodCallExpression methodCall
                             && methodCall.Method.IsEFPropertyMethod())
                         {
-                            var propertyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0];
+                            var propertyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
                             var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
                             var propertyQsreEntityType = _queryCompilationContext.FindEntityType(propertyQsre.ReferencedQuerySource)
                                 ?? _queryCompilationContext.Model.FindEntityType(propertyQsre.Type);
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                         if (projectionExpression is MemberExpression projectionMemberExpression)
                         {
-                            var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression;
+                            var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression.RemoveConvert();
                             var projectionMemberQsreEntityType = _queryCompilationContext.FindEntityType(projectionMemberQsre.ReferencedQuerySource)
                                 ?? _queryCompilationContext.Model.FindEntityType(projectionMemberQsre.Type);
 

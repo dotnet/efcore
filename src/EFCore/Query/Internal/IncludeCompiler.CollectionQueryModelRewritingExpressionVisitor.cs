@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
 
                     return memberExpression.Member.Name.Equals(propertyName)
-                           && _expressionEqualityComparer.Equals(memberExpression.Expression, methodCallExpression.Arguments[0]);
+                           && _expressionEqualityComparer.Equals(memberExpression.Expression.RemoveConvert(), methodCallExpression.Arguments[0].RemoveConvert());
                 }
 
                 return false;
@@ -506,9 +506,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             orderingExpression = nullConditionalExpression.AccessOperation;
                         }
 
+                        QuerySourceReferenceExpression orderingExpressionQsre = null;
+                        string orderingExpressionName = null;
                         if (orderingExpression.RemoveConvert() is MemberExpression memberExpression
-                            && memberExpression.Expression is QuerySourceReferenceExpression memberQsre
+                            && memberExpression.Expression.RemoveConvert() is QuerySourceReferenceExpression memberQsre
                             && memberQsre.ReferencedQuerySource == querySource)
+                        {
+                            orderingExpressionQsre = memberQsre;
+                            orderingExpressionName = memberExpression.Member.Name;
+                        }
+
+                        if (orderingExpression.RemoveConvert() is MethodCallExpression methodCallExpression
+                            && methodCallExpression.IsEFProperty()
+                            && methodCallExpression.Arguments[0].RemoveConvert() is QuerySourceReferenceExpression methodCallQsre
+                            && methodCallQsre.ReferencedQuerySource == querySource)
+                        {
+                            orderingExpressionQsre = methodCallQsre;
+                            orderingExpressionName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        }
+
+                        if (orderingExpressionQsre != null && orderingExpressionName != null)
                         {
                             projectionIndex
                                 = subQueryProjection
@@ -522,19 +539,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                                 if (projectionExpression is MethodCallExpression methodCall
                                                     && methodCall.Method.IsEFPropertyMethod())
                                                 {
-                                                    var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0];
+                                                    var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
                                                     var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
 
-                                                    return properyQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
-                                                           && propertyName == memberExpression.Member.Name;
+                                                    return properyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                           && propertyName == orderingExpressionName;
                                                 }
 
                                                 if (projectionExpression is MemberExpression projectionMemberExpression)
                                                 {
-                                                    var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression;
+                                                    var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression.RemoveConvert();
 
-                                                    return projectionMemberQsre.ReferencedQuerySource == memberQsre.ReferencedQuerySource
-                                                           && projectionMemberExpression.Member.Name == memberExpression.Member.Name;
+                                                    return projectionMemberQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                           && projectionMemberExpression.Member.Name == orderingExpressionName;
                                                 }
 
                                                 return false;
