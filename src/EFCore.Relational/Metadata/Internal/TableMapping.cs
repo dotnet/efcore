@@ -50,6 +50,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IEnumerable<IEntityType> GetRootTypes()
+            => EntityTypes.Where(
+                t => t.BaseType == null
+                    && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
+                        .All(fk => t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<IProperty> GetProperties()
             => EntityTypes.SelectMany(EntityTypeExtensions.GetDeclaredProperties)
                 .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);

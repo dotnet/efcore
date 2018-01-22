@@ -480,7 +480,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 Add,
                 Remove,
-                (s, t, c) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
                 (s, t, c) => string.Equals(
                               s.Schema,
                               t.Schema,
@@ -492,7 +491,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 (s, t, c) => string.Equals(
                     s.Name,
                     t.Name,
-                    StringComparison.OrdinalIgnoreCase));
+                    StringComparison.OrdinalIgnoreCase),
+                (s, t, c) => s.GetRootTypes().Any(se => t.GetRootTypes().Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
+                (s, t, c) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -604,11 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private static IEnumerable<IProperty> GetSortedProperties(TableMapping target)
-            => target.EntityTypes
-                .Where(
-                    t => t.BaseType == null
-                        && t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
-                            .All(fk => t.Relational().TableName != fk.PrincipalEntityType.Relational().TableName))
+            => target.GetRootTypes()
                 .SelectMany(GetSortedProperties)
                 .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);
 
@@ -742,14 +739,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Diff,
                 (t, c) => Add(t, c),
                 Remove,
-                (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c),
                 (s, t, c) => string.Equals(
                     s.Relational().ColumnName,
                     t.Relational().ColumnName,
                     StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                    && PropertyStructureEquals(s, t),
+                    && EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c),
+                (s, t, c) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => EntityTypePathEquals(s.DeclaringEntityType, t.DeclaringEntityType, c)
                     && PropertyStructureEquals(s, t),
                 (s, t, c) => PropertyStructureEquals(s, t));
@@ -1189,16 +1185,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     s.Relational().Name,
                     t.Relational().Name,
                     StringComparison.OrdinalIgnoreCase)
-                          && s.IsUnique == t.IsUnique
-                          && s.Relational().Filter == t.Relational().Filter
-                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
-                          && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName)),
-                (s, t, c) => s.IsUnique == t.IsUnique
-                          && s.Relational().Filter == t.Relational().Filter
-                          && !HasDifferences(MigrationsAnnotations.For(s), MigrationsAnnotations.For(t))
-                          && s.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
-                              t.Properties.Select(p => c.FindSource(p)?.Relational().ColumnName)));
+                          && IndexStructureEquals(s, t, c),
+                (s, t, c) => IndexStructureEquals(s, t, c));
+
+        private bool IndexStructureEquals(IIndex source, IIndex target, DiffContext diffContext)
+            => source.IsUnique == target.IsUnique
+                && source.Relational().Filter == target.Relational().Filter
+                && !HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
+                && source.Properties.Select(p => p.Relational().ColumnName).SequenceEqual(
+                    target.Properties.Select(p => diffContext.FindSource(p)?.Relational().ColumnName));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

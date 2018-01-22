@@ -6253,6 +6253,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public Address Shipping { get; set; }
         }
 
+        class Customer
+        {
+            public int Id { get; set; }
+
+            public Address Mailing { get; set; }
+        }
+
         private class Address
         {
             public string AddressLine1 { get; set; }
@@ -6321,6 +6328,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation2 = Assert.IsType<DropColumnOperation>(downOperations[1]);
                     Assert.Equal("Order", operation2.Table);
                     Assert.Equal("Shipping_AddressLine2", operation2.Name);
+                });
+        }
+
+        [Fact]
+        public void Add_type_with_additional_ownership()
+        {
+            Execute(
+                source => source
+                    .Entity<Customer>().OwnsOne(y => y.Mailing),
+                target => target
+                    .Entity<Order>(
+                        x =>
+                        {
+                            x.OwnsOne(y => y.Billing);
+                            x.OwnsOne(y => y.Shipping);
+                        })
+                    .Entity<Customer>().OwnsOne(y => y.Mailing),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Equal("Order", operation.Name);
                 });
         }
 
