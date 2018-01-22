@@ -657,12 +657,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
-                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" SET READ_COMMITTED_SNAPSHOT ON")
-                .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .Append("')")
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                .AppendLine("IF SERVERPROPERTY('EngineEdition') <> 5")
+                .AppendLine("BEGIN");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("ALTER DATABASE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" SET READ_COMMITTED_SNAPSHOT ON")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+
+            builder
+                .Append("END")
                 .EndCommand(suppressTransaction: true);
         }
 
