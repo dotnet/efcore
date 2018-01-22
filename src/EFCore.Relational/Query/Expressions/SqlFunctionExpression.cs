@@ -209,8 +209,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             => Type == other.Type
                && string.Equals(FunctionName, other.FunctionName)
                && string.Equals(Schema, other.Schema)
-               && Instance.Equals(other.Instance)
-               && _arguments.SequenceEqual(other._arguments);
+               && _arguments.SequenceEqual(other._arguments)
+               && (Instance == null && other.Instance == null
+                    || Instance?.Equals(other.Instance) == true);
+
+            
 
         /// <summary>
         ///     Returns a hash code for this object.

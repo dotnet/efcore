@@ -998,5 +998,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.ContactTitle.Trim('O', 'r') == "wne"),
                 entryCount: 17);
         }
+
+        [ConditionalFact]
+        public virtual void Order_by_length_twice()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID),
+                entryCount: 91);
+        }
     }
 }
