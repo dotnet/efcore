@@ -294,10 +294,10 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
-                                x.HasIndex("FullName");
-                            }),
+                        {
+                            x.Property<string>("FullName").HasComputedColumnSql("[FirstName] + ' ' + [LastName]");
+                            x.HasIndex("FullName");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -333,11 +333,11 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.ForSqlServerIsMemoryOptimized();
-                                x.Property<string>("Name");
-                                x.HasIndex("Name");
-                            }),
+                        {
+                            x.ForSqlServerIsMemoryOptimized();
+                            x.Property<string>("Name");
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -371,10 +371,10 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.Property<string>("Name");
-                                x.HasIndex("Name");
-                            }),
+                        {
+                            x.Property<string>("Name");
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -407,10 +407,10 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.Property<string>("Name").HasMaxLength(30);
-                                x.HasIndex("Name");
-                            }),
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -446,10 +446,10 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.0.0-rtm")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.Property<string>("Name").HasMaxLength(30);
-                                x.HasIndex("Name");
-                            }),
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -479,11 +479,11 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.Property<string>("FirstName").IsRequired();
-                                x.Property<string>("LastName");
-                                x.HasIndex("FirstName", "LastName");
-                            }),
+                        {
+                            x.Property<string>("FirstName").IsRequired();
+                            x.Property<string>("LastName");
+                            x.HasIndex("FirstName", "LastName");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -518,10 +518,10 @@ namespace Microsoft.EntityFrameworkCore
                     .HasAnnotation(CoreAnnotationNames.ProductVersionAnnotation, "1.1.0")
                     .Entity(
                         "Person", x =>
-                            {
-                                x.Property<string>("Name").HasMaxLength(30);
-                                x.HasIndex("Name");
-                            }),
+                        {
+                            x.Property<string>("Name").HasMaxLength(30);
+                            x.HasIndex("Name");
+                        }),
                 new AlterColumnOperation
                 {
                     Table = "Person",
@@ -636,7 +636,10 @@ namespace Microsoft.EntityFrameworkCore
                 "CREATE DATABASE [Northwind];" + EOL +
                 "GO" + EOL +
                 EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
+                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
+                "BEGIN" + EOL +
+                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
+                "END;" + EOL,
                 Sql);
         }
 
@@ -654,7 +657,10 @@ namespace Microsoft.EntityFrameworkCore
                 "LOG ON (NAME = 'Narf_log', FILENAME = '" + expectedLog + "');" + EOL +
                 "GO" + EOL +
                 EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
+                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
+                "BEGIN" + EOL +
+                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
+                "END;" + EOL,
                 Sql);
         }
 
@@ -674,7 +680,10 @@ namespace Microsoft.EntityFrameworkCore
                 "LOG ON (NAME = 'Narf_log', FILENAME = '" + expectedLog + "');" + EOL +
                 "GO" + EOL +
                 EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
+                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
+                "BEGIN" + EOL +
+                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
+                "END;" + EOL,
                 Sql);
         }
 
@@ -699,7 +708,10 @@ namespace Microsoft.EntityFrameworkCore
                 "LOG ON (NAME = 'Narf_log', FILENAME = '" + expectedLog + "');" + EOL +
                 "GO" + EOL +
                 EOL +
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;');" + EOL,
+                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
+                "BEGIN" + EOL +
+                "    ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON;" + EOL +
+                "END;" + EOL,
                 Sql);
         }
 
@@ -881,7 +893,11 @@ namespace Microsoft.EntityFrameworkCore
             Generate(new SqlServerDropDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;');" + EOL +
+
+                "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
+                "BEGIN" + EOL +
+                "    ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" + EOL +
+                "END;" + EOL +
                 "GO" + EOL +
                 EOL +
                 "DROP DATABASE [Northwind];" + EOL,

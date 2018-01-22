@@ -517,12 +517,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var nullableColumns = operation.Columns
                 .Where(
                     c =>
-                        {
-                            var property = FindProperty(model, operation.Schema, operation.Table, c);
+                    {
+                        var property = FindProperty(model, operation.Schema, operation.Table, c);
 
-                            return property == null // Couldn't bind column to property
-                                   || property.IsColumnNullable();
-                        })
+                        return property == null // Couldn't bind column to property
+                               || property.IsColumnNullable();
+                    })
                 .ToList();
 
             var memoryOptimized = IsMemoryOptimized(operation, model, operation.Schema, operation.Table);
@@ -657,11 +657,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
-                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" SET READ_COMMITTED_SNAPSHOT ON")
-                .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .Append("')")
+                .AppendLine("IF SERVERPROPERTY('EngineEdition') <> 5")
+                .AppendLine("BEGIN");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("ALTER DATABASE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" SET READ_COMMITTED_SNAPSHOT ON")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+
+            builder
+                .Append("END")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true);
         }
@@ -700,11 +709,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE")
-                .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .Append("')")
+                .AppendLine("IF SERVERPROPERTY('EngineEdition') <> 5")
+                .AppendLine("BEGIN");
+
+            using (builder.Indent())
+            {
+                builder
+                    .Append("ALTER DATABASE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+
+            builder
+                .Append("END")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand(suppressTransaction: true)
                 .Append("DROP DATABASE ")
