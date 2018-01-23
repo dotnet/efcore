@@ -117,16 +117,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual ModelFiles Save(
             ScaffoldedModel scaffoldedModel,
-            string projectDir,
             string outputDir,
             bool overwriteFiles)
         {
-            Check.NotEmpty(projectDir, nameof(projectDir));
-
-            outputDir = outputDir == null
-                ? projectDir
-                : Path.GetFullPath(Path.Combine(projectDir, outputDir));
-
             CheckOutputFiles(scaffoldedModel, outputDir, overwriteFiles);
 
             var files = new ModelFiles();

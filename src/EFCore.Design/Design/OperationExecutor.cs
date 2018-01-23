@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -135,13 +134,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             [CanBeNull] string contextType)
         {
             Check.NotEmpty(name, nameof(name));
-
-            // In package manager console, relative outputDir is relative to project directory
-            if (!string.IsNullOrWhiteSpace(outputDir)
-                && !Path.IsPathRooted(outputDir))
-            {
-                outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
-            }
 
             var files = _migrationsOperations.Value.AddMigration(
                 name,
@@ -459,21 +451,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             Check.NotNull(connectionString, nameof(connectionString));
             Check.NotNull(schemaFilters, nameof(schemaFilters));
             Check.NotNull(tableFilters, nameof(tableFilters));
-
-            // In package manager console, relative outputDir is relative to project directory
-            if (!string.IsNullOrWhiteSpace(outputDir)
-                && !Path.IsPathRooted(outputDir))
-            {
-                outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
-            }
-            if (!string.IsNullOrWhiteSpace(outputDbContextDir))
-            {
-                outputDbContextDir = Path.GetFullPath(Path.Combine(_projectDir, outputDbContextDir));
-            }
-            else
-            {
-                outputDbContextDir = outputDir;
-            }
 
             var files = _databaseOperations.Value.ScaffoldContext(
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,

@@ -35,11 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 ? AssemblyFileName
                 : Path.GetFileNameWithoutExtension(startupAssembly);
 
-            AppBasePath = Path.GetDirectoryName(startupAssembly ?? assembly);
-            if (!Path.IsPathRooted(AppBasePath))
-            {
-                AppBasePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), AppBasePath));
-            }
+            AppBasePath = Path.GetFullPath(
+                Path.Combine(Directory.GetCurrentDirectory(), Path.GetDirectoryName(startupAssembly ?? assembly)));
 
             RootNamespace = rootNamespace ?? AssemblyFileName;
             ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();

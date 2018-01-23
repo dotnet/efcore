@@ -74,7 +74,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            outputDir = string.IsNullOrWhiteSpace(outputDir) ? null : outputDir;
+            if (outputDir != null)
+            {
+                outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+            }
+
             var subNamespace = SubnamespaceFromOutputPath(outputDir);
 
             using (var context = _contextOperations.CreateContext(contextType))
