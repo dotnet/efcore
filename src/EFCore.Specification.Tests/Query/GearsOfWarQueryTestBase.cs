@@ -3324,7 +3324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select w.Name).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<string>());
+                elementAsserter: CollectionAsserter<string>(e => e));
         }
 
         [ConditionalFact]
