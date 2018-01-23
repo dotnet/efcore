@@ -105,6 +105,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets the default <see cref="SqliteCommand.CommandTimeout"/> value for commands created using
+        ///     this connection. This is also used for internal commands in methods like
+        ///     <see cref="BeginTransaction()"/>.
+        /// </summary>
+        /// <value>The default <see cref="SqliteCommand.CommandTimeout"/> value</value>
+        public virtual int DefaultTimeout { get; set; } = 30;
+
+        /// <summary>
         ///     Gets the version of SQLite used by the connection.
         /// </summary>
         /// <value>The version of SQLite used by the connection.</value>
@@ -284,7 +292,7 @@ namespace Microsoft.Data.Sqlite
         ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
-            => new SqliteCommand { Connection = this, Transaction = Transaction };
+            => new SqliteCommand { Connection = this, CommandTimeout = DefaultTimeout, Transaction = Transaction };
 
         /// <summary>
         ///     Creates a new command associated with the connection.

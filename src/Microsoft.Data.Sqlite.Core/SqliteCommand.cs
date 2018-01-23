@@ -47,7 +47,10 @@ namespace Microsoft.Data.Sqlite
         /// <param name="connection">The connection used by the command.</param>
         public SqliteCommand(string commandText, SqliteConnection connection)
             : this(commandText)
-            => Connection = connection;
+        {
+            Connection = connection;
+            CommandTimeout = connection.DefaultTimeout;
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteCommand" /> class.

@@ -96,10 +96,11 @@ namespace Microsoft.Data.Sqlite
                 {
                     connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
+                    connection2.DefaultTimeout = 0;
+
                     var ex = Assert.Throws<SqliteException>(
                         () =>
                         {
-                            // TODO: Set timeout to zero (issue #473)
                             using (connection2.BeginTransaction(IsolationLevel.Serializable))
                             {
                                 connection2.ExecuteScalar<long>("SELECT * FROM Data;");

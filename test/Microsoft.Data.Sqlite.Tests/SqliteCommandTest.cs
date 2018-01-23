@@ -20,6 +20,7 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.DefaultTimeout = 1;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -28,6 +29,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.Equal("SELECT 1;", command.CommandText);
                     Assert.Same(connection, command.Connection);
+                    Assert.Equal(1, command.CommandTimeout);
                     Assert.Same(transaction, command.Transaction);
                 }
             }

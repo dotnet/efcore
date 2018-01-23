@@ -83,6 +83,23 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void DefaultTimeout_defaults_to_30()
+        {
+            var connection = new SqliteConnection();
+
+            Assert.Equal(30, connection.DefaultTimeout);
+        }
+
+        [Fact]
+        public void DefaultTimeout_works()
+        {
+            var connection = new SqliteConnection();
+            connection.DefaultTimeout = 1;
+
+            Assert.Equal(1, connection.DefaultTimeout);
+        }
+
+        [Fact]
         public void ServerVersion_returns_value()
         {
             var connection = new SqliteConnection();
@@ -385,6 +402,7 @@ namespace Microsoft.Data.Sqlite
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
+                connection.DefaultTimeout = 1;
                 connection.Open();
 
                 using (var transaction = connection.BeginTransaction())
@@ -393,6 +411,7 @@ namespace Microsoft.Data.Sqlite
 
                     Assert.NotNull(command);
                     Assert.Same(connection, command.Connection);
+                    Assert.Equal(1, command.CommandTimeout);
                     Assert.Same(transaction, command.Transaction);
                 }
             }
