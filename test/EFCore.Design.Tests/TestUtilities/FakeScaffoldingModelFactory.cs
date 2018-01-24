@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -66,7 +67,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 new CandidateNamingService(),
                 pluralizer,
                 new CSharpUtilities(),
-                new ScaffoldingTypeMapper(TestServiceFactory.Instance.Create<SqlServerTypeMapper>()))
+                new ScaffoldingTypeMapper(
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())))
         {
         }
     }

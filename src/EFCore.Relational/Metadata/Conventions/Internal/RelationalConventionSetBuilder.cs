@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.ForeignKeyUniquenessChangedConventions.Add(sharedTableConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(sharedTableConvention);
 
-            conventionSet.ModelBuiltConventions.Add(new RelationalTypeMappingConvention(Dependencies.TypeMapper));
+            conventionSet.ModelBuiltConventions.Add(new RelationalTypeMappingConvention(Dependencies.CoreTypeMapper));
             conventionSet.ModelBuiltConventions.Add(sharedTableConvention);
 
             conventionSet.ModelAnnotationChangedConventions.Add(new RelationalDbFunctionConvention());

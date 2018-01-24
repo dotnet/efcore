@@ -19,13 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class PropertyMappingValidationConvention : IModelBuiltConvention
     {
-        private readonly ITypeMapper _typeMapper;
+        private readonly ICoreTypeMapper _typeMapper;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public PropertyMappingValidationConvention([NotNull] ITypeMapper typeMapper)
+        public PropertyMappingValidationConvention(
+            [NotNull] ICoreTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
@@ -133,16 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(property, nameof(property));
 
-            if (_typeMapper.IsTypeMapped(
-                property.GetValueConverter()?.StoreType
-                ?? property.ClrType))
-            {
-                return true;
-            }
-
-            var memberInfo = property.PropertyInfo ?? (MemberInfo)property.FieldInfo;
-
-            return memberInfo != null && _typeMapper.IsTypeMapped(memberInfo);
+            return _typeMapper.FindMapping(property) != null;
         }
 
         /// <summary>
@@ -153,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
+            return propertyInfo.FindCandidateNavigationPropertyType(
+                t => _typeMapper.FindMapping(t) != null);
         }
     }
 }

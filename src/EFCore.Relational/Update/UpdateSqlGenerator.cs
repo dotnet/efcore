@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private void AppendSqlLiteral(StringBuilder commandStringBuilder, object value)
         {
             commandStringBuilder.Append(
-                Dependencies.RelationalTypeMapper.GetMappingForValue(value).GenerateSqlLiteral(value));
+                Dependencies.CoreTypeMapper.GetMappingForValue(value).GenerateSqlLiteral(value));
         }
     }
 }

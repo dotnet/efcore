@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the type mapper.
         /// </summary>
+        [Obsolete("Use ICoreTypeMapper instead")]
         protected virtual IRelationalTypeMapper TypeMapper => RelationalDependencies.TypeMapper;
 
         /// <summary>
@@ -53,7 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             ValidateSharedTableCompatibility(model);
             ValidateInheritanceMapping(model);
+#pragma warning disable 618
             ValidateDataTypes(model);
+#pragma warning restore 618
             ValidateDefaultValuesOnKeys(model);
             ValidateBoolsWithDefaults(model);
             ValidateDbFunctions(model);
@@ -77,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (dbFunction.Translation == null)
                 {
-                    if (!RelationalDependencies.TypeMapper.IsTypeMapped(methodInfo.ReturnType))
+                    if (RelationalDependencies.CoreTypeMapper.FindMapping(methodInfo.ReturnType) == null)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DbFunctionInvalidReturnType(
@@ -87,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                     foreach (var parameter in methodInfo.GetParameters())
                     {
-                        if (!RelationalDependencies.TypeMapper.IsTypeMapped(parameter.ParameterType))
+                        if (RelationalDependencies.CoreTypeMapper.FindMapping(parameter.ParameterType) == null)
                         {
                             throw new InvalidOperationException(
                                 RelationalStrings.DbFunctionInvalidParameterType(
@@ -123,19 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Now happens as a part of FindTypeMapping.")]
         protected virtual void ValidateDataTypes([NotNull] IModel model)
         {
-            foreach (var entityType in model.GetEntityTypes())
-            {
-                foreach (var property in entityType.GetDeclaredProperties())
-                {
-                    var dataType = property.GetConfiguredColumnType();
-                    if (dataType != null)
-                    {
-                        TypeMapper.ValidateTypeName(dataType);
-                    }
-                }
-            }
         }
 
         /// <summary>

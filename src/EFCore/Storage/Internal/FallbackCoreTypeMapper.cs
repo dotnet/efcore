@@ -1,28 +1,34 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal
 {
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class RelationalTypeMappingConvention : IModelBuiltConvention
+    public class FallbackCoreTypeMapper : CoreTypeMapperBase
     {
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        private readonly ITypeMapper _typeMapper;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public RelationalTypeMappingConvention(
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+        public FallbackCoreTypeMapper(
+            [NotNull] CoreTypeMapperDependencies dependencies,
+            [NotNull] ITypeMapper typeMapper)
+            : base(dependencies)
         {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
             _typeMapper = typeMapper;
         }
 
@@ -30,17 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        protected override CoreTypeMapping FindMapping(TypeMappingInfo mappingInfo)
         {
-            foreach (var property in modelBuilder.Metadata.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
-            {
-                property.Builder.HasAnnotation(
-                    CoreAnnotationNames.TypeMapping,
-                    _typeMapper.FindMapping(property),
-                    ConfigurationSource.Convention);
-            }
+            Check.NotNull(mappingInfo, nameof(mappingInfo));
 
-            return modelBuilder;
+            return _typeMapper.IsTypeMapped(mappingInfo.ModelClrType)
+                ? new CoreTypeMapping(mappingInfo.ModelClrType)
+                : null;
         }
     }
 }

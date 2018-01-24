@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention,
         INavigationAddedConvention
     {
-        private readonly ITypeMapper _typeMapper;
+        private readonly ICoreTypeMapper _typeMapper;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
@@ -34,7 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationshipDiscoveryConvention(
-            [NotNull] ITypeMapper typeMapper, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
@@ -717,7 +718,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(_typeMapper.IsTypeMapped);
+            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(
+                t => _typeMapper.FindMapping(t) != null);
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {

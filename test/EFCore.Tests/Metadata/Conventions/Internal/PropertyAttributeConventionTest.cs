@@ -9,6 +9,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -524,8 +525,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static CoreTypeMapper CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<CoreTypeMapper>();
+        private static ICoreTypeMapper CreateTypeMapper()
+            => TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>();
 
         private class A
         {

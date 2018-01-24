@@ -203,23 +203,22 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
                 = new SqlServerByteArrayTypeMapping("binary");
 
-            private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
+            private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
             private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
             public SqlServerBytesTypeMapper(
-                CoreTypeMapperDependencies coreDependencies,
                 RelationalTypeMapperDependencies relationalDependencies)
-                : base(coreDependencies, relationalDependencies)
+                : base(relationalDependencies)
             {
                 _storeTypeMappings
-                    = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
+                    = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                     {
-                        { "binary varying", new List<RelationalTypeMapping> { _variableLengthBinary } },
-                        { "binary", new List<RelationalTypeMapping> { _fixedLengthBinary } },
-                        { "image", new List<RelationalTypeMapping> { _variableLengthBinary } },
-                        { "rowversion", new List<RelationalTypeMapping> { _rowversion } },
-                        { "timestamp", new List<RelationalTypeMapping> { _rowversion } },
-                        { "varbinary", new List<RelationalTypeMapping> { _variableLengthBinary } }
+                        { "binary varying", _variableLengthBinary },
+                        { "binary", _fixedLengthBinary },
+                        { "image", _variableLengthBinary },
+                        { "rowversion", _rowversion },
+                        { "timestamp", _rowversion },
+                        { "varbinary", _variableLengthBinary }
                     };
 
                 _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>();
@@ -242,7 +241,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _clrTypeMappings;
 
-            protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
                 => _storeTypeMappings;
 
             public override RelationalTypeMapping FindMapping(Type clrType)

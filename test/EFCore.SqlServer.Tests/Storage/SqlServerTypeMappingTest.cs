@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Globalization;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -89,19 +90,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(typeof(object), clone.ClrType);
         }
 
+        public static RelationalTypeMapping GetMapping(
+            Type type)
+            => (RelationalTypeMapping)new FallbackRelationalCoreTypeMapper(
+                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                .FindMapping(type);
+
         public override void GenerateSqlLiteral_returns_ByteArray_literal()
         {
             var value = new byte[] { 0xDA, 0x7A };
-            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
-                .GetMapping(typeof(byte[])).GenerateSqlLiteral(value);
+            var literal = GetMapping(typeof(byte[])).GenerateSqlLiteral(value);
             Assert.Equal("0xDA7A", literal);
         }
 
         public override void GenerateSqlLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
-                .GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
+            var literal = GetMapping(typeof(DateTime)).GenerateSqlLiteral(value);
 
             Assert.Equal("'2015-03-12T13:36:37.371'", literal);
         }
@@ -109,8 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override void GenerateSqlLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
-                .GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
+            var literal = GetMapping(typeof(DateTimeOffset)).GenerateSqlLiteral(value);
 
             Assert.Equal("'2015-03-12T13:36:37.371-07:00'", literal);
         }
@@ -118,16 +124,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
         {
-            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
-                .GetMapping("nvarchar(max)").GenerateSqlLiteral("A Unicode String");
+            var mapping = new FallbackRelationalCoreTypeMapper(
+                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                .FindMapping("nvarchar(max)");
+
+            var literal = mapping.GenerateSqlLiteral("A Unicode String");
+
             Assert.Equal("N'A Unicode String'", literal);
         }
 
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
         {
-            var literal = TestServiceFactory.Instance.Create<SqlServerTypeMapper>()
-                .GetMapping("varchar(max)").GenerateSqlLiteral("A Non-Unicode String");
+            var mapping = new FallbackRelationalCoreTypeMapper(
+                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                .FindMapping("varchar(max)");
+
+            var literal = mapping.GenerateSqlLiteral("A Non-Unicode String");
             Assert.Equal("'A Non-Unicode String'", literal);
         }
 
@@ -137,26 +154,68 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
         public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
         {
-            var mappings = TestServiceFactory.Instance.Create<TestSqlServerTypeMapper>().GetClrTypeNameMappings();
+            var mapper = (IRelationalCoreTypeMapper)new SqlServerCoreTypeMapper(
+                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
 
-            var mapping = mappings[typeName](typeof(Random));
+            var type = new FakeType(typeName);
+
+            var mapping = mapper.FindMapping(type);
 
             Assert.Equal(udtName, mapping.StoreType);
             Assert.Equal(udtName, ((SqlServerUdtTypeMapping)mapping).UdtTypeName);
-            Assert.Same(typeof(Random), mapping.ClrType);
+            Assert.Same(type, mapping.ClrType);
         }
 
-        private class TestSqlServerTypeMapper : SqlServerTypeMapper
+        private class FakeType : Type
         {
-            public TestSqlServerTypeMapper(
-                CoreTypeMapperDependencies coreDependencies,
-                RelationalTypeMapperDependencies dependencies)
-                : base(coreDependencies, dependencies)
+            public FakeType(string fullName)
             {
+                FullName = fullName;
             }
 
-            public new IReadOnlyDictionary<string, Func<Type, RelationalTypeMapping>> GetClrTypeNameMappings()
-                => base.GetClrTypeNameMappings();
+            public override object[] GetCustomAttributes(bool inherit) => throw new NotImplementedException();
+            public override bool IsDefined(Type attributeType, bool inherit) => throw new NotImplementedException();
+            public override ConstructorInfo[] GetConstructors(BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override Type GetInterface(string name, bool ignoreCase) => throw new NotImplementedException();
+            public override Type[] GetInterfaces() => throw new NotImplementedException();
+            public override EventInfo GetEvent(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override EventInfo[] GetEvents(BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override Type[] GetNestedTypes(BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override Type GetNestedType(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override Type GetElementType() => throw new NotImplementedException();
+            protected override bool HasElementTypeImpl() => throw new NotImplementedException();
+            protected override PropertyInfo GetPropertyImpl(string name, BindingFlags bindingAttr, Binder binder, Type returnType, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+            public override PropertyInfo[] GetProperties(BindingFlags bindingAttr) => throw new NotImplementedException();
+            protected override MethodInfo GetMethodImpl(string name, BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+            public override MethodInfo[] GetMethods(BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override FieldInfo GetField(string name, BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override FieldInfo[] GetFields(BindingFlags bindingAttr) => throw new NotImplementedException();
+            public override MemberInfo[] GetMembers(BindingFlags bindingAttr) => throw new NotImplementedException();
+            protected override TypeAttributes GetAttributeFlagsImpl() => throw new NotImplementedException();
+            protected override bool IsArrayImpl() => throw new NotImplementedException();
+            protected override bool IsByRefImpl() => throw new NotImplementedException();
+            protected override bool IsPointerImpl() => throw new NotImplementedException();
+            protected override bool IsPrimitiveImpl() => throw new NotImplementedException();
+            protected override bool IsCOMObjectImpl() => throw new NotImplementedException();
+            public override object InvokeMember(string name, BindingFlags invokeAttr, Binder binder, object target, object[] args, ParameterModifier[] modifiers, CultureInfo culture, string[] namedParameters) => throw new NotImplementedException();
+            public override Type UnderlyingSystemType { get; }
+            protected override ConstructorInfo GetConstructorImpl(BindingFlags bindingAttr, Binder binder, CallingConventions callConvention, Type[] types, ParameterModifier[] modifiers) => throw new NotImplementedException();
+            public override string Name => throw new NotImplementedException();
+            public override Guid GUID => throw new NotImplementedException();
+            public override Module Module => throw new NotImplementedException();
+            public override Assembly Assembly => throw new NotImplementedException();
+            public override string Namespace => throw new NotImplementedException();
+            public override string AssemblyQualifiedName => throw new NotImplementedException();
+            public override Type BaseType => throw new NotImplementedException();
+            public override object[] GetCustomAttributes(Type attributeType, bool inherit) => throw new NotImplementedException();
+
+            public override string FullName { get; }
+
+            public override int GetHashCode() => FullName.GetHashCode();
+
+            public override bool Equals(object o) => ReferenceEquals(this, o);
         }
 
         protected override DbContextOptions ContextOptions { get; }

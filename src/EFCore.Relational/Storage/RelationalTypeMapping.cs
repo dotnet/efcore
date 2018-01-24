@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
@@ -23,6 +25,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMapping : CoreTypeMapping
     {
+        private static readonly MethodInfo _getFieldValueMethod
+            = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFieldValue));
+
+        private static readonly IDictionary<Type, MethodInfo> _getXMethods
+            = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(bool), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetBoolean)) },
+                { typeof(byte), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetByte)) },
+                { typeof(char), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetChar)) },
+                { typeof(DateTime), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDateTime)) },
+                { typeof(decimal), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDecimal)) },
+                { typeof(double), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetDouble)) },
+                { typeof(float), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetFloat)) },
+                { typeof(Guid), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetGuid)) },
+                { typeof(short), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt16)) },
+                { typeof(int), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt32)) },
+                { typeof(long), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetInt64)) },
+                { typeof(string), typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod(nameof(DbDataReader.GetString)) }
+            };
+
         /// <summary>
         ///     Gets the mapping to be used when the only piece of information is that there is a null value.
         /// </summary>
@@ -80,10 +102,41 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotEmpty(storeType, nameof(storeType));
 
-            StoreType = storeType;
             DbType = dbType;
             IsUnicode = unicode;
+
+            if (converter != null)
+            {
+                if (converter.MappingHints.Size != null)
+                {
+                    size = converter.MappingHints.Size;
+                }
+                else if (converter.MappingHints.SizeFunction != null
+                         && size != null)
+                {
+                    size = converter.MappingHints.SizeFunction(size.Value);
+                }
+            }
+
             Size = size;
+
+            if (size != null)
+            {
+                var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
+                if (openParen > 0)
+                {
+                    var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
+
+                    if (closeParen > openParen
+                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var oldSize)
+                        && size != oldSize)
+                    {
+                        storeType = storeType.Substring(0, openParen + 1) + size + ")";
+                    }
+                }
+            }
+
+            StoreType = storeType;
         }
 
         /// <summary>
@@ -217,5 +270,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         protected virtual string GenerateNonNullSqlLiteral([NotNull] object value)
             => string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, Check.NotNull(value, nameof(value)));
+
+        /// <summary>
+        ///     The method to use when reading values of the given type. The method must be defined
+        ///     on <see cref="DbDataReader" /> or one of its subclasses.
+        /// </summary>
+        /// <returns> The method to use to read the value. </returns>
+        public virtual MethodInfo GetDataReaderMethod()
+        {
+            var type = (Converter?.StoreType ?? ClrType).UnwrapNullableType();
+
+            return _getXMethods.TryGetValue(type, out var method)
+                ? method
+                : _getFieldValueMethod.MakeGenericMethod(type);
+        }
     }
 }

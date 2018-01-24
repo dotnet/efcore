@@ -7,6 +7,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -57,9 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] IRelationalTypeMapper typeMapper,
             [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder)
-            : this(setFinder, currentContext, null, typeMapper)
+            : this(
+                new FallbackRelationalCoreTypeMapper(
+                    new CoreTypeMapperDependencies(
+                        new ValueConverterSelector(
+                            new ValueConverterSelectorDependencies())),
+                    new RelationalTypeMapperDependencies(), 
+                    typeMapper),
+                null,
+                currentContext,
+                setFinder)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
         }
 
         /// <summary>
@@ -80,22 +90,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         public RelationalConventionSetBuilderDependencies(
-            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalCoreTypeMapper coreTypeMapper,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
             [CanBeNull] ICurrentDbContext currentContext,
-            [CanBeNull] IDbSetFinder setFinder)
-            : this(setFinder, currentContext, logger, typeMapper)
+            [CanBeNull] IDbSetFinder setFinder,
+            [CanBeNull] IRelationalTypeMapper _ = null) // Only needed for D.I. to resolve this constructor
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
-        }
+            Check.NotNull(coreTypeMapper, nameof(coreTypeMapper));
 
-        private RelationalConventionSetBuilderDependencies(
-            IDbSetFinder setFinder,
-            ICurrentDbContext currentContext,
-            IDiagnosticsLogger<DbLoggerCategory.Model> logger,
-            IRelationalTypeMapper typeMapper)
-        {
-            TypeMapper = typeMapper;
+            CoreTypeMapper = coreTypeMapper;
             Logger = logger
                      ?? new DiagnosticsLogger<DbLoggerCategory.Model>(new LoggerFactory(), new LoggingOptions(), new DiagnosticListener(""));
             Context = currentContext;
@@ -106,7 +109,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [Obsolete("Use CoreTypeMapper.")]
         public IRelationalTypeMapper TypeMapper { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IRelationalCoreTypeMapper CoreTypeMapper { get; }
 
         /// <summary>
         ///     The logger.
@@ -130,7 +140,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
+        [Obsolete("Use IRelationalCoreTypeMapper.")]
         public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalTypeMapper typeMapper)
+            => new RelationalConventionSetBuilderDependencies(
+                new FallbackRelationalCoreTypeMapper(
+                    new CoreTypeMapperDependencies(
+                        new ValueConverterSelector(
+                            new ValueConverterSelectorDependencies())),
+                    new RelationalTypeMapperDependencies(), 
+                    typeMapper),
+                Logger, Context, SetFinder);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalCoreTypeMapper typeMapper)
             => new RelationalConventionSetBuilderDependencies(typeMapper, Logger, Context, SetFinder);
 
         /// <summary>
@@ -139,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, logger, Context, SetFinder);
+            => new RelationalConventionSetBuilderDependencies(CoreTypeMapper, logger, Context, SetFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -147,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, Logger, currentContext, SetFinder);
+            => new RelationalConventionSetBuilderDependencies(CoreTypeMapper, Logger, currentContext, SetFinder);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -155,6 +181,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="setFinder"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalConventionSetBuilderDependencies With([NotNull] IDbSetFinder setFinder)
-            => new RelationalConventionSetBuilderDependencies(TypeMapper, Logger, Context, setFinder);
+            => new RelationalConventionSetBuilderDependencies(CoreTypeMapper, Logger, Context, setFinder);
     }
 }

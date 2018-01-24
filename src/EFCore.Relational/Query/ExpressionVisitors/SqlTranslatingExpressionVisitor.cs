@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly ICompositeMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
-        private readonly IRelationalTypeMapper _relationalTypeMapper;
+        private readonly IRelationalCoreTypeMapper _typeMapper;
         private readonly SelectExpression _targetSelectExpression;
         private readonly Expression _topLevelPredicate;
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _compositeExpressionFragmentTranslator = dependencies.CompositeExpressionFragmentTranslator;
             _methodCallTranslator = dependencies.MethodCallTranslator;
             _memberTranslator = dependencies.MemberTranslator;
-            _relationalTypeMapper = dependencies.RelationalTypeMapper;
+            _typeMapper = dependencies.CoreTypeMapper;
             _queryModelVisitor = queryModelVisitor;
             _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;
@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private bool IsStreamedSingleValueSupportedType(IStreamedDataInfo outputDataInfo)
             => outputDataInfo is StreamedSingleValueInfo streamedSingleValueInfo
-               && _relationalTypeMapper.FindMapping(
+               && _typeMapper.FindMapping(
                    streamedSingleValueInfo.DataType
                        .UnwrapNullableType()
                        .UnwrapEnumType()) != null;
@@ -1014,7 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 underlyingType = expression.Value.GetType();
             }
 
-            return _relationalTypeMapper.FindMapping(underlyingType) != null
+            return _typeMapper.FindMapping(underlyingType) != null
                 ? expression
                 : null;
         }
@@ -1032,7 +1032,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
-            return _relationalTypeMapper.FindMapping(underlyingType) != null
+            return _typeMapper.FindMapping(underlyingType) != null
                 ? expression
                 : null;
         }
@@ -1150,7 +1150,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var type = expression.ReferencedQuerySource.ItemType.UnwrapNullableType().UnwrapEnumType();
 
-            if (_relationalTypeMapper.FindMapping(type) != null)
+            if (_typeMapper.FindMapping(type) != null)
             {
                 var selectExpression = _queryModelVisitor.TryGetQuery(expression.ReferencedQuerySource);
 
