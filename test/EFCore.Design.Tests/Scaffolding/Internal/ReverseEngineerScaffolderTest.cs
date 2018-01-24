@@ -36,7 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 };
 
-                var result = scaffolder.Save(scaffoldedModel, directory.Path, "Models", overwriteFiles: false);
+                var result = scaffolder.Save(
+                    scaffoldedModel,
+                    Path.Combine(directory.Path, "Models"),
+                    overwriteFiles: false);
 
                 var contextPath = Path.Combine(directory.Path, "Data", "TestContext.cs");
                 Assert.Equal(contextPath, result.ContextFile);
@@ -79,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 };
 
                 var ex = Assert.Throws<OperationException>(
-                    () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: false));
+                    () => scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: false));
 
                 Assert.Equal(
                     DesignStrings.ExistingFiles(
@@ -107,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 };
 
-                var result = scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: true);
+                var result = scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: true);
 
                 Assert.Equal(path, result.ContextFile);
                 Assert.Equal("// Test", File.ReadAllText(path));
@@ -149,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     };
 
                     var ex = Assert.Throws<OperationException>(
-                        () => scaffolder.Save(scaffoldedModel, directory.Path, outputDir: null, overwriteFiles: true));
+                        () => scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: true));
 
                     Assert.Equal(
                         DesignStrings.ReadOnlyFiles(

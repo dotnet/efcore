@@ -70,6 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(schemas, nameof(schemas));
             Check.NotNull(tables, nameof(tables));
 
+            outputDir = outputDir != null
+                ? Path.GetFullPath(Path.Combine(_projectDir, outputDir))
+                : _projectDir;
+
+            outputContextDir = outputContextDir != null
+                ? Path.GetFullPath(Path.Combine(_projectDir, outputContextDir))
+                : outputDir;
+
             var services = _servicesBuilder.Build(provider);
 
             var scaffolder = services.GetRequiredService<IReverseEngineerScaffolder>();
@@ -82,28 +90,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 @namespace += "." + subNamespace;
             }
 
-            var absoluteOutputDir = outputDir != null
-                ? Path.GetFullPath(Path.Combine(_projectDir, outputDir))
-                : _projectDir;
-            var absoluteContextDir = outputContextDir != null
-                ? Path.GetFullPath(Path.Combine(_projectDir, outputContextDir))
-                : absoluteOutputDir;
-            var relativeContextDir = MakeDirRelative(absoluteOutputDir, absoluteContextDir);
-
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 tables,
                 schemas,
                 @namespace,
                 _language,
-                relativeContextDir,
+                MakeDirRelative(outputDir, outputContextDir),
                 dbContextClassName,
                 useDataAnnotations,
                 useDatabaseNames);
 
             return scaffolder.Save(
                 scaffoldedModel,
-                _projectDir,
                 outputDir,
                 overwriteFiles);
         }
@@ -113,16 +112,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         // => "namespace $(rootnamespace).A.B.C"
         private string SubnamespaceFromOutputPath(string projectDir, string outputDir)
         {
-            if (outputDir == null)
-            {
-                return null;
-            }
-
-            if (!Path.IsPathRooted(outputDir))
-            {
-                outputDir = Path.GetFullPath(Path.Combine(projectDir, outputDir));
-            }
-
             if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
             {
                 return null;
