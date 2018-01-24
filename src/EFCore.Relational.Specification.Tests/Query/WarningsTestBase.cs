@@ -112,6 +112,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [Fact]
+        public virtual void Max_does_not_issue_client_eval_warning_when_at_top_level()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders.Select(o => o.OrderID).Max();
+
+                Assert.NotNull(query);
+            }
+        }
+
+        [Fact]
         public virtual void Last_without_order_by_issues_client_eval_warning()
         {
             using (var context = CreateContext())

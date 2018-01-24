@@ -697,7 +697,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .QueryPossibleExceptionWithAggregateOperator();
             }
 
-            handlerContext.QueryModelVisitor.RequiresClientResultOperator = throwOnNullResult;
+            if (handlerContext.QueryModelVisitor.ParentQueryModelVisitor != null)
+            {
+                handlerContext.QueryModelVisitor.RequiresClientResultOperator = throwOnNullResult;
+            }
 
             return throwOnNullResult;
         }
