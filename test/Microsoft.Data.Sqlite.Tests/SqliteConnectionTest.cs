@@ -932,6 +932,48 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+        [Fact]
+        public void DataChange_event_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var list = new List<UpdateEventArgs>();
+                connection.Update += (sender, e) =>
+                    {
+                        Assert.Equal(connection, sender);
+                        list.Add(e);
+                    };
+
+                connection.Open();
+                connection.ExecuteNonQuery(
+                    "CREATE TABLE Person (ID INTEGER PRIMARY KEY, FirstName TEXT, LastName TEXT NOT NULL, Code INT UNIQUE);");
+                Assert.Empty(list);
+
+                connection.ExecuteNonQuery("INSERT INTO Person VALUES(101, 'John', 'Dee', 123);");
+                Assert.Single(list);
+                Assert.Equal(UpdateEventType.Insert, list[0].Event);
+                Assert.Equal("main", list[0].Database);
+                Assert.Equal("Person", list[0].Table);
+                Assert.Equal(101, list[0].RowId);
+                list.Clear();
+
+                connection.ExecuteNonQuery("UPDATE Person SET Code=234 WHERE ID=101;");
+                Assert.Single(list);
+                Assert.Equal(UpdateEventType.Update, list[0].Event);
+                Assert.Equal("main", list[0].Database);
+                Assert.Equal("Person", list[0].Table);
+                Assert.Equal(101, list[0].RowId);
+                list.Clear();
+
+                connection.ExecuteNonQuery("DELETE FROM Person WHERE ID=101;");
+                Assert.Single(list);
+                Assert.Equal(UpdateEventType.Delete, list[0].Event);
+                Assert.Equal("main", list[0].Database);
+                Assert.Equal("Person", list[0].Table);
+                Assert.Equal(101, list[0].RowId);
+            }
+        }
+
 #if !NETCOREAPP2_0
         [Fact]
         public void DbProviderFactory_works()
