@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         [Fact]
         public void AddMigration_output_dir_absolute_path_in_project()
         {
-            var outputDir = Path.Combine(_project.TargetDir, "A/B/C");
+            var outputDir = Path.Combine(_project.TargetDir, "A", "B", "C");
             var artifacts = _project.Executor.AddMigration("EmptyMigration1", outputDir, "SimpleContext");
             Assert.NotNull(artifacts);
             Assert.Equal(Path.Combine(outputDir, Path.GetFileName(artifacts["MigrationFile"] as string)), artifacts["MigrationFile"]);
@@ -76,13 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
             AssertDefaultMigrationName(artifacts);
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData("     ")]
-        [InlineData(null)]
-        public void AddMigration_handles_empty_output_dir(string outputDir)
+        [Fact]
+        public void AddMigration_handles_empty_output_dir()
         {
-            var artifacts = _project.Executor.AddMigration("EmptyMigration2", outputDir, "SimpleContext");
+            var artifacts = _project.Executor.AddMigration("EmptyMigration2", /*outputDir: */ null, "SimpleContext");
             Assert.NotNull(artifacts);
             Assert.StartsWith(Path.Combine(_project.TargetDir, "Migrations"), artifacts["MigrationFile"] as string);
             AssertDefaultMigrationName(artifacts);
