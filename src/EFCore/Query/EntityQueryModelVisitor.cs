@@ -288,12 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var navigationRewritingExpressionVisitor = _navigationRewritingExpressionVisitorFactory.Create(this);
             navigationRewritingExpressionVisitor.InjectSubqueryToCollectionsInProjection(queryModel);
 
-            // TODO: for now correlated collection optimization only works for sync queries
-            if (!asyncQuery)
-            {
-                var correlatedCollectionFinder = new CorrelatedCollectionFindingExpressionVisitor(this, TrackResults(queryModel));
-                queryModel.SelectClause.TransformExpressions(correlatedCollectionFinder.Visit);
-            }
+            var correlatedCollectionFinder = new CorrelatedCollectionFindingExpressionVisitor(this, TrackResults(queryModel));
+            queryModel.SelectClause.TransformExpressions(correlatedCollectionFinder.Visit);
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 

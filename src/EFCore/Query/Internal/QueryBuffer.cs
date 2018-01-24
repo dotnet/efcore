@@ -572,6 +572,103 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public async virtual Task<TCollection> CorrelateSubqueryAsync<TInner, TCollection>(
+            int correlatedCollectionId,
+            INavigation navigation,
+            Func<INavigation, TCollection> resultCollectionFactory,
+            MaterializedAnonymousObject outerKey,
+            bool tracking,
+            Func<IAsyncEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
+            Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate,
+            CancellationToken cancellationToken) where TCollection : ICollection<TInner>
+        {
+            IDisposable untypedEnumerator = null;
+            IAsyncEnumerator<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>> enumerator = null;
+
+            if (!_correlatedCollectionMetadata.TryGetValue(correlatedCollectionId, out var correlatedCollectionMetadataElement))
+            {
+                enumerator = correlatedCollectionFactory().GetEnumerator();
+
+                if (! await enumerator.MoveNext(cancellationToken))
+                {
+                    enumerator.Dispose();
+                    enumerator = null;
+                }
+
+                correlatedCollectionMetadataElement = (enumerator, default);
+                _correlatedCollectionMetadata[correlatedCollectionId] = correlatedCollectionMetadataElement;
+            }
+            else
+            {
+                untypedEnumerator = correlatedCollectionMetadataElement.Enumerator;
+            }
+
+            var resultCollection = resultCollectionFactory(navigation);
+
+            if (enumerator == null)
+            {
+                if (untypedEnumerator == null)
+                {
+                    return resultCollection;
+                }
+
+                enumerator = (IAsyncEnumerator<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>)untypedEnumerator;
+            }
+
+            while (true)
+            {
+                if (enumerator == null)
+                {
+                    return resultCollection;
+                }
+
+                var shouldCorrelate = correlationPredicate(outerKey, enumerator.Current.Item2);
+                if (shouldCorrelate)
+                {
+                    // if origin key changed, we got all child elements for a given parent, even if the correlation predicate matches 
+                    // e.g. orders.Select(o => o.Customer.Addresses) - if there are 10 orders but only 5 customers, we still need 10 collections of addresses, even though some of the addresses belong to same customer
+                    if (!correlatedCollectionMetadataElement.PreviousOriginKey.IsDefault()
+                        && !enumerator.Current.Item3.Equals(correlatedCollectionMetadataElement.PreviousOriginKey))
+                    {
+                        correlatedCollectionMetadataElement.PreviousOriginKey = default;
+                        _correlatedCollectionMetadata[correlatedCollectionId] = correlatedCollectionMetadataElement;
+
+                        return resultCollection;
+                    }
+
+                    var result = enumerator.Current.Item1;
+
+                    correlatedCollectionMetadataElement.PreviousOriginKey = enumerator.Current.Item3;
+                    _correlatedCollectionMetadata[correlatedCollectionId] = correlatedCollectionMetadataElement;
+
+                    if (!await enumerator.MoveNext(cancellationToken))
+                    {
+                        enumerator.Dispose();
+                        enumerator = null;
+                        _correlatedCollectionMetadata[correlatedCollectionId] = default;
+                    }
+
+                    resultCollection.Add(result);
+
+                    if (tracking)
+                    {
+                        StartTracking(result, navigation.ForeignKey.DeclaringEntityType);
+                    }
+                }
+                else
+                {
+                    correlatedCollectionMetadataElement.PreviousOriginKey = default;
+                    _correlatedCollectionMetadata[correlatedCollectionId] = correlatedCollectionMetadataElement;
+
+                    return resultCollection;
+                }
+            }
+        }
+
         void IDisposable.Dispose()
         {
             foreach (var kv in _includedCollections)
