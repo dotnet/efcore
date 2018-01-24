@@ -143,6 +143,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual async Task ToList_on_nav_subquery_with_predicate_in_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = await context.Customers.Select(
+                            c => new
+                            {
+                                Orders = c.Orders.Where(o => o.OrderID > 10).ToList()
+                            })
+                        .ToListAsync();
+
+                Assert.Equal(830, results.SelectMany(a => a.Orders).ToList().Count);
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Average_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())

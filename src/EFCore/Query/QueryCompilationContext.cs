@@ -117,6 +117,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
         /// <summary>
+        ///     Get a value indicating whether query that is being processed is asynchronous.
+        /// </summary>
+        public virtual bool IsAsyncQuery { get; set; }
+
+        /// <summary>
         ///     Gets the entity type mapped to the given query source
         /// </summary>
         public virtual IEntityType FindEntityType([NotNull] IQuerySource querySource)
