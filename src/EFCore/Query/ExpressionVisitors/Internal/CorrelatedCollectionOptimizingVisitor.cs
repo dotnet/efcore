@@ -75,6 +75,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
+                && methodCallExpression.Arguments[1] is SubQueryExpression subQueryExpression)
+            {
+                if (_queryCompilationContext.CorrelatedSubqueryMetadataMap.TryGetValue(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
+                {
+                    var parentQsre = new QuerySourceReferenceExpression(correlatedSubqueryMetadata.ParentQuerySource);
+                    var result = Rewrite(
+                        correlatedSubqueryMetadata.Index,
+                        subQueryExpression.QueryModel,
+                        correlatedSubqueryMetadata.CollectionNavigation,
+                        correlatedSubqueryMetadata.TrackingQuery,
+                        parentQsre);
+
+                    return result;
+                }
+
+                return methodCallExpression;
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
         {
             if (_queryCompilationContext.CorrelatedSubqueryMetadataMap.TryGetValue(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
