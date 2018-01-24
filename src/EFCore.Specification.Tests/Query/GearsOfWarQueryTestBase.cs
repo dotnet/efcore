@@ -3236,6 +3236,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Correlated_collections_naked_navigation_with_ToList()
+        {
+            AssertQuery<Gear>(
+                gs => from g in gs
+                      where g.Nickname != "Marcus"
+                      orderby g.Nickname
+                      select g.Weapons.ToList(),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collections_naked_navigation_with_ToArray()
+        {
+            AssertQuery<Gear>(
+                gs => from g in gs
+                      where g.Nickname != "Marcus"
+                      orderby g.Nickname
+                      select g.Weapons.ToArray(),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+        }
+
+        [ConditionalFact]
         public virtual void Correlated_collections_basic_projection()
         {
             AssertQuery<Gear>(

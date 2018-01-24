@@ -47,6 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static readonly MethodInfo _createCollectionMethodInfo
             = typeof(IClrCollectionAccessor).GetRuntimeMethod(nameof(IClrCollectionAccessor.Create), new Type[] { });
 
+        private static readonly MethodInfo _toListMethodInfo
+            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToList));
+
         private List<Ordering> _parentOrderings { get; } = new List<Ordering>();
 
         private static readonly ParameterExpression _cancellationTokenParameter
@@ -77,23 +80,30 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
-                && methodCallExpression.Arguments[1] is SubQueryExpression subQueryExpression)
+            if (methodCallExpression.Method.MethodIsClosedFormOf(_toListMethodInfo)
+                && methodCallExpression.Arguments[0] is MethodCallExpression innerMethodCallExpression
+                && innerMethodCallExpression.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
+                && innerMethodCallExpression.Arguments[1] is SubQueryExpression subQueryExpression1)
             {
-                if (_queryCompilationContext.CorrelatedSubqueryMetadataMap.TryGetValue(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
-                {
-                    var parentQsre = new QuerySourceReferenceExpression(correlatedSubqueryMetadata.ParentQuerySource);
-                    var result = Rewrite(
-                        correlatedSubqueryMetadata.Index,
-                        subQueryExpression.QueryModel,
-                        correlatedSubqueryMetadata.CollectionNavigation,
-                        correlatedSubqueryMetadata.TrackingQuery,
-                        parentQsre);
+                return TryRewrite(subQueryExpression1, /*forceToListResult*/ true, out var result)
+                    ? result
+                    : methodCallExpression;
+            }
 
-                    return result;
-                }
+            if (methodCallExpression.Method.MethodIsClosedFormOf(_toListMethodInfo)
+                && methodCallExpression.Arguments[0] is SubQueryExpression subQueryExpression2)
+            {
+                return TryRewrite(subQueryExpression2, /*forceToListResult*/ true, out var result)
+                    ? result
+                    : methodCallExpression;
+            }
 
-                return methodCallExpression;
+            if (methodCallExpression.Method.MethodIsClosedFormOf(CollectionNavigationSubqueryInjector.MaterializeCollectionNavigationMethodInfo)
+                && methodCallExpression.Arguments[1] is SubQueryExpression subQueryExpression3)
+            {
+                return TryRewrite(subQueryExpression3, /*forceToListResult*/ false, out var result)
+                    ? result
+                    : methodCallExpression;
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -104,24 +114,38 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+            => TryRewrite(subQueryExpression, /*forceToListResult*/ false, out var result)
+                ? result
+                : base.VisitSubQuery(subQueryExpression);
+
+        private bool TryRewrite(SubQueryExpression subQueryExpression, bool forceToListResult, out Expression result)
         {
             if (_queryCompilationContext.CorrelatedSubqueryMetadataMap.TryGetValue(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
             {
                 var parentQsre = new QuerySourceReferenceExpression(correlatedSubqueryMetadata.ParentQuerySource);
-                var result = Rewrite(
+                result = Rewrite(
                     correlatedSubqueryMetadata.Index,
                     subQueryExpression.QueryModel,
                     correlatedSubqueryMetadata.CollectionNavigation,
                     correlatedSubqueryMetadata.TrackingQuery,
-                    parentQsre);
+                    parentQsre,
+                    forceToListResult);
 
-                return result;
+                return true;
             }
 
-            return base.VisitSubQuery(subQueryExpression);
+            result = null;
+
+            return false;
         }
 
-        private Expression Rewrite(int correlatedCollectionIndex, QueryModel collectionQueryModel, INavigation navigation, bool trackingQuery, QuerySourceReferenceExpression originQuerySource)
+        private Expression Rewrite(
+            int correlatedCollectionIndex,
+            QueryModel collectionQueryModel,
+            INavigation navigation,
+            bool trackingQuery,
+            QuerySourceReferenceExpression originQuerySource,
+            bool forceListResult)
         {
             var querySourceReferenceFindingExpressionTreeVisitor
                 = new QuerySourceReferenceFindingExpressionTreeVisitor();
@@ -258,20 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 : _correlateSubqueryMethodInfo;
 
             Expression resultCollectionFactoryExpressionBody;
-            if (navigation.ForeignKey.DeclaringEntityType.ClrType == collectionQueryModel.SelectClause.Selector.Type)
-            {
-                correlateSubqueryMethod = correlateSubqueryMethod.MakeGenericMethod(
-                        collectionQueryModel.SelectClause.Selector.Type,
-                        navigation.GetCollectionAccessor().CollectionType);
-
-                resultCollectionFactoryExpressionBody
-                    = Expression.Convert(
-                        Expression.Call(
-                            Expression.Call(_getCollectionAccessorMethodInfo, navigationParameter),
-                            _createCollectionMethodInfo),
-                        navigation.GetCollectionAccessor().CollectionType);
-            }
-            else
+            if (forceListResult
+                || navigation.ForeignKey.DeclaringEntityType.ClrType != collectionQueryModel.SelectClause.Selector.Type)
             {
                 var resultCollectionType = typeof(List<>).MakeGenericType(collectionQueryModel.SelectClause.Selector.Type);
                 var resultCollectionCtor = resultCollectionType.GetTypeInfo().GetDeclaredConstructor(new Type[] { });
@@ -283,6 +295,19 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 resultCollectionFactoryExpressionBody = Expression.New(resultCollectionCtor);
 
                 trackingQuery = false;
+            }
+            else
+            { 
+                correlateSubqueryMethod = correlateSubqueryMethod.MakeGenericMethod(
+                        collectionQueryModel.SelectClause.Selector.Type,
+                        navigation.GetCollectionAccessor().CollectionType);
+
+                resultCollectionFactoryExpressionBody
+                    = Expression.Convert(
+                        Expression.Call(
+                            Expression.Call(_getCollectionAccessorMethodInfo, navigationParameter),
+                            _createCollectionMethodInfo),
+                        navigation.GetCollectionAccessor().CollectionType);
             }
 
             var resultCollectionFactoryExpression = Expression.Lambda(

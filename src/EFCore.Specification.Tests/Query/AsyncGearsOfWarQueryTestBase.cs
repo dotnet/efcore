@@ -22,6 +22,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         [ConditionalFact]
+        public virtual async Task Correlated_collections_naked_navigation_with_ToList()
+        {
+            await AssertQuery<Gear>(
+                gs => from g in gs
+                      where g.Nickname != "Marcus"
+                      orderby g.Nickname
+                      select g.Weapons.ToList(),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Correlated_collections_naked_navigation_with_ToArray()
+        {
+            await AssertQuery<Gear>(
+                gs => from g in gs
+                      where g.Nickname != "Marcus"
+                      orderby g.Nickname
+                      select g.Weapons.ToArray(),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+        }
+
+        [ConditionalFact]
         public virtual async Task Correlated_collections_basic_projection()
         {
             await AssertQuery<Gear>(
