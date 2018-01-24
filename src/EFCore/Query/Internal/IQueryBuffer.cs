@@ -98,5 +98,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             bool tracking,
             [NotNull] Func<IEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
             [NotNull] Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate) where TCollection : ICollection<TInner>;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        Task<TCollection> CorrelateSubqueryAsync<TInner, TCollection>(
+            int correlatedCollectionId,
+            [NotNull] INavigation navigation,
+            [NotNull] Func<INavigation, TCollection> resultCollectionFactory,
+            MaterializedAnonymousObject outerKey,
+            bool tracking,
+            [NotNull] Func<IAsyncEnumerable<Tuple<TInner, MaterializedAnonymousObject, MaterializedAnonymousObject>>> correlatedCollectionFactory,
+            [NotNull] Func<MaterializedAnonymousObject, MaterializedAnonymousObject, bool> correlationPredicate,
+            CancellationToken cancellationToken) where TCollection : ICollection<TInner>;
     }
 }
