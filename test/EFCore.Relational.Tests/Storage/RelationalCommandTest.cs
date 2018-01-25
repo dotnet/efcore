@@ -540,7 +540,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var fakeConnection = CreateConnection();
 
-            var typeMapper = TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>();
+            var typeMapper = (IRelationalCoreTypeMapper)new FallbackRelationalCoreTypeMapper(
+                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
 
             var dbParameter = new FakeDbParameter { ParameterName = "FirstParameter", Value = 17, DbType = DbType.Int32 };
 
@@ -577,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(parameter, fakeConnection.DbConnections[0].DbCommands[0].Parameters[0]);
 
             parameter = fakeConnection.DbConnections[0].DbCommands[0].Parameters[1];
-            var mapping = typeMapper.GetMapping(18L.GetType());
+            var mapping = typeMapper.FindMapping(18L.GetType());
 
             Assert.Equal("SecondParameter", parameter.ParameterName);
             Assert.Equal(18L, parameter.Value);

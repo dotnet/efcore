@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
@@ -110,7 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var ctx = RelationalTestHelpers.Instance.CreateContext(model);
             return new MigrationsModelDiffer(
-                TestServiceFactory.Instance.Create<ConcreteTypeMapper>(),
+                new FallbackRelationalCoreTypeMapper(
+                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    TestServiceFactory.Instance.Create<ConcreteTypeMapper>()),
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),
@@ -121,9 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private class ConcreteTypeMapper : RelationalTypeMapper
         {
             public ConcreteTypeMapper(
-                CoreTypeMapperDependencies coreDependencies,
                 RelationalTypeMapperDependencies dependencies)
-                : base(coreDependencies, dependencies)
+                : base(dependencies)
             {
             }
 
@@ -142,22 +145,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 {
                     { typeof(int), new IntTypeMapping("int") },
                     { typeof(short), new ShortTypeMapping("smallint") },
-                    { typeof(long), new ShortTypeMapping("bigint") },
+                    { typeof(long), new LongTypeMapping("bigint") },
                     { typeof(bool), new BoolTypeMapping("boolean") },
                     { typeof(DateTime), new DateTimeTypeMapping("datetime2") }
                 };
 
-            private readonly IReadOnlyDictionary<string, IList<RelationalTypeMapping>> _simpleNameMappings
-                = new Dictionary<string, IList<RelationalTypeMapping>>
+            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
+                = new Dictionary<string, RelationalTypeMapping>
                 {
-                    { "varchar", new List<RelationalTypeMapping> { new StringTypeMapping("varchar") } },
-                    { "bigint", new List<RelationalTypeMapping> { new LongTypeMapping("bigint") } }
+                    { "varchar", new StringTypeMapping("varchar") },
+                    { "bigint", new LongTypeMapping("bigint") }
                 };
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _simpleMappings;
 
-            protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
                 => _simpleNameMappings;
         }
     }

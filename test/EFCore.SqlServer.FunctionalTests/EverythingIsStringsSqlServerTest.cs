@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
+            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 632]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
-BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
+BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 632]
 BuiltInDataTypes.Enum16 ---> [nvarchar] [MaxLength = 512]
 BuiltInDataTypes.Enum32 ---> [nvarchar] [MaxLength = 512]
 BuiltInDataTypes.Enum64 ---> [nvarchar] [MaxLength = 512]
@@ -206,35 +206,19 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             private readonly SqlServerStringTypeMapping _keyUnicodeString
                 = new SqlServerStringTypeMapping("nvarchar(450)", dbType: null, unicode: true, size: 450);
 
-            private readonly Dictionary<string, IList<RelationalTypeMapping>> _storeTypeMappings;
+            private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
             private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
             public SqlServerStringsTypeMapper(
-                CoreTypeMapperDependencies coreDependencies,
                 RelationalTypeMapperDependencies dependencies)
-                : base(coreDependencies, dependencies)
+                : base(dependencies)
             {
                 _storeTypeMappings
-                    = new Dictionary<string, IList<RelationalTypeMapping>>(StringComparer.OrdinalIgnoreCase)
+                    = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                     {
-                        {
-                            "national char varying", new List<RelationalTypeMapping>
-                            {
-                                _variableLengthUnicodeString
-                            }
-                        },
-                        {
-                            "national character varying", new List<RelationalTypeMapping>
-                            {
-                                _variableLengthUnicodeString
-                            }
-                        },
-                        {
-                            "nvarchar", new List<RelationalTypeMapping>
-                            {
-                                _variableLengthUnicodeString
-                            }
-                        }
+                        { "national char varying", _variableLengthUnicodeString },
+                        { "national character varying", _variableLengthUnicodeString },
+                        { "nvarchar", _variableLengthUnicodeString }
                     };
 
                 _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>();
@@ -266,7 +250,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
                 => _clrTypeMappings;
 
-            protected override IReadOnlyDictionary<string, IList<RelationalTypeMapping>> GetMultipleStoreTypeMappings()
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
                 => _storeTypeMappings;
 
             public override RelationalTypeMapping FindMapping(Type clrType)

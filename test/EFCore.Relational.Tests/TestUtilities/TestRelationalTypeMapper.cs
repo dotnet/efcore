@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly RelationalTypeMapping _string = new StringTypeMapping("just_string(2000)");
         private static readonly RelationalTypeMapping _unboundedString = new StringTypeMapping("just_string(max)");
         private static readonly RelationalTypeMapping _stringKey = new StringTypeMapping("just_string(450)", dbType: null, unicode: true, size: 450);
-        private static readonly RelationalTypeMapping _ansiStringKey = new StringTypeMapping("ansi_string(900)", dbType: null, unicode: true, size: 450);
+        private static readonly RelationalTypeMapping _ansiStringKey = new StringTypeMapping("ansi_string(900)", dbType: null, unicode: false, size: 900);
         private static readonly RelationalTypeMapping _unboundedBinary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
         private static readonly RelationalTypeMapping _binary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
         private static readonly RelationalTypeMapping _binaryKey = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
@@ -59,9 +59,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             = new TimeSpanTypeMapping("default_timespan_mapping");
 
         public TestRelationalTypeMapper(
-            CoreTypeMapperDependencies coreDependencies,
             RelationalTypeMapperDependencies dependencies)
-            : base(coreDependencies, dependencies)
+            : base(dependencies)
         {
         }
 
@@ -112,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _unboundedString,
                 _ansiStringKey,
                 size => new StringTypeMapping(
-                    "just_string(" + size + ")",
+                    "ansi_string(" + size + ")",
                     dbType: DbType.AnsiString,
                     unicode: false,
                     size: size),
@@ -129,7 +128,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
             => _simpleMappings;
 
-        [Obsolete("Override GetMultipleStoreTypeMappings instead.")] // Using the obsolete overload for testing
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
             => _simpleNameMappings;
 

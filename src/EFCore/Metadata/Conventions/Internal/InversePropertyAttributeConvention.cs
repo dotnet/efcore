@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InversePropertyAttributeConvention(
-            [NotNull] ITypeMapper typeMapper, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
+            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
             : base(typeMapper)
         {
             _logger = logger;

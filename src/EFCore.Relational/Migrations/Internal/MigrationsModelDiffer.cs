@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public MigrationsModelDiffer(
-            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalCoreTypeMapper typeMapper,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
             [NotNull] IChangeDetector changeDetector,
             [NotNull] StateManagerDependencies stateManagerDependencies,
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IRelationalTypeMapper TypeMapper { get; }
+        protected virtual IRelationalCoreTypeMapper TypeMapper { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -901,7 +901,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Table = targetEntityTypeAnnotations.TableName,
                 Name = targetAnnotations.ColumnName
             };
-            Initialize(operation, target, TypeMapper.GetMapping(target), target.IsColumnNullable(), targetAnnotations, MigrationsAnnotations.For(target), inline);
+
+            Initialize(
+                operation, target, TypeMapper.GetMapping(target), target.IsColumnNullable(),
+                targetAnnotations, MigrationsAnnotations.For(target), inline);
 
             yield return operation;
         }

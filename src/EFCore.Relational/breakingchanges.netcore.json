@@ -40,11 +40,6 @@
       "Kind": "Addition"
     },
     {
-      "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper : Microsoft.EntityFrameworkCore.Storage.ITypeMapper",
-      "MemberId": "System.Reflection.MethodInfo GetDataReaderMethod(System.Type type)",
-      "Kind": "Addition"
-    },
-    {
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator : Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator",
       "MemberId": "System.String GenerateCreateScript()",
       "Kind": "Addition"
@@ -78,5 +73,20 @@
       "TypeId": "public interface Microsoft.EntityFrameworkCore.Design.IAnnotationCodeGenerator",
       "MemberId": "Microsoft.EntityFrameworkCore.Design.MethodCallCodeFragment GenerateFluentApi(Microsoft.EntityFrameworkCore.Metadata.IProperty property, Microsoft.EntityFrameworkCore.Infrastructure.IAnnotation annotation)",
       "Kind": "Addition"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.SqlTranslatingExpressionVisitorDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IExpressionFragmentTranslator compositeExpressionFragmentTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.ICompositeMethodCallTranslator methodCallTranslator, Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.IMemberTranslator memberTranslator, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Query.Sql.QuerySqlGeneratorDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalCommandBuilderFactory commandBuilderFactory, Microsoft.EntityFrameworkCore.Storage.ISqlGenerationHelper sqlGenerationHelper, Microsoft.EntityFrameworkCore.Storage.IParameterNameGeneratorFactory parameterNameGeneratorFactory, Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper relationalTypeMapper)",
+      "Kind": "Removal"
+    },
+    {
+      "TypeId": "public sealed class Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidatorDependencies",
+      "MemberId": "public .ctor(Microsoft.EntityFrameworkCore.Storage.IRelationalTypeMapper typeMapper)",
+      "Kind": "Removal"
     }
   ]

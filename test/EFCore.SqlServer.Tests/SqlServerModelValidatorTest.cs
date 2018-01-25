@@ -1,7 +1,6 @@
 ﻿﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -155,17 +154,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Throws_for_unsupported_data_types()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Cheese>().Property(e => e.Name).HasColumnType("nvarchar");
-
-            Assert.Equal(
-                SqlServerStrings.UnqualifiedDataType("nvarchar"),
-                Assert.Throws<ArgumentException>(() => Validate(modelBuilder.Model)).Message);
-        }
-
-        [Fact]
         public virtual void Detects_default_decimal_mapping()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -251,7 +239,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static void GenerateMapping(IMutableProperty property)
-            => property[CoreAnnotationNames.TypeMapping] = TestServiceFactory.Instance.Create<SqlServerTypeMapper>().GetMapping(property);
+            => property[CoreAnnotationNames.TypeMapping] =
+                new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                    .FindMapping(property);
 
         private class Cheese
         {
@@ -272,7 +265,11 @@ namespace Microsoft.EntityFrameworkCore
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
+                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));
 
         protected override ModelBuilder CreateConventionalModelBuilder()
             => SqlServerTestHelpers.Instance.CreateConventionBuilder();

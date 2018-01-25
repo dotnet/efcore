@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
     {
-        private readonly int _maxSpecificSize;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -42,7 +40,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             int? size = null)
             : base(storeType, converter, dbType, size)
         {
-            _maxSpecificSize = CalculateSize(size);
         }
 
         private static int CalculateSize(int? size)
@@ -75,9 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             var value = parameter.Value;
             var length = (value as string)?.Length ?? (value as byte[])?.Length;
+            var maxSpecificSize = CalculateSize(Size);
 
-            parameter.Size = value == null || value == DBNull.Value || length != null && length <= _maxSpecificSize
-                ? _maxSpecificSize
+            parameter.Size = value == null || value == DBNull.Value || length != null && length <= maxSpecificSize
+                ? maxSpecificSize
                 : -1;
         }
 

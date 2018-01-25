@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class CoreTypeMapping
+    public class CoreTypeMapping
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="CoreTypeMapping" /> class.
         /// </summary>
         /// <param name="clrType"> The .NET type used in the EF model. </param>
         /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
-        protected CoreTypeMapping(
+        public CoreTypeMapping(
             [NotNull] Type clrType,
             [CanBeNull] ValueConverter converter = null)
         {
@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
-        public abstract CoreTypeMapping Clone([CanBeNull] ValueConverter converter);
+        public virtual CoreTypeMapping Clone([CanBeNull] ValueConverter converter)
+            => new CoreTypeMapping(ClrType, ComposeConverter(converter));
 
         /// <summary>
         /// Composes the given <see cref="ValueConverter"/> with any already in this mapping

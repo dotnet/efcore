@@ -14,11 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public class OracleUpdateSqlGenerator : UpdateSqlGenerator, IOracleUpdateSqlGenerator
     {
-        private readonly IRelationalTypeMapper _typeMapper;
+        private readonly IRelationalCoreTypeMapper _typeMapper;
 
         public OracleUpdateSqlGenerator(
             [NotNull] UpdateSqlGeneratorDependencies dependencies,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalCoreTypeMapper typeMapper)
             : base(dependencies)
         {
             _typeMapper = typeMapper;

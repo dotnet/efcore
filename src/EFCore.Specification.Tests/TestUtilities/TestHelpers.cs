@@ -40,17 +40,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var dependencies = services1.GetService<TDependencies>();
 
-            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length).First();
-            var constructorParameters = constructor.GetParameters();
-
             var serviceProperties = typeof(TDependencies).GetTypeInfo()
                 .DeclaredProperties
-                .Where(
-                    p => !ignoreProperties.Contains(p.Name)
-                         && p.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute)))
+                .Where(p => !ignoreProperties.Contains(p.Name))
                 .ToList();
 
-            Assert.Equal(constructorParameters.Length, serviceProperties.Count);
+            var obsoleteTypes = serviceProperties
+                .Where(p => p.CustomAttributes.Any(a => a.AttributeType == typeof(ObsoleteAttribute)))
+                .Select(p => p.PropertyType)
+                .ToList();
+
+            serviceProperties = serviceProperties.Where(p => !obsoleteTypes.Contains(p.PropertyType)).ToList();
+
+            var constructor = typeof(TDependencies).GetTypeInfo().DeclaredConstructors.OrderByDescending(c => c.GetParameters().Length).First();
+            var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
+
+            Assert.Equal(constructorParameters.Count, serviceProperties.Count);
 
             foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
             {

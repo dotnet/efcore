@@ -209,8 +209,8 @@ END;";
             Check.NotNull(cycle, nameof(cycle));
             Check.NotNull(builder, nameof(builder));
 
-            var intTypeMapping = Dependencies.TypeMapper.GetMapping(typeof(int));
-            var longTypeMapping = Dependencies.TypeMapper.GetMapping(typeof(long));
+            var intTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(int));
+            var longTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(long));
 
             builder
                 .Append(" INCREMENT BY ")
@@ -287,6 +287,41 @@ END;";
                     .Append(operation.Schema)
                     .EndCommand();
             }
+        }
+
+        protected override void Generate(
+            DropPrimaryKeyOperation operation,
+            IModel model,
+            MigrationCommandListBuilder builder)
+        {
+            base.Generate(operation, model, builder, terminate: false);
+
+            builder
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                .EndCommand();
+        }
+
+        protected override void Generate(EnsureSchemaOperation operation, IModel model, MigrationCommandListBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            if (string.Equals(operation.Name, "DBO", StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            var stringTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(string));
+
+            builder
+                .Append("IF SCHEMA_ID(")
+                .Append(stringTypeMapping.GenerateSqlLiteral(operation.Name))
+                .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
+                .Append("')")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                .EndCommand();
         }
 
         protected virtual void Generate(
@@ -577,6 +612,57 @@ END;";
                 builder.Append(" ON DELETE ");
                 ForeignKeyAction(operation.OnDelete, builder);
             }
+        }
+
+        protected virtual void Rename(
+            [NotNull] string name,
+            [NotNull] string newName,
+            [NotNull] MigrationCommandListBuilder builder) => Rename(name, newName, /*type:*/ null, builder);
+
+        protected virtual void Rename(
+            [NotNull] string name,
+            [NotNull] string newName,
+            [CanBeNull] string type,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotEmpty(newName, nameof(newName));
+            Check.NotNull(builder, nameof(builder));
+
+            var stringTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(string));
+
+            builder
+                .Append("EXEC sp_rename ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(name))
+                .Append(", ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(newName));
+
+            if (type != null)
+            {
+                builder
+                    .Append(", ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(type));
+            }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+        }
+
+        protected virtual void Transfer(
+            [NotNull] string newSchema,
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] MigrationCommandListBuilder builder)
+        {
+            Check.NotEmpty(newSchema, nameof(newSchema));
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(builder, nameof(builder));
+
+            builder
+                .Append("ALTER SCHEMA ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(newSchema))
+                .Append(" TRANSFER ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema))
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         protected virtual void DropDefaultConstraint(

@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<CoreTypeMapper>()).Apply(entityBuilder));
+                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<CoreTypeMapper>()).Apply(entityBuilder));
+                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()).Apply(entityBuilder));
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<CoreTypeMapper>()).Apply(entityBuilder));
+                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }

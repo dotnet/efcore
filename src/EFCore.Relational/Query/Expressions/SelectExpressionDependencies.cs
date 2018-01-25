@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <param name="typeMapper"> The type mapper. </param>
         public SelectExpressionDependencies(
             [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalCoreTypeMapper typeMapper)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// <summary>
         ///     Gets the type mapper.
         /// </summary>
-        public IRelationalTypeMapper TypeMapper { get; }
+        public IRelationalCoreTypeMapper TypeMapper { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </summary>
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public SelectExpressionDependencies With([NotNull] IRelationalTypeMapper typeMapper)
+        public SelectExpressionDependencies With([NotNull] IRelationalCoreTypeMapper typeMapper)
             => new SelectExpressionDependencies(QuerySqlGeneratorFactory, typeMapper);
     }
 }

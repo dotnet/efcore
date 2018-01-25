@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -24,12 +23,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="clrType"> The .NET type. </param>
         /// <returns> True if the type can be mapped; otherwise false. </returns>
         bool IsTypeMapped([NotNull] Type clrType);
-
-        /// <summary>
-        ///     Gets a value indicating whether the property or field is/will be mapped.
-        /// </summary>
-        /// <param name="member"> The property or field. </param>
-        /// <returns> True if the member can be mapped; otherwise false. </returns>
-        bool IsTypeMapped([NotNull] MemberInfo member);
     }
 }

@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -58,7 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<CoreTypeMapper>()));
+                    new FallbackRelationalCoreTypeMapper(
+                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

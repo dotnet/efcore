@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(CreateContext());
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
+            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 632]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
-BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
+BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 632]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]

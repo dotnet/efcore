@@ -30,17 +30,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         public static ConventionSet Build()
         {
+            var coreTypeMapperDependencies = new CoreTypeMapperDependencies(
+                new ValueConverterSelector(
+                    new ValueConverterSelectorDependencies()));
+
             var relationalTypeMapper = new SqliteTypeMapper(
-                new CoreTypeMapperDependencies(
-                    new ValueConverterSelector(
-                        new ValueConverterSelectorDependencies())),
                 new RelationalTypeMapperDependencies());
 
+            var convertingTypeMapper = new FallbackRelationalCoreTypeMapper(
+                coreTypeMapperDependencies,
+                new RelationalTypeMapperDependencies(),
+                relationalTypeMapper);
+
             return new SqliteConventionSetBuilder(
-                new RelationalConventionSetBuilderDependencies(relationalTypeMapper, null, null, null))
+                new RelationalConventionSetBuilderDependencies(convertingTypeMapper, null, null, null))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(relationalTypeMapper, null, null))
+                        new CoreConventionSetBuilderDependencies(convertingTypeMapper, null, null))
                         .CreateConventionSet());
         }
     }
