@@ -6,6 +6,7 @@
     <FunctionalTests_PackageVersion>0.0.0</FunctionalTests_PackageVersion>
     <InternalAspNetCoreSdkPackageVersion>2.1.0-preview1-15651</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.0-preview1-27942</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
+    <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.3.1</MicrosoftCodeAnalysisCSharpPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0-preview1-26016-05</MicrosoftCSharpPackageVersion>
     <MicrosoftDataSqliteCorePackageVersion>2.1.0-preview1-27942</MicrosoftDataSqliteCorePackageVersion>

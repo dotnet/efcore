@@ -41,13 +41,4 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="ModelBuilding\GiantModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="ModelBuilding\GiantModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-  </ItemGroup>
-
 </Project>
