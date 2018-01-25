@@ -665,6 +665,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return false;
             }
 
+            if (sourceEntityTypeBuilder.Metadata.FindProperty(navigationName) != null)
+            {
+                return false;
+            }
+
             return true;
         }
 

@@ -148,6 +148,8 @@ UnicodeDataTypes.StringAnsi3 ---> [nullable varchar] [MaxLength = 3]
 UnicodeDataTypes.StringAnsi9000 ---> [nullable varchar] [MaxLength = -1]
 UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
+User.Email ---> [nullable nvarchar] [MaxLength = -1]
+User.Id ---> [uniqueidentifier]
 ";
 
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);

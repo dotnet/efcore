@@ -412,15 +412,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                var duplicateNavigation = Metadata.FindNavigationsInHierarchy(propertyName).FirstOrDefault();
-                if (duplicateNavigation != null)
+                using (ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
                 {
-                    throw new InvalidOperationException(CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
-                }
+                    var duplicateNavigation = Metadata.FindNavigationsInHierarchy(propertyName).FirstOrDefault();
+                    if (duplicateNavigation != null)
+                    {
+                        var foreignKey = duplicateNavigation.ForeignKey;
 
-                property = clrProperty != null
-                    ? Metadata.AddProperty(clrProperty, configurationSource.Value)
-                    : Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource);
+                        if ((duplicateNavigation.IsDependentToPrincipal()
+                                ? foreignKey.GetDependentToPrincipalConfigurationSource()
+                                : foreignKey.GetPrincipalToDependentConfigurationSource())
+                            .Overrides(configurationSource)
+                            && configurationSource == ConfigurationSource.Explicit)
+                        {
+                            throw new InvalidOperationException(CoreStrings.PropertyCalledOnNavigation(propertyName, Metadata.DisplayName()));
+                        }
+
+                        if (foreignKey.GetConfigurationSource() == ConfigurationSource.Convention)
+                        {
+                            RemoveForeignKey(foreignKey, ConfigurationSource.Convention);
+                        }
+                        else
+                        {
+                            if (duplicateNavigation.IsDependentToPrincipal())
+                            {
+                                if (foreignKey.Builder.DependentToPrincipal((string)null, configurationSource.Value) == null)
+                                {
+                                    return null;
+                                }
+                            }
+                            else
+                            {
+                                if (foreignKey.Builder.PrincipalToDependent((string)null, configurationSource.Value) == null)
+                                {
+                                    return null;
+                                }
+                            }
+                        }
+
+                    }
+
+                    property = clrProperty != null
+                        ? Metadata.AddProperty(clrProperty, configurationSource.Value)
+                        : Metadata.AddProperty(propertyName, propertyType, configurationSource.Value, typeConfigurationSource);
+                }
             }
             else
             {
