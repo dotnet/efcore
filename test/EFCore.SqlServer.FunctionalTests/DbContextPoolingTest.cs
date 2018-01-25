@@ -371,7 +371,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public void Double_dispose_concurrency_test()
         {
             var serviceProvider = BuildServiceProvider<PooledContext>();
@@ -390,7 +389,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        [PlatformSkipCondition(TestPlatform.Linux, SkipReason = "Test is flaky on CI.")]
         public async Task Concurrency_test()
         {
             PooledContext.InstanceCount = 0;
