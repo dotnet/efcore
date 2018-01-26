@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -15,6 +16,54 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [Fact]
+        public virtual void Can_query_and_update_with_conversion_for_custom_type()
+        {
+            Guid id;
+            using (var context = CreateContext())
+            {
+                var user = context.Set<User>().Add(
+                    new User(Email.Create("eeky_bear@example.com"))).Entity;
+
+                Assert.Equal(1, context.SaveChanges());
+
+                id = user.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var user = context.Set<User>().Single(e => e.Id == id && e.Email == "eeky_bear@example.com");
+
+                Assert.Equal(id, user.Id);
+                Assert.Equal("eeky_bear@example.com", user.Email);
+            }
+        }
+
+        protected class User
+        {
+            public User(Email email)
+            {
+                Id = Guid.NewGuid();
+                Email = email;
+            }
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public Guid Id { get; private set; }
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public Email Email { get; private set; }
+        }
+
+        protected class Email
+        {
+            private readonly string _value;
+            private Email(string value) => _value = value;
+
+            public static Email Create(string value) => new Email(value);
+
+            public static implicit operator string(Email email) => email._value;
+        }
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -22,6 +71,14 @@ namespace Microsoft.EntityFrameworkCore
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder
+                    .Entity<User>(
+                        b =>
+                        {
+                            b.Property(x => x.Email).HasConversion(email => (string)email, value => Email.Create(value));
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                        });
 
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
