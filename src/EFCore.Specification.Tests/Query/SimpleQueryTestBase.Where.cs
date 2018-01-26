@@ -1386,5 +1386,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(12, orderDetails.Count);
             }
         }
+
+        [ConditionalFact]
+        public virtual void Where_array_index()
+        {
+            var customers = new[] { "ALFKI", "ANATR" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.CustomerID == customers[0]),
+                entryCount: 1);
+        }
     }
 }

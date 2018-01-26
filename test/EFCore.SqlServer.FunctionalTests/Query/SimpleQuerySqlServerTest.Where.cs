@@ -1482,5 +1482,17 @@ ORDER BY [t].[CustomerID]",
 FROM [Order Details] AS [od]
 INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]");
         }
+
+        public override void Where_array_index()
+        {
+            base.Where_array_index();
+
+            AssertSql(
+                @"@__p_0='ALFKI' (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__p_0");
+        }
     }
 }
