@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
     ///     Expression representing null-conditional access.
     ///     Logic in this file is based on https://github.com/bartdesmet/ExpressionFutures
     /// </summary>
-    public class NullConditionalExpression : Expression
+    public class NullConditionalExpression : Expression, IPrintable
     {
         private readonly Type _type;
 
@@ -123,6 +125,52 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             }
 
             return this;
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Print(ExpressionPrinter expressionPrinter)
+        {
+            if (AccessOperation is MemberExpression memberExpression)
+            {
+                expressionPrinter.Visit(Caller);
+                expressionPrinter.StringBuilder.Append("?." + memberExpression.Member.Name);
+            }
+            else if (AccessOperation is MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Object != null)
+                {
+                    expressionPrinter.Visit(Caller);
+                    expressionPrinter.StringBuilder.Append("?." + methodCallExpression.Method.Name + "(");
+                    VisitArguments(expressionPrinter, methodCallExpression.Arguments);
+                    expressionPrinter.StringBuilder.Append(")");
+                }
+
+                var method = methodCallExpression.Method;
+
+                expressionPrinter.StringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
+                expressionPrinter.Visit(Caller);
+                expressionPrinter.StringBuilder.Append("?, ");
+                VisitArguments(expressionPrinter, methodCallExpression.Arguments.Skip(1).ToList());
+                expressionPrinter.StringBuilder.Append(")");
+            }
+            else
+            {
+                expressionPrinter.StringBuilder.Append("?");
+                expressionPrinter.Visit(AccessOperation);
+                expressionPrinter.StringBuilder.Append("?");
+            }
+        }
+
+        private void VisitArguments(ExpressionPrinter expressionPrinter, IList<Expression> arguments)
+        {
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                expressionPrinter.Visit(arguments[i]);
+                expressionPrinter.StringBuilder.Append(i == arguments.Count - 1 ? "" : ", ");
+            }
         }
 
         /// <summary>

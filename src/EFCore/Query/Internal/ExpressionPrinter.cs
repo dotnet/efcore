@@ -756,27 +756,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 StringBuilder.Append(HighlightLeft);
             }
 
-            switch (extensionExpression)
+            if (extensionExpression is IPrintable printable)
             {
-                case QuerySourceReferenceExpression qsre:
-                    StringBuilder.Append(qsre);
-                    break;
+                printable.Print(this);
+            }
+            else
+            {
+                switch (extensionExpression)
+                {
+                    case QuerySourceReferenceExpression qsre:
+                        StringBuilder.Append(qsre);
+                        break;
 
-                case NullConditionalExpression nullConditional:
-                    VisitNullConditionalExpression(nullConditional);
-                    break;
+                    case SubQueryExpression subqueryExpression:
+                        VisitSubqueryExpression(subqueryExpression);
+                        break;
 
-                case NullConditionalEqualExpression nullConditionalEqualExpression:
-                    VisitNullConditionalEqualExpression(nullConditionalEqualExpression);
-                    break;
-
-                case SubQueryExpression subqueryExpression:
-                    VisitSubqueryExpression(subqueryExpression);
-                    break;
-
-                default:
-                    UnhandledExpressionType(extensionExpression);
-                    break;
+                    default:
+                        UnhandledExpressionType(extensionExpression);
+                        break;
+                }
             }
 
             if (_highlightNonreducibleNodes && !extensionExpression.CanReduce)
@@ -785,46 +784,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return extensionExpression;
-        }
-
-        private void VisitNullConditionalExpression(NullConditionalExpression nullConditionalExpression)
-        {
-            if (nullConditionalExpression.AccessOperation is MemberExpression memberExpression)
-            {
-                Visit(nullConditionalExpression.Caller);
-                _stringBuilder.Append("?." + memberExpression.Member.Name);
-            }
-            else if (nullConditionalExpression.AccessOperation is MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Object != null)
-                {
-                    Visit(nullConditionalExpression.Caller);
-                    _stringBuilder.Append("?." + methodCallExpression.Method.Name + "(");
-                    VisitArguments(methodCallExpression.Arguments, s => _stringBuilder.Append(s));
-                    _stringBuilder.Append(")");
-                }
-
-                var method = methodCallExpression.Method;
-
-                _stringBuilder.Append(method.DeclaringType?.Name + "." + method.Name + "(?");
-                Visit(nullConditionalExpression.Caller);
-                _stringBuilder.Append("?, ");
-                VisitArguments(methodCallExpression.Arguments.Skip(1).ToList(), s => _stringBuilder.Append(s));
-                _stringBuilder.Append(")");
-            }
-            else
-            {
-                _stringBuilder.Append("?");
-                Visit(nullConditionalExpression.AccessOperation);
-                _stringBuilder.Append("?");
-            }
-        }
-
-        private void VisitNullConditionalEqualExpression(NullConditionalEqualExpression nullConditionalEqualExpression)
-        {
-            Visit(nullConditionalEqualExpression.OuterKey);
-            _stringBuilder.Append(" ?= ");
-            Visit(nullConditionalEqualExpression.InnerKey);
         }
 
         private void VisitSubqueryExpression(SubQueryExpression subqueryExpression)

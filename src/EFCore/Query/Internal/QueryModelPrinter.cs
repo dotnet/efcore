@@ -198,18 +198,47 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (resultOperators.Count == 1)
                 {
-                    TransformingVisitor.StringBuilder.Append($".{ResultOperatorString(resultOperators[0])}");
+                    VisitResultOperator(resultOperators[0], queryModel, 0);
                 }
                 else
                 {
-                    base.VisitResultOperators(resultOperators, queryModel);
+                    for (var i = 0; i < resultOperators.Count; i++)
+                    {
+                        AppendLine("");
+                        VisitResultOperator(resultOperators[i], queryModel, i);
+                    }
                 }
             }
 
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
             {
-                AppendLine("");
-                TransformingVisitor.StringBuilder.Append($".{ResultOperatorString(resultOperator)}");
+                TransformingVisitor.StringBuilder.Append(".");
+
+                switch (resultOperator)
+                {
+                    case GroupResultOperator group:
+                        TransformingVisitor.StringBuilder.Append("GroupBy(");
+                        using (TransformingVisitor.StringBuilder.Indent())
+                        {
+                            TransformingVisitor.Visit(group.KeySelector);
+                            TransformingVisitor.StringBuilder.Append(", ");
+                            TransformingVisitor.Visit(group.ElementSelector);
+                            TransformingVisitor.StringBuilder.Append(")");
+                        }
+                        break;
+
+                    case CastResultOperator cast:
+                        TransformingVisitor.StringBuilder.Append("Cast<" + cast.CastItemType.ShortDisplayName() + ">()");
+                        break;
+
+                    case OfTypeResultOperator ofType:
+                        TransformingVisitor.StringBuilder.Append("OfType<" + ofType.SearchedItemType.ShortDisplayName() + ">()");
+                        break;
+
+                    default:
+                        TransformingVisitor.StringBuilder.Append(resultOperator.ToString());
+                        break;
+                }
             }
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
