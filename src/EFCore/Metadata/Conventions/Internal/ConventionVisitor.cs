@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public virtual ConventionScope VisitConventionScope(ConventionScope node)
             {
+                if (node.Children == null)
+                {
+                    return null;
+                }
+
                 List<ConventionNode> visitedNodes = null;
                 foreach (var conventionNode in node.Children)
                 {
