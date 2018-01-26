@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandArgument _provider;
         private CommandOption _dataAnnotations;
         private CommandOption _context;
+        private CommandOption _contextDir;
         private CommandOption _force;
         private CommandOption _outputDir;
-        private CommandOption _outputDbContextDir;
         private CommandOption _schemas;
         private CommandOption _tables;
         private CommandOption _useDatabaseNames;
@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             _dataAnnotations = command.Option("-d|--data-annotations", Resources.DataAnnotationsDescription);
             _context = command.Option("-c|--context <NAME>", Resources.ContextNameDescription);
+            _contextDir = command.Option("--context-dir <PATH>", Resources.ContextDirDescription);
             _force = command.Option("-f|--force", Resources.DbContextScaffoldForceDescription);
             _outputDir = command.Option("-o|--output-dir <PATH>", Resources.OutputDirDescription);
-            _outputDbContextDir = command.Option("--output-dbcontext-dir <PATH>", Resources.OutputDbContextDirDescription);
             _schemas = command.Option("--schema <SCHEMA_NAME>...", Resources.SchemasDescription);
             _tables = command.Option("-t|--table <TABLE_NAME>...", Resources.TablesDescription);
             _useDatabaseNames = command.Option("--use-database-names", Resources.UseDatabaseNamesDescription);

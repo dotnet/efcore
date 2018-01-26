@@ -259,7 +259,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Project = { GetProjects }
     StartupProject = { GetProjects }
     OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
-    OutputDbContextDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
+    ContextDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
 }
 
 <#
@@ -278,7 +278,7 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER OutputDir
     The directory to put files in. Paths are relative to the project directory.
 
-.PARAMETER OutputDbContextDir
+.PARAMETER ContextDir
     The directory to put DbContext file in. Paths are relative to the project directory.
 
 .PARAMETER Context
@@ -317,7 +317,7 @@ function Scaffold-DbContext
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
         [string] $OutputDir,
-        [string] $OutputDbContextDir,
+        [string] $ContextDir,
         [string] $Context,
         [string[]] $Schemas = @(),
         [string[]] $Tables = @(),
@@ -336,10 +336,10 @@ function Scaffold-DbContext
     {
         $params += '--output-dir', $OutputDir
     }
-    
-    if ($OutputDbContextDir)
+
+    if ($ContextDir)
     {
-        $params += '--output-dbcontext-dir', $OutputDbContextDir
+        $params += '--context-dir', $ContextDir
     }
 
     if ($Context)

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             schemas: Enumerable.Empty<string>(),
                             @namespace: "FakeNamespace",
                             language: "",
-                            outputDbContextDir: null,
+                            contextDir: null,
                             contextName: contextName,
                             useDataAnnotations: false,
                             useDatabaseNames: false))

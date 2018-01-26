@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IEnumerable<string> schemas,
             string @namespace,
             string language,
-            string outputDbContextDir,
+            string contextDir,
             string contextName,
             bool useDataAnnotations,
             bool useDatabaseNames)
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var codeGenerator = ModelCodeGeneratorSelector.Select(language);
 
-            return codeGenerator.GenerateModel(model, @namespace, outputDbContextDir ?? string.Empty, contextName, connectionString, useDataAnnotations);
+            return codeGenerator.GenerateModel(model, @namespace, contextDir ?? string.Empty, contextName, connectionString, useDataAnnotations);
         }
 
         /// <summary>

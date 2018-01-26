@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="schemas"> A list of schemas to include. Empty to include all schemas. </param>
         /// <param name="namespace"> The namespace of the model. </param>
         /// <param name="language"> The programming language to scaffold for. </param>
-        /// <param name="outputDbContextDir"> The DbContext output dirctory. </param>
+        /// <param name="contextDir"> The DbContext output dirctory. </param>
         /// <param name="contextName"> The <see cref="DbContext"/> name. </param>
         /// <param name="useDataAnnotations"> True to scaffold data annotations. </param>
         /// <param name="useDatabaseNames"> True to use the database schema names directly. </param>
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             [NotNull] IEnumerable<string> schemas,
             [NotNull] string @namespace,
             [NotNull] string language,
-            [CanBeNull] string outputDbContextDir,
+            [CanBeNull] string contextDir,
             [CanBeNull] string contextName,
             bool useDataAnnotations,
             bool useDatabaseNames);
