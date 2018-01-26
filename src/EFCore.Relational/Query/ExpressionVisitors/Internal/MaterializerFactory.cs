@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             var rootEntityType = concreteEntityTypes[0];
             var indexMap = new int[rootEntityType.PropertyCount()];
             var contextParameter = Expression.Parameter(typeof(DbContext), "context");
-            
+
             foreach (var property in rootEntityType.GetProperties())
             {
                 indexMap[property.GetIndex()] = projectionAdder(property, selectExpression);

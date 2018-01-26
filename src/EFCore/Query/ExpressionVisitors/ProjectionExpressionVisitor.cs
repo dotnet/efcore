@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         public ProjectionExpressionVisitor([NotNull] EntityQueryModelVisitor entityQueryModelVisitor)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
-        }       
-        
+        }
+
         /// <summary>
         ///     Visits the children of the <see cref="T:System.Linq.Expressions.MethodCallExpression"></see>.
         /// </summary>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             return asyncMethodInfo != null;
         }
-        
+
         /// <summary>
         ///     Visit a subquery.
         /// </summary>
