@@ -102,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(entityTypes, nameof(entityTypes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            foreach (var entityType in entityTypes.Where(e => !e.HasDefiningNavigation()))
+            foreach (var entityType in entityTypes.Where(e => !e.HasDefiningNavigation()
+                                                              && e.FindOwnership() == null))
             {
                 stringBuilder.AppendLine();
 
@@ -110,10 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e =>
-                    !e.HasDefiningNavigation()
-                    && (e.GetDeclaredForeignKeys().Any()
-                        || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
+                e => !e.HasDefiningNavigation()
+                     && e.FindOwnership() == null
+                     && (e.GetDeclaredForeignKeys().Any()
+                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
             {
                 stringBuilder.AppendLine();
 
@@ -136,19 +137,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
+            var ownerNavigation = entityType.FindOwnership()?.PrincipalToDependent.Name;
+
             stringBuilder
                 .Append(builderName)
                 .Append(
-                    entityType.HasDefiningNavigation()
+                    ownerNavigation != null
                         ? ".OwnsOne("
                         : ".Entity(")
                 .Append(Code.Literal(entityType.Name));
 
-            if (entityType.HasDefiningNavigation())
+            if (ownerNavigation != null)
             {
                 stringBuilder
                     .Append(", ")
-                    .Append(Code.Literal(entityType.DefiningNavigationName));
+                    .Append(Code.Literal(ownerNavigation));
             }
 
             if (builderName.StartsWith("b", StringComparison.Ordinal))
@@ -183,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     GenerateProperties(builderName, entityType.GetDeclaredProperties(), stringBuilder);
 
-                    if (!entityType.HasDefiningNavigation())
+                    if (ownerNavigation == null)
                     {
                         GenerateKeys(builderName, entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
                     }
@@ -192,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     GenerateEntityTypeAnnotations(builderName, entityType, stringBuilder);
 
-                    if (entityType.HasDefiningNavigation())
+                    if (ownerNavigation != null)
                     {
                         GenerateRelationships(builderName, entityType, stringBuilder);
                     }

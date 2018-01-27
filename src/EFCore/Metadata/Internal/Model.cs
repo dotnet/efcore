@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 IsQueryType = true
             };
-            
+
             _clrTypeMap[type] = queryType;
 
             return AddEntityType(queryType);
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (_entityTypes.ContainsKey(entityTypeName))
                 {
-                    throw new InvalidOperationException(CoreStrings.ClashingNonDependentEntityType(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClashingNonWeakEntityType(entityType.DisplayName()));
                 }
 
                 if (!_entityTypesWithDefiningNavigation.TryGetValue(entityTypeName, out var entityTypesWithSameType))
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (_entityTypesWithDefiningNavigation.ContainsKey(entityTypeName))
                 {
-                    throw new InvalidOperationException(CoreStrings.ClashingDependentEntityType(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.ClashingWeakEntityType(entityType.DisplayName()));
                 }
 
                 var previousLength = _entityTypes.Count;
@@ -349,6 +349,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string definingNavigationName,
             [NotNull] EntityType definingEntityType)
             => FindEntityType(type.DisplayName(), definingNavigationName, definingEntityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual EntityType FindEntityType(
+            [NotNull] string name,
+            [NotNull] string definingNavigationName,
+            [NotNull] string definingEntityTypeName)
+        {
+            if (!_entityTypesWithDefiningNavigation.TryGetValue(name, out var entityTypesWithSameType))
+            {
+                return null;
+            }
+
+            return entityTypesWithSameType
+                .FirstOrDefault(e => e.DefiningNavigationName == definingNavigationName
+                                     && e.DefiningEntityType.Name == definingEntityTypeName);
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -136,6 +136,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder.Metadata.FindNavigation(navigationPropertyInfo)?.ForeignKey.Builder;
             }
 
+            if (entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
+                && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.Name)
+            {
+                return null;
+            }
+
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.PrincipalEntityType == targetEntityTypeBuilder.Metadata
+                && ownership.PrincipalToDependent?.PropertyInfo != inverseNavigationPropertyInfo)
+            {
+                return null;
+            }
+
+            if (entityType.Model.ShouldBeOwnedType(entityType.ClrType)
+                && !entityType.IsInOwnershipPath(targetEntityTypeBuilder.Metadata))
+            {
+                return targetEntityTypeBuilder.Owns(
+                    entityTypeBuilder.Metadata.ClrType,
+                    inverseNavigationPropertyInfo,
+                    navigationPropertyInfo,
+                    ConfigurationSource.Convention);
+            }
+
             return targetEntityTypeBuilder.Relationship(
                 entityTypeBuilder,
                 inverseNavigationPropertyInfo,

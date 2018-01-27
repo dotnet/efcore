@@ -596,6 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigationToPrincipalProperty = navigationToPrincipal?.Property;
             var navigationToDependentProperty = navigationToDependent?.Property;
 
+            // ReSharper disable once InlineOutVariableDeclaration
             bool? invertedShouldBeUnique = null;
             if (navigationToPrincipalProperty != null
                 && !IsCompatible(
@@ -861,24 +862,127 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            if (ownership)
+            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
             {
-                var otherOwnerships = Metadata.DeclaringEntityType.GetForeignKeys().Where(fk => fk.IsOwnership).ToList();
-                if (otherOwnerships.Any(fk => !configurationSource.Overrides(fk.GetIsOwnershipConfigurationSource())))
+                var declaringType = Metadata.DeclaringEntityType;
+                var otherOwnerships = declaringType.GetDeclaredForeignKeys().Where(fk => fk.IsOwnership).ToList();
+                var newRelationshipBuilder = this;
+                if (ownership)
                 {
-                    return null;
+                    if (declaringType.HasDefiningNavigation())
+                    {
+                        Debug.Assert(Metadata.PrincipalToDependent == null
+                                     || declaringType.DefiningNavigationName == Metadata.PrincipalToDependent.Name);
+
+                        if (otherOwnerships.Any(fk => !configurationSource.Overrides(fk.GetIsOwnershipConfigurationSource())))
+                        {
+                            return null;
+                        }
+
+                        foreach (var otherOwnership in otherOwnerships)
+                        {
+                            otherOwnership.Builder.IsOwnership(false, configurationSource);
+                        }
+                    }
+                    else if (otherOwnerships.Count > 0)
+                    {
+                        if (!Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
+                            && Metadata.PrincipalEntityType.IsInDefinitionPath(Metadata.DeclaringEntityType.ClrType))
+                        {
+                            return null;
+                        }
+
+                        var otherOwnership = otherOwnerships.Single();
+                        var detachedConfigurationSource = Metadata.DeclaringEntityType.Builder
+                            .RemoveForeignKey(Metadata, Metadata.GetConfigurationSource()).Value;
+
+                        if (otherOwnership.Builder.IsWeakTypeDefinition(configurationSource) == null)
+                        {
+                            return null;
+                        }
+
+                        var newEntityType = declaringType.ClrType == null
+                            ? ModelBuilder.Entity(
+                                declaringType.Name,
+                                Metadata.PrincipalToDependent.Name,
+                                Metadata.PrincipalEntityType,
+                                declaringType.GetConfigurationSource()).Metadata
+                            : ModelBuilder.Entity(
+                                declaringType.ClrType,
+                                Metadata.PrincipalToDependent.Name,
+                                Metadata.PrincipalEntityType,
+                                declaringType.GetConfigurationSource()).Metadata;
+
+                        newRelationshipBuilder = Attach(newEntityType.Builder, detachedConfigurationSource);
+
+                        ModelBuilder.Metadata.ConventionDispatcher.Tracker.Update(
+                            Metadata, newRelationshipBuilder.Metadata);
+                    }
+                    else
+                    {
+                        newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
+                    }
+
+                    // TODO: Move to a convention
+                    newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
+                        newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
                 }
 
-                foreach (var otherOwnership in otherOwnerships)
-                {
-                    otherOwnership.Builder.IsOwnership(false, configurationSource);
-                }
+                newRelationshipBuilder.Metadata.SetIsOwnership(ownership, configurationSource);
 
-                Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                    Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+                return batch.Run(newRelationshipBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual InternalRelationshipBuilder IsWeakTypeDefinition(ConfigurationSource configurationSource)
+        {
+            if (Metadata.DeclaringEntityType.HasDefiningNavigation())
+            {
+                return this;
             }
 
-            Metadata.SetIsOwnership(ownership, configurationSource);
+            if (Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
+                || !Metadata.PrincipalEntityType.IsInDefinitionPath(Metadata.DeclaringEntityType.ClrType))
+            {
+                EntityType newEntityType;
+                if (Metadata.DeclaringEntityType.ClrType == null)
+                {
+                    newEntityType = ModelBuilder.Entity(
+                        Metadata.DeclaringEntityType.Name,
+                        Metadata.PrincipalToDependent.Name,
+                        Metadata.PrincipalEntityType,
+                        Metadata.DeclaringEntityType.GetConfigurationSource()).Metadata;
+                }
+                else
+                {
+                    newEntityType = ModelBuilder.Entity(
+                        Metadata.DeclaringEntityType.ClrType,
+                        Metadata.PrincipalToDependent.Name,
+                        Metadata.PrincipalEntityType,
+                        Metadata.DeclaringEntityType.GetConfigurationSource()).Metadata;
+                }
+
+                var newOwnership = newEntityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                if (newOwnership == null)
+                {
+                    Debug.Assert(Metadata.Builder != null);
+                    return Metadata.Builder;
+                }
+
+                Debug.Assert(Metadata.Builder == null);
+                ModelBuilder.Metadata.ConventionDispatcher.Tracker.Update(Metadata, newOwnership);
+                return newOwnership.Builder;
+            }
+
+            if (Metadata.Builder.IsOwnership(false, configurationSource) == null)
+            {
+                return null;
+            }
+
             return this;
         }
 
@@ -1875,22 +1979,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
-                if (isOwnership.HasValue)
-                {
-                    var isOwnershipConfigurationSource = configurationSource;
-                    if (isOwnership.Value == Metadata.IsOwnership)
-                    {
-                        isOwnershipConfigurationSource = isOwnershipConfigurationSource.Max(Metadata.GetIsRequiredConfigurationSource());
-                    }
-
-                    if (isOwnershipConfigurationSource.HasValue)
-                    {
-                        newRelationshipBuilder = newRelationshipBuilder.IsOwnership(
-                                                     isOwnership.Value,
-                                                     isOwnershipConfigurationSource.Value)
-                                                 ?? newRelationshipBuilder;
-                    }
-                }
                 if (deleteBehavior.HasValue)
                 {
                     var deleteBehaviorConfigurationSource = configurationSource;
@@ -1907,7 +1995,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
-
                 if (navigationToPrincipal != null)
                 {
                     var navigationToPrincipalConfigurationSource = configurationSource;
@@ -1928,7 +2015,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                  ?? newRelationshipBuilder;
                     }
                 }
-
                 if (navigationToDependent != null)
                 {
                     var navigationToDependentConfigurationSource = configurationSource;
@@ -1948,6 +2034,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                      navigationToDependentConfigurationSource.Value)
                                                  ?? newRelationshipBuilder;
                     }
+                }
+                if (isOwnership.HasValue)
+                {
+                    var isOwnershipConfigurationSource = configurationSource;
+                    if (isOwnership.Value == Metadata.IsOwnership)
+                    {
+                        isOwnershipConfigurationSource = isOwnershipConfigurationSource.Max(Metadata.GetIsOwnershipConfigurationSource());
+                    }
+
+                    if (isOwnershipConfigurationSource.HasValue)
+                    {
+                        newRelationshipBuilder = newRelationshipBuilder.IsOwnership(
+                            isOwnership.Value,
+                            isOwnershipConfigurationSource.Value)
+                                                 ?? newRelationshipBuilder;
+                    }
+                }
+                else if (!oldRelationshipInverted
+                         && Metadata.GetIsOwnershipConfigurationSource().HasValue)
+                {
+                    newRelationshipBuilder = newRelationshipBuilder.IsOwnership(
+                        Metadata.IsOwnership,
+                        Metadata.GetIsOwnershipConfigurationSource().Value)
+                                             ?? newRelationshipBuilder;
                 }
 
                 if (Metadata != newRelationshipBuilder.Metadata)
@@ -2500,9 +2610,157 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder Attach(ConfigurationSource configurationSource)
+        public virtual InternalRelationshipBuilder Attach(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
         {
-            if (Metadata.DeclaringEntityType.GetForeignKeys().Contains(Metadata, ReferenceEqualityComparer.Instance))
+            var model = Metadata.DeclaringEntityType.Model;
+            InternalEntityTypeBuilder principalEntityTypeBuilder;
+            EntityType principalEntityType;
+            if (Metadata.PrincipalEntityType.Builder != null)
+            {
+                principalEntityTypeBuilder = Metadata.PrincipalEntityType.Builder;
+                principalEntityType = Metadata.PrincipalEntityType;
+            }
+            else
+            {
+                if (Metadata.PrincipalEntityType.Name == entityTypeBuilder.Metadata.Name)
+                {
+                    principalEntityTypeBuilder = entityTypeBuilder;
+                    principalEntityType = entityTypeBuilder.Metadata;
+                }
+                else
+                {
+                    principalEntityType = model.FindEntityType(Metadata.PrincipalEntityType.Name);
+                    if (principalEntityType == null)
+                    {
+                        if (model.HasEntityTypeWithDefiningNavigation(Metadata.PrincipalEntityType.Name))
+                        {
+                            if (Metadata.PrincipalEntityType.HasDefiningNavigation())
+                            {
+                                principalEntityType = model.FindEntityType(
+                                    Metadata.PrincipalEntityType.Name,
+                                    Metadata.PrincipalEntityType.DefiningNavigationName,
+                                    Metadata.PrincipalEntityType.DefiningEntityType.Name);
+                                if (principalEntityType == null)
+                                {
+                                    return null;
+                                }
+                            }
+                            else
+                            {
+                                return null;
+                            }
+                        }
+                        else
+                        {
+                            using (ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
+                            {
+                                var entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(Metadata.PrincipalEntityType);
+                                principalEntityType = Metadata.PrincipalEntityType.ClrType == null
+                                    ? model.AddEntityType(Metadata.PrincipalEntityType.Name, configurationSource)
+                                    : model.AddEntityType(Metadata.PrincipalEntityType.ClrType, configurationSource);
+                                entityTypeSnapshot.Attach(principalEntityType.Builder);
+                            }
+                        }
+                    }
+
+                    principalEntityTypeBuilder = principalEntityType.Builder;
+                }
+            }
+
+            if (!Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
+                && (principalEntityType.HasDefiningNavigation()
+                    || principalEntityType.FindOwnership() != null)
+                && Metadata.DependentToPrincipal != null
+                && !Metadata.IsOwnership)
+            {
+                return null;
+            }
+
+            InternalEntityTypeBuilder dependentEntityTypeBuilder;
+            EntityType dependentEntityType;
+            if (Metadata.DeclaringEntityType.Builder != null)
+            {
+                dependentEntityTypeBuilder = Metadata.DeclaringEntityType.Builder;
+                dependentEntityType = Metadata.DeclaringEntityType;
+            }
+            else
+            {
+                if (Metadata.DeclaringEntityType.Name == entityTypeBuilder.Metadata.Name
+                    && (principalEntityType != entityTypeBuilder.Metadata
+                        || !principalEntityType.HasDefiningNavigation()))
+                {
+                    dependentEntityTypeBuilder = entityTypeBuilder;
+                    dependentEntityType = entityTypeBuilder.Metadata;
+                }
+                else
+                {
+                    dependentEntityType = model.FindEntityType(Metadata.DeclaringEntityType.Name);
+                    if (dependentEntityType == null)
+                    {
+                        using (ModelBuilder.Metadata.ConventionDispatcher.StartBatch())
+                        {
+                            var entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(Metadata.DeclaringEntityType);
+
+                            if (model.HasEntityTypeWithDefiningNavigation(Metadata.DeclaringEntityType.Name))
+                            {
+                                if (Metadata.DeclaringEntityType.HasDefiningNavigation())
+                                {
+                                    dependentEntityType = model.FindEntityType(
+                                        Metadata.DeclaringEntityType.Name,
+                                        Metadata.DeclaringEntityType.DefiningNavigationName,
+                                        Metadata.DeclaringEntityType.DefiningEntityType.Name);
+                                }
+
+                                if (dependentEntityType == null)
+                                {
+                                    if (Metadata.IsOwnership
+                                        && Metadata.PrincipalToDependent != null)
+                                    {
+                                        dependentEntityType = Metadata.DeclaringEntityType.ClrType == null
+                                            ? model.AddEntityType(
+                                                Metadata.DeclaringEntityType.Name,
+                                                Metadata.PrincipalToDependent.Name,
+                                                principalEntityType,
+                                                configurationSource)
+                                            : model.AddEntityType(
+                                                Metadata.DeclaringEntityType.ClrType,
+                                                Metadata.PrincipalToDependent.Name,
+                                                principalEntityType,
+                                                configurationSource);
+                                    }
+                                    else
+                                    {
+                                        return null;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                dependentEntityType = Metadata.DeclaringEntityType.ClrType == null
+                                    ? model.AddEntityType(Metadata.DeclaringEntityType.Name, configurationSource)
+                                    : model.AddEntityType(Metadata.DeclaringEntityType.ClrType, configurationSource);
+                            }
+
+                            entityTypeSnapshot.Attach(dependentEntityType.Builder);
+                        }
+                    }
+
+                    dependentEntityTypeBuilder = dependentEntityType.Builder;
+                }
+            }
+
+            if (!Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
+                && ((dependentEntityType.HasDefiningNavigation()
+                     && (Metadata.PrincipalToDependent?.Name != dependentEntityType.DefiningNavigationName
+                         || Metadata.PrincipalEntityType != dependentEntityType.DefiningEntityType))
+                    || (dependentEntityType.FindOwnership() != null
+                        && Metadata.PrincipalToDependent != null)))
+            {
+                return null;
+            }
+
+            if (dependentEntityType.GetForeignKeys().Contains(Metadata, ReferenceEqualityComparer.Instance))
             {
                 Debug.Assert(Metadata.Builder != null);
                 return Metadata.Builder;
@@ -2511,12 +2769,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<Property> dependentProperties = null;
             if (Metadata.GetForeignKeyPropertiesConfigurationSource()?.Overrides(configurationSource) == true)
             {
-                dependentProperties = Metadata.DeclaringEntityType.Builder.GetActualProperties(Metadata.Properties, configurationSource: null)
+                dependentProperties = dependentEntityTypeBuilder.GetActualProperties(Metadata.Properties, configurationSource: null)
                                       ?? new List<Property>();
             }
 
-            IReadOnlyList<Property> principalProperties = null;
-            var principalKey = Metadata.PrincipalEntityType.FindKey(Metadata.PrincipalKey.Properties);
+            IReadOnlyList<Property> principalProperties;
+            var principalKey = principalEntityType.FindKey(Metadata.PrincipalKey.Properties);
             if (principalKey == null
                 || Metadata.GetPrincipalKeyConfigurationSource()?.Overrides(configurationSource) != true)
             {
@@ -2534,8 +2792,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (dependentProperties != null
                 && dependentProperties.Count != 0)
             {
-                if (!CanSetForeignKey(
-                    dependentProperties, Metadata.DeclaringEntityType, configurationSource, out _, out var resetPrincipalKey))
+                if (!CanSetForeignKey(dependentProperties, dependentEntityType, configurationSource, out _, out var resetPrincipalKey))
                 {
                     dependentProperties = new List<Property>();
                 }
@@ -2547,6 +2804,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return ReplaceForeignKey(
                 configurationSource,
+                principalEntityTypeBuilder: principalEntityTypeBuilder,
+                dependentEntityTypeBuilder: dependentEntityTypeBuilder,
                 dependentProperties: dependentProperties,
                 principalProperties: principalProperties);
         }

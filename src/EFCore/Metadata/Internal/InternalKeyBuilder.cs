@@ -27,12 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalKeyBuilder Attach(ConfigurationSource configurationSource)
+        public virtual InternalKeyBuilder Attach(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
+            ConfigurationSource? primaryKeyConfigurationSource,
+            ConfigurationSource configurationSource)
         {
-            // TODO: attach to same entity type
-            // Issue #2611
-            var entityTypeBuilder = Metadata.DeclaringEntityType.RootType().Builder;
-
             var propertyNames = Metadata.Properties.Select(p => p.Name).ToList();
             foreach (var propertyName in propertyNames)
             {
@@ -45,6 +44,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var newKeyBuilder = entityTypeBuilder.HasKey(propertyNames, configurationSource);
 
             newKeyBuilder?.MergeAnnotationsFrom(Metadata);
+
+            if (primaryKeyConfigurationSource.HasValue
+                && newKeyBuilder != null)
+            {
+                var currentPrimaryKeyConfigurationSource = entityTypeBuilder.Metadata.GetPrimaryKeyConfigurationSource();
+                if (currentPrimaryKeyConfigurationSource == null
+                    || !currentPrimaryKeyConfigurationSource.Value.Overrides(primaryKeyConfigurationSource.Value))
+                {
+                    entityTypeBuilder.PrimaryKey(newKeyBuilder.Metadata.Properties, primaryKeyConfigurationSource.Value);
+                }
+            }
 
             return newKeyBuilder;
         }

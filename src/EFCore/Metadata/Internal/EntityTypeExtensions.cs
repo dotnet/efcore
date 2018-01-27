@@ -124,8 +124,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static IForeignKey FindOwnership([NotNull] this IEntityType entityType)
+            => ((EntityType)entityType).FindOwnership();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static ForeignKey FindOwnership([NotNull] this EntityType entityType)
+            => entityType.GetForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IForeignKey FindDeclaredOwnership([NotNull] this IEntityType entityType)
+            => ((EntityType)entityType).FindDeclaredOwnership();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static ForeignKey FindDeclaredOwnership([NotNull] this EntityType entityType)
+            => entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static INavigation FindDefiningNavigation([NotNull] this IEntityType entityType)
-            => entityType.HasDefiningNavigation() ? entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName) : null;
+        {
+            if (!entityType.HasDefiningNavigation())
+            {
+                return null;
+            }
+            var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
+            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -199,6 +234,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] string targetTypeName)
             => FindInDefinitionPath(entityType, targetTypeName) != null;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInDefinitionPath([NotNull] this IEntityType entityType, [NotNull] IEntityType targetType)
+            => targetType.ClrType == null
+                ? FindInDefinitionPath(entityType, targetType.Name) != null
+                : FindInDefinitionPath(entityType, targetType.ClrType) != null;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool IsInOwnershipPath([NotNull] this EntityType entityType, [NotNull] EntityType entityTypeToOwn)
+        {
+            var owner = entityType;
+            while (true)
+            {
+                var ownOwnership = owner.FindOwnership();
+                if (ownOwnership == null)
+                {
+                    return false;
+                }
+
+                owner = ownOwnership.PrincipalEntityType;
+                if (owner == entityTypeToOwn)
+                {
+                    return true;
+                }
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

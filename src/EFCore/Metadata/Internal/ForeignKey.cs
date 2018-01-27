@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Navigation DependentToPrincipal { get; private set; }
+        public virtual Navigation DependentToPrincipal { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Navigation PrincipalToDependent { get; private set; }
+        public virtual Navigation PrincipalToDependent { [DebuggerStepThrough] get; private set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.ErrorNavCannotTargetQueryType(PrincipalEntityType.DisplayName()));
             }
-            
+
             var name = propertyIdentity?.Name;
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
             if (name == oldNavigation?.Name)
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsRequired
         {
-            get { return !Properties.Any(p => p.IsNullable); }
+            get => !Properties.Any(p => p.IsNullable);
             set => SetIsRequired(value, ConfigurationSource.Explicit);
         }
 
@@ -583,18 +583,58 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual EntityType ResolveEntityTypeInHierarchy([NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)this).ResolveEntityTypeInHierarchy(entityType);
 
-        IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
-        IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties => Properties;
-        IKey IForeignKey.PrincipalKey => PrincipalKey;
-        IMutableKey IMutableForeignKey.PrincipalKey => PrincipalKey;
-        IEntityType IForeignKey.DeclaringEntityType => DeclaringEntityType;
-        IMutableEntityType IMutableForeignKey.DeclaringEntityType => DeclaringEntityType;
-        IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
-        IMutableEntityType IMutableForeignKey.PrincipalEntityType => PrincipalEntityType;
+        IReadOnlyList<IProperty> IForeignKey.Properties
+        {
+            [DebuggerStepThrough] get => Properties;
+        }
 
-        INavigation IForeignKey.DependentToPrincipal => DependentToPrincipal;
-        IMutableNavigation IMutableForeignKey.DependentToPrincipal => DependentToPrincipal;
+        IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties
+        {
+            [DebuggerStepThrough] get => Properties;
+        }
+
+        IKey IForeignKey.PrincipalKey
+        {
+            [DebuggerStepThrough] get => PrincipalKey;
+        }
+
+        IMutableKey IMutableForeignKey.PrincipalKey
+        {
+            [DebuggerStepThrough] get => PrincipalKey;
+        }
+
+        IEntityType IForeignKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        IMutableEntityType IMutableForeignKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        IEntityType IForeignKey.PrincipalEntityType
+        {
+            [DebuggerStepThrough] get => PrincipalEntityType;
+        }
+
+        IMutableEntityType IMutableForeignKey.PrincipalEntityType
+        {
+            [DebuggerStepThrough] get => PrincipalEntityType;
+        }
+
+        INavigation IForeignKey.DependentToPrincipal
+        {
+            [DebuggerStepThrough] get => DependentToPrincipal;
+        }
+
+        IMutableNavigation IMutableForeignKey.DependentToPrincipal
+        {
+            [DebuggerStepThrough] get => DependentToPrincipal;
+        }
+
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
+
         IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(PropertyInfo property) => HasDependentToPrincipal(property);
 
         INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
@@ -627,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
 
             if (principalEntityType.HasDefiningNavigation()
-                && principalEntityType.Name == dependentEntityType.Name)
+                && principalEntityType == dependentEntityType)
             {
                 if (shouldThrow)
                 {

@@ -359,9 +359,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         new List<string>
                         {
                             "<None> -----> Sweet:1",
-                            "Sweet:1 ---Dreams--> Sweet.Dreams#Dreams:1",
-                            "Sweet.Dreams#Dreams:1 ---AreMade--> Sweet.Dreams#Dreams.AreMade#AreMadeOfThis:1",
-                            "Sweet.Dreams#Dreams:1 ---OfThis--> Sweet.Dreams#Dreams.OfThis#AreMadeOfThis:1"
+                            "Sweet:1 ---Dreams--> Dreams:1",
+                            "Dreams:1 ---AreMade--> Dreams.AreMade#AreMadeOfThis:1",
+                            "Dreams:1 ---OfThis--> Dreams.OfThis#AreMadeOfThis:1"
                         },
                         traversal);
                 }

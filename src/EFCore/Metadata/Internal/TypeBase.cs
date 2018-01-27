@@ -67,25 +67,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Type ClrType => _typeOrName as Type;
+        public virtual Type ClrType
+        {
+            [DebuggerStepThrough] get => _typeOrName as Type;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Model Model { get; }
+        public virtual Model Model { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Name
-            => ClrType != null ? ClrType.DisplayName() : (string)_typeOrName;
+        {
+            [DebuggerStepThrough] get => ClrType != null ? ClrType.DisplayName() : (string)_typeOrName;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
         /// <summary>

@@ -286,6 +286,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Unique");
             }
 
+            if (foreignKey.IsOwnership)
+            {
+                builder.Append(" Ownership");
+            }
+
             if (foreignKey.PrincipalToDependent != null)
             {
                 builder.Append(" ToDependent: ").Append(foreignKey.PrincipalToDependent.Name);

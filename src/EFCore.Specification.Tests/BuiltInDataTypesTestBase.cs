@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.NotNull(context.Set<UnicodeDataTypes>().Where(e => e.Id == 799 && e.StringAnsi9000 == longString).ToList().SingleOrDefault());
                 }
-                    
+
                 Assert.NotNull(context.Set<UnicodeDataTypes>().Where(e => e.Id == 799 && e.StringUnicode == shortString).ToList().SingleOrDefault());
 
                 var entity = context.Set<UnicodeDataTypes>().Where(e => e.Id == 799).ToList().SingleOrDefault();
@@ -915,7 +915,6 @@ namespace Microsoft.EntityFrameworkCore
                     .Include(e => e.Dependents)
                     .Where(e => e.Id == new byte[] { 1, 2, 3 })
                     .ToList().Single();
-                ;
 
                 Assert.Equal(new byte[] { 1, 2, 3 }, entity.Id);
                 Assert.Equal(new byte[] { 1, 2, 3 }, entity.Dependents.First().BinaryKeyDataTypeId);
