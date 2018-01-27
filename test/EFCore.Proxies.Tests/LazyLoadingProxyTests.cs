@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Castle.DynamicProxy;
 using Castle.DynamicProxy.Generators;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -267,6 +269,59 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Throws<InvalidOperationException>(
                         () => context.CreateProxy<RedBullRb3>()).Message);
             }
+        }
+
+        [Fact]
+        public void Throws_when_context_is_disposed()
+        {
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddEntityFrameworkProxies()
+                .AddDbContext<JammieDodgerContext>(b => b.UseInMemoryDatabase("Jammie").UseLazyLoadingProxies())
+                .BuildServiceProvider();
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+                context.Add(new Phone());
+                context.SaveChanges();
+            }
+
+            Phone phone;
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetService<JammieDodgerContext>();
+                phone = context.Set<Phone>().Single();
+            }
+
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                    CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Texts", "PhoneProxy")),
+                Assert.Throws<InvalidOperationException>(
+                    () => phone.Texts).Message);
+        }
+
+        private class JammieDodgerContext : DbContext
+        {
+            public JammieDodgerContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Phone>();
+        }
+
+        public class Phone
+        {
+            public int Id { get; set; }
+            public virtual ICollection<Text> Texts { get; set; }
+        }
+
+        public class Text
+        {
+            public int Id { get; set; }
         }
 
         public class March82GGtp

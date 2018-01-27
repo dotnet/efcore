@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,8 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class LazyLoader : ILazyLoader
+    public class LazyLoader : ILazyLoader, IDisposable
     {
+        private bool _disposed;
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -51,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));
 
-            if (Context.IsDisposed)
+            if (_disposed)
             {
                 Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
             }
@@ -70,5 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void Dispose() => _disposed = true;
     }
 }

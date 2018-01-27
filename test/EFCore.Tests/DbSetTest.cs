@@ -35,6 +35,91 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public async Task Use_of_set_throws_if_context_is_disposed()
+        {
+            DbSet<Category> set;
+
+            using (var context = new EarlyLearningCenter())
+            {
+                set = context.Categories;
+            }
+
+            Assert.Throws<ObjectDisposedException>(() => set.Add(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.Find(77));
+            Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.ToList());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
+        }
+
+        [Fact]
+        public async Task Use_of_query_throws_if_context_is_disposed()
+        {
+            DbQuery<Curious> query;
+
+            using (var context = new EarlyLearningCenter())
+            {
+                query = context.Georges;
+            }
+
+            Assert.Throws<ObjectDisposedException>(() => query.ToList());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
+        }
+
+        [Fact]
+        public async Task Use_of_set_throws_if_obtained_from_disposed_context()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            var set = context.Categories;
+
+            Assert.Throws<ObjectDisposedException>(() => set.Add(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.Find(77));
+            Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
+            Assert.Throws<ObjectDisposedException>(() => set.ToList());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77));
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
+        }
+
+        [Fact]
+        public async Task Use_of_query_throws_if_obtained_from_disposed_context()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            var query = context.Georges;
+
+            Assert.Throws<ObjectDisposedException>(() => query.ToList());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => query.ToListAsync());
+        }
+
+
+        [Fact]
+        public void Direct_use_of_Set_throws_if_context_disposed()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => context.Set<Category>());
+        }
+
+        [Fact]
+        public void Direct_use_of_Query_throws_if_context_disposed()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => context.Query<Curious>());
+        }
+
+        [Fact]
         public void Use_of_LocalView_throws_if_context_is_disposed()
         {
             LocalView<Category> view;
@@ -591,6 +676,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private class Curious
+        {
+            public string George { get; set;}
+        }
+
         private class Category
         {
             public int Id { get; set; }
@@ -615,6 +705,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
+            public DbQuery<Curious> Georges { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder

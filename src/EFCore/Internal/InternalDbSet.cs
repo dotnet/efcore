@@ -47,11 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             get
             {
-                if (_context.IsDisposed)
-                {
-                    throw new ObjectDisposedException(_context.GetType().ShortDisplayName(), CoreStrings.ContextDisposed);
-                }
-
                 if (_entityType != null)
                 {
                     return _entityType;
