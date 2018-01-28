@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 new RelationalConventionSetBuilderDependencies(convertingMapper, null, null, null))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(convertingMapper, null, null))
+                        new CoreConventionSetBuilderDependencies(convertingMapper, null, null, null))
                         .CreateConventionSet());
         }
     }

@@ -13,20 +13,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class PropertyDiscoveryConvention : IEntityTypeAddedConvention, IBaseTypeChangedConvention
+    public class ServicePropertyDiscoveryConvention : IEntityTypeAddedConvention, IBaseTypeChangedConvention
     {
         private readonly ICoreTypeMapper _typeMapper;
+        private readonly IParameterBindingFactories _parameterBindingFactories;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public PropertyDiscoveryConvention(
-            [NotNull] ICoreTypeMapper typeMapper)
+        public ServicePropertyDiscoveryConvention(
+            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IParameterBindingFactories parameterBindingFactories)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
             _typeMapper = typeMapper;
+            _parameterBindingFactories = parameterBindingFactories;
         }
 
         /// <summary>
@@ -44,26 +48,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var propertyInfo in candidates)
                 {
-                    if (IsCandidatePrimitiveProperty(propertyInfo))
+                    if (!(propertyInfo.IsCandidateProperty()
+                          && _typeMapper.FindMapping(propertyInfo) != null)
+                        && propertyInfo.IsCandidateProperty(publicOnly: false))
                     {
-                        entityTypeBuilder.Property(propertyInfo, ConfigurationSource.Convention);
+                        var factory = _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.Name);
+
+                        if (factory != null)
+                        {
+                            var serviceProperty = entityType.FindServiceProperty(propertyInfo.Name);
+                            if (serviceProperty == null
+                                || serviceProperty.PropertyInfo != propertyInfo)
+                            {
+                                serviceProperty = entityType.AddServiceProperty(propertyInfo, ConfigurationSource.Convention);
+                            }
+
+                            serviceProperty.SetParameterBinding(
+                                (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.Name));
+                        }
                     }
                 }
             }
 
             return entityTypeBuilder;
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        protected virtual bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return propertyInfo.IsCandidateProperty()
-                   && _typeMapper.FindMapping(propertyInfo) != null;
         }
 
         /// <summary>

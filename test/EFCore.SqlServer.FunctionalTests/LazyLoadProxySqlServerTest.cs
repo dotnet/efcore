@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore
             fixture.TestSqlLoggerFactory.Clear();
         }
 
-        public override void Lazy_load_collection(EntityState state)
+        public override void Lazy_load_collection(EntityState state, bool useAttach, bool useDetach)
         {
-            base.Lazy_load_collection(state);
+            base.Lazy_load_collection(state, useAttach, useDetach);
 
             Assert.Equal(
                 @"@__get_Item_0='707' (Nullable = true)
@@ -29,9 +29,9 @@ WHERE [e].[ParentId] = @__get_Item_0",
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Lazy_load_many_to_one_reference_to_principal(EntityState state)
+        public override void Lazy_load_many_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
         {
-            base.Lazy_load_many_to_one_reference_to_principal(state);
+            base.Lazy_load_many_to_one_reference_to_principal(state, useAttach, useDetach);
 
             Assert.Equal(
                 @"@__get_Item_0='707'
@@ -43,9 +43,9 @@ WHERE [e].[Id] = @__get_Item_0",
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Lazy_load_one_to_one_reference_to_principal(EntityState state)
+        public override void Lazy_load_one_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
         {
-            base.Lazy_load_one_to_one_reference_to_principal(state);
+            base.Lazy_load_one_to_one_reference_to_principal(state, useAttach, useDetach);
 
             Assert.Equal(
                 @"@__get_Item_0='707'
@@ -57,9 +57,9 @@ WHERE [e].[Id] = @__get_Item_0",
                 ignoreLineEndingDifferences: true);
         }
 
-        public override void Lazy_load_one_to_one_reference_to_dependent(EntityState state)
+        public override void Lazy_load_one_to_one_reference_to_dependent(EntityState state, bool useAttach, bool useDetach)
         {
-            base.Lazy_load_one_to_one_reference_to_dependent(state);
+            base.Lazy_load_one_to_one_reference_to_dependent(state, useAttach, useDetach);
 
             Assert.Equal(
                 @"@__get_Item_0='707' (Nullable = true)

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -10,8 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ContextParameterBindingFactory : IParameterBindingFactory
+    public class ServiceParameterBindingFactory : IParameterBindingFactory
     {
+        private readonly Type _serviceType;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public ServiceParameterBindingFactory([NotNull] Type serviceType)
+        {
+            _serviceType = serviceType;
+        }
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -19,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanBind(
             Type parameterType,
             string parameterName)
-            => typeof(DbContext).IsAssignableFrom(parameterType);
+            => parameterType == _serviceType;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -29,8 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IMutableEntityType entityType,
             Type parameterType,
             string parameterName)
-            => new ContextParameterBinding(
-                parameterType,
-                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
+            => new DefaultServiceParameterBinding(
+                _serviceType,
+                _serviceType,
+                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == _serviceType));
     }
 }

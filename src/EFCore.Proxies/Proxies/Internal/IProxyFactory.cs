@@ -26,6 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        Type CreateLazyLoadingProxyType([NotNull] IEntityType entityType);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         object Create(
             [NotNull] DbContext context,
             [NotNull] Type entityClrType,

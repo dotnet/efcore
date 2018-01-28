@@ -102,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()).Apply(entityBuilder));
+                        TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>())
+                    .Apply(entityBuilder));
 
             Assert.Equal(
                 typeof(EntityWithEveryPrimitive)
@@ -123,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()).Apply(entityBuilder));
+                        TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>())
+                    .Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Expression valueBuffer,
             Type type,
             int index,
-            IProperty property)
+            IPropertyBase property)
         {
             return Expression.Call(
                 TryReadValueMethod.MakeGenericMethod(type),
@@ -162,34 +162,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 constructorBinding = new DirectConstructorBinding(constructorInfo, new ParameterBinding[0]);
             }
 
-            var instanceVariable = Expression.Variable(entityType.ClrType, "instance");
-
             var bindingInfo = new ParameterBindingInfo(
                 entityType,
                 valueBufferExpression,
                 contextExpression,
                 indexMap);
 
+            var properties = new HashSet<IPropertyBase>(
+                entityType.GetServiceProperties().Cast<IPropertyBase>()
+                    .Concat(
+                        entityType
+                            .GetProperties()
+                            .Where(p => !p.IsShadowProperty)));
+
+            foreach (var consumedProperty in constructorBinding
+                .ParameterBindings
+                .SelectMany(p => p.ConsumedProperties))
+            {
+                properties.Remove(consumedProperty);
+            }
+
+            var constructorExpression = constructorBinding.CreateConstructorExpression(bindingInfo);
+
+            if (properties.Count == 0)
+            {
+                return constructorExpression;
+            }
+
+            var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, "instance");
+
             var blockExpressions
                 = new List<Expression>
                 {
                     Expression.Assign(
                         instanceVariable,
-                        constructorBinding.CreateConstructorExpression(bindingInfo))
+                        constructorExpression)
                 };
 
-            var properties = new HashSet<IProperty>(
-                entityType
-                    .GetProperties()
-                    .Where(p => !p.IsShadowProperty));
-
-            foreach (var consumedProperty in constructorBinding
-                .ParameterBindings
-                .SelectMany(p => p.ConsumedProperties)
-                .OfType<IProperty>())
-            {
-                properties.Remove(consumedProperty);
-            }
 
             blockExpressions.AddRange(
                 from property in properties
@@ -199,11 +208,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 select
                     Expression.Assign(
                         targetMember,
-                        CreateReadValueExpression(
-                            valueBufferExpression,
-                            targetMember.Type,
-                            indexMap?[property.GetIndex()] ?? property.GetIndex(),
-                            property)));
+                        property is IServiceProperty
+                            ? ((IServiceProperty)property).GetParameterBinding().BindToParameter(bindingInfo)
+                            : CreateReadValueExpression(
+                                valueBufferExpression,
+                                targetMember.Type,
+                                indexMap?[property.GetIndex()] ?? property.GetIndex(),
+                                property)));
 
             blockExpressions.Add(instanceVariable);
 

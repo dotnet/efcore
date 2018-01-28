@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -10,27 +10,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ContextParameterBindingFactory : IParameterBindingFactory
+    public interface IParameterBindingFactory
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual bool CanBind(
-            Type parameterType,
-            string parameterName)
-            => typeof(DbContext).IsAssignableFrom(parameterType);
+        bool CanBind(
+            [NotNull] Type parameterType,
+            [NotNull] string parameterName);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ParameterBinding Bind(
-            IMutableEntityType entityType,
-            Type parameterType,
-            string parameterName)
-            => new ContextParameterBinding(
-                parameterType,
-                entityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == parameterType));
+        ParameterBinding Bind(
+            [NotNull] IMutableEntityType entityType,
+            [NotNull] Type parameterType,
+            [NotNull] string parameterName);
     }
 }

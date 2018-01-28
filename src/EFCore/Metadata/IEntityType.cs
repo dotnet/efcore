@@ -129,5 +129,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> The properties defined on this entity. </returns>
         IEnumerable<IProperty> GetProperties();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="IServiceProperty"/> with a given name. Returns null if no property with the given name is defined.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds service properties and does not find scalar or navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the property. </param>
+        /// <returns> The service property, or null if none is found. </returns>
+        IServiceProperty FindServiceProperty([NotNull] string name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all the <see cref="IServiceProperty"/> defined on this entity.
+        ///     </para>
+        ///     <para>
+        ///         This API only returns service properties and does not return scalar or navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <returns> The service properties defined on this entity. </returns>
+        IEnumerable<IServiceProperty> GetServiceProperties();
     }
 }

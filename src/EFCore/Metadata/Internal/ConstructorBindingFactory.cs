@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -13,14 +14,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class ConstructorBindingFactory : IConstructorBindingFactory
     {
-        private readonly IList<ParameterBindingFactory> _factories
-            = new List<ParameterBindingFactory>
-            {
-                new PropertyParameterBindingFactory(),
-                new ContextParameterBindingFactory(),
-                new LazyLoaderParameterBindingFactory(),
-                new EntityTypeParameterBindingFactory()
-            };
+        private readonly IPropertyParameterBindingFactory _propertyFactory;
+        private readonly IParameterBindingFactories _factories;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public ConstructorBindingFactory(
+            [NotNull] IPropertyParameterBindingFactory propertyFactory,
+            [NotNull] IParameterBindingFactories factories)
+        {
+            _propertyFactory = propertyFactory;
+            _factories = factories;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -34,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             IEnumerable<(ParameterInfo Parameter, ParameterBinding Binding)> bindings
                 = constructor.GetParameters().Select(
-                        p => (p, _factories.Select(f => f.TryBindParameter(entityType, p))
-                            .FirstOrDefault(b => b != null)))
+                        p => (p, _propertyFactory.TryBindParameter(entityType, p.ParameterType, p.Name)
+                                 ?? _factories.FindFactory(p.ParameterType, p.Name)?.Bind(entityType, p.ParameterType, p.Name)))
                     .ToList();
 
             if (bindings.Any(b => b.Binding == null))

@@ -67,10 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var forEntityType = new Dictionary<string, (object, string)>
             {
                 {
-                    CoreAnnotationNames.PropertyAccessModeAnnotation,
-                    (PropertyAccessMode.Property, _toTable + _nl2 + @"modelBuilder.HasAnnotation(""PropertyAccessMode"", PropertyAccessMode.Property);" + _nl)
-                },
-                {
                     RelationalAnnotationNames.TableName,
                     ("MyTable", _nl2 + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""MyTable"");" + _nl)
                 },
@@ -108,6 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ProductVersionAnnotation,
                 CoreAnnotationNames.OwnedTypesAnnotation,
                 CoreAnnotationNames.ConstructorBinding,
+                CoreAnnotationNames.NavigationAccessModeAnnotation,
                 RelationalAnnotationNames.TableName,
                 RelationalAnnotationNames.Schema,
                 RelationalAnnotationNames.DefaultSchema,
@@ -124,10 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Note that other tests should be added to check code is generated correctly
             var forProperty = new Dictionary<string, (object, string)>
             {
-                {
-                    CoreAnnotationNames.PropertyAccessModeAnnotation,
-                    (PropertyAccessMode.Property, _nl + @".HasAnnotation(""PropertyAccessMode"", PropertyAccessMode.Property)")
-                },
                 {
                     CoreAnnotationNames.MaxLengthAnnotation,
                     (256, _nl + "." + nameof(PropertyBuilder.HasMaxLength) + "(256)")

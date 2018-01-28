@@ -34,6 +34,12 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<HasContext<DbContext>>().ToTable("HasContext_DbContext");
                 modelBuilder.Entity<HasContext<WithConstructorsContext>>().ToTable("HasContext_WithConstructorsContext");
                 modelBuilder.Entity<HasContext<OtherContext>>().ToTable("HasContext_OtherContext");
+                modelBuilder.Entity<HasContextProperty<DbContext>>().ToTable("HasContextP_DbContext");
+                modelBuilder.Entity<HasContextProperty<WithConstructorsContext>>().ToTable("HasContextP_WithConstructorsContext");
+                modelBuilder.Entity<HasContextProperty<OtherContext>>().ToTable("HasContextP_OtherContext");
+                modelBuilder.Entity<HasContextPc<DbContext>>().ToTable("HasContextPc_DbContext");
+                modelBuilder.Entity<HasContextPc<WithConstructorsContext>>().ToTable("HasContextPc_WithConstructorsContext");
+                modelBuilder.Entity<HasContextPc<OtherContext>>().ToTable("HasContextPc_OtherContext");
 
                 modelBuilder.Entity<Blog>(
                     b => { b.Property("_blogId").HasColumnName("BlogId"); });

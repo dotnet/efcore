@@ -391,11 +391,11 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties of this entity type.
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for properties and navigations of this entity type.
         ///     </para>
         ///     <para>
-        ///         Note that individual properties can override this access mode. The value set here will
-        ///         be used for any property for which no override has been specified.
+        ///         Note that individual properties and navigations can override this access mode. The value set here will
+        ///         be used for any property or navigation for which no override has been specified.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type for which to set the access mode. </param>
@@ -406,6 +406,25 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
 
             entityType[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for navigations of this entity type.
+        ///     </para>
+        ///     <para>
+        ///         Note that individual navigations can override this access mode. The value set here will
+        ///         be used for any navigation for which no override has been specified.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type for which to set the access mode. </param>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
+        public static void SetNavigationAccessMode(
+            [NotNull] this IMutableEntityType entityType, PropertyAccessMode? propertyAccessMode)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            entityType[CoreAnnotationNames.NavigationAccessModeAnnotation] = propertyAccessMode;
         }
     }
 }

@@ -20,17 +20,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class PropertyMappingValidationConvention : IModelBuiltConvention
     {
         private readonly ICoreTypeMapper _typeMapper;
+        private readonly IParameterBindingFactories _parameterBindingFactories;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyMappingValidationConvention(
-            [NotNull] ICoreTypeMapper typeMapper)
+            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IParameterBindingFactories parameterBindingFactories)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
             _typeMapper = typeMapper;
+            _parameterBindingFactories = parameterBindingFactories;
         }
 
         /// <summary>
@@ -63,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
                     clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
+                    clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
                     clrProperties.RemoveWhere(p => entityType.Builder.IsIgnored(p, ConfigurationSource.Convention));
 
                     if (clrProperties.Count > 0)
@@ -145,8 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(
-                t => _typeMapper.FindMapping(t) != null);
+            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper, _parameterBindingFactories);
         }
     }
 }

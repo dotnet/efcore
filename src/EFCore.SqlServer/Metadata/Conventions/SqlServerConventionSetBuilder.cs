@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 new SqlServerSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies()))
                 .AddConventions(
                     new CoreConventionSetBuilder(
-                        new CoreConventionSetBuilderDependencies(convertingTypeMapper, null, null))
+                        new CoreConventionSetBuilderDependencies(convertingTypeMapper, null, null, null))
                         .CreateConventionSet());
         }
     }

@@ -573,6 +573,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 navigation, entityType, duplicateEntityType);
 
         /// <summary>
+        ///     The service property '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.
+        /// </summary>
+        public static string DuplicateServiceProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+            => string.Format(
+                GetString("DuplicateServiceProperty", nameof(property), nameof(entityType), nameof(duplicateEntityType)),
+                property, entityType, duplicateEntityType);
+
+        /// <summary>
+        ///     The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.
+        /// </summary>
+        public static string DuplicateServicePropertyType([CanBeNull] object property, [CanBeNull] object serviceType, [CanBeNull] object entityType, [CanBeNull] object duplicateName, [CanBeNull] object duplicateEntityType)
+            => string.Format(
+                GetString("DuplicateServicePropertyType", nameof(property), nameof(serviceType), nameof(entityType), nameof(duplicateName), nameof(duplicateEntityType)),
+                property, serviceType, entityType, duplicateName, duplicateEntityType);
+
+        /// <summary>
         ///     The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.
         /// </summary>
         public static string NoClrNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
@@ -1183,6 +1199,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ConflictingProperty", nameof(navigation), nameof(entityType), nameof(duplicateEntityType)),
                 navigation, entityType, duplicateEntityType);
+
+        /// <summary>
+        ///     The property or navigation '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.
+        /// </summary>
+        public static string ConflictingServiceProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
+            => string.Format(
+                GetString("ConflictingServiceProperty", nameof(property), nameof(entityType), nameof(duplicateEntityType)),
+                property, entityType, duplicateEntityType);
 
         /// <summary>
         ///     The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.

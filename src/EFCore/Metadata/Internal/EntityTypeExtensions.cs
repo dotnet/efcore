@@ -492,7 +492,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<IProperty> GetDeclaredProperties([NotNull] this IEntityType entityType)
-            => entityType.GetProperties().Where(p => p.DeclaringEntityType == entityType);
+            => entityType.AsEntityType().GetDeclaredProperties();
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<IServiceProperty> GetDeclaredServiceProperties([NotNull] this IEntityType entityType)
+            => entityType.AsEntityType().GetDeclaredServiceProperties();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -630,6 +637,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreach (var navigation in navigations)
                     {
                         builder.AppendLine().Append(navigation.ToDebugString(false, indent + "    "));
+                    }
+                }
+
+                var serviceProperties = entityType.GetDeclaredServiceProperties().ToList();
+                if (serviceProperties.Count != 0)
+                {
+                    builder.AppendLine().Append(indent).Append("  Service properties: ");
+                    foreach (var serviceProperty in serviceProperties)
+                    {
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(false, indent + "    "));
                     }
                 }
 

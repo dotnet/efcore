@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 new FallbackRelationalCoreTypeMapper(
                     TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()));
+                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>());
     }
 }
