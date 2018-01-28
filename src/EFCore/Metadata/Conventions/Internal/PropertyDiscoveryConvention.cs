@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,17 +16,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class PropertyDiscoveryConvention : IEntityTypeAddedConvention, IBaseTypeChangedConvention
     {
         private readonly ICoreTypeMapper _typeMapper;
+        private readonly IParameterBindingFactories _parameterBindingFactories;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyDiscoveryConvention(
-            [NotNull] ICoreTypeMapper typeMapper)
+            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IParameterBindingFactories parameterBindingFactories)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
             _typeMapper = typeMapper;
+            _parameterBindingFactories = parameterBindingFactories;
         }
 
         /// <summary>
@@ -41,11 +44,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             if (entityType.HasClrType())
             {
-                var primitiveProperties = entityType.ClrType.GetRuntimeProperties().Where(IsCandidatePrimitiveProperty);
+                var candidates = entityType.ClrType.GetRuntimeProperties();
 
-                foreach (var propertyInfo in primitiveProperties)
+                foreach (var propertyInfo in candidates)
                 {
-                    entityTypeBuilder.Property(propertyInfo, ConfigurationSource.Convention);
+                    if (IsCandidatePrimitiveProperty(propertyInfo))
+                    {
+                        entityTypeBuilder.Property(propertyInfo, ConfigurationSource.Convention);
+                    }
+                    else if (propertyInfo.IsCandidateProperty(publicOnly: false))
+                    {
+                        var factory = _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.Name);
+
+                        if (factory != null)
+                        {
+                            var serviceProperty = entityType.AddServiceProperty(propertyInfo, ConfigurationSource.Convention);
+                            serviceProperty.SetParameterBinding(
+                                (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.Name));
+                        }
+                    }
                 }
             }
 

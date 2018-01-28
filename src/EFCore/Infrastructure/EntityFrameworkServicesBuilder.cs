@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -92,6 +93,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IValueConverterSelector), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IConstructorBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRegisteredServices), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IPropertyParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IParameterBindingFactories), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityGraphAttacher), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IKeyPropagator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(INavigationFixer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -127,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityQueryableExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IEntityQueryModelVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILazyLoader), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(IEntityStateListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
                 { typeof(INavigationListener), new ServiceCharacteristics(ServiceLifetime.Scoped, multipleRegistrations: true) },
@@ -267,6 +272,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IValueConverterSelector, ValueConverterSelector>();
             TryAdd<IConstructorBindingFactory, ConstructorBindingFactory>();
             TryAdd<ILazyLoader, LazyLoader>();
+            TryAdd<IParameterBindingFactories, ParameterBindingFactories>();
+            TryAdd<IPropertyParameterBindingFactory, PropertyParameterBindingFactory>();
+            TryAdd<IParameterBindingFactory, LazyLoaderParameterBindingFactory>();
+            TryAdd<IParameterBindingFactory, ContextParameterBindingFactory>();
+            TryAdd<IParameterBindingFactory, EntityTypeParameterBindingFactory>();
 
             ServiceCollectionMap
                 .TryAddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name));
@@ -292,6 +302,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .ServiceCollection.AddMemoryCache();
 
+            ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
+                new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));
+            
             return this;
         }
 

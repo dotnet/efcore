@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention
     {
         private readonly ICoreTypeMapper _typeMapper;
+        private readonly IParameterBindingFactories _parameterBindingFactories;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
@@ -30,11 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public ForeignKeyAttributeConvention(
             [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IParameterBindingFactories parameterBindingFactories,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
             _typeMapper = typeMapper;
+            _parameterBindingFactories = parameterBindingFactories;
             _logger = logger;
         }
 
@@ -298,8 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(
-                m => _typeMapper.FindMapping(m) != null);
+            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper, _parameterBindingFactories);
         }
 
         private static IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(

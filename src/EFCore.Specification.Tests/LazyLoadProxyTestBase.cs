@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -18,14 +21,49 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_collection(EntityState state)
+        [InlineData(EntityState.Unchanged, false, false)]
+        [InlineData(EntityState.Modified, false, false)]
+        [InlineData(EntityState.Deleted, false, false)]
+        [InlineData(EntityState.Unchanged, true, false)]
+        [InlineData(EntityState.Modified, true, false)]
+        [InlineData(EntityState.Deleted, true, false)]
+        [InlineData(EntityState.Unchanged, true, true)]
+        [InlineData(EntityState.Modified, true, true)]
+        [InlineData(EntityState.Deleted, true, true)]
+        public virtual void Lazy_load_collection(EntityState state, bool useAttach, bool useDetach)
         {
+            Parent parent = null;
+
+            if (useAttach)
+            {
+                using (var context = CreateContext(lazyLoadingEnabled: true))
+                {
+                    parent = context.Set<Parent>().Single();
+
+                    if (useDetach)
+                    {
+                        context.Entry(parent).State = EntityState.Detached;
+                    }
+                }
+
+                if (useDetach) 
+                {
+                    Assert.Null(parent.Children);
+                }
+                else
+                {
+                    Assert.Equal(
+                        CoreStrings.WarningAsErrorTemplate(
+                            CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Children", "ParentProxy")),
+                        Assert.Throws<InvalidOperationException>(
+                            () => parent.Children).Message);
+                }
+            }
+
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
-                var parent = context.Set<Parent>().Single();
+                parent = parent ?? context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -50,14 +88,49 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_many_to_one_reference_to_principal(EntityState state)
+        [InlineData(EntityState.Unchanged, false, false)]
+        [InlineData(EntityState.Modified, false, false)]
+        [InlineData(EntityState.Deleted, false, false)]
+        [InlineData(EntityState.Unchanged, true, false)]
+        [InlineData(EntityState.Modified, true, false)]
+        [InlineData(EntityState.Deleted, true, false)]
+        [InlineData(EntityState.Unchanged, true, true)]
+        [InlineData(EntityState.Modified, true, true)]
+        [InlineData(EntityState.Deleted, true, true)]
+        public virtual void Lazy_load_many_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
         {
+            Child child = null;
+
+            if (useAttach)
+            {
+                using (var context = CreateContext(lazyLoadingEnabled: true))
+                {
+                    child = context.Set<Child>().Single(e => e.Id == 12);
+
+                    if (useDetach)
+                    {
+                        context.Entry(child).State = EntityState.Detached;
+                    }
+                }
+
+                if (useDetach) 
+                {
+                    Assert.Null(child.Parent);
+                }
+                else
+                {
+                    Assert.Equal(
+                        CoreStrings.WarningAsErrorTemplate(
+                            CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Parent", "ChildProxy")),
+                        Assert.Throws<InvalidOperationException>(
+                            () => child.Parent).Message);
+                }
+            }
+
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
-                var child = context.Set<Child>().Single(e => e.Id == 12);
+                child = child ?? context.Set<Child>().Single(e => e.Id == 12);
 
                 ClearLog();
 
@@ -84,14 +157,49 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_one_to_one_reference_to_principal(EntityState state)
+        [InlineData(EntityState.Unchanged, false, false)]
+        [InlineData(EntityState.Modified, false, false)]
+        [InlineData(EntityState.Deleted, false, false)]
+        [InlineData(EntityState.Unchanged, true, false)]
+        [InlineData(EntityState.Modified, true, false)]
+        [InlineData(EntityState.Deleted, true, false)]
+        [InlineData(EntityState.Unchanged, true, true)]
+        [InlineData(EntityState.Modified, true, true)]
+        [InlineData(EntityState.Deleted, true, true)]
+        public virtual void Lazy_load_one_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
         {
+            Single single = null;
+
+            if (useAttach)
+            {
+                using (var context = CreateContext(lazyLoadingEnabled: true))
+                {
+                    single = context.Set<Single>().Single();
+
+                    if (useDetach)
+                    {
+                        context.Entry(single).State = EntityState.Detached;
+                    }
+                }
+
+                if (useDetach) 
+                {
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.Equal(
+                        CoreStrings.WarningAsErrorTemplate(
+                            CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Parent", "SingleProxy")),
+                        Assert.Throws<InvalidOperationException>(
+                            () => single.Parent).Message);
+                }
+            }
+
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
-                var single = context.Set<Single>().Single();
+                single = single ?? context.Set<Single>().Single();
 
                 ClearLog();
 
@@ -118,14 +226,49 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(EntityState.Unchanged)]
-        [InlineData(EntityState.Modified)]
-        [InlineData(EntityState.Deleted)]
-        public virtual void Lazy_load_one_to_one_reference_to_dependent(EntityState state)
+        [InlineData(EntityState.Unchanged, false, false)]
+        [InlineData(EntityState.Modified, false, false)]
+        [InlineData(EntityState.Deleted, false, false)]
+        [InlineData(EntityState.Unchanged, true, false)]
+        [InlineData(EntityState.Modified, true, false)]
+        [InlineData(EntityState.Deleted, true, false)]
+        [InlineData(EntityState.Unchanged, true, true)]
+        [InlineData(EntityState.Modified, true, true)]
+        [InlineData(EntityState.Deleted, true, true)]
+        public virtual void Lazy_load_one_to_one_reference_to_dependent(EntityState state, bool useAttach, bool useDetach)
         {
+            Parent parent = null;
+
+            if (useAttach)
+            {
+                using (var context = CreateContext(lazyLoadingEnabled: true))
+                {
+                    parent = context.Set<Parent>().Single();
+
+                    if (useDetach)
+                    {
+                        context.Entry(parent).State = EntityState.Detached;
+                    }
+                }
+
+                if (useDetach) 
+                {
+                    Assert.Null(parent.Single);
+                }
+                else
+                {
+                    Assert.Equal(
+                        CoreStrings.WarningAsErrorTemplate(
+                            CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Single", "ParentProxy")),
+                        Assert.Throws<InvalidOperationException>(
+                            () => parent.Single).Message);
+                }
+            }
+
             using (var context = CreateContext(lazyLoadingEnabled: true))
             {
-                var parent = context.Set<Parent>().Single();
+                parent = parent ?? context.Set<Parent>().Single();
 
                 ClearLog();
 
@@ -1408,6 +1551,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                 => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
+
+            protected override bool UsePooling => false;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

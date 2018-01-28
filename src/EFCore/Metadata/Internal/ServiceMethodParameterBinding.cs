@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ServiceMethodParameterBinding : ServiceParameterBinding
+    public class ServiceMethodParameterBinding : DefaultServiceParameterBinding
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -23,8 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public ServiceMethodParameterBinding(
             [NotNull] Type parameterType,
             [NotNull] Type serviceType,
-            [NotNull] MethodInfo method)
-            : base(parameterType, serviceType)
+            [NotNull] MethodInfo method,
+            [CanBeNull] IPropertyBase consumedProperty = null)
+            : base(parameterType, serviceType, consumedProperty)
         {
             Method = method;
         }
@@ -39,7 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
+        public override Expression BindToParameter(
+            Expression contextExpression,
+            Expression entityTypeExpression,
+            Expression entityExpression)
         {
             var parameters = Method.GetParameters().Select(
                 (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
@@ -53,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Expression.Assign(
                         serviceVariable,
-                        base.BindToParameter(bindingInfo)),
+                        base.BindToParameter(contextExpression, entityTypeExpression, entityExpression)),
                     Expression.Assign(
                         delegateVariable,
                         Expression.Condition(

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Expression valueBuffer,
             [NotNull] Type type,
             int index,
-            [CanBeNull] IProperty property);
+            [CanBeNull] IPropertyBase property);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

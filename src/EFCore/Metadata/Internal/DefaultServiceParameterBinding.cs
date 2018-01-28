@@ -3,7 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -11,16 +14,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ContextParameterBinding : ServiceParameterBinding
+    public class DefaultServiceParameterBinding : ServiceParameterBinding
     {
+        private static readonly MethodInfo _getServiceMethod
+            = typeof(InternalAccessorExtensions).GetMethod(nameof(InternalAccessorExtensions.GetService));
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ContextParameterBinding(
-            [NotNull] Type contextType,
+        public DefaultServiceParameterBinding(
+            [NotNull] Type parameterType,
+            [NotNull] Type serviceType,
             [CanBeNull] IPropertyBase consumedProperty = null)
-            : base(contextType, contextType, consumedProperty)
+            : base(parameterType, serviceType, consumedProperty)
         {
         }
 
@@ -32,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Expression contextExpression,
             Expression entityTypeExpression,
             Expression entityExpression)
-            => Expression.TypeAs(contextExpression, ServiceType);
+            => Expression.Call(
+                _getServiceMethod.MakeGenericMethod(ServiceType),
+                Expression.Convert(contextExpression, typeof(IInfrastructure<IServiceProvider>)));
     }
 }

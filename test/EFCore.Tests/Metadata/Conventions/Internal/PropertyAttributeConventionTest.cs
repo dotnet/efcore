@@ -518,7 +518,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
             var conventionSet = new ConventionSet();
-            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(CreateTypeMapper()));
+            conventionSet.EntityTypeAddedConventions.Add(
+                new PropertyDiscoveryConvention(
+                    CreateTypeMapper(),
+                    TestServiceFactory.Instance.Create<IParameterBindingFactories>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

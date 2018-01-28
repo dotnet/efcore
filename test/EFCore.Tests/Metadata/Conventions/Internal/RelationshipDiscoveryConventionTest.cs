@@ -37,7 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private RelationshipDiscoveryConvention CreateRelationshipDiscoveryConvention()
-            => new RelationshipDiscoveryConvention(CreateTypeMapper(), CreateLogger());
+            => new RelationshipDiscoveryConvention(
+                CreateTypeMapper(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateLogger());
 
         [Fact]
         public void Entity_type_is_not_discovered_if_navigation_is_ignored()

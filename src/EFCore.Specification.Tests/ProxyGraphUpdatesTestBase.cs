@@ -630,13 +630,17 @@ namespace Microsoft.EntityFrameworkCore
 
             RequiredSingle1 old1 = null;
             RequiredSingle2 old2 = null;
+            Root oldRoot = null;
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var oldRoot = LoadRoot(context);
-
+                        oldRoot = LoadRoot(context);
                         old1 = oldRoot.RequiredSingle;
                         old2 = oldRoot.RequiredSingle.Single;
+
+                        context.Entry(oldRoot).State = EntityState.Detached;
+                        context.Entry(old1).State = EntityState.Detached;
+                        context.Entry(old2).State = EntityState.Detached;
                     });
 
             var new2 = new RequiredSingle2();
@@ -683,11 +687,10 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Same(root, new1.Root);
                         Assert.Same(new1, new2.Back);
 
-                            // TODO: When nulling out loader on detach is supported
-                            //Assert.Same(oldRoot, old1.Root);
-                            //Assert.Same(old1, old2.Back);
-                            //Assert.Equal(old1.Id, old2.Id);
-                        });
+                        Assert.Same(oldRoot, old1.Root);
+                        Assert.Same(old1, old2.Back);
+                        Assert.Equal(old1.Id, old2.Id);
+                    });
         }
 
         [ConditionalTheory]
@@ -4018,10 +4021,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Parent);
-                            //Assert.Equal(2, removed.Children.Count());
-                        },
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4073,10 +4075,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                            // TODO when nulling ILazyLoader on detach
-                            //Assert.Same(root, removed.Parent);
-                            //Assert.Equal(2, removed.Children.Count());
-                        },
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4125,10 +4126,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Root);
-                            //Assert.Same(orphaned, removed.Single);
-                        },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4175,10 +4175,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Root);
-                            //Assert.Same(orphaned, removed.Single);
-                        },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    },
                 context =>
                 {
                     root = LoadRoot(context);
@@ -4224,10 +4223,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Root);
-                            //Assert.Same(orphaned, removed.Single);
-                        },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4285,10 +4283,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
                         Assert.True(orphanedC.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Parent);
-                            //Assert.Equal(2, removed.Children.Count());
-                        },
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4347,10 +4344,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
                         Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Parent);
-                            //Assert.Equal(2, removed.Children.Count());
-                        },
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4405,10 +4401,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
                         Assert.Equal(EntityState.Unchanged, context.Entry(orphanedC).State);
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Root);
-                            //Assert.Same(orphaned, removed.Single);
-                        },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4462,10 +4457,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
                         Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Root);
-                            //Assert.Same(orphaned, removed.Single);
-                        },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    },
                 context =>
                     {
                         root = LoadRoot(context);
@@ -4513,10 +4507,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
 
-                            // TODO: After detach
-                            //Assert.Same(root, removed.Root);
-                            //Assert.Same(orphaned, removed.Single);
-                        },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    },
                 context =>
                     {
                         root = LoadRoot(context);

@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         INavigationAddedConvention
     {
         private readonly ICoreTypeMapper _typeMapper;
+        private readonly IParameterBindingFactories _parameterBindingFactories;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
         /// <summary>
@@ -36,11 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public RelationshipDiscoveryConvention(
             [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IParameterBindingFactories parameterBindingFactories,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
             _typeMapper = typeMapper;
+            _parameterBindingFactories = parameterBindingFactories;
             _logger = logger;
         }
 
@@ -700,6 +704,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return false;
             }
 
+            if (sourceEntityTypeBuilder.Metadata.FindServiceProperty(navigationName) != null)
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -781,8 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(
-                t => _typeMapper.FindMapping(t) != null);
+            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(_typeMapper, _parameterBindingFactories);
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {

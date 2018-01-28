@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -215,5 +216,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the property to remove. </param>
         /// <returns> The property that was removed. </returns>
         IMutableProperty RemoveProperty([NotNull] string name);
+
+        /// <summary>
+        ///     Adds a <see cref="IMutableServiceProperty"/> to this entity.
+        /// </summary>
+        /// <param name="memberInfo"> The <see cref="PropertyInfo"/> or <see cref="FieldInfo"/> of the property to add. </param>
+        /// <returns> The newly created property. </returns>
+        IMutableServiceProperty AddServiceProperty([NotNull] MemberInfo memberInfo);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="IMutableServiceProperty"/> with a given name. Returns null if no property with the given name is defined.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds service properties and does not find scalar or navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the property. </param>
+        /// <returns> The service property, or null if none is found. </returns>
+        new IMutableServiceProperty FindServiceProperty([NotNull] string name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets all the <see cref="IMutableServiceProperty"/> defined on this entity.
+        ///     </para>
+        ///     <para>
+        ///         This API only returns service properties and does not return scalar or navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <returns> The service properties defined on this entity. </returns>
+        new IEnumerable<IMutableServiceProperty> GetServiceProperties();
+
+        /// <summary>
+        ///     Removes an <see cref="IMutableServiceProperty"/> from this entity.
+        /// </summary>
+        /// <param name="name"> The name of the property to remove. </param>
+        /// <returns> The property that was removed. </returns>
+        IMutableServiceProperty RemoveServiceProperty([NotNull] string name);
     }
 }

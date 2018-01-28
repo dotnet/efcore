@@ -42,7 +42,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase, bool setModified)
         {
-            if (_suspended || entry.EntityState == EntityState.Detached)
+            if (_suspended
+                || entry.EntityState == EntityState.Detached
+                || propertyBase is IServiceProperty)
             {
                 return;
             }
@@ -69,7 +71,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void PropertyChanging(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            if (_suspended || entry.EntityState == EntityState.Detached)
+            if (_suspended
+                || entry.EntityState == EntityState.Detached
+                || propertyBase is IServiceProperty)
             {
                 return;
             }

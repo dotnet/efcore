@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
         [Fact]
         public void Throws_if_create_proxy_for_non_mapped_type()
         {
-            using (var context = new NeweyContextN4())
+            using (var context = new NeweyContextN())
             {
                 Assert.Equal(
                     CoreStrings.EntityTypeNotFound(nameof(March82GGtp)),

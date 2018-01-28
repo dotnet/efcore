@@ -48,7 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
 
-            new RelationshipDiscoveryConvention(CreateTypeMapper(), CreateLogger()).Apply(dependentEntityTypeBuilder);
+            new RelationshipDiscoveryConvention(
+                CreateTypeMapper(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateLogger()).Apply(dependentEntityTypeBuilder);
 
             Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
             Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
@@ -269,7 +272,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private InversePropertyAttributeConvention CreateInversePropertyAttributeConvention()
-            => new InversePropertyAttributeConvention(CreateTypeMapper(), CreateLogger());
+            => new InversePropertyAttributeConvention(
+                CreateTypeMapper(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateLogger());
 
         [Fact]
         public void InversePropertyAttribute_does_not_override_configuration_from_explicit_source()
@@ -492,7 +498,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         private ForeignKeyAttributeConvention CreateForeignKeyAttributeConvention()
-            => new ForeignKeyAttributeConvention(CreateTypeMapper(), CreateLogger());
+            => new ForeignKeyAttributeConvention(
+                CreateTypeMapper(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>(),
+                CreateLogger());
 
         [Fact]
         public void ForeignKeyAttribute_sets_foreign_key_properties_when_applied_on_property_on_dependent_side()
@@ -694,7 +703,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
             var conventionSet = new ConventionSet();
-            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(CreateTypeMapper()));
+            conventionSet.EntityTypeAddedConventions.Add(
+                new PropertyDiscoveryConvention(
+                    CreateTypeMapper(),
+                    TestServiceFactory.Instance.Create<IParameterBindingFactories>()));
 
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateLogger()));
 
