@@ -13,7 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             var codeGenerator = new OracleCodeGenerator(new ProviderCodeGeneratorDependencies());
 
-            Assert.Equal("UseOracle", codeGenerator.UseProviderMethod);
+            var result = codeGenerator.GenerateUseProvider("Data Source=Test");
+
+            Assert.Equal("UseOracle", result.Method);
+            Assert.Collection(
+                result.Arguments,
+                a => Assert.Equal("Data Source=Test", a));
         }
     }
 }

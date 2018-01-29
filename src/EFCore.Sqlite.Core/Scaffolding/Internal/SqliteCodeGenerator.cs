@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override string UseProviderMethod
-            => nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite);
+        public override MethodCallCodeFragment GenerateUseProvider(string connectionString)
+            => new MethodCallCodeFragment(nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite), connectionString);
     }
 }

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Initializes a new instance of the <see cref="MethodCallCodeFragment" /> class.
         /// </summary>
         /// <param name="method"> The method's name. </param>
-        /// <param name="arguments"> The method call's arguments. </param>
+        /// <param name="arguments"> The method call's arguments. Can be <see cref="NestedClosureCodeFragment"/>. </param>
         public MethodCallCodeFragment([NotNull] string method, [NotNull] params object[] arguments)
         {
             Check.NotEmpty(method, nameof(method));
@@ -26,6 +26,23 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             Method = method;
             _arguments = new List<object>(arguments);
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MethodCallCodeFragment" /> class.
+        /// </summary>
+        /// <param name="method"> The method's name. </param>
+        /// <param name="arguments"> The method call's arguments.  Can be <see cref="NestedClosureCodeFragment"/>. </param>
+        /// <param name="chainedCall"> The next method call to chain after this. </param>
+        public MethodCallCodeFragment(
+            [NotNull] string method,
+            [NotNull] object[] arguments,
+            [NotNull] MethodCallCodeFragment chainedCall)
+            : this(method, arguments)
+        {
+            Check.NotNull(chainedCall, nameof(chainedCall));
+
+            ChainedCall = chainedCall;
         }
 
 
@@ -40,5 +57,20 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <value> The method call's arguments. </value>
         public virtual IReadOnlyList<object> Arguments => _arguments;
+
+        /// <summary>
+        ///     Gets the next method call to chain after this.
+        /// </summary>
+        /// <value> The next method call. </value>
+        public virtual MethodCallCodeFragment ChainedCall { get; }
+
+        /// <summary>
+        ///   Creates a method chain from this method to another.
+        /// </summary>
+        /// <param name="method"> The next method's name. </param>
+        /// <param name="arguments"> The next method call's arguments. </param>
+        /// <returns> A new fragment representing the method chain. </returns>
+        public virtual MethodCallCodeFragment Chain([NotNull] string method, [NotNull] params object[] arguments)
+            => new MethodCallCodeFragment(Method, _arguments.ToArray(), new MethodCallCodeFragment(method, arguments));
     }
 }

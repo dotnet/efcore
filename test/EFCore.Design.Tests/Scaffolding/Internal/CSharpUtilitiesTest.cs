@@ -55,5 +55,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             Assert.Equal(".Test()", result);
         }
+
+        [Fact]
+        public void Generate_MethodCallCodeFragment_works_when_chaining()
+        {
+            var method = new MethodCallCodeFragment("Test")
+                .Chain("Test");
+
+            var result = new CSharpUtilities().Generate(method);
+
+            Assert.Equal(".Test().Test()", result);
+        }
+
+        [Fact]
+        public void Generate_MethodCallCodeFragment_works_when_nested_closure()
+        {
+            var method = new MethodCallCodeFragment(
+                "Test",
+                new NestedClosureCodeFragment("x", new MethodCallCodeFragment("Test")));
+
+            var result = new CSharpUtilities().Generate(method);
+
+            Assert.Equal(".Test(x => x.Test())", result);
+        }
     }
 }

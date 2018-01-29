@@ -13,7 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             var codeGenerator = new SqlServerCodeGenerator(new ProviderCodeGeneratorDependencies());
 
-            Assert.Equal("UseSqlServer", codeGenerator.UseProviderMethod);
+            var result = codeGenerator.GenerateUseProvider("Data Source=Test");
+
+            Assert.Equal("UseSqlServer", result.Method);
+            Assert.Collection(
+                result.Arguments,
+                a => Assert.Equal("Data Source=Test", a));
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Design;
+ 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
         }
 
-        public override string UseProviderMethod
-            => nameof(OracleDbContextOptionsExtensions.UseOracle);
+        public override MethodCallCodeFragment GenerateUseProvider(string connectionString)
+            => new MethodCallCodeFragment(nameof(OracleDbContextOptionsExtensions.UseOracle), connectionString);
     }
 }

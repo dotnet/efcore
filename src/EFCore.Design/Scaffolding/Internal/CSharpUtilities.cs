@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Utilities;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -265,6 +267,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual string GenerateLiteral([NotNull] NestedClosureCodeFragment value)
+            => value.Parameter + " => " + value.Parameter + Generate(value.MethodCall);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual bool IsCSharpKeyword(string identifier)
             => _cSharpKeywords.Contains(identifier);
 
@@ -427,8 +436,34 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string Generate(MethodCallCodeFragment methodCallCodeFragment)
-            => "." + methodCallCodeFragment.Method + "(" +
-                string.Join(", ", methodCallCodeFragment.Arguments.Select(a => GenerateLiteral((dynamic)a))) + ")";
+        {
+            var builder = new StringBuilder();
+
+            var current = methodCallCodeFragment;
+            while (current != null)
+            {
+                builder
+                    .Append(".")
+                    .Append(current.Method)
+                    .Append("(");
+
+                for (var i = 0; i < current.Arguments.Count; i++)
+                {
+                    if (i != 0)
+                    {
+                        builder.Append(", ");
+                    }
+
+                    builder.Append(GenerateLiteral((dynamic)current.Arguments[i]));
+                }
+
+                builder.Append(")");
+
+                current = current.ChainedCall;
+            }
+
+            return builder.ToString();
+        }
 
         private static bool IsIdentifierStartCharacter(char ch)
         {

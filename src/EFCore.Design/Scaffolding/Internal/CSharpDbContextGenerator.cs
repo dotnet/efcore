@@ -173,16 +173,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         .IncrementIndent()
                         .IncrementIndent()
                         .IncrementIndent()
-                        .IncrementIndent();
-
-                    var useProviderMethod = _providerCodeGenerator?.UseProviderMethod;
-
-                    _sb.AppendLine(
-                        useProviderMethod != null
-                           ? $"optionsBuilder.{useProviderMethod}({_cSharpUtilities.GenerateVerbatimStringLiteral(connectionString)});"
+                        .IncrementIndent()
+                        .Append("optionsBuilder")
+                        .Append(
+                            _providerCodeGenerator != null
+                                ? _cSharpUtilities.Generate(
+                                    _providerCodeGenerator.GenerateUseProvider(connectionString))
 #pragma warning disable CS0618 // Type or member is obsolete
-                           : $"optionsBuilder{_legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language)};");
+                                : _legacyProviderCodeGenerator.GenerateUseProvider(connectionString, Language))
 #pragma warning restore CS0618 // Type or member is obsolete
+                        .AppendLine(";");
                 }
 
                 _sb.AppendLine("}");

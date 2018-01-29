@@ -37,7 +37,7 @@ namespace TestNamespace
             if (!optionsBuilder.IsConfigured)
             {
 #warning " + DesignStrings.SensitiveInformationWarning + @"
-                optionsBuilder.UseSqlServer(@""Initial Catalog=TestDatabase"");
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
 

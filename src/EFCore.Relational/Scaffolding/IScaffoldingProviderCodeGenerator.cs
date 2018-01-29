@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="connectionString"> The connection string to include in the code fragment. </param>
         /// <param name="language"> The programming language to generate, such as 'CSharp'. </param>
         /// <returns> The code fragment, or <c>null</c> if the programming language is not supported. </returns>
-        [Obsolete("Use IProviderCodeGenerator.UseProviderMethod instead.")]
+        [Obsolete("Use IProviderCodeGenerator.GenerateUseProvider instead.")]
         string GenerateUseProvider([NotNull] string connectionString, [NotNull] string language);
     }
 }

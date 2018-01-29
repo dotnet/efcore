@@ -115,29 +115,28 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual ModelFiles Save(
+        public virtual SavedModelFiles Save(
             ScaffoldedModel scaffoldedModel,
             string outputDir,
             bool overwriteFiles)
         {
             CheckOutputFiles(scaffoldedModel, outputDir, overwriteFiles);
 
-            var files = new ModelFiles();
             Directory.CreateDirectory(outputDir);
 
             var contextPath = Path.GetFullPath(Path.Combine(outputDir, scaffoldedModel.ContextFile.Path));
             Directory.CreateDirectory(Path.GetDirectoryName(contextPath));
             File.WriteAllText(contextPath, scaffoldedModel.ContextFile.Code, Encoding.UTF8);
-            files.ContextFile = contextPath;
 
+            var additionalFiles = new List<string>();
             foreach (var entityTypeFile in scaffoldedModel.AdditionalFiles)
             {
                 var additionalFilePath = Path.Combine(outputDir, entityTypeFile.Path);
                 File.WriteAllText(additionalFilePath, entityTypeFile.Code, Encoding.UTF8);
-                files.AdditionalFiles.Add(additionalFilePath);
+                additionalFiles.Add(additionalFilePath);
             }
 
-            return files;
+            return new SavedModelFiles(contextPath, additionalFiles);
         }
 
         private static void CheckOutputFiles(
