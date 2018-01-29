@@ -5960,6 +5960,36 @@ INNER JOIN (
 ORDER BY [t].[Nickname], [t].[FullName]");
         }
 
+        public override void Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied()
+        {
+            base.Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[CapitalName], [t].[Discriminator], [t].[Name], [t].[CommanderName], [t].[Eradicated]
+FROM [LocustLeaders] AS [ll]
+INNER JOIN (
+    SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
+    FROM [Factions] AS [f]
+    WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Name] = N'Swarm')
+) AS [t] ON [ll].[Name] = [t].[CommanderName]
+WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader') AND (([t].[Eradicated] <> 1) OR [t].[Eradicated] IS NULL)");
+        }
+
+        public override void Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied()
+        {
+            base.Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[CapitalName], [t].[Discriminator], [t].[Name], [t].[CommanderName], [t].[Eradicated]
+FROM [LocustLeaders] AS [ll]
+LEFT JOIN (
+    SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
+    FROM [Factions] AS [f]
+    WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Name] = N'Swarm')
+) AS [t] ON [ll].[Name] = [t].[CommanderName]
+WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader') AND (([t].[Eradicated] <> 1) OR [t].[Eradicated] IS NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

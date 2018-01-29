@@ -18,18 +18,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var entitySorters = new Dictionary<Type, Func<dynamic, object>>
             {
-                { typeof(City), e => e.Name },
-                { typeof(CogTag), e => e.Id },
-                { typeof(Faction), e => e.Id },
-                { typeof(LocustHorde), e => e.Id },
-                { typeof(Gear), e => e.SquadId + " " + e.Nickname },
-                { typeof(Officer), e => e.SquadId + " " + e.Nickname },
-                { typeof(LocustLeader), e => e.Name },
-                { typeof(LocustCommander), e => e.Name },
-                { typeof(Mission), e => e.Id },
-                { typeof(Squad), e => e.Id },
-                { typeof(SquadMission), e => e.SquadId + " " + e.MissionId },
-                { typeof(Weapon), e => e.Id }
+                { typeof(City), e => e?.Name },
+                { typeof(CogTag), e => e?.Id },
+                { typeof(Faction), e => e?.Id },
+                { typeof(LocustHorde), e => e?.Id },
+                { typeof(Gear), e => e?.SquadId + " " + e?.Nickname },
+                { typeof(Officer), e => e?.SquadId + " " + e?.Nickname },
+                { typeof(LocustLeader), e => e?.Name },
+                { typeof(LocustCommander), e => e?.Name },
+                { typeof(Mission), e => e?.Id },
+                { typeof(Squad), e => e?.Id },
+                { typeof(SquadMission), e => e?.SquadId + " " + e?.MissionId },
+                { typeof(Weapon), e => e?.Id }
             };
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
@@ -38,120 +38,180 @@ namespace Microsoft.EntityFrameworkCore.Query
                     typeof(City),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.Location, a.Location);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.Location, a.Location);
+                            }
                         }
                 },
                 {
                     typeof(CogTag),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Note, a.Note);
-                            Assert.Equal(e.GearNickName, a.GearNickName);
-                            Assert.Equal(e.GearSquadId, a.GearSquadId);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.Note, a.Note);
+                                Assert.Equal(e.GearNickName, a.GearNickName);
+                                Assert.Equal(e.GearSquadId, a.GearSquadId);
+                            }
                         }
                 },
                 {
                     typeof(Faction),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.CapitalName, a.CapitalName);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.CapitalName, a.CapitalName);
+                            }
                         }
                 },
                 {
                     typeof(Gear),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Nickname, a.Nickname);
-                            Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
-                            Assert.Equal(e.FullName, a.FullName);
-                            Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
-                            Assert.Equal(e.LeaderNickname, a.LeaderNickname);
-                            Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
-                            Assert.Equal(e.Rank, a.Rank);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Nickname, a.Nickname);
+                                Assert.Equal(e.SquadId, a.SquadId);
+                                Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
+                                Assert.Equal(e.FullName, a.FullName);
+                                Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
+                                Assert.Equal(e.LeaderNickname, a.LeaderNickname);
+                                Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
+                                Assert.Equal(e.Rank, a.Rank);
+                            }
                         }
                 },
                 {
                     typeof(LocustCommander),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.ThreatLevel, a.ThreatLevel);
-                            Assert.Equal(e.DefeatedByNickname, a.DefeatedByNickname);
-                            Assert.Equal(e.DefeatedBySquadId, a.DefeatedBySquadId);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+                                Assert.Equal(e.DefeatedByNickname, a.DefeatedByNickname);
+                                Assert.Equal(e.DefeatedBySquadId, a.DefeatedBySquadId);
+                            }
                         }
                 },
                 {
                     typeof(LocustHorde),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.CapitalName, a.CapitalName);
-                            Assert.Equal(e.CommanderName, a.CommanderName);
-                            Assert.Equal(e.Eradicated, a.Eradicated);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.CapitalName, a.CapitalName);
+                                Assert.Equal(e.CommanderName, a.CommanderName);
+                                Assert.Equal(e.Eradicated, a.Eradicated);
+                            }
                         }
                 },
                 {
                     typeof(LocustLeader),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.ThreatLevel, a.ThreatLevel);
+                            }
                         }
                 },
                 {
                     typeof(Mission),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.CodeName, a.CodeName);
-                            Assert.Equal(e.Timeline, a.Timeline);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.CodeName, a.CodeName);
+                                Assert.Equal(e.Timeline, a.Timeline);
+                            }
                         }
                 },
                 {
                     typeof(Officer),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Nickname, a.Nickname);
-                            Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
-                            Assert.Equal(e.FullName, a.FullName);
-                            Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
-                            Assert.Equal(e.LeaderNickname, a.LeaderNickname);
-                            Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
-                            Assert.Equal(e.Rank, a.Rank);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Nickname, a.Nickname);
+                                Assert.Equal(e.SquadId, a.SquadId);
+                                Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
+                                Assert.Equal(e.FullName, a.FullName);
+                                Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
+                                Assert.Equal(e.LeaderNickname, a.LeaderNickname);
+                                Assert.Equal(e.LeaderSquadId, a.LeaderSquadId);
+                                Assert.Equal(e.Rank, a.Rank);
+                            }
                         }
                 },
                 {
                     typeof(Squad),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.Name, a.Name);
+                            }
                         }
                 },
                 {
                     typeof(SquadMission),
                     (e, a) =>
                         {
-                            Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.MissionId, a.MissionId);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.SquadId, a.SquadId);
+                                Assert.Equal(e.MissionId, a.MissionId);
+                            }
                         }
                 },
                 {
                     typeof(Weapon),
                     (e, a) =>
                         {
-                            Assert.Equal(e.Id, a.Id);
-                            Assert.Equal(e.IsAutomatic, a.IsAutomatic);
-                            Assert.Equal(e.Name, a.Name);
-                            Assert.Equal(e.OwnerFullName, a.OwnerFullName);
-                            Assert.Equal(e.SynergyWithId, a.SynergyWithId);
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.IsAutomatic, a.IsAutomatic);
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.OwnerFullName, a.OwnerFullName);
+                                Assert.Equal(e.SynergyWithId, a.SynergyWithId);
+                            }
                         }
                 }
             };
