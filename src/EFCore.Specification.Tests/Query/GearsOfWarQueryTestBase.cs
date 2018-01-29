@@ -3375,7 +3375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Squad.Missions.Where(m => m.MissionId != 17).ToList(),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<SquadMission>(
-                    e => e.MissionId + " " + e.SquadId, 
+                    e => e.MissionId + " " + e.SquadId,
                     (e, a) =>
                     {
                         Assert.Equal(e.MissionId, a.MissionId);
@@ -3417,9 +3417,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     CollectionAsserter(
-                        CollectionSorter<SquadMission>(), 
+                        CollectionSorter<SquadMission>(),
                         CollectionAsserter<SquadMission>(
-                            ee => ee.SquadId + " " + ee.MissionId, 
+                            ee => ee.SquadId + " " + ee.MissionId,
                             (ee, aa) =>
                             {
                                 Assert.Equal(ee.SquadId, aa.SquadId);
@@ -3540,7 +3540,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Correlated_collections_similar_collection_projected_multiple_times()
         {
             AssertQuery<Gear>(
-                gs => 
+                gs =>
                     from g in gs
                     orderby g.Rank
                     select new
@@ -4184,6 +4184,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(expected[i].Count(), actual[i].Count());
                 }
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Null_semantics_on_nullable_bool_from_inner_join_subuery_is_fully_applied()
+        {
+            AssertQuery<LocustLeader, Faction>(
+                (lls, fs) =>
+                    from ll in lls
+                    join h in fs.OfType<LocustHorde>().Where(f => f.Name == "Swarm") on ll.Name equals h.CommanderName
+                    where h.Eradicated != true
+                    select h);
+        }
+
+        [ConditionalFact]
+        public virtual void Null_semantics_on_nullable_bool_from_left_join_subuery_is_fully_applied()
+        {
+            AssertQuery<LocustLeader, Faction>(
+                (lls, fs) =>
+                    from ll in lls
+                    join h in fs.OfType<LocustHorde>().Where(f => f.Name == "Swarm") on ll.Name equals h.CommanderName into grouping
+                    from h in grouping.DefaultIfEmpty()
+                    where h.Eradicated != true
+                    select h,
+                (lls, fs) =>
+                    from ll in lls
+                    join h in fs.OfType<LocustHorde>().Where(f => f.Name == "Swarm") on ll.Name equals h.CommanderName into grouping
+                    from h in grouping.DefaultIfEmpty()
+                    where MaybeScalar(h, () => h.Eradicated) != true
+                    select h);
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

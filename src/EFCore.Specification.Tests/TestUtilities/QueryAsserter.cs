@@ -336,19 +336,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
 
-                if (!assertOrder
-                    && elementSorter == null
-                    && expected.Length > 0
-                    && expected[0] != null)
+                var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
+                if (firstNonNullableElement != null)
                 {
-                    _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
-                }
+                    if (!assertOrder && elementSorter == null)
+                    {
+                        _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
+                    }
 
-                if (elementAsserter == null
-                    && expected.Length > 0
-                    && expected[0] != null)
-                {
-                    _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
+                    if (elementAsserter == null)
+                    {
+                        _entityAsserters.TryGetValue(firstNonNullableElement.GetType(), out elementAsserter);
+                    }
                 }
 
                 TestHelpers.AssertResults(
@@ -398,19 +397,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem1>(),
                     ExpectedData.Set<TItem2>()).ToArray();
 
-                if (!assertOrder
-                    && elementSorter == null
-                    && expected.Length > 0
-                    && expected[0] != null)
+                var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
+                if (firstNonNullableElement != null)
                 {
-                    _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
-                }
+                    if (!assertOrder && elementSorter == null)
+                    {
+                        _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
+                    }
 
-                if (elementAsserter == null
-                    && expected.Length > 0
-                    && expected[0] != null)
-                {
-                    _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
+                    if (elementAsserter == null)
+                    {
+                        _entityAsserters.TryGetValue(firstNonNullableElement.GetType(), out elementAsserter);
+                    }
                 }
 
                 TestHelpers.AssertResults(
@@ -463,19 +461,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     ExpectedData.Set<TItem2>(),
                     ExpectedData.Set<TItem3>()).ToArray();
 
-                if (!assertOrder
-                    && elementSorter == null
-                    && expected.Length > 0
-                    && expected[0] != null)
+                var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
+                if (firstNonNullableElement != null)
                 {
-                    _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
-                }
+                    if (!assertOrder && elementSorter == null)
+                    {
+                        _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
+                    }
 
-                if (elementAsserter == null
-                    && expected.Length > 0
-                    && expected[0] != null)
-                {
-                    _entityAsserters.TryGetValue(expected[0].GetType(), out elementAsserter);
+                    if (elementAsserter == null)
+                    {
+                        _entityAsserters.TryGetValue(firstNonNullableElement.GetType(), out elementAsserter);
+                    }
                 }
 
                 TestHelpers.AssertResults(

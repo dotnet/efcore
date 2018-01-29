@@ -79,19 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is AliasExpression aliasExpression)
-            {
-                return Visit(aliasExpression.Expression);
-            }
-
-            if (extensionExpression is ColumnExpression columnExpression
-                && columnExpression.Property.IsNullable)
-            {
-                AddToResult(new IsNullExpression(extensionExpression));
-
-                return extensionExpression;
-            }
-
             if (extensionExpression is NullableExpression nullableExpression)
             {
                 AddToResult(new IsNullExpression(nullableExpression.Operand));
@@ -99,7 +86,32 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return extensionExpression;
             }
 
+            if (ContainsNullableColumnExpression(extensionExpression))
+            {
+                AddToResult(new IsNullExpression(extensionExpression));
+            }
+
             return extensionExpression;
+        }
+
+        private bool ContainsNullableColumnExpression(Expression extensionExpression)
+        {
+            if (extensionExpression is ColumnExpression columnExpression)
+            {
+                return columnExpression.Property.IsNullable;
+            }
+
+            if (extensionExpression is ColumnReferenceExpression columnReferenceExpression)
+            {
+                return ContainsNullableColumnExpression(columnReferenceExpression.Expression);
+            }
+
+            if (extensionExpression is AliasExpression aliasExpression)
+            {
+                return ContainsNullableColumnExpression(aliasExpression.Expression);
+            }
+
+            return false;
         }
 
         /// <summary>
