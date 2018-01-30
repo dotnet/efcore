@@ -4014,6 +4014,74 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Correlated_collection_with_top_level_FirstOrDefault()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.OrderBy(g => g.Nickname).Select(g => g.Weapons).FirstOrDefault();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Select(g => g.Weapons).FirstOrDefault();
+
+                Assert.Equal(expected.Count, actual.Count);
+
+                var actualList = actual.ToList();
+                var expectedList = expected.ToList();
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expectedList[i].Id, actualList[i].Id);
+                    Assert.Equal(expectedList[i].Name, actualList[i].Name);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collection_with_top_level_Count()
+        {
+            AssertSingleResult<Gear>(
+                gs => gs.Select(g => g.Weapons).Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collection_with_top_level_Last_with_orderby_on_outer()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.OrderByDescending(g => g.FullName).Select(g => g.Weapons).Last();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.FullName).Select(g => g.Weapons).Last();
+
+                Assert.Equal(expected.Count, actual.Count);
+
+                var actualList = actual.ToList();
+                var expectedList = expected.ToList();
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expectedList[i].Id, actualList[i].Id);
+                    Assert.Equal(expectedList[i].Name, actualList[i].Name);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Correlated_collection_with_top_level_Last_with_order_by_on_inner()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.OrderBy(g => g.FullName).Select(g => g.Weapons.OrderBy(w => w.Name).ToList()).Last();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.FullName).Select(g => g.Weapons.OrderBy(w => w.Name).ToList()).Last();
+
+                Assert.Equal(expected.Count, actual.Count);
+
+                var actualList = actual.ToList();
+                var expectedList = expected.ToList();
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expectedList[i].Id, actualList[i].Id);
+                    Assert.Equal(expectedList[i].Name, actualList[i].Name);
+                }
+            }
+        }
+
+
+        [ConditionalFact]
         public virtual void Include_with_group_by_and_last()
         {
             using (var ctx = CreateContext())

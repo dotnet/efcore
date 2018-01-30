@@ -301,7 +301,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             navigationRewritingExpressionVisitor.InjectSubqueryToCollectionsInProjection(queryModel);
 
             var correlatedCollectionFinder = new CorrelatedCollectionFindingExpressionVisitor(this, TrackResults(queryModel));
-            queryModel.SelectClause.TransformExpressions(correlatedCollectionFinder.Visit);
+
+            if (!queryModel.ResultOperators.Any(r => r is GroupResultOperator))
+            {
+                queryModel.SelectClause.TransformExpressions(correlatedCollectionFinder.Visit);
+            }
 
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 

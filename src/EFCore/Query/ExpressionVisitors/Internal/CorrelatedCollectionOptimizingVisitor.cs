@@ -19,6 +19,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionVisitors;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -245,10 +246,13 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     collectionQueryModel,
                     subQueryProjection);
 
+            var lastResultOperator = ProcessResultOperators(clonedParentQueryModel);
+
             ApplyParentOrderings(
                 parentOrderings,
                 clonedParentQueryModel,
-                querySourceMapping);
+                querySourceMapping,
+                lastResultOperator);
 
             LiftOrderBy(
                 joinQuerySourceReferenceExpression,
@@ -524,6 +528,31 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                && propertyName1 == propertyName2;
         }
 
+        private bool ProcessResultOperators(QueryModel queryModel)
+        {
+            var lastResultOperator = false;
+
+            if (queryModel.ResultOperators.LastOrDefault() is ChoiceResultOperatorBase choiceResultOperator)
+            {
+                queryModel.ResultOperators.Remove(choiceResultOperator);
+                if (choiceResultOperator is FirstResultOperator
+                    || choiceResultOperator is SingleResultOperator
+                    || choiceResultOperator is LastResultOperator)
+                {
+                    queryModel.ResultOperators.Add(new TakeResultOperator(Expression.Constant(1)));
+                }
+
+                lastResultOperator = choiceResultOperator is LastResultOperator;
+            }
+
+            if (queryModel.ResultOperators.LastOrDefault() is ValueFromSequenceResultOperatorBase valueFromSequenceResultOperator)
+            {
+                queryModel.ResultOperators.Remove(valueFromSequenceResultOperator);
+            }
+
+            return lastResultOperator;
+        }
+
         private QuerySourceReferenceExpression CreateJoinToParentQuery(
             QueryModel parentQueryModel,
             QuerySourceReferenceExpression parentQuerySourceReferenceExpression,
@@ -608,7 +637,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static void ApplyParentOrderings(
             IEnumerable<Ordering> parentOrderings,
             QueryModel queryModel,
-            QuerySourceMapping querySourceMapping)
+            QuerySourceMapping querySourceMapping,
+            bool reverseOrdering)
         {
             var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().LastOrDefault();
 
@@ -639,6 +669,17 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 orderByClause.Orderings
                     .Add(new Ordering(newExpression, ordering.OrderingDirection));
             }
+
+            if (reverseOrdering)
+            {
+                foreach (var ordering in orderByClause.Orderings)
+                {
+                    ordering.OrderingDirection
+                        = ordering.OrderingDirection == OrderingDirection.Asc
+                            ? OrderingDirection.Desc
+                            : OrderingDirection.Asc;
+                }
+            }
         }
 
         private static void LiftOrderBy(
@@ -646,6 +687,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             QueryModel fromQueryModel,
             QueryModel toQueryModel)
         {
+            var canRemove
+                = !fromQueryModel.ResultOperators
+                    .Any(r => r is SkipResultOperator || r is TakeResultOperator);
+
             foreach (var orderByClause
                 in fromQueryModel.BodyClauses.OfType<OrderByClause>().ToArray())
             {
@@ -676,7 +721,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 toQueryModel.BodyClauses.Add(outerOrderByClause);
-                fromQueryModel.BodyClauses.Remove(orderByClause);
+
+                if (canRemove)
+                {
+                    fromQueryModel.BodyClauses.Remove(orderByClause);
+                }
             }
         }
 

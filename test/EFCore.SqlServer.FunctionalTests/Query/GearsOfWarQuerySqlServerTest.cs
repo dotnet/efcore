@@ -5802,6 +5802,79 @@ WHERE [w.Owner.Squad.Members].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t6].[Nickname], [t6].[SquadId], [t6].[Nickname0], [t6].[SquadId0], [t6].[FullName], [t6].[Id], [t6].[Id0], [Nickname1]");
         }
 
+        public override void Correlated_collection_with_top_level_FirstOrDefault()
+        {
+            base.Correlated_collection_with_top_level_FirstOrDefault();
+
+            AssertSql(
+                @"SELECT TOP(1) [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[Nickname], [g].[SquadId], [g].[FullName]",
+                //
+                @"SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId], [t].[Nickname], [t].[SquadId], [t].[FullName]
+FROM [Weapons] AS [g.Weapons]
+INNER JOIN (
+    SELECT TOP(1) [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [g0].[Nickname], [g0].[SquadId], [g0].[FullName]
+) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[Nickname], [t].[SquadId], [t].[FullName]");
+        }
+
+        public override void Correlated_collection_with_top_level_Count()
+        {
+            base.Correlated_collection_with_top_level_Count();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override void Correlated_collection_with_top_level_Last_with_orderby_on_outer()
+        {
+            base.Correlated_collection_with_top_level_Last_with_orderby_on_outer();
+
+            AssertSql(
+                @"SELECT TOP(1) [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[FullName], [g].[Nickname] DESC, [g].[SquadId] DESC",
+                //
+                @"SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId], [t].[FullName], [t].[Nickname], [t].[SquadId]
+FROM [Weapons] AS [g.Weapons]
+INNER JOIN (
+    SELECT TOP(1) [g0].[FullName], [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [g0].[FullName], [g0].[Nickname] DESC, [g0].[SquadId] DESC
+) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[FullName], [t].[Nickname] DESC, [t].[SquadId] DESC");
+        }
+
+        public override void Correlated_collection_with_top_level_Last_with_order_by_on_inner()
+        {
+            base.Correlated_collection_with_top_level_Last_with_order_by_on_inner();
+
+            AssertSql(
+                @"SELECT TOP(1) [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+ORDER BY [g].[FullName] DESC, [g].[Nickname] DESC, [g].[SquadId] DESC",
+                //
+                @"SELECT [g.Weapons].[Id], [g.Weapons].[AmmunitionType], [g.Weapons].[IsAutomatic], [g.Weapons].[Name], [g.Weapons].[OwnerFullName], [g.Weapons].[SynergyWithId], [t].[FullName], [t].[Nickname], [t].[SquadId]
+FROM [Weapons] AS [g.Weapons]
+INNER JOIN (
+    SELECT TOP(1) [g0].[FullName], [g0].[Nickname], [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
+    ORDER BY [g0].[FullName] DESC, [g0].[Nickname] DESC, [g0].[SquadId] DESC
+) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
+ORDER BY [t].[FullName] DESC, [t].[Nickname] DESC, [t].[SquadId] DESC, [g.Weapons].[Name]");
+        }
+
         public override void Include_with_group_by_and_last()
         {
             base.Include_with_group_by_and_last();
@@ -5885,7 +5958,6 @@ INNER JOIN (
     WHERE [g0].[Discriminator] IN (N'Officer', N'Gear')
 ) AS [t] ON [g.Weapons].[OwnerFullName] = [t].[FullName]
 ORDER BY [t].[Nickname], [t].[FullName]");
-
         }
 
         private void AssertSql(params string[] expected)
