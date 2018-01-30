@@ -940,5 +940,38 @@ ORDER BY [o].[OrderID]");
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')");
         }
+
+        public override void OrderBy_Take_Last_gives_correct_result()
+        {
+            base.OrderBy_Take_Last_gives_correct_result();
+
+            AssertSql(
+                @"@__p_0='20'
+
+SELECT TOP(1) [t].*
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+ORDER BY [t].[CustomerID] DESC");
+        }
+
+        public override void OrderBy_Skip_Last_gives_correct_result()
+        {
+            base.OrderBy_Skip_Last_gives_correct_result();
+
+            AssertSql(
+                @"@__p_0='20'
+
+SELECT TOP(1) [t].*
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+    OFFSET @__p_0 ROWS
+) AS [t]
+ORDER BY [t].[CustomerID] DESC");
+        }
     }
 }
