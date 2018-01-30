@@ -33,20 +33,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
-            [NotNull] string language)
+            [NotNull] string language,
+            [NotNull] string[] args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
             Check.NotNull(language, nameof(language));
+            Check.NotNull(args, nameof(args));
 
             _reporter = reporter;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _language = language;
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
+            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
         }
 
         /// <summary>
@@ -98,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 _language,
                 MakeDirRelative(outputDir, outputContextDir),
                 dbContextClassName,
-                useDataAnnotations,
-                useDatabaseNames);
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
+                new ModelCodeGenerationOptions { UseDataAnnotations = useDataAnnotations });
 
             return scaffolder.Save(
                 scaffoldedModel,

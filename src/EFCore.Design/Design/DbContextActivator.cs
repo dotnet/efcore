@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             return new DbContextOperations(
                     new OperationReporter(reportHandler),
                     contextType.Assembly,
-                    startupAssembly ?? contextType.Assembly)
+                    startupAssembly ?? contextType.Assembly,
+                    args: Array.Empty<string>()) // TODO: Issue #8332
                 .CreateContext(contextType.FullName);
         }
     }

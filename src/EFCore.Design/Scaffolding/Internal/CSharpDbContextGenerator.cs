@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual string WriteCode(IModel model, string @namespace, string contextName, string connectionString, bool useDataAnnotations)
+        public virtual string WriteCode(IModel model, string @namespace, string contextName, string connectionString, bool useDataAnnotations, bool suppressConnectionStringWarning)
         {
             Check.NotNull(model, nameof(model));
 
@@ -83,7 +83,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             using (_sb.Indent())
             {
-                GenerateClass(model, contextName, connectionString, useDataAnnotations);
+                GenerateClass(
+                    model,
+                    contextName,
+                    connectionString,
+                    useDataAnnotations,
+                    suppressConnectionStringWarning);
             }
 
             _sb.AppendLine("}");
@@ -99,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IModel model,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            bool useDataAnnotations)
+            bool useDataAnnotations,
+            bool suppressConnectionStringWarning)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(contextName, nameof(contextName));
@@ -112,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 GenerateDbSets(model);
                 GenerateEntityTypeErrors(model);
-                GenerateOnConfiguring(connectionString);
+                GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
                 GenerateOnModelCreating(model, useDataAnnotations);
             }
 
@@ -151,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual void GenerateOnConfiguring(
-            [NotNull] string connectionString)
+            [NotNull] string connectionString,
+            bool suppressConnectionStringWarning)
         {
             Check.NotNull(connectionString, nameof(connectionString));
 
@@ -165,16 +172,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 using (_sb.Indent())
                 {
-                    _sb.DecrementIndent()
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .AppendLine("#warning " + DesignStrings.SensitiveInformationWarning)
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .Append("optionsBuilder")
+                    if (!suppressConnectionStringWarning)
+                    {
+                        _sb.DecrementIndent()
+                            .DecrementIndent()
+                            .DecrementIndent()
+                            .DecrementIndent()
+                            .AppendLine("#warning " + DesignStrings.SensitiveInformationWarning)
+                            .IncrementIndent()
+                            .IncrementIndent()
+                            .IncrementIndent()
+                            .IncrementIndent();
+                    }
+
+                    _sb.Append("optionsBuilder")
                         .Append(
                             _providerCodeGenerator != null
                                 ? _cSharpUtilities.Generate(

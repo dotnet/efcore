@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Test(
                 modelBuilder => { },
-                /* dataAnnotations: */ false,
+                new ModelCodeGenerationOptions(),
                 code =>
                 {
                     Assert.Equal(
@@ -57,9 +57,50 @@ namespace TestNamespace
                 });
         }
 
+        [Fact]
+        public void SuppressConnectionStringWarning_works()
+        {
+            Test(
+                modelBuilder => { },
+                new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true },
+                code =>
+                {
+                    Assert.Equal(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {}
+    }
+}
+",
+                        code.ContextFile.Code,
+                        ignoreLineEndingDifferences: true);
+
+                    Assert.Empty(code.AdditionalFiles);
+                },
+                model =>
+                {
+                    Assert.Empty(model.GetEntityTypes());
+                });
+        }
+
         private void Test(
             Action<ModelBuilder> buildModel,
-            bool dataAnnotations,
+            ModelCodeGenerationOptions options,
             Action<ScaffoldedModel> assertScaffold,
             Action<IModel> assertModel)
         {
@@ -69,10 +110,11 @@ namespace TestNamespace
 
             var model = modelBuilder.Model;
 
-            var generator = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices()
-                .AddSingleton<IProviderCodeGenerator, SqlServerCodeGenerator>()
-                .AddSingleton<IAnnotationCodeGenerator, SqlServerAnnotationCodeGenerator>()
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+
+            var generator = services
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
@@ -82,7 +124,7 @@ namespace TestNamespace
                 /*contextDir:*/ string.Empty,
                 "TestDbContext",
                 "Initial Catalog=TestDatabase",
-                dataAnnotations);
+                options);
             assertScaffold(scaffoldedModel);
 
             var build = new BuildSource

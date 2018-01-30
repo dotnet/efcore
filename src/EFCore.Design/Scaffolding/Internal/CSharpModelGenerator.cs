@@ -62,17 +62,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string contextDir,
             string contextName,
             string connectionString,
-            bool useDataAnnotations)
+            ModelCodeGenerationOptions options)
         {
             Check.NotNull(model, nameof(model));
             Check.NotEmpty(@namespace, nameof(@namespace));
             Check.NotNull(contextDir, nameof(contextDir));
             Check.NotEmpty(contextName, nameof(contextName));
             Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NotNull(options, nameof(options));
 
             var resultingFiles = new ScaffoldedModel();
 
-            var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, useDataAnnotations);
+            var generatedCode = CSharpDbContextGenerator.WriteCode(model, @namespace, contextName, connectionString, options.UseDataAnnotations, options.SuppressConnectionStringWarning);
 
             // output DbContext .cs file
             var dbContextFileName = contextName + FileExtension;
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, @namespace, useDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, @namespace, options.UseDataAnnotations);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;

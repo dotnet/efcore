@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -15,13 +16,15 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     Extension methods for adding Entity Framework Core design-time services to an <see cref="IServiceCollection" />.
+    ///     Extension methods for adding Entity Framework Core design-time services to an
+    ///     <see cref="IServiceCollection" />.
     /// </summary>
     public static class DesignTimeServiceCollectionExtensions
     {
@@ -29,20 +32,20 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Adds the Entity Framework Core design-time services.
         /// </summary>
         /// <param name="services"> The <see cref="IServiceCollection" /> the services will be added to. </param>
-        /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
-        public static IServiceCollection AddEntityFrameworkDesignTimeServices([NotNull] this IServiceCollection services)
-            => services.AddEntityFrameworkDesignTimeServices(new OperationReporter(handler: null));
-
-        /// <summary>
-        ///     Adds the Entity Framework Core design-time services.
-        /// </summary>
-        /// <param name="services"> The <see cref="IServiceCollection" /> the services will be added to. </param>
         /// <param name="reporter"> Used to report design-time messages. </param>
+        /// <param name="applicationServiceProviderAccessor"> An accessor to the application service provider. </param>
         /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>
         public static IServiceCollection AddEntityFrameworkDesignTimeServices(
             [NotNull] this IServiceCollection services,
-            [NotNull] IOperationReporter reporter)
-            => services
+            [CanBeNull] IOperationReporter reporter = null,
+            [CanBeNull] Func<IServiceProvider> applicationServiceProviderAccessor = null)
+        {
+            if (reporter == null)
+            {
+                reporter = new OperationReporter(handler: null);
+            }
+
+            return services
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
                 .AddSingleton<CoreTypeMapperDependencies>()
                 .AddSingleton<CSharpMigrationOperationGeneratorDependencies>()
@@ -67,8 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
                 .AddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
                 .AddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
+                .AddSingleton<INamedConnectionStringResolver>(
+                    new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                 .AddSingleton(reporter)
                 .AddSingleton<IPluralizer, NullPluralizer>()
+                .AddSingleton<IRelationalCoreTypeMapper, FallbackRelationalCoreTypeMapper>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
@@ -77,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddTransient<IMigrationsScaffolder, MigrationsScaffolder>()
                 .AddTransient<ISnapshotModelProcessor, SnapshotModelProcessor>()
                 .AddLogging(b => b.SetMinimumLevel(LogLevel.Debug).AddProvider(new OperationLoggerProvider(reporter)));
+        }
 
         /// <summary>
         ///     Adds services from the <see cref="DbContext" /> which are used at design time.

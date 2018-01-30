@@ -38,15 +38,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 DesignStrings.ContextClassNotValidCSharpIdentifier(contextName),
                 Assert.Throws<ArgumentException>(
                         () => reverseEngineer.ScaffoldModel(
-                            connectionString: "connectionstring",
-                            tables: Enumerable.Empty<string>(),
-                            schemas: Enumerable.Empty<string>(),
-                            @namespace: "FakeNamespace",
-                            language: "",
-                            contextDir: null,
-                            contextName: contextName,
-                            useDataAnnotations: false,
-                            useDatabaseNames: false))
+                            "connectionstring",
+                            /* tables: */ Enumerable.Empty<string>(),
+                            /* schemas: */ Enumerable.Empty<string>(),
+                            "FakeNamespace",
+                            /* language: */ "",
+                            /* contextDir: */ null,
+                            contextName,
+                            new ModelReverseEngineerOptions(),
+                            new ModelCodeGenerationOptions()))
                     .Message);
         }
 

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 Path.Combine("..", "TestContextDir" + Path.DirectorySeparatorChar),
                 "TestContext",
                 "Data Source=Test",
-                dataAnnotations: true);
+                new ModelCodeGenerationOptions());
 
             Assert.Equal(Path.Combine("..", "TestContextDir", "TestContext.cs"), result.ContextFile.Path);
             Assert.NotEmpty(result.ContextFile.Code);

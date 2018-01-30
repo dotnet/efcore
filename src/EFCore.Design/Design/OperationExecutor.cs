@@ -54,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             var rootNamespace = (string)args["rootNamespace"];
             var language = (string)args["language"];
 
+            // TODO: Flow in from tools (issue #8332)
+            var designArgs = Array.Empty<string>();
+
             // NOTE: LazyRef is used so any exceptions get passed to the resultHandler
             var startupAssembly = new LazyRef<Assembly>(
                 () => Assembly.Load(new AssemblyName(startupTargetName)));
@@ -75,14 +78,16 @@ namespace Microsoft.EntityFrameworkCore.Design
                 () => new DbContextOperations(
                     reporter,
                     assembly.Value,
-                    startupAssembly.Value));
+                    startupAssembly.Value,
+                    designArgs));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     reporter,
                     startupAssembly.Value,
                     _projectDir,
                     rootNamespace,
-                    language));
+                    language,
+                    designArgs));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     reporter,
@@ -90,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                     startupAssembly.Value,
                     _projectDir,
                     rootNamespace,
-                    language));
+                    language,
+                    designArgs));
         }
 
         /// <summary>

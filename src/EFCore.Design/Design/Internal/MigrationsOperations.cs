@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] Assembly startupAssembly,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
-            [NotNull] string language)
+            [NotNull] string language,
+            [NotNull] string[] args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
@@ -49,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
             Check.NotNull(language, nameof(language));
+            Check.NotNull(args, nameof(args));
 
             _reporter = reporter;
             _assembly = assembly;
@@ -58,9 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _contextOperations = new DbContextOperations(
                 reporter,
                 assembly,
-                startupAssembly);
+                startupAssembly,
+                args);
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter);
+            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
         }
 
         /// <summary>

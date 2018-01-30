@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="contextDir"> The directory of the <see cref="DbContext"/>. </param>
         /// <param name="contextName"> The name of the <see cref="DbContext"/>. </param>
         /// <param name="connectionString"> The connection string. </param>
-        /// <param name="dataAnnotations"> A value indicating whether to use data annotations. </param>
+        /// <param name="options"> The options to use during generation. </param>
         /// <returns> The generated model. </returns>
         ScaffoldedModel GenerateModel(
             [NotNull] IModel model,
@@ -28,6 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             [NotNull] string contextDir,
             [NotNull] string contextName,
             [NotNull] string connectionString,
-            bool dataAnnotations);
+            [NotNull] ModelCodeGenerationOptions options);
     }
 }

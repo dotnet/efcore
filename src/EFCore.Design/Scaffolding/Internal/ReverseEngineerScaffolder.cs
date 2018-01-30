@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -24,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IDatabaseModelFactory _databaseModelFactory;
         private readonly IScaffoldingModelFactory _factory;
         private readonly ICSharpUtilities _cSharpUtilities;
+        private readonly INamedConnectionStringResolver _connectionStringResolver;
         private const string DbContextSuffix = "Context";
         private const string DefaultDbContextName = "Model" + DbContextSuffix;
 
@@ -35,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
             [NotNull] IModelCodeGeneratorSelector modelCodeGeneratorSelector,
-            [NotNull] ICSharpUtilities cSharpUtilities)
+            [NotNull] ICSharpUtilities cSharpUtilities,
+            [NotNull] INamedConnectionStringResolver connectionStringResolver)
         {
             Check.NotNull(databaseModelFactory, nameof(databaseModelFactory));
             Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
@@ -45,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _factory = scaffoldingModelFactory;
             ModelCodeGeneratorSelector = modelCodeGeneratorSelector;
             _cSharpUtilities = cSharpUtilities;
+            _connectionStringResolver = connectionStringResolver;
         }
 
         /// <summary>
@@ -65,14 +69,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string language,
             string contextDir,
             string contextName,
-            bool useDataAnnotations,
-            bool useDatabaseNames)
+            ModelReverseEngineerOptions modelOptions,
+            ModelCodeGenerationOptions codeOptions)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tables, nameof(tables));
             Check.NotNull(schemas, nameof(schemas));
             Check.NotEmpty(@namespace, nameof(@namespace));
             Check.NotNull(language, nameof(language));
+            Check.NotNull(modelOptions, nameof(modelOptions));
+            Check.NotNull(codeOptions, nameof(codeOptions));
 
             if (!string.IsNullOrWhiteSpace(contextName)
                 && (!_cSharpUtilities.IsValidIdentifier(contextName)
@@ -82,8 +88,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     DesignStrings.ContextClassNotValidCSharpIdentifier(contextName));
             }
 
-            var databaseModel = _databaseModelFactory.Create(connectionString, tables, schemas);
-            var model = _factory.Create(databaseModel, useDatabaseNames);
+            var resolvedConnectionString = _connectionStringResolver.ResolveConnectionString(connectionString);
+            if (resolvedConnectionString != connectionString)
+            {
+                codeOptions.SuppressConnectionStringWarning = true;
+            }
+
+            var databaseModel = _databaseModelFactory.Create(resolvedConnectionString, tables, schemas);
+            var model = _factory.Create(databaseModel, modelOptions.UseDatabaseNames);
 
             if (model == null)
             {
@@ -108,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var codeGenerator = ModelCodeGeneratorSelector.Select(language);
 
-            return codeGenerator.GenerateModel(model, @namespace, contextDir ?? string.Empty, contextName, connectionString, useDataAnnotations);
+            return codeGenerator.GenerateModel(model, @namespace, contextDir ?? string.Empty, contextName, connectionString, codeOptions);
         }
 
         /// <summary>

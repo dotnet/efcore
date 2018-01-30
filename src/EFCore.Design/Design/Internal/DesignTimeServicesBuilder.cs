@@ -22,15 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly Assembly _startupAssembly;
         private readonly IOperationReporter _reporter;
+        private readonly string[] _args;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public DesignTimeServicesBuilder([NotNull] Assembly startupAssembly, [NotNull] IOperationReporter reporter)
+        public DesignTimeServicesBuilder(
+            [NotNull] Assembly startupAssembly,
+            [NotNull] IOperationReporter reporter,
+            [NotNull] string[] args)
         {
             _startupAssembly = startupAssembly;
             _reporter = reporter;
+            _args = args;
         }
 
         /// <summary>
@@ -60,13 +65,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotEmpty(provider, nameof(provider));
 
             var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter);
+                .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureProviderServices(provider, services, throwOnError: true);
             ConfigureReferencedServices(services);
             ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
         }
+
+        private IServiceProvider GetApplicationServices()
+            => new AppServiceProviderFactory(_startupAssembly, _reporter).Create(_args);
 
         private void ConfigureUserServices(IServiceCollection services)
         {

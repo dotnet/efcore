@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <param name="language"> The programming language to scaffold for. </param>
         /// <param name="contextDir"> The DbContext output dirctory. </param>
         /// <param name="contextName"> The <see cref="DbContext"/> name. </param>
-        /// <param name="useDataAnnotations"> True to scaffold data annotations. </param>
-        /// <param name="useDatabaseNames"> True to use the database schema names directly. </param>
+        /// <param name="modelOptions"> The options to use when reverse engineering a model from the database. </param>
+        /// <param name="codeOptions"> The options to use when generating code for the model. </param>
         /// <returns> The scaffolded model. </returns>
         ScaffoldedModel ScaffoldModel(
             [NotNull] string connectionString,
@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             [NotNull] string language,
             [CanBeNull] string contextDir,
             [CanBeNull] string contextName,
-            bool useDataAnnotations,
-            bool useDatabaseNames);
+            [NotNull] ModelReverseEngineerOptions modelOptions,
+            [NotNull] ModelCodeGenerationOptions codeOptions);
 
         /// <summary>
         ///     Saves a scaffolded model to disk.

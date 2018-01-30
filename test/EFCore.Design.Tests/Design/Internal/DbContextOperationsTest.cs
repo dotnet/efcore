@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                /* args: */ Array.Empty<string>(),
                 new TestAppServiceProviderFactory(assembly, typeof(TestProgram)));
 
             operations.CreateContext(typeof(TestContext).FullName);

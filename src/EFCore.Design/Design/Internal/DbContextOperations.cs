@@ -23,24 +23,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     /// </summary>
     public class DbContextOperations
     {
-        // TODO: Flow in from tools (issue #8332)
-        private static readonly string[] _args = Array.Empty<string>();
-
         private readonly IOperationReporter _reporter;
         private readonly Assembly _assembly;
         private readonly Assembly _startupAssembly;
+        private readonly string[] _args;
         private readonly AppServiceProviderFactory _appServicesFactory;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        // NB: Used by Scaffolding. Break with care.
         public DbContextOperations(
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly)
-            : this(reporter, assembly, startupAssembly, new AppServiceProviderFactory(startupAssembly, reporter))
+            [NotNull] Assembly startupAssembly,
+            [NotNull] string[] args)
+            : this(reporter, assembly, startupAssembly, args, new AppServiceProviderFactory(startupAssembly, reporter))
         {
         }
 
@@ -52,15 +50,18 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IOperationReporter reporter,
             [NotNull] Assembly assembly,
             [NotNull] Assembly startupAssembly,
+            [NotNull] string[] args,
             [NotNull] AppServiceProviderFactory appServicesFactory)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(assembly, nameof(assembly));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
+            Check.NotNull(args, nameof(args));
 
             _reporter = reporter;
             _assembly = assembly;
             _startupAssembly = startupAssembly;
+            _args = args;
             _appServicesFactory = appServicesFactory;
         }
 
