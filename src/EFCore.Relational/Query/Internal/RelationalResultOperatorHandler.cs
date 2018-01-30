@@ -591,6 +591,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var requiresClientResultOperator = true;
             if (handlerContext.SelectExpression.OrderBy.Any())
             {
+                if (handlerContext.SelectExpression.Limit != null
+                    || handlerContext.SelectExpression.Offset != null)
+                {
+                    handlerContext.SelectExpression.PushDownSubquery();
+                    handlerContext.SelectExpression.LiftOrderBy();
+                }
+
                 foreach (var ordering in handlerContext.SelectExpression.OrderBy)
                 {
                     ordering.OrderingDirection
@@ -758,12 +765,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     handlerContext.SelectExpression.SetProjectionExpression(sumExpression);
-                    
-                    var clientExpression 
+
+                    var clientExpression
                         = (Expression)_transformClientExpressionMethodInfo
                             .MakeGenericMethod(sumExpression.Type.UnwrapNullableType())
                             .Invoke(null, new object[] { handlerContext, /*throwOnNullResult:*/ false });
-                    
+
                     return
                         sumExpression.Type.IsNullableType()
                             ? Expression.Convert(clientExpression, sumExpression.Type)

@@ -1152,5 +1152,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(o => o.OrderID)
                     .Select(o => (long)o.OrderID).Average());
         }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Take_Last_gives_correct_result()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .Take(20)
+                    .Last(),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void OrderBy_Skip_Last_gives_correct_result()
+        {
+            AssertSingleResult<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID)
+                    .Skip(20)
+                    .Last(),
+                entryCount: 1);
+        }
     }
 }
