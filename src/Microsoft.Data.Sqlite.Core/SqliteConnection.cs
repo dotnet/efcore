@@ -30,11 +30,6 @@ namespace Microsoft.Data.Sqlite
             => BundleInitializer.Initialize();
 
         /// <summary>
-        ///     Occurs whenever a row is updated, inserted or deleted in a rowid table.
-        /// </summary>
-        public event EventHandler<UpdateEventArgs> Update;
-
-        /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
         /// </summary>
         public SqliteConnection()
@@ -230,12 +225,7 @@ namespace Microsoft.Data.Sqlite
             SqliteException.ThrowExceptionForRC(rc, _db);
 
             SetState(ConnectionState.Open);
-
-            raw.sqlite3_update_hook(_db, UpdateHook, null);
         }
-
-        private void UpdateHook(object user_data, int type, string database, string table, long rowid)
-            => OnUpdate(new UpdateEventArgs((UpdateEventType)type, database, table, rowid));
 
         /// <summary>
         ///     Closes the connection to the database. Open transactions are rolled back.
@@ -247,8 +237,6 @@ namespace Microsoft.Data.Sqlite
             {
                 return;
             }
-
-            raw.sqlite3_update_hook(_db, null, null);
 
             Transaction?.Dispose();
 
@@ -461,13 +449,6 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
-
-        /// <summary>
-        ///     Raises the Microsoft.Data.Sqlite.SqliteConnection.Update event.
-        /// </summary>
-        /// <param name="e">A Microsoft.Data.Sqlite.UpdateEventArgs that contains the event data.</param>
-        protected virtual void OnUpdate(UpdateEventArgs e)
-            => Update?.Invoke(this, e);
 
         private void CreateFunctionCore<TState, TResult>(
             string name,
