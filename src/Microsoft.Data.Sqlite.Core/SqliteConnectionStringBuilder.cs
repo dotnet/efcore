@@ -169,7 +169,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        private TEnum ConvertToEnum<TEnum>(object value)
+        private static TEnum ConvertToEnum<TEnum>(object value)
             where TEnum : struct
         {
             if (value is string stringValue)
@@ -287,7 +287,7 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        private Keywords GetIndex(string keyword)
+        private static Keywords GetIndex(string keyword)
             => !_keywords.TryGetValue(keyword, out var index)
                 ? throw new ArgumentException(Resources.KeywordNotSupported(keyword))
                 : index;
