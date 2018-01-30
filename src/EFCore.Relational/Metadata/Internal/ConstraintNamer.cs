@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var maxNameLength = maxLength - uniquifierLength;
 
             var builder = new StringBuilder();
-            if (name.Length <= maxLength)
+            if (name.Length <= maxNameLength)
             {
                 builder.Append(name);
             }
