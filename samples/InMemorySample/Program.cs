@@ -12,7 +12,7 @@ namespace InMemorySample
             const string connectionString = "Data Source=InMemorySample;Mode=Memory;Cache=Shared";
 
             // The in-memory database only persists while a connection is open to it. To manage
-            // its lifetime, keep one open connection arround for as long as you need it.
+            // its lifetime, keep one open connection around for as long as you need it.
             var masterConnection = new SqliteConnection(connectionString);
             masterConnection.Open();
 

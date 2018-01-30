@@ -22,7 +22,7 @@ namespace AsyncSample
             ";
             createCommand.ExecuteNonQuery();
 
-            // SQLite doesn't support asynchronous I/O. Instead, they reccomend using a
+            // SQLite doesn't support asynchronous I/O. Instead, they recommend using a
             // write -ahead log (WAL) which improves write performance. This sample
             // demonstrates the anti-pattern of using ADO.NET's async methods with
             // Microsoft.Data.Sqlite.

@@ -18,7 +18,7 @@ namespace EncryptionSample
                 // - Microsoft.Data.Sqlite.Core
                 // - SQLitePCLRaw.bundle_sqlcipher
 
-                // Immidiatly after opening the connection, send PRAGMA key to use encryption
+                // Immediately after opening the connection, send PRAGMA key to use encryption
                 var keyCommand = connection.CreateCommand();
                 keyCommand.CommandText =
                 @"
@@ -55,7 +55,7 @@ namespace EncryptionSample
                 quoteCommand.Parameters.AddWithValue("$value", password);
                 var quotedPassword = (string)quoteCommand.ExecuteScalar();
 
-                // PRAGMA statements can't be paramaterized. We're forced to concatenate the
+                // PRAGMA statements can't be parameterized. We're forced to concatenate the
                 // escaped user input
                 var keyCommand = connection.CreateCommand();
                 keyCommand.CommandText =

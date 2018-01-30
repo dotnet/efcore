@@ -12,7 +12,7 @@ namespace BatchingSample
 
             // SQLite doesn't support batching natively. Since there's no network involved, it
             // wouldn't really help with performance anyway. Batching is implemented in
-            // Microsoft.Data.Sqlite as a convienence. For better command performance, see
+            // Microsoft.Data.Sqlite as a convenience. For better command performance, see
             // BulkInsertSample.
 
             var createCommand = connection.CreateCommand();
