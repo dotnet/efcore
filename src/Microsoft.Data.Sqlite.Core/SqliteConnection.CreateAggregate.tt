@@ -41,7 +41,7 @@ namespace Microsoft.Data.Sqlite
 
             var seedArgument = seed
                 ? "seed"
-                : "default(TAccumulate)";
+                : "default";
 
             for (var arity = 0; arity <= 15; arity++)
             {

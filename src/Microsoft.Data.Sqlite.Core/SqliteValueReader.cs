@@ -271,7 +271,7 @@ namespace Microsoft.Data.Sqlite
         protected virtual T GetNull<T>(int ordinal)
             => typeof(T) == typeof(DBNull)
                 ? (T)(object)DBNull.Value
-                : default(T);
+                : default;
 
         protected virtual string GetOnNullErrorMsg(int ordinal)
             => Resources.CalledOnNullValue(ordinal);
