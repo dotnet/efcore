@@ -306,9 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             _modelExpressionApplyingExpressionVisitor.ApplyModelExpressions(queryModel);
 
             // Second pass of optimizations
-            
+
             ExtractQueryAnnotations(queryModel);
-            
+
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);

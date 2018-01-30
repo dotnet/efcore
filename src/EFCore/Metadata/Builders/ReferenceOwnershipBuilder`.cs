@@ -380,9 +380,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Expression<Func<TRelatedEntity, TNewRelatedEntity>> navigationExpression = null)
             where TNewRelatedEntity : class
         {
-            var relatedEntityType = RelatedEntityType.FindInDefinitionPath(typeof(TNewRelatedEntity)) ??
-                                    Builder.ModelBuilder.Entity(typeof(TNewRelatedEntity), ConfigurationSource.Explicit).Metadata;
             var navigation = navigationExpression?.GetPropertyAccess();
+            var relatedEntityType =
+                RelatedEntityType.FindInDefinitionPath(typeof(TNewRelatedEntity)) ??
+                Builder.ModelBuilder.Metadata.FindEntityType(typeof(TNewRelatedEntity), navigation?.Name, RelatedEntityType) ??
+                Builder.ModelBuilder.Entity(typeof(TNewRelatedEntity), ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder<TRelatedEntity, TNewRelatedEntity>(
                 RelatedEntityType,

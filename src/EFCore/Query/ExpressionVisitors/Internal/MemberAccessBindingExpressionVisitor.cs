@@ -460,6 +460,29 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             return innerProperties;
         }
 
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEntityType GetEntityType([NotNull] Expression expression, [NotNull] QueryCompilationContext queryCompilationContext)
+        {
+            IEntityType entityType = null;
+            var properties = GetPropertyPath(expression, queryCompilationContext, out var qsre);
+            if (properties.Count > 0)
+            {
+                if (properties[properties.Count - 1] is INavigation navigation)
+                {
+                    entityType = navigation.GetTargetType();
+                }
+            }
+            else if (qsre != null)
+            {
+                entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
+            }
+
+            return entityType;
+        }
+
         private static readonly MethodInfo _getValueMethodInfo
             = typeof(MemberAccessBindingExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetValue));

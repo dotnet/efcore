@@ -113,13 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                     else
                     {
-                        var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                            nonNullExpression, _queryCompilationContext, out qsre);
-                        if (properties.Count > 0
-                            && properties[properties.Count - 1] is INavigation navigation)
-                        {
-                            entityType = navigation.GetTargetType();
-                        }
+                        entityType = MemberAccessBindingExpressionVisitor.GetEntityType(
+                            nonNullExpression, _queryCompilationContext);
                     }
                 }
 

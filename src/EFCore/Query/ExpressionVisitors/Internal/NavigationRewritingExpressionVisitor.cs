@@ -1236,9 +1236,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     querySourceMapping.AddMapping(additionalFromClauseBeingProcessed, navigationJoin.QuerySourceReferenceExpression);
 
                     _parentQueryModel.TransformExpressions(
-                        e =>
-                            ReferenceReplacingExpressionVisitor
-                                .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
+                        e => ReferenceReplacingExpressionVisitor
+                            .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
                     foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
                     {
@@ -1400,6 +1399,24 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 _queryCompilationContext = queryModelVisitor.QueryCompilationContext;
             }
 
+            public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
+            {
+                base.VisitMainFromClause(fromClause, queryModel);
+
+                var queryCompilationContext = TransformingVisitor._queryModelVisitor.QueryCompilationContext;
+                if (queryCompilationContext.FindEntityType(fromClause) == null
+                    && fromClause.FromExpression is SubQueryExpression subQuery)
+                {
+                    var entityType = MemberAccessBindingExpressionVisitor.GetEntityType(
+                        subQuery.QueryModel.SelectClause.Selector, queryCompilationContext);
+
+                    if (entityType != null)
+                    {
+                        queryCompilationContext.AddOrUpdateMapping(fromClause, entityType);
+                    }
+                }
+            }
+
             public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
             {
                 // ReSharper disable once PatternAlwaysOfType
@@ -1459,21 +1476,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 if (queryCompilationContext.FindEntityType(joinClause) == null
                     && joinClause.InnerSequence is SubQueryExpression subQuery)
                 {
-                    IEntityType entityType = null;
-                    var properties = MemberAccessBindingExpressionVisitor.GetPropertyPath(
-                        subQuery.QueryModel.SelectClause.Selector, queryCompilationContext, out var qsre);
-                    if (properties.Count > 0)
-                    {
-                        if (properties[properties.Count - 1] is INavigation navigation)
-                        {
-                            entityType = navigation.GetTargetType();
-                        }
-                    }
-                    else if (qsre != null)
-                    {
-                        entityType = queryCompilationContext.FindEntityType(qsre.ReferencedQuerySource);
-                    }
-
+                    var entityType = MemberAccessBindingExpressionVisitor.GetEntityType(
+                        subQuery.QueryModel.SelectClause.Selector, queryCompilationContext);
                     if (entityType != null)
                     {
                         queryCompilationContext.AddOrUpdateMapping(joinClause, entityType);

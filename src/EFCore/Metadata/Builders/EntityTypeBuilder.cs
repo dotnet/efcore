@@ -365,6 +365,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = Builder.Metadata.FindInDefinitionPath(relatedType) ??
+                                    Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata) ??
                                     Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder(
@@ -404,6 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = Builder.Metadata.FindInDefinitionPath(relatedTypeName) ??
+                                    Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, Builder.Metadata) ??
                                     Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
 
             return new ReferenceNavigationBuilder(

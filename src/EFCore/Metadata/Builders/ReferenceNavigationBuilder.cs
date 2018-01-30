@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -64,31 +65,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder = builder;
         }
 
-        private InternalRelationshipBuilder Builder { get; }
+        private InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual string ReferenceName { get; }
+        protected virtual string ReferenceName { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual PropertyInfo ReferenceProperty { get; }
+        protected virtual PropertyInfo ReferenceProperty { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual EntityType RelatedEntityType { get; }
+        protected virtual EntityType RelatedEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual EntityType DeclaringEntityType { get; }
+        protected virtual EntityType DeclaringEntityType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
@@ -276,13 +277,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             throw new InvalidOperationException(
                 CoreStrings.ConflictingRelationshipNavigation(
                     foreignKey.PrincipalEntityType.DisplayName(),
-                    newToPrincipal ? foreignKey.PrincipalToDependent.Name : newInverseName,
+                    newToPrincipal ? foreignKey.PrincipalToDependent?.Name : newInverseName,
                     foreignKey.DeclaringEntityType.DisplayName(),
-                    newToPrincipal ? newInverseName : foreignKey.DependentToPrincipal.Name,
+                    newToPrincipal ? newInverseName : foreignKey.DependentToPrincipal?.Name,
                     foreignKey.PrincipalEntityType.DisplayName(),
-                    foreignKey.PrincipalToDependent.Name,
+                    foreignKey.PrincipalToDependent?.Name,
                     foreignKey.DeclaringEntityType.DisplayName(),
-                    foreignKey.DependentToPrincipal.Name));
+                    foreignKey.DependentToPrincipal?.Name));
         }
 
         #region Hidden System.Object members
