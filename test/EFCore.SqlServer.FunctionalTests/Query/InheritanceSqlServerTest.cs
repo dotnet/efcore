@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceSqlServerTest : InheritanceTestBase<InheritanceSqlServerFixture>
+    public class InheritanceSqlServerTest : InheritanceRelationalTestBase<InheritanceSqlServerFixture>
     {
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -55,6 +55,30 @@ WHERE [d].[Discriminator] = N'Lilt'",
                 @"SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[HasMilk]
 FROM [Drink] AS [d]
 WHERE [d].[Discriminator] = N'Tea'");
+        }
+
+        public override void FromSql_on_root()
+        {
+            base.FromSql_on_root();
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
+FROM (
+    select * from ""Animal""
+) AS [a]
+WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')");
+        }
+
+        public override void FromSql_on_derived()
+        {
+            base.FromSql_on_derived();
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group]
+FROM (
+    select * from ""Animal""
+) AS [a]
+WHERE [a].[Discriminator] = N'Eagle'");
         }
 
         public override void Can_query_all_types_when_shared_column()

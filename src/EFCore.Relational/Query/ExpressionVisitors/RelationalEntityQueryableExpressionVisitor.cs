@@ -207,7 +207,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 if (useQueryComposition
                     && fromSqlAnnotation.QueryModel.IsIdentityQuery()
                     && !fromSqlAnnotation.QueryModel.ResultOperators.Any()
-                    && !relationalQueryCompilationContext.IsIncludeQuery)
+                    && !relationalQueryCompilationContext.IsIncludeQuery
+                    && entityType.BaseType == null
+                    && !entityType.GetDerivedTypes().Any())
                 {
                     useQueryComposition = false;
                 }
