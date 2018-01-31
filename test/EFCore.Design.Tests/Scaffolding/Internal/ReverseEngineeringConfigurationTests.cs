@@ -4,9 +4,8 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -27,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var reverseEngineer = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices()
-                .AddSingleton<IAnnotationCodeGenerator, FakeAnnotationCodeGenerator>()
+                .AddSingleton<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
                 .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
@@ -48,99 +48,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             new ModelReverseEngineerOptions(),
                             new ModelCodeGenerationOptions()))
                     .Message);
-        }
-
-        public class FakeAnnotationCodeGenerator : IAnnotationCodeGenerator
-        {
-            public MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            string IAnnotationCodeGenerator.GenerateFluentApi(IModel model, IAnnotation annotation, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public MethodCallCodeFragment GenerateFluentApi(IEntityType entityType, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            string IAnnotationCodeGenerator.GenerateFluentApi(IEntityType entityType, IAnnotation annotation, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public MethodCallCodeFragment GenerateFluentApi(IKey key, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            string IAnnotationCodeGenerator.GenerateFluentApi(IKey key, IAnnotation annotation, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public MethodCallCodeFragment GenerateFluentApi(IProperty property, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            string IAnnotationCodeGenerator.GenerateFluentApi(IProperty property, IAnnotation annotation, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public MethodCallCodeFragment GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            string IAnnotationCodeGenerator.GenerateFluentApi(IForeignKey foreignKey, IAnnotation annotation, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public MethodCallCodeFragment GenerateFluentApi(IIndex index, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            string IAnnotationCodeGenerator.GenerateFluentApi(IIndex index, IAnnotation annotation, string language)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool IsHandledByConvention(IModel model, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool IsHandledByConvention(IEntityType entityType, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool IsHandledByConvention(IKey key, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool IsHandledByConvention(IProperty property, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool IsHandledByConvention(IForeignKey foreignKey, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool IsHandledByConvention(IIndex index, IAnnotation annotation)
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }
