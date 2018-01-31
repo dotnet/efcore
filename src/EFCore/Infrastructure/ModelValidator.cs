@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             if (!entityType.HasDefiningNavigation()
-                && entityType.FindDeclaredOwnership() == null)
+                && entityType.FindDeclaredOwnership() == null
+                && entityType.BaseType != null)
             {
                 var baseClrType = entityType.ClrType?.GetTypeInfo().BaseType;
                 while (baseClrType != null)
@@ -216,7 +217,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             throw new InvalidOperationException(
                                 CoreStrings.InconsistentInheritance(entityType.DisplayName(), baseEntityType.DisplayName()));
                         }
-                        ValidateClrInheritance(model, baseEntityType, validEntityTypes);
                         break;
                     }
                     baseClrType = baseClrType.GetTypeInfo().BaseType;
@@ -269,7 +269,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (ownerships.Count == 1)
                 {
-                    if (entityType.BaseType != null)
+                    var ownership = ownerships[0];
+                    if (entityType.BaseType != null
+                        && ownership.DeclaringEntityType == entityType)
                     {
                         throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
                     }
@@ -296,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 fk.PrincipalEntityType.DisplayName(),
                                 fk.PrincipalToDependent.Name,
                                 entityType.DisplayName(),
-                                ownerships[0].PrincipalEntityType.DisplayName()));
+                                ownership.PrincipalEntityType.DisplayName()));
                     }
                 }
             }

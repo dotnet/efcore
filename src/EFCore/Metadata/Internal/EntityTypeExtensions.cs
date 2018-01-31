@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -484,8 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEnumerable<INavigation> FindDerivedNavigations(
             [NotNull] this IEntityType entityType, [NotNull] string navigationName)
             => entityType.GetDerivedTypes().SelectMany(
-                et =>
-                    et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
+                et => et.GetDeclaredNavigations().Where(navigation => navigationName == navigation.Name));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -508,8 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static IEnumerable<IProperty> FindDerivedProperties(
             [NotNull] this IEntityType entityType, [NotNull] string propertyName)
             => entityType.GetDerivedTypes().SelectMany(
-                et =>
-                    et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
+                et => et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

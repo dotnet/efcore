@@ -107,6 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return true;
             }
 
+            public virtual bool OnEntityTypeRemoved([NotNull] InternalModelBuilder modelBuilder, [NotNull] EntityType type)
+            {
+                Add(new OnEntityTypeRemovedNode(modelBuilder, type));
+                return true;
+            }
+
             public virtual InternalEntityTypeBuilder OnEntityTypeMemberIgnored(
                 [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
                 [NotNull] string ignoredMemberName)
@@ -287,6 +293,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var entityTypeIgnoredConvention in _conventionSet.EntityTypeIgnoredConventions)
                 {
                     if (!entityTypeIgnoredConvention.Apply(modelBuilder, name, type))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            public override bool OnEntityTypeRemoved(InternalModelBuilder modelBuilder, EntityType type)
+            {
+                foreach (var entityTypeRemovedConvention in _conventionSet.EntityTypeRemovedConventions)
+                {
+                    if (!entityTypeRemovedConvention.Apply(modelBuilder, type))
                     {
                         return false;
                     }
@@ -770,6 +789,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public Type Type { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeIgnored(this);
+        }
+
+        private class OnEntityTypeRemovedNode : ConventionNode
+        {
+            public OnEntityTypeRemovedNode(InternalModelBuilder modelBuilder, EntityType type)
+            {
+                ModelBuilder = modelBuilder;
+                Type = type;
+            }
+
+            public InternalModelBuilder ModelBuilder { get; }
+            public EntityType Type { get; }
+
+            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeRemoved(this);
         }
 
         private class OnEntityTypeMemberIgnoredNode : ConventionNode

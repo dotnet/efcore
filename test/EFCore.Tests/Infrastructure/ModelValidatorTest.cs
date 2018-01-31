@@ -80,6 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
         }
 
+        protected class F : D
+        {
+        }
+
         protected abstract class Abstract : A
         {
         }

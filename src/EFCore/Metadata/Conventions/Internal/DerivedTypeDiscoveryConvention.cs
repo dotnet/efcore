@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = entityTypeBuilder.Metadata;
             var clrType = entityType.ClrType;
             if (clrType == null
-                || entityType.HasDefiningNavigation())
+                || entityType.HasDefiningNavigation()
+                || entityType.FindOwnership() != null)
             {
                 return entityTypeBuilder;
             }
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 t => t != entityType
                      && t.HasClrType()
                      && !t.HasDefiningNavigation()
-                     && t.FindDeclaredOwnership() == null
+                     && t.FindOwnership() == null
                      && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
                          || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
                 .ToList();

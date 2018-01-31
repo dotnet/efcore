@@ -260,15 +260,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_base_type_not_set()
+        public virtual void Detects_skipped_base_type()
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityD = model.AddEntityType(typeof(D));
-            SetPrimaryKey(entityD);
+            SetBaseType(entityD, entityA);
+            var entityF = model.AddEntityType(typeof(F));
+            SetBaseType(entityF, entityA);
 
-            VerifyError(CoreStrings.InconsistentInheritance(entityD.DisplayName(), entityA.DisplayName()), model);
+            VerifyError(CoreStrings.InconsistentInheritance(nameof(F), nameof(D)), model);
         }
 
         [Fact]

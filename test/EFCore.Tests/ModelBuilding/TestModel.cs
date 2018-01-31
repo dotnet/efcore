@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
@@ -104,9 +105,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
         }
 
-        protected class CustomerDetails
+        protected class DetailsBase
         {
             public int Id { get; set; }
+        }
+
+        protected class CustomerDetails : DetailsBase
+        {
             public int CustomerId { get; set; }
 
             public Customer Customer { get; set; }
@@ -150,13 +155,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Order Order { get; set; }
             public int SpecialOrderId { get; set; }
             public SpecialOrder SpecialOrder { get; set; }
+            public DetailsBase Details { get; set; }
         }
 
-        protected class OrderDetails
+        protected class OrderDetails : DetailsBase
         {
             public static readonly PropertyInfo OrderIdProperty = typeof(OrderDetails).GetProperty("OrderId");
-
-            public int Id { get; set; }
 
             public int OrderId { get; set; }
             public Order Order { get; set; }
@@ -173,15 +177,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             // ReSharper disable once ConvertToAutoProperty
             public int Up
             {
-                get { return _forUp; }
-                set { _forUp = value; }
+                get => _forUp;
+                set => _forUp = value;
             }
 
             // ReSharper disable once ConvertToAutoProperty
             public string Down
             {
-                get { return _forDown; }
-                set { _forDown = value; }
+                get => _forDown;
+                set => _forDown = value;
             }
 
 #pragma warning disable 67
@@ -247,10 +251,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public BookDetails Details { get; set; }
         }
 
-        protected abstract class BookDetailsBase
+        protected abstract class BookDetailsBase : DetailsBase
         {
-            public int Id { get; set; }
-
             public int AnotherBookId { get; set; }
 
             public Book AnotherBook { get; set; }

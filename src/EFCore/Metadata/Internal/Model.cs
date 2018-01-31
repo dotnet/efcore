@@ -289,6 +289,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             entityType.Builder = null;
+
+            ConventionDispatcher.OnEntityTypeRemoved(Builder, entityType);
+
             return entityType;
         }
 

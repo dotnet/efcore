@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
@@ -322,6 +323,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var principalEntityBuilder = modelBuilder.Entity<OrderCombination>();
                 principalEntityBuilder.Ignore(nameof(OrderCombination.SpecialOrder));
+                principalEntityBuilder.Ignore(nameof(OrderCombination.Details));
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<SpecialOrder>();
                 derivedDependentEntityBuilder.Ignore(nameof(SpecialOrder.BackOrder));
@@ -513,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<SpecialCustomer>();
                 modelBuilder.Ignore<SpecialOrder>();
 
-                var principalEntityBuilder = modelBuilder.Entity<Customer>();
+                modelBuilder.Entity<Customer>();
                 var derivedPrincipalEntityBuilder = modelBuilder.Entity<OtherCustomer>();
                 var dependentEntityBuilder = modelBuilder.Entity<Order>();
                 var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
@@ -695,13 +697,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                var derivedEntityType = modelBuilder.Entity<DerivedTypeWithKeyAnnotation>().Metadata;
+                var derivedEntityType = (EntityType)modelBuilder.Entity<DerivedTypeWithKeyAnnotation>().Metadata;
                 var baseEntityType = (EntityType)modelBuilder.Entity<BaseTypeWithKeyAnnotation>().Metadata;
 
                 Assert.Equal(baseEntityType, derivedEntityType.BaseType);
                 Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.GetPrimaryKeyConfigurationSource());
                 Assert.Equal(ConfigurationSource.DataAnnotation, baseEntityType.FindNavigation(nameof(BaseTypeWithKeyAnnotation.Navigation)).ForeignKey.GetConfigurationSource());
-                Assert.Equal(ConfigurationSource.Convention, baseEntityType.GetBaseTypeConfigurationSource());
+                Assert.Equal(ConfigurationSource.Convention, derivedEntityType.GetBaseTypeConfigurationSource());
             }
 
             [Fact]

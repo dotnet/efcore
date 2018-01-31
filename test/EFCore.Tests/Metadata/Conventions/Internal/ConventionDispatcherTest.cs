@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -176,17 +177,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventions.EntityTypeIgnoredConventions.Add(convention2);
             conventions.EntityTypeIgnoredConventions.Add(convention3);
 
+            var convention4 = new EntityTypeRemovedConvention(terminate: false);
+            var convention5 = new EntityTypeRemovedConvention(terminate: true);
+            var convention6 = new EntityTypeRemovedConvention(terminate: false);
+            conventions.EntityTypeRemovedConventions.Add(convention4);
+            conventions.EntityTypeRemovedConventions.Add(convention5);
+            conventions.EntityTypeRemovedConventions.Add(convention6);
+
             var builder = new InternalModelBuilder(new Model(conventions));
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.StartBatch() : null;
 
+            builder.Entity(typeof(Order), ConfigurationSource.Convention);
             if (useBuilder)
             {
-                builder.Entity(typeof(Order), ConfigurationSource.Convention);
                 Assert.True(builder.Ignore(typeof(Order).DisplayName(), ConfigurationSource.Convention));
             }
             else
             {
+                builder.Metadata.RemoveEntityType(typeof(Order));
                 builder.Metadata.Ignore(typeof(Order), ConfigurationSource.Convention);
             }
 
@@ -194,12 +203,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 Assert.Equal(0, convention1.Calls);
                 Assert.Equal(0, convention2.Calls);
+                Assert.Equal(0, convention4.Calls);
+                Assert.Equal(0, convention5.Calls);
                 scope.Dispose();
             }
 
             Assert.Equal(1, convention1.Calls);
             Assert.Equal(1, convention2.Calls);
             Assert.Equal(0, convention3.Calls);
+            Assert.Equal(1, convention4.Calls);
+            Assert.Equal(1, convention5.Calls);
+            Assert.Equal(0, convention6.Calls);
         }
 
         private class EntityTypeIgnoredConvention : IEntityTypeIgnoredConvention
@@ -215,6 +229,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public bool Apply(InternalModelBuilder modelBuilder, string name, Type type)
             {
                 Assert.Null(modelBuilder.Metadata.FindEntityType(name));
+                Calls++;
+
+                return !_terminate;
+            }
+        }
+
+        private class EntityTypeRemovedConvention : IEntityTypeRemovedConvention
+        {
+            private readonly bool _terminate;
+            public int Calls;
+
+            public EntityTypeRemovedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public bool Apply(InternalModelBuilder modelBuilder, EntityType type)
+            {
+                Assert.Null(modelBuilder.Metadata.FindEntityType(type.Name));
                 Calls++;
 
                 return !_terminate;

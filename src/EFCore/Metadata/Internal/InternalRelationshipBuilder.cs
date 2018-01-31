@@ -923,12 +923,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
                     }
 
-                    // TODO: Move to a convention
                     newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
                         newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
                 }
 
                 newRelationshipBuilder.Metadata.SetIsOwnership(ownership, configurationSource);
+
+                foreach (var directlyDerivedType in newRelationshipBuilder.Metadata.DeclaringEntityType.GetDirectlyDerivedTypes().ToList())
+                {
+                    directlyDerivedType.Builder.HasBaseType((string)null, ConfigurationSource.Convention);
+                }
 
                 return batch.Run(newRelationshipBuilder);
             }

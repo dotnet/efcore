@@ -58,6 +58,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual bool OnEntityTypeRemoved([NotNull] InternalModelBuilder modelBuilder, [NotNull] EntityType type)
+            => _scope.OnEntityTypeRemoved(Check.NotNull(modelBuilder, nameof(modelBuilder)), Check.NotNull(type, nameof(type)));
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual InternalEntityTypeBuilder OnEntityTypeMemberIgnored(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
             [NotNull] string ignoredMemberName)
