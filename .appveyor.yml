@@ -1,30 +1,27 @@
 version: 2.1.0-preview1-{build}
 init:
-  - git config --global core.autocrlf true
+- git config --global core.autocrlf true
 build_script:
-  - ps: .\run.ps1 default-build
+- ps: .\run.ps1 default-build
 clone_depth: 1
-test: off
-deploy: off
-# See http://www.appveyor.com/docs/services-databases
+test: 'off'
+deploy: 'off'
 services:
-  - mssql2016
+- mssql2016
 branches:
   only:
-    - master
-    - release
-    - dev
-    - /^rel\/.*/
-    - /^feature\/.*/
-    - /^(.*\/)?ci-.*$/
+  - dev
+  - /^release\/.*$/
+  - /^(.*\/)?ci-.*$/
 environment:
   global:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
     DOTNET_CLI_TELEMETRY_OPTOUT: 1
-    Test__SqlServer__DefaultConnection: Server=(local)\SQL2016;Database=master;User ID=sa;Password=Password12!
+    Test__SqlServer__DefaultConnection: Server=(local)\SQL2016;Database=master;User
+      ID=sa;Password=Password12!
     Test__SqlServer__SupportsMemoryOptimized: true
 matrix:
   fast_finish: true
 artifacts:
-  - path: 'artifacts\build\*.nupkg'
+- path: artifacts\build\*.nupkg
 os: Visual Studio 2017
