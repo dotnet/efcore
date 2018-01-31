@@ -26,6 +26,16 @@ WHERE [x].[OrderID] = 10248",
                 ignoreLineEndingDifferences: true);
         }
 
+        public override void Last_without_order_by_issues_client_eval_warning()
+        {
+            base.Last_without_order_by_issues_client_eval_warning();
+
+            Assert.Contains(
+                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                    "(from Customer <generated>_1 in DbSet<Customer> select [<generated>_1]).Last()"), Fixture.TestSqlLoggerFactory.Log);
+
+        }
+
         public override void Paging_operation_without_orderby_issues_warning()
         {
             base.Paging_operation_without_orderby_issues_warning();

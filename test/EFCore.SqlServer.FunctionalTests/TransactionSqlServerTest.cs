@@ -64,7 +64,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 new SqlServerDbContextOptionsBuilder(
                         base.AddOptions(builder)
-                            .ConfigureWarnings(w => w.Log(RelationalEventId.QueryClientEvaluationWarning)))
+                            .ConfigureWarnings(
+                                w => w.Log(RelationalEventId.QueryClientEvaluationWarning)
+                                      .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)))
                     .MaxBatchSize(1);
                 return builder;
             }

@@ -1589,7 +1589,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, index, indexType);
 
         /// <summary>
-        ///     Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.
+        ///     Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.
         /// </summary>
         public static readonly EventDefinition<string> LogFirstWithoutOrderByAndFilter
             = new EventDefinition<string>(

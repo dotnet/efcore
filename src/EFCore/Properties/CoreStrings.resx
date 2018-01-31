@@ -712,7 +712,7 @@
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
-    <value>Query: '{queryModel}' uses First/FirstOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
+    <value>Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
     <comment>Warning CoreEventId.FirstWithoutOrderByAndFilterWarning string</comment>
   </data>
   <data name="InvalidPoolSize" xml:space="preserve">

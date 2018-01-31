@@ -306,9 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             _modelExpressionApplyingExpressionVisitor.ApplyModelExpressions(queryModel);
 
             // Second pass of optimizations
-
+            
             ExtractQueryAnnotations(queryModel);
-
+            
             navigationRewritingExpressionVisitor.Rewrite(queryModel, parentQueryModel: null);
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _logger.RowLimitingOperationWithoutOrderByWarning(queryModel);
                 }
 
-                if (resultOperators.Any(o => o is FirstResultOperator)
+                if (resultOperators.Any(o => o is FirstResultOperator || o is LastResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
                     && !queryModel.BodyClauses.OfType<WhereClause>().Any())
                 {

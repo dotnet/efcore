@@ -43,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             {
                 return base.AddOptions(builder)
-                    .ConfigureWarnings(w => w.Log(RelationalEventId.QueryClientEvaluationWarning));
+                    .ConfigureWarnings(w
+                        => w.Log(RelationalEventId.QueryClientEvaluationWarning)
+                            .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
             }
         }
     }
