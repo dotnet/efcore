@@ -922,32 +922,32 @@ ORDER BY [t].[City], [t].[CustomerID]");
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'
-ORDER BY [c].[City], [c].[CustomerID]",
+ORDER BY [c].[CustomerID]",
                 //
                 @"SELECT [c.Orders].[OrderID], [c.Orders].[CustomerID], [c.Orders].[EmployeeID], [c.Orders].[OrderDate]
 FROM [Orders] AS [c.Orders]
 INNER JOIN (
-    SELECT TOP(1) [c0].[CustomerID], [c0].[City]
+    SELECT TOP(1) [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = N'ALFKI'
-    ORDER BY [c0].[City], [c0].[CustomerID]
+    ORDER BY [c0].[CustomerID]
 ) AS [t] ON [c.Orders].[CustomerID] = [t].[CustomerID]
-ORDER BY [t].[City], [t].[CustomerID], [c.Orders].[OrderID]",
+ORDER BY [t].[CustomerID], [c.Orders].[OrderID]",
                 //
                 @"SELECT [c.Orders.OrderDetails].[OrderID], [c.Orders.OrderDetails].[ProductID], [c.Orders.OrderDetails].[Discount], [c.Orders.OrderDetails].[Quantity], [c.Orders.OrderDetails].[UnitPrice], [o.Product].[ProductID], [o.Product].[Discontinued], [o.Product].[ProductName], [o.Product].[SupplierID], [o.Product].[UnitPrice], [o.Product].[UnitsInStock]
 FROM [Order Details] AS [c.Orders.OrderDetails]
 INNER JOIN [Products] AS [o.Product] ON [c.Orders.OrderDetails].[ProductID] = [o.Product].[ProductID]
 INNER JOIN (
-    SELECT DISTINCT [c.Orders0].[OrderID], [t0].[City], [t0].[CustomerID]
+    SELECT DISTINCT [c.Orders0].[OrderID], [t0].[CustomerID]
     FROM [Orders] AS [c.Orders0]
     INNER JOIN (
-        SELECT TOP(1) [c1].[CustomerID], [c1].[City]
+        SELECT TOP(1) [c1].[CustomerID]
         FROM [Customers] AS [c1]
         WHERE [c1].[CustomerID] = N'ALFKI'
-        ORDER BY [c1].[City], [c1].[CustomerID]
+        ORDER BY [c1].[CustomerID]
     ) AS [t0] ON [c.Orders0].[CustomerID] = [t0].[CustomerID]
 ) AS [t1] ON [c.Orders.OrderDetails].[OrderID] = [t1].[OrderID]
-ORDER BY [t1].[City], [t1].[CustomerID], [t1].[OrderID]");
+ORDER BY [t1].[CustomerID], [t1].[OrderID]");
         }
 
         public override void Include_collection_on_additional_from_clause2(bool useString)

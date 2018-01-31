@@ -4013,6 +4013,111 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Include_with_group_by_and_last()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    var expectedInners = expected[i].ToList();
+                    var actualInners = actual[i].ToList();
+
+                    Assert.Equal(expectedInners.Count, actualInners.Count);
+                    for (var j = 0; j < expectedInners.Count; j++)
+                    {
+                        Assert.Equal(expectedInners[j].g.Rank, actualInners[j].g.Rank);
+
+                        var expectedWeapons = expectedInners[j].g.Weapons.ToList();
+                        var actualWeapons = actualInners[j].g.Weapons.ToList();
+
+                        Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
+                        for (var k = 0; k < expectedWeapons.Count; k++)
+                        {
+                            Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
+                            Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_group_by_with_composite_group_key()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    var expectedInners = expected[i].ToList();
+                    var actualInners = actual[i].ToList();
+
+                    Assert.Equal(expectedInners.Count, actualInners.Count);
+                    for (var j = 0; j < expectedInners.Count; j++)
+                    {
+                        Assert.Equal(expectedInners[j].Rank, actualInners[j].Rank);
+                        Assert.Equal(expectedInners[j].HasSoulPatch, actualInners[j].HasSoulPatch);
+
+                        var expectedWeapons = expectedInners[j].Weapons.ToList();
+                        var actualWeapons = actualInners[j].Weapons.ToList();
+
+                        Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
+                        for (var k = 0; k < expectedWeapons.Count; k++)
+                        {
+                            Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
+                            Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
+                        }
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_group_by_order_by_take()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    Assert.Equal(expected[i].Count(), actual[i].Count());
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Include_with_group_by_distinct()
+        {
+            using (var ctx = CreateContext())
+            {
+                var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Distinct().GroupBy(g => g.HasSoulPatch).ToList();
+                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Distinct().GroupBy(g => g.HasSoulPatch).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].Key, actual[i].Key);
+                    Assert.Equal(expected[i].Count(), actual[i].Count());
+                }
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
@@ -1224,6 +1225,67 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 WarnClientEval(queryModel, resultOperator);
             }
+        }
+
+        private class GroupByPreProcessor : QueryModelVisitorBase
+        {
+            private QueryCompilationContext _queryCompilationContext;
+
+            public GroupByPreProcessor(QueryCompilationContext queryCompilationContext)
+            {
+                _queryCompilationContext = queryCompilationContext;
+            }
+
+            public override void VisitQueryModel(QueryModel queryModel)
+            {
+                queryModel.TransformExpressions(new TransformingQueryModelExpressionVisitor<GroupByPreProcessor>(this).Visit);
+
+                if (queryModel.ResultOperators.Any(o => o is GroupResultOperator)
+                    && _queryCompilationContext.IsIncludeQuery
+                    && !queryModel.ResultOperators.Any(
+                        o => o is SkipResultOperator || o is TakeResultOperator || o is ChoiceResultOperatorBase || o is DistinctResultOperator))
+                {
+                    base.VisitQueryModel(queryModel);
+                }
+            }
+
+            protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
+            {
+                var groupResultOperators = queryModel.ResultOperators.OfType<GroupResultOperator>().ToList();
+                if (groupResultOperators.Any())
+                {
+                    var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().FirstOrDefault();
+                    if (orderByClause == null)
+                    {
+                        orderByClause = new OrderByClause();
+                        queryModel.BodyClauses.Add(orderByClause);
+                    }
+
+                    foreach (var groupResultOperator in groupResultOperators)
+                    {
+                        var groupKeys = groupResultOperator.KeySelector is NewExpression compositeGroupKey
+                            ? compositeGroupKey.Arguments.Reverse()
+                            : new[] { groupResultOperator.KeySelector };
+
+                        foreach (var groupKey in groupKeys)
+                        {
+                            orderByClause.Orderings.Insert(0, new Ordering(groupKey, OrderingDirection.Asc));
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Pre-processes query model before we rewrite its navigations.
+        /// </summary>
+        /// <param name="queryModel">Query model to process. </param>
+        protected override void OnBeforeNavigationRewrite(QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var groupByPreProcessor = new GroupByPreProcessor(QueryCompilationContext);
+            groupByPreProcessor.VisitQueryModel(queryModel);
         }
 
         /// <summary>

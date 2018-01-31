@@ -357,15 +357,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         .ToArray())
                 {
                     queryModel.ResultOperators.Remove(groupResultOperator);
-
-                    var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().LastOrDefault();
-
-                    if (orderByClause == null)
-                    {
-                        queryModel.BodyClauses.Add(orderByClause = new OrderByClause());
-                    }
-
-                    orderByClause.Orderings.Add(new Ordering(groupResultOperator.KeySelector, OrderingDirection.Asc));
                 }
 
                 if (queryModel.BodyClauses

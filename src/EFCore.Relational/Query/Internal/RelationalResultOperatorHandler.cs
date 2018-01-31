@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
@@ -449,6 +450,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static Expression HandleGroup(HandlerContext handlerContext)
         {
+            if (handlerContext.QueryModelVisitor.QueryCompilationContext.IsIncludeQuery
+                && handlerContext.QueryModel.ResultOperators.Any(
+                    o => o is SkipResultOperator || o is TakeResultOperator || o is ChoiceResultOperatorBase || o is DistinctResultOperator))
+            {
+                return handlerContext.EvalOnClient();
+            }
+
             var sqlTranslatingExpressionVisitor = handlerContext.CreateSqlTranslatingVisitor();
 
             var groupResultOperator = (GroupResultOperator)handlerContext.ResultOperator;

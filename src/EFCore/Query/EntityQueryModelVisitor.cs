@@ -258,6 +258,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Pre-processes query model before we rewrite its navigations.
+        /// </summary>
+        /// <param name="queryModel">Query model to process. </param>
+        protected virtual void OnBeforeNavigationRewrite([NotNull] QueryModel queryModel)
+        {
+        }
+
+        /// <summary>
         ///     Applies optimizations to the query.
         /// </summary>
         /// <param name="queryModel"> The query. </param>
@@ -278,6 +286,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
             new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger).VisitQueryModel(queryModel);
+
+            OnBeforeNavigationRewrite(queryModel);
 
             // Rewrite includes/navigations
 
