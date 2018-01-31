@@ -31,8 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public InversePropertyAttributeConvention(
             [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] IParameterBindingFactories parameterBindingFactories,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            : base(typeMapper)
+            : base(typeMapper, parameterBindingFactories)
         {
             _logger = logger;
         }

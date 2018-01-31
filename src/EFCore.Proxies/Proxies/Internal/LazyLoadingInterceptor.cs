@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -14,8 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     /// </summary>
     public class LazyLoadingInterceptor : IInterceptor
     {
+        private static readonly PropertyInfo _lazyLoaderProperty
+            = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
+
+        private static readonly MethodInfo _lazyLoaderGetter = _lazyLoaderProperty.GetMethod;
+        private static readonly MethodInfo _lazyLoaderSetter = _lazyLoaderProperty.SetMethod;
+
         private readonly IEntityType _entityType;
-        private readonly ILazyLoader _loader;
+        private ILazyLoader _loader;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -37,18 +44,30 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             var methodName = invocation.Method.Name;
 
-            if (methodName.StartsWith("get_", StringComparison.Ordinal))
+            if (invocation.Method == _lazyLoaderGetter)
             {
-                var navigationName = methodName.Substring(4);
-                var navigation = _entityType.FindNavigation(navigationName);
-
-                if (navigation != null)
-                {
-                    _loader.Load(invocation.Proxy, navigationName);
-                }
+                invocation.ReturnValue = _loader;
             }
+            else if (invocation.Method == _lazyLoaderSetter)
+            {
+                _loader = (ILazyLoader)invocation.Arguments[0];
+            }
+            else
+            {
+                if (_loader != null
+                    && methodName.StartsWith("get_", StringComparison.Ordinal))
+                {
+                    var navigationName = methodName.Substring(4);
+                    var navigation = _entityType.FindNavigation(navigationName);
 
-            invocation.Proceed();
+                    if (navigation != null)
+                    {
+                        _loader.Load(invocation.Proxy, navigationName);
+                    }
+                }
+
+                invocation.Proceed();
+            }
         }
     }
 }

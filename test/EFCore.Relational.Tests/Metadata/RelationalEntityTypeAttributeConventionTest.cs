@@ -63,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     new FallbackRelationalCoreTypeMapper(
                         TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())));
+                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()),
+                    TestServiceFactory.Instance.Create<IParameterBindingFactories>()));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

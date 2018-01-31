@@ -13,34 +13,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class PropertyParameterBindingFactory : ParameterBindingFactory
+    public class PropertyParameterBindingFactory : IPropertyParameterBindingFactory
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override ParameterBinding TryBindParameter(IMutableEntityType entityType, ParameterInfo parameter)
+        public virtual ParameterBinding TryBindParameter(
+            IMutableEntityType entityType,
+            Type parameterType,
+            string parameterName)
         {
-            var candidateNames = GetCandidatePropertyNames(parameter);
+            var candidateNames = GetCandidatePropertyNames(parameterName);
 
             return entityType.GetProperties().Where(
-                p => p.ClrType == parameter.ParameterType
+                p => p.ClrType == parameterType
                      && candidateNames.Any(c => c.Equals(p.Name, StringComparison.Ordinal)))
                 .Select(p => new PropertyParameterBinding(p)).FirstOrDefault();
         }
 
-        private static IList<string> GetCandidatePropertyNames([NotNull] ParameterInfo parameter)
+        private static IList<string> GetCandidatePropertyNames(string parameterName)
         {
-            var name = parameter.Name;
-            var pascalized = char.ToUpperInvariant(name[0]) + name.Substring(1);
+            var pascalized = char.ToUpperInvariant(parameterName[0]) + parameterName.Substring(1);
 
             return new List<string>
             {
-                name,
+                parameterName,
                 pascalized,
-                "_" + name,
+                "_" + parameterName,
                 "_" + pascalized,
-                "m_" + name,
+                "m_" + parameterName,
                 "m_" + pascalized
             };
         }

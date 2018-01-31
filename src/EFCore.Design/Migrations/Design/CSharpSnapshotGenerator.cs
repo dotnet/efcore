@@ -512,6 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             IgnoreAnnotations(
                 annotations,
                 CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
+                CoreAnnotationNames.PropertyAccessModeAnnotation,
                 CoreAnnotationNames.TypeMapping);
 
             GenerateAnnotations(annotations, stringBuilder);
@@ -746,6 +747,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationshipDiscoveryConvention.NavigationCandidatesAnnotationName,
                 RelationshipDiscoveryConvention.AmbiguousNavigationsAnnotationName,
                 InversePropertyAttributeConvention.InverseNavigationsAnnotationName,
+                CoreAnnotationNames.NavigationAccessModeAnnotation,
+                CoreAnnotationNames.PropertyAccessModeAnnotation,
                 CoreAnnotationNames.ConstructorBinding);
 
             if (annotations.Any())

@@ -326,6 +326,12 @@
   <data name="DuplicateNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
+  <data name="DuplicateServiceProperty" xml:space="preserve">
+    <value>The service property '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="DuplicateServicePropertyType" xml:space="preserve">
+    <value>The service property '{property}' of type '{serviceType}' cannot be added to the entity type '{entityType}' because service property '{duplicateName}' of the same type already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
   <data name="NoClrNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
   </data>
@@ -557,6 +563,9 @@
   </data>
   <data name="ConflictingProperty" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="ConflictingServiceProperty" xml:space="preserve">
+    <value>The property or navigation '{property}' cannot be added to the entity type '{entityType}' because a service property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="EntityTypeNotInRelationshipStrict" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.</value>

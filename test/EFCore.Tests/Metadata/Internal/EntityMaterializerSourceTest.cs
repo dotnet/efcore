@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
                         new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
-                    }
-                );
+                    },
+                    entityType.ClrType);
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -98,8 +98,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Id))),
                                 new PropertyParameterBinding(entityType.FindProperty(nameof(SomeEntity.Goo)))
                             })
-                    }
-                );
+                    },
+                    entityType.ClrType);
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 
@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     new List<ParameterBinding>
                     {
                         new EntityTypeParameterBinding()
-                    });
+                    },
+                    entityType.ClrType);
 
             var factory = GetMaterializer(new EntityMaterializerSource(), entityType);
 

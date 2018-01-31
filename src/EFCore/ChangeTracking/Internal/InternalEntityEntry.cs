@@ -212,6 +212,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     _originalValues.RejectChanges(this);
                 }
             }
+
+            SetServiceProperties(oldState, newState);
+
             _stateData.EntityState = newState;
 
             if (oldState == EntityState.Detached)
@@ -262,6 +265,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             StateManager.InternalEntityEntryNotifier.StateChanged(this, oldState, fromQuery: false);
+        }
+
+        private void SetServiceProperties(EntityState oldState, EntityState newState)
+        {
+            if (oldState == EntityState.Detached)
+            {
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
+                {
+                    this[serviceProperty] = serviceProperty.GetParameterBinding().ServiceDelegate(StateManager.Context, EntityType, Entity);
+                }
+            }
+            else if (newState == EntityState.Detached)
+            {
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
+                {
+                    this[serviceProperty] = null;
+                }
+            }
         }
 
         /// <summary>
@@ -372,6 +393,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (changeState)
                 {
                     StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Modified);
+
+                    SetServiceProperties(currentState, EntityState.Modified);
+
                     _stateData.EntityState = EntityState.Modified;
                 }
 
@@ -721,13 +745,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual object this[[NotNull] IPropertyBase propertyBase]
         {
-            get
-            {
-                return _storeGeneratedValues.TryGetValue(propertyBase, out var value)
-                        ? value
-                        : ReadPropertyValue(propertyBase);
-            }
-            [param: CanBeNull] set { SetProperty(propertyBase, value); }
+            get => _storeGeneratedValues.TryGetValue(propertyBase, out var value)
+                ? value
+                : ReadPropertyValue(propertyBase);
+            [param: CanBeNull] set => SetProperty(propertyBase, value);
         }
 
         /// <summary>
@@ -798,9 +819,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             _stateData.FlagProperty(propertyIndex.Value, PropertyFlag.Unknown, isFlagged: false);
                         }
 
-                        if (asProperty == null)
+                        if (propertyBase is INavigation navigation)
                         {
-                            var navigation = (INavigation)propertyBase;
                             if (!navigation.IsCollection()
                                 && value == null)
                             {

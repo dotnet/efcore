@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -199,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.IsType<ContextParameterBinding>(bindings[1]);
             Assert.Empty(bindings[1].ConsumedProperties);
-            Assert.Same(typeof(DbContext), ((ContextParameterBinding)bindings[1]).ContextType);
+            Assert.Same(typeof(DbContext), ((ContextParameterBinding)bindings[1]).ServiceType);
         }
 
         private class BlogWithContext : Blog
@@ -226,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.IsType<ContextParameterBinding>(bindings[0]);
             Assert.Empty(bindings[0].ConsumedProperties);
-            Assert.Same(typeof(TypedContext), ((ContextParameterBinding)bindings[0]).ContextType);
+            Assert.Same(typeof(TypedContext), ((ContextParameterBinding)bindings[0]).ServiceType);
         }
 
         private class BlogWithTypedContext : Blog
@@ -251,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal("loader", parameters[0].Name);
 
-            Assert.IsType<ServiceParameterBinding>(bindings[0]);
+            Assert.IsType<DefaultServiceParameterBinding>(bindings[0]);
             Assert.Empty(bindings[0].ConsumedProperties);
-            Assert.Same(typeof(ILazyLoader), ((ServiceParameterBinding)bindings[0]).ServiceType);
+            Assert.Same(typeof(ILazyLoader), ((DefaultServiceParameterBinding)bindings[0]).ServiceType);
         }
 
         private class BlogWithLazyLoader : Blog

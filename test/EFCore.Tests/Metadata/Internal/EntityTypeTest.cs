@@ -105,6 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IIndex> GetIndexes() => throw new NotImplementedException();
             public IProperty FindProperty(string name) => throw new NotImplementedException();
             public IEnumerable<IProperty> GetProperties() => throw new NotImplementedException();
+            public IServiceProperty FindServiceProperty(string name) => throw new NotImplementedException();
+            public IEnumerable<IServiceProperty> GetServiceProperties() => throw new NotImplementedException();
             public IEnumerable<IDictionary<string, object>> GetSeedData() => throw new NotImplementedException();
         }
 
@@ -2198,6 +2200,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
+        public void Adding_a_new_navigation_with_a_name_that_conflicts_with_a_service_property_throws()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = model.AddEntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            orderType.AddServiceProperty(Order.CustomerProperty);
+
+            Assert.Equal(
+                CoreStrings.ConflictingServiceProperty(nameof(Order.Customer), nameof(Order), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () => customerForeignKey.HasDependentToPrincipal(nameof(Order.Customer))).Message);
+        }
+
+        [Fact]
         public void Can_add_a_navigation_to_shadow_entity()
         {
             var model = new Model();
@@ -2776,6 +2797,83 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.ConflictingNavigation("Customer", typeof(Order).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() => orderType.AddProperty("Customer")).Message);
+        }
+
+        [Fact]
+        public void Adding_a_new_property_with_a_name_that_conflicts_with_a_service_property_throws()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = model.AddEntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+
+            Assert.Equal(
+                CoreStrings.ConflictingNavigation(nameof(Order.Customer), nameof(Order), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() => orderType.AddServiceProperty(Order.CustomerProperty)).Message);
+        }
+        
+        [Fact]
+        public void Adding_a_new_service_property_with_a_name_that_conflicts_with_a_property_throws()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            entityType.AddProperty(Customer.OrdersProperty);
+
+            Assert.Equal(
+                CoreStrings.ConflictingProperty(nameof(Customer.Orders), nameof(Customer), nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.OrdersProperty)).Message);
+        }
+        
+        [Fact]
+        public void Adding_a_new_service_property_with_a_name_that_conflicts_with_a_navigation_throws()
+        {
+            var model = new Model();
+            var customerType = model.AddEntityType(typeof(Customer));
+            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
+
+            var orderType = model.AddEntityType(typeof(Order));
+            var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
+            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+
+            customerForeignKey.HasDependentToPrincipal(Order.CustomerProperty);
+
+            Assert.Equal(
+                CoreStrings.ConflictingNavigation(nameof(Order.Customer), nameof(Order), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() => orderType.AddServiceProperty(Order.CustomerProperty)).Message);
+        }
+        
+        [Fact]
+        public void Adding_a_new_service_property_with_a_name_that_already_exists_throws()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            entityType.AddServiceProperty(Customer.OrdersProperty);
+
+            Assert.Equal(
+                CoreStrings.DuplicateServiceProperty(nameof(Customer.Orders), nameof(Customer), nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.OrdersProperty)).Message);
+        }
+        
+        [Fact]
+        public void Adding_a_new_service_property_with_a_type_that_already_exists_throws()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer));
+            entityType.AddServiceProperty(Customer.OrdersProperty);
+
+            Assert.Equal(
+                CoreStrings.DuplicateServicePropertyType(
+                    nameof(Customer.MoreOrders),
+                    "ICollection<Order>",
+                    nameof(Customer),
+                    nameof(Customer.Orders),
+                    nameof(Customer)),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddServiceProperty(Customer.MoreOrdersProperty)).Message);
         }
 
         [Fact]
@@ -3446,6 +3544,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly PropertyInfo IdProperty = typeof(BaseType).GetProperty(nameof(Id));
             public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty(nameof(Name));
             public static readonly PropertyInfo OrdersProperty = typeof(Customer).GetProperty(nameof(Orders));
+            public static readonly PropertyInfo MoreOrdersProperty = typeof(Customer).GetProperty(nameof(MoreOrders));
             public static readonly PropertyInfo NotCollectionOrdersProperty = typeof(Customer).GetProperty(nameof(NotCollectionOrders));
 
             public int AlternateId { get; set; }
@@ -3453,6 +3552,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Name { get; set; }
             public string Mane { get; set; }
             public ICollection<Order> Orders { get; set; }
+            public ICollection<Order> MoreOrders { get; set; }
 
             public IEnumerable<Order> EnumerableOrders { get; set; }
             public Order NotCollectionOrders { get; set; }

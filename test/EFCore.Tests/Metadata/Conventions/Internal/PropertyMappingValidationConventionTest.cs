@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -169,7 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         protected virtual PropertyMappingValidationConvention CreateConvention()
             => new PropertyMappingValidationConvention(
-                TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>());
+                TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>(),
+                TestServiceFactory.Instance.Create<IParameterBindingFactories>());
 
         protected class NonPrimitiveNonNavigationAsPropertyEntity
         {
