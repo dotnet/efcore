@@ -1380,6 +1380,48 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent.Single);
             }
         }
+        
+        [Fact]
+        public virtual void Lazy_load_collection_for_no_tracking_throws()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var parent = context.Set<Parent>().AsNoTracking().Single();
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => parent.Children).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_load_reference_to_principal_for_no_tracking_throws()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var child = context.Set<Child>().AsNoTracking().Single(e => e.Id == 12);
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => child.Parent).Message);
+            }
+        }
+
+        [Fact]
+        public virtual void Lazy_load_reference_to_dependent_for_no_tracking_throws()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var parent = context.Set<Parent>().AsNoTracking().Single();
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => parent.Single).Message);
+            }
+        }
 
         [Theory]
         [InlineData(EntityState.Unchanged, true)]

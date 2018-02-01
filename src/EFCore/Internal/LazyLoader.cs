@@ -60,16 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
             else if (Context.ChangeTracker.LazyLoadingEnabled)
             {
-                var entityEntry = Context.Entry(entity);
-                if (entityEntry.State != EntityState.Detached)
+                var entry = Context.Entry(entity).Navigation(navigationName);
+                if (!entry.IsLoaded)
                 {
-                    var entry = entityEntry.Navigation(navigationName);
-                    if (!entry.IsLoaded)
-                    {
-                        Logger.NavigationLazyLoading(Context, entity, navigationName);
+                    Logger.NavigationLazyLoading(Context, entity, navigationName);
 
-                        entry.Load();
-                    }
+                    entry.Load();
                 }
             }
         }

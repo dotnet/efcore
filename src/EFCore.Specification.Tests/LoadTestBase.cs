@@ -1216,42 +1216,66 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Lazy_load_collection_for_detached_is_no_op()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Lazy_load_collection_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
-                Assert.Null(parent.Children);
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => parent.Children).Message);
             }
         }
 
-        [Fact]
-        public virtual void Lazy_load_reference_to_principal_for_detached_is_no_op()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Lazy_load_reference_to_principal_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
-                Assert.Null(child.Parent);
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => child.Parent).Message);
             }
         }
 
-        [Fact]
-        public virtual void Lazy_load_reference_to_dependent_for_detached_is_no_op()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Lazy_load_reference_to_dependent_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
-                Assert.Null(parent.Single);
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => parent.Single).Message);
             }
         }
 
@@ -5091,17 +5115,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_collection_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
@@ -5121,17 +5150,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_using_string_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_collection_using_string_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(nameof(Parent.Children));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
@@ -5151,17 +5185,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_collection_with_navigation_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_collection_with_navigation_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Navigation(nameof(Parent.Children));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
@@ -5181,17 +5220,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_reference_to_principal_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_reference_to_principal_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
@@ -5211,17 +5255,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_reference_with_navigation_to_principal_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_reference_with_navigation_to_principal_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Navigation(nameof(Child.Parent));
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
@@ -5241,17 +5290,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_reference_using_string_to_principal_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_reference_using_string_to_principal_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(nameof(Child.Parent));
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
@@ -5271,17 +5325,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_reference_to_dependent_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_reference_to_dependent_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
@@ -5301,17 +5360,57 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual async Task Load_reference_to_dependent_with_navigation_for_detached_throws(bool async)
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_reference_to_dependent_with_navigation_for_detached_throws(bool async, bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Navigation(nameof(Parent.Single));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
+
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
+                            {
+                                if (async)
+                                {
+                                    await referenceEntry.LoadAsync();
+                                }
+                                else
+                                {
+                                    referenceEntry.Load();
+                                }
+                            })).Message);
+            }
+        }
+
+        [Theory]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        public virtual async Task Load_reference_to_dependent_using_string_for_detached_throws(bool async, bool noTracking)
+        {
+            using (var context = CreateContext(noTracking: noTracking))
+            {
+                var parent = context.Set<Parent>().Single();
+
+                var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
+
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
@@ -5333,43 +5432,18 @@ namespace Microsoft.EntityFrameworkCore
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task Load_reference_to_dependent_using_string_for_detached_throws(bool async)
+        public virtual void Query_collection_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
-            {
-                var parent = context.Set<Parent>().Single();
-
-                var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
-
-                context.Entry(parent).State = EntityState.Detached;
-
-                Assert.Equal(
-                    CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        async () =>
-                            {
-                                if (async)
-                                {
-                                    await referenceEntry.LoadAsync();
-                                }
-                                else
-                                {
-                                    referenceEntry.Load();
-                                }
-                            })).Message);
-            }
-        }
-
-        [Fact]
-        public virtual void Query_collection_for_detached_throws()
-        {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
@@ -5377,16 +5451,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_collection_using_string_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_collection_using_string_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Collection(nameof(Parent.Children));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
@@ -5394,16 +5473,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_collection_with_navigation_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_collection_with_navigation_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var collectionEntry = context.Entry(parent).Navigation(nameof(Parent.Children));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Children), nameof(Parent)),
@@ -5411,16 +5495,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_reference_to_principal_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_reference_to_principal_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
@@ -5428,16 +5517,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_reference_with_navigation_to_principal_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_reference_with_navigation_to_principal_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Navigation(nameof(Child.Parent));
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
@@ -5445,16 +5539,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_reference_using_string_to_principal_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_reference_using_string_to_principal_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var child = context.Set<Child>().Single(e => e.Id == 12);
 
                 var referenceEntry = context.Entry(child).Reference(nameof(Child.Parent));
 
-                context.Entry(child).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(child).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Child.Parent), nameof(Child)),
@@ -5462,16 +5561,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_reference_to_dependent_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_reference_to_dependent_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
@@ -5479,16 +5583,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_reference_to_dependent_with_navigation_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_reference_to_dependent_with_navigation_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Navigation(nameof(Parent.Single));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
@@ -5496,16 +5605,21 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public virtual void Query_reference_to_dependent_using_string_for_detached_throws()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Query_reference_to_dependent_using_string_for_detached_throws(bool noTracking)
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(noTracking: noTracking))
             {
                 var parent = context.Set<Parent>().Single();
 
                 var referenceEntry = context.Entry(parent).Reference(nameof(Parent.Single));
 
-                context.Entry(parent).State = EntityState.Detached;
+                if (!noTracking)
+                {
+                    context.Entry(parent).State = EntityState.Detached;
+                }
 
                 Assert.Equal(
                     CoreStrings.CannotLoadDetached(nameof(Parent.Single), nameof(Parent)),
@@ -5825,10 +5939,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected DbContext CreateContext(bool lazyLoadingEnabled = false)
+        protected DbContext CreateContext(bool lazyLoadingEnabled = false, bool noTracking = false)
         {
             var context = Fixture.CreateContext();
             context.ChangeTracker.LazyLoadingEnabled = lazyLoadingEnabled;
+
+            context.ChangeTracker.QueryTrackingBehavior = noTracking
+                ? QueryTrackingBehavior.NoTracking
+                : QueryTrackingBehavior.TrackAll;
 
             return context;
         }
