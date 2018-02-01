@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsRemoveDescription");
 
         /// <summary>
-        ///     Don't check to see if the migration has been applied to the database.
+        ///     Revert the migration if it has been applied to the database.
         /// </summary>
         public static string MigrationsRemoveForceDescription
             => GetString("MigrationsRemoveForceDescription");
@@ -279,12 +279,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string OutputDirDescription
             => GetString("OutputDirDescription");
-
-        /// <summary>
-        ///     The directory to put DbContext file in. Paths are relative to the project directory.
-        /// </summary>
-        public static string ContextDirDescription
-            => GetString("ContextDirDescription");
 
         /// <summary>
         ///     Prefix output with level.
@@ -443,10 +437,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("LanguageDescription");
 
         /// <summary>
-        ///     Revert the migration if it has been applied to the database.
+        ///     The directory to put DbContext file in. Paths are relative to the project directory.
         /// </summary>
-        public static string MigrationsRemoveRevertDescription
-            => GetString("MigrationsRemoveRevertDescription");
+        public static string ContextDirDescription
+            => GetString("ContextDirDescription");
 
         private static string GetString(string name, params string[] formatterNames)
         {

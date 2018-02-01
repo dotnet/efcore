@@ -283,12 +283,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("SensitiveInformationWarning");
 
         /// <summary>
-        ///     Removing migration '{name}' without checking the database. If this migration has been applied to the database, you will need to manually reverse the changes it made.
+        ///     Unable to check if the migration '{name}' has been applied to the database. If it has, you will need to manually reverse the changes it made. Error encountered while checking: {error}
         /// </summary>
-        public static string ForceRemoveMigration([CanBeNull] object name)
+        public static string ForceRemoveMigration([CanBeNull] object name, [CanBeNull] object error)
             => string.Format(
-                GetString("ForceRemoveMigration", nameof(name)),
-                name);
+                GetString("ForceRemoveMigration", nameof(name), nameof(error)),
+                name, error);
 
         /// <summary>
         ///     Unable to create an object of type '{contextType}'. Add an implementation of 'IDesignTimeDbContextFactory&lt;{contextType}&gt;' to the project, or see https://go.microsoft.com/fwlink/?linkid=851728 for additional patterns supported at design time.

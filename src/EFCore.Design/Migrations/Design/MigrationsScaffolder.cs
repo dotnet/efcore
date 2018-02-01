@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
         /// <returns> The removed migration files. </returns>
         public virtual MigrationFiles RemoveMigration([NotNull] string projectDir, [NotNull] string rootNamespace, bool force)
-            => RemoveMigration(projectDir, rootNamespace, force, revert: false, language: null);
+            => RemoveMigration(projectDir, rootNamespace, force, language: null);
 
         /// <summary>
         ///     Removes the previous migration.
@@ -214,7 +214,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="projectDir"> The project's root directory. </param>
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
-        /// <param name="revert"> Revert if the migration has been applied to the database before removing. </param>
         /// <param name="language"> The project's language. </param>
         /// <returns> The removed migration files. </returns>
         // TODO: DRY (file names)
@@ -222,7 +221,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             string projectDir,
             string rootNamespace,
             bool force,
-            bool revert,
             string language)
         {
             Check.NotEmpty(projectDir, nameof(projectDir));
@@ -249,16 +247,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (!Dependencies.MigrationsModelDiffer.HasDifferences(model, Dependencies.SnapshotModelProcessor.Process(modelSnapshot.Model)))
                 {
-                    if (force)
+                    var applied = false;
+                    try
                     {
-                        Dependencies.OperationReporter.WriteWarning(DesignStrings.ForceRemoveMigration(migration.GetId()));
+                        applied = Dependencies.HistoryRepository.GetAppliedMigrations().Any(
+                            e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase));
                     }
-                    else if (Dependencies.HistoryRepository.GetAppliedMigrations().Any(
-                        e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
+                    catch (Exception ex) when (force)
                     {
-                        if (revert)
+                        Dependencies.OperationReporter.WriteVerbose(ex.ToString());
+                        Dependencies.OperationReporter.WriteWarning(
+                            DesignStrings.ForceRemoveMigration(migration.GetId(), ex.Message));
+                    }
+                    if (applied)
+                    {
+                        if (force)
                         {
-                            Dependencies.OperationReporter.WriteInformation(DesignStrings.RevertingMigration(migration.GetId()));
                             Dependencies.Migrator.Migrate(
                                 migrations.Count > 1
                                     ? migrations[migrations.Count - 2].GetId()

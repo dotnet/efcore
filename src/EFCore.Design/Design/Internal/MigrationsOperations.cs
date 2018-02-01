@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual MigrationFiles RemoveMigration(
-            [CanBeNull] string contextType, bool force, bool revert)
+            [CanBeNull] string contextType, bool force)
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                 var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
 
-                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, revert, _language);
+                var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
 
                 _reporter.WriteInformation(DesignStrings.Done);
 

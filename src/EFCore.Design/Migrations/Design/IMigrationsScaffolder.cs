@@ -30,14 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="projectDir"> The project's root directory. </param>
         /// <param name="rootNamespace"> The project's root namespace. </param>
         /// <param name="force"> Don't check to see if the migration has been applied to the database. </param>
-        /// <param name="revert"> Revert if the migration has been applied to the database before removing. </param>
         /// <param name="language"> The project's language. </param>
         /// <returns> The removed migration files. </returns>
         MigrationFiles RemoveMigration(
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
             bool force,
-            bool revert,
             [CanBeNull] string language);
 
         /// <summary>

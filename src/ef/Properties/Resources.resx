@@ -214,7 +214,7 @@
     <value>Removes the last migration.</value>
   </data>
   <data name="MigrationsRemoveForceDescription" xml:space="preserve">
-    <value>Don't check to see if the migration has been applied to the database.</value>
+    <value>Revert the migration if it has been applied to the database.</value>
   </data>
   <data name="MigrationsScriptDescription" xml:space="preserve">
     <value>Generates a SQL script from migrations.</value>
@@ -308,9 +308,6 @@
   </data>
   <data name="LanguageDescription" xml:space="preserve">
     <value>The language. Defaults to 'C#'.</value>
-  </data>
-  <data name="MigrationsRemoveRevertDescription" xml:space="preserve">
-    <value>Revert the migration if it has been applied to the database.</value>
   </data>
   <data name="ContextDirDescription" xml:space="preserve">
     <value>The directory to put DbContext file in. Paths are relative to the project directory.</value>

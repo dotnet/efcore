@@ -9,7 +9,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     internal partial class MigrationsRemoveCommand : ContextCommandBase
     {
         private CommandOption _force;
-        private CommandOption _revert;
         private CommandOption _json;
 
         public override void Configure(CommandLineApplication command)
@@ -17,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             command.Description = Resources.MigrationsRemoveDescription;
 
             _force = command.Option("-f|--force", Resources.MigrationsRemoveForceDescription);
-            _revert = command.Option("-r|--revert", Resources.MigrationsRemoveRevertDescription);
             _json = Json.ConfigureOption(command);
 
             base.Configure(command);
