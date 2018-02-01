@@ -20,6 +20,356 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ChangeTrackerTest
     {
+        [Fact]
+        public void State_change_events_fire_from_query()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            Seed();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
+                AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: true);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_fire_from_Attach()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                context.Attach(new Cat(1));
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: false);
+
+                context.Entry(new Cat(2)).State = EntityState.Unchanged;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 2, EntityState.Unchanged, tracked[1], fromQuery: false);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_fire_from_Add()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                context.Add(new Cat(1));
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
+
+                context.Entry(new Cat(2)).State = EntityState.Added;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 2, EntityState.Added, tracked[1], fromQuery: false);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_fire_from_Update()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                context.Update(new Cat(1));
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 1, EntityState.Modified, tracked[0], fromQuery: false);
+
+                context.Entry(new Cat(2)).State = EntityState.Modified;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 2, EntityState.Modified, tracked[1], fromQuery: false);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_fire_for_tracked_state_changes()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                context.AddRange(new Cat(1), new Cat(2));
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
+                AssertTrackedEvent(context, 2, EntityState.Added, tracked[1], fromQuery: false);
+
+                context.Entry(context.Cats.Find(1)).State = EntityState.Unchanged;
+                context.Entry(context.Cats.Find(2)).State = EntityState.Modified;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(2, changed.Count);
+
+                AssertChangedEvent(context, 1, EntityState.Added, EntityState.Unchanged, changed[0]);
+                AssertChangedEvent(context, 2, EntityState.Added, EntityState.Modified, changed[1]);
+
+                context.Entry(context.Cats.Find(1)).State = EntityState.Added;
+                context.Entry(context.Cats.Find(2)).State = EntityState.Deleted;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(4, changed.Count);
+
+                AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Added, changed[2]);
+                AssertChangedEvent(context, 2, EntityState.Modified, EntityState.Deleted, changed[3]);
+
+                context.Remove(context.Cats.Find(1));
+                context.Entry(context.Cats.Find(2)).State = EntityState.Detached;
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(6, changed.Count);
+
+                AssertChangedEvent(context, null, EntityState.Added, EntityState.Detached, changed[4]);
+                AssertChangedEvent(context, null, EntityState.Deleted, EntityState.Detached, changed[5]);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_fire_when_saving_changes()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            Seed();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                var cat1 = context.Cats.Find(1);
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: true);
+
+                context.Add(new Cat(3));
+                cat1.Name = "Clippy";
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(1, changed.Count);
+
+                AssertTrackedEvent(context, 3, EntityState.Added, tracked[1], fromQuery: false);
+                AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Modified, changed[0]);
+
+                context.SaveChanges();
+
+                Assert.Equal(2, tracked.Count);
+                Assert.Equal(3, changed.Count);
+
+                AssertChangedEvent(context, 1, EntityState.Modified, EntityState.Unchanged, changed[1]);
+                AssertChangedEvent(context, 3, EntityState.Added, EntityState.Unchanged, changed[2]);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_fire_when_property_modified_flags_cause_state_change()
+        {
+            var tracked = new List<EntityTrackedEventArgs>();
+            var changed = new List<EntityStateEventArgs>();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked, changed);
+
+                var cat = context.Attach(new Cat(3) { Name = "Achilles" }).Entity;
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(0, changed.Count);
+
+                AssertTrackedEvent(context, 3, EntityState.Unchanged, tracked[0], fromQuery: false);
+
+                context.Entry(cat).Property(e => e.Name).IsModified = true;
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(1, changed.Count);
+
+                AssertChangedEvent(context, 3, EntityState.Unchanged, EntityState.Modified, changed[0]);
+
+                context.Entry(cat).Property(e => e.Name).IsModified = false;
+
+                Assert.Equal(1, tracked.Count);
+                Assert.Equal(2, changed.Count);
+
+                AssertChangedEvent(context, 3, EntityState.Modified, EntityState.Unchanged, changed[1]);
+            }
+        }
+
+        [Fact]
+        public void State_change_events_are_limited_to_the_current_context()
+        {
+            var tracked1 = new List<EntityTrackedEventArgs>();
+            var changed1 = new List<EntityStateEventArgs>();
+            var tracked2 = new List<EntityTrackedEventArgs>();
+            var changed2 = new List<EntityStateEventArgs>();
+
+            Seed();
+
+            using (var context = new LikeAZooContext())
+            {
+                RegisterEvents(context, tracked1, changed1);
+
+                using (var context2 = new LikeAZooContext())
+                {
+                    RegisterEvents(context2, tracked2, changed2);
+
+                    Assert.Equal(2, context2.Cats.OrderBy(e => e.Id).ToList().Count);
+
+                    Assert.Equal(2, tracked2.Count);
+                    Assert.Equal(0, changed2.Count);
+
+                    context2.Entry(context2.Cats.Find(1)).State = EntityState.Modified;
+
+                    Assert.Equal(2, tracked2.Count);
+                    Assert.Equal(1, changed2.Count);
+
+                    Assert.Equal(0, tracked1.Count);
+                    Assert.Equal(0, changed1.Count);
+                }
+
+                Assert.Equal(2, context.Cats.OrderBy(e => e.Id).ToList().Count);
+
+                Assert.Equal(2, tracked1.Count);
+                Assert.Equal(0, changed1.Count);
+
+                context.Entry(context.Cats.Find(1)).State = EntityState.Modified;
+
+                Assert.Equal(2, tracked1.Count);
+                Assert.Equal(1, changed1.Count);
+
+                Assert.Equal(2, tracked2.Count);
+                Assert.Equal(1, changed2.Count);
+            }
+        }
+
+        private static void AssertTrackedEvent(
+            LikeAZooContext context,
+            int id,
+            EntityState newState,
+            EntityTrackedEventArgs tracked,
+            bool fromQuery)
+        {
+            Assert.Equal(newState, tracked.Entry.State);
+            Assert.Equal(fromQuery, tracked.FromQuery);
+            Assert.Same(context.Cats.Find(id), tracked.Entry.Entity);
+        }
+
+        private static void AssertChangedEvent(
+            LikeAZooContext context,
+            int? id,
+            EntityState oldState,
+            EntityState newState,
+            EntityStateEventArgs changed)
+        {
+            Assert.Equal(oldState, changed.OldState);
+            Assert.Equal(newState, changed.NewState);
+            Assert.Equal(newState, changed.Entry.State);
+
+            if (id != null)
+            {
+                Assert.Same(context.Cats.Find(id), changed.Entry.Entity);
+            }
+        }
+
+        private static void RegisterEvents(
+            LikeAZooContext context,
+            IList<EntityTrackedEventArgs> tracked,
+            IList<EntityStateEventArgs> changed)
+        {
+            context.ChangeTracker.Tracked += (s, e) =>
+            {
+                Assert.Same(context.ChangeTracker, s);
+                tracked.Add(e);
+            };
+
+            context.ChangeTracker.StateChanged += (s, e) =>
+            {
+                Assert.Same(context.ChangeTracker, s);
+                Assert.Equal(e.NewState, e.Entry.State);
+                changed.Add(e);
+            };
+        }
+
+        private void ChangeTracker_EnityStateChanging(object arg1, EntityStateEventArgs arg2)
+        {
+            throw new NotImplementedException();
+        }
+
+        private class Cat
+        {
+            public Cat(int id) => Id = id;
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public int Id { get; private set; }
+
+            public string Name { get; set; }
+        }
+
+        private class LikeAZooContext : DbContext
+        {
+            public DbSet<Cat> Cats { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(LikeAZooContext));
+        }
+
+        private void Seed()
+        {
+            using (var context = new LikeAZooContext())
+            {
+                context.Database.EnsureDeleted();
+
+                context.AddRange(new Cat(1), new Cat(2));
+
+                context.SaveChanges();
+            }
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]

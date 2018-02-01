@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
-    // This is the app-developer facing public API to the change tracker
     /// <summary>
     ///     Provides access to change tracking information and operations for entity instances the context is tracking.
     ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker" /> and it is not designed
@@ -39,9 +38,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(changeDetector, nameof(changeDetector));
 
-#pragma warning disable 612
             Context = context;
-#pragma warning restore 612
+
             _queryTrackingBehavior = context
                                          .GetService<IDbContextOptions>()
                                          .Extensions
@@ -49,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                                          .FirstOrDefault()
                                          ?.QueryTrackingBehavior
                                      ?? QueryTrackingBehavior.TrackAll;
+
             StateManager = stateManager;
             ChangeDetector = changeDetector;
             _model = model;
@@ -256,6 +255,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private IChangeDetector ChangeDetector { get; }
 
         private IEntityEntryGraphIterator GraphIterator { get; }
+
+        /// <summary>
+        ///     An event fired when an entity is tracked by the context, either because it was returned
+        ///     from a tracking query, or because it was attached or added to the context.
+        /// </summary>
+        public event Action<object, EntityTrackedEventArgs> Tracked
+        {
+            add => StateManager.Tracked += value;
+            remove => StateManager.Tracked -= value;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         An event fired when an entity that is tracked by the associated <see cref="DbContext" /> has moved
+        ///         from one <see cref="EntityState" /> to another.
+        ///     </para>
+        ///     <para>
+        ///         Note that this event does not fire for entities when they are first tracked by the context.
+        ///         Use the <see cref="Tracked" /> event to get notified when the context begins tracking an entity.
+        ///     </para>
+        /// </summary>
+        public event Action<object, EntityStateEventArgs> StateChanged
+        {
+            add => StateManager.StateChanged += value;
+            remove => StateManager.StateChanged -= value;
+        }
 
         #region Hidden System.Object members
 

@@ -199,6 +199,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified, flagged: false);
             }
 
+            if (_stateData.EntityState != oldState)
+            {
+                _stateData.EntityState = oldState;
+            }
+
             StateManager.InternalEntityEntryNotifier.StateChanging(this, newState);
 
             if (newState == EntityState.Unchanged
@@ -265,7 +270,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.ChangedCount--;
             }
 
+            FireStateChanged(oldState);
+        }
+
+        private void FireStateChanged(EntityState oldState)
+        {
             StateManager.InternalEntityEntryNotifier.StateChanged(this, oldState, fromQuery: false);
+
+            if (oldState != EntityState.Detached)
+            {
+                StateManager.OnStateChanged(this, oldState);
+            }
+            else
+            {
+                StateManager.OnTracked(this, fromQuery: false);
+            }
         }
 
         private void SetServiceProperties(EntityState oldState, EntityState newState)
@@ -293,9 +312,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void MarkUnchangedFromQuery([CanBeNull] ISet<IForeignKey> handledForeignKeys)
         {
             StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
+
             _stateData.EntityState = EntityState.Unchanged;
+
             StateManager.InternalEntityEntryNotifier.StateChanged(this, EntityState.Detached, fromQuery: true);
 
+            StateManager.OnTracked(this, fromQuery: true);
+            
             var trackingQueryMode = StateManager.GetTrackingQueryMode(EntityType);
             if (trackingQueryMode != TrackingQueryMode.Simple)
             {
@@ -405,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (changeState)
                 {
                     StateManager.ChangedCount++;
-                    StateManager.InternalEntityEntryNotifier.StateChanged(this, currentState, fromQuery: false);
+                    FireStateChanged(currentState);
                 }
             }
             else if (currentState == EntityState.Modified
@@ -416,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.InternalEntityEntryNotifier.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
                 StateManager.ChangedCount--;
-                StateManager.InternalEntityEntryNotifier.StateChanged(this, currentState, fromQuery: false);
+                FireStateChanged(currentState);
             }
         }
 
