@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         w.Log(RelationalEventId.QueryClientEvaluationWarning);
                         w.Log(OracleEventId.ByteIdentityColumnWarning);
+                        w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning);
                     });
     }
 }
