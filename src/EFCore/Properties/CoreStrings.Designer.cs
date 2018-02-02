@@ -2224,6 +2224,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("OwnedDerivedType", nameof(entityType)),
                 entityType);
 
+        /// <summary>
+        ///     Cannot create a DbSet for '{typeName}' because it is mapped to mulptiple entity types and should they should be accessed through the defining entities.
+        /// </summary>
+        public static string InvalidSetTypeWeak([CanBeNull] object typeName)
+            => string.Format(
+                GetString("InvalidSetTypeWeak", nameof(typeName)),
+                typeName);
+
+        /// <summary>
+        ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation
+            = new EventDefinition<string, string, string, string, string>(
+                CoreEventId.NonDefiningInverseNavigation,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string, string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.NonDefiningInverseNavigation,
+                    _resourceManager.GetString("LogNonDefiningInverseNavigation")));
+
+        /// <summary>
+        ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation
+            = new EventDefinition<string, string, string, string, string>(
+                CoreEventId.NonOwnershipInverseNavigation,
+                LogLevel.Warning,
+                LoggerMessage.Define<string, string, string, string, string>(
+                    LogLevel.Warning,
+                    CoreEventId.NonOwnershipInverseNavigation,
+                    _resourceManager.GetString("LogNonOwnershipInverseNavigation")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

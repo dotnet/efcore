@@ -370,6 +370,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return true;
             }
 
+            if (Metadata.ShouldBeOwnedType(name))
+            {
+                return false;
+            }
+
             var entityType = Metadata.FindEntityType(name);
             if (entityType != null)
             {
@@ -475,10 +480,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void RemoveEntityTypesUnreachableByNavigations(ConfigurationSource configurationSource)
         {
             var rootEntityTypes = GetRoots(configurationSource);
-            foreach (var orphan in new ModelNavigationsGraphAdapter(Metadata).GetUnreachableVertices(rootEntityTypes))
+            using (Metadata.ConventionDispatcher.StartBatch())
             {
-                // Ignoring the type prevents it from being rediscovered by conventions that run as part of the removal
-                Ignore(orphan, configurationSource);
+                foreach (var orphan in new ModelNavigationsGraphAdapter(Metadata).GetUnreachableVertices(rootEntityTypes))
+                {
+                    RemoveEntityType(orphan, configurationSource);
+                }
             }
         }
 

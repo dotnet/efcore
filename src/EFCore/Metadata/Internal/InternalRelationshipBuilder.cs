@@ -923,8 +923,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.HasBaseType((Type)null, configurationSource);
                     }
 
-                    newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
-                        newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+                    if (newRelationshipBuilder.Metadata.IsUnique)
+                    {
+                        newRelationshipBuilder.Metadata.DeclaringEntityType.Builder.PrimaryKey(
+                            newRelationshipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+                    }
                 }
 
                 newRelationshipBuilder.Metadata.SetIsOwnership(ownership, configurationSource);

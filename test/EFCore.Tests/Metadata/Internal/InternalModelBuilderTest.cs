@@ -300,10 +300,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.False(model.ShouldBeOwnedType(typeof(Details)));
 
-            Assert.True(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
-
-            Assert.True(model.ShouldBeOwnedType(typeof(Details)));
-
             Assert.NotNull(entityBuilder.Owns(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
 
             Assert.True(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));

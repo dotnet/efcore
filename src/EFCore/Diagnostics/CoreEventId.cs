@@ -80,6 +80,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
             MultipleInversePropertiesSameTarget,
+            NonDefiningInverseNavigation,
+            NonOwnershipInverseNavigation,
             ForeignKeyAttributesOnBothProperties,
             ForeignKeyAttributesOnBothNavigations,
             ConflictingForeignKeyAttributesOnNavigationAndProperty
@@ -462,6 +464,34 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId MultipleInversePropertiesSameTarget = MakeModelId(Id.MultipleInversePropertiesSameTarget);
+
+        /// <summary>
+        ///     <para>
+        ///         There navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoUnmappedPropertyCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId NonDefiningInverseNavigation = MakeModelId(Id.NonDefiningInverseNavigation);
+
+        /// <summary>
+        ///     <para>
+        ///         There navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TwoUnmappedPropertyCollectionsEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId NonOwnershipInverseNavigation = MakeModelId(Id.NonOwnershipInverseNavigation);
 
         /// <summary>
         ///     <para>

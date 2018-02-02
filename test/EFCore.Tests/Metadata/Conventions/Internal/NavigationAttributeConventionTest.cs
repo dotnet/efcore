@@ -342,6 +342,71 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
+        public void InversePropertyAttribute_does_not_configure_non_defining_navigation()
+        {
+            var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
+
+            var dependentEntityTypeBuilder = principalEntityTypeBuilder.ModelBuilder.Metadata.AddEntityType(
+                typeof(Dependent), nameof(Principal.Dependents), principalEntityTypeBuilder.Metadata, ConfigurationSource.Convention)
+                .Builder;
+
+            dependentEntityTypeBuilder.Relationship(
+                principalEntityTypeBuilder,
+                nameof(Dependent.Principal),
+                nameof(Principal.Dependents),
+                ConfigurationSource.Convention);
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
+
+            var convention = CreateInversePropertyAttributeConvention();
+            CreateInversePropertyAttributeConvention().Apply(dependentEntityTypeBuilder);
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
+            Assert.Contains(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
+
+            convention.Apply(dependentEntityTypeBuilder.ModelBuilder);
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Warning, Log[0].Level);
+            Assert.Equal(CoreStrings.LogNonDefiningInverseNavigation.GenerateMessage(
+                nameof(Principal), nameof(Principal.Dependent), "Principal.Dependents#Dependent", nameof(Dependent.Principal),
+                nameof(Principal.Dependents)), Log[0].Message);
+        }
+
+        [Fact]
+        public void InversePropertyAttribute_does_not_configure_non_ownership_navigation()
+        {
+            var principalEntityTypeBuilder = CreateInternalEntityTypeBuilder<Principal>();
+
+            var dependentEntityTypeBuilder = principalEntityTypeBuilder.Owns(
+                typeof(Dependent),
+                nameof(Principal.Dependents),
+                ConfigurationSource.Convention).Metadata.DeclaringEntityType.Builder;
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
+            Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
+
+            var convention = CreateInversePropertyAttributeConvention();
+            CreateInversePropertyAttributeConvention().Apply(dependentEntityTypeBuilder);
+
+            Assert.Contains(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependents));
+            Assert.DoesNotContain(principalEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Principal.Dependent));
+            Assert.DoesNotContain(dependentEntityTypeBuilder.Metadata.GetNavigations(), nav => nav.Name == nameof(Dependent.Principal));
+
+            convention.Apply(dependentEntityTypeBuilder.ModelBuilder);
+
+            Assert.Equal(1, Log.Count);
+            Assert.Equal(LogLevel.Warning, Log[0].Level);
+            Assert.Equal(CoreStrings.LogNonOwnershipInverseNavigation.GenerateMessage(
+                nameof(Principal), nameof(Principal.Dependent), nameof(Dependent), nameof(Dependent.Principal),
+                nameof(Principal.Dependents)), Log[0].Message);
+        }
+
+        [Fact]
         public void InversePropertyAttribute_throws_if_self_navigation()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<SelfReferencingEntity>();

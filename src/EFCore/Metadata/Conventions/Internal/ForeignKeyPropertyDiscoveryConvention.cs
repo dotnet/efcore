@@ -60,16 +60,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var invertable = true;
             if (foreignKey.DeclaringEntityType.DefiningEntityType == foreignKey.PrincipalEntityType
                 || foreignKey.IsOwnership
-                || foreignKey.DeclaringEntityType.IsQueryType)
+                || foreignKey.DeclaringEntityType.IsQueryType
+                || foreignKey.DeclaringEntityType.FindOwnership() != null)
             {
-                relationshipBuilder = relationshipBuilder
-                    .RelatedEntityTypes(foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType, ConfigurationSource.Convention);
+                relationshipBuilder = relationshipBuilder.RelatedEntityTypes(
+                    foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType, ConfigurationSource.Convention);
                 invertable = false;
             } else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                && foreignKey.PrincipalEntityType.DefiningEntityType == foreignKey.DeclaringEntityType)
+                       && (foreignKey.PrincipalEntityType.DefiningEntityType == foreignKey.DeclaringEntityType
+                           || (foreignKey.PrincipalEntityType.FindOwnership() != null
+                               && foreignKey.PrincipalToDependent != null
+                               && foreignKey.DependentToPrincipal == null)))
             {
-                var invertedRelationshipBuilder = relationshipBuilder
-                    .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
+                var invertedRelationshipBuilder = relationshipBuilder.RelatedEntityTypes(
+                    foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
                 if (invertedRelationshipBuilder != null)
                 {
                     return invertedRelationshipBuilder;
@@ -86,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false);
                     if (candidatePropertiesOnPrincipal != null
-                         && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
+                        && !foreignKey.PrincipalEntityType.FindForeignKeysInHierarchy(candidatePropertiesOnPrincipal).Any())
                     {
                         var invertedRelationshipBuilder = relationshipBuilder
                             .RelatedEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType, ConfigurationSource.Convention);
@@ -114,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                             foreignKey.PrincipalEntityType,
                             foreignKey.PrincipalKey.Properties);
                     }
-                    else
+                    else if (invertable)
                     {
                         foreignKeyProperties = FindCandidateForeignKeyProperties(foreignKey, onDependent: true, matchPk: true);
                         var candidatePropertiesOnPrincipal = FindCandidateForeignKeyProperties(foreignKey, onDependent: false, matchPk: true);

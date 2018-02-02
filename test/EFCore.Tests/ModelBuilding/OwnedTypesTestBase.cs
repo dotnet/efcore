@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
@@ -346,13 +348,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Owned<BookLabel>();
-                modelBuilder.Owned<SpecialBookLabel>();
-                modelBuilder.Owned<AnotherBookLabel>();
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
 
                 modelBuilder.Validate();
 
                 VerifyOwnedBookLabelModel(modelBuilder.Model);
+            }
+
+            [Fact]
+            public virtual void Collection_navigation_to_owned_entity_type_is_ignored()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Owned<Order>();
+                modelBuilder.Owned<SpecialOrder>();
+                var customerBuilder = modelBuilder.Entity<SpecialCustomer>();
+
+                Assert.Equal(CoreStrings.NavigationNotAdded(
+                    nameof(Customer), nameof(Customer.Orders), "IEnumerable<Order>"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+
+                Assert.Null(customerBuilder.Metadata.FindNavigation(nameof(SpecialCustomer.Orders)));
+                Assert.Null(customerBuilder.Metadata.FindNavigation(nameof(SpecialCustomer.SpecialOrders)));
+                Assert.Equal(0, modelBuilder.Model.GetEntityTypes(typeof(Order)).Count);
+                Assert.Null(((Model)modelBuilder.Model).FindIgnoredTypeConfigurationSource(typeof(Order)));
+                Assert.Null(((Model)modelBuilder.Model).FindIgnoredTypeConfigurationSource(typeof(SpecialOrder)));
             }
 
             protected virtual void VerifyOwnedBookLabelModel(IMutableModel model)

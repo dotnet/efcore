@@ -1087,8 +1087,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 var detachedRelationship = DetachRelationship(relationshipToBeDetached);
                 if (detachedRelationship.Item3.Overrides(ConfigurationSource.DataAnnotation)
-                    || relationshipToBeDetached.IsOwnership
-                    || relationshipToBeDetached.DependentToPrincipal == null)
+                    || relationshipToBeDetached.IsOwnership)
                 {
                     detachedRelationships.Add(detachedRelationship);
                 }
@@ -1105,8 +1104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     var detachedRelationship = DetachRelationship(relationshipToBeDetached);
                     if (detachedRelationship.Item3.Overrides(ConfigurationSource.DataAnnotation)
-                        || relationshipToBeDetached.IsOwnership
-                        || relationshipToBeDetached.PrincipalToDependent == null)
+                        || relationshipToBeDetached.IsOwnership)
                     {
                         EntityTypeSnapshot weakSnapshot = null;
                         var dependentEntityType = relationshipToBeDetached.DeclaringEntityType;
@@ -1866,15 +1864,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             InternalRelationshipBuilder relationship;
             using (var batch = Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                var existingNavigation = Metadata
-                    .FindNavigationsInHierarchy(navigation.Name)
-                    .SingleOrDefault(n => n.GetTargetType().Name == targetEntityType.Name);
+                var existingNavigation = Metadata.FindNavigation(navigation.Name);
 
                 var ownershipBuilder = existingNavigation?.ForeignKey.Builder;
                 if (ownershipBuilder != null)
                 {
                     ownershipBuilder = ownershipBuilder.RelatedEntityTypes(
-                        Metadata, ownershipBuilder.Metadata.FindNavigationsFrom(Metadata).Single().GetTargetType(),
+                        Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().GetTargetType(),
                         configurationSource);
                     ownershipBuilder = ownershipBuilder?.Navigations(inverse, navigation, configurationSource);
                     ownershipBuilder = ownershipBuilder?.IsRequired(true, configurationSource);

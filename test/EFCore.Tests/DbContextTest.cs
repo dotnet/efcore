@@ -17,6 +17,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
+// ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
@@ -34,6 +37,25 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var ex = Assert.Throws<InvalidOperationException>(() => context.Set<Category>().Local);
                 Assert.Equal(CoreStrings.InvalidSetType(nameof(Category)), ex.Message);
+            }
+        }
+
+        [Fact]
+        public void Set_throws_for_weak_types()
+        {
+            var model = new Model(new ConventionSet());
+            var question = model.AddEntityType(typeof(Question));
+            model.AddEntityType(typeof(User), nameof(Question.Author), question);
+
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider())
+                .UseModel(model);
+            using (var context = new DbContext(optionsBuilder.Options))
+            {
+                var ex = Assert.Throws<InvalidOperationException>(() => context.Set<User>().Local);
+                Assert.Equal(CoreStrings.InvalidSetTypeWeak(nameof(User)), ex.Message);
             }
         }
 
@@ -301,6 +323,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                // ReSharper disable once AssignmentIsFullyDiscarded
                 _ = Model;
             }
 
@@ -337,6 +360,7 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Product> Products { get; set; }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 => Products.ToList();
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -375,6 +399,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 optionsBuilder.UseInternalServiceProvider(_serviceProvider);
 
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 Products.ToList();
 
                 base.OnConfiguring(optionsBuilder);
@@ -574,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.RemoveRange(new Product { Id = id++, Name = "Little Hedgehogs" });
                 context.RemoveRange(new Product { Id = id++, Name = "Little Hedgehogs" });
                 context.RemoveRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
-                context.RemoveRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
+                context.RemoveRange(new List<object> { new Product { Id = id, Name = "Little Hedgehogs" } });
 
                 Assert.False(changeDetector.DetectChangesCalled);
 
@@ -659,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore
 
             context.Dispose();
 
-            var ex = Assert.Throws<ObjectDisposedException>(() => context.Model);
+            Assert.Throws<ObjectDisposedException>(() => context.Model);
         }
 
         [Fact]

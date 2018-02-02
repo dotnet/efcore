@@ -381,6 +381,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Alpha AlphaTwo { get; set; }
         }
 
+        [NotMapped]
         protected class Theta
         {
             public int ThetaId { get; set; }

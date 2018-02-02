@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class PropertyMappingValidationConventionTest
@@ -212,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public int WriteOnlyProperty
             {
-                set { _writeOnlyField = value; }
+                set => _writeOnlyField = value;
             }
         }
 

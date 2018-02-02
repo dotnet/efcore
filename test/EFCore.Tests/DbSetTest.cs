@@ -12,6 +12,11 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class DbSetTest

@@ -246,6 +246,10 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = Model.FindEntityType(type);
             if (entityType == null)
             {
+                if (Model.HasEntityTypeWithDefiningNavigation(type))
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(type.ShortDisplayName()));
+                }
                 throw new InvalidOperationException(CoreStrings.InvalidSetType(type.ShortDisplayName()));
             }
 

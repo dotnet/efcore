@@ -61,14 +61,5 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         {
             Assert.Throws<ArgumentException>(() => Check.NotEmpty(null, string.Empty));
         }
-
-        [Fact]
-        public void Valid_entity_type_throws_when_type_is_not_class()
-        {
-            Assert.Equal(
-                CoreStrings.InvalidEntityType(typeof(IComparable), "foo"),
-                Assert.Throws<ArgumentException>(
-                    () => Check.ValidEntityType(typeof(IComparable), "foo")).Message);
-        }
     }
 }

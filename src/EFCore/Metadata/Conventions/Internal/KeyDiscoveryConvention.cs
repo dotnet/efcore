@@ -54,6 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
                                  ?? entityType.FindOwnership();
                 if (definingFk != null
+                    && definingFk.IsUnique
                     && definingFk.DeclaringEntityType == entityType)
                 {
                     // Make sure that the properties won't be reuniquified

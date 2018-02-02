@@ -2182,6 +2182,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Ignore<Delta>();
+                modelBuilder.Ignore<Iota>();
                 modelBuilder.Entity<Theta>().HasOne(e => e.Alpha).WithMany();
 
                 modelBuilder.Validate();

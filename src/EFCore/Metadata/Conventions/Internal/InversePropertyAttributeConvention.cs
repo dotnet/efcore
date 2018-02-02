@@ -137,17 +137,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return entityTypeBuilder.Metadata.FindNavigation(navigationPropertyInfo)?.ForeignKey.Builder;
             }
 
-            if (entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
-                && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.Name)
-            {
-                return null;
-            }
-
             var ownership = entityType.FindOwnership();
             if (ownership != null
                 && ownership.PrincipalEntityType == targetEntityTypeBuilder.Metadata
                 && ownership.PrincipalToDependent?.PropertyInfo != inverseNavigationPropertyInfo)
             {
+                _logger.NonOwnershipInverseNavigation(entityType, navigationPropertyInfo,
+                    targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
+                    ownership.PrincipalToDependent.PropertyInfo);
+                return null;
+            }
+
+            if (entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
+                && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.Name)
+            {
+                _logger.NonDefiningInverseNavigation(entityType, navigationPropertyInfo,
+                    targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
+                    targetClrType.GetRuntimeProperties().First(p => p.Name == entityType.DefiningNavigationName));
                 return null;
             }
 

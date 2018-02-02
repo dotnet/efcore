@@ -52,6 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 if (_entityType == null)
                 {
+                    if (_context.Model.HasEntityTypeWithDefiningNavigation(typeof(TQuery)))
+                    {
+                        throw new InvalidOperationException(CoreStrings.InvalidSetTypeWeak(typeof(TQuery).ShortDisplayName()));
+                    }
                     throw new InvalidOperationException(CoreStrings.InvalidSetType(typeof(TQuery).ShortDisplayName()));
                 }
 

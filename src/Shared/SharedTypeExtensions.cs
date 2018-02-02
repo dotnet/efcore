@@ -23,6 +23,9 @@ namespace System
                    && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
+        public static bool IsValidEntityType(this Type type)
+            => type.GetTypeInfo().IsClass;
+
         public static Type MakeNullable(this Type type)
             => type.IsNullableType()
                 ? type

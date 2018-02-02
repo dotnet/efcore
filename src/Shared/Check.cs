@@ -94,17 +94,5 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             return value;
         }
-
-        public static Type ValidEntityType(Type value, [InvokerParameterName] [NotNull] string parameterName)
-        {
-            if (!value.GetTypeInfo().IsClass)
-            {
-                NotEmpty(parameterName, nameof(parameterName));
-
-                throw new ArgumentException(CoreStrings.InvalidEntityType(value, parameterName));
-            }
-
-            return value;
-        }
     }
 }

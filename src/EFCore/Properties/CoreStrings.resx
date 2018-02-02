@@ -943,4 +943,15 @@
   <data name="OwnedDerivedType" xml:space="preserve">
     <value>The owned entity type '{entityType}' cannot have a base type.</value>
   </data>
+  <data name="InvalidSetTypeWeak" xml:space="preserve">
+    <value>Cannot create a DbSet for '{typeName}' because it is mapped to mulptiple entity types and should they should be accessed through the defining entities.</value>
+  </data>
+  <data name="LogNonDefiningInverseNavigation" xml:space="preserve">
+    <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'</value>
+    <comment>Warning CoreEventId.NonDefiningInverseNavigation string string string string string</comment>
+  </data>
+  <data name="LogNonOwnershipInverseNavigation" xml:space="preserve">
+    <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'</value>
+    <comment>Warning CoreEventId.NonOwnershipInverseNavigation string string string string string</comment>
+  </data>
 </root>

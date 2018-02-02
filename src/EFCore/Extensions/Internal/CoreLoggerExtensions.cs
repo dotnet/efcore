@@ -1120,6 +1120,122 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public static void NonDefiningInverseNavigation(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] IEntityType declaringType,
+            [NotNull] MemberInfo navigation,
+            [NotNull] IEntityType targetType,
+            [NotNull] MemberInfo inverseNavigation,
+            [NotNull] MemberInfo definingNavigation)
+        {
+            var definition = CoreStrings.LogNonDefiningInverseNavigation;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    targetType.DisplayName(),
+                    inverseNavigation.Name,
+                    declaringType.DisplayName(),
+                    navigation.Name,
+                    definingNavigation.Name);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new TwoUnmappedPropertyCollectionsEventData(
+                        definition,
+                        NonDefiningInverseNavigation,
+                        new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
+                        new[]
+                        {
+                            new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
+                            new Tuple<MemberInfo, Type>(definingNavigation, targetType.ClrType)
+                        }));
+            }
+        }
+
+        private static string NonDefiningInverseNavigation(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var p = (TwoUnmappedPropertyCollectionsEventData)payload;
+            var navigation = p.FirstPropertyCollection.First();
+            var inverseNavigation = p.SecondPropertyCollection.First();
+            var definingNavigation = p.SecondPropertyCollection.Last();
+            return d.GenerateMessage(
+                inverseNavigation.Item2.ShortDisplayName(),
+                inverseNavigation.Item1.Name,
+                navigation.Item2.ShortDisplayName(),
+                navigation.Item1.Name,
+                definingNavigation.Item1.Name);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void NonOwnershipInverseNavigation(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+            [NotNull] IEntityType declaringType,
+            [NotNull] MemberInfo navigation,
+            [NotNull] IEntityType targetType,
+            [NotNull] MemberInfo inverseNavigation,
+            [NotNull] MemberInfo ownershipNavigation)
+        {
+            var definition = CoreStrings.LogNonOwnershipInverseNavigation;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    targetType.DisplayName(),
+                    inverseNavigation.Name,
+                    declaringType.DisplayName(),
+                    navigation.Name,
+                    ownershipNavigation.Name);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new TwoUnmappedPropertyCollectionsEventData(
+                        definition,
+                        NonOwnershipInverseNavigation,
+                        new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
+                        new[]
+                        {
+                            new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
+                            new Tuple<MemberInfo, Type>(ownershipNavigation, targetType.ClrType)
+                        }));
+            }
+        }
+
+        private static string NonOwnershipInverseNavigation(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string, string, string>)definition;
+            var p = (TwoUnmappedPropertyCollectionsEventData)payload;
+            var navigation = p.FirstPropertyCollection.First();
+            var inverseNavigation = p.SecondPropertyCollection.First();
+            var ownershipNavigation = p.SecondPropertyCollection.Last();
+            return d.GenerateMessage(
+                inverseNavigation.Item2.ShortDisplayName(),
+                inverseNavigation.Item1.Name,
+                navigation.Item2.ShortDisplayName(),
+                navigation.Item1.Name,
+                ownershipNavigation.Item1.Name);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static void ForeignKeyAttributesOnBothProperties(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
             [NotNull] INavigation firstNavigation,
