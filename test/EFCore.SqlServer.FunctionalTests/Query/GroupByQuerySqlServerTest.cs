@@ -1062,7 +1062,7 @@ SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    ORDER BY [o].[OrderDate]
+    ORDER BY [o].[OrderDate], [o].[OrderID]
     OFFSET @__p_0 ROWS
 ) AS [t]
 ORDER BY [t].[CustomerID]");
