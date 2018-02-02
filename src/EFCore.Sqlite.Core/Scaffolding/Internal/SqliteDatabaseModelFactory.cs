@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -26,16 +27,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class SqliteDatabaseModelFactory : IDatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+        private readonly IRelationalCoreTypeMapper _typeMapper;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqliteDatabaseModelFactory([NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
+        public SqliteDatabaseModelFactory(
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+            [NotNull] IRelationalCoreTypeMapper typeMapper)
         {
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
             _logger = logger;
+            _typeMapper = typeMapper;
         }
 
         /// <summary>
@@ -232,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         var dataType = reader.GetString(1);
                         var notNull = reader.GetBoolean(2);
                         var defaultValue = !reader.IsDBNull(3)
-                            ? reader.GetString(3)
+                            ? FilterClrDefaults(dataType, notNull, reader.GetString(3))
                             : null;
 
                         _logger.ColumnFound(table, columnName, dataType, notNull, defaultValue);
@@ -247,6 +253,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     }
                 }
             }
+        }
+
+        private string FilterClrDefaults(string dataType, bool notNull, string defaultValue)
+        {
+            if (string.Equals(defaultValue, "null", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+            if (notNull && defaultValue == "0")
+            {
+                var normalizedType = _typeMapper.FindMapping(dataType).StoreType;
+                if (normalizedType == "INTEGER"
+                    || normalizedType == "REAL")
+                {
+                    return null;
+                }
+            }
+
+            return defaultValue;
         }
 
         private DatabasePrimaryKey GetPrimaryKey(DbConnection connection, string table, IList<DatabaseColumn> columns)
