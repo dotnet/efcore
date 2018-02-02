@@ -2245,7 +2245,7 @@ ORDER BY [t].[Id]");
                     Assert.Equal(2, result);
 
                     AssertSql(
-                        @"SELECT TOP(2) [foo].AddOne([w].[Val])
+                        @"SELECT TOP(2) [foo].[AddOne]([w].[Val])
 FROM [foo].[Widgets] AS [w]
 WHERE [w].[Val] = 1");
                 }
@@ -2264,7 +2264,7 @@ WHERE [w].[Val] = 1");
                     Assert.Equal(3, result);
 
                     AssertSql(
-                        @"SELECT TOP(2) [dbo].AddTwo([w].[Val])
+                        @"SELECT TOP(2) [dbo].[AddTwo]([w].[Val])
 FROM [foo].[Widgets] AS [w]
 WHERE [w].[Val] = 1");
                 }

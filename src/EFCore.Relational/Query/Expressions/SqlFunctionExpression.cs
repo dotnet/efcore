@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
     /// <summary>
     ///     Represents a SQL function call expression.
     /// </summary>
-    [DebuggerDisplay("{ToString()}")]
+    [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class SqlFunctionExpression : Expression
     {
         private readonly ReadOnlyCollection<Expression> _arguments;

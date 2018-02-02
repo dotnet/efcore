@@ -1409,11 +1409,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
             var parentTypeMapping = _typeMapping;
+
             _typeMapping = null;
+
+            var wroteSchema = false;
 
             if (sqlFunctionExpression.Instance != null)
             {
                 Visit(sqlFunctionExpression.Instance);
+
                 _relationalCommandBuilder.Append(".");
             }
             else if (!string.IsNullOrWhiteSpace(sqlFunctionExpression.Schema))
@@ -1421,12 +1425,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder
                     .Append(SqlGenerator.DelimitIdentifier(sqlFunctionExpression.Schema))
                     .Append(".");
+
+                wroteSchema = true;
             }
 
-            _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
+            _relationalCommandBuilder
+                .Append(
+                    wroteSchema
+                        ? SqlGenerator.DelimitIdentifier(sqlFunctionExpression.FunctionName)
+                        : sqlFunctionExpression.FunctionName);
+
             _relationalCommandBuilder.Append("(");
 
             _typeMapping = null;
+
             GenerateList(sqlFunctionExpression.Arguments);
 
             _relationalCommandBuilder.Append(")");

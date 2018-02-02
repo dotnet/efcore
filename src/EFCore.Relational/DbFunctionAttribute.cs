@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual string FunctionName
         {
-            get { return _functionName; }
+            get => _functionName;
             [param: NotNull]
             set
             {
@@ -57,8 +57,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual string Schema
         {
-            get { return _schema; }
-            [param: CanBeNull] set { _schema = value; }
+            get => _schema;
+            [param: CanBeNull]
+            set => _schema = value;
         }
     }
 }
