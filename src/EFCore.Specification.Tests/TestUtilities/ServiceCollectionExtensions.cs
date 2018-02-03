@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext))
                 .Single(
                     mi => mi.GetParameters().Length == 4
-                          && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>));
+                          && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
+                          && mi.GetGenericArguments().Length == 1);
 
         public static IServiceCollection AddDbContext(
             this IServiceCollection serviceCollection,

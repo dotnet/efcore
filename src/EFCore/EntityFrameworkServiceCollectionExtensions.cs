@@ -70,6 +70,59 @@ namespace Microsoft.Extensions.DependencyInjection
                     ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
                     : (p, b) => optionsAction.Invoke(b), contextLifetime, optionsLifetime);
 
+
+        /// <summary>
+        ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///     You use this method when using dependency injection in your application, such as with ASP.NET.
+        ///     For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        ///
+        ///              services.AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString));
+        ///          }
+        ///      </code>
+        /// </example>
+        /// <typeparam name="TBaseContext"> The interface type of context to be registered. </typeparam>
+        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="optionsAction">
+        ///     <para>
+        ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
+        ///         alternative to performing configuration of the context by overriding the
+        ///         <see cref="DbContext.OnConfiguring" /> method in your derived context.
+        ///     </para>
+        ///     <para>
+        ///         If an action is supplied here, the <see cref="DbContext.OnConfiguring" /> method will still be run if it has
+        ///         been overridden on the derived context. <see cref="DbContext.OnConfiguring" /> configuration will be applied
+        ///         in addition to configuration performed here.
+        ///     </para>
+        ///     <para>
+        ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
+        ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
+        ///     </para>
+        /// </param>
+        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
+        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddDbContext<TBaseContext, TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [CanBeNull] Action<DbContextOptionsBuilder> optionsAction = null,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+            where TBaseContext : DbContext
+            where TContext : TBaseContext
+            => AddDbContext<TBaseContext, TContext>(
+                serviceCollection,
+                optionsAction == null
+                    ? (Action<IServiceProvider, DbContextOptionsBuilder>)null
+                    : (p, b) => optionsAction.Invoke(b), contextLifetime, optionsLifetime);
+
         /// <summary>
         ///     Registers the given context as a service in the <see cref="IServiceCollection" /> and enables DbContext pooling.
         ///     Instance pooling can increase throughput in high-scale scenarios such as web servers by re-using
@@ -200,6 +253,38 @@ namespace Microsoft.Extensions.DependencyInjection
             where TContext : DbContext
             => AddDbContext<TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime, optionsLifetime);
 
+
+        /// <summary>
+        ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///     You use this method when using dependency injection in your application, such as with ASP.NET.
+        ///     For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        ///
+        ///              services.AddDbContext&lt;MyContext&gt;(ServiceLifetime.Scoped);
+        ///          }
+        ///      </code>
+        /// </example>
+        /// <typeparam name="TBaseContext"> The interface type of context to be registered. </typeparam>
+        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
+        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddDbContext<TBaseContext, TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+            where TBaseContext : DbContext
+            where TContext : TBaseContext
+            => AddDbContext<TBaseContext, TContext>(serviceCollection, (Action<IServiceProvider, DbContextOptionsBuilder>)null, contextLifetime, optionsLifetime);
+
         /// <summary>
         ///     <para>
         ///         Registers the given context as a service in the <see cref="IServiceCollection" />.
@@ -258,6 +343,73 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
+            => AddDbContext<TContext, TContext>(
+                serviceCollection,
+                 optionsAction,
+                contextLifetime,
+                optionsLifetime
+                );
+
+        /// <summary>
+        ///     <para>
+        ///         Registers the given context as a service in the <see cref="IServiceCollection" />.
+        ///         You use this method when using dependency injection in your application, such as with ASP.NET.
+        ///         For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     </para>
+        ///     <para>
+        ///         This overload has an <paramref name="optionsAction" /> that provides the applications <see cref="IServiceProvider" />.
+        ///         This is useful if you want to setup Entity Framework to resolve its internal services from the primary application service
+        ///         provider.
+        ///         By default, we recommend using the other overload, which allows Entity Framework to create and maintain its own
+        ///         <see cref="IServiceProvider" />
+        ///         for internal Entity Framework services.
+        ///     </para>
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///          public void ConfigureServices(IServiceCollection services)
+        ///          {
+        ///              var connectionString = "connection string to database";
+        ///
+        ///              services
+        ///                  .AddEntityFrameworkSqlServer()
+        ///                  .AddDbContext&lt;MyAbstractContext, MySqlContext&gt;((serviceProvider, options) =>
+        ///                      options.UseSqlServer(connectionString)
+        ///                             .UseInternalServiceProvider(serviceProvider));
+        ///          }
+        ///      </code>
+        /// </example>
+        /// <typeparam name="TBaseContext"> The interface type of context to be registered. </typeparam>
+        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="optionsAction">
+        ///     <para>
+        ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
+        ///         alternative to performing configuration of the context by overriding the
+        ///         <see cref="DbContext.OnConfiguring" /> method in your derived context.
+        ///     </para>
+        ///     <para>
+        ///         If an action is supplied here, the <see cref="DbContext.OnConfiguring" /> method will still be run if it has
+        ///         been overridden on the derived context. <see cref="DbContext.OnConfiguring" /> configuration will be applied
+        ///         in addition to configuration performed here.
+        ///     </para>
+        ///     <para>
+        ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
+        ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
+        ///     </para>
+        /// </param>
+        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
+        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
+        /// <returns>
+        ///     The same service collection so that multiple calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddDbContext<TBaseContext, TContext>(
+            [NotNull] this IServiceCollection serviceCollection,
+            [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+            where TBaseContext : DbContext
+            where TContext : TBaseContext
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
@@ -273,7 +425,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AddCoreServices<TContext>(serviceCollection, optionsAction, optionsLifetime);
 
-            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContext), typeof(TContext), contextLifetime));
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TBaseContext), typeof(TContext), contextLifetime));
 
             return serviceCollection;
         }
