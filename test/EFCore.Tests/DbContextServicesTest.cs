@@ -854,12 +854,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void Can_add_derived_context()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_derived_context(bool useInterface)
         {
-            var appServiceProivder = new ServiceCollection()
-                .AddDbContext<ConstructorTestContextWithOC1A>()
-                .BuildServiceProvider();
+            var serviceCollection = new ServiceCollection();
+
+            if (useInterface)
+            {
+                serviceCollection.AddDbContext<IConstructorTestContextWithOC1A, ConstructorTestContextWithOC1A>();
+            }
+            else
+            {
+                serviceCollection.AddDbContext<ConstructorTestContextWithOC1A>();
+            }
+
+            var appServiceProivder = serviceCollection.BuildServiceProvider();
 
             var singleton = new object[3];
             DbContext context1;
@@ -869,7 +880,9 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                context1 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                context1 = useInterface
+                    ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC1A>()
+                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreCache>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
@@ -884,7 +897,9 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                context2 = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
+                context2 = useInterface
+                    ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC1A>()
+                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
                 Assert.Same(singleton[0], context2.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context2.GetService<ILoggerFactory>());
@@ -1112,14 +1127,25 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact]
-        public void Can_add_derived_context_one_service_provider_with_options()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_derived_context_one_service_provider_with_options(bool useInterface)
         {
-            var appServiceProivder = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<ConstructorTestContextWithOC3A>(
-                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
-                .BuildServiceProvider();
+            var serviceCollection = new ServiceCollection().AddEntityFrameworkInMemoryDatabase();
+
+            if (useInterface)
+            {
+                serviceCollection.AddDbContext<IConstructorTestContextWithOC3A, ConstructorTestContextWithOC3A>(
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p));
+            }
+            else
+            {
+                serviceCollection.AddDbContext<ConstructorTestContextWithOC3A>(
+                    (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p));
+            }
+
+            var appServiceProivder = serviceCollection.BuildServiceProvider();
 
             var singleton = new object[4];
 
@@ -1127,7 +1153,9 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = useInterface
+                    ? (ConstructorTestContextWithOC3A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC3A>()
+                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.NotNull(singleton[0] = context.GetService<IInMemoryStoreCache>());
                 Assert.NotNull(singleton[1] = context.GetService<ILoggerFactory>());
@@ -1141,7 +1169,9 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
+                var context = useInterface
+                    ? (ConstructorTestContextWithOC3A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC3A>()
+                    : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>();
 
                 Assert.Same(singleton[0], context.GetService<IInMemoryStoreCache>());
                 Assert.Same(singleton[1], context.GetService<ILoggerFactory>());
@@ -3092,7 +3122,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class ConstructorTestContextWithOC1A : ConstructorTestContextWithOCBase
+        private interface IConstructorTestContextWithOC1A
+        {
+        }
+
+        private class ConstructorTestContextWithOC1A : ConstructorTestContextWithOCBase, IConstructorTestContextWithOC1A
         {
         }
 
@@ -3105,7 +3139,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class ConstructorTestContextWithOC3A : ConstructorTestContextWithOCBase
+        private interface IConstructorTestContextWithOC3A
+        {
+        }
+
+        private class ConstructorTestContextWithOC3A : ConstructorTestContextWithOCBase, IConstructorTestContextWithOC3A
         {
             public ConstructorTestContextWithOC3A(
                 DbContextOptions options)

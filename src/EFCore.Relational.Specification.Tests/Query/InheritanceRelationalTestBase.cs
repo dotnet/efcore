@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class InheritanceRelationalTestBase<TFixture> : InheritanceTestBase<TFixture>
+    public abstract class InheritanceRelationalTestBase<TFixture> : InheritanceTestBase<TFixture>
         where TFixture : InheritanceFixtureBase, new()
     {
         protected InheritanceRelationalTestBase(TFixture fixture) : base(fixture)
