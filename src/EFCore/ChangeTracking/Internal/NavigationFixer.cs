@@ -1,12 +1,17 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -18,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     {
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityGraphAttacher _attacher;
+        private readonly bool _sensitiveLoggingEnabled;
         private bool _inFixup;
 
         /// <summary>
@@ -26,10 +32,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public NavigationFixer(
             [NotNull] IChangeDetector changeDetector,
-            [NotNull] IEntityGraphAttacher attacher)
+            [NotNull] IEntityGraphAttacher attacher,
+            [NotNull] ILoggingOptions loggingOptions)
         {
             _changeDetector = changeDetector;
             _attacher = attacher;
+            if (loggingOptions.IsSensitiveDataLoggingEnabled)
+            {
+                _sensitiveLoggingEnabled = true;
+            }
         }
 
         /// <summary>
@@ -521,6 +532,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
                     if (principalEntry != null)
                     {
+                        if (!foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType))
+                        {
+                            if (_sensitiveLoggingEnabled)
+                            {
+                                throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntrySensitive(
+                                    entry.BuildCurrentValuesString(foreignKey.Properties),
+                                    entityType.DisplayName(),
+                                    entry.BuildOriginalValuesString(entityType.FindPrimaryKey().Properties),
+                                    principalEntry.EntityType.DisplayName(),
+                                    foreignKey.PrincipalEntityType.DisplayName()));
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.IncompatiblePrincipalEntry(
+                                Property.Format(foreignKey.Properties),
+                                entityType.DisplayName(),
+                                principalEntry.EntityType.DisplayName(),
+                                foreignKey.PrincipalEntityType.DisplayName()));
+                        }
+
                         // Set navigation to principal based on FK properties
                         SetNavigation(entry, foreignKey.DependentToPrincipal, principalEntry);
 

@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("SingleKey", "Id:77"),
+                    CoreStrings.IdentityConflictSensitive("SingleKey", "{Id: 77}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(new SingleKey { Id = 77, AlternateId = 67 })).Message);
             }
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.Attach(new SingleKey { Id = 77, AlternateId = 66 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("SingleKey", "AlternateId:66"),
+                    CoreStrings.IdentityConflictSensitive("SingleKey", "{AlternateId: 66}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(new SingleKey { Id = 78, AlternateId = 66 })).Message);
             }
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.Attach(new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("CompositeKey", "Id1:77, Id2:78"),
+                    CoreStrings.IdentityConflictSensitive("CompositeKey", "{Id1: 77, Id2: 78}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
                             new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 68 })).Message);
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.Attach(new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
 
                 Assert.Equal(
-                    CoreStrings.IdentityConflictSensitive("CompositeKey", "AlternateId1:66, AlternateId2:67"),
+                    CoreStrings.IdentityConflictSensitive("CompositeKey", "{AlternateId1: 66, AlternateId2: 67}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
                             new CompositeKey { Id1 = 77, Id2 = 79, AlternateId1 = 66, AlternateId2 = 67 })).Message);

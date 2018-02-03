@@ -693,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.
+        ///     The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string RelationshipConceptualNull([CanBeNull] object firstType, [CanBeNull] object secondType)
             => string.Format(
@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 firstType, secondType);
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.
+        ///     The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string PropertyConceptualNull([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -1577,7 +1577,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 strategy, getExecutionStrategyMethod);
 
         /// <summary>
-        ///     Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.
+        ///     '{property}' cannot be used as a property on entity type '{entityType}' because it is configured as a navigation.
         /// </summary>
         public static string PropertyCalledOnNavigation([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -1911,7 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, value, property, type);
 
         /// <summary>
-        ///     The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'. 
+        ///     The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'.
         /// </summary>
         public static string SeedDatumMissingValue([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
@@ -2255,6 +2255,38 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Warning,
                     CoreEventId.NonOwnershipInverseNavigation,
                     _resourceManager.GetString("LogNonOwnershipInverseNavigation")));
+
+        /// <summary>
+        ///     The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.
+        /// </summary>
+        public static string PropertyConceptualNullSensitive([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object keyValue)
+            => string.Format(
+                GetString("PropertyConceptualNullSensitive", nameof(property), nameof(entityType), nameof(keyValue)),
+                property, entityType, keyValue);
+
+        /// <summary>
+        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.
+        /// </summary>
+        public static string RelationshipConceptualNullSensitive([CanBeNull] object firstType, [CanBeNull] object secondType, [CanBeNull] object secondKeyValue)
+            => string.Format(
+                GetString("RelationshipConceptualNullSensitive", nameof(firstType), nameof(secondType), nameof(secondKeyValue)),
+                firstType, secondType, secondKeyValue);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        /// </summary>
+        public static string IncompatiblePrincipalEntry([CanBeNull] object foreignKey, [CanBeNull] object dependentEntityType, [CanBeNull] object foundPrincipalEntityType, [CanBeNull] object principalEntityType)
+            => string.Format(
+                GetString("IncompatiblePrincipalEntry", nameof(foreignKey), nameof(dependentEntityType), nameof(foundPrincipalEntityType), nameof(principalEntityType)),
+                foreignKey, dependentEntityType, foundPrincipalEntityType, principalEntityType);
+
+        /// <summary>
+        ///     The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.
+        /// </summary>
+        public static string IncompatiblePrincipalEntrySensitive([CanBeNull] object foreignKeyValues, [CanBeNull] object dependentEntityType, [CanBeNull] object keyValue, [CanBeNull] object foundPrincipalEntityType, [CanBeNull] object principalEntityType)
+            => string.Format(
+                GetString("IncompatiblePrincipalEntrySensitive", nameof(foreignKeyValues), nameof(dependentEntityType), nameof(keyValue), nameof(foundPrincipalEntityType), nameof(principalEntityType)),
+                foreignKeyValues, dependentEntityType, keyValue, foundPrincipalEntityType, principalEntityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

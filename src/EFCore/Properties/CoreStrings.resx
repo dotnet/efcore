@@ -372,10 +372,10 @@
     <value>The property '{property}' on entity type '{entityType}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.</value>
   </data>
   <data name="RelationshipConceptualNull" xml:space="preserve">
-    <value>The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.</value>
+    <value>The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="PropertyConceptualNull" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.</value>
+    <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists on entity type '{duplicateEntityType}' and also targets the key {key} on '{principalType}'.</value>
@@ -708,7 +708,7 @@
     <value>The configured execution strategy '{strategy}' does not support user initiated transactions. Use the execution strategy returned by '{getExecutionStrategyMethod}' to execute all the operations in the transaction as a retriable unit.</value>
   </data>
   <data name="PropertyCalledOnNavigation" xml:space="preserve">
-    <value>Cannot call Property for the property '{property}' on entity type '{entityType}' because it is configured as a navigation property. Property can only be used to configure scalar properties.</value>
+    <value>'{property}' cannot be used as a property on entity type '{entityType}' because it is configured as a navigation.</value>
   </data>
   <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
     <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
@@ -833,7 +833,7 @@
     <value>The seed entity for entity type '{entityType}' cannot be added because the value '{value}' provided for the property '{property}' is not of the type '{type}'.</value>
   </data>
   <data name="SeedDatumMissingValue" xml:space="preserve">
-    <value>The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'. </value>
+    <value>The seed entity for entity type '{entityType}' cannot be added because the was no value provided for the required property '{property}'.</value>
   </data>
   <data name="SeedDatumNavigation" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because it has the navigation '{navigation}' set. To seed relationships you need to add the related entity seed to '{relatedEntityType}' and specify the foreign key values {foreignKeyProperties}. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
@@ -953,5 +953,17 @@
   <data name="LogNonOwnershipInverseNavigation" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'</value>
     <comment>Warning CoreEventId.NonOwnershipInverseNavigation string string string string string</comment>
+  </data>
+  <data name="PropertyConceptualNullSensitive" xml:space="preserve">
+    <value>The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.</value>
+  </data>
+  <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
+    <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.</value>
+  </data>
+  <data name="IncompatiblePrincipalEntry" xml:space="preserve">
+    <value>The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+  </data>
+  <data name="IncompatiblePrincipalEntrySensitive" xml:space="preserve">
+    <value>The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.</value>
   </data>
 </root>

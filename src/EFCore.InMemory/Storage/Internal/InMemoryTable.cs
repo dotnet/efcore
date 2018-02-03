@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         entry.EntityType.DisplayName(),
                         entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
                         entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
-                        string.Join(", ", concurrencyConflicts.Select(c => c.Key.Name + ":" + c.Value))),
+                        "{" + string.Join(", ", concurrencyConflicts.Select(c => c.Key.Name + ": " + c.Value)) + "}"),
                     new[] { entry });
             }
 

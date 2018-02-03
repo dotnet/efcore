@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore
                             && (changeMechanism & ChangeMechanism.Fk) == 0)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Optional1), nameof(Optional2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Optional1), nameof(Optional2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -497,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Required1), nameof(Required2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Required1), nameof(Required2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(OptionalSingle1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(OptionalSingle1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -731,7 +731,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingle1), nameof(RequiredSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingle1), nameof(RequiredSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -896,7 +896,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(RequiredNonPkSingle1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(RequiredNonPkSingle1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -995,7 +995,7 @@ namespace Microsoft.EntityFrameworkCore
                             && (changeMechanism & ChangeMechanism.Fk) == 0)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(OptionalSingle1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(OptionalSingle1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -1070,7 +1070,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingle1), nameof(RequiredSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingle1), nameof(RequiredSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -1138,7 +1138,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(RequiredNonPkSingle1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(RequiredNonPkSingle1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -1484,7 +1484,7 @@ namespace Microsoft.EntityFrameworkCore
                             && (changeMechanism & ChangeMechanism.Fk) == 0)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalAk1), nameof(OptionalComposite2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalAk1), nameof(OptionalComposite2), "{Id: 3}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2005,11 +2005,12 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadOptionalAkGraph(context);
 
-                        var childCollection = root.OptionalChildrenAk.First().Children;
-                        var childCompositeCollection = root.OptionalChildrenAk.First().CompositeChildren;
-                        var removed2 = childCollection.First();
-                        var removed1 = root.OptionalChildrenAk.Skip(1).First();
-                        var removed2c = childCompositeCollection.First();
+                        var firstChild = root.OptionalChildrenAk.OrderByDescending(c => c.Id).First();
+                        var childCollection = firstChild.Children;
+                        var childCompositeCollection = firstChild.CompositeChildren;
+                        var removed2 = childCollection.OrderByDescending(c => c.Id).First();
+                        var removed1 = root.OptionalChildrenAk.OrderByDescending(c => c.Id).Skip(1).First();
+                        var removed2c = childCompositeCollection.OrderByDescending(c => c.Id).First();
 
                         if ((changeMechanism & ChangeMechanism.Principal) != 0)
                         {
@@ -2037,8 +2038,9 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict
                             && (changeMechanism & ChangeMechanism.Fk) == 0)
                         {
+                            Add(root.OptionalChildrenAk, removed1);
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalAk1), nameof(OptionalAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalAk1), nameof(OptionalAk2), "{Id: 4}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2071,7 +2073,7 @@ namespace Microsoft.EntityFrameworkCore
                             AssertNavigations(loadedRoot);
 
                             Assert.Equal(1, loadedRoot.OptionalChildrenAk.Count());
-                            Assert.Equal(1, loadedRoot.OptionalChildrenAk.First().Children.Count());
+                            Assert.Equal(1, loadedRoot.OptionalChildrenAk.OrderBy(c => c.Id).First().Children.Count());
                         }
                     });
         }
@@ -2092,11 +2094,12 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRequiredAkGraph(context);
 
-                        var childCollection = root.RequiredChildrenAk.First().Children;
-                        var childCompositeCollection = root.RequiredChildrenAk.First().CompositeChildren;
-                        removed2 = childCollection.First();
-                        removed2c = childCompositeCollection.First();
-                        removed1 = root.RequiredChildrenAk.Skip(1).First();
+                        var firstChild = root.RequiredChildrenAk.OrderByDescending(c => c.Id).First();
+                        var childCollection = firstChild.Children;
+                        var childCompositeCollection = firstChild.CompositeChildren;
+                        removed2 = childCollection.OrderBy(c => c.Id).First();
+                        removed2c = childCompositeCollection.OrderBy(c => c.Id).First();
+                        removed1 = root.RequiredChildrenAk.OrderByDescending(c => c.Id).Skip(1).First();
 
                         if ((changeMechanism & ChangeMechanism.Principal) != 0)
                         {
@@ -2121,8 +2124,9 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (Fixture.ForceRestrict)
                         {
+                            Add(root.RequiredChildrenAk, removed1);
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredAk1), nameof(RequiredAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredAk1), nameof(RequiredAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2154,8 +2158,8 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.False(context.Set<RequiredComposite2>().Any(e => e.Id == removed2c.Id));
 
                             Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count());
-                            Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().Children.Count());
-                            Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().CompositeChildren.Count());
+                            Assert.Equal(1, loadedRoot.RequiredChildrenAk.OrderBy(c => c.Id).First().Children.Count());
+                            Assert.Equal(1, loadedRoot.RequiredChildrenAk.OrderBy(c => c.Id).First().CompositeChildren.Count());
                         }
                     });
         }
@@ -2256,7 +2260,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(OptionalSingleAk1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(OptionalSingleAk1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2384,7 +2388,7 @@ namespace Microsoft.EntityFrameworkCore
                             if (Fixture.ForceRestrict)
                             {
                                 Assert.Equal(
-                                    CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(OptionalSingleAk1)),
+                                    CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(OptionalSingleAk1), "{Id: 1}"),
                                     Assert.Throws<InvalidOperationException>(() => context2.SaveChanges()).Message);
                             }
                             else
@@ -2578,7 +2582,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(RequiredSingleAk1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(RequiredSingleAk1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2726,7 +2730,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(RequiredNonPkSingleAk1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(RequiredNonPkSingleAk1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2827,7 +2831,7 @@ namespace Microsoft.EntityFrameworkCore
                             && (changeMechanism & ChangeMechanism.Fk) == 0)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(OptionalSingleAk1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(OptionalSingleAk1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2911,7 +2915,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(RequiredSingleAk1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(RequiredSingleAk1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -2985,7 +2989,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Root), nameof(RequiredNonPkSingleAk1)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Root), nameof(RequiredNonPkSingleAk1), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3318,7 +3322,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Required1), nameof(Required2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Required1), nameof(Required2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3383,7 +3387,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Optional1), nameof(Optional2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Optional1), nameof(Optional2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3444,7 +3448,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalSingle1), nameof(OptionalSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalSingle1), nameof(OptionalSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3503,7 +3507,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingle1), nameof(RequiredSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingle1), nameof(RequiredSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3562,7 +3566,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredNonPkSingle1), nameof(RequiredNonPkSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredNonPkSingle1), nameof(RequiredNonPkSingle2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3610,7 +3614,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(2, root.OptionalChildrenAk.Count());
 
-                        var removed = root.OptionalChildrenAk.First();
+                        var removed = root.OptionalChildrenAk.OrderBy(c => c.Id).First();
 
                         removedId = removed.Id;
                         var orphaned = removed.Children.ToList();
@@ -3625,7 +3629,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalAk1), nameof(OptionalAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalAk1), nameof(OptionalAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3676,7 +3680,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(2, root.RequiredChildrenAk.Count());
 
-                        var removed = root.RequiredChildrenAk.First();
+                        var removed = root.RequiredChildrenAk.OrderBy(c => c.Id).First();
 
                         removedId = removed.Id;
                         var cascadeRemoved = removed.Children.ToList();
@@ -3694,7 +3698,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredAk1), nameof(RequiredAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredAk1), nameof(RequiredAk2), "{Id: 3}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3760,7 +3764,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalSingleAk1), nameof(OptionalSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalSingleAk1), nameof(OptionalSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3825,7 +3829,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingleAk1), nameof(RequiredSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingleAk1), nameof(RequiredSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -3887,7 +3891,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredNonPkSingleAk1), nameof(RequiredNonPkSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredNonPkSingleAk1), nameof(RequiredNonPkSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4440,7 +4444,7 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                     {
-                        var removed = LoadOptionalAkGraph(context).OptionalChildrenAk.First();
+                        var removed = LoadOptionalAkGraph(context).OptionalChildrenAk.OrderBy(c => c.Id).First();
 
                         removedId = removed.Id;
                         orphanedIds = removed.Children.Select(e => e.Id).ToList();
@@ -4467,7 +4471,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalAk1), nameof(OptionalComposite2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalAk1), nameof(OptionalComposite2), "{Id: 3}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4551,7 +4555,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalSingleAk1), nameof(OptionalSingleComposite2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalSingleAk1), nameof(OptionalSingleComposite2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4621,7 +4625,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Required1), nameof(Required2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Required1), nameof(Required2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4686,7 +4690,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Optional1), nameof(Optional2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Optional1), nameof(Optional2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4744,7 +4748,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalSingle1), nameof(OptionalSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalSingle1), nameof(OptionalSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4801,7 +4805,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingle1), nameof(RequiredSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingle1), nameof(RequiredSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4857,7 +4861,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredNonPkSingle1), nameof(RequiredNonPkSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredNonPkSingle1), nameof(RequiredNonPkSingle2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4904,7 +4908,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var removed = root.OptionalChildrenAk.First();
+                        var removed = root.OptionalChildrenAk.OrderBy(c => c.Id).First();
 
                         removedId = removed.Id;
                         var orphaned = removed.Children.ToList();
@@ -4926,7 +4930,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalAk1), nameof(OptionalAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalAk1), nameof(OptionalAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -4976,7 +4980,7 @@ namespace Microsoft.EntityFrameworkCore
                     },
                 context =>
                     {
-                        var removed = root.RequiredChildrenAk.First();
+                        var removed = root.RequiredChildrenAk.OrderBy(c => c.Id).First();
 
                         removedId = removed.Id;
                         var cascadeRemoved = removed.Children.ToList();
@@ -4997,7 +5001,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredAk1), nameof(RequiredAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredAk1), nameof(RequiredAk2), "{Id: 3}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5061,7 +5065,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(OptionalSingleAk1), nameof(OptionalSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(OptionalSingleAk1), nameof(OptionalSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5124,7 +5128,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingleAk1), nameof(RequiredSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingleAk1), nameof(RequiredSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5183,7 +5187,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredNonPkSingleAk1), nameof(RequiredNonPkSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredNonPkSingleAk1), nameof(RequiredNonPkSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5257,7 +5261,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(Required1), nameof(Required2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(Required1), nameof(Required2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5321,7 +5325,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingle1), nameof(RequiredSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingle1), nameof(RequiredSingle2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5383,7 +5387,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredNonPkSingle1), nameof(RequiredNonPkSingle2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredNonPkSingle1), nameof(RequiredNonPkSingle2), "{Id: 2}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5427,7 +5431,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(2, root.RequiredChildrenAk.Count());
 
-                        var removed = root.RequiredChildrenAk.First();
+                        var removed = root.RequiredChildrenAk.OrderBy(c => c.Id).First();
 
                         removedId = removed.Id;
                         var cascadeRemoved = removed.Children.ToList();
@@ -5467,7 +5471,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredAk1), nameof(RequiredAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredAk1), nameof(RequiredAk2), "{Id: 3}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5540,7 +5544,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredSingleAk1), nameof(RequiredSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredSingleAk1), nameof(RequiredSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else
@@ -5604,7 +5608,7 @@ namespace Microsoft.EntityFrameworkCore
                         if (Fixture.ForceRestrict)
                         {
                             Assert.Equal(
-                                CoreStrings.RelationshipConceptualNull(nameof(RequiredNonPkSingleAk1), nameof(RequiredNonPkSingleAk2)),
+                                CoreStrings.RelationshipConceptualNullSensitive(nameof(RequiredNonPkSingleAk1), nameof(RequiredNonPkSingleAk2), "{Id: 1}"),
                                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                         }
                         else

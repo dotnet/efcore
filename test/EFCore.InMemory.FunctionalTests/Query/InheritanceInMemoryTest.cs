@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.PropertyNotFound(property: "Discriminator", entityType: "Bird"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        base.Discriminator_used_when_projection_over_derived_type2()).Message);
+                    () => base.Discriminator_used_when_projection_over_derived_type2()).Message);
         }
 
         public override void Discriminator_with_cast_in_shadow_property()
@@ -30,8 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.PropertyNotFound(property: "Discriminator", entityType: "Animal"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        base.Discriminator_with_cast_in_shadow_property()).Message);
+                    () => base.Discriminator_with_cast_in_shadow_property()).Message);
         }
     }
 }

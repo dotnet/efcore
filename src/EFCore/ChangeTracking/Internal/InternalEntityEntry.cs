@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -918,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void HandleConceptualNulls()
+        public virtual void HandleConceptualNulls(bool sensitiveLoggingEnabled)
         {
             var fks = new List<IForeignKey>();
             foreach (var foreignKey in EntityType.GetForeignKeys())
@@ -964,6 +965,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (fks.Any())
             {
+                if (sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.RelationshipConceptualNullSensitive(
+                            fks.First().PrincipalEntityType.DisplayName(),
+                            EntityType.DisplayName(),
+                            this.BuildOriginalValuesString(EntityType.FindPrimaryKey().Properties)));
+                }
+
                 throw new InvalidOperationException(
                     CoreStrings.RelationshipConceptualNull(
                         fks.First().PrincipalEntityType.DisplayName(),
@@ -978,50 +988,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (property != null)
                 {
+                    if (sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.PropertyConceptualNullSensitive(
+                                property.Name,
+                                EntityType.DisplayName(),
+                                this.BuildOriginalValuesString(EntityType.FindPrimaryKey().Properties)));
+                    }
+
                     throw new InvalidOperationException(
                         CoreStrings.PropertyConceptualNull(
                             property.Name,
                             EntityType.DisplayName()));
-                }
-            }
-        }
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual void CascadeDelete()
-        {
-            foreach (var fk in EntityType.GetReferencingForeignKeys())
-            {
-                foreach (var dependent in (StateManager.GetDependentsFromNavigation(this, fk)
-                                           ?? StateManager.GetDependents(this, fk)).ToList())
-                {
-                    if ((dependent.EntityState != EntityState.Deleted)
-                        && (dependent.EntityState != EntityState.Detached))
-                    {
-                        if (fk.DeleteBehavior == DeleteBehavior.Cascade)
-                        {
-                            dependent.SetEntityState(
-                                dependent.EntityState == EntityState.Added
-                                    ? EntityState.Detached
-                                    : EntityState.Deleted);
-
-                            dependent.CascadeDelete();
-                        }
-                        else
-                        {
-                            foreach (var dependentProperty in fk.Properties)
-                            {
-                                dependent[dependentProperty] = null;
-                            }
-
-                            if (dependent.HasConceptualNull)
-                            {
-                                dependent.HandleConceptualNulls();
-                            }
-                        }
-                    }
                 }
             }
         }

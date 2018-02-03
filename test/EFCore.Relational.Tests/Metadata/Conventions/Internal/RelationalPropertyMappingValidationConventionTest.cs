@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public class RelationalPropertyMappingValidationConventionTest : PropertyMappingValidationConventionTest
@@ -18,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Convention);
+            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Explicit);
+            entityTypeBuilder.Ignore(nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Explicit);
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveNonNavigationAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Convention).Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
+            entityTypeBuilder.Property("LongProperty", typeof(Tuple<long>), ConfigurationSource.Explicit).Relational(ConfigurationSource.Convention).HasColumnType("some_int_mapping");
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(

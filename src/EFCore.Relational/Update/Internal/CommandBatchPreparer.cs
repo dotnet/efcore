@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -292,10 +293,171 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             AddUniqueValueEdges(modificationCommandGraph);
 
-            var sortedCommands
-                = modificationCommandGraph.BatchingTopologicalSort(data => { return string.Join(", ", data.Select(d => d.Item3.First())); });
+            return modificationCommandGraph.BatchingTopologicalSort(FormatCycle);
+        }
 
-            return sortedCommands;
+        private string FormatCycle(IReadOnlyList<Tuple<ModificationCommand, ModificationCommand, IEnumerable<IAnnotatable>>> data)
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < data.Count; i++)
+            {
+                var edge = data[i];
+                Format(edge.Item1, builder);
+
+                switch (edge.Item3.First())
+                {
+                    case IForeignKey foreignKey:
+                        Format(foreignKey, edge.Item1, edge.Item2, builder);
+                        break;
+                    case IIndex index:
+                        Format(index, edge.Item1, edge.Item2, builder);
+                        break;
+                }
+
+                if (i == data.Count - 1)
+                {
+                    Format(edge.Item2, builder);
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        private void Format(ModificationCommand command, StringBuilder builder)
+        {
+            var entry = command.Entries.First();
+            var entityType = entry.EntityType;
+            builder.Append(entityType.DisplayName());
+            if (_sensitiveLoggingEnabled)
+            {
+                builder.Append(" { ");
+                var properties = entityType.FindPrimaryKey().Properties;
+                for (var i = 0; i < properties.Count; i++)
+                {
+                    var keyProperty = properties[i];
+                    builder.Append("'");
+                    builder.Append(keyProperty.Name);
+                    builder.Append("': ");
+                    builder.Append(entry.GetCurrentValue(keyProperty));
+
+                    if (i != properties.Count - 1)
+                    {
+                        builder.Append(", ");
+                    }
+                }
+                builder.Append(" } ");
+            }
+            else
+            {
+                builder.Append(" ");
+            }
+
+            builder.Append("[");
+            builder.Append(entry.EntityState);
+            builder.Append("]");
+        }
+
+        private void Format(IForeignKey foreignKey, ModificationCommand source, ModificationCommand target, StringBuilder builder)
+        {
+            var reverseDependency = !source.Entries.Any(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
+            if (reverseDependency)
+            {
+                builder.Append(" <-");
+            }
+
+            builder.Append(" ");
+            if (foreignKey.DependentToPrincipal != null
+                || foreignKey.PrincipalToDependent != null)
+            {
+                if (!reverseDependency
+                    && foreignKey.DependentToPrincipal != null)
+                {
+                    builder.Append(foreignKey.DependentToPrincipal.Name);
+                    builder.Append(" ");
+                }
+
+                if (foreignKey.PrincipalToDependent != null)
+                {
+                    builder.Append(foreignKey.PrincipalToDependent.Name);
+                    builder.Append(" ");
+                }
+
+                if (reverseDependency
+                    && foreignKey.DependentToPrincipal != null)
+                {
+                    builder.Append(foreignKey.DependentToPrincipal.Name);
+                    builder.Append(" ");
+                }
+            }
+            else
+            {
+                builder.Append("ForeignKey ");
+            }
+
+            var dependentCommand = reverseDependency ? target : source;
+            var dependentEntry = dependentCommand.Entries.First(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
+            builder.Append("{ ");
+            for (var i = 0; i < foreignKey.Properties.Count; i++)
+            {
+                var property = foreignKey.Properties[i];
+                builder.Append("'");
+                builder.Append(property.Name);
+                builder.Append("'");
+                if (_sensitiveLoggingEnabled)
+                {
+                    builder.Append(": ");
+                    builder.Append(dependentEntry.GetCurrentValue(property));
+                }
+
+                if (i != foreignKey.Properties.Count - 1)
+                {
+                    builder.Append(", ");
+                }
+            }
+            builder.Append(" } ");
+
+            if (!reverseDependency)
+            {
+                builder.Append("<- ");
+            }
+        }
+
+        private void Format(IIndex index, ModificationCommand source, ModificationCommand target, StringBuilder builder)
+        {
+            var reverseDependency = source.EntityState != EntityState.Deleted;
+            if (reverseDependency)
+            {
+                builder.Append(" <-");
+            }
+
+            builder.Append(" Index ");
+
+            var dependentCommand = reverseDependency ? target : source;
+            var dependentEntry = dependentCommand.Entries.First(e => index.DeclaringEntityType.IsAssignableFrom(e.EntityType));
+            builder.Append("{ ");
+            for (var i = 0; i < index.Properties.Count; i++)
+            {
+                var property = index.Properties[i];
+                builder.Append("'");
+                builder.Append(property.Name);
+                builder.Append("'");
+                if (_sensitiveLoggingEnabled)
+                {
+                    builder.Append(": ");
+                    builder.Append(dependentEntry.GetCurrentValue(property));
+                }
+
+                if (i != index.Properties.Count - 1)
+                {
+                    builder.Append(", ");
+                }
+            }
+            builder.Append(" } ");
+
+            if (!reverseDependency)
+            {
+                builder.Append("<- ");
+            }
         }
 
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
@@ -452,9 +614,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             var indexColumnModifications =
                                 command.ColumnModifications.Where(
-                                    cm =>
-                                        index.Properties.Contains(cm.Property)
-                                        && (cm.IsWrite || cm.IsRead));
+                                    cm => index.Properties.Contains(cm.Property)
+                                          && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Deleted
                                 || indexColumnModifications.Any())
@@ -492,9 +653,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             var indexColumnModifications =
                                 command.ColumnModifications.Where(
-                                    cm =>
-                                        index.Properties.Contains(cm.Property)
-                                        && cm.IsWrite);
+                                    cm => index.Properties.Contains(cm.Property)
+                                          && cm.IsWrite);
 
                             if (command.EntityState == EntityState.Added
                                 || indexColumnModifications.Any())

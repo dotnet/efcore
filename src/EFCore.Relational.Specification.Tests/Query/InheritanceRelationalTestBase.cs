@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class InheritanceRelationalTestBase<TFixture> : InheritanceTestBase<TFixture>

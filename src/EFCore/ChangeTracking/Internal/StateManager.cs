@@ -790,12 +790,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                       || e.EntityState == EntityState.Added)
                      && e.HasConceptualNull).ToList())
             {
-                entry.HandleConceptualNulls();
+                entry.HandleConceptualNulls(_sensitiveLoggingEnabled);
             }
 
             foreach (var entry in Entries.Where(e => e.EntityState == EntityState.Deleted).ToList())
             {
-                entry.CascadeDelete();
+                CascadeDelete(entry);
             }
 
             return Entries
@@ -805,6 +805,42 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                          || e.EntityState == EntityState.Deleted)
                 .Select(e => e.PrepareToSave())
                 .ToList();
+        }
+
+        private void CascadeDelete(InternalEntityEntry entry)
+        {
+            foreach (var fk in entry.EntityType.GetReferencingForeignKeys())
+            {
+                foreach (var dependent in (GetDependentsFromNavigation(entry, fk)
+                                           ?? GetDependents(entry, fk)).ToList())
+                {
+                    if ((dependent.EntityState != EntityState.Deleted)
+                        && (dependent.EntityState != EntityState.Detached))
+                    {
+                        if (fk.DeleteBehavior == DeleteBehavior.Cascade)
+                        {
+                            dependent.SetEntityState(
+                                dependent.EntityState == EntityState.Added
+                                    ? EntityState.Detached
+                                    : EntityState.Deleted);
+
+                            CascadeDelete(dependent);
+                        }
+                        else
+                        {
+                            foreach (var dependentProperty in fk.Properties)
+                            {
+                                dependent[dependentProperty] = null;
+                            }
+
+                            if (dependent.HasConceptualNull)
+                            {
+                                dependent.HandleConceptualNulls(_sensitiveLoggingEnabled);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

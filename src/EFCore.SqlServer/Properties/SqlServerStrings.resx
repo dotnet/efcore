@@ -136,7 +136,7 @@
     <value>To change the IDENTITY property of a column, the column needs to be dropped and recreated.</value>
   </data>
   <data name="TransientExceptionDetected" xml:space="preserve">
-    <value>An exception has been raised that is likely due to a transient failure. If you are connecting to a SQL Azure database consider using SqlAzureExecutionStrategy.</value>
+    <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.</value>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
     <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'ForHasColumnType()'.</value>

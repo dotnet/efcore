@@ -19,13 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string BuildCurrentValuesString([NotNull] this IUpdateEntry entry, [NotNull] IEnumerable<IPropertyBase> properties)
-            => string.Join(", ", properties.Select(p => p.Name + ":" + entry.GetCurrentValue(p)));
+            => "{" + string.Join(", ", properties.Select(p => p.Name + ": " + entry.GetCurrentValue(p))) + "}";
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string BuildOriginalValuesString([NotNull] this IUpdateEntry entry, [NotNull] IEnumerable<IPropertyBase> properties)
-            => string.Join(", ", properties.Select(p => p.Name + ":" + entry.GetOriginalValue(p)));
+            => "{" + string.Join(", ", properties.Select(p => p.Name + ": " + entry.GetOriginalValue(p))) + "}";
     }
 }
