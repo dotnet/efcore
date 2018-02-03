@@ -4034,8 +4034,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         Assert.Equal(expectedInners[j].g.Rank, actualInners[j].g.Rank);
 
-                        var expectedWeapons = expectedInners[j].g.Weapons.ToList();
-                        var actualWeapons = actualInners[j].g.Weapons.ToList();
+                        var expectedWeapons = expectedInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
+                        var actualWeapons = actualInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
 
                         Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
                         for (var k = 0; k < expectedWeapons.Count; k++)
@@ -4070,8 +4070,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(expectedInners[j].Rank, actualInners[j].Rank);
                         Assert.Equal(expectedInners[j].HasSoulPatch, actualInners[j].HasSoulPatch);
 
-                        var expectedWeapons = expectedInners[j].Weapons.ToList();
-                        var actualWeapons = actualInners[j].Weapons.ToList();
+                        var expectedWeapons = expectedInners[j].Weapons.OrderBy(w => w.Id).ToList();
+                        var actualWeapons = actualInners[j].Weapons.OrderBy(w => w.Id).ToList();
 
                         Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
                         for (var k = 0; k < expectedWeapons.Count; k++)
