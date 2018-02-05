@@ -23,6 +23,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
         }
 
+        private static Expression<Func<Order, bool>> _filter = o => o.CustomerID == "ALFKI";
+
+        [ConditionalFact]
+        public virtual void Where_as_queryable_expression()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Orders.AsQueryable().Any(_filter)),
+                entryCount: 1);
+        }
+
         [ConditionalFact]
         public virtual void Where_simple_closure()
         {

@@ -27,6 +27,23 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'London'");
         }
 
+        public override void Where_as_queryable_expression()
+        {
+            base.Where_as_queryable_expression();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT [o].*
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+    ) AS [t]
+    WHERE [t].[CustomerID] = N'ALFKI')");
+        }
+
         public override void Where_simple_closure()
         {
             base.Where_simple_closure();
