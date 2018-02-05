@@ -291,11 +291,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             return $"N'{s}'";
         }
 
-        private IReadOnlyDictionary<string, string> GetTypeAliases(DbConnection connection)
+        private IReadOnlyDictionary<string, (string, string)> GetTypeAliases(DbConnection connection)
         {
             using (var command = connection.CreateCommand())
             {
-                var typeAliasMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                var typeAliasMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
 
                 command.CommandText = @"
 SELECT
@@ -324,7 +324,7 @@ WHERE [t].[is_user_defined] = 1";
 
                         _logger.TypeAliasFound(DisplayName(schema, userType), storeType);
 
-                        typeAliasMap.Add($"[{schema}].[{userType}]", storeType);
+                        typeAliasMap.Add($"[{schema}].[{userType}]", (storeType, systemType));
                     }
                 }
 
@@ -335,7 +335,7 @@ WHERE [t].[is_user_defined] = 1";
         private IEnumerable<DatabaseSequence> GetSequences(
             DbConnection connection,
             Func<string, string> schemaFilter,
-            IReadOnlyDictionary<string, string> typeAliases)
+            IReadOnlyDictionary<string, (string storeType, string)> typeAliases)
         {
             using (var command = connection.CreateCommand())
             {
@@ -378,9 +378,9 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                         var maxValue = reader.GetValueOrDefault<long>("maximum_value");
 
                         // Swap store type if type alias is used
-                        if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var underlyingType))
+                        if (typeAliases.TryGetValue($"[{storeTypeSchema}].[{storeType}]", out var value))
                         {
-                            storeType = underlyingType;
+                            storeType = value.storeType;
                         }
 
                         storeType = GetStoreType(storeType, maxLength: 0, precision: precision, scale: scale);
@@ -417,7 +417,7 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
         private IEnumerable<DatabaseTable> GetTables(
             DbConnection connection,
             Func<string, string, string> tableFilter,
-            IReadOnlyDictionary<string, string> typeAliases)
+            IReadOnlyDictionary<string, (string, string)> typeAliases)
         {
             using (var command = connection.CreateCommand())
             {
@@ -505,7 +505,7 @@ WHERE " + filter;
             DbConnection connection,
             IReadOnlyList<DatabaseTable> tables,
             string tableFilter,
-            IReadOnlyDictionary<string, string> typeAliases)
+            IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases)
         {
             using (var command = connection.CreateCommand())
             {
@@ -583,26 +583,22 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                                 computedValue);
 
                             string storeType;
-                            if (typeAliases.TryGetValue($"[{dataTypeSchemaName}].[{dataTypeName}]", out var underlyingStoreType))
+                            string underlyingStoreType;
+                            string systemTypeName;
+                            if (typeAliases.TryGetValue($"[{dataTypeSchemaName}].[{dataTypeName}]", out var value))
                             {
                                 storeType = dataTypeName;
+                                underlyingStoreType = value.storeType;
+                                systemTypeName = value.typeName;
                             }
                             else
                             {
                                 storeType = GetStoreType(dataTypeName, maxLength, precision, scale);
                                 underlyingStoreType = null;
+                                systemTypeName = dataTypeName;
                             }
 
-                            if (defaultValue == "(NULL)")
-                            {
-                                defaultValue = null;
-                            }
-
-                            if (defaultValue == "((0))"
-                                && (underlyingStoreType ?? storeType) == "bit")
-                            {
-                                defaultValue = null;
-                            }
+                            defaultValue = FilterClrDefaults(systemTypeName, nullable, defaultValue);
 
                             var column = new DatabaseColumn
                             {
@@ -633,6 +629,61 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     }
                 }
             }
+        }
+
+        private static string FilterClrDefaults(string dataTypeName, bool nullable, string defaultValue)
+        {
+            if (defaultValue == null
+                || defaultValue == "(NULL)")
+            {
+                return null;
+            }
+            if (nullable)
+            {
+                return defaultValue;
+            }
+            if (defaultValue == "((0))")
+            {
+                if (dataTypeName == "bigint"
+                    || dataTypeName == "bit"
+                    || dataTypeName == "decimal"
+                    || dataTypeName == "float"
+                    || dataTypeName == "int"
+                    || dataTypeName == "money"
+                    || dataTypeName == "numeric"
+                    || dataTypeName == "real"
+                    || dataTypeName == "smallint"
+                    || dataTypeName == "smallmoney"
+                    || dataTypeName == "tinyint")
+                {
+                    return null;
+                }
+            }
+            else if (defaultValue == "((0.0))")
+            {
+                if (dataTypeName == "decimal"
+                    || dataTypeName == "float"
+                    || dataTypeName == "money"
+                    || dataTypeName == "numeric"
+                    || dataTypeName == "real"
+                    || dataTypeName == "smallmoney")
+                {
+                    return null;
+                }
+            }
+            else if ((defaultValue == "(CONVERT([real],(0)))" && dataTypeName == "real")
+                || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
+                || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
+                || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
+                || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
+                || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
+                || (defaultValue == "('00:00:00')" && dataTypeName == "time")
+                || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
+            {
+                return null;
+            }
+
+            return defaultValue;
         }
 
         private static string GetStoreType(string dataTypeName, int maxLength, int precision, int scale)

@@ -1252,7 +1252,6 @@ DROP TABLE RowversionType;");
 CREATE TABLE DefaultComputedValues (
     Id int,
     FixedDefaultValue datetime2 NOT NULL DEFAULT ('October 20, 2015 11am'),
-    NullDefaultValue datetime2 NULL DEFAULT(NULL),
     ComputedValue AS GETDATE(),
     A int NOT NULL,
     B int NOT NULL,
@@ -1267,9 +1266,6 @@ CREATE TABLE DefaultComputedValues (
                         Assert.Equal("('October 20, 2015 11am')", columns.Single(c => c.Name == "FixedDefaultValue").DefaultValueSql);
                         Assert.Equal(null, columns.Single(c => c.Name == "FixedDefaultValue").ComputedColumnSql);
 
-                        Assert.Equal(null, columns.Single(c => c.Name == "NullDefaultValue").DefaultValueSql);
-                        Assert.Equal(null, columns.Single(c => c.Name == "NullDefaultValue").ComputedColumnSql);
-
                         Assert.Equal(null, columns.Single(c => c.Name == "ComputedValue").DefaultValueSql);
                         Assert.Equal("(getdate())", columns.Single(c => c.Name == "ComputedValue").ComputedColumnSql);
 
@@ -1280,20 +1276,52 @@ CREATE TABLE DefaultComputedValues (
         }
 
         [Fact]
-        public void Default_value_of_false_for_bit_is_not_stored()
+        public void Default_value_matching_clr_default_is_not_stored()
         {
+            Fixture.TestStore.ExecuteNonQuery(
+                @"
+CREATE TYPE datetime2Alias FROM datetime2(6);
+CREATE TYPE datetimeoffsetAlias FROM datetimeoffset(6);
+CREATE TYPE decimalAlias FROM decimal(17, 0);
+CREATE TYPE numericAlias FROM numeric(17, 0);
+CREATE TYPE timeAlias FROM time(6);");
+
             Test(
                 @"
-CREATE TABLE DefaultBoolValues (
-    Id int,
-    BoolTrue bit DEFAULT (1),
-    BoolFalseType1 BIT DEFAULT 0,
-    BoolFalseType2 BiT DEFAULT (0),
-    BoolFalseType3 bIt DEFAULT ((0)),
-    BoolFalseType4 biT DEFAULT (((0))),
-    BoolFalseType5 bIT DEFAULT ( 0),
-    BoolFalseType6 bit DEFAULT ( 0 ),
-    BoolFalseType7 bit DEFAULT (0 ),
+CREATE TABLE DefaultValues (
+    IgnoredDefault1 int DEFAULT NULL,
+    IgnoredDefault2 int NOT NULL DEFAULT NULL,
+    IgnoredDefault3 bigint NOT NULL DEFAULT 0,
+    IgnoredDefault4 bit NOT NULL DEFAULT 0,
+    IgnoredDefault5 decimal NOT NULL DEFAULT 0,
+    IgnoredDefault6 decimalAlias NOT NULL DEFAULT 0,
+    IgnoredDefault7 float NOT NULL DEFAULT 0,
+    IgnoredDefault9 int NOT NULL DEFAULT 0,
+    IgnoredDefault10 money NOT NULL DEFAULT 0,
+    IgnoredDefault11 numeric NOT NULL DEFAULT 0,
+    IgnoredDefault12 numericAlias NOT NULL DEFAULT 0,
+    IgnoredDefault13 real NOT NULL DEFAULT 0,
+    IgnoredDefault14 smallint NOT NULL DEFAULT 0,
+    IgnoredDefault15 smallmoney NOT NULL DEFAULT 0,
+    IgnoredDefault16 tinyint NOT NULL DEFAULT 0,
+    IgnoredDefault17 decimal NOT NULL DEFAULT 0.0,
+    IgnoredDefault18 float NOT NULL DEFAULT 0.0,
+    IgnoredDefault19 money NOT NULL DEFAULT 0.0,
+    IgnoredDefault20 numeric NOT NULL DEFAULT 0.0,
+    IgnoredDefault21 real NOT NULL DEFAULT 0.0,
+    IgnoredDefault22 smallmoney NOT NULL DEFAULT 0.0,
+    IgnoredDefault23 real NOT NULL DEFAULT CAST(0 AS real),
+    IgnoredDefault24 float NOT NULL DEFAULT 0E0,
+    IgnoredDefault25 date NOT NULL DEFAULT '0001-01-01',
+    IgnoredDefault26 datetime NOT NULL DEFAULT '1900-01-01T00:00:00.000',
+    IgnoredDefault27 smalldatetime NOT NULL DEFAULT '1900-01-01T00:00:00.000',
+    IgnoredDefault28 datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.000',
+    IgnoredDefault29 datetime2Alias NOT NULL DEFAULT '0001-01-01T00:00:00.000',
+    IgnoredDefault30 datetimeoffset NOT NULL DEFAULT '0001-01-01T00:00:00.000+00:00',
+    IgnoredDefault31 datetimeoffsetAlias NOT NULL DEFAULT '0001-01-01T00:00:00.000+00:00',
+    IgnoredDefault32 time NOT NULL DEFAULT '00:00:00',
+    IgnoredDefault33 timeAlias NOT NULL DEFAULT '00:00:00',
+    IgnoredDefault34 uniqueidentifier NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -1301,13 +1329,17 @@ CREATE TABLE DefaultBoolValues (
                     {
                         var columns = dbModel.Tables.Single().Columns;
 
-                        Assert.Equal("((1))", columns.Single(c => c.Name == "BoolTrue").DefaultValueSql);
                         Assert.All(
-                            // ReSharper disable once StringStartsWithIsCultureSpecific
-                            columns.Where(c => c.Name.StartsWith("BoolFalseType")),
+                            columns,
                             t => Assert.Null(t.DefaultValueSql));
                     },
-                "DROP TABLE DefaultBoolValues;");
+                @"
+DROP TABLE DefaultValues;
+DROP TYPE datetime2Alias;
+DROP TYPE datetimeoffsetAlias;
+DROP TYPE decimalAlias;
+DROP TYPE numericAlias;
+DROP TYPE timeAlias;");
         }
 
         [Fact]
