@@ -25,6 +25,26 @@ namespace Microsoft.EntityFrameworkCore
         protected const BindingFlags AnyInstance
             = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
+        protected virtual IEnumerable<Type> FluentApiTypes
+            => Enumerable.Empty<Type>();
+
+        [Fact]
+        public void Fluent_api_methods_should_not_return_void()
+        {
+            var voidMethods
+                = (from type in GetAllTypes(FluentApiTypes)
+                   where type.GetTypeInfo().IsVisible
+                   from method in type.GetMethods(PublicInstance | BindingFlags.Static)
+                   where method.ReturnType == typeof(void)
+                   select type.Name + "." + method.Name)
+                .Except(new [] { "SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" }) // TODO: #10808
+                .ToList();
+
+            Assert.False(
+                voidMethods.Any(),
+                "\r\n-- Missing fluent returns --\r\n" + string.Join(Environment.NewLine, voidMethods));
+        }
+
         [Fact]
         public virtual void Service_implementations_should_use_dependencies_parameter_object()
         {
