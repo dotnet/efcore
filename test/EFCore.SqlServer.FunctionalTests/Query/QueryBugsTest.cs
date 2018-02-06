@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -3595,6 +3596,77 @@ ORDER BY [t].[Id]");
             public int Id { get; set; }
             public string Name { get; set; }
             public int ParentId { get; set; }
+        }
+
+        #endregion
+
+        #region Bug10168
+
+        [Fact]
+        public void Row_number_paging_with_owned_type()
+        {
+            using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
+            {
+                context.Database.EnsureCreated();
+
+                ClearLog();
+
+                var queryableObj = context.Note.Where(x => x.Text == "Foo Bar").AsQueryable();
+
+                queryableObj.Skip(0).Take(100).ToList();
+
+                AssertSql(
+                    @"@__p_0='?'
+@__p_1='?'
+
+SELECT [t].[Id], [t].[Text], [t].[Id0], [t].[User_Email], [t].[User_Fullname]
+FROM (
+    SELECT [x].[Id], [x].[Text], [x].[Id] AS [Id0], [x].[User_Email], [x].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+    FROM [Note] AS [x]
+    WHERE [x].[Text] = N'Foo Bar'
+) AS [t]
+WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_1))");
+            }
+        }
+
+        public class MyContext10168 : DbContext
+        {
+            private readonly ILoggerFactory _loggerFactory;
+
+            public MyContext10168(ILoggerFactory loggerFactory)
+            {
+                _loggerFactory = loggerFactory;
+            }
+
+            public DbSet<Note> Note { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder
+                    .UseLoggerFactory(_loggerFactory)
+                    .UseSqlServer(
+                        SqlServerTestStore.CreateConnectionString("RowNumberPaging_Owned"),
+                        b => b.UseRowNumberForPaging());
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Note>().OwnsOne(n => n.User);
+            }
+        }
+
+        public class Note
+        {
+            [Key]
+            public Guid Id { get; set; }
+            public string Text { get; set; }
+            public User10168 User { get; set; }
+        }
+
+        public class User10168
+        {
+            public string Fullname { get; set; }
+            public string Email { get; set; }
         }
 
         #endregion
