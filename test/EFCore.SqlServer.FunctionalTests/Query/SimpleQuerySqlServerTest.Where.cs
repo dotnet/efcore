@@ -2,13 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
+        private const string ConvertParams =
+#if NET461
+            null;
+#elif NETCOREAPP2_0 || NETCOREAPP2_1
+            ", Object";
+#else
+#error target frameworks need to be updated.
+#endif
+
         public override void Where_simple()
         {
             base.Where_simple();
@@ -516,7 +524,6 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1");
         }
 
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public override void Where_equals_using_object_overload_on_mismatched_types()
         {
             base.Where_equals_using_object_overload_on_mismatched_types();
@@ -526,7 +533,7 @@ WHERE [e].[EmployeeID] = 1");
 FROM [Employees] AS [e]
 WHERE 0 = 1");
 
-            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("e.EmployeeID.Equals(Convert(__longPrm_0))"), Fixture.TestSqlLoggerFactory.Log);
+            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"e.EmployeeID.Equals(Convert(__longPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
         }
 
         public override void Where_equals_using_int_overload_on_mismatched_types()
@@ -541,7 +548,6 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = @__shortPrm_0");
         }
 
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public override void Where_equals_on_mismatched_types_nullable_int_long()
         {
             base.Where_equals_on_mismatched_types_nullable_int_long();
@@ -555,12 +561,11 @@ WHERE 0 = 1",
 FROM [Employees] AS [e]
 WHERE 0 = 1");
 
-            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("__longPrm_0.Equals(Convert(e.ReportsTo))"), Fixture.TestSqlLoggerFactory.Log);
+            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"__longPrm_0.Equals(Convert(e.ReportsTo{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
 
-            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("e.ReportsTo.Equals(Convert(__longPrm_0))"), Fixture.TestSqlLoggerFactory.Log);
+            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"e.ReportsTo.Equals(Convert(__longPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
         }
 
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Failing after netcoreapp2.0 upgrade")]
         public override void Where_equals_on_mismatched_types_nullable_long_nullable_int()
         {
             base.Where_equals_on_mismatched_types_nullable_long_nullable_int();
@@ -574,9 +579,9 @@ WHERE 0 = 1",
 FROM [Employees] AS [e]
 WHERE 0 = 1");
 
-            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("__nullableLongPrm_0.Equals(Convert(e.ReportsTo))"), Fixture.TestSqlLoggerFactory.Log);
+            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"__nullableLongPrm_0.Equals(Convert(e.ReportsTo{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
 
-            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage("e.ReportsTo.Equals(Convert(__nullableLongPrm_0))"), Fixture.TestSqlLoggerFactory.Log);
+            Assert.Contains(RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage($"e.ReportsTo.Equals(Convert(__nullableLongPrm_0{ConvertParams}))"), Fixture.TestSqlLoggerFactory.Log);
         }
 
         public override void Where_equals_on_mismatched_types_int_nullable_int()

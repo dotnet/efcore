@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -687,8 +686,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-        [ConditionalFact]
-        [FrameworkSkipCondition(RuntimeFrameworks.CoreCLR, SkipReason = "Blocked by dotnet/coreclr#11453")]
+        [Fact]
         public virtual void CreateDatabaseOperation_with_filename_and_custom_datadirectory()
         {
             var dataDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
