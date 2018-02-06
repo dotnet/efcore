@@ -1067,7 +1067,7 @@ SELECT ""t"".""OrderID"", ""t"".""CustomerID"", ""t"".""EmployeeID"", ""t"".""Or
 FROM (
     SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
     FROM ""Orders"" ""o""
-    ORDER BY ""o"".""OrderDate"", ""o"".""OrderID"" NULLS FIRST
+    ORDER BY ""o"".""OrderDate"" NULLS FIRST, ""o"".""OrderID"" NULLS FIRST
     OFFSET :p_0 ROWS
 ) ""t""
 ORDER BY ""t"".""CustomerID"" NULLS FIRST");
