@@ -1240,7 +1240,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new[] { Check.NotEmpty(keyColumn, nameof(keyColumn)) },
                 new[] { keyValue },
                 columns,
-                values);
+                values,
+                schema);
 
         /// <summary>
         ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data for a table with

@@ -2345,6 +2345,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [Fact]
+        public void UpdateDataOperation_all_args_multi()
+        {
+            Test(
+                new UpdateDataOperation
+                {
+
+                    Schema = "dbo",
+                    Table = "People",
+                    KeyColumns = new[] { "Full Name" },
+                    KeyValues = new object[,]
+                    {
+                        { "Daenerys Targaryen" }
+                    },
+                    Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
+                    Values = new object[,]
+                    {
+                        { "Dragonstone", "Targaryen", "Valyrian" }
+                    }
+                },
+                "mb.UpdateData(" + EOL +
+                "    schema: \"dbo\"," + EOL +
+                "    table: \"People\"," + EOL +
+                "    keyColumn: \"Full Name\"," + EOL +
+                "    keyValue: \"Daenerys Targaryen\"," + EOL +
+                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + EOL +
+                "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
+                o =>
+                {
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("People", o.Table);
+                    Assert.Equal(1, o.KeyColumns.Length);
+                    Assert.Equal(1, o.KeyValues.GetLength(0));
+                    Assert.Equal(1, o.KeyValues.GetLength(1));
+                    Assert.Equal("Daenerys Targaryen", o.KeyValues[0, 0]);
+                    Assert.Equal(3, o.Columns.Length);
+                    Assert.Equal(1, o.Values.GetLength(0));
+                    Assert.Equal(3, o.Values.GetLength(1));
+                    Assert.Equal("Targaryen", o.Values[0, 1]);
+                });
+        }
+
+        [Fact]
         public void UpdateDataOperation_required_args()
         {
             Test(

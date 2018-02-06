@@ -798,17 +798,18 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People").ForSqlServerIsMemoryOptimized().Property<string>("Name"),
+                modelBuilder => modelBuilder.Entity("People").ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name"),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
+                    Schema = "dbo",
                     Table = "People",
                     Columns = new[] { "Name" },
                     IsUnique = true
                 });
 
             Assert.Equal(
-                "ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
+                "ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
                 Sql);
         }
 
