@@ -945,21 +945,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Employee, Order>(
                 (es, os) =>
-                    from e in es.Take(3).Select(e => new { e })
-                    from o in os.Take(5).Select(o => new { o })
+                    from e in es.OrderBy(ee => ee.EmployeeID).Take(3).Select(e => new { e })
+                    from o in os.OrderBy(oo => oo.OrderID).Take(5).Select(o => new { o })
                     where e.e.EmployeeID == o.o.EmployeeID
                     select new { e, o },
                 entryCount: 2);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #8956")]
         public virtual void Where_subquery_anon_nested()
         {
             AssertQuery<Employee, Order, Customer>(
                 (es, os, cs) =>
                     from t in (
-                        from e in es.Take(3).Select(e => new { e }).Where(e => e.e.City == "London")
-                        from o in os.Take(5).Select(o => new { o })
+                        from e in es.OrderBy(ee => ee.EmployeeID).Take(3).Select(e => new { e }).Where(e => e.e.City == "Seattle")
+                        from o in os.OrderBy(oo => oo.OrderID).Take(5).Select(o => new { o })
                         select new { e, o })
                     from c in cs.Take(2).Select(c => new { c })
                     select new { t.e, t.o, c });
@@ -1177,8 +1177,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Customer, Order>(
                 (cs, os) =>
-                    from c in cs.Take(3)
-                    orderby c.CustomerID
+                    from c in cs.OrderBy(cc => cc.CustomerID).Take(3)
                     select os.Where(o => o.CustomerID == c.CustomerID),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Order>(o => o.OrderID));
@@ -1303,7 +1302,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Employee>(
                 es =>
-                    from e1 in es.Take(3)
+                    from e1 in es.OrderBy(e => e.EmployeeID).Take(3)
                     where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) == null
                     select e1,
                 entryCount: 1);
@@ -1314,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             AssertQuery<Employee>(
                 es =>
-                    from e1 in es.Skip(4).Take(3)
+                    from e1 in es.OrderBy(e => e.EmployeeID).Skip(4).Take(3)
                     where es.SingleOrDefault(e2 => e2.EmployeeID == e1.ReportsTo) != null
                     select e1,
                 entryCount: 3);
