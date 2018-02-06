@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class HistoryRepositoryDependenciesTest
@@ -11,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [Fact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
-            RelationalTestHelpers.Instance.TestDependenciesClone<HistoryRepositoryDependencies>();
+            RelationalTestHelpers.Instance.TestDependenciesClone<HistoryRepositoryDependencies>(
+                nameof(HistoryRepositoryDependencies.ConventionSetBuilder), "conventionSetBuilders");
         }
     }
 }

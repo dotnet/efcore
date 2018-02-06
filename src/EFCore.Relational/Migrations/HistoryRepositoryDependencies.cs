@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -94,10 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationsSqlGenerator = migrationsSqlGenerator;
             SqlGenerationHelper = sqlGenerationHelper;
             CoreConventionSetBuilder = coreConventionSetBuilder;
-            ConventionSetBuilders = conventionSetBuilders;
-#pragma warning disable 618
-            ConventionSetBuilder = new CompositeConventionSetBuilder((IReadOnlyList<IConventionSetBuilder>)ConventionSetBuilders);
-#pragma warning restore 618
+            ConventionSetBuilder = new CompositeConventionSetBuilder((IReadOnlyList<IConventionSetBuilder>)conventionSetBuilders);
         }
 
         /// <summary>
@@ -143,13 +138,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The convention set to use when creating the model.
         /// </summary>
-        [Obsolete("Use ConventionSetBuilders")]
         public IConventionSetBuilder ConventionSetBuilder { get; }
 
-        /// <summary>
-        ///     The convention set to use when creating the model.
-        /// </summary>
-        public IEnumerable<IConventionSetBuilder> ConventionSetBuilders { get; }
+        private IEnumerable<IConventionSetBuilder> ConventionSetBuilders
+            => ConventionSetBuilder is CompositeConventionSetBuilder compositeConventionSetBuilder
+                ? compositeConventionSetBuilder.Builders
+                : new[] { ConventionSetBuilder };
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -292,7 +286,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete("Use With(IEnumerable<IConventionSetBuilder>)")]
         public HistoryRepositoryDependencies With([NotNull] IConventionSetBuilder conventionSetBuilder)
             => new HistoryRepositoryDependencies(
                 DatabaseCreator,
@@ -303,23 +296,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                new[] { conventionSetBuilder });
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="conventionSetBuilders"> The convention sets to use when creating the model. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public HistoryRepositoryDependencies With([NotNull] IEnumerable<IConventionSetBuilder> conventionSetBuilders)
-            => new HistoryRepositoryDependencies(
-                DatabaseCreator,
-                RawSqlCommandBuilder,
-                Connection,
-                Options,
-                ModelDiffer,
-                MigrationsSqlGenerator,
-                SqlGenerationHelper,
-                CoreConventionSetBuilder,
-                conventionSetBuilders);
+                conventionSetBuilder is CompositeConventionSetBuilder compositeConventionSetBuilder
+                    ? compositeConventionSetBuilder.Builders
+                    : new[] { conventionSetBuilder });
     }
 }

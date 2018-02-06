@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///           public void ConfigureServices(IServiceCollection services)
         ///           {
         ///               var connectionString = "connection string to database";
-        /// 
+        ///
         ///               services
         ///                   .AddEntityFrameworkOracle()
         ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>

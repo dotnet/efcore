@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
                 new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));
-            
+
             return this;
         }
 

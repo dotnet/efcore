@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -17,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -57,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             Assert.Equal(constructorParameters.Count, serviceProperties.Count);
 
-            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
+            foreach (var serviceType in constructorParameters.Where(p => !ignoreProperties.Contains(p.Name)).Select(p => p.ParameterType))
             {
                 var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
                     .Single(

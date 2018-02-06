@@ -12,16 +12,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class CompositeConventionSetBuilder : IConventionSetBuilder
     {
-        private readonly IReadOnlyList<IConventionSetBuilder> _builders;
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public CompositeConventionSetBuilder([NotNull] IReadOnlyList<IConventionSetBuilder> builders)
         {
-            _builders = builders;
+            Builders = builders;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual IReadOnlyList<IConventionSetBuilder> Builders { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -29,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual ConventionSet AddConventions(ConventionSet conventionSet)
         {
-            foreach (var builder in _builders)
+            foreach (var builder in Builders)
             {
                 builder.AddConventions(conventionSet);
             }
