@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 newRight = _queryModelVisitor.BindReadValueMethod(node.Right.Type, newRight, 0);
             }
 
-            var newConversion = VisitAndConvert(node.Conversion, "VisitBinary");
+            var newConversion = VisitAndConvert(node.Conversion, nameof(VisitBinary));
 
             return node.Update(newLeft, newConversion, newRight);
         }
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                             methodCallExpression.Arguments[0],
                             methodCallExpression.Arguments[1]
                         }.AsReadOnly(),
-                        "VisitMethodCall");
+                        nameof(VisitMethodCall));
 
                 if (newArguments[0].Type == typeof(ValueBuffer))
                 {

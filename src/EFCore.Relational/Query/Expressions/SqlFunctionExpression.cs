@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var newInstance = Instance != null ? visitor.Visit(Instance) : null;
-            var newArguments = visitor.VisitAndConvert(_arguments, "VisitChildren");
+            var newArguments = visitor.VisitAndConvert(_arguments, nameof(VisitChildren));
 
             return newInstance != Instance || newArguments != _arguments
                 ? new SqlFunctionExpression(newInstance, FunctionName, Schema, Type, newArguments)

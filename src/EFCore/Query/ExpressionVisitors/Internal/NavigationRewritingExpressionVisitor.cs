@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override ElementInit VisitElementInit(ElementInit node)
         {
             var originalArgumentTypes = node.Arguments.Select(a => a.Type).ToList();
-            var newArguments = node.Arguments.Select(Visit).ToList();
+            var newArguments = VisitAndConvert(node.Arguments, nameof(VisitElementInit)).ToList();
 
             for (var i = 0; i < newArguments.Count; i++)
             {
@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
             var originalExpressionTypes = node.Expressions.Select(e => e.Type).ToList();
-            var newExpressions = node.Expressions.Select(Visit).ToList();
+            var newExpressions = VisitAndConvert(node.Expressions, nameof(VisitNewArray)).ToList();
 
             for (var i = 0; i < newExpressions.Count; i++)
             {
@@ -612,7 +612,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return result;
                 }
 
-                var propertyArguments = node.Arguments.Select(Visit).ToList();
+                var propertyArguments = VisitAndConvert(node.Arguments, nameof(VisitMethodCall)).ToList();
 
                 var newPropertyExpression = propertyArguments[0] != node.Arguments[0] || propertyArguments[1] != node.Arguments[1]
                     ? Expression.Call(node.Method, propertyArguments[0], node.Arguments[1])
@@ -634,7 +634,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             var newObject = Visit(node.Object);
-            var newArguments = node.Arguments.Select(Visit);
+            var newArguments = VisitAndConvert(node.Arguments, nameof(VisitMethodCall)).ToList();
+
+            for (var i = 0; i < newArguments.Count; i++)
+            {
+                if (newArguments[i].Type != node.Arguments[i].Type)
+                {
+                    if (newArguments[i] is NullConditionalExpression nullConditionalArgument)
+                    {
+                        newArguments[i] = nullConditionalArgument.AccessOperation;
+                    }
+
+                    if (newArguments[i].Type != node.Arguments[i].Type)
+                    {
+                        newArguments[i] = Expression.Convert(newArguments[i], node.Arguments[i].Type);
+                    }
+                }
+            }
 
             if (newObject != node.Object)
             {

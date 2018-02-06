@@ -570,7 +570,7 @@ WHERE [o].[CustomerID] = N'ALFKI'");
             base.Projection_in_a_subquery_should_be_liftable();
 
             AssertSql(
-    @"@__p_0='1'
+                @"@__p_0='1'
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]

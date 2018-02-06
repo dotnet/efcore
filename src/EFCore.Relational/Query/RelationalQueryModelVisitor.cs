@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _insideShapedQueryMethod = methodCallExpression.Method.MethodIsClosedFormOf(
                     _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod);
 
-                var arguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
+                var arguments = VisitAndConvert(methodCallExpression.Arguments, nameof(VisitMethodCall));
 
                 if (arguments != methodCallExpression.Arguments)
                 {

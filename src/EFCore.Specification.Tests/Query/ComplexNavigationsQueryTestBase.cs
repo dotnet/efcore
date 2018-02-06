@@ -3876,5 +3876,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Level2>(e => e.OneToMany_Optional, "OneToMany_Optional", "OneToOne_Optional_FK")
                 });
         }
+
+        [ConditionalFact]
+        public virtual void Nav_rewrite_doesnt_apply_null_protection_for_function_arguments()
+        {
+            AssertQueryScalar<Level1>(
+                l1s => l1s.Where(l1 => l1.OneToOne_Optional_PK != null).Select(l1 => Math.Max(l1.OneToOne_Optional_PK.Level1_Required_Id, 7)));
+        }
     }
 }

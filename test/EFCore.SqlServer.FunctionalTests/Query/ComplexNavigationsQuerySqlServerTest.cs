@@ -3467,7 +3467,7 @@ ORDER BY [t5].[Id0], [t5].[Id]");
             base.Include_reference_collection_order_by_reference_navigation();
 
             AssertSql(
-    @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK].[Id], [l1.OneToOne_Optional_FK].[Date], [l1.OneToOne_Optional_FK].[Level1_Optional_Id], [l1.OneToOne_Optional_FK].[Level1_Required_Id], [l1.OneToOne_Optional_FK].[Name], [l1.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK].[Id], [l1.OneToOne_Optional_FK].[Date], [l1.OneToOne_Optional_FK].[Level1_Optional_Id], [l1.OneToOne_Optional_FK].[Level1_Required_Id], [l1.OneToOne_Optional_FK].[Name], [l1.OneToOne_Optional_FK].[OneToMany_Optional_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Optional_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_InverseId], [l1.OneToOne_Optional_FK].[OneToMany_Required_Self_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_PK_InverseId], [l1.OneToOne_Optional_FK].[OneToOne_Optional_SelfId]
 FROM [LevelOne] AS [l1]
 LEFT JOIN [LevelTwo] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]
 ORDER BY [l1.OneToOne_Optional_FK].[Id]",
@@ -3480,6 +3480,17 @@ INNER JOIN (
     LEFT JOIN [LevelTwo] AS [l1.OneToOne_Optional_FK0] ON [l10].[Id] = [l1.OneToOne_Optional_FK0].[Level1_Optional_Id]
 ) AS [t] ON [l1.OneToOne_Optional_FK.OneToMany_Optional].[OneToMany_Optional_InverseId] = [t].[Id]
 ORDER BY [t].[Id]");
+        }
+
+        public override void Nav_rewrite_doesnt_apply_null_protection_for_function_arguments()
+        {
+            base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments();
+
+            AssertSql(
+                @"SELECT [l1.OneToOne_Optional_PK].[Level1_Required_Id]
+FROM [LevelOne] AS [l1]
+LEFT JOIN [LevelTwo] AS [l1.OneToOne_Optional_PK] ON [l1].[Id] = [l1.OneToOne_Optional_PK].[OneToOne_Optional_PK_InverseId]
+WHERE [l1.OneToOne_Optional_PK].[Id] IS NOT NULL");
         }
 
         private void AssertSql(params string[] expected)

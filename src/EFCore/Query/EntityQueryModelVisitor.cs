@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (methodCallExpression.Method
                     .MethodIsClosedFormOf(TaskBlockingExpressionVisitor.ResultMethodInfo))
                 {
-                    var newArguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
+                    var newArguments = VisitAndConvert(methodCallExpression.Arguments, nameof(VisitMethodCall));
 
                     if (newArguments != methodCallExpression.Arguments)
                     {
