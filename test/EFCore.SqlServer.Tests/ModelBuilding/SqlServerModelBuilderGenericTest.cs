@@ -98,6 +98,39 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("DisjointChildSubclass2_ParentId", property2.SqlServer().ColumnName);
             }
 
+            [Fact] //Issue#10659
+            public void Index_convention_run_for_fk_when_derived_type_discovered_before_base_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Order>();
+                modelBuilder.Entity<CustomerDetails>();
+                modelBuilder.Entity<DetailsBase>();
+
+                var index = modelBuilder.Model.FindEntityType(typeof(CustomerDetails)).GetIndexes().Single();
+
+                Assert.Equal("[CustomerId] IS NOT NULL", index.SqlServer().Filter);
+            }
+
+            [Fact]
+            public void Index_convention_sets_filter_for_unique_index_when_base_type_changed()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Entity<CustomerDetails>()
+                    .HasIndex(e => e.CustomerId)
+                    .IsUnique();
+
+                modelBuilder.Entity<DetailsBase>();
+
+                var index = modelBuilder.Model.FindEntityType(typeof(CustomerDetails)).GetIndexes().Single();
+
+                Assert.Equal("[CustomerId] IS NOT NULL", index.SqlServer().Filter);
+
+                modelBuilder.Ignore<DetailsBase>();
+
+                Assert.Null(index.SqlServer().Filter);
+            }
+
             public class Parent
             {
                 public int Id { get; set; }
