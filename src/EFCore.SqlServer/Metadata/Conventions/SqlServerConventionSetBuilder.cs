@@ -59,6 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGeneratorConvention);
 
             var sqlServerIndexConvention = new SqlServerIndexConvention(_sqlGenerationHelper);
+
+            conventionSet.BaseEntityTypeChangedConventions.Add(sqlServerIndexConvention);
+
             conventionSet.IndexAddedConventions.Add(sqlServerInMemoryTablesConvention);
             conventionSet.IndexAddedConventions.Add(sqlServerIndexConvention);
 
@@ -91,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var convertingTypeMapper = new FallbackRelationalCoreTypeMapper(
                 coreTypeMapperDependencies,
-                new RelationalTypeMapperDependencies(), 
+                new RelationalTypeMapperDependencies(),
                 sqlServerTypeMapper);
 
             return new SqlServerConventionSetBuilder(
