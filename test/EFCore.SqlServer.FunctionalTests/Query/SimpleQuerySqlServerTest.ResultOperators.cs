@@ -973,5 +973,19 @@ FROM (
 ) AS [t]
 ORDER BY [t].[CustomerID] DESC");
         }
+
+        public override void Contains_over_entityType_should_materialize()
+        {
+            base.Contains_over_entityType_should_materialize();
+
+            AssertSql(
+                @"SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10248",
+                //
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'VINET'");
+        }
     }
 }
