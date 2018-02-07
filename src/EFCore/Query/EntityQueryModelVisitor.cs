@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _queryOptimizer.Optimize(QueryCompilationContext, queryModel);
 
-            new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger).VisitQueryModel(queryModel);
+            new NondeterministicResultCheckingVisitor(QueryCompilationContext.Logger, this).VisitQueryModel(queryModel);
 
             OnBeforeNavigationRewrite(queryModel);
 
@@ -430,9 +430,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class NondeterministicResultCheckingVisitor : QueryModelVisitorBase
         {
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+            private readonly EntityQueryModelVisitor _queryModelVisitor;
 
-            public NondeterministicResultCheckingVisitor([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
-                => _logger = logger;
+            public NondeterministicResultCheckingVisitor(
+                [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+                [NotNull] EntityQueryModelVisitor queryModelVisitor)
+            {
+                _logger = logger;
+                _queryModelVisitor = queryModelVisitor;
+            }
 
             public override void VisitQueryModel(QueryModel queryModel)
             {
@@ -441,17 +447,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                 base.VisitQueryModel(queryModel);
             }
 
+            private bool IsModelProperty(Expression expression)
+            {
+                var isModelProperty = false;
+                if (expression is MemberExpression fromMember)
+                {
+                    _queryModelVisitor.BindMemberExpression(fromMember, (p, qs) => isModelProperty = qs != null && p != null);
+                }
+
+                if (!isModelProperty && expression is MethodCallExpression fromMethodCall)
+                {
+                    _queryModelVisitor.BindMethodCallExpression(fromMethodCall, (p, qs) => isModelProperty = qs != null && p != null);
+                }
+
+                return isModelProperty;
+            }
+
             protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
             {
                 if (resultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
-                    && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
+                    && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
+                    && !IsModelProperty(queryModel.MainFromClause.FromExpression))
                 {
                     _logger.RowLimitingOperationWithoutOrderByWarning(queryModel);
                 }
 
                 if (resultOperators.Any(o => o is FirstResultOperator || o is LastResultOperator)
                     && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
-                    && !queryModel.BodyClauses.OfType<WhereClause>().Any())
+                    && !queryModel.BodyClauses.OfType<WhereClause>().Any()
+                    && !IsModelProperty(queryModel.MainFromClause.FromExpression))
                 {
                     _logger.FirstWithoutOrderByAndFilterWarning(queryModel);
                 }

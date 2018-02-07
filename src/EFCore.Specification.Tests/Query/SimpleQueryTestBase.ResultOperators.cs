@@ -1183,5 +1183,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(query);
             }
         }
+
+        [ConditionalFact]
+        public virtual void Paging_operation_on_string_doesnt_issue_warning()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers.Select(c => c.CustomerID.FirstOrDefault()).ToList();
+                Assert.Equal(91, query.Count);
+            }
+        }
     }
 }

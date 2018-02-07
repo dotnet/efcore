@@ -987,5 +987,14 @@ WHERE [o].[OrderID] = 10248",
 FROM [Orders] AS [o]
 WHERE [o].[CustomerID] = N'VINET'");
         }
+
+        public override void Paging_operation_on_string_doesnt_issue_warning()
+        {
+            base.Paging_operation_on_string_doesnt_issue_warning();
+
+            Assert.DoesNotContain(
+                CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
+                    @"(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"), Fixture.TestSqlLoggerFactory.Log);
+        }
     }
 }
