@@ -431,6 +431,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
+            private static Type[] _primitiveArrayTypes = new Type[] { typeof(string), typeof(byte[]) };
+
             public NondeterministicResultCheckingVisitor([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
                 => _logger = logger;
 
@@ -443,17 +445,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
             {
-                if (resultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
-                    && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
+                if (!_primitiveArrayTypes.Contains(queryModel.MainFromClause.FromExpression.Type))
                 {
-                    _logger.RowLimitingOperationWithoutOrderByWarning(queryModel);
-                }
+                    if (resultOperators.Any(o => o is SkipResultOperator || o is TakeResultOperator)
+                        && !queryModel.BodyClauses.OfType<OrderByClause>().Any())
+                    {
+                        _logger.RowLimitingOperationWithoutOrderByWarning(queryModel);
+                    }
 
-                if (resultOperators.Any(o => o is FirstResultOperator || o is LastResultOperator)
-                    && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
-                    && !queryModel.BodyClauses.OfType<WhereClause>().Any())
-                {
-                    _logger.FirstWithoutOrderByAndFilterWarning(queryModel);
+                    if (resultOperators.Any(o => o is FirstResultOperator || o is LastResultOperator)
+                        && !queryModel.BodyClauses.OfType<OrderByClause>().Any()
+                        && !queryModel.BodyClauses.OfType<WhereClause>().Any())
+                    {
+                        _logger.FirstWithoutOrderByAndFilterWarning(queryModel);
+                    }
                 }
 
                 base.VisitResultOperators(resultOperators, queryModel);
