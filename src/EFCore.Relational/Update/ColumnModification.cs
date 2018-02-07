@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual object Value
         {
-            get { return Entry == null ? _value : Entry.GetCurrentValue(Property); }
+            get => Entry == null ? _value : Entry.GetCurrentValue(Property);
             [param: CanBeNull]
             set
             {

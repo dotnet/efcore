@@ -252,8 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             try
             {
                 using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
-                    connection,
-                    parameterValues: storeCommand.ParameterValues))
+                    connection, storeCommand.ParameterValues))
                 {
                     Consume(dataReader);
                 }

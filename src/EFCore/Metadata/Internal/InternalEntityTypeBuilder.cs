@@ -829,6 +829,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             }
                             detachedIndexes.Add(DetachIndex(index));
                         }
+
+                        foreach (var key in Metadata.GetKeys()
+                            .Where(k => k.ReferencingForeignKeys != null
+                                        && k.Properties.Any(p => removedInheritedProperties.Contains(p))).ToList())
+                        {
+                            foreach (var referencingForeignKey in key.ReferencingForeignKeys.ToList())
+                            {
+                                if (Metadata.IsAssignableFrom(referencingForeignKey.PrincipalEntityType))
+                                {
+                                    if (detachedRelationships == null)
+                                    {
+                                        detachedRelationships =
+                                            new List<Tuple<InternalRelationshipBuilder, EntityTypeSnapshot, ConfigurationSource>>();
+                                    }
+                                    detachedRelationships.Add(DetachRelationship(referencingForeignKey));
+                                }
+                            }
+                        }
                     }
                 }
 

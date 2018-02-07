@@ -624,9 +624,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<SpecialBookLabel>();
                 modelBuilder.Entity<AnotherBookLabel>();
+                modelBuilder.Entity<Book>().HasOne<SpecialBookLabel>().WithOne().HasForeignKey<Book>();
                 modelBuilder.Ignore<BookLabel>();
 
-                Assert.Null(modelBuilder.Model.FindEntityType(typeof(BookLabel).FullName));
+                var model = modelBuilder.Model;
+                Assert.Null(model.FindEntityType(typeof(BookLabel).FullName));
+                foreach (var entityType in model.GetEntityTypes())
+                {
+                    Assert.Empty(entityType.GetForeignKeys()
+                        .Where(fk => fk.PrincipalEntityType.ClrType == typeof(BookLabel)));
+                    Assert.Empty(entityType.GetForeignKeys()
+                        .Where(fk => fk.PrincipalKey.DeclaringEntityType.ClrType == typeof(BookLabel)));
+                }
             }
 
             [Fact]
