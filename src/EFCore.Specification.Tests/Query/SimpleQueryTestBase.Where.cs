@@ -1380,8 +1380,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var cusotmer = context.Customers.Include(c => c.Orders).Single(c => c.CustomerID == "ALFKI");
-                var orderDetails = context.OrderDetails.Where(od => cusotmer.Orders.Contains(od.Order)).ToList();
+                var customer = context.Customers.Include(c => c.Orders).Single(c => c.CustomerID == "ALFKI");
+                var orderDetails = context.OrderDetails.Where(od => customer.Orders.Contains(od.Order)).ToList();
 
                 Assert.Equal(12, orderDetails.Count);
             }

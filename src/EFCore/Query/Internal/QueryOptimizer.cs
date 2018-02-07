@@ -328,7 +328,46 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             ProcessSetResultOperator(resultOperator);
 
+            TryOptimizeContains(resultOperator, queryModel);
+
             base.VisitResultOperator(resultOperator, queryModel, index);
+        }
+
+        private void TryOptimizeContains(ResultOperatorBase resultOperator, QueryModel queryModel)
+        {
+            if (resultOperator is ContainsResultOperator containsResultOperator
+                && queryModel.SelectClause.Selector is QuerySourceReferenceExpression querySourceReferenceExpression)
+            {
+                // Contains with entity instance to simple key contains expansion
+
+                var projectedEntityType
+                    = _queryCompilationContext.Model
+                        .FindEntityType(querySourceReferenceExpression.Type);
+
+                if (projectedEntityType != null)
+                {
+                    var valueEntityType
+                        = _queryCompilationContext.Model
+                            .FindEntityType(containsResultOperator.Item.Type);
+
+                    if (valueEntityType != null
+                        && valueEntityType.BaseType == projectedEntityType.BaseType)
+                    {
+                        var primaryKey = projectedEntityType.FindPrimaryKey();
+
+                        if (primaryKey.Properties.Count == 1)
+                        {
+                            queryModel.SelectClause.Selector
+                                = querySourceReferenceExpression
+                                    .CreateEFPropertyExpression(primaryKey.Properties[0], makeNullable: false);
+
+                            containsResultOperator.Item
+                                = containsResultOperator.Item
+                                    .CreateEFPropertyExpression(primaryKey.Properties[0], makeNullable: false);
+                        }
+                    }
+                }
+            }
         }
 
         private void UpdateQuerySourceMapping(

@@ -1174,11 +1174,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Contains_over_entityType_should_materialize()
+        public virtual void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             using (var context = CreateContext())
             {
-                var query = context.Orders.Where(o => o.CustomerID == "VINET").Contains(context.Orders.Single(o => o.OrderID == 10248));
+                var query
+                    = context.Orders.Where(o => o.CustomerID == "VINET")
+                        .Contains(context.Orders.Single(o => o.OrderID == 10248));
+
+                Assert.True(query);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_over_entityType_should_materialize_when_composite()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = context.OrderDetails.Where(o => o.ProductID == 42)
+                        .Contains(context.OrderDetails.First(o => o.OrderID == 10248 && o.ProductID == 42));
 
                 Assert.True(query);
             }

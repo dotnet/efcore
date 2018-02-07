@@ -974,18 +974,39 @@ FROM (
 ORDER BY [t].[CustomerID] DESC");
         }
 
-        public override void Contains_over_entityType_should_materialize()
+        public override void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
-            base.Contains_over_entityType_should_materialize();
+            base.Contains_over_entityType_should_rewrite_to_identity_equality();
 
             AssertSql(
                 @"SELECT TOP(2) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10248",
                 //
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'VINET'");
+                @"@__p_0_OrderID='10248'
+
+SELECT CASE
+    WHEN @__p_0_OrderID IN (
+        SELECT [o].[OrderID]
+        FROM [Orders] AS [o]
+        WHERE [o].[CustomerID] = N'VINET'
+    )
+    THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+END");
+        }
+
+        public override void Contains_over_entityType_should_materialize_when_composite()
+        {
+            base.Contains_over_entityType_should_materialize_when_composite();
+
+            AssertSql(
+                @"SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 10248) AND ([o].[ProductID] = 42)",
+                //
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[ProductID] = 42");
         }
 
         public override void Paging_operation_on_string_doesnt_issue_warning()
