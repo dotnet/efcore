@@ -401,9 +401,16 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 // This is a top-level query that was not Single/First/Last
                 // but returns a single/scalar value (Avg/Min/Max/etc.)
-                // or a subquery that belongs to some outer-level query that returns 
-                // a single or scalar value. The referenced query source should be 
+                // or a subquery that belongs to some outer-level query that returns
+                // a single or scalar value. The referenced query source should be
                 // re-promoted later if necessary.
+
+                // For top-level Contains we cannot translate it since Item is not Expression
+                if (!isSubQuery && finalResultOperator is ContainsResultOperator containsResultOperator)
+                {
+                    return;
+                }
+
                 DemoteQuerySourceAndUnderlyingFromClause(referencedQuerySource);
                 return;
             }

@@ -911,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var ids = new[] { new { Id1 = 1, Id2 = 2 }, new { Id1 = 10248, Id2 = 11 } };
 
             AssertQuery<OrderDetail>(
-                od => od.Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID})), entryCount: 1);
+                od => od.Where(o => ids.Contains(new { Id1 = o.OrderID, Id2 = o.ProductID })), entryCount: 1);
 
             ids = new[] { new { Id1 = 1, Id2 = 2 } };
 
@@ -1171,6 +1171,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Skip(20)
                     .Last(),
                 entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Contains_over_entityType_should_materialize()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Orders.Where(o => o.CustomerID == "VINET").Contains(context.Orders.Single(o => o.OrderID == 10248));
+
+                Assert.True(query);
+            }
         }
     }
 }
