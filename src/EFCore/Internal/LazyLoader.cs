@@ -3,7 +3,10 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -54,20 +57,49 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));
 
+            if (ShouldLoad(entity, navigationName, out var entry))
+            {
+                entry.Load();
+            }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Task LoadAsync(
+            object entity,
+            CancellationToken cancellationToken = default,
+            // ReSharper disable once AssignNullToNotNullAttribute
+            [CallerMemberName] string navigationName = null)
+        {
+            Check.NotNull(entity, nameof(entity));
+            Check.NotEmpty(navigationName, nameof(navigationName));
+
+            return ShouldLoad(entity, navigationName, out var entry)
+                ? entry.LoadAsync(cancellationToken)
+                : Task.CompletedTask;
+        }
+
+        private bool ShouldLoad(object entity, string navigationName, out NavigationEntry entry)
+        {
             if (_disposed)
             {
                 Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
             }
             else if (Context.ChangeTracker.LazyLoadingEnabled)
             {
-                var entry = Context.Entry(entity).Navigation(navigationName);
+                entry = Context.Entry(entity).Navigation(navigationName);
                 if (!entry.IsLoaded)
                 {
                     Logger.NavigationLazyLoading(Context, entity, navigationName);
 
-                    entry.Load();
+                    return true;
                 }
             }
+
+            entry = null;
+            return false;
         }
 
         /// <summary>

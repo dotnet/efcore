@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -375,6 +377,37 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual async Task Query_with_loader_injected_for_reference_async()
+        {
+            using (var context = CreateContext())
+            {
+                var post = await context.Set<LazyAsyncPost>().OrderBy(e => e.Id).FirstAsync();
+
+                var loaded = await post.LoadBlogAsync();
+
+                Assert.NotNull(loaded);
+                Assert.Same(loaded, post.LazyAsyncBlog);
+                Assert.Contains(post, post.LazyAsyncBlog.LazyAsyncPosts);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Query_with_loader_injected_for_collections_async()
+        {
+            using (var context = CreateContext())
+            {
+                var blog = await context.Set<LazyAsyncBlog>().SingleAsync();
+
+                var loaded = await blog.LoadPostsAsync();
+
+                Assert.Same(loaded, blog.LazyAsyncPosts);
+                Assert.Equal(2, blog.LazyAsyncPosts.Count());
+                Assert.Same(blog, blog.LazyAsyncPosts.First().LazyAsyncBlog);
+                Assert.Same(blog, blog.LazyAsyncPosts.Skip(1).First().LazyAsyncBlog);
+            }
+        }
+
+        [Fact]
         public virtual void Query_with_POCO_loader_injected_for_reference()
         {
             using (var context = CreateContext())
@@ -396,6 +429,37 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(2, blog.LazyPocoPosts.Count());
                 Assert.Same(blog, blog.LazyPocoPosts.First().LazyPocoBlog);
                 Assert.Same(blog, blog.LazyPocoPosts.Skip(1).First().LazyPocoBlog);
+            }
+        }
+        
+        [Fact]
+        public virtual async Task Query_with_loader_delegate_injected_for_reference_async()
+        {
+            using (var context = CreateContext())
+            {
+                var post = await context.Set<LazyAsyncPocoPost>().OrderBy(e => e.Id).FirstAsync();
+
+                var loaded = await post.LoadBlogAsync();
+
+                Assert.NotNull(loaded);
+                Assert.Same(loaded, post.LazyAsyncPocoBlog);
+                Assert.Contains(post, post.LazyAsyncPocoBlog.LazyAsyncPocoPosts);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Query_with_loader_delegate_injected_for_collections_async()
+        {
+            using (var context = CreateContext())
+            {
+                var blog = await context.Set<LazyAsyncPocoBlog>().SingleAsync();
+
+                var loaded = await blog.LoadPostsAsync();
+
+                Assert.Same(loaded, blog.LazyAsyncPocoPosts);
+                Assert.Equal(2, blog.LazyAsyncPocoPosts.Count());
+                Assert.Same(blog, blog.LazyAsyncPocoPosts.First().LazyAsyncPocoBlog);
+                Assert.Same(blog, blog.LazyAsyncPocoPosts.Skip(1).First().LazyAsyncPocoBlog);
             }
         }
 
@@ -630,6 +694,37 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(2, blog.LazyPsPosts.Count());
                 Assert.Same(blog, blog.LazyPsPosts.First().LazyPsBlog);
                 Assert.Same(blog, blog.LazyPsPosts.Skip(1).First().LazyPsBlog);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Query_with_loader_delegate_injected_into_property_for_reference_async()
+        {
+            using (var context = CreateContext())
+            {
+                var post = await context.Set<LazyAsyncPsPost>().OrderBy(e => e.Id).FirstAsync();
+
+                var loaded = await post.LoadBlogAsync();
+
+                Assert.NotNull(loaded);
+                Assert.Same(loaded, post.LazyAsyncPsBlog);
+                Assert.Contains(post, post.LazyAsyncPsBlog.LazyAsyncPsPosts);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Query_with_loader_delegate_injected_into_property_for_collections_async()
+        {
+            using (var context = CreateContext())
+            {
+                var blog = await context.Set<LazyAsyncPsBlog>().SingleAsync();
+
+                var loaded = await blog.LoadPostsAsync();
+
+                Assert.Same(loaded, blog.LazyAsyncPsPosts);
+                Assert.Equal(2, blog.LazyAsyncPsPosts.Count());
+                Assert.Same(blog, blog.LazyAsyncPsPosts.First().LazyAsyncPsBlog);
+                Assert.Same(blog, blog.LazyAsyncPsPosts.Skip(1).First().LazyAsyncPsBlog);
             }
         }
 
@@ -1076,6 +1171,41 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class LazyAsyncPsBlog
+        {
+            private readonly ICollection<LazyAsyncPsPost> _lazyAsyncPsPosts = new List<LazyAsyncPsPost>();
+
+            private Func<object, CancellationToken, string, Task> LazyLoader { get; set; }
+
+            public int Id { get; set; }
+
+            public void AddPost(LazyAsyncPsPost post) => _lazyAsyncPsPosts.Add(post);
+
+            public async Task<IEnumerable<LazyAsyncPsPost>> LoadPostsAsync(CancellationToken cancellationToken = default)
+            {
+                await LazyLoader(this, cancellationToken, nameof(LazyAsyncPsPosts));
+
+                return LazyAsyncPsPosts;
+            }
+
+            public IEnumerable<LazyAsyncPsPost> LazyAsyncPsPosts => _lazyAsyncPsPosts;
+        }
+
+        protected class LazyAsyncPsPost
+        {
+            private Func<object, CancellationToken, string, Task> LazyLoader { get; set; }
+
+            public int Id { get; set; }
+            public async Task<LazyAsyncPsBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
+            {
+                await LazyLoader(this, cancellationToken, nameof(LazyAsyncPsBlog));
+
+                return LazyAsyncPsBlog;
+            }
+            
+            public LazyAsyncPsBlog LazyAsyncPsBlog { get; set; }
+        }
+
         protected class LazyPcBlog
         {
             private ICollection<LazyPcPost> _lazyPcPosts = new List<LazyPcPost>();
@@ -1266,6 +1396,112 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class LazyAsyncPocoBlog
+        {
+            private readonly Func<object, CancellationToken, string, Task> _loader;
+            private readonly ICollection<LazyAsyncPocoPost> _lazyAsyncPocoPosts = new List<LazyAsyncPocoPost>();
+
+            public LazyAsyncPocoBlog()
+            {
+            }
+
+            private LazyAsyncPocoBlog(Func<object, CancellationToken, string, Task> lazyLoader)
+            {
+                _loader = lazyLoader;
+            }
+
+            public int Id { get; set; }
+
+            public void AddPost(LazyAsyncPocoPost post) => _lazyAsyncPocoPosts.Add(post);
+
+            public async Task<IEnumerable<LazyAsyncPocoPost>> LoadPostsAsync(CancellationToken cancellationToken = default)
+            {
+                await _loader(this, cancellationToken, nameof(LazyAsyncPocoPosts));
+
+                return LazyAsyncPocoPosts;
+            }
+
+            public IEnumerable<LazyAsyncPocoPost> LazyAsyncPocoPosts => _lazyAsyncPocoPosts;
+        }
+
+        protected class LazyAsyncPocoPost
+        {
+            private readonly Func<object, CancellationToken, string, Task> _loader;
+
+            public LazyAsyncPocoPost()
+            {
+            }
+
+            private LazyAsyncPocoPost(Func<object, CancellationToken, string, Task> lazyLoader)
+            {
+                _loader = lazyLoader;
+            }
+
+            public int Id { get; set; }
+
+            public async Task<LazyAsyncPocoBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
+            {
+                await _loader(this, cancellationToken, nameof(LazyAsyncPocoBlog));
+
+                return LazyAsyncPocoBlog;
+            }
+
+            public LazyAsyncPocoBlog LazyAsyncPocoBlog { get; set; }
+        }
+
+        protected class LazyAsyncBlog
+        {
+            private readonly ILazyLoader _loader;
+            private readonly ICollection<LazyAsyncPost> _lazyAsyncPosts = new List<LazyAsyncPost>();
+
+            public LazyAsyncBlog()
+            {
+            }
+
+            private LazyAsyncBlog(ILazyLoader loader)
+            {
+                _loader = loader;
+            }
+
+            public int Id { get; set; }
+
+            public void AddPost(LazyAsyncPost post) => _lazyAsyncPosts.Add(post);
+
+            public async Task<IEnumerable<LazyAsyncPost>> LoadPostsAsync(CancellationToken cancellationToken = default)
+            {
+                await _loader.LoadAsync(this, cancellationToken, nameof(LazyAsyncPosts));
+
+                return LazyAsyncPosts;
+            }
+
+            public IEnumerable<LazyAsyncPost> LazyAsyncPosts => _lazyAsyncPosts;
+        }
+
+        protected class LazyAsyncPost
+        {
+            private readonly ILazyLoader _loader;
+
+            public LazyAsyncPost()
+            {
+            }
+
+            private LazyAsyncPost(ILazyLoader loader)
+            {
+                _loader = loader;
+            }
+
+            public int Id { get; set; }
+
+            public async Task<LazyAsyncBlog> LoadBlogAsync(CancellationToken cancellationToken = default)
+            {
+                await _loader.LoadAsync(this, cancellationToken, nameof(LazyAsyncBlog));
+
+                return LazyAsyncBlog;
+            }
+
+            public LazyAsyncBlog LazyAsyncBlog { get; set; }
+        }
+
         public class OtherContext : DbContext
         {
         }
@@ -1326,9 +1562,13 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<LazyBlog>();
                 modelBuilder.Entity<LazyPocoBlog>();
 
+                modelBuilder.Entity<LazyAsyncBlog>();
+                modelBuilder.Entity<LazyAsyncPocoBlog>();
+
                 modelBuilder.Entity<LazyPropertyBlog>();
                 modelBuilder.Entity<LazyPcBlog>();
                 modelBuilder.Entity<LazyPsBlog>();
+                modelBuilder.Entity<LazyAsyncPsBlog>();
                 modelBuilder.Entity<LazyPcsBlog>();
 
                 // Manually configure service fields since there is no public API yet
@@ -1397,11 +1637,23 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Add(lazyBlog);
 
+                var lazyAsyncBlog = new LazyAsyncBlog();
+                lazyAsyncBlog.AddPost(new LazyAsyncPost());
+                lazyAsyncBlog.AddPost(new LazyAsyncPost());
+
+                context.Add(lazyAsyncBlog);
+
                 var lazyPocoBlog = new LazyPocoBlog();
                 lazyPocoBlog.AddPost(new LazyPocoPost());
                 lazyPocoBlog.AddPost(new LazyPocoPost());
 
                 context.Add(lazyPocoBlog);
+
+                var lazyAsyncPocoBlog = new LazyAsyncPocoBlog();
+                lazyAsyncPocoBlog.AddPost(new LazyAsyncPocoPost());
+                lazyAsyncPocoBlog.AddPost(new LazyAsyncPocoPost());
+
+                context.Add(lazyAsyncPocoBlog);
 
                 var lazyPropertyBlog = new LazyPropertyBlog();
                 lazyPropertyBlog.AddPost(new LazyPropertyPost());
@@ -1420,6 +1672,12 @@ namespace Microsoft.EntityFrameworkCore
                 lazyPsBlog.AddPost(new LazyPsPost());
 
                 context.Add(lazyPsBlog);
+
+                var lazyAsyncPsBlog = new LazyAsyncPsBlog();
+                lazyAsyncPsBlog.AddPost(new LazyAsyncPsPost());
+                lazyAsyncPsBlog.AddPost(new LazyAsyncPsPost());
+
+                context.Add(lazyAsyncPsBlog);
 
                 var lazyPcBlog = new LazyPcBlog();
                 lazyPcBlog.AddPost(new LazyPcPost());

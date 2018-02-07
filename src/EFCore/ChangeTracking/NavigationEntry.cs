@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
         /// </param>
         /// <returns>
-        ///     A task that represents the asynchronous save operation.
+        ///     A task that represents the asynchronous operation.
         /// </returns>
         public virtual Task LoadAsync(CancellationToken cancellationToken = default)
             => IsLoaded
