@@ -1270,5 +1270,37 @@ FROM [Customers] AS [c]");
 FROM [Customers] AS [c]
 ORDER BY CAST(LEN([c].[CustomerID]) AS int), [c].[CustomerID]");
         }
+
+        public override void Static_string_equals_in_predicate()
+        {
+            base.Static_string_equals_in_predicate();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ANATR'");
+        }
+
+        public override void Static_equals_nullable_datetime_compared_to_non_nullable()
+        {
+            base.Static_equals_nullable_datetime_compared_to_non_nullable();
+
+            AssertSql(
+                @"@__arg_0='1996-07-04T00:00:00'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] = @__arg_0");
+        }
+
+        public override void Static_equals_int_compared_to_long()
+        {
+            base.Static_equals_int_compared_to_long();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE 0 = 1");
+        }
     }
 }

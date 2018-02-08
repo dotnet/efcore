@@ -1006,5 +1006,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID),
                 entryCount: 91);
         }
+
+        [ConditionalFact]
+        public virtual void Static_string_equals_in_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Equals(c.CustomerID, "ANATR")),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Static_equals_nullable_datetime_compared_to_non_nullable()
+        {
+            var arg = new DateTime(1996, 7, 4);
+
+            AssertQuery<Order>(
+                os => os.Where(o => Equals(o.OrderDate, arg)),
+                entryCount: 1);
+        }
+
+        [ConditionalFact]
+        public virtual void Static_equals_int_compared_to_long()
+        {
+            long arg = 10248;
+
+            AssertQuery<Order>(
+                os => os.Where(o => Equals(o.OrderID, arg)));
+        }
     }
 }

@@ -46,28 +46,46 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators.Internal
                 if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
                     && methodCallExpression.Object.Type != argument.Type)
                 {
-                    argument = argument.RemoveConvert();
-
-                    var unwrappedObjectType = methodCallExpression.Object.Type.UnwrapNullableType();
-                    var unwrappedArgumentType = argument.Type.UnwrapNullableType();
-
-                    if (unwrappedObjectType == unwrappedArgumentType)
-                    {
-                        return Expression.Equal(
-                            Expression.Convert(methodCallExpression.Object, unwrappedObjectType),
-                            Expression.Convert(argument, unwrappedArgumentType));
-                    }
-
-                    _logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression);
-
-                    // Equals(object) always returns false if when comparing objects of different types
-                    return Expression.Constant(false);
+                    return TranslateEquals(methodCallExpression.Object, argument.RemoveConvert(), methodCallExpression);
                 }
 
                 return Expression.Equal(methodCallExpression.Object, argument);
             }
 
+            if (methodCallExpression.Method.Name == nameof(object.Equals)
+                && methodCallExpression.Arguments.Count == 2
+                && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
+            {
+                var left = methodCallExpression.Arguments[0].RemoveConvert();
+                var right = methodCallExpression.Arguments[1].RemoveConvert();
+                if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
+                    && left.Type != right.Type)
+                {
+                    return TranslateEquals(left, right, methodCallExpression);
+                }
+
+                return Expression.Equal(left, right);
+            }
+
             return null;
+        }
+
+        private Expression TranslateEquals(Expression left, Expression right, MethodCallExpression methodCallExpression)
+        {
+            var unwrappedLeftType = left.Type.UnwrapNullableType();
+            var unwrappedRightType = right.Type.UnwrapNullableType();
+
+            if (unwrappedLeftType == unwrappedRightType)
+            {
+                return Expression.Equal(
+                    Expression.Convert(left, unwrappedLeftType),
+                    Expression.Convert(right, unwrappedRightType));
+            }
+
+            _logger.QueryPossibleUnintendedUseOfEqualsWarning(methodCallExpression);
+
+            // Equals(object) always returns false if when comparing objects of different types
+            return Expression.Constant(false);
         }
     }
 }
