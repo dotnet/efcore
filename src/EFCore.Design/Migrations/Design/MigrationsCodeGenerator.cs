@@ -153,7 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="model"> The model. </param>
         /// <returns> The namespaces. </returns>
         protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
-            => model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties().SelectMany(p => p.ClrType.GetNamespaces()))
+            => model.GetEntityTypes().SelectMany(
+                    e => e.GetDeclaredProperties()
+                        .SelectMany(p => (p.FindMapping()?.Converter?.StoreType ?? p.ClrType).GetNamespaces()))
                 .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
 
         private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)

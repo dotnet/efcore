@@ -132,11 +132,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     CoreAnnotationNames.ValueConverter,
                     (new ValueConverter<int, long>(v => v, v => (int)v),
-                    _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<int, long>(v => default(long), v => default(int)))")
+                    _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<long, long>(v => default(long), v => default(long)))")
                 },
                 {
                     CoreAnnotationNames.StoreClrType,
-                    (typeof(long), _nl + "." + nameof(PropertyBuilder.HasConversion) + "<long>()")
+                    (typeof(long), "")
                 },
                 {
                     RelationalAnnotationNames.ColumnName,
@@ -157,6 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     RelationalAnnotationNames.DefaultValue,
                     ("1", _nl + "." + nameof(RelationalPropertyBuilderExtensions.HasDefaultValue) + @"(""1"")")
+                },
+                {
+                    CoreAnnotationNames.TypeMapping,
+                    (new LongTypeMapping("bigint"), "")
                 }
             };
 
@@ -236,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void Value_converters_with_mapping_hints_are_scaffolded_correctly()
         {
             var commonPrefix
-                = _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<int, long>(v => default(long), v => default(int)";
+                = _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<long, long>(v => default(long), v => default(long)";
 
             AssertConverter(
                 new ValueConverter<int, long>(v => v, v => (int)v),
@@ -266,16 +270,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(fixedLength: false, size: 77, scale: -1)),
                 commonPrefix + ", new ConverterMappingHints(size: 77, scale: -1, fixedLength: false)))");
 
-           AssertConverter(
+            AssertConverter(
                 new ValueConverter<int, long>(v => v, v => (int)v, new ConverterMappingHints(sizeFunction: s => s / 10)),
                 commonPrefix + ", new ConverterMappingHints(size: 100)))");
         }
 
         private static void AssertConverter(ValueConverter valueConverter, string expected)
         {
-            var model = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            var property = model.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
             property.SetMaxLength(1000);
+
+            modelBuilder.GetInfrastructure().Metadata.Validate();
 
             var codeHelper = new CSharpHelper();
             var generator = new TestCSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper));
@@ -432,6 +438,12 @@ namespace MyNamespace
             Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
+        private enum RawEnum
+        {
+            A,
+            B
+        }
+
         [Fact]
         public void Snapshots_compile()
         {
@@ -444,10 +456,20 @@ namespace MyNamespace
                         new CSharpMigrationOperationGeneratorDependencies(codeHelper)),
                     new CSharpSnapshotGenerator(new CSharpSnapshotGeneratorDependencies(codeHelper))));
 
-            var model = new Model { ["Some:EnumValue"] = RegexOptions.Multiline, ["Relational:DbFunction:MyFunc"] = new object() };
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+            var model = modelBuilder.Model;
+            model["Some:EnumValue"] = RegexOptions.Multiline;
+            model["Relational:DbFunction:MyFunc"] = new object();
+
             var entityType = model.AddEntityType("Cheese");
-            var property = entityType.AddProperty("Pickle", typeof(StringBuilder));
-            property.SetValueConverter(new ValueConverter<StringBuilder, string>(v => v.ToString(), v => new StringBuilder(v), new ConverterMappingHints(size: 10)));
+            var property1 = entityType.AddProperty("Pickle", typeof(StringBuilder));
+            property1.SetValueConverter(new ValueConverter<StringBuilder, string>(v => v.ToString(), v => new StringBuilder(v), new ConverterMappingHints(size: 10)));
+
+            var property2 = entityType.AddProperty("Ham", typeof(RawEnum));
+            property2.SetValueConverter(new ValueConverter<RawEnum, string>(v => v.ToString(), v => (RawEnum)Enum.Parse(typeof(RawEnum), v), new ConverterMappingHints(size: 10)));
+
+            modelBuilder.GetInfrastructure().Metadata.Validate();
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -479,8 +501,11 @@ namespace MyNamespace
 
             modelBuilder.Entity(""Cheese"", b =>
                 {
-                    b.Property<StringBuilder>(""Pickle"")
-                        .HasConversion(new ValueConverter<StringBuilder, string>(v => default(string), v => default(StringBuilder), new ConverterMappingHints(size: 10)));
+                    b.Property<string>(""Ham"")
+                        .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 10)));
+
+                    b.Property<string>(""Pickle"")
+                        .HasConversion(new ValueConverter<string, string>(v => default(string), v => default(string), new ConverterMappingHints(size: 10)));
 
                     b.ToTable(""Cheese"");
                 });
@@ -519,6 +544,7 @@ namespace MyNamespace
                         eb.Property(e => e.Decimal).HasDefaultValue(0m);
                         eb.Property(e => e.Double).HasDefaultValue(0.0);
                         eb.Property(e => e.Enum).HasDefaultValue(Enum1.Default);
+                        eb.Property(e => e.NullableEnum).HasDefaultValue(Enum1.Default).HasConversion<string>();
                         eb.Property(e => e.Guid).HasDefaultValue(new Guid());
                         eb.Property(e => e.Int16).HasDefaultValue((short)0);
                         eb.Property(e => e.Int32).HasDefaultValue(0);
@@ -538,6 +564,7 @@ namespace MyNamespace
                         eb.Property(e => e.NullableDecimal).HasDefaultValue(2m * long.MaxValue);
                         eb.Property(e => e.NullableDouble).HasDefaultValue(0.6822871999174);
                         eb.Property(e => e.NullableEnum).HasDefaultValue(Enum1.Default);
+                        eb.Property(e => e.NullableStringEnum).HasDefaultValue(Enum1.Default).HasConversion<string>();
                         eb.Property(e => e.NullableGuid).HasDefaultValue(new Guid());
                         eb.Property(e => e.NullableInt16).HasDefaultValue(short.MinValue);
                         eb.Property(e => e.NullableInt32).HasDefaultValue(int.MinValue);
@@ -578,6 +605,7 @@ namespace MyNamespace
             public decimal Decimal { get; set; }
             public double Double { get; set; }
             public Enum1 Enum { get; set; }
+            public Enum1 StringEnum { get; set; }
             public Guid Guid { get; set; }
             public short Int16 { get; set; }
             public int Int32 { get; set; }
@@ -590,6 +618,7 @@ namespace MyNamespace
             public decimal? NullableDecimal { get; set; }
             public double? NullableDouble { get; set; }
             public Enum1? NullableEnum { get; set; }
+            public Enum1? NullableStringEnum { get; set; }
             public Guid? NullableGuid { get; set; }
             public short? NullableInt16 { get; set; }
             public int? NullableInt32 { get; set; }
@@ -610,7 +639,7 @@ namespace MyNamespace
             public ulong UInt64 { get; set; }
         }
 
-        private enum Enum1
+        public enum Enum1
         {
             Default
         }

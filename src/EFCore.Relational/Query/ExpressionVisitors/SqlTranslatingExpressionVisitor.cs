@@ -986,10 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private bool IsStreamedSingleValueSupportedType(IStreamedDataInfo outputDataInfo)
             => outputDataInfo is StreamedSingleValueInfo streamedSingleValueInfo
-               && _typeMapper.FindMapping(
-                   streamedSingleValueInfo.DataType
-                       .UnwrapNullableType()
-                       .UnwrapEnumType()) != null;
+               && _typeMapper.FindMapping(streamedSingleValueInfo.DataType) != null;
 
         /// <summary>
         ///     Visits a constant expression.
@@ -1007,14 +1004,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 return expression;
             }
 
-            var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
+            var type = expression.Type == typeof(Enum)
+                ? expression.Value.GetType()
+                : expression.Type;
 
-            if (underlyingType == typeof(Enum))
-            {
-                underlyingType = expression.Value.GetType();
-            }
-
-            return _typeMapper.FindMapping(underlyingType) != null
+            return _typeMapper.FindMapping(type) != null
                 ? expression
                 : null;
         }
@@ -1030,9 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
-
-            return _typeMapper.FindMapping(underlyingType) != null
+            return _typeMapper.FindMapping(expression.Type) != null
                 ? expression
                 : null;
         }
@@ -1148,7 +1140,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 }
             }
 
-            var type = expression.ReferencedQuerySource.ItemType.UnwrapNullableType().UnwrapEnumType();
+            var type = expression.ReferencedQuerySource.ItemType;
 
             if (_typeMapper.FindMapping(type) != null)
             {

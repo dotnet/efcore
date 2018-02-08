@@ -122,7 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             for (var i = 0; i < materializationInfo.Count; i++)
             {
-                var modelType = materializationInfo[i].ModelType;
                 var converter = materializationInfo[i].Mapping?.Converter;
 
                 var arrayAccess =
@@ -155,26 +154,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             arrayAccess,
                             valueExpression
                         ));
-                }
-
-                if (converter == null
-                    && modelType.UnwrapNullableType().GetTypeInfo().IsEnum)
-                {
-                    conversions.Add(
-                        Expression.IfThen(
-                            Expression.IsFalse(
-                                Expression.ReferenceEqual(
-                                    arrayAccess,
-                                    Expression.Constant(DBNull.Value))),
-                            Expression.Assign(
-                                arrayAccess,
-                                Expression.Convert(
-                                    Expression.Convert(
-                                        Expression.Convert(
-                                            arrayAccess,
-                                            modelType.UnwrapEnumType()),
-                                        modelType),
-                                    typeof(object)))));
                 }
             }
 

@@ -190,8 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("EnumValue");
 
-            Assert.Equal(typeof(ulong), property.Relational().DefaultValue.GetType());
-            Assert.Equal((ulong)2, property.Relational().DefaultValue);
+            Assert.Equal(typeof(MyEnum), property.Relational().DefaultValue.GetType());
+            Assert.Equal(MyEnum.Tue, property.Relational().DefaultValue);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
         }
 

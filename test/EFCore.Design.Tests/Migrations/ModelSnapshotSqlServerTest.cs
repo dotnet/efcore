@@ -1131,6 +1131,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.Property<long>(""Day"")
             .ValueGeneratedOnAdd()
+            .HasConversion(new ValueConverter<long, long>(v => default(long), v => default(long)))
             .HasDefaultValue(3L);
 
         b.HasKey(""Id"");
@@ -2147,6 +2148,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                     using Microsoft.EntityFrameworkCore;
                     using Microsoft.EntityFrameworkCore.Metadata;
                     using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+                    using Microsoft.EntityFrameworkCore.Storage.Converters;
 
                     public static class ModelSnapshot
                     {
@@ -2194,7 +2196,7 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
-                    new FallbackRelationalCoreTypeMapper(
+                    new SqlServerCoreTypeMapper(
                         TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
                         TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));

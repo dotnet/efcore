@@ -362,11 +362,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                                 value, valueType, Property.Name, Property.ClrType, Property.DeclaringEntityType.DisplayName()));
                     }
                 }
-
-                if (valueType.GetTypeInfo().IsEnum)
-                {
-                    value = Convert.ChangeType(value, valueType.UnwrapEnumType(), CultureInfo.InvariantCulture);
-                }
             }
 
             if (!CanSetDefaultValue(value))

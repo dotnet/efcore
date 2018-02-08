@@ -213,8 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             property.Relational().DefaultValue = MyEnum.Mon;
 
-            Assert.Equal(typeof(byte), property.Relational().DefaultValue.GetType());
-            Assert.Equal((byte)1, property.Relational().DefaultValue);
+            Assert.Equal(typeof(MyEnum), property.Relational().DefaultValue.GetType());
+            Assert.Equal(MyEnum.Mon, property.Relational().DefaultValue);
 
             property.Relational().DefaultValue = null;
 

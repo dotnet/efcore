@@ -206,12 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 value = Converter.ConvertToStore(value);
             }
 
-            if (value != null
-                && value.GetType().UnwrapNullableType().IsEnum)
-            {
-                value = Convert.ChangeType(value, value.GetType().UnwrapEnumType());
-            }
-
             parameter.Value = value ?? DBNull.Value;
 
             if (nullable.HasValue)

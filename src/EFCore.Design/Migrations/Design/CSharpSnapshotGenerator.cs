@@ -374,11 +374,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
+            var clrType = FindValueConverter(property)?.StoreType
+                          ?? property.ClrType;
+
             stringBuilder
                 .AppendLine()
                 .Append(builderName)
                 .Append(".Property<")
-                .Append(Code.Reference(property.ClrType.UnwrapEnumType()))
+                .Append(Code.Reference(clrType))
                 .Append(">(")
                 .Append(Code.Literal(property.Name))
                 .Append(")");
@@ -429,11 +432,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             var annotations = property.GetAnnotations().ToList();
 
-            var valueConverter = property.GetValueConverter();
+            var valueConverter = FindValueConverter(property);
+
             if (valueConverter != null)
             {
                 var storeType = Code.Reference(valueConverter.StoreType);
-                var modelType = Code.Reference(valueConverter.ModelType);
 
                 stringBuilder
                     .AppendLine()
@@ -442,13 +445,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append("(new ")
                     .Append(nameof(ValueConverter))
                     .Append("<")
-                    .Append(modelType)
+                    .Append(storeType)
                     .Append(", ")
                     .Append(storeType)
                     .Append(">(v => default(")
                     .Append(storeType)
                     .Append("), v => default(")
-                    .Append(modelType);
+                    .Append(storeType);
 
                 var hints = valueConverter.MappingHints;
 
@@ -497,17 +500,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder
                     .Append(")))");
 
-                annotations.Remove(annotations.First(a => a.Name == CoreAnnotationNames.ValueConverter));
+            }
+
+            foreach (var consumed in annotations.Where(
+                a => a.Name == CoreAnnotationNames.ValueConverter
+                     || a.Name == CoreAnnotationNames.StoreClrType).ToList())
+            {
+                annotations.Remove(consumed);
             }
 
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnName, nameof(RelationalPropertyBuilderExtensions.HasColumnName), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ColumnType, nameof(RelationalPropertyBuilderExtensions.HasColumnType), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql, nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql, nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue, nameof(RelationalPropertyBuilderExtensions.HasDefaultValue), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.MaxLengthAnnotation, nameof(PropertyBuilder.HasMaxLength), stringBuilder);
             GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.UnicodeAnnotation, nameof(PropertyBuilder.IsUnicode), stringBuilder);
-            GenerateFluentApiForAnnotation(ref annotations, CoreAnnotationNames.StoreClrType, null, nameof(PropertyBuilder.HasConversion), a => new[] { (Type)a?.Value }, stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                RelationalAnnotationNames.DefaultValue,
+                a => valueConverter == null ? a?.Value : valueConverter.ConvertToStore(a?.Value),
+                nameof(RelationalPropertyBuilderExtensions.HasDefaultValue),
+                stringBuilder);
 
             IgnoreAnnotations(
                 annotations,
@@ -517,6 +531,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateAnnotations(annotations, stringBuilder);
         }
+
+        private static ValueConverter FindValueConverter(IProperty property)
+            => property.FindMapping()?.Converter
+               ?? property.GetValueConverter();
 
         /// <summary>
         ///     Generates code for <see cref="IKey" /> objects.
@@ -1013,7 +1031,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             => GenerateFluentApiForAnnotation(
                 ref annotations,
                 annotationName,
-                a => a?.Value,
+                annotationValueFunc,
                 fluentApiMethodName,
                 null,
                 stringBuilder);

@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            var underlyingType = clrType.UnwrapNullableType().UnwrapEnumType();
+            var underlyingType = clrType.UnwrapNullableType();
 
             return underlyingType == typeof(string)
                 ? _defaultUnicodeString

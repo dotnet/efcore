@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                       ?? typeMapper?.GetMapping(modelType);
 
             StoreType = mapping?.Converter?.StoreType
-                        ?? modelType.UnwrapNullableType().UnwrapEnumType();
+                        ?? modelType;
 
             ModelType = modelType;
             Mapping = mapping;

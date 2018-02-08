@@ -1588,15 +1588,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             var mapping = GetTypeMapping(value);
 
-            if (mapping.Converter == null
-                && constantExpression.Type.UnwrapNullableType().IsEnum)
-            {
-                var underlyingType = constantExpression.Type.UnwrapEnumType();
-                value = Convert.ChangeType(value, underlyingType);
-
-                mapping = GetTypeMapping(value);
-            }
-
             _relationalCommandBuilder.Append(
                 value == null
                     ? "NULL"
