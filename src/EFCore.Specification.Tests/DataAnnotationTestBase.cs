@@ -1032,6 +1032,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Login4
         {
+            public int Id { get; set; }
             public int Login4Id { get; set; }
             public string UserName { get; set; }
 
@@ -1042,6 +1043,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Profile4
         {
+            public int Id { get; set; }
             public int Profile4Id { get; set; }
             public string Name { get; set; }
             public string Email { get; set; }
@@ -1193,7 +1195,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Login9
         {
-            public int Login9Id { get; set; }
+            public int Id { get; set; }
+            public int? Login9Id { get; set; }
             public string UserName { get; set; }
 
             [ForeignKey("Login9Id")]
@@ -1202,7 +1205,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Profile9
         {
-            public int Profile9Id { get; set; }
+            public int Id { get; set; }
+            public int? Profile9Id { get; set; }
             public string Name { get; set; }
             public string Email { get; set; }
 
@@ -1219,15 +1223,17 @@ namespace Microsoft.EntityFrameworkCore
 
             Validate(modelBuilder);
 
-            Assert.True(GetProperty<Login10>(modelBuilder, "Id").IsForeignKey());
-            Assert.True(GetProperty<Profile10>(modelBuilder, "Id").IsForeignKey());
+            Assert.True(GetProperty<Login10>(modelBuilder, "FkId").IsForeignKey());
+            Assert.True(GetProperty<Profile10>(modelBuilder, "FkId").IsForeignKey());
         }
 
         public class Login10
         {
             public int Id { get; set; }
 
-            [ForeignKey("Id")]
+            public int FkId { get; set; }
+
+            [ForeignKey("FkId")]
             public virtual Profile10 Login { get; set; }
         }
 
@@ -1235,7 +1241,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
 
-            [ForeignKey("Id")]
+            public int FkId { get; set; }
+
+            [ForeignKey("FkId")]
             public Login10 User { get; set; }
         }
 

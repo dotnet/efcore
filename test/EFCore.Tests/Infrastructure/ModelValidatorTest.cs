@@ -76,6 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public A AnotherA { get; set; }
         }
 
+        protected class C : A
+        {
+        }
+
         protected class D : A
         {
         }
@@ -175,5 +179,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         protected abstract IModelValidator CreateModelValidator();
+
+        protected virtual ModelBuilder CreateConventionalModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
     }
 }

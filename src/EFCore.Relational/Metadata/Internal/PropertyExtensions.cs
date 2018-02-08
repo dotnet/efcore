@@ -15,10 +15,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static IProperty FindSharedTablePrincipalPrimaryKeyProperty([NotNull] this IProperty property)
+        public static IProperty FindSharedTableRootPrimaryKeyProperty([NotNull] this IProperty property)
         {
-            var linkingRelationship = property.FindSharedTableLink();
-            return linkingRelationship?.PrincipalKey.Properties[linkingRelationship.Properties.IndexOf(property)];
+            var principalProperty = property;
+            while (true)
+            {
+                var linkingRelationship = principalProperty.FindSharedTableLink();
+                if (linkingRelationship == null)
+                {
+                    break;
+                }
+
+                principalProperty = linkingRelationship.PrincipalKey.Properties[linkingRelationship.Properties.IndexOf(principalProperty)];
+            }
+
+            return principalProperty == property ? null : principalProperty;
         }
 
         /// <summary>

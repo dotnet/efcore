@@ -178,8 +178,9 @@ namespace Microsoft.EntityFrameworkCore
                 @"@p1='' (Nullable = false) (DbType = String)" + _eol,
                 Sql);
         }
-        
+
 #if !Test20
+
         public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
         {
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();

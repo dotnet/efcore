@@ -146,6 +146,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [Fact]
+        public virtual void Detects_relationship_cycle()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>();
+            modelBuilder.Entity<B>();
+            modelBuilder.Entity<C>().HasBaseType((string)null);
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().HasOne<C>().WithOne().IsRequired().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id);
+            modelBuilder.Entity<C>().HasOne<B>().WithOne().IsRequired().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id);
+
+            VerifyError(
+                CoreStrings.IdentifyingRelationshipCycle(nameof(A)),
+                modelBuilder.Model);
+        }
+
+        [Fact]
         public virtual void Passes_on_escapable_foreign_key_cycles()
         {
             var model = new Model();

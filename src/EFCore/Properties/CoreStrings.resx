@@ -966,4 +966,7 @@
   <data name="IncompatiblePrincipalEntrySensitive" xml:space="preserve">
     <value>The foreign key '{foreignKeyValues}' set on '{dependentEntityType}' with the key value '{keyValue}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'.</value>
   </data>
+  <data name="IdentifyingRelationshipCycle" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a relationship cycle involving its primary key.</value>
+  </data>
 </root>

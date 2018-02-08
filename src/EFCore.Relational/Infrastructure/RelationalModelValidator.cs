@@ -190,20 +190,42 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 return;
             }
 
-            var firstValidatedType = mappedTypes[0];
+            var unvalidatedTypes = new HashSet<IEntityType>(mappedTypes);
+            IEntityType root = null;
+            foreach (var mappedType in mappedTypes)
+            {
+                if (mappedType.BaseType != null
+                    || mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                        .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                                   && fk.PrincipalEntityType != mappedType
+                                   && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
+                {
+                    continue;
+                }
+
+                if (root != null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.IncompatibleTableNoRelationship(
+                            tableName,
+                            mappedType.DisplayName(),
+                            root.DisplayName()));
+                }
+                root = mappedType;
+            }
+
+            unvalidatedTypes.Remove(root);
             var typesToValidate = new Queue<IEntityType>();
-            typesToValidate.Enqueue(firstValidatedType);
-            var unvalidatedTypes = new HashSet<IEntityType>(mappedTypes.Skip(1));
+            typesToValidate.Enqueue(root);
+
             while (typesToValidate.Count > 0)
             {
                 var entityType = typesToValidate.Dequeue();
                 var typesToValidateLeft = typesToValidate.Count;
-                var nextTypeSet = unvalidatedTypes.Where(
-                    unvalidatedType =>
-                        entityType.RootType() == unvalidatedType.RootType()
-                        || IsIdentifyingPrincipal(entityType, unvalidatedType)
-                        || IsIdentifyingPrincipal(unvalidatedType, entityType));
-                foreach (var nextEntityType in nextTypeSet)
+                var directlyConnectedTypes = unvalidatedTypes.Where(unvalidatedType =>
+                    entityType.IsAssignableFrom(unvalidatedType)
+                    || IsIdentifyingPrincipal(unvalidatedType, entityType));
+                foreach (var nextEntityType in directlyConnectedTypes)
                 {
                     var key = entityType.FindPrimaryKey();
                     var otherKey = nextEntityType.FindPrimaryKey();
@@ -240,41 +262,31 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     RelationalStrings.IncompatibleTableNoRelationship(
                         tableName,
                         invalidEntityType.DisplayName(),
-                        firstValidatedType.DisplayName(),
-                        Property.Format(invalidEntityType.FindPrimaryKey().Properties),
-                        Property.Format(firstValidatedType.FindPrimaryKey().Properties)));
+                        root.DisplayName()));
             }
         }
 
         private static bool IsIdentifyingPrincipal(IEntityType dependEntityType, IEntityType principalEntityType)
         {
-            var identifyingForeignKeys = new Queue<IForeignKey>(
-                dependEntityType.FindForeignKeys(dependEntityType.FindPrimaryKey().Properties));
-            while (identifyingForeignKeys.Count > 0)
+            foreach (var foreignKey in dependEntityType.FindForeignKeys(dependEntityType.FindPrimaryKey().Properties))
             {
-                var fk = identifyingForeignKeys.Dequeue();
-                if (fk.PrincipalKey.IsPrimaryKey())
+                if (!foreignKey.PrincipalKey.IsPrimaryKey()
+                    || foreignKey.PrincipalEntityType != principalEntityType)
                 {
-                    if (fk.PrincipalEntityType == principalEntityType)
-                    {
-                        if (principalEntityType.BaseType != null)
-                        {
-                            // #8973
-                            throw new InvalidOperationException(
-                                RelationalStrings.IncompatibleTableDerivedPrincipal(
-                                    dependEntityType.Relational().TableName,
-                                    dependEntityType.DisplayName(),
-                                    principalEntityType.DisplayName(),
-                                    principalEntityType.RootType().DisplayName()));
-                        }
-                        return true;
-                    }
-
-                    foreach (var principalFk in fk.PrincipalEntityType.FindForeignKeys(fk.PrincipalEntityType.FindPrimaryKey().Properties))
-                    {
-                        identifyingForeignKeys.Enqueue(principalFk);
-                    }
+                    continue;
                 }
+
+                if (principalEntityType.BaseType != null)
+                {
+                    // #8973
+                    throw new InvalidOperationException(
+                        RelationalStrings.IncompatibleTableDerivedPrincipal(
+                            dependEntityType.Relational().TableName,
+                            dependEntityType.DisplayName(),
+                            principalEntityType.DisplayName(),
+                            principalEntityType.RootType().DisplayName()));
+                }
+                return true;
             }
 
             return false;

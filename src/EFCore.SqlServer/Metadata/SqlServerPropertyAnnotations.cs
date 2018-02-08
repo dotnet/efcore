@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual string HiLoSequenceName
         {
-            get { return (string)Annotations.Metadata[SqlServerAnnotationNames.HiLoSequenceName]; }
-            [param: CanBeNull] set { SetHiLoSequenceName(value); }
+            get => (string)Annotations.Metadata[SqlServerAnnotationNames.HiLoSequenceName];
+            [param: CanBeNull] set => SetHiLoSequenceName(value);
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual string HiLoSequenceSchema
         {
-            get { return (string)Annotations.Metadata[SqlServerAnnotationNames.HiLoSequenceSchema]; }
-            [param: CanBeNull] set { SetHiLoSequenceSchema(value); }
+            get => (string)Annotations.Metadata[SqlServerAnnotationNames.HiLoSequenceSchema];
+            [param: CanBeNull] set => SetHiLoSequenceSchema(value);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (Property.ValueGenerated != ValueGenerated.OnAdd)
             {
-                var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTablePrincipalPrimaryKeyProperty();
+                var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
                 if (sharedTablePrincipalPrimaryKeyProperty != null
                     && sharedTablePrincipalPrimaryKeyProperty.SqlServer().ValueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn)
                 {

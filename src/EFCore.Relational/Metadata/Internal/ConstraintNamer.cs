@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string GetDefaultName([NotNull] IProperty property)
         {
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTablePrincipalPrimaryKeyProperty();
+            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return sharedTablePrincipalPrimaryKeyProperty.Relational().ColumnName;

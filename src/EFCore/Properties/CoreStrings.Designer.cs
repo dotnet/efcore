@@ -2288,6 +2288,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 GetString("IncompatiblePrincipalEntrySensitive", nameof(foreignKeyValues), nameof(dependentEntityType), nameof(keyValue), nameof(foundPrincipalEntityType), nameof(principalEntityType)),
                 foreignKeyValues, dependentEntityType, keyValue, foundPrincipalEntityType, principalEntityType);
 
+        /// <summary>
+        ///     The entity type '{entityType}' is part of a relationship cycle involving its primary key.
+        /// </summary>
+        public static string IdentifyingRelationshipCycle([CanBeNull] object entityType)
+            => string.Format(
+                GetString("IdentifyingRelationshipCycle", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

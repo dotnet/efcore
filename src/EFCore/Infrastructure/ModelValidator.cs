@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateNonNullPrimaryKeys(model);
             ValidateNoShadowKeys(model);
             ValidateNoMutableKeys(model);
+            ValidateNoCycles(model);
             ValidateClrInheritance(model);
             ValidateChangeTrackingStrategy(model);
             ValidateDefiningNavigations(model);
@@ -151,6 +152,49 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        protected virtual void ValidateNoCycles([NotNull] IModel model)
+        {
+            var unvalidatedEntityTypes = new HashSet<IEntityType>(model.GetEntityTypes());
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                var primaryKey = entityType.FindPrimaryKey();
+                if (primaryKey != null)
+                {
+                    var identifyingForeignKeys = new Queue<IForeignKey>(
+                        entityType.FindForeignKeys(primaryKey.Properties).Where(fk => fk.PrincipalEntityType != entityType));
+                    while (identifyingForeignKeys.Count > 0)
+                    {
+                        var fk = identifyingForeignKeys.Dequeue();
+                        if (!fk.PrincipalKey.IsPrimaryKey()
+                            || !unvalidatedEntityTypes.Contains(fk.PrincipalEntityType))
+                        {
+                            continue;
+                        }
+
+                        if (fk.PrincipalEntityType == entityType)
+                        {
+                            throw new InvalidOperationException(CoreStrings.IdentifyingRelationshipCycle(entityType.DisplayName()));
+                        }
+
+                        foreach (var principalFk in fk.PrincipalEntityType.FindForeignKeys(fk.PrincipalKey.Properties))
+                        {
+                            if (principalFk.PrincipalEntityType != principalFk.DeclaringEntityType)
+                            {
+                                identifyingForeignKeys.Enqueue(principalFk);
+                            }
+                        }
+                    }
+                }
+
+                unvalidatedEntityTypes.Remove(entityType);
+            }
+        }
+
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

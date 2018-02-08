@@ -84,12 +84,12 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.IncompatibleTableNoRelationship(
-                    "Schema.Table", entityB.DisplayName(), entityA.DisplayName(), "{'Id'}", "{'Id'}"),
+                    "Schema.Table", entityB.DisplayName(), entityA.DisplayName()),
                 model);
         }
 
         [Fact]
-        public virtual void Does_not_detect_duplicate_table_names_in_different_schema()
+        public virtual void Passes_for_duplicate_table_names_in_different_schema()
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Does_not_detect_duplicate_table_names_for_inherited_entities()
+        public virtual void Passes_for_duplicate_table_names_for_inherited_entities()
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.IncompatibleTableKeyNameMismatch(
-                    "Table", nameof(A), nameof(B), "Key", "{'Id'}", "PK_Table", "{'Id'}"),
+                    "Table", nameof(B), nameof(A), "PK_Table", "{'Id'}", "Key", "{'Id'}"),
                 modelBuilder.Model);
         }
 
@@ -164,6 +164,22 @@ namespace Microsoft.EntityFrameworkCore
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "default_int_mapping"), modelBuilder.Model);
+        }
+
+        [Fact]
+        public virtual void Detects_multiple_shared_table_roots()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+            modelBuilder.Entity<A>().ToTable("Table");
+            modelBuilder.Entity<A>().HasOne<C>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<C>(b => b.Id);
+            modelBuilder.Entity<C>().HasBaseType((string)null).ToTable("Table");
+            modelBuilder.Entity<B>().ToTable("Table");
+
+            VerifyError(
+                RelationalStrings.IncompatibleTableNoRelationship("Table", nameof(C), nameof(B)),
+                modelBuilder.Model);
         }
 
         [Fact] // #8973
@@ -814,10 +830,6 @@ namespace Microsoft.EntityFrameworkCore
             entityType.Relational().DiscriminatorValue = entityType.Name;
         }
 
-        protected class C : A
-        {
-        }
-
         protected class Animal
         {
             public int Id { get; set; }
@@ -873,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
                         TestServiceFactory.Instance.Create<TestRelationalTypeMapper>())));
 
-        protected virtual ModelBuilder CreateConventionalModelBuilder()
+        protected override ModelBuilder CreateConventionalModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
     }
 }
