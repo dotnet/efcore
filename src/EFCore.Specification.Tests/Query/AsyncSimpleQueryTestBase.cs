@@ -56,6 +56,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual async Task ToList_context_subquery_deadlock_issue()
+        {
+            using (var context = CreateContext())
+            {
+                var results = await context.Customers
+                    .Select(
+                        c => new
+                        {
+                            c.CustomerID,
+                            Posts = context.Orders.Where(o => o.CustomerID == c.CustomerID)
+                                .Select(
+                                    m => new
+                                    {
+                                        m.CustomerID
+                                    })
+                                    .ToList()
+                        })
+                    .ToListAsync();
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Query_with_nav()
         {
             await AssertQuery<OrderQuery>(ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
