@@ -110,6 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         // DBNETLIB Error Code: 20
                         // The instance of SQL Server you attempted to connect to does not support encryption.
                         case 20:
+                        // SQL Error Code: 2
+                        // A network-related or instance-specific error occurred while establishing a connection to SQL Server.
+                        // The server was not found or was not accessible. Verify that the instance name is correct and that SQL Server is configured to allow remote connections.
+                        case 2:
                             return true;
                             // This exception can be thrown even if the operation completed succesfully, so it's safer to let the application fail.
                             // DBNETLIB Error Code: -2
