@@ -44,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             var targetClrType = mappingInfo.TargetClrType;
 
-            if (_namedClrMappings.TryGetValue(targetClrType.FullName, out var mappingFunc))
+            if (targetClrType != null
+                && _namedClrMappings.TryGetValue(targetClrType.FullName, out var mappingFunc))
             {
                 return mappingFunc(targetClrType);
             }

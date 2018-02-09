@@ -4,13 +4,16 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using ScaffoldingAnnotationNames = Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal.ScaffoldingAnnotationNames;
 
@@ -18,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class RelationalDatabaseModelFactoryTest
     {
-        private readonly FakeScaffoldingModelFactory _factory;
+        private readonly IScaffoldingModelFactory _factory;
         private readonly TestOperationReporter _reporter;
 
         private static DatabaseColumn IdColumn => new DatabaseColumn
@@ -39,7 +42,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             _reporter = new TestOperationReporter();
 
-            _factory = new FakeScaffoldingModelFactory(_reporter);
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices(_reporter)
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+
+            _factory = services
+                .BuildServiceProvider()
+                .GetRequiredService<IScaffoldingModelFactory>();
         }
 
         [Fact]
@@ -74,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
             };
-            var model = _factory.Create(info);
+            var model = _factory.Create(info, false);
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 table =>
@@ -118,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
             };
-            var model = _factory.Create(info);
+            var model = _factory.Create(info, false);
             Assert.Equal(2, model.GetEntityTypes().Select(et => et.Name).Distinct(StringComparer.OrdinalIgnoreCase).Count());
         }
 
@@ -172,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var entityType = (EntityType)_factory.Create(info).FindEntityType("Jobs");
+            var entityType = (EntityType)_factory.Create(info, false).FindEntityType("Jobs");
 
             Assert.Collection(
                 entityType.GetProperties(),
@@ -337,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var property = (Property)_factory.Create(info).FindEntityType("A").FindProperty("Col");
+            var property = (Property)_factory.Create(info, false).FindEntityType("A").FindProperty("Col");
 
             Assert.Equal(expectedColumnType, property.Relational().ColumnType);
         }
@@ -382,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var entityTypeA = _factory.Create(info).FindEntityType("A");
+            var entityTypeA = _factory.Create(info, false).FindEntityType("A");
             var property1 = (Property)entityTypeA.FindProperty("Col1");
             var property2 = (Property)entityTypeA.FindProperty("Col2");
             var property3 = (Property)entityTypeA.FindProperty("Col3");
@@ -422,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
                         StoreType = StoreType
                     });
 
-            Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
+            Assert.Single(_factory.Create(info, false).FindEntityType("E").GetProperties());
             Assert.Single(_reporter.Messages, t => t.Contains(DesignStrings.CannotFindTypeMappingForColumn("E.Coli", StoreType)));
         }
 
@@ -453,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore
                 info.Tables[0].Columns.Add(column);
                 info.Tables[0].PrimaryKey.Columns.Add(column);
             }
-            var model = (EntityType)_factory.Create(info).GetEntityTypes().Single();
+            var model = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
             Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
         }
@@ -542,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var entityType = (EntityType)_factory.Create(info).GetEntityTypes().Single();
+            var entityType = (EntityType)_factory.Create(info, false).GetEntityTypes().Single();
 
             Assert.Collection(
                 entityType.GetIndexes(),
@@ -625,7 +635,8 @@ namespace Microsoft.EntityFrameworkCore
                         parentTable,
                         childrenTable
                     }
-                });
+                },
+                false);
 
             var parent = (EntityType)model.FindEntityType("Parent");
 
@@ -688,7 +699,8 @@ namespace Microsoft.EntityFrameworkCore
                         parentTable,
                         childrenTable
                     }
-                });
+                },
+                false);
 
             var children = (EntityType)model.FindEntityType("Children");
 
@@ -773,7 +785,8 @@ namespace Microsoft.EntityFrameworkCore
                         parentTable,
                         childrenTable
                     }
-                });
+                },
+                false);
 
             var parent = (EntityType)model.FindEntityType("Parent");
 
@@ -833,7 +846,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         table
                     }
-                });
+                },
+                false);
             var list = model.FindEntityType("ItemsList");
 
             Assert.NotEmpty(list.GetReferencingForeignKeys());
@@ -898,7 +912,8 @@ namespace Microsoft.EntityFrameworkCore
                         parentTable,
                         childrenTable
                     }
-                });
+                },
+                false);
 
             Assert.Single(
                 _reporter.Messages, t => t.Contains(
@@ -956,7 +971,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         table
                     }
-                }).FindEntityType("Friends");
+                },
+                false).FindEntityType("Friends");
 
             var buddyIdProperty = model.FindProperty("BuddyId");
             Assert.NotNull(buddyIdProperty);
@@ -1019,7 +1035,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         table
                     }
-                }).FindEntityType("Friends");
+                },
+                false).FindEntityType("Friends");
 
             var buddyIdProperty = model.FindProperty("BuddyId");
             Assert.NotNull(buddyIdProperty);
@@ -1122,7 +1139,8 @@ namespace Microsoft.EntityFrameworkCore
                         parentTable,
                         childrenTable
                     }
-                });
+                },
+                false);
             var parent = model.FindEntityType("Parent");
             var children = model.FindEntityType("Children");
 
@@ -1170,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(info);
+            var model = _factory.Create(info, false);
 
             Assert.Collection(
                 model.GetEntityTypes().Cast<EntityType>(),
@@ -1217,7 +1235,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = (Model)_factory.Create(info);
+            var model = (Model)_factory.Create(info, false);
 
             Assert.Collection(
                 model.Relational().Sequences, first =>
@@ -1251,7 +1269,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(info);
+            var model = _factory.Create(info, false);
             Assert.Equal("Blog", model.GetEntityTypes().Single().Scaffolding().DbSetName);
         }
 
@@ -1283,11 +1301,17 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var factory = new FakeScaffoldingModelFactory(
-                new TestOperationReporter(),
-                new FakePluralizer());
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices(_reporter)
+                .AddSingleton<IPluralizer, FakePluralizer>()
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
-            var model = factory.Create(info);
+            var factory = services
+                .BuildServiceProvider()
+                .GetRequiredService<IScaffoldingModelFactory>();
+
+            var model = factory.Create(info, false);
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1377,11 +1401,17 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var factory = new FakeScaffoldingModelFactory(
-                new TestOperationReporter(),
-                new FakePluralizer());
+            var services = new ServiceCollection()
+                .AddEntityFrameworkDesignTimeServices(_reporter)
+                .AddSingleton<IPluralizer, FakePluralizer>()
+                .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>();
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
-            var model = factory.Create(info);
+            var factory = services
+                .BuildServiceProvider()
+                .GetRequiredService<IScaffoldingModelFactory>();
+
+            var model = factory.Create(info, false);
 
             Assert.Collection(
                 model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
@@ -1430,7 +1460,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(dbModel);
+            var model = _factory.Create(dbModel, false);
 
             var columns = model.FindEntityType("Table").GetProperties().ToList();
 
@@ -1467,7 +1497,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(dbModel);
+            var model = _factory.Create(dbModel, false);
 
             var columns = model.FindEntityType("Table").GetProperties().ToList();
 
@@ -1605,7 +1635,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             };
 
-            var model = _factory.Create(dbModel);
+            var model = _factory.Create(dbModel, false);
 
             Assert.Null(model.FindEntityType("Principal").FindProperty("PrimaryKey").Relational().ColumnType);
             Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").Relational().ColumnType);

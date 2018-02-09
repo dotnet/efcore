@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -69,6 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
                 .AddSingleton(reporter)
                 .AddSingleton<IPluralizer, NullPluralizer>()
+                .AddSingleton<IRelationalCoreTypeMapper, FallbackRelationalCoreTypeMapper>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()

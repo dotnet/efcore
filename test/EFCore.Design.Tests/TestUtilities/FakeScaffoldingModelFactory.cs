@@ -6,14 +6,22 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
-        public override IModel Create(DatabaseModel databaseModel, bool useDatabaseNames = false)
+        public FakeScaffoldingModelFactory(
+            IOperationReporter reporter,
+            ICandidateNamingService candidateNamingService,
+            IPluralizer pluralizer,
+            ICSharpUtilities cSharpUtilities,
+            IScaffoldingTypeMapper scaffoldingTypeMapper)
+            : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper)
+        {
+        }
+
+        public override IModel Create(DatabaseModel databaseModel, bool useDatabaseNames)
         {
             foreach (var sequence in databaseModel.Sequences)
             {
@@ -51,28 +59,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             return base.Create(databaseModel, useDatabaseNames);
-        }
-
-        public FakeScaffoldingModelFactory(
-            IOperationReporter reporter)
-            : this(reporter, new NullPluralizer())
-        {
-        }
-
-        public FakeScaffoldingModelFactory(
-            IOperationReporter reporter,
-            IPluralizer pluralizer)
-            : base(
-                reporter,
-                new CandidateNamingService(),
-                pluralizer,
-                new CSharpUtilities(),
-                new ScaffoldingTypeMapper(
-                    new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())))
-        {
         }
     }
 }
