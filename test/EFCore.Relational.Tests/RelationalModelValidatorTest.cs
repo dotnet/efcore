@@ -203,8 +203,19 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
+
             modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().ToTable("Table");
+            modelBuilder.Entity<B>(b =>
+            {
+                b.ToTable("Table");
+                b.Property(bb => bb.Id)
+                    .HasColumnName("Key")
+                    .HasColumnType("someInt")
+                    .HasDefaultValueSql("NEXT value");
+
+                b.HasKey(bb => bb.Id)
+                    .HasName("Key");
+            });
 
             Validate(modelBuilder.Model);
         }

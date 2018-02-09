@@ -96,8 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(1, propertyBuilder.Metadata.Relational().DefaultValue);
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
             Assert.Equal("2", propertyBuilder.Metadata.Relational().DefaultValueSql);
+            Assert.Null(propertyBuilder.Metadata.Relational().DefaultValue);
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasComputedColumnSql("3"));
             Assert.Equal("3", propertyBuilder.Metadata.Relational().ComputedColumnSql);
+            Assert.Null(propertyBuilder.Metadata.Relational().DefaultValueSql);
 
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName("Splow"));
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splod"));
@@ -108,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValue(0));
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValue(1));
             Assert.Equal(0, propertyBuilder.Metadata.Relational().DefaultValue);
+            Assert.Null(propertyBuilder.Metadata.Relational().ComputedColumnSql);
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasDefaultValueSql("NULL"));
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasDefaultValueSql("2"));
             Assert.Equal("NULL", propertyBuilder.Metadata.Relational().DefaultValueSql);

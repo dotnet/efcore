@@ -104,8 +104,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual string ColumnType
         {
-            get => (string)Annotations.Metadata[RelationalAnnotationNames.ColumnType]
-                   ?? Property.FindRelationalMapping()?.StoreType;
+            get
+            {
+                var columnType = (string)Annotations.Metadata[RelationalAnnotationNames.ColumnType];
+                if (columnType != null)
+                {
+                    return columnType;
+                }
+
+                var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
+                return sharedTablePrincipalPrimaryKeyProperty != null
+                    ? sharedTablePrincipalPrimaryKeyProperty.Relational().ColumnType
+                    : Property.FindRelationalMapping()?.StoreType;
+            }
 
             [param: CanBeNull] set => SetColumnType(value);
         }
@@ -139,11 +150,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The default constraint SQL expression that should be used when creating a column for this property. </returns>
         protected virtual string GetDefaultValueSql(bool fallback)
-            => fallback
-               && (GetDefaultValue(false) != null
-                   || GetComputedColumnSql(false) != null)
-                ? null
+        {
+            if (fallback
+                && (GetDefaultValue(false) != null
+                    || GetComputedColumnSql(false) != null))
+            {
+                return null;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
+            return sharedTablePrincipalPrimaryKeyProperty != null
+                ? ((RelationalPropertyAnnotations)sharedTablePrincipalPrimaryKeyProperty.Relational()).GetDefaultValueSql(fallback)
                 : (string)Annotations.Metadata[RelationalAnnotationNames.DefaultValueSql];
+        }
 
         /// <summary>
         ///     Attempts to set the <see cref="DefaultValueSql" /> using the semantics of
@@ -235,11 +254,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The computed constraint SQL expression that should be used when creating a column for this property. </returns>
         protected virtual string GetComputedColumnSql(bool fallback)
-            => fallback
-               && (GetDefaultValue(false) != null
-                   || GetDefaultValueSql(false) != null)
-                ? null
+        {
+            if (fallback
+                && (GetDefaultValue(false) != null
+                    || GetDefaultValueSql(false) != null))
+            {
+                return null;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
+            return sharedTablePrincipalPrimaryKeyProperty != null
+                ? ((RelationalPropertyAnnotations)sharedTablePrincipalPrimaryKeyProperty.Relational()).GetComputedColumnSql(fallback)
                 : (string)Annotations.Metadata[RelationalAnnotationNames.ComputedColumnSql];
+        }
 
         /// <summary>
         ///     Attempts to set the <see cref="ComputedColumnSql" /> using the semantics of
@@ -331,11 +358,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The default value to use in the definition of the column when creating a column for this property. </returns>
         protected virtual object GetDefaultValue(bool fallback)
-            => fallback
-               && (GetDefaultValueSql(false) != null
-                   || GetComputedColumnSql(false) != null)
-                ? null
+        {
+            if (fallback
+                && (GetDefaultValueSql(false) != null
+                    || GetComputedColumnSql(false) != null))
+            {
+                return null;
+            }
+
+            var sharedTablePrincipalPrimaryKeyProperty = Property.FindSharedTableRootPrimaryKeyProperty();
+            return sharedTablePrincipalPrimaryKeyProperty != null
+                ? ((RelationalPropertyAnnotations)sharedTablePrincipalPrimaryKeyProperty.Relational()).GetDefaultValue(fallback)
                 : Annotations.Metadata[RelationalAnnotationNames.DefaultValue];
+        }
 
         /// <summary>
         ///     Attempts to set the <see cref="DefaultValue" /> using the semantics of

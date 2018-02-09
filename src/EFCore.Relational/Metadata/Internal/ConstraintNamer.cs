@@ -53,6 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string GetDefaultName([NotNull] IKey key)
         {
+            var sharedTablePrincipalPrimaryKeyProperty = key.Properties[0].FindSharedTableRootPrimaryKeyProperty();
+            if (sharedTablePrincipalPrimaryKeyProperty != null)
+            {
+                return sharedTablePrincipalPrimaryKeyProperty.GetContainingPrimaryKey().Relational().Name;
+            }
+
             var builder = new StringBuilder();
             var tableName = key.DeclaringEntityType.Relational().TableName;
 
