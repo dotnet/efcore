@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && (newProperty.GetConfigurationSource().Overrides(configurationSource)
                     || newProperty.GetTypeConfigurationSource().Overrides(typeConfigurationSource)
                     || (Metadata.ClrType == newProperty.ClrType
-                        && Metadata.PropertyInfo?.Name == newProperty.PropertyInfo?.Name)))
+                        && Metadata.GetIdentifyingMemberInfo()?.Name == newProperty.GetIdentifyingMemberInfo()?.Name)))
             {
                 newPropertyBuilder = newProperty.Builder;
                 newProperty.UpdateConfigurationSource(configurationSource);
@@ -302,9 +302,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                newPropertyBuilder = Metadata.PropertyInfo == null
+                newPropertyBuilder = Metadata.GetIdentifyingMemberInfo() == null
                     ? entityTypeBuilder.Property(Metadata.Name, Metadata.ClrType, configurationSource, Metadata.GetTypeConfigurationSource())
-                    : entityTypeBuilder.Property(Metadata.PropertyInfo, configurationSource);
+                    : entityTypeBuilder.Property(Metadata.GetIdentifyingMemberInfo(), configurationSource);
             }
 
             if (newProperty == Metadata)

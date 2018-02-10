@@ -1252,9 +1252,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     diagnostics,
                     warningBehavior,
                     firstNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                    firstNavigation.PropertyInfo.Name,
+                    firstNavigation.GetIdentifyingMemberInfo().Name,
                     secondNavigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                    secondNavigation.PropertyInfo.Name,
+                    secondNavigation.GetIdentifyingMemberInfo().Name,
                     firstProperty.Name,
                     secondProperty.Name);
             }
@@ -1268,12 +1268,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         ForeignKeyAttributesOnBothProperties,
                         new[]
                         {
-                            new Tuple<MemberInfo, Type>(firstNavigation.PropertyInfo, firstNavigation.DeclaringEntityType.ClrType),
+                            new Tuple<MemberInfo, Type>(firstNavigation.GetIdentifyingMemberInfo(), firstNavigation.DeclaringEntityType.ClrType),
                             new Tuple<MemberInfo, Type>(firstProperty, firstNavigation.DeclaringEntityType.ClrType)
                         },
                         new[]
                         {
-                            new Tuple<MemberInfo, Type>(secondNavigation.PropertyInfo, secondNavigation.DeclaringEntityType.ClrType),
+                            new Tuple<MemberInfo, Type>(secondNavigation.GetIdentifyingMemberInfo(), secondNavigation.DeclaringEntityType.ClrType),
                             new Tuple<MemberInfo, Type>(secondProperty, secondNavigation.DeclaringEntityType.ClrType)
                         }));
             }
@@ -1362,7 +1362,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     diagnostics,
                     warningBehavior,
                     navigation.DeclaringEntityType.ClrType.ShortDisplayName(),
-                    navigation.PropertyInfo.Name,
+                    navigation.GetIdentifyingMemberInfo()?.Name,
                     property.DeclaringType.ShortDisplayName(),
                     property.Name);
             }
@@ -1374,7 +1374,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
                         ConflictingForeignKeyAttributesOnNavigationAndProperty,
-                        new[] { new Tuple<MemberInfo, Type>(navigation.PropertyInfo, navigation.DeclaringEntityType.ClrType) },
+                        new[] { new Tuple<MemberInfo, Type>(navigation.GetIdentifyingMemberInfo(), navigation.DeclaringEntityType.ClrType) },
                         new[] { new Tuple<MemberInfo, Type>(property, property.DeclaringType) }));
             }
         }

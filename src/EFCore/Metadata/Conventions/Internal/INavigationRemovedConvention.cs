@@ -21,6 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] InternalEntityTypeBuilder sourceEntityTypeBuilder,
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [NotNull] string navigationName,
-            [CanBeNull] PropertyInfo propertyInfo);
+            [CanBeNull] MemberInfo memberInfo);
     }
 }

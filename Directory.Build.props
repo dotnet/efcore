@@ -16,7 +16,6 @@
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
     <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
-    <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>

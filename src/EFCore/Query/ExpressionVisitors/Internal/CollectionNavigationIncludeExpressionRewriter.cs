@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             Expression memberExpression = parameter;
             foreach (var navigation in navigations)
             {
-                memberExpression = memberExpression.MakeMemberAccess(navigation.PropertyInfo);
+                memberExpression = memberExpression.MakeMemberAccess(navigation.GetIdentifyingMemberInfo());
                 result = new NullConditionalExpression(result, memberExpression);
             }
 

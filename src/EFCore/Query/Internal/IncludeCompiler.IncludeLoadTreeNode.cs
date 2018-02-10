@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     = new MainFromClause(
                         targetType.Name.Substring(0, 1).ToLowerInvariant(),
                         targetType,
-                        targetExpression.CreateEFPropertyExpression(Navigation.PropertyInfo));
+                        targetExpression.CreateEFPropertyExpression(Navigation.GetIdentifyingMemberInfo()));
 
                 queryCompilationContext.AddQuerySourceRequiringMaterialization(mainFromClause);
 
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (asyncQuery)
                 {
-                    var asyncEnumerableType 
+                    var asyncEnumerableType
                         = typeof(IAsyncEnumerable<>).MakeGenericType(targetType);
 
                     collectionLambdaExpression
@@ -232,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     primaryKeyProperties.Zip(foreignKeyProperties,
                             (pk, fk) =>
                             {
-                                Expression pkMemberAccess 
+                                Expression pkMemberAccess
                                     = Expression.MakeMemberAccess(
                                         targetEntityParameter,
                                         pk.GetMemberInfo(forConstruction: false, forSet: false));
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     = Expression.MakeMemberAccess(
                                         relatedEntityParameter,
                                         fk.GetMemberInfo(forConstruction: false, forSet: false));
-                                
+
                                 if (pkMemberAccess.Type != fkMemberAccess.Type)
                                 {
                                     if (pkMemberAccess.Type.IsNullableType())
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         pkMemberAccess = Expression.Convert(pkMemberAccess, fkMemberAccess.Type);
                                     }
                                 }
-                                
+
                                 Expression equalityExpression;
 
                                 if (typeof(IStructuralEquatable).GetTypeInfo()

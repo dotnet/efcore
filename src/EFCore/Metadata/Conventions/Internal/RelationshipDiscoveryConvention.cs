@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             InternalEntityTypeBuilder sourceEntityTypeBuilder,
             InternalEntityTypeBuilder targetEntityTypeBuilder,
             string navigationName,
-            PropertyInfo propertyInfo)
+            MemberInfo propertyInfo)
         {
             sourceEntityTypeBuilder = sourceEntityTypeBuilder.Metadata.Builder;
             if (!IsCandidateNavigationProperty(sourceEntityTypeBuilder, navigationName, propertyInfo))
@@ -672,7 +672,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return Apply(sourceEntityTypeBuilder.Metadata, propertyInfo);
         }
 
-        private bool Apply(EntityType entityType, PropertyInfo navigationProperty)
+        private bool Apply(EntityType entityType, MemberInfo navigationProperty)
         {
             DiscoverRelationships(entityType.Builder);
             if (entityType.FindNavigation(navigationProperty.Name) != null)
@@ -695,7 +695,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         [ContractAnnotation("propertyInfo:null => false")]
         private static bool IsCandidateNavigationProperty(
-            InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, PropertyInfo propertyInfo)
+            InternalEntityTypeBuilder sourceEntityTypeBuilder, string navigationName, MemberInfo propertyInfo)
         {
             if (propertyInfo == null)
             {
@@ -741,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     continue;
                 }
 
-                KeyValuePair<PropertyInfo, Type>? ambigousNavigation = null;
+                KeyValuePair<MemberInfo, Type>? ambigousNavigation = null;
                 foreach (var navigation in ambigousNavigations)
                 {
                     if (navigation.Key.Name == ignoredMemberName)
@@ -814,7 +814,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigationCandidates;
             }
 
-            var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(PropertyInfoNameComparer.Instance);
+            var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
             if (entityType.HasClrType())
             {
                 foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
@@ -836,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
             => entityTypeBuilder.HasAnnotation(NavigationCandidatesAnnotationName, navigationCandidates, ConfigurationSource.Convention);
 
-        private static bool IsAmbiguous(EntityType entityType, PropertyInfo navigationProperty)
+        private static bool IsAmbiguous(EntityType entityType, MemberInfo navigationProperty)
         {
             while (entityType != null)
             {
@@ -879,16 +879,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return false;
         }
 
-        private static ImmutableSortedDictionary<PropertyInfo, Type> GetAmbigousNavigations(EntityType entityType)
+        private static ImmutableSortedDictionary<MemberInfo, Type> GetAmbigousNavigations(EntityType entityType)
             => entityType.FindAnnotation(AmbiguousNavigationsAnnotationName)?.Value
-                as ImmutableSortedDictionary<PropertyInfo, Type>;
+                as ImmutableSortedDictionary<MemberInfo, Type>;
 
         private static void AddAmbiguous(
             InternalEntityTypeBuilder entityTypeBuilder, IEnumerable<PropertyInfo> navigationProperties, Type targetType)
         {
             var newAmbiguousNavigations = ImmutableSortedDictionary.CreateRange(
-                PropertyInfoNameComparer.Instance,
-                navigationProperties.Select(n => new KeyValuePair<PropertyInfo, Type>(n, targetType)));
+                MemberInfoNameComparer.Instance,
+                navigationProperties.Select(n => new KeyValuePair<MemberInfo, Type>(n, targetType)));
 
             var currentAmbiguousNavigations = GetAmbigousNavigations(entityTypeBuilder.Metadata);
             if (currentAmbiguousNavigations != null)
@@ -925,18 +925,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private static void SetAmbigousNavigations(
             InternalEntityTypeBuilder entityTypeBuilder,
-            ImmutableSortedDictionary<PropertyInfo, Type> ambiguousNavigations)
+            ImmutableSortedDictionary<MemberInfo, Type> ambiguousNavigations)
             => entityTypeBuilder.HasAnnotation(AmbiguousNavigationsAnnotationName, ambiguousNavigations, ConfigurationSource.Convention);
 
-        private class PropertyInfoNameComparer : IComparer<PropertyInfo>
+        private class MemberInfoNameComparer : IComparer<MemberInfo>
         {
-            public static readonly PropertyInfoNameComparer Instance = new PropertyInfoNameComparer();
+            public static readonly MemberInfoNameComparer Instance = new MemberInfoNameComparer();
 
-            private PropertyInfoNameComparer()
+            private MemberInfoNameComparer()
             {
             }
 
-            public int Compare(PropertyInfo x, PropertyInfo y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
+            public int Compare(MemberInfo x, MemberInfo y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
         private class RelationshipCandidate

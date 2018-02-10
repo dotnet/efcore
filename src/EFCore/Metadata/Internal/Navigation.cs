@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public override Type ClrType => PropertyInfo?.PropertyType ?? typeof(object);
+        public override Type ClrType => this.GetIdentifyingMemberInfo()?.GetMemberType() ?? typeof(object);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -78,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public static PropertyInfo GetClrProperty(
+        public static MemberInfo GetClrMember(
             [NotNull] string navigationName,
             [NotNull] EntityType sourceType,
             [NotNull] EntityType targetType,
             bool shouldThrow)
         {
             var sourceClrType = sourceType.ClrType;
-            var navigationProperty = sourceClrType?.GetPropertiesInHierarchy(navigationName).FirstOrDefault();
+            var navigationProperty = sourceClrType?.GetMembersInHierarchy(navigationName).FirstOrDefault();
             if (!IsCompatible(navigationName, navigationProperty, sourceType, targetType, null, shouldThrow))
             {
                 return null;
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsCompatible(
             [NotNull] string navigationName,
-            [CanBeNull] PropertyInfo navigationProperty,
+            [CanBeNull] MemberInfo navigationProperty,
             [NotNull] EntityType sourceType,
             [NotNull] EntityType targetType,
             bool? shouldBeCollection,
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static bool IsCompatible(
-            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] MemberInfo navigationProperty,
             [NotNull] Type sourceClrType,
             [NotNull] Type targetClrType,
             bool? shouldBeCollection,
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var navigationTargetClrType = navigationProperty.PropertyType.TryGetSequenceType();
+            var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
             if (shouldBeCollection == false
                 || navigationTargetClrType == null
                 || !navigationTargetClrType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
@@ -156,13 +156,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             CoreStrings.NavigationCollectionWrongClrType(
                                 navigationProperty.Name,
                                 sourceClrType.ShortDisplayName(),
-                                navigationProperty.PropertyType.ShortDisplayName(),
+                                navigationProperty.GetMemberType().ShortDisplayName(),
                                 targetClrType.ShortDisplayName()));
                     }
                     return false;
                 }
 
-                if (!navigationProperty.PropertyType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                if (!navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
                 {
                     if (shouldThrow)
                     {
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             CoreStrings.NavigationSingleWrongClrType(
                                 navigationProperty.Name,
                                 sourceClrType.ShortDisplayName(),
-                                navigationProperty.PropertyType.ShortDisplayName(),
+                                navigationProperty.GetMemberType().ShortDisplayName(),
                                 targetClrType.ShortDisplayName()));
                     }
                     return false;

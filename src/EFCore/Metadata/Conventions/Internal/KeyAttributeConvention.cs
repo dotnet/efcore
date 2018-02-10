@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 {
                     foreach (var declaredProperty in entityType.GetDeclaredProperties())
                     {
-                        var memberInfo = declaredProperty.MemberInfo;
+                        var memberInfo = declaredProperty.GetIdentifyingMemberInfo();
                         var attributes = memberInfo?.GetCustomAttributes<KeyAttribute>(true);
                         if (attributes?.Any() == true)
                         {

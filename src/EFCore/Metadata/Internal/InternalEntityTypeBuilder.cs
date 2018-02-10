@@ -340,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (existingProperty.DeclaringEntityType != Metadata)
                 {
                     if (memberInfo != null
-                        && existingProperty.MemberInfo == null)
+                        && existingProperty.GetIdentifyingMemberInfo() == null)
                     {
                         propertiesToDetach = new[] { existingProperty };
                     }
@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if ((propertyType != null
                      && propertyType != existingProperty.ClrType)
                     || (clrProperty != null
-                        && existingProperty.PropertyInfo == null))
+                        && existingProperty.GetIdentifyingMemberInfo() == null))
                 {
                     if (!configurationSource.HasValue
                         || !configurationSource.Value.Overrides(existingProperty.GetConfigurationSource()))
@@ -1495,8 +1495,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
-            [CanBeNull] PropertyInfo navigationToTarget,
-            [CanBeNull] PropertyInfo inverseNavigation,
+            [CanBeNull] MemberInfo navigationToTarget,
+            [CanBeNull] MemberInfo inverseNavigation,
             ConfigurationSource configurationSource,
             bool setTargetAsPrincipal = false)
             => Relationship(
@@ -1523,7 +1523,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigationProperty = navigationToTarget?.Property;
             if (inverseNavigation == null
                 && navigationProperty != null
-                && !navigationProperty.PropertyType.GetTypeInfo().IsAssignableFrom(
+                && !navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(
                     targetEntityTypeBuilder.Metadata.ClrType.GetTypeInfo()))
             {
                 // Only one nav specified and it can't be the nav to principal
@@ -1863,8 +1863,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Owns(
             [NotNull] Type targetEntityType,
-            [NotNull] PropertyInfo navigationProperty,
-            [CanBeNull] PropertyInfo inverseProperty,
+            [NotNull] MemberInfo navigationProperty,
+            [CanBeNull] MemberInfo inverseProperty,
             ConfigurationSource configurationSource)
             => Owns(
                 new TypeIdentity(targetEntityType),
@@ -2314,7 +2314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : Metadata.FindProperty(property.Name)?.Builder
                       ?? (property.IsShadowProperty
                           ? null
-                          : Property(property.Name, property.ClrType, property.PropertyInfo, configurationSource, property.GetTypeConfigurationSource()));
+                          : Property(property.Name, property.ClrType, property.GetIdentifyingMemberInfo(), configurationSource, property.GetTypeConfigurationSource()));
                 if (builder == null)
                 {
                     return null;

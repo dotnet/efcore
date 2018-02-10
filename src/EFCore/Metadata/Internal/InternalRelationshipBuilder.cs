@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder DependentToPrincipal(
-            [CanBeNull] PropertyInfo property,
+            [CanBeNull] MemberInfo property,
             ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(property),
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder PrincipalToDependent(
-            [CanBeNull] PropertyInfo property,
+            [CanBeNull] MemberInfo property,
             ConfigurationSource configurationSource)
             => Navigations(
                 null,
@@ -97,8 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-            [CanBeNull] PropertyInfo navigationToPrincipalProperty,
-            [CanBeNull] PropertyInfo navigationToDependentProperty,
+            [CanBeNull] MemberInfo navigationToPrincipalProperty,
+            [CanBeNull] MemberInfo navigationToDependentProperty,
             ConfigurationSource configurationSource)
             => Navigations(
                 PropertyIdentity.Create(navigationToPrincipalProperty),
@@ -142,8 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual InternalRelationshipBuilder Navigations(
-            [CanBeNull] PropertyInfo navigationToPrincipalProperty,
-            [CanBeNull] PropertyInfo navigationToDependentProperty,
+            [CanBeNull] MemberInfo navigationToPrincipalProperty,
+            [CanBeNull] MemberInfo navigationToDependentProperty,
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
             ConfigurationSource configurationSource)
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && navigationToPrincipal.Value.Property == null
                 && dependentEntityType.HasClrType())
             {
-                var navigationProperty = Navigation.GetClrProperty(navigationToPrincipalName, dependentEntityType, principalEntityType, shouldThrow);
+                var navigationProperty = Navigation.GetClrMember(navigationToPrincipalName, dependentEntityType, principalEntityType, shouldThrow);
                 if (navigationProperty != null)
                 {
                     navigationToPrincipal = PropertyIdentity.Create(navigationProperty);
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && navigationToDependent.Value.Property == null
                 && principalEntityType.HasClrType())
             {
-                var navigationProperty = Navigation.GetClrProperty(navigationToDependentName, principalEntityType, dependentEntityType, shouldThrow);
+                var navigationProperty = Navigation.GetClrMember(navigationToDependentName, principalEntityType, dependentEntityType, shouldThrow);
                 if (navigationProperty != null)
                 {
                     navigationToDependent = PropertyIdentity.Create(navigationProperty);
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                var navigationProperty = Navigation.GetClrProperty(
+                var navigationProperty = Navigation.GetClrMember(
                     navigationName,
                     sourceType,
                     pointsToPrincipal ? Metadata.PrincipalEntityType : Metadata.DeclaringEntityType,
@@ -688,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static bool IsCompatible(
-            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] MemberInfo navigationProperty,
             bool pointsToPrincipal,
             [NotNull] Type dependentType,
             [NotNull] Type principalType,
@@ -1090,7 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (Metadata.PrincipalToDependent != null
                 && !Metadata.PrincipalToDependent.IsShadowProperty
                 && !Navigation.IsCompatible(
-                    Metadata.PrincipalToDependent.PropertyInfo,
+                    Metadata.PrincipalToDependent.GetIdentifyingMemberInfo(),
                     Metadata.PrincipalEntityType.ClrType,
                     Metadata.DeclaringEntityType.ClrType,
                     !unique,
@@ -2824,8 +2824,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [CanBeNull] PropertyInfo navigationToPrincipal,
-            [CanBeNull] PropertyInfo navigationToDependent,
+            [CanBeNull] MemberInfo navigationToPrincipal,
+            [CanBeNull] MemberInfo navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
@@ -3008,7 +3008,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 bool? invertedShouldBeUnique = null;
-                var navigationToPrincipalProperty = Metadata.DependentToPrincipal?.PropertyInfo;
+                var navigationToPrincipalProperty = Metadata.DependentToPrincipal?.GetIdentifyingMemberInfo();
                 if (navigationToPrincipalProperty != null
                     && !IsCompatible(
                         navigationToPrincipalProperty,
@@ -3062,7 +3062,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 bool? toDependentShouldBeUnique = null;
-                var navigationToDependentProperty = Metadata.PrincipalToDependent?.PropertyInfo;
+                var navigationToDependentProperty = Metadata.PrincipalToDependent?.GetIdentifyingMemberInfo();
                 if (navigationToDependentProperty != null
                     && !IsCompatible(
                         navigationToDependentProperty,

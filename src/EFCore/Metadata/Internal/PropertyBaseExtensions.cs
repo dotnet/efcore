@@ -90,6 +90,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        // Note: only use this to find the property/field that defines the property in the model. Use
+        // GetMemberInfo to get the property/field to use, which may be different.
+        public static MemberInfo GetIdentifyingMemberInfo(
+            [NotNull] this IPropertyBase propertyBase)
+            => propertyBase.PropertyInfo ?? (MemberInfo)propertyBase.FieldInfo;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public static MemberInfo GetMemberInfo(
             [NotNull] this IPropertyBase propertyBase,
             bool forConstruction,

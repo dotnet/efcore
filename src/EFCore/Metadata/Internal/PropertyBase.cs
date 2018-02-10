@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsShadowProperty
         {
-            [DebuggerStepThrough] get => MemberInfo == null;
+            [DebuggerStepThrough] get => this.GetIdentifyingMemberInfo() == null;
         }
 
         /// <summary>
@@ -246,12 +246,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
             => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
-
-        /// <summary>
-        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
-        public virtual MemberInfo MemberInfo => (MemberInfo)PropertyInfo ?? FieldInfo;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

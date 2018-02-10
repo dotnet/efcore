@@ -203,12 +203,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [NotNull] InternalEntityTypeBuilder sourceEntityTypeBuilder,
             [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
             [NotNull] string navigationName,
-            [CanBeNull] PropertyInfo propertyInfo)
+            [CanBeNull] MemberInfo memberInfo)
             => _scope.OnNavigationRemoved(
                 Check.NotNull(sourceEntityTypeBuilder, nameof(sourceEntityTypeBuilder)),
                 Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder)),
                 Check.NotNull(navigationName, nameof(navigationName)),
-                propertyInfo);
+                memberInfo);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -248,6 +248,38 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            public override void Include_collection_fields_only_for_navs_too()
+            {
+            }
+
+            public override void Include_reference_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Load_collection_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Load_reference_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Query_with_conditional_constant_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Query_with_conditional_param_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Projection_fields_only_only_for_navs_too()
+            {
+            }
+
+            public override void Update_fields_only_only_for_navs_too()
+            {
+            }
+
             public class EnforcePropertyFixture : FieldMappingSqliteFixtureBase
             {
                 protected override string StoreName { get; } = "FieldMappingEnforcePropertyTest";

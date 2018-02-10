@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
         {
-            var navigationPropertyInfo = navigation.PropertyInfo;
+            var navigationPropertyInfo = navigation.GetIdentifyingMemberInfo();
             if (navigationPropertyInfo == null)
             {
                 return relationshipBuilder;

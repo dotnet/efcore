@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
-        public PropertyIdentity([NotNull] PropertyInfo property)
+        public PropertyIdentity([NotNull] MemberInfo property)
             : this((object)property)
         {
         }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [DebuggerStepThrough]
-        public static PropertyIdentity Create([CanBeNull] PropertyInfo property)
+        public static PropertyIdentity Create([CanBeNull] MemberInfo property)
             => property == null ? None : new PropertyIdentity(property);
 
         /// <summary>
@@ -75,7 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static PropertyIdentity Create([CanBeNull] Navigation navigation)
-            => navigation?.PropertyInfo == null ? Create(navigation?.Name) : Create(navigation.PropertyInfo);
+            => navigation?.GetIdentifyingMemberInfo() == null
+                ? Create(navigation?.Name)
+                : Create(navigation.GetIdentifyingMemberInfo());
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -90,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public PropertyInfo Property
+        public MemberInfo Property
         {
-            [DebuggerStepThrough] get { return _nameOrProperty as PropertyInfo; }
+            [DebuggerStepThrough] get { return _nameOrProperty as MemberInfo; }
         }
 
         private string DebuggerDisplay()

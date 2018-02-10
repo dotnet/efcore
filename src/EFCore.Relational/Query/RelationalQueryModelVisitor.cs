@@ -2162,7 +2162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var querySourceReference = new QuerySourceReferenceExpression(querySource);
                     var propertyExpression = isMemberExpression
-                        ? querySourceReference.CreateEFPropertyExpression(property.PropertyInfo)
+                        ? querySourceReference.CreateEFPropertyExpression(property.GetIdentifyingMemberInfo())
                         : querySourceReference.CreateEFPropertyExpression(property);
 
                     if (propertyExpression.Type.GetTypeInfo().IsValueType)

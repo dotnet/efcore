@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var memberInfo = propertyBuilder.Metadata.MemberInfo;
+            var memberInfo = propertyBuilder.Metadata.GetIdentifyingMemberInfo();
             var attributes = memberInfo?.GetCustomAttributes<TAttribute>(true);
             if (attributes != null)
             {

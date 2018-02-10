@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Property = property;
 
-            MemberInfo = (MemberInfo)property.PropertyInfo ?? property.FieldInfo;
+            MemberInfo = property.GetIdentifyingMemberInfo();
 
             var principals = property.FindPrincipals().ToList();
 

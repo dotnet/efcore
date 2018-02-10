@@ -207,8 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [NotNull] InternalEntityTypeBuilder sourceEntityTypeBuilder,
                 [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
                 [NotNull] string navigationName,
-                [CanBeNull] PropertyInfo propertyInfo)
-                => Add(new OnNavigationRemovedNode(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, propertyInfo));
+                [CanBeNull] MemberInfo memberInfo)
+                => Add(new OnNavigationRemovedNode(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, memberInfo));
 
             public virtual InternalRelationshipBuilder OnForeignKeyUniquenessChanged([NotNull] InternalRelationshipBuilder relationshipBuilder)
             {
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 InternalEntityTypeBuilder sourceEntityTypeBuilder,
                 InternalEntityTypeBuilder targetEntityTypeBuilder,
                 string navigationName,
-                PropertyInfo propertyInfo)
+                MemberInfo memberInfo)
             {
                 if (sourceEntityTypeBuilder.Metadata.Builder == null)
                 {
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 foreach (var navigationConvention in _conventionSet.NavigationRemovedConventions)
                 {
-                    if (!navigationConvention.Apply(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, propertyInfo))
+                    if (!navigationConvention.Apply(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, memberInfo))
                     {
                         break;
                     }
@@ -1019,18 +1019,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 InternalEntityTypeBuilder sourceEntityTypeBuilder,
                 InternalEntityTypeBuilder targetEntityTypeBuilder,
                 string navigationName,
-                PropertyInfo propertyInfo)
+                MemberInfo memberInfo)
             {
                 SourceEntityTypeBuilder = sourceEntityTypeBuilder;
                 TargetEntityTypeBuilder = targetEntityTypeBuilder;
                 NavigationName = navigationName;
-                PropertyInfo = propertyInfo;
+                MemberInfo = memberInfo;
             }
 
             public InternalEntityTypeBuilder SourceEntityTypeBuilder { get; }
             public InternalEntityTypeBuilder TargetEntityTypeBuilder { get; }
             public string NavigationName { get; }
-            public PropertyInfo PropertyInfo { get; }
+            public MemberInfo MemberInfo { get; }
 
             public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnNavigationRemoved(this);
         }

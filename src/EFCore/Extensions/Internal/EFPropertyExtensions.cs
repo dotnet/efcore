@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Extensions.Internal
         /// </summary>
         public static Expression CreateEFPropertyExpression(
             [NotNull] this Expression target,
-            [NotNull] PropertyInfo propertyInfo)
-            => CreateEFPropertyExpression(target, propertyInfo.DeclaringType, propertyInfo.PropertyType, propertyInfo.Name, makeNullable: false);
+            [NotNull] MemberInfo memberInfo)
+            => CreateEFPropertyExpression(target, memberInfo.DeclaringType, memberInfo.GetMemberType(), memberInfo.Name, makeNullable: false);
 
         private static Expression CreateEFPropertyExpression(
             Expression target,

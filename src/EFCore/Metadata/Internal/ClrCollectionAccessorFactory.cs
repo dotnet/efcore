@@ -37,32 +37,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return accessor;
             }
 
-            var property = navigation.PropertyInfo;
-            var elementType = property.PropertyType.TryGetElementType(typeof(IEnumerable<>));
+            var property = navigation.GetIdentifyingMemberInfo();
+            var propertyType = property.GetMemberType();
+            var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
 
-            // TODO: Only ICollections supported; add support for enumerables with add/remove methods
-            // Issue #752
             if (elementType == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
                         navigation.Name,
                         navigation.DeclaringEntityType.DisplayName(),
-                        property.PropertyType.ShortDisplayName(),
+                        propertyType.ShortDisplayName(),
                         navigation.GetTargetType().DisplayName()));
             }
 
-            if (property.PropertyType.IsArray)
+            if (propertyType.IsArray)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationArray(
                         navigation.Name,
                         navigation.DeclaringEntityType.DisplayName(),
-                        property.PropertyType.ShortDisplayName()));
+                        propertyType.ShortDisplayName()));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(
-                property.DeclaringType, property.PropertyType, elementType);
+                property.DeclaringType, propertyType, elementType);
 
             var memberInfo = navigation.GetMemberInfo(forConstruction: false, forSet: false);
 

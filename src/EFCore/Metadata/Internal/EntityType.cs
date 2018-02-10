@@ -1086,7 +1086,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Builder,
                         foreignKey.PrincipalEntityType.Builder,
                         foreignKey.DependentToPrincipal.Name,
-                        foreignKey.DependentToPrincipal.PropertyInfo);
+                        foreignKey.DependentToPrincipal.GetIdentifyingMemberInfo());
                 }
 
                 if (foreignKey.PrincipalToDependent != null)
@@ -1095,7 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.PrincipalEntityType.Builder,
                         Builder,
                         foreignKey.PrincipalToDependent.Name,
-                        foreignKey.PrincipalToDependent.PropertyInfo);
+                        foreignKey.PrincipalToDependent.GetIdentifyingMemberInfo());
                 }
 
                 Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
@@ -1154,7 +1154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation AddNavigation(
-            [NotNull] PropertyInfo navigationProperty,
+            [NotNull] MemberInfo navigationProperty,
             [NotNull] ForeignKey foreignKey,
             bool pointsToPrincipal)
         {
@@ -1222,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     shouldThrow: true);
             }
 
-            var navigation = new Navigation(name, propertyIdentity.Property, null, foreignKey);
+            var navigation = new Navigation(name, propertyIdentity.Property as PropertyInfo, propertyIdentity.Property as FieldInfo, foreignKey);
 
             _navigations.Add(name, navigation);
 
@@ -1246,8 +1246,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual Navigation FindNavigation([NotNull] PropertyInfo propertyInfo)
-            => FindNavigation(Check.NotNull(propertyInfo, nameof(propertyInfo)).Name);
+        public virtual Navigation FindNavigation([NotNull] MemberInfo memberInfo)
+            => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).Name);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -369,6 +369,48 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Update_fields_only()
             => Update<BlogFields>("Posts");
 
+        [Fact]
+        public virtual void Include_collection_fields_only_for_navs_too()
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<BlogNavFields>().Include("_posts").ToList());
+            }
+        }
+
+        [Fact]
+        public virtual void Include_reference_fields_only_only_for_navs_too()
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostNavFields>().Include("_blog").ToList());
+            }
+        }
+
+        [Fact]
+        public virtual void Load_collection_fields_only_only_for_navs_too()
+            => Load_collection<BlogNavFields>("_posts");
+
+        [Fact]
+        public virtual void Load_reference_fields_only_only_for_navs_too()
+            => Load_reference<PostNavFields>("_blog");
+
+        [Fact]
+        public virtual void Query_with_conditional_constant_fields_only_only_for_navs_too()
+            => Query_with_conditional_constant<PostNavFields>("_blogId");
+
+        [Fact]
+        public virtual void Query_with_conditional_param_fields_only_only_for_navs_too()
+            => Query_with_conditional_param<PostNavFields>("_title");
+
+        [Fact]
+        public virtual void Projection_fields_only_only_for_navs_too()
+            => Projection<PostNavFields>("_id", "_title");
+
+        [Fact]
+        public virtual void Update_fields_only_only_for_navs_too()
+            => Update<BlogNavFields>("_posts");
+
         protected virtual void Load_collection<TBlog>(string navigation)
             where TBlog : class, IBlogAccesor, new()
         {
@@ -712,6 +754,66 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => Blog;
                 set => Blog = (BlogFull)value;
+            }
+        }
+
+        protected class BlogNavFields : IBlogAccesor
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            private int _id;
+            private string _title;
+            private ICollection<PostNavFields> _posts;
+
+
+            int IBlogAccesor.AccessId
+            {
+                get => _id;
+                set => _id = value;
+            }
+
+            string IBlogAccesor.AccessTitle
+            {
+                get => _title;
+                set => _title = value;
+            }
+
+            IEnumerable<IPostAccesor> IBlogAccesor.AccessPosts
+            {
+                get => _posts;
+                set => _posts = (ICollection<PostNavFields>)value;
+            }
+        }
+
+        protected class PostNavFields : IPostAccesor
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            private int _id;
+            private string _title;
+            private int _blogId;
+            private BlogNavFields _blog;
+
+            int IPostAccesor.AccessId
+            {
+                get => _id;
+                set => _id = value;
+            }
+
+            string IPostAccesor.AccessTitle
+            {
+                get => _title;
+                set => _title = value;
+            }
+
+            int IPostAccesor.AccessBlogId
+            {
+                get => _blogId;
+                set => _blogId = value;
+            }
+
+            IBlogAccesor IPostAccesor.AccessBlog
+            {
+                get => _blog;
+                set => _blog = (BlogNavFields)value;
             }
         }
 
@@ -1409,6 +1511,24 @@ namespace Microsoft.EntityFrameworkCore
                                 b.Property("_title");
                                 b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
                             });
+
+                    modelBuilder.Entity<PostNavFields>(
+                        b =>
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.Property("_blogId");
+                        });
+
+                    modelBuilder.Entity<BlogNavFields>(
+                        b =>
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.HasMany(typeof(PostNavFields), "_posts").WithOne("_blog").HasForeignKey("_blogId");
+                        });
                 }
             }
 
@@ -1439,6 +1559,9 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Add(CreateBlogAndPosts<BlogFields, PostFields>());
                     context.AddRange(CreatePostsAndBlog<BlogFields, PostFields>());
+
+                    context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>());
+                    context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
                 }
 
                 context.SaveChanges();

@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node)
             {
                 Dispatcher._immediateConventionScope.OnNavigationRemoved(
-                    node.SourceEntityTypeBuilder, node.TargetEntityTypeBuilder, node.NavigationName, node.PropertyInfo);
+                    node.SourceEntityTypeBuilder, node.TargetEntityTypeBuilder, node.NavigationName, node.MemberInfo);
                 return null;
             }
 

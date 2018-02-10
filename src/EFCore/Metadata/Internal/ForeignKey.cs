@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation HasDependentToPrincipal(
-            [CanBeNull] PropertyInfo property,
+            [CanBeNull] MemberInfo property,
             // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: true);
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Navigation HasPrincipalToDependent(
-            [CanBeNull] PropertyInfo property,
+            [CanBeNull] MemberInfo property,
             // ReSharper disable once MethodOverloadWithOptionalParameter
             ConfigurationSource configurationSource = ConfigurationSource.Explicit)
             => Navigation(PropertyIdentity.Create(property), configurationSource, pointsToPrincipal: false);
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         DeclaringEntityType.Builder,
                         PrincipalEntityType.Builder,
                         oldNavigation.Name,
-                        oldNavigation.PropertyInfo);
+                        oldNavigation.GetIdentifyingMemberInfo());
                 }
                 else
                 {
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         PrincipalEntityType.Builder,
                         DeclaringEntityType.Builder,
                         oldNavigation.Name,
-                        oldNavigation.PropertyInfo);
+                        oldNavigation.GetIdentifyingMemberInfo());
                 }
             }
 
@@ -655,8 +655,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static bool AreCompatible(
             [NotNull] EntityType principalEntityType,
             [NotNull] EntityType dependentEntityType,
-            [CanBeNull] PropertyInfo navigationToPrincipal,
-            [CanBeNull] PropertyInfo navigationToDependent,
+            [CanBeNull] MemberInfo navigationToPrincipal,
+            [CanBeNull] MemberInfo navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> dependentProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? unique,

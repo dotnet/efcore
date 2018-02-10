@@ -689,31 +689,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
-            Assert.Same(propertyInfo, propertyBase.MemberInfo);
+            Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
             propertyBase.SetField(fieldName, ConfigurationSource.Explicit);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
             var fieldInfo = propertyBase.FieldInfo;
             Assert.Equal(fieldName, fieldInfo.Name);
-            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.MemberInfo);
+            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
             propertyBase.SetField(null, ConfigurationSource.Explicit);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
-            Assert.Same(propertyInfo, propertyBase.MemberInfo);
+            Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
 
             propertyBase.SetFieldInfo(fieldInfo, ConfigurationSource.Explicit);
 
             Assert.Equal(fieldName, propertyBase.GetFieldName());
-            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.MemberInfo);
+            Assert.Same(propertyInfo ?? (MemberInfo)fieldInfo, propertyBase.GetIdentifyingMemberInfo());
 
             propertyBase.SetFieldInfo(null, ConfigurationSource.Explicit);
 
             Assert.Null(propertyBase.GetFieldName());
             Assert.Null(propertyBase.FieldInfo);
-            Assert.Same(propertyInfo, propertyBase.MemberInfo);
+            Assert.Same(propertyInfo, propertyBase.GetIdentifyingMemberInfo());
         }
 
         private class AutoProp

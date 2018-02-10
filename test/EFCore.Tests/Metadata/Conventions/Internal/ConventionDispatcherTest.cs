@@ -1830,7 +1830,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public bool Apply(
                 InternalEntityTypeBuilder sourceEntityTypeBuilder, InternalEntityTypeBuilder targetEntityTypeBuilder,
-                string navigationName, PropertyInfo propertyInfo)
+                string navigationName, MemberInfo memberInfo)
             {
                 Assert.NotNull(sourceEntityTypeBuilder.Metadata.Builder);
 
