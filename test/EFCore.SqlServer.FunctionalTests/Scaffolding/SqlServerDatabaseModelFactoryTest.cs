@@ -293,7 +293,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B));",
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [dbo].[Kilimanjaro]
+DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [db2].[K2];");
         }
@@ -318,7 +318,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [dbo].[Kilimanjaro]
+DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2];");
         }
@@ -343,7 +343,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [dbo].[Kilimanjaro]
+DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K.2];");
         }
@@ -370,7 +370,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [dbo].[Kilimanjaro]
+DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2];
 
@@ -399,7 +399,7 @@ CREATE TABLE [db.2].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [db.2].[Kilimanjaro]
+DROP TABLE [db.2].[Kilimanjaro];
 
 DROP TABLE [dbo].[K.2];
 
@@ -428,7 +428,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [dbo].[Kilimanjaro]
+DROP TABLE [dbo].[Kilimanjaro];
 
 DROP TABLE [dbo].[K.2];
 
@@ -457,7 +457,7 @@ CREATE TABLE [db.2].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                         Assert.Empty(table.ForeignKeys);
                     },
                 @"
-DROP TABLE [db.2].[Kilimanjaro]
+DROP TABLE [db.2].[Kilimanjaro];
 
 DROP TABLE [dbo].[K2];
 
