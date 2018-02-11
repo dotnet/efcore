@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             StateManager.InternalEntityEntryNotifier.StateChanged(this, EntityState.Detached, fromQuery: true);
 
             StateManager.OnTracked(this, fromQuery: true);
-            
+
             var trackingQueryMode = StateManager.GetTrackingQueryMode(EntityType);
             if (trackingQueryMode != TrackingQueryMode.Simple)
             {
@@ -809,8 +809,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (asProperty != null
                         && (!asProperty.ClrType.IsNullableType()
                             || asProperty.GetContainingForeignKeys().Any(
-                                fk => (fk.DeleteBehavior == DeleteBehavior.Cascade
-                                     || fk.DeleteBehavior == DeleteBehavior.Restrict)
+                                fk => (fk.DeleteBehavior == DeleteBehavior.Cascade)
                                      && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
                     {
                         if (value == null)
@@ -954,8 +953,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Null))
                     {
                         if (properties.Any(p => p.IsNullable)
-                            && foreignKey.DeleteBehavior != DeleteBehavior.Cascade
-                            && foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
+                            && foreignKey.DeleteBehavior != DeleteBehavior.Cascade)
                         {
                             foreach (var toNull in properties)
                             {

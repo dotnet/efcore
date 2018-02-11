@@ -487,29 +487,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                var principalToDependent = foreignKey.PrincipalToDependent;
-                if (principalToDependent != null)
+                if (foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
                 {
-                    var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
-                    if (principalEntry != null
-                        && principalEntry.EntityState != EntityState.Deleted)
+                    var principalToDependent = foreignKey.PrincipalToDependent;
+                    if (principalToDependent != null)
                     {
-                        ResetReferenceOrRemoveCollection(principalEntry, principalToDependent, entry);
+                        var principalEntry = stateManager.GetPrincipal(entry, foreignKey);
+                        if (principalEntry != null
+                            && principalEntry.EntityState != EntityState.Deleted)
+                        {
+                            ResetReferenceOrRemoveCollection(principalEntry, principalToDependent, entry);
+                        }
                     }
                 }
             }
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
-                var dependentToPrincipal = foreignKey.DependentToPrincipal;
-                if (dependentToPrincipal != null)
+                if (foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
                 {
-                    var dependentEntries = stateManager.GetDependents(entry, foreignKey);
-                    foreach (var dependentEntry in dependentEntries)
+                    var dependentToPrincipal = foreignKey.DependentToPrincipal;
+                    if (dependentToPrincipal != null)
                     {
-                        if (dependentEntry[dependentToPrincipal] == entry.Entity)
+                        var dependentEntries = stateManager.GetDependents(entry, foreignKey);
+                        foreach (var dependentEntry in dependentEntries)
                         {
-                            SetNavigation(dependentEntry, dependentToPrincipal, null);
+                            if (dependentEntry[dependentToPrincipal] == entry.Entity)
+                            {
+                                SetNavigation(dependentEntry, dependentToPrincipal, null);
+                            }
                         }
                     }
                 }

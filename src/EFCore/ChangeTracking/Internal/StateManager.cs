@@ -826,7 +826,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent);
                         }
-                        else
+                        else if (fk.DeleteBehavior != DeleteBehavior.Restrict)
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
