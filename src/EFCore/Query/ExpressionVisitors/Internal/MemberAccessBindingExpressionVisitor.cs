@@ -198,8 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             {
                 var newCaller = Visit(nullConditionalExpression.Caller);
 
-                if (newCaller != nullConditionalExpression.Caller
-                    && newCaller.Type == typeof(ValueBuffer))
+                if (newCaller.Type == typeof(ValueBuffer))
                 {
                     var newAccessOperation = Visit(nullConditionalExpression.AccessOperation);
                     if (newAccessOperation != nullConditionalExpression.AccessOperation)

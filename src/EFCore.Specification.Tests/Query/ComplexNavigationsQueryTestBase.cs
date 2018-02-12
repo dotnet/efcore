@@ -3883,5 +3883,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertQueryScalar<Level1>(
                 l1s => l1s.Where(l1 => l1.OneToOne_Optional_PK != null).Select(l1 => Math.Max(l1.OneToOne_Optional_PK.Level1_Required_Id, 7)));
         }
+
+        [ConditionalFact]
+        public virtual void Accessing_optional_property_inside_result_operator_subquery()
+        {
+            var names = new[] { "Name1", "Name2" };
+            AssertQuery<Level1>(
+                l1s => l1s.Where(l1 => names.All(n => l1.OneToOne_Optional_FK.Name != n)),
+                l1s => l1s.Where(l1 => names.All(n => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name) != n)));
+        }
     }
 }

@@ -3493,6 +3493,16 @@ LEFT JOIN [LevelTwo] AS [l1.OneToOne_Optional_PK] ON [l1].[Id] = [l1.OneToOne_Op
 WHERE [l1.OneToOne_Optional_PK].[Id] IS NOT NULL");
         }
 
+        public override void Accessing_optional_property_inside_result_operator_subquery()
+        {
+            base.Accessing_optional_property_inside_result_operator_subquery();
+
+            AssertSql(
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_InverseId], [l1].[OneToMany_Required_Self_InverseId], [l1].[OneToOne_Optional_SelfId], [l1.OneToOne_Optional_FK].[Name]
+FROM [LevelOne] AS [l1]
+LEFT JOIN [LevelTwo] AS [l1.OneToOne_Optional_FK] ON [l1].[Id] = [l1.OneToOne_Optional_FK].[Level1_Optional_Id]");
+        }
+
         private void AssertSql(params string[] expected)
         {
             Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
