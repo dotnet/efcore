@@ -1309,14 +1309,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 keyOrIndex = property.IsKey() || property.IsForeignKey();
             }
 
-            return (clrType == typeof(string)
-#pragma warning disable 618
-                       ? Dependencies.TypeMapper.StringMapper?.FindMapping(unicode ?? true, keyOrIndex, maxLength)?.StoreType
-                       : clrType == typeof(byte[])
-                           ? Dependencies.TypeMapper.ByteArrayMapper?.FindMapping(rowVersion, keyOrIndex, maxLength)?.StoreType
-                           : null)
-#pragma warning restore 618
-                   ?? Dependencies.CoreTypeMapper.GetMapping(clrType).StoreType;
+            return Dependencies.CoreTypeMapper.FindMapping(clrType, keyOrIndex, unicode, maxLength, rowVersion).StoreType;
         }
 
         /// <summary>
