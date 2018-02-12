@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use TypedRelationalValueBufferFactoryFactory instead.")]
     public class UntypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
         /// <summary>

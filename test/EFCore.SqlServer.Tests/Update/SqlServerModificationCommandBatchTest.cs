@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
-                new UntypedRelationalValueBufferFactoryFactory(
+                new TypedRelationalValueBufferFactoryFactory(
                     new RelationalValueBufferFactoryDependencies(
                         typeMapper)),
                 1);
