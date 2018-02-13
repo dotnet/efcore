@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -141,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public virtual CoreTypeMapping FindMapping(IProperty property)
-            => FindMappingWithConversion(new ConcreteTypeMappingInfo(property));
+            => property.FindMapping()
+               ?? FindMappingWithConversion(new ConcreteTypeMappingInfo(property));
 
         /// <summary>
         ///     <para>

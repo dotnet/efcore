@@ -122,10 +122,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             foreach (var property in entityType.GetProperties())
             {
                 if (property.GetOriginalValueIndex() >= 0
-                    && !entry.IsConceptualNull(property)
-                    && !Equals(entry[property], entry.GetOriginalValue(property)))
+                    && !entry.IsConceptualNull(property))
                 {
-                    entry.SetPropertyModified(property);
+                    var current = entry[property];
+                    var original = entry.GetOriginalValue(property);
+
+                    var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+
+                    if (comparer == null)
+                    {
+                        if (!Equals(current, original))
+                        {
+                            entry.SetPropertyModified(property);
+                        }
+                    }
+                    else
+                    {
+                        if (!comparer.CompareFunc(current, original))
+                        {
+                            entry.SetPropertyModified(property);
+                        }
+                    }
                 }
             }
 

@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 
@@ -28,10 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] Type clrType,
             [CanBeNull] string udtTypeName = null,
             [CanBeNull] ValueConverter converter = null,
+            [CanBeNull] ValueComparer comparer = null,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : base(storeType, clrType, converter, dbType, unicode, size)
+            : base(storeType, clrType, converter, comparer, dbType, unicode, size)
         {
             UdtTypeName = udtTypeName ?? storeType;
         }
@@ -47,14 +49,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerUdtTypeMapping(storeType, ClrType, UdtTypeName, Converter, DbType, IsUnicode, size);
+            => new SqlServerUdtTypeMapping(storeType, ClrType, UdtTypeName, Converter, Comparer, DbType, IsUnicode, size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerUdtTypeMapping(StoreType, ClrType, UdtTypeName, ComposeConverter(converter), DbType, IsUnicode, Size);
+            => new SqlServerUdtTypeMapping(StoreType, ClrType, UdtTypeName, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

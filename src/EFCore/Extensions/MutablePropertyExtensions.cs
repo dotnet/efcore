@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -64,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets a value indicating whether or not this property can persist unicode characters.
+        ///     Sets a value indicating whether or not this property can persist Unicode characters.
         /// </summary>
         /// <param name="property"> The property to set the value for. </param>
-        /// <param name="unicode"> True if the property accepts unicode characters, false if it does not, null to clear the setting. </param>
+        /// <param name="unicode"> True if the property accepts Unicode characters, false if it does not, null to clear the setting. </param>
         public static void IsUnicode([NotNull] this IMutableProperty property, bool? unicode)
         {
             Check.NotNull(property, nameof(property));
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
             => property[CoreAnnotationNames.StoreClrType] = storeClrType;
 
         /// <summary>
-        ///     Gets the custom <see cref="ValueConverter"/> set for this property.
+        ///     Sets the custom <see cref="ValueConverter"/> for this property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="converter"> The converter, or <c>null</c> to remove any previously set converter. </param>
@@ -134,6 +135,26 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             property[CoreAnnotationNames.ValueConverter] = converter;
+        }
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueComparer"/> for this property.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="comparer"> The comparer, or <c>null</c> to remove any previously set comparer. </param>
+        public static void SetValueComparer([NotNull] this IMutableProperty property, [CanBeNull] ValueComparer comparer)
+        {
+            if (comparer != null
+                && comparer.Type != property.ClrType)
+            {
+                throw new ArgumentException(CoreStrings.ComparerPropertyMismatch(
+                    comparer.Type.ShortDisplayName(),
+                    property.DeclaringEntityType.DisplayName(),
+                    property.Name,
+                    property.ClrType.ShortDisplayName()));
+            }
+
+            property[CoreAnnotationNames.ValueComparer] = comparer;
         }
     }
 }

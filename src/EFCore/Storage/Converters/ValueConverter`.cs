@@ -37,9 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         }
 
         private static Func<object, object> SanitizeConverter<TIn, TOut>(Expression<Func<TIn, TOut>> convertExpression)
-            => v => v == null
+        {
+            var compiled = convertExpression.Compile();
+
+            return v => v == null
                 ? (object)null
-                : convertExpression.Compile()(Sanitize<TIn>(v));
+                : compiled(Sanitize<TIn>(v));
+        }
 
         private static T Sanitize<T>(object value)
         {

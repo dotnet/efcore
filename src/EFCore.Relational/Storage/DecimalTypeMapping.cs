@@ -3,6 +3,7 @@
 
 using System.Data;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -28,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DecimalTypeMapping(
             [NotNull] string storeType,
             DbType? dbType = null)
-            : this(storeType, null, dbType)
+            : this(storeType, null, null, dbType)
         {
         }
 
@@ -37,12 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
+        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public DecimalTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
+            [CanBeNull] ValueComparer comparer,
             DbType? dbType = null)
-            : base(storeType, typeof(decimal), converter, dbType)
+            : base(storeType, typeof(decimal), converter, comparer, dbType)
         {
         }
 
@@ -53,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new DecimalTypeMapping(storeType, Converter, DbType);
+            => new DecimalTypeMapping(storeType, Converter, Comparer, DbType);
 
         /// <summary>
         ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
@@ -62,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new DecimalTypeMapping(StoreType, ComposeConverter(converter), DbType);
+            => new DecimalTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType);
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.

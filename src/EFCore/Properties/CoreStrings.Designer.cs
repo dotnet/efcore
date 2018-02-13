@@ -1795,6 +1795,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 converterType, entityType, propertyName, propertyType);
 
         /// <summary>
+        ///     Comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.
+        /// </summary>
+        public static string ComparerPropertyMismatch([CanBeNull] object type, [CanBeNull] object entityType, [CanBeNull] object propertyName, [CanBeNull] object propertyType)
+            => string.Format(
+                GetString("ComparerPropertyMismatch", nameof(type), nameof(entityType), nameof(propertyName), nameof(propertyType)),
+                type, entityType, propertyName, propertyType);
+
+        /// <summary>
         ///     The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.
         /// </summary>
         public static string IncludeNotSpecifiedDirectlyOnEntityType([CanBeNull] object include, [CanBeNull] object invalidNavigation)

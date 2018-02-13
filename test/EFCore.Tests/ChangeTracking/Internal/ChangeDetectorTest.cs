@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -166,6 +169,118 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
             Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
+        {
+            using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
+            {
+                var baxter = context.Attach(
+                    new Baxter
+                    {
+                        Id = 1,
+                        Demands = new[] { 1, 2, 3, 4 }
+                    }).Entity;
+
+                baxter.Demands[2] = 33;
+
+                var entityEntry = context.Entry(baxter);
+                AssertDetected(entityEntry, entityEntry.Property(e => e.Demands));
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Detects_scalar_shadow_property_change_with_custom_comparer(bool useTypeMapping)
+        {
+            using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
+            {
+                var entityEntry = context.Entry(new Baxter { Id = 1 });
+                entityEntry.Property("ShadyDemands").CurrentValue = new[] { 1, 2, 3, 4 };
+                entityEntry.State = EntityState.Unchanged;
+
+                var propertyEntry = entityEntry.Property<int[]>("ShadyDemands");
+
+                propertyEntry.CurrentValue[2] = 33;
+
+                context.ChangeTracker.DetectChanges(); // Needed because array is being mutated
+
+                AssertDetected(entityEntry, propertyEntry);
+            }
+        }
+
+        private static void AssertDetected(EntityEntry<Baxter> entityEntry, PropertyEntry<Baxter, int[]> propertyEntry)
+        {
+            Assert.Equal(EntityState.Modified, entityEntry.State);
+            Assert.True(propertyEntry.IsModified);
+            Assert.Equal(new[] { 1, 2, 3, 4 }, propertyEntry.OriginalValue);
+            Assert.Equal(new[] { 1, 2, 33, 4 }, propertyEntry.CurrentValue);
+
+            propertyEntry.IsModified = false;
+
+            Assert.Equal(EntityState.Unchanged, entityEntry.State);
+            Assert.False(propertyEntry.IsModified);
+            Assert.Equal(new[] { 1, 2, 3, 4 }, propertyEntry.OriginalValue);
+            Assert.Equal(new[] { 1, 2, 3, 4 }, propertyEntry.CurrentValue);
+        }
+
+        private class Baxter
+        {
+            public int Id { get; set; }
+            public int[] Demands { get; set; }
+        }
+
+        private class BaxterWithMappingContext : BaxterContext
+        {
+            protected override bool UseTypeMapping => true;
+        }
+
+        private class BaxterContext : DbContext
+        {
+            protected virtual bool UseTypeMapping => false;
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var intArrayComparer = new ValueComparer<int[]>(
+                    (l, r) => (l == null || r == null) ? (l == r) : l.SequenceEqual(r),
+                    v => v == null ? null : v.ToArray());
+
+                var intArrayConverter = new ValueConverter<int[], string>(
+                    v => string.Join(",", v.Select(i => i.ToString())),
+                    v => v.Split(new[] { ',' }, StringSplitOptions.None).Select(int.Parse).ToArray());
+
+                var property = modelBuilder.Entity<Baxter>()
+                    .Property(e => e.Demands)
+                    .Metadata;
+
+                var shadowProperty = modelBuilder.Entity<Baxter>()
+                    .Property<int[]>("ShadyDemands")
+                    .Metadata;
+
+                if (UseTypeMapping)
+                {
+                    property[CoreAnnotationNames.TypeMapping]
+                        = new CoreTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
+
+                    shadowProperty[CoreAnnotationNames.TypeMapping]
+                        = new CoreTypeMapping(typeof(int[]), intArrayConverter, intArrayComparer);
+                }
+                else
+                {
+                    property.SetValueConverter(intArrayConverter);
+                    shadowProperty.SetValueConverter(intArrayConverter);
+                    
+                    property.SetValueComparer(intArrayComparer);
+                    shadowProperty.SetValueComparer(intArrayComparer);
+                }
+            }
         }
 
         [Fact]
@@ -1478,34 +1593,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public int? PrincipalId
             {
-                get { return _principalId; }
-                set { SetWithNotify(value, ref _principalId); }
+                get => _principalId;
+                set => SetWithNotify(value, ref _principalId);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public virtual ICollection<NotifyingProduct> Products { get; } = new ObservableCollection<NotifyingProduct>();
 
             public int TagId
             {
-                get { return _tagId; }
-                set { SetWithNotify(value, ref _tagId); }
+                get => _tagId;
+                set => SetWithNotify(value, ref _tagId);
             }
 
             public NotifyingCategoryTag Tag
             {
-                get { return _tag; }
-                set { SetWithNotify(value, ref _tag); }
+                get => _tag;
+                set => SetWithNotify(value, ref _tag);
             }
         }
 
@@ -1517,20 +1632,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public int CategoryId
             {
-                get { return _categoryId; }
-                set { SetWithNotify(value, ref _categoryId); }
+                get => _categoryId;
+                set => SetWithNotify(value, ref _categoryId);
             }
 
             public NotifyingCategory Category
             {
-                get { return _category; }
-                set { SetWithNotify(value, ref _category); }
+                get => _category;
+                set => SetWithNotify(value, ref _category);
             }
         }
 
@@ -1545,38 +1660,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public Guid Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public int? DependentId
             {
-                get { return _dependentId; }
-                set { SetWithNotify(value, ref _dependentId); }
+                get => _dependentId;
+                set => SetWithNotify(value, ref _dependentId);
             }
 
             public string Name
             {
-                get { return _name; }
-                set { SetWithNotify(value, ref _name); }
+                get => _name;
+                set => SetWithNotify(value, ref _name);
             }
 
             public virtual NotifyingCategory Category
             {
-                get { return _category; }
-                set { SetWithNotify(value, ref _category); }
+                get => _category;
+                set => SetWithNotify(value, ref _category);
             }
 
             public int TagId
             {
-                get { return _tagId; }
-                set { SetWithNotify(value, ref _tagId); }
+                get => _tagId;
+                set => SetWithNotify(value, ref _tagId);
             }
 
             public NotifyingProductTag Tag
             {
-                get { return _tag; }
-                set { SetWithNotify(value, ref _tag); }
+                get => _tag;
+                set => SetWithNotify(value, ref _tag);
             }
         }
 
@@ -1588,20 +1703,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public int ProductId
             {
-                get { return _productId; }
-                set { SetWithNotify(value, ref _productId); }
+                get => _productId;
+                set => SetWithNotify(value, ref _productId);
             }
 
             public NotifyingProduct Product
             {
-                get { return _product; }
-                set { SetWithNotify(value, ref _product); }
+                get => _product;
+                set => SetWithNotify(value, ref _product);
             }
         }
 
@@ -1614,26 +1729,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public int Id
             {
-                get { return _id; }
-                set { SetWithNotify(value, ref _id); }
+                get => _id;
+                set => SetWithNotify(value, ref _id);
             }
 
             public int HusbandId
             {
-                get { return _husbandId; }
-                set { SetWithNotify(value, ref _husbandId); }
+                get => _husbandId;
+                set => SetWithNotify(value, ref _husbandId);
             }
 
             public NotifyingPerson Husband
             {
-                get { return _husband; }
-                set { SetWithNotify(value, ref _husband); }
+                get => _husband;
+                set => SetWithNotify(value, ref _husband);
             }
 
             public NotifyingPerson Wife
             {
-                get { return _wife; }
-                set { SetWithNotify(value, ref _wife); }
+                get => _wife;
+                set => SetWithNotify(value, ref _wife);
             }
         }
 

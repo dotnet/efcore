@@ -527,7 +527,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations,
                 CoreAnnotationNames.ValueGeneratorFactoryAnnotation,
                 CoreAnnotationNames.PropertyAccessModeAnnotation,
-                CoreAnnotationNames.TypeMapping);
+                CoreAnnotationNames.TypeMapping,
+                CoreAnnotationNames.ValueComparer);
 
             GenerateAnnotations(annotations, stringBuilder);
         }

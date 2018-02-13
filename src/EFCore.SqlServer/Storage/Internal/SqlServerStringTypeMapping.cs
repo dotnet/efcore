@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -26,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             DbType? dbType,
             bool unicode = false,
             int? size = null)
-            : this(storeType, null, dbType, unicode, size)
+            : this(storeType, null, null, dbType, unicode, size)
         {
         }
 
@@ -37,10 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public SqlServerStringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
+            [CanBeNull] ValueComparer comparer,
             DbType? dbType,
             bool unicode = false,
             int? size = null)
-            : base(storeType, converter, dbType, unicode, size)
+            : base(storeType, converter, comparer, dbType, unicode, size)
         {
             _maxSpecificSize = CalculateSize(unicode, size);
         }
@@ -59,14 +61,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new SqlServerStringTypeMapping(storeType, Converter, DbType, IsUnicode, size);
+            => new SqlServerStringTypeMapping(storeType, Converter, Comparer, DbType, IsUnicode, size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new SqlServerStringTypeMapping(StoreType, ComposeConverter(converter), DbType, IsUnicode, Size);
+            => new SqlServerStringTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

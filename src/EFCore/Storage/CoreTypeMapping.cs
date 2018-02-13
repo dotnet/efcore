@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -24,14 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="clrType"> The .NET type used in the EF model. </param>
         /// <param name="converter"> Converts types to and from the store whenever this mapping is used. </param>
+        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
         public CoreTypeMapping(
             [NotNull] Type clrType,
-            [CanBeNull] ValueConverter converter = null)
+            [CanBeNull] ValueConverter converter = null,
+            [CanBeNull] ValueComparer comparer = null)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             ClrType = converter?.ModelType ?? clrType;
             Converter = converter;
+            Comparer = comparer;
         }
 
         /// <summary>
@@ -46,8 +50,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual ValueConverter Converter { get; }
 
         /// <summary>
-        ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
-        ///    added.
+        ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for
+        ///     CLR types that cannot be compared with <see cref="object.Equals(object, object)" />
+        ///     and/or need a deep copy when taking a snapshot.
+        /// </summary>
+        public virtual ValueComparer Comparer { get; }
+
+        /// <summary>
+        ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
+        ///     added.
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
@@ -55,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => new CoreTypeMapping(ClrType, ComposeConverter(converter));
 
         /// <summary>
-        /// Composes the given <see cref="ValueConverter"/> with any already in this mapping
-        /// and returns a new <see cref="ValueConverter"/> combining them together.
+        ///     Composes the given <see cref="ValueConverter" /> with any already in this mapping
+        ///     and returns a new <see cref="ValueConverter" /> combining them together.
         /// </summary>
         /// <param name="converter"> The new converter. </param>
         /// <returns> The composed converter. </returns>

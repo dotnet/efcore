@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Internal
@@ -19,16 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [NotNull] string storeType,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
             int? size = null)
-            : this(storeType, null, dbType, size)
+            : this(storeType, null, null, dbType, size)
         {
         }
 
         public OracleByteArrayTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
+            [CanBeNull] ValueComparer comparer,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
             int? size = null)
-            : base(storeType, converter, dbType, size)
+            : base(storeType, converter, comparer, dbType, size)
         {
             _maxSpecificSize = CalculateSize(size);
         }
@@ -37,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => size.HasValue && size < 8000 ? size.Value : 8000;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleByteArrayTypeMapping(storeType, Converter, DbType, size);
+            => new OracleByteArrayTypeMapping(storeType, Converter, Comparer, DbType, size);
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleByteArrayTypeMapping(StoreType, ComposeConverter(converter), DbType, Size);
+            => new OracleByteArrayTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, Size);
 
         protected override void ConfigureParameter(DbParameter parameter)
         {

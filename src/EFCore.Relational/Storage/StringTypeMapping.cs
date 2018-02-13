@@ -3,6 +3,7 @@
 
 using System.Data;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : this(storeType, null, dbType, unicode, size)
+            : this(storeType, null, null, dbType, unicode, size)
         {
         }
 
@@ -40,16 +41,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="converter"> Converts values to and from the store whenever this mapping is used. </param>
+        /// <param name="comparer"> Supports custom value snapshotting and comparisons. </param>
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
+            [CanBeNull] ValueComparer comparer,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
-            : base(storeType, typeof(string), converter, dbType, unicode, size)
+            : base(storeType, typeof(string), converter, comparer, dbType, unicode, size)
         {
         }
 
@@ -60,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new StringTypeMapping(storeType, Converter, DbType, IsUnicode, size);
+            => new StringTypeMapping(storeType, Converter, Comparer, DbType, IsUnicode, size);
 
         /// <summary>
         ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
@@ -69,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new StringTypeMapping(StoreType, ComposeConverter(converter), DbType, IsUnicode, Size);
+            => new StringTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size);
 
         /// <summary>
         ///     Generates the escaped SQL representation of a literal value.

@@ -49,6 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.StoreClrType,
+                CoreAnnotationNames.ValueComparer,
                 RelationalAnnotationNames.ColumnName,
                 RelationalAnnotationNames.ColumnType,
                 RelationalAnnotationNames.DefaultValueSql,

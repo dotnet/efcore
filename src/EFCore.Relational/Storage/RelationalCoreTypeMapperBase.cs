@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -75,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="property"> The property. </param>
         /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
         public override CoreTypeMapping FindMapping(IProperty property)
-            => FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(property));
+            => property.FindRelationalMapping()
+               ?? FindMappingWithConversion(new ConcreteRelationalTypeMappingInfo(property));
 
         /// <summary>
         ///     <para>

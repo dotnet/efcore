@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
@@ -28,16 +29,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         public OracleDateTimeOffsetTypeMapping(
             [NotNull] string storeType,
-            [CanBeNull] ValueConverter converter)
-            : base(storeType, converter)
+            [CanBeNull] ValueConverter converter,
+            [CanBeNull] ValueComparer comparer = null)
+
+            : base(storeType, converter, comparer)
         {
         }
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDateTimeOffsetTypeMapping(storeType, Converter);
+            => new OracleDateTimeOffsetTypeMapping(storeType, Converter, Comparer);
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleDateTimeOffsetTypeMapping(StoreType, ComposeConverter(converter));
+            => new OracleDateTimeOffsetTypeMapping(StoreType, ComposeConverter(converter), Comparer);
 
         protected override string SqlLiteralFormatString => "'" + DateTimeOffsetFormatConst + "'";
 

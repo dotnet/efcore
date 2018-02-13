@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -111,7 +112,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else if (propertyBase.IsShadowProperty)
                 {
-                    arguments[i] = CreateReadShadowValueExpression(parameter, propertyBase);
+                    arguments[i] = CreateSnapshotValueExpression(
+                        CreateReadShadowValueExpression(parameter, propertyBase),
+                        propertyBase);
                 }
                 else
                 {
@@ -123,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             null,
                             _snapshotCollectionMethod,
                             memberAccess)
-                        : (Expression)memberAccess;
+                        : CreateSnapshotValueExpression(memberAccess, propertyBase);
                 }
             }
 
@@ -147,6 +150,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         constructorExpression
                     })
                 : constructorExpression;
+        }
+
+        private Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)
+        {
+            if (propertyBase is IProperty property)
+            {
+                var comparer = property.GetValueComparer() ?? property.FindMapping()?.Comparer;
+
+                if (comparer != null)
+                {
+                    expression = ReplacingExpressionVisitor.Replace(
+                        comparer.SnapshotExpression.Parameters.Single(),
+                        expression,
+                        comparer.SnapshotExpression.Body);
+                }
+            }
+
+            return expression;
         }
 
         /// <summary>
