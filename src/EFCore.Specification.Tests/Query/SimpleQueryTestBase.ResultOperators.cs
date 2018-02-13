@@ -1154,6 +1154,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Max_with_non_matching_types_in_projection_introduces_explicit_cast()
+        {
+            AssertSingleResult<Order>(
+                os => os
+                    .Where(o => o.CustomerID.StartsWith("A"))
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => (long)o.OrderID).Max());
+        }
+
+        [ConditionalFact]
+        public virtual void Min_with_non_matching_types_in_projection_introduces_explicit_cast()
+        {
+            AssertSingleResult<Order>(
+                os => os
+                    .Where(o => o.CustomerID.StartsWith("A"))
+                    .Select(o => (long)o.OrderID).Min());
+        }
+
+        [ConditionalFact]
         public virtual void OrderBy_Take_Last_gives_correct_result()
         {
             AssertSingleResult<Customer>(

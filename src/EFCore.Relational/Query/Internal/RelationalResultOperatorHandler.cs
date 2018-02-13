@@ -651,7 +651,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     var minExpression = new SqlFunctionExpression("MIN", handlerContext.QueryModel.SelectClause.Selector.Type, new[] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(minExpression);
@@ -678,7 +677,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (!(expression.RemoveConvert() is SelectExpression))
                 {
-                    expression = (expression as ExplicitCastExpression)?.Operand ?? expression;
                     var maxExpression = new SqlFunctionExpression("MAX", handlerContext.QueryModel.SelectClause.Selector.Type, new[] { expression });
 
                     handlerContext.SelectExpression.SetProjectionExpression(maxExpression);

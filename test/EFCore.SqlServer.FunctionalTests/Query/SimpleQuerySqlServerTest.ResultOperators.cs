@@ -941,6 +941,26 @@ FROM [Orders] AS [o]
 WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')");
         }
 
+        public override void Max_with_non_matching_types_in_projection_introduces_explicit_cast()
+        {
+            base.Max_with_non_matching_types_in_projection_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT MAX(CAST([o].[OrderID] AS bigint))
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')");
+        }
+
+        public override void Min_with_non_matching_types_in_projection_introduces_explicit_cast()
+        {
+            base.Min_with_non_matching_types_in_projection_introduces_explicit_cast();
+
+            AssertSql(
+                @"SELECT MIN(CAST([o].[OrderID] AS bigint))
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] LIKE N'A' + N'%' AND (LEFT([o].[CustomerID], LEN(N'A')) = N'A')");
+        }
+
         public override void OrderBy_Take_Last_gives_correct_result()
         {
             base.OrderBy_Take_Last_gives_correct_result();

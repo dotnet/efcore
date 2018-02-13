@@ -276,7 +276,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             if (resultOperator is ValueFromSequenceResultOperatorBase
-                && !(resultOperator is ChoiceResultOperatorBase)
+                && !(resultOperator is FirstResultOperator)
+                && !(resultOperator is SingleResultOperator)
+                && !(resultOperator is LastResultOperator)
                 && !queryModel.ResultOperators
                     .Any(r => r is TakeResultOperator || r is SkipResultOperator))
             {

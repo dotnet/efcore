@@ -453,9 +453,9 @@ WHERE [o].[CustomerID] = N'ALFKI'
 ORDER BY [o].[OrderID]");
         }
 
-        public override void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast()
+        public override void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduce_explicit_cast()
         {
-            base.Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast();
+            base.Select_non_matching_value_types_nullable_int_to_int_doesnt_introduce_explicit_cast();
 
             AssertSql(
                 @"SELECT [o].[EmployeeID]

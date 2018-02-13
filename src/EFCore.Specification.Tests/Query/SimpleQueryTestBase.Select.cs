@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduces_explicit_cast()
+        public virtual void Select_non_matching_value_types_nullable_int_to_int_doesnt_introduce_explicit_cast()
         {
             AssertQueryScalar<Order>(
                 os => os
