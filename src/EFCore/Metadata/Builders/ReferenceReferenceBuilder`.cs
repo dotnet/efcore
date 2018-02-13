@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -93,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.ClrType != dependentEntityType,
-                foreignKeySet: true);
+                foreignKeySet: foreignKeyPropertyNames.Any());
 
         /// <summary>
         ///     <para>
@@ -153,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.ClrType != principalEntityType,
-                principalKeySet: true);
+                principalKeySet: keyPropertyNames.Any());
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -208,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.DeclaringEntityType.Name != ResolveEntityType(dependentEntityTypeName).Name,
-                foreignKeySet: true);
+                foreignKeySet: foreignKeyPropertyNames.Any());
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -238,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames))),
                 this,
                 inverted: Builder.Metadata.PrincipalEntityType.Name != principalEntityTypeName,
-                principalKeySet: true);
+                principalKeySet: keyPropertyNames.Any());
 
         /// <summary>
         ///     <para>

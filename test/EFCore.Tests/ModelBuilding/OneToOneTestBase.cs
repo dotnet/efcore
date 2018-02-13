@@ -1363,6 +1363,41 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [Fact]
+            public virtual void Can_have_dependent_side_specified_explicitly_on_optional()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Customer>();
+                modelBuilder
+                    .Entity<CustomerDetails>().HasOne(d => d.Customer).WithOne(c => c.Details)
+                    .HasForeignKey<CustomerDetails>().IsRequired(false);
+                modelBuilder.Ignore<Order>();
+
+                var dependentType = model.FindEntityType(typeof(CustomerDetails));
+                var principalType = model.FindEntityType(typeof(Customer));
+                var fk = dependentType.GetForeignKeys().Single();
+
+                var navToPrincipal = dependentType.FindNavigation(nameof(CustomerDetails.Customer));
+                var navToDependent = principalType.FindNavigation(nameof(Customer.Details));
+
+                var principalKey = principalType.GetKeys().Single();
+                var dependentKey = dependentType.GetKeys().Single();
+
+                Assert.False(fk.IsRequired);
+                Assert.Equal(1, dependentType.GetForeignKeys().Count());
+                Assert.Same(navToPrincipal, dependentType.GetNavigations().Single());
+                Assert.Same(navToDependent, principalType.GetNavigations().Single());
+                Assert.Same(fk.PrincipalKey, principalType.GetNavigations().Single().ForeignKey.PrincipalKey);
+                AssertEqual(new[] { "AlternateKey", principalKey.Properties.Single().Name, Customer.NameProperty.Name }, principalType.GetProperties().Select(p => p.Name));
+                AssertEqual(new[] { dependentKey.Properties.Single().Name, fk.Properties.Single().Name, "CustomerId" }, dependentType.GetProperties().Select(p => p.Name));
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Same(principalKey, principalType.GetKeys().Single());
+                Assert.Same(dependentKey, dependentType.GetKeys().Single());
+                Assert.Same(principalKey, principalType.FindPrimaryKey());
+                Assert.Same(dependentKey, dependentType.FindPrimaryKey());
+            }
+
+            [Fact]
             public virtual void Does_not_use_existing_FK_when_principal_key_specified()
             {
                 var modelBuilder = CreateModelBuilder();
