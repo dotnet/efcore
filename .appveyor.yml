@@ -11,12 +11,9 @@ services:
   - mssql2016
 branches:
   only:
-    - master
-    - release
     - dev
-    - /^rel\/.*/
+    - /^release\/.*/
     - /^feature\/.*/
-    - /^(.*\/)?ci-.*$/
 environment:
   global:
     DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
