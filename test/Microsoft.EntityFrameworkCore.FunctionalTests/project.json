@@ -22,7 +22,7 @@
       ],
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.10-servicing-005021-00",
+          "version": "1.0.10",
           "type": "platform"
         },
         "Microsoft.CSharp": "4.0.1"
