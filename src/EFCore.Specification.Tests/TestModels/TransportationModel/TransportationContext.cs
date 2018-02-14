@@ -56,6 +56,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         public void Seed()
         {
             Vehicles.AddRange(CreateVehicles());
+            // Following should throw
+            //Add(new FuelTank
+            //{
+            //    Capacity = "Unknown",
+            //    FuelType = "Unknown",
+            //    VehicleName = "1984 California Car"
+            //});
             SaveChanges();
         }
 

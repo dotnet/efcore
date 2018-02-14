@@ -227,8 +227,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var shaper = CreateShaper(elementType, entityType, selectExpression);
 
+            DiscriminateProjectionQuery(entityType, selectExpression, _querySource);
+
             return Expression.Call(
-                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
+                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider
                     .ShapedQueryMethod
                     .MakeGenericMethod(shaper.Type),
                 EntityQueryModelVisitor.QueryContextParameter,
@@ -253,7 +255,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                                 se.AddToProjection(
                                     p,
                                     _querySource),
-                            _querySource,
                             out var typeIndexMap);
 
                 var materializer = materializerExpression.Compile();
@@ -276,15 +277,36 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             }
             else
             {
-                DiscriminateProjectionQuery(entityType, selectExpression, _querySource);
-
                 shaper = new ValueBufferShaper(_querySource);
             }
 
             return shaper;
         }
 
-        private void DiscriminateProjectionQuery(
+        private void FindPaths(IEntityType entityType, HashSet<IEntityType> sharedTypes,
+            Stack<IEntityType> currentPath, List<List<IEntityType>> result)
+        {
+            var identifyingFks = entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties)
+                                    .Where(fk => fk.PrincipalKey.IsPrimaryKey()
+                                            && fk.PrincipalEntityType != entityType
+                                            && sharedTypes.Contains(fk.PrincipalEntityType))
+                                    .ToList();
+
+            if (identifyingFks.Count == 0)
+            {
+                result.Add(new List<IEntityType>(currentPath));
+                return;
+            }
+
+            foreach (var fk in identifyingFks)
+            {
+                currentPath.Push(fk.PrincipalEntityType);
+                FindPaths(fk.PrincipalEntityType.RootType(), sharedTypes, currentPath, result);
+                currentPath.Pop();
+            }
+        }
+
+        private static Expression GenerateDiscriminatorExpression(
             IEntityType entityType, SelectExpression selectExpression, IQuerySource querySource)
         {
             var concreteEntityTypes
@@ -293,15 +315,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             if (concreteEntityTypes.Count == 1
                 && concreteEntityTypes[0].RootType() == concreteEntityTypes[0])
             {
-                return;
+                return null;
             }
-
-            var discriminatorProperty
-                = concreteEntityTypes[0].Relational().DiscriminatorProperty;
 
             var discriminatorColumn
                 = selectExpression.BindProperty(
-                    discriminatorProperty,
+                    concreteEntityTypes[0].Relational().DiscriminatorProperty,
                     querySource);
 
             var firstDiscriminatorValue
@@ -312,30 +331,75 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
 
-            if (concreteEntityTypes.Count == 1)
+            if (concreteEntityTypes.Count > 1)
             {
-                selectExpression.Predicate
-                    = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
+                discriminatorPredicate
+                    = concreteEntityTypes
+                        .Skip(1)
+                        .Select(
+                            concreteEntityType
+                                => Expression.Constant(
+                                    concreteEntityType.Relational().DiscriminatorValue,
+                                    discriminatorColumn.Type))
+                        .Aggregate(
+                            discriminatorPredicate, (current, discriminatorValue) =>
+                                Expression.OrElse(
+                                    Expression.Equal(discriminatorColumn, discriminatorValue),
+                                    current));
 
-                return;
+
             }
 
-            discriminatorPredicate
-                = concreteEntityTypes
-                    .Skip(1)
-                    .Select(
-                        concreteEntityType
-                            => Expression.Constant(
-                                concreteEntityType.Relational().DiscriminatorValue,
-                                discriminatorColumn.Type))
-                    .Aggregate(
-                        discriminatorPredicate, (current, discriminatorValue) =>
-                            Expression.OrElse(
-                                Expression.Equal(discriminatorColumn, discriminatorValue),
-                                current));
+            return discriminatorPredicate;
+        }
 
-            selectExpression.Predicate
-                = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
+        private void DiscriminateProjectionQuery(
+            IEntityType entityType, SelectExpression selectExpression, IQuerySource querySource)
+        {
+            Expression discriminatorPredicate = null;
+
+            if (entityType.IsQueryType)
+            {
+                discriminatorPredicate = GenerateDiscriminatorExpression(entityType, selectExpression, querySource);
+            }
+            else
+            {
+                var sharedTypes = new HashSet<IEntityType>(
+                    _model.GetEntityTypes()
+                        .Where(e => !e.IsQueryType)
+                        .Where(et => et.Relational().TableName == entityType.Relational().TableName
+                            && et.Relational().Schema == entityType.Relational().Schema));
+
+                var currentPath = new Stack<IEntityType>();
+                currentPath.Push(entityType);
+
+                var allPaths = new List<List<IEntityType>>();
+                FindPaths(entityType.RootType(), sharedTypes, currentPath, allPaths);
+
+                discriminatorPredicate = allPaths
+                    .Select(
+                        p => p.Select(
+                                et => GenerateDiscriminatorExpression(et, selectExpression, querySource))
+                            .Aggregate(
+                                (Expression)null,
+                                (result, current) => result != null
+                                    ? current != null
+                                        ? Expression.AndAlso(result, current)
+                                        : result
+                                    : current))
+                    .Aggregate(
+                        (Expression)null,
+                        (result, current) => result != null
+                            ? current != null
+                                ? Expression.OrElse(result, current)
+                                : result
+                            : current);
+            }
+
+            if (discriminatorPredicate != null)
+            {
+                selectExpression.Predicate = new DiscriminatorPredicateExpression(discriminatorPredicate, querySource);
+            }
         }
 
         private static readonly MethodInfo _createEntityShaperMethodInfo

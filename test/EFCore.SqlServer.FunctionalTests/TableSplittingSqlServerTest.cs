@@ -15,11 +15,31 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
+        public override void Can_query_shared()
+        {
+            base.Can_query_shared();
+
+            AssertSql(
+                @"SELECT [v].[Name], [v].[Operator_Discriminator], [v].[Operator_Name], [v].[LicenseType]
+FROM [Vehicles] AS [v]
+WHERE [v].[Discriminator] IN (N'PoweredVehicle', N'Vehicle') AND [v].[Operator_Discriminator] IN (N'LicensedOperator', N'Operator')");
+        }
+
+        public override void Can_query_shared_derived()
+        {
+            base.Can_query_shared_derived();
+
+            AssertSql(
+                @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
+FROM [Vehicles] AS [v]
+WHERE ([v].[Engine_Discriminator] = N'CombustionEngine') AND ([v].[Discriminator] = N'PoweredVehicle')");
+        }
+
         public override void Can_change_dependent_instance_non_derived()
         {
             base.Can_change_dependent_instance_non_derived();
 
-            TestSqlLoggerFactory.AssertBaseline(new []{
+            AssertContainsSql(
                 @"@p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='LicensedOperator' (Nullable = false) (Size = 4000)
 @p1='repairman' (Size = 4000)
@@ -28,23 +48,21 @@ namespace Microsoft.EntityFrameworkCore
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [Operator_Name] = @p1, [LicenseType] = @p2
 WHERE [Name] = @p3;
-SELECT @@ROWCOUNT;"
-            }, assertOrder: false);
+SELECT @@ROWCOUNT;");
         }
 
         public override void Can_change_principal_instance_non_derived()
         {
             base.Can_change_principal_instance_non_derived();
 
-            TestSqlLoggerFactory.AssertBaseline(new[]{
+            AssertContainsSql(
                 @"@p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='2'
 
 SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 WHERE [Name] = @p1;
-SELECT @@ROWCOUNT;"
-            }, assertOrder: false);
+SELECT @@ROWCOUNT;");
         }
     }
 }

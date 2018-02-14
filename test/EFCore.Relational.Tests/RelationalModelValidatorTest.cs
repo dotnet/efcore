@@ -182,21 +182,6 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Model);
         }
 
-        [Fact] // #8973
-        public virtual void Detects_derived_principal_with_shared_table()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            modelBuilder.Entity<D>().HasOne<B>().WithOne().IsRequired().HasForeignKey<B>(a => a.Id).HasPrincipalKey<D>(b => b.Id);
-            modelBuilder.Entity<D>().HasBaseType<A>().ToTable("Table");
-            modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().ToTable("Table");
-
-            VerifyError(
-                RelationalStrings.IncompatibleTableDerivedPrincipal(
-                    "Table", nameof(B), nameof(D), nameof(A)), modelBuilder.Model);
-        }
-
         [Fact]
         public virtual void Passes_for_compatible_shared_table()
         {

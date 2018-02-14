@@ -15,42 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [Fact(Skip = "#8973")]
-        public override void No_ignored_include_warning_when_implicit_load()
-        {
-            base.No_ignored_include_warning_when_implicit_load();
-        }
-
-        [Fact(Skip = "#8973")]
-        public override void Query_for_base_type_loads_all_owned_navs()
-        {
-            base.Query_for_base_type_loads_all_owned_navs();
-        }
-
-        [Fact(Skip = "#8973")]
-        public override void Query_for_branch_type_loads_all_owned_navs()
-        {
-            base.Query_for_branch_type_loads_all_owned_navs();
-        }
-
-        [Fact(Skip = "#8973")]
-        public override void Query_when_group_by()
-        {
-            base.Query_when_group_by();
-        }
-
-        [Fact(Skip = "#8973")]
-        public override void Query_when_subquery()
-        {
-            base.Query_when_subquery();
-        }
-
-        [Fact(Skip = "#8973")]
-        public override void Query_for_leaf_type_loads_all_owned_navs()
-        {
-            base.Query_for_leaf_type_loads_all_owned_navs();
-        }
-
         public class OwnedQuerySqliteFixture : OwnedQueryFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;

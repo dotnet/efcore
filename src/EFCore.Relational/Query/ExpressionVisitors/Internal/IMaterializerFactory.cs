@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Remotion.Linq.Clauses;
 
 namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 {
@@ -26,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             [NotNull] IEntityType entityType,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,
-            [CanBeNull] IQuerySource querySource,
             out Dictionary<Type, int[]> typeIndexMap);
     }
 }

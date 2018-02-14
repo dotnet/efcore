@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
             TestOutputHelper = testOutputHelper;
         }
 
-        [Fact(Skip = "#8973")]
+        [Fact]
         public virtual void Can_query_shared()
         {
             using (CreateTestStore(OnModelCreating))
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "#8973")]
+        [Fact(Skip = "#10791 Incorrect data")]
         public virtual void Can_query_shared_derived()
         {
             using (CreateTestStore(OnModelCreating))
@@ -45,13 +45,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [Fact(Skip = "#8973")]
+        [Fact]
         public virtual void Can_use_with_redundant_relationships()
         {
             Test_roundtrip(OnModelCreating);
         }
 
-        [Fact(Skip = "#8973")]
+        [Fact]
         public virtual void Can_use_with_chained_relationships()
         {
             Test_roundtrip(
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
         }
 
-        [Fact(Skip = "#8973")]
+        [Fact(Skip = "Issue#10971")]
         public virtual void Can_use_with_fanned_relationships()
         {
             Test_roundtrip(
@@ -181,6 +181,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertContainsSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -206,6 +208,11 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider(validateScopes: true);
 
             TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
+
+            TestSqlLoggerFactory.Clear();
+
+            // To enable logging
+            //TestSqlLoggerFactory.SetTestOutputHelper(TestOutputHelper);
 
             return TestStore;
         }

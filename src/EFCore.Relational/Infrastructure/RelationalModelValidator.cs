@@ -266,30 +266,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        private static bool IsIdentifyingPrincipal(IEntityType dependEntityType, IEntityType principalEntityType)
+        private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
         {
-            foreach (var foreignKey in dependEntityType.FindForeignKeys(dependEntityType.FindPrimaryKey().Properties))
-            {
-                if (!foreignKey.PrincipalKey.IsPrimaryKey()
-                    || foreignKey.PrincipalEntityType != principalEntityType)
-                {
-                    continue;
-                }
-
-                if (principalEntityType.BaseType != null)
-                {
-                    // #8973
-                    throw new InvalidOperationException(
-                        RelationalStrings.IncompatibleTableDerivedPrincipal(
-                            dependEntityType.Relational().TableName,
-                            dependEntityType.DisplayName(),
-                            principalEntityType.DisplayName(),
-                            principalEntityType.RootType().DisplayName()));
-                }
-                return true;
-            }
-
-            return false;
+            return dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
+                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                    && fk.PrincipalEntityType == principalEntityType);
         }
 
         /// <summary>
@@ -588,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        private void ValidateDiscriminator(IEntityType entityType)
+        private static void ValidateDiscriminator(IEntityType entityType)
         {
             var annotations = entityType.Relational();
             if (annotations.DiscriminatorProperty == null)

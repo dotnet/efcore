@@ -208,7 +208,7 @@ FROM [Animal] AS [a]
 WHERE [a].[Discriminator] IN (N'Kiwi', N'Eagle')
 ORDER BY [a].[Species]");
         }
-        
+
         public override void Can_query_all_animal_views()
         {
             base.Can_query_all_animal_views();
