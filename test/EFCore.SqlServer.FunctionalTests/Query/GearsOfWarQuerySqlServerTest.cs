@@ -5990,6 +5990,13 @@ LEFT JOIN (
 WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader') AND (([t].[Eradicated] <> 1) OR [t].[Eradicated] IS NULL)");
         }
 
+        public override void Include_collection_group_by_reference()
+        {
+            base.Include_collection_group_by_reference();
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
