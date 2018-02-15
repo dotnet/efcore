@@ -284,7 +284,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
             base.From_sql_queryable_with_null_parameter();
 
             AssertSql(
-                @"@p0='' (Nullable = false) (DbType = String)
+                @"@p0='' (Nullable = false)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }

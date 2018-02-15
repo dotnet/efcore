@@ -114,8 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     .Append(')');
             }
 
-            if (hasValue
-                && !IsNormalDbType(dbType, clrType))
+            if (ShouldShowDbType(hasValue, dbType, clrType))
             {
                 builder
                     .Append(" (DbType = ")
@@ -168,57 +167,58 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             builder.Append('\'');
         }
 
-        private static bool IsNormalDbType(DbType dbType, Type clrType)
+        private static bool ShouldShowDbType(bool hasValue, DbType dbType, Type clrType)
         {
-            if (clrType == null)
+            if (!hasValue
+                || clrType == null
+                || clrType == typeof(DBNull))
             {
-                return false;
+                return dbType != DbType.String;
             }
 
             clrType = clrType.UnwrapNullableType().UnwrapEnumType();
 
             switch (dbType)
             {
-                case DbType.AnsiString: // Zero
-                    return clrType != typeof(string);
                 case DbType.Binary:
-                    return clrType == typeof(byte[]);
+                    return clrType != typeof(byte[]);
                 case DbType.Byte:
-                    return clrType == typeof(byte);
+                    return clrType != typeof(byte);
                 case DbType.Boolean:
-                    return clrType == typeof(bool);
+                    return clrType != typeof(bool);
                 case DbType.Decimal:
-                    return clrType == typeof(decimal);
+                    return clrType != typeof(decimal);
                 case DbType.Double:
-                    return clrType == typeof(double);
+                    return clrType != typeof(double);
                 case DbType.Guid:
-                    return clrType == typeof(Guid);
+                    return clrType != typeof(Guid);
                 case DbType.Int16:
-                    return clrType == typeof(short);
+                    return clrType != typeof(short);
                 case DbType.Int32:
-                    return clrType == typeof(int);
+                    return clrType != typeof(int);
                 case DbType.Int64:
-                    return clrType == typeof(long);
+                    return clrType != typeof(long);
                 case DbType.Object:
-                    return clrType == typeof(object);
+                    return clrType != typeof(object);
                 case DbType.SByte:
-                    return clrType == typeof(sbyte);
+                    return clrType != typeof(sbyte);
                 case DbType.Single:
-                    return clrType == typeof(float);
+                    return clrType != typeof(float);
                 case DbType.String:
-                    return clrType == typeof(string);
+                    return clrType != typeof(string);
                 case DbType.Time:
-                    return clrType == typeof(TimeSpan);
+                    return clrType != typeof(TimeSpan);
                 case DbType.UInt16:
-                    return clrType == typeof(ushort);
+                    return clrType != typeof(ushort);
                 case DbType.UInt32:
-                    return clrType == typeof(uint);
+                    return clrType != typeof(uint);
                 case DbType.UInt64:
-                    return clrType == typeof(ulong);
+                    return clrType != typeof(ulong);
                 case DbType.DateTime2:
-                    return clrType == typeof(DateTime);
+                    return clrType != typeof(DateTime);
                 case DbType.DateTimeOffset:
-                    return clrType == typeof(DateTimeOffset);
+                    return clrType != typeof(DateTimeOffset);
+                //case DbType.AnsiString:
                 //case DbType.VarNumeric:
                 //case DbType.AnsiStringFixedLength:
                 //case DbType.StringFixedLength:
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 //case DbType.Date:
                 //case DbType.DateTime:
                 default:
-                    return false;
+                    return true;
             }
         }
     }

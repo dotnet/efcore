@@ -2854,7 +2854,7 @@ SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [Users] AS [x]
 WHERE ([x].[IsDeleted] = 0) AND (@__ef_filter__IsModerated_0 IS NULL OR (@__ef_filter__IsModerated_1 = [x].[IsModerated]))",
                     //
-                    @"@__ef_filter__IsModerated_0='' (DbType = String)
+                    @"@__ef_filter__IsModerated_0=''
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
 FROM [Users] AS [x]
@@ -2935,7 +2935,7 @@ WHERE @__ef_filter__Enabled_0 = [x].[IsDeleted]");
                     Assert.Single(query);
 
                     AssertSql(
-                        @"@__ef_filter__IsModerated_0='' (DbType = String)
+                        @"@__ef_filter__IsModerated_0=''
 @__IsModerated_0='False'
 
 SELECT [x].[Id], [x].[IsDeleted], [x].[IsModerated]
@@ -3616,8 +3616,8 @@ ORDER BY [t].[Id]");
                 queryableObj.Skip(0).Take(100).ToList();
 
                 AssertSql(
-                    @"@__p_0='?'
-@__p_1='?'
+                    @"@__p_0='?' (DbType = Int32)
+@__p_1='?' (DbType = Int32)
 
 SELECT [t].[Id], [t].[Text], [t].[Id0], [t].[User_Email], [t].[User_Fullname]
 FROM (

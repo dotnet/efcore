@@ -518,14 +518,14 @@ WHERE ""e"".""Time"" = :timeSpan_0",
 :p14='anyone!' (Size = 2000)
 :p15='Gumball Rules OK!' (Size = 2000)
 :p16='103.3' (Nullable = true)
-:p17='' (Size = 2000) (DbType = String)
+:p17='' (Size = 2000)
 :p18='84.4' (Nullable = true)
 :p19='79' (Nullable = true)
 :p20='Gumball Rules!' (Size = 2000)
 :p21='11:15:12' (Nullable = true) (DbType = Object)
 :p22='80' (Nullable = true)
 :p23='0x595A5B5C' (Size = 2000)
-:p24='' (Size = 2000)",
+:p24='' (Size = 2000) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -619,28 +619,28 @@ WHERE ""e"".""Time"" = :timeSpan_0",
                 @":p0='78'
 :p1='' (DbType = Int64)
 :p2='' (DbType = Int32)
-:p3='' (Size = 2000) (DbType = String)
-:p4='' (Size = 2000) (DbType = String)
+:p3='' (Size = 2000)
+:p4='' (Size = 2000)
 :p5='' (DbType = DateTime)
 :p6='' (DbType = DateTime)
-:p7='' (DbType = String)
-:p8='' (DbType = String)
-:p9='' (DbType = String)
-:p10='' (DbType = String)
+:p7=''
+:p8=''
+:p9=''
+:p10=''
 :p11='' (Size = 8000) (DbType = Binary)
-:p12='' (DbType = String)
-:p13='' (Size = 2000) (DbType = String)
-:p14='' (Size = 2000) (DbType = String)
-:p15='' (Size = 2000) (DbType = String)
-:p16='' (DbType = String)
-:p17='' (Size = 2000) (DbType = String)
-:p18='' (DbType = String)
+:p12=''
+:p13='' (Size = 2000)
+:p14='' (Size = 2000)
+:p15='' (Size = 2000)
+:p16=''
+:p17='' (Size = 2000)
+:p18=''
 :p19='' (DbType = Int16)
-:p20='' (Size = 2000) (DbType = String)
-:p21='' (DbType = String)
+:p20='' (Size = 2000)
+:p21=''
 :p22='' (DbType = Byte)
 :p23='' (Size = 2000) (DbType = Binary)
-:p24='' (Size = 2000)",
+:p24='' (Size = 2000) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -769,17 +769,17 @@ WHERE ""e"".""Time"" = :timeSpan_0",
             Assert.Equal(
                 @":p0='78'
 :p1='' (Size = 3) (DbType = Binary)
-:p2='' (Size = 3)
-:p3='' (Size = 2000) (DbType = String)
-:p4='' (Size = 2000) (DbType = String)
-:p5='' (Size = 2000) (DbType = String)
-:p6='' (Size = 2000) (DbType = String)
-:p7='' (Size = 2000) (DbType = String)
-:p8='' (Size = 2000) (DbType = String)
-:p9='' (Size = 3) (DbType = String)
-:p10='' (Size = 3) (DbType = String)
+:p2='' (Size = 3) (DbType = AnsiString)
+:p3='' (Size = 2000)
+:p4='' (Size = 2000)
+:p5='' (Size = 2000)
+:p6='' (Size = 2000)
+:p7='' (Size = 2000)
+:p8='' (Size = 2000)
+:p9='' (Size = 3)
+:p10='' (Size = 3)
 :p11='' (Size = 3) (DbType = Binary)
-:p12='' (Size = 3)",
+:p12='' (Size = 3) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1149,29 +1149,29 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
             Assert.Equal(
                 @":p0='' (DbType = Int64)
 :p1='' (DbType = Int32)
-:p2='' (Size = 2000) (DbType = String)
-:p3='' (Size = 2000) (DbType = String)
+:p2='' (Size = 2000)
+:p3='' (Size = 2000)
 :p4='' (DbType = DateTime)
 :p5='' (DbType = DateTime)
-:p6='' (DbType = String)
-:p7='' (DbType = String)
-:p8='' (DbType = String)
-:p9='' (DbType = String)
+:p6=''
+:p7=''
+:p8=''
+:p9=''
 :p10='' (Size = 8000) (DbType = Binary)
 :p11='78' (Nullable = true)
-:p12='' (DbType = String)
-:p13='' (Size = 2000) (DbType = String)
-:p14='' (Size = 2000) (DbType = String)
-:p15='' (Size = 2000) (DbType = String)
-:p16='' (DbType = String)
-:p17='' (Size = 2000) (DbType = String)
-:p18='' (DbType = String)
+:p12=''
+:p13='' (Size = 2000)
+:p14='' (Size = 2000)
+:p15='' (Size = 2000)
+:p16=''
+:p17='' (Size = 2000)
+:p18=''
 :p19='' (DbType = Int16)
-:p20='' (Size = 2000) (DbType = String)
-:p21='' (DbType = String)
+:p20='' (Size = 2000)
+:p21=''
 :p22='' (DbType = Byte)
 :p23='' (Size = 2000) (DbType = Binary)
-:p24='' (Size = 2000)
+:p24='' (Size = 2000) (DbType = AnsiString)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);
@@ -1302,18 +1302,18 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
             var parameters = DumpParameters();
             Assert.Equal(
                 @":p0='' (Size = 3) (DbType = Binary)
-:p1='' (Size = 3)
-:p2='' (Size = 2000) (DbType = String)
-:p3='' (Size = 2000) (DbType = String)
-:p4='' (Size = 2000) (DbType = String)
+:p1='' (Size = 3) (DbType = AnsiString)
+:p2='' (Size = 2000)
+:p3='' (Size = 2000)
+:p4='' (Size = 2000)
 :p5='78'
-:p6='' (Size = 2000) (DbType = String)
-:p7='' (Size = 2000) (DbType = String)
-:p8='' (Size = 2000) (DbType = String)
-:p9='' (Size = 3) (DbType = String)
-:p10='' (Size = 3) (DbType = String)
+:p6='' (Size = 2000)
+:p7='' (Size = 2000)
+:p8='' (Size = 2000)
+:p9='' (Size = 3)
+:p10='' (Size = 3)
 :p11='' (Size = 3) (DbType = Binary)
-:p12='' (Size = 3)
+:p12='' (Size = 3) (DbType = AnsiString)
 cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
                 parameters,
                 ignoreLineEndingDifferences: true);

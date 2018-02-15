@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
             Assert.Contains(
-                @"@p0='' (DbType = String)" + _eol +
+                @"@p0=''" + _eol +
                 @"@p1='Third' (Nullable = false) (Size = 5)" + _eol +
                 @"@p2='00000000-0000-0000-0000-000000000003' (DbType = String)" + _eol +
                 @"@p3='Third Additional Name' (Size = 21)" + _eol +
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
 
             Assert.Contains(
-                @"@p1='' (Nullable = false) (DbType = String)" + _eol,
+                @"@p1='' (Nullable = false)" + _eol,
                 Sql);
         }
 
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @"@p0='' (DbType = String)" + _eol +
+                @"@p0=''" + _eol +
                 @"@p1='ValidString' (Nullable = false) (Size = 11)" + _eol +
                 @"@p2='00000000-0000-0000-0000-000000000001' (DbType = String)" + _eol +
                 @"@p3='Two' (Size = 3)" + _eol +
@@ -200,8 +200,8 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
 
             Assert.Contains(
-                @"@p0='' (DbType = String)" + _eol +
-                @"@p1='' (Nullable = false) (DbType = String)" + _eol +
+                @"@p0=''" + _eol +
+                @"@p1='' (Nullable = false)" + _eol +
                 @"@p2='00000000-0000-0000-0000-000000000002' (DbType = String)" + _eol +
                 @"@p3='Two' (Size = 3)" + _eol +
                 @"@p4='One' (Size = 3)" + _eol +

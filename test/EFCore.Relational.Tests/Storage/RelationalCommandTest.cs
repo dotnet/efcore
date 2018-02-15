@@ -935,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             foreach (var (Level, Id, Message) in log)
             {
                 Assert.EndsWith(
-                    @"[Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']" + EOL +
+                    @"[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + EOL +
                     @"Logged Command",
                     Message);
             }

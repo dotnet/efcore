@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public void Formats_null_string_parameter()
         {
             Assert.Equal(
-                "@param='' (DbType = String)",
+                "@param=''",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", null, true, ParameterDirection.Input, DbType.String, true, 0, 0, 0));
         }
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public void Formats_int_parameter_with_no_type()
         {
             Assert.Equal(
-                "@param='777'",
+                "@param='777' (DbType = AnsiString)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", 777, true, ParameterDirection.Input, 0, false, 0, 0, 0));
         }
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public void Formats_sensitive_int_parameter()
         {
             Assert.Equal(
-                "@param='?'",
+                "@param='?' (DbType = Int32)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", "?", false, ParameterDirection.Input, DbType.Int32, false, 0, 0, 0));
         }
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public void Formats_sensitive_nullable_int_parameter()
         {
             Assert.Equal(
-                "@param='?'",
+                "@param='?' (DbType = Int32)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", "?", false, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0));
         }

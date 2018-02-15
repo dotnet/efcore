@@ -202,7 +202,7 @@ END;",
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
             Assert.Equal(
-                @":p0='' (Size = 10) (DbType = String)
+                @":p0='' (Size = 10)
 :p1='Third' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000003' (Nullable = false) (Size = 16)
 :p3='Third Additional Name' (Size = 2000)
@@ -306,7 +306,7 @@ END;",
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
             Assert.Equal(
-                @":p0='' (Size = 10) (DbType = String)
+                @":p0='' (Size = 10)
 :p1='ValidString' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000001' (Nullable = false) (Size = 16)
 :p3='Two' (Size = 2000)
@@ -331,8 +331,8 @@ RETURNING ""UniqueNo"" INTO listSample_0(1);
 OPEN :cur1 FOR SELECT listSample_0(1).UniqueNo FROM DUAL;
 END;
 
-:p0='' (Size = 10) (DbType = String)
-:p1='' (Nullable = false) (Size = 2000) (DbType = String)
+:p0='' (Size = 10)
+:p1='' (Nullable = false) (Size = 2000)
 :p2='0x00000000000000000000000000000002' (Nullable = false) (Size = 16)
 :p3='Two' (Size = 2000)
 :p4='One' (Size = 2000)
