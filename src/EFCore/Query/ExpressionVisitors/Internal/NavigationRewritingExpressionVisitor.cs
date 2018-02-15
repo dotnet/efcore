@@ -32,6 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class NavigationRewritingExpressionVisitor : RelinqExpressionVisitor
     {
+        private static readonly ExpressionEqualityComparer _expressionEqualityComparer = new ExpressionEqualityComparer();
+
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly NavigationJoins _navigationJoins = new NavigationJoins();
         private readonly NavigationRewritingQueryModelVisitor _navigationRewritingQueryModelVisitor;
@@ -739,7 +741,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 {
                     foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations
                         .OfType<IncludeResultOperator>()
-                        .Where(o => o.PathFromQuerySource == expression))
+                        .Where(o => _expressionEqualityComparer.Equals(o.PathFromQuerySource, expression)))
                     {
                         includeResultOperator.PathFromQuerySource = resultQsre;
                         includeResultOperator.QuerySource = resultQsre.ReferencedQuerySource;

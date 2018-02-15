@@ -5997,6 +5997,58 @@ WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader') AND (([t].[E
             AssertSql(" ");
         }
 
+        public override void Include_on_derived_type_with_order_by_and_paging()
+        {
+            base.Include_on_derived_type_with_order_by_and_paging();
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT TOP(@__p_0) [ll].[Name], [ll].[Discriminator], [ll].[LocustHordeId], [ll].[ThreatLevel], [ll].[DefeatedByNickname], [ll].[DefeatedBySquadId], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOrBirthName], [t].[Discriminator], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank]
+FROM [LocustLeaders] AS [ll]
+LEFT JOIN (
+    SELECT [ll.DefeatedBy].*
+    FROM [Gears] AS [ll.DefeatedBy]
+    WHERE [ll.DefeatedBy].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t] ON (CASE
+    WHEN [ll].[Discriminator] = N'LocustCommander'
+    THEN [ll].[DefeatedByNickname] ELSE NULL
+END = [t].[Nickname]) AND (CASE
+    WHEN [ll].[Discriminator] = N'LocustCommander'
+    THEN [ll].[DefeatedBySquadId] ELSE NULL
+END = [t].[SquadId])
+LEFT JOIN [Tags] AS [ll.DefeatedBy.Tag] ON (([t].[Nickname] = [ll.DefeatedBy.Tag].[GearNickName]) OR ([t].[Nickname] IS NULL AND [ll.DefeatedBy.Tag].[GearNickName] IS NULL)) AND (([t].[SquadId] = [ll.DefeatedBy.Tag].[GearSquadId]) OR ([t].[SquadId] IS NULL AND [ll.DefeatedBy.Tag].[GearSquadId] IS NULL))
+WHERE [ll].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
+ORDER BY [ll.DefeatedBy.Tag].[Note], [t].[FullName]",
+                //
+                @"@__p_0='10'
+
+SELECT [ll.DefeatedBy.Weapons].[Id], [ll.DefeatedBy.Weapons].[AmmunitionType], [ll.DefeatedBy.Weapons].[IsAutomatic], [ll.DefeatedBy.Weapons].[Name], [ll.DefeatedBy.Weapons].[OwnerFullName], [ll.DefeatedBy.Weapons].[SynergyWithId]
+FROM [Weapons] AS [ll.DefeatedBy.Weapons]
+INNER JOIN (
+    SELECT DISTINCT [t1].*
+    FROM (
+        SELECT TOP(@__p_0) [t0].[FullName], [ll.DefeatedBy.Tag0].[Note]
+        FROM [LocustLeaders] AS [ll0]
+        LEFT JOIN (
+            SELECT [ll.DefeatedBy0].*
+            FROM [Gears] AS [ll.DefeatedBy0]
+            WHERE [ll.DefeatedBy0].[Discriminator] IN (N'Officer', N'Gear')
+        ) AS [t0] ON (CASE
+            WHEN [ll0].[Discriminator] = N'LocustCommander'
+            THEN [ll0].[DefeatedByNickname] ELSE NULL
+        END = [t0].[Nickname]) AND (CASE
+            WHEN [ll0].[Discriminator] = N'LocustCommander'
+            THEN [ll0].[DefeatedBySquadId] ELSE NULL
+        END = [t0].[SquadId])
+        LEFT JOIN [Tags] AS [ll.DefeatedBy.Tag0] ON (([t0].[Nickname] = [ll.DefeatedBy.Tag0].[GearNickName]) OR ([t0].[Nickname] IS NULL AND [ll.DefeatedBy.Tag0].[GearNickName] IS NULL)) AND (([t0].[SquadId] = [ll.DefeatedBy.Tag0].[GearSquadId]) OR ([t0].[SquadId] IS NULL AND [ll.DefeatedBy.Tag0].[GearSquadId] IS NULL))
+        WHERE [ll0].[Discriminator] IN (N'LocustCommander', N'LocustLeader')
+        ORDER BY [ll.DefeatedBy.Tag0].[Note], [t0].[FullName]
+    ) AS [t1]
+) AS [t2] ON [ll.DefeatedBy.Weapons].[OwnerFullName] = [t2].[FullName]
+ORDER BY [t2].[Note], [t2].[FullName]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

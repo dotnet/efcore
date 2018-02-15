@@ -2255,6 +2255,66 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Optional_navigation_with_order_by_and_Include()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Select(l1 => l1.OneToOne_Optional_FK)
+                    .OrderBy(l2 => l2.Name)
+                    .Include(l2 => l2.OneToMany_Optional),
+                l1s => l1s
+                    .Select(l1 => l1.OneToOne_Optional_FK)
+                    .OrderBy(l2 => Maybe(l2, () => l2.Name)),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional, "OneToMany_Optional") },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_navigation_with_Include_and_order()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .Select(l1 => l1.OneToOne_Optional_FK)
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 => l2.Name),
+                l1s => l1s
+                    .Select(l1 => l1.OneToOne_Optional_FK)
+                    .OrderBy(l2 => Maybe(l2, () => l2.Name)),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional, "OneToMany_Optional") },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_order_by_and_Include()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .OrderBy(l2 => l2.Name)
+                    .Include(l2 => l2.OneToMany_Optional),
+                l1s => l1s
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .OrderBy(l2 => Maybe(l2, () => l2.Name)),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional, "OneToMany_Optional") },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual void SelectMany_with_Include_and_order_by()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .Include(l2 => l2.OneToMany_Optional)
+                    .OrderBy(l2 => l2.Name),
+                l1s => l1s
+                    .SelectMany(l1 => l1.OneToMany_Optional)
+                    .OrderBy(l2 => Maybe(l2, () => l2.Name)),
+                expectedIncludes: new List<IExpectedInclude> { new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional, "OneToMany_Optional") },
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
         public virtual void SelectMany_with_navigation_and_explicit_DefaultIfEmpty()
         {
             AssertQuery<Level1>(

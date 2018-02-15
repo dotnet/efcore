@@ -4227,6 +4227,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Include_on_derived_type_with_order_by_and_paging()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy"),
+                new ExpectedInclude<Gear>(e => e.Weapons, "Weapons", "DefeatedBy"),
+            };
+
+            AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include(ll => ((LocustCommander)ll).DefeatedBy).ThenInclude(g => g.Weapons).OrderBy(ll => ((LocustCommander)ll).DefeatedBy.Tag.Note).Take(10),
+                lls => lls.Take(10),
+                expectedIncludes,
+                elementSorter: e => e.Name);
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

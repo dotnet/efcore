@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        // #8172 - One-to-many not supported yet
+        #region #8172 - One-to-many not supported yet
+
         public override void Multiple_SelectMany_with_string_based_Include()
         {
         }
@@ -389,5 +390,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Include_reference_collection_order_by_reference_navigation()
         {
         }
+
+        public override void Optional_navigation_with_order_by_and_Include()
+        {
+        }
+
+        public override void Optional_navigation_with_Include_and_order()
+        {
+        }
+
+        public override void SelectMany_with_order_by_and_Include()
+        {
+        }
+
+        public override void SelectMany_with_Include_and_order_by()
+        {
+        }
+
+        #endregion
     }
 }

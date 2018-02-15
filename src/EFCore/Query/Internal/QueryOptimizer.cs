@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -392,6 +393,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     queryAnnotation.QuerySource = newQuerySource;
                     queryAnnotation.QueryModel = queryModel;
+
+                    if (queryAnnotation is IncludeResultOperator includeAnnotation
+                        && includeAnnotation.PathFromQuerySource != null)
+                    {
+                        includeAnnotation.PathFromQuerySource
+                            = ReferenceReplacingExpressionVisitor
+                              .ReplaceClauseReferences(includeAnnotation.PathFromQuerySource, querySourceMapping, throwOnUnmappedReferences: false);
+                    }
                 }
             }
         }
