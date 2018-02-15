@@ -390,6 +390,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 property.IsUnicode(typeScaffoldingInfo.ScaffoldUnicode.Value);
             }
 
+            if (typeScaffoldingInfo.ScaffoldFixedLength == true)
+            {
+                property.IsFixedLength();
+            }
+
             if (typeScaffoldingInfo.ScaffoldMaxLength.HasValue)
             {
                 property.HasMaxLength(typeScaffoldingInfo.ScaffoldMaxLength.Value);
@@ -857,7 +862,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     typeScaffoldingInfo.ClrType,
                     inferred: false,
                     scaffoldUnicode: typeScaffoldingInfo.ScaffoldUnicode,
-                    scaffoldMaxLength: typeScaffoldingInfo.ScaffoldMaxLength);
+                    scaffoldMaxLength: typeScaffoldingInfo.ScaffoldMaxLength,
+                    scaffoldFixedLength: typeScaffoldingInfo.ScaffoldFixedLength);
             }
 
             return typeScaffoldingInfo;

@@ -107,14 +107,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (clrType == typeof(string))
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;
-                    var baseName = isAnsi ? "ansi_string" : "just_string";
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var baseName = (isAnsi ? "ansi_" : "just_") + (isFixedLength ? "string_fixed" : "string");
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
 
                     return new StringTypeMapping(
                         storeTypeName ?? baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
                         isAnsi ? DbType.AnsiString : (DbType?)null,
                         !isAnsi,
-                        size);
+                        size,
+                        isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))

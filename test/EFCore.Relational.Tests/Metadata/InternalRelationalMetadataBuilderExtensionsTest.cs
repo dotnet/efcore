@@ -88,6 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity(typeof(Splot), ConfigurationSource.Convention)
                 .Property("Id", typeof(int), ConfigurationSource.Convention);
 
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).IsFixedLength(true));
+            Assert.True(propertyBuilder.Metadata.Relational().IsFixedLength);
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splew"));
             Assert.Equal("Splew", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.True(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnType("int"));
@@ -101,6 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("3", propertyBuilder.Metadata.Relational().ComputedColumnSql);
             Assert.Null(propertyBuilder.Metadata.Relational().DefaultValueSql);
 
+            Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).IsFixedLength(false));
+            Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).IsFixedLength(true));
+            Assert.False(propertyBuilder.Metadata.Relational().IsFixedLength);
             Assert.True(propertyBuilder.Relational(ConfigurationSource.DataAnnotation).HasColumnName("Splow"));
             Assert.False(propertyBuilder.Relational(ConfigurationSource.Convention).HasColumnName("Splod"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Relational().ColumnName);

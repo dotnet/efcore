@@ -113,6 +113,43 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     "@param", null, true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0));
         }
 
+
+        [Fact]
+        public void Formats_fixed_length_string_parameter()
+        {
+            Assert.Equal(
+                "@param='Muffin' (DbType = StringFixedLength)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.StringFixedLength, true, 0, 0, 0));
+        }
+
+        [Fact]
+        public void Formats_fixed_length_non_nullable_string_parameter()
+        {
+            Assert.Equal(
+                "@param='Muffin' (Nullable = false) (DbType = StringFixedLength)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.StringFixedLength, false, 0, 0, 0));
+        }
+
+        [Fact]
+        public void Formats_fixed_length_non_nullable_sized_string_parameter()
+        {
+            Assert.Equal(
+                "@param='Muffin' (Nullable = false) (Size = 100) (DbType = StringFixedLength)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", "Muffin", true, ParameterDirection.Input, DbType.StringFixedLength, false, 100, 0, 0));
+        }
+
+        [Fact]
+        public void Formats_null_fixed_length_string_parameter()
+        {
+            Assert.Equal(
+                "@param='' (DbType = StringFixedLength)",
+                DbParameterCollectionExtensions.FormatParameter(
+                    "@param", null, true, ParameterDirection.Input, DbType.StringFixedLength, true, 0, 0, 0));
+        }
+
         [Fact]
         public void Formats_sensitive_string_parameter()
         {

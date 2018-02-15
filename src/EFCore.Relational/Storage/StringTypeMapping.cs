@@ -29,10 +29,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
+            DbType? dbType,
+            bool unicode,
+            int? size)
+            : this(storeType, null, null, dbType, unicode, size)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
+        /// </summary>
+        /// <param name="storeType"> The name of the database type. </param>
+        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
+        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
+        public StringTypeMapping(
+            [NotNull] string storeType,
             DbType? dbType = null,
             bool unicode = false,
-            int? size = null)
-            : this(storeType, null, null, dbType, unicode, size)
+            int? size = null,
+            bool fixedLength = false)
+            : this(storeType, null, null, dbType, unicode, size, fixedLength)
         {
         }
 
@@ -45,14 +63,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
         public StringTypeMapping(
             [NotNull] string storeType,
             [CanBeNull] ValueConverter converter,
             [CanBeNull] ValueComparer comparer,
             DbType? dbType = null,
             bool unicode = false,
-            int? size = null)
-            : base(storeType, typeof(string), converter, comparer, dbType, unicode, size)
+            int? size = null,
+            bool fixedLength = false)
+            : base(storeType, typeof(string), converter, comparer, dbType, unicode, size, fixedLength)
         {
         }
 
@@ -63,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         /// <returns> The newly created mapping. </returns>
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new StringTypeMapping(storeType, Converter, Comparer, DbType, IsUnicode, size);
+            => new StringTypeMapping(storeType, Converter, Comparer, DbType, IsUnicode, size, IsFixedLength);
 
         /// <summary>
         ///    Returns a new copy of this type mapping with the given <see cref="ValueConverter"/>
@@ -72,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="converter"> The converter to use. </param>
         /// <returns> A new type mapping </returns>
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new StringTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size);
+            => new StringTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, IsUnicode, Size, IsFixedLength);
 
         /// <summary>
         ///     Generates the escaped SQL representation of a literal value.

@@ -93,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="fixedLength"> A value indicating whether the type is constrained to fixed-length data. </param>
         protected RelationalTypeMapping(
             [NotNull] string storeType,
             [NotNull] Type clrType,
@@ -100,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] ValueComparer comparer,
             DbType? dbType = null,
             bool unicode = false,
-            int? size = null)
+            int? size = null,
+            bool fixedLength = false)
             : base(clrType, converter, comparer)
         {
             Check.NotEmpty(storeType, nameof(storeType));
@@ -121,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Size = size;
             StoreType = storeType;
+
+            IsFixedLength = fixedLength;
         }
 
         /// <summary>
@@ -159,6 +163,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the size of data the property is configured to store, or null if no size is configured.
         /// </summary>
         public virtual int? Size { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the type is constrained to fixed-length data.
+        /// </summary>
+        public virtual bool IsFixedLength { get; }
 
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.

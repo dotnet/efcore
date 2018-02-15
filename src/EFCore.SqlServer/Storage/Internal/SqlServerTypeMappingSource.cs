@@ -40,13 +40,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new BoolTypeMapping("bit");
 
         private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
-            = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true);
+            = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true, fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
             = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
 
         private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
-            = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString);
+            = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString, fixedLength: true);
 
         private readonly SqlServerStringTypeMapping _variableLengthAnsiString
             = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new SqlServerByteArrayTypeMapping("varbinary");
 
         private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
-            = new SqlServerByteArrayTypeMapping("binary");
+            = new SqlServerByteArrayTypeMapping("binary", fixedLength: true);
 
         private readonly SqlServerDateTimeTypeMapping _date
             = new SqlServerDateTimeTypeMapping("date", dbType: DbType.Date);
@@ -253,7 +253,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 if (clrType == typeof(string))
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;
-                    var baseName = isAnsi ? "varchar" : "nvarchar";
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var baseName = (isAnsi ? "" : "n") + (isFixedLength ? "char" : "varchar");
                     var maxSize = isAnsi ? 8000 : 4000;
 
                     var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
@@ -262,11 +263,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         size = null;
                     }
 
+                    var dbType = isAnsi
+                        ? (isFixedLength ? DbType.AnsiStringFixedLength : DbType.AnsiString)
+                        : (isFixedLength ? DbType.StringFixedLength : (DbType?)null);
+
                     return new SqlServerStringTypeMapping(
                         baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
-                        isAnsi ? DbType.AnsiString : (DbType?)null,
+                        dbType,
                         !isAnsi,
-                        size);
+                        size,
+                        isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))
@@ -282,8 +288,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         size = null;
                     }
 
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+
                     return new SqlServerByteArrayTypeMapping(
-                        "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
+                        (isFixedLength ? "binary(" : "varbinary(") + (size == null ? "max" : size.ToString()) + ")",
                         DbType.Binary,
                         size);
                 }

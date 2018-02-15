@@ -571,6 +571,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
             RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.ColumnOrdinal);
 
             if (!useDataAnnotations)
@@ -616,6 +617,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add(
                     $".{nameof(PropertyBuilder.IsUnicode)}" +
                     $"({(property.IsUnicode() == false ? _cSharpUtilities.GenerateLiteral(false) : "")})");
+            }
+
+            if (property.Relational().IsFixedLength)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");
             }
 
             if (property.Relational().DefaultValue != null)

@@ -3,7 +3,6 @@
 
 using System;
 using System.Globalization;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -473,5 +472,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             SetDefaultValueSql(null);
             SetComputedColumnSql(null);
         }
+
+        /// <summary>
+        ///     A flag indicating if the property as capable of storing only fixed-length data, such as strings.
+        /// </summary>
+        public virtual bool IsFixedLength
+        {
+            get
+            {
+                var fixedLength = Annotations.Metadata[RelationalAnnotationNames.IsFixedLength];
+                return fixedLength != null && (bool)fixedLength;
+            }
+
+            set => SetFixedLength(value);
+        }
+
+        /// <summary>
+        ///     Configures the property as capable of storing only fixed-length data, such as strings.
+        /// </summary>
+        /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
+        /// <returns> <c>True</c> if the value can be set; <c>false</c> otherwise. </returns>
+        protected virtual bool SetFixedLength(bool fixedLength)
+            => Annotations.SetAnnotation(
+                RelationalAnnotationNames.IsFixedLength,
+                fixedLength);
+
     }
 }

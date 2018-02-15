@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Gets a value indicating whether or not the property can persist unicode characters.
+        ///     Gets a value indicating whether or not the property can persist Unicode characters.
         /// </summary>
-        /// <param name="property"> The property to get the unicode setting for. </param>
-        /// <returns> The unicode setting, or null if none if defined. </returns>
+        /// <param name="property"> The property to get the Unicode setting for. </param>
+        /// <returns> The Unicode setting, or null if none if defined. </returns>
         public static bool? IsUnicode([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));

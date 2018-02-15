@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     MaxLength = 30,
                     IsRowVersion = true,
                     IsNullable = true,
-                    DefaultValue = 1
+                    DefaultValue = 1,
+                    IsFixedLength = true
                 },
                 "mb.AddColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
@@ -84,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
                 "    unicode: false," + EOL +
+                "    fixedLength: true," + EOL +
                 "    maxLength: 30," + EOL +
                 "    rowVersion: true," + EOL +
                 "    nullable: true," + EOL +
@@ -97,6 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal("int", o.ColumnType);
                         Assert.True(o.IsNullable);
                         Assert.Equal(1, o.DefaultValue);
+                        Assert.False(o.IsUnicode);
+                        Assert.True(o.IsFixedLength);
                     });
         }
 
@@ -403,6 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.ClrType);
                         Assert.Null(o.ColumnType);
                         Assert.Null(o.IsUnicode);
+                        Assert.Null(o.IsFixedLength);
                         Assert.Null(o.MaxLength);
                         Assert.False(o.IsRowVersion);
                         Assert.False(o.IsNullable);
@@ -412,6 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.OldColumn.ClrType);
                         Assert.Null(o.OldColumn.ColumnType);
                         Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.IsFixedLength);
                         Assert.Null(o.OldColumn.MaxLength);
                         Assert.False(o.OldColumn.IsRowVersion);
                         Assert.False(o.OldColumn.IsNullable);
@@ -437,6 +443,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsRowVersion = true,
                     IsNullable = true,
                     DefaultValue = 1,
+                    IsFixedLength = true,
                     OldColumn =
                     {
                         ClrType = typeof(string),
@@ -445,7 +452,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         MaxLength = 20,
                         IsRowVersion = true,
                         IsNullable = true,
-                        DefaultValue = 0
+                        DefaultValue = 0,
+                        IsFixedLength = true
                     }
                 },
                 "mb.AlterColumn<int>(" + EOL +
@@ -454,6 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
                 "    unicode: false," + EOL +
+                "    fixedLength: true," + EOL +
                 "    maxLength: 30," + EOL +
                 "    rowVersion: true," + EOL +
                 "    nullable: true," + EOL +
@@ -461,6 +470,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    oldClrType: typeof(string)," + EOL +
                 "    oldType: \"string\"," + EOL +
                 "    oldUnicode: false," + EOL +
+                "    oldFixedLength: true," + EOL +
                 "    oldMaxLength: 20," + EOL +
                 "    oldRowVersion: true," + EOL +
                 "    oldNullable: true," + EOL +
@@ -473,6 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.ClrType);
                         Assert.Equal("int", o.ColumnType);
                         Assert.False(o.IsUnicode);
+                        Assert.True(o.IsFixedLength);
                         Assert.Equal(30, o.MaxLength);
                         Assert.True(o.IsRowVersion);
                         Assert.True(o.IsNullable);
@@ -482,6 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(string), o.OldColumn.ClrType);
                         Assert.Equal("string", o.OldColumn.ColumnType);
                         Assert.False(o.OldColumn.IsUnicode);
+                        Assert.True(o.OldColumn.IsFixedLength);
                         Assert.Equal(20, o.OldColumn.MaxLength);
                         Assert.True(o.OldColumn.IsRowVersion);
                         Assert.True(o.OldColumn.IsNullable);
@@ -515,6 +527,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.ClrType);
                         Assert.Null(o.ColumnType);
                         Assert.Null(o.IsUnicode);
+                        Assert.Null(o.IsFixedLength);
                         Assert.Null(o.MaxLength);
                         Assert.False(o.IsRowVersion);
                         Assert.False(o.IsNullable);
@@ -523,6 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.OldColumn.ClrType);
                         Assert.Null(o.OldColumn.ColumnType);
                         Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.IsFixedLength);
                         Assert.Null(o.OldColumn.MaxLength);
                         Assert.False(o.OldColumn.IsRowVersion);
                         Assert.False(o.OldColumn.IsNullable);
@@ -556,6 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.ClrType);
                         Assert.Null(o.ColumnType);
                         Assert.Null(o.IsUnicode);
+                        Assert.Null(o.IsFixedLength);
                         Assert.Null(o.MaxLength);
                         Assert.False(o.IsRowVersion);
                         Assert.False(o.IsNullable);
@@ -564,6 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.OldColumn.ClrType);
                         Assert.Null(o.OldColumn.ColumnType);
                         Assert.Null(o.OldColumn.IsUnicode);
+                        Assert.Null(o.OldColumn.IsFixedLength);
                         Assert.Null(o.OldColumn.MaxLength);
                         Assert.False(o.OldColumn.IsRowVersion);
                         Assert.False(o.OldColumn.IsNullable);
@@ -929,6 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             ClrType = typeof(int),
                             ColumnType = "int",
                             IsUnicode = false,
+                            IsFixedLength = true,
                             MaxLength = 30,
                             IsRowVersion = true,
                             IsNullable = true,
@@ -941,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "    schema: \"dbo\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)" + EOL +
+                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -958,6 +975,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(typeof(int), o.Columns[0].ClrType);
                         Assert.Equal("int", o.Columns[0].ColumnType);
                         Assert.True(o.Columns[0].IsNullable);
+                        Assert.False(o.Columns[0].IsUnicode);
+                        Assert.True(o.Columns[0].IsFixedLength);
                         Assert.Equal(1, o.Columns[0].DefaultValue);
                     });
         }

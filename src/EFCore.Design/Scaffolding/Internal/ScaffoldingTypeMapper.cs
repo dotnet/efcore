@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var canInfer = false;
             bool? scaffoldUnicode = null;
+            bool? scaffoldFixedLength = null;
             int? scaffoldMaxLength = null;
 
             if (mapping.ClrType == typeof(byte[]))
@@ -56,17 +57,29 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     typeof(byte[]),
                     keyOrIndex,
                     rowVersion: rowVersion,
-                    size: mapping.Size);
+                    size: mapping.Size,
+                    fixedLength: mapping.IsFixedLength);
 
                 if (byteArrayMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
                 {
                     canInfer = true;
 
+                    // Check for fixed-length
+                    var fixedLengthMapping = _typeMappingSource.FindMapping(
+                        typeof(byte[]),
+                        keyOrIndex,
+                        rowVersion: rowVersion,
+                        size: mapping.Size,
+                        fixedLength: true);
+
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != byteArrayMapping.IsFixedLength ? (bool?)byteArrayMapping.IsFixedLength : null;
+
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(byte[]),
                         keyOrIndex,
-                        rowVersion: rowVersion);
+                        rowVersion: rowVersion,
+                        fixedLength: mapping.IsFixedLength);
 
                     scaffoldMaxLength = sizedMapping.Size != byteArrayMapping.Size ? byteArrayMapping.Size : null;
                 }
@@ -78,26 +91,39 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     typeof(string),
                     keyOrIndex,
                     unicode: mapping.IsUnicode,
-                    size: mapping.Size);
+                    size: mapping.Size,
+                    fixedLength: mapping.IsFixedLength);
 
                 if (stringMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
                 {
                     canInfer = true;
 
-                    // Check for unicode
+                    // Check for Unicode
                     var unicodeMapping = _typeMappingSource.FindMapping(
                         typeof(string),
                         keyOrIndex,
                         unicode: true,
-                        size: mapping.Size);
+                        size: mapping.Size,
+                        fixedLength: mapping.IsFixedLength);
 
                     scaffoldUnicode = unicodeMapping.IsUnicode != stringMapping.IsUnicode ? (bool?)stringMapping.IsUnicode : null;
+
+                    // Check for fixed-length
+                    var fixedLengthMapping = _typeMappingSource.FindMapping(
+                        typeof(string),
+                        keyOrIndex,
+                        unicode: mapping.IsUnicode,
+                        size: mapping.Size,
+                        fixedLength: true);
+
+                    scaffoldFixedLength = fixedLengthMapping.IsFixedLength != stringMapping.IsFixedLength ? (bool?)stringMapping.IsFixedLength : null;
 
                     // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(string),
                         keyOrIndex,
-                        unicode: mapping.IsUnicode);
+                        unicode: mapping.IsUnicode,
+                        fixedLength: mapping.IsFixedLength);
 
                     scaffoldMaxLength = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
                 }
@@ -116,7 +142,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 mapping.ClrType,
                 canInfer,
                 scaffoldUnicode,
-                scaffoldMaxLength);
+                scaffoldMaxLength,
+                scaffoldFixedLength);
         }
     }
 }

@@ -923,6 +923,28 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         }
 
         [Fact]
+        public virtual void Property_fixedlengthness_is_stored_in_snapshot()
+        {
+            Test(
+                builder => { builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength(true); },
+                GetHeading() + @"
+builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<string>(""Name"")
+            .IsFixedLength(true);
+
+        b.HasKey(""Id"");
+
+        b.ToTable(""EntityWithStringProperty"");
+    });
+",
+                o => { Assert.True(o.GetEntityTypes().First().FindProperty("Name").Relational().IsFixedLength); });
+        }
+
+        [Fact]
         public virtual void Many_facets_chained_in_snapshot()
         {
             Test(

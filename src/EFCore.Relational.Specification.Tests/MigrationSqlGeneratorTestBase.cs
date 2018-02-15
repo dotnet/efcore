@@ -132,6 +132,34 @@ namespace Microsoft.EntityFrameworkCore
                     IsNullable = true
                 });
 
+
+        [Fact]
+        public virtual void AddColumnOperation_with_fixed_length()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsFixedLength(),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsUnicode = true,
+                    IsNullable = true,
+                    IsFixedLength = true
+                });
+
+        [Fact]
+        public virtual void AddColumnOperation_with_fixed_length_no_model()
+            => Generate(
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsUnicode = false,
+                    IsNullable = true,
+                    IsFixedLength = true
+                });
+
         [Fact]
         public virtual void AddColumnOperation_with_maxLength()
             => Generate(

@@ -204,6 +204,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
+        ///     Generates a SQL fragment for a column definition in an <see cref="AddColumnOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void ColumnDefinition(AddColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => ColumnDefinition(
+                operation.Schema,
+                operation.Table,
+                operation.Name,
+                operation.ClrType,
+                operation.ColumnType,
+                operation.IsUnicode,
+                operation.MaxLength,
+                operation.IsFixedLength,
+                operation.IsRowVersion,
+                operation.IsNullable,
+                operation.DefaultValue,
+                operation.DefaultValueSql,
+                operation.ComputedColumnSql,
+                operation,
+                model,
+                builder);
+
+        /// <summary>
         ///     Generates a SQL fragment for a column definition for the given column metadata.
         /// </summary>
         /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
@@ -243,9 +268,54 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             IAnnotatable annotatable,
             IModel model,
             MigrationCommandListBuilder builder)
+            => ColumnDefinition(schema, table, name, clrType, type, unicode, maxLength, null,
+                rowVersion, nullable, defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
+
+        /// <summary>
+        ///     Generates a SQL fragment for a column definition for the given column metadata.
+        /// </summary>
+        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
+        /// <param name="table"> The table that contains the column. </param>
+        /// <param name="name"> The column name. </param>
+        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
+        /// <param name="type"> The database/store type for the column, or <c>null</c> if none has been specified. </param>
+        /// <param name="unicode">
+        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
+        /// </param>
+        /// <param name="maxLength">
+        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
+        /// </param>
+        /// /// <param name="fixedLength"> Indicates whether or not the column is constrained to fixed-length data. </param>
+        /// <param name="rowVersion">
+        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
+        /// </param>
+        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
+        /// <param name="defaultValue"> The default value for the column. </param>
+        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
+        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
+        /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void ColumnDefinition(
+            string schema,
+            string table,
+            string name,
+            Type clrType,
+            string type,
+            bool? unicode,
+            int? maxLength,
+            bool? fixedLength,
+            bool rowVersion,
+            bool nullable,
+            object defaultValue,
+            string defaultValueSql,
+            string computedColumnSql,
+            IAnnotatable annotatable,
+            IModel model,
+            MigrationCommandListBuilder builder)
         {
             base.ColumnDefinition(
-                schema, table, name, clrType, type, unicode, maxLength, rowVersion, nullable,
+                schema, table, name, clrType, type, unicode, maxLength, fixedLength, rowVersion, nullable,
                 defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
             var inlinePk = annotatable[SqliteAnnotationNames.InlinePrimaryKey] as bool?;

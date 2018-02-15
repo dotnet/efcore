@@ -31,11 +31,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected RelationalTypeMappingInfo([NotNull] IProperty property)
             : base(property)
         {
-            var storeTypeName = property
-                .FindPrincipals()
+            var principals = property.FindPrincipals().ToList();
+
+            var storeTypeName = principals
                 .Select(p => (string)p[RelationalAnnotationNames.ColumnType])
                 .FirstOrDefault(t => t != null);
 
+            var fixedLength = principals.Select(p => p.Relational().IsFixedLength).FirstOrDefault(t => t);
+
+            if (!fixedLength)
+            {
+                var customConverter = principals
+                    .Select(p => p.GetValueConverter())
+                    .FirstOrDefault(c => c != null);
+
+                var mappingHints = customConverter?.MappingHints ?? default;
+
+                fixedLength = mappingHints.IsFixedLength == true;
+            }
+
+            IsFixedLength = fixedLength;
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
@@ -88,8 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             ValueConverterInfo builtInConverter)
             : base(source, builtInConverter)
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
+            var mappingHints = ValueConverterInfo?.MappingHints ?? default;
+
             StoreTypeName = source.StoreTypeName;
             StoreTypeNameBase = ParseStoreTypeName(source.StoreTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
+            IsFixedLength = source.IsFixedLength ?? mappingHints.IsFixedLength;
         }
 
         /// <summary>
@@ -112,8 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool? fixedLength = null,
             int? precision = null,
             int? scale = null)
-            : base(type, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale)
+            : base(type, keyOrIndex, unicode, size, rowVersion, precision, scale)
         {
+            IsFixedLength = fixedLength;
         }
 
         private string ParseStoreTypeName(
@@ -202,12 +222,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override int? Scale => base.Scale ?? _parsedScale;
 
         /// <summary>
+        ///     Whether or not the mapped data type is fixed length.
+        /// </summary>
+        public virtual bool? IsFixedLength { get; }
+
+        /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
         /// </summary>
         /// <param name="other"> The other object. </param>
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         protected virtual bool Equals([NotNull] RelationalTypeMappingInfo other)
             => Equals((TypeMappingInfo)other)
+               && IsFixedLength == other.IsFixedLength
                && StoreTypeName == other.StoreTypeName;
 
         /// <summary>
@@ -226,6 +252,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
-            => (base.GetHashCode() * 397) ^ (StoreTypeName?.GetHashCode() ?? 0);
+        {
+            var hashCode = (StoreTypeName != null ? StoreTypeName.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ (IsFixedLength?.GetHashCode() ?? 0);
+            return hashCode;
+        }
     }
 }

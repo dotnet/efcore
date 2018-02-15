@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new FakeValueComparer(),
                 DbType.VarNumeric,
                 false,
-                33);
+                33,
+                true);
 
             var clone = (SqlServerUdtTypeMapping)mapping.Clone("<clone>", 66);
 
@@ -73,6 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Same(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
             Assert.Same(typeof(object), clone.ClrType);
+            Assert.True(mapping.IsFixedLength);
+            Assert.True(clone.IsFixedLength);
 
             var newConverter = new FakeValueConverter();
             clone = (SqlServerUdtTypeMapping)mapping.Clone(newConverter);
@@ -91,6 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotSame(mapping.Converter, clone.Converter);
             Assert.Same(mapping.Comparer, clone.Comparer);
             Assert.Same(typeof(object), clone.ClrType);
+            Assert.True(mapping.IsFixedLength);
+            Assert.True(clone.IsFixedLength);
         }
 
         public static RelationalTypeMapping GetMapping(

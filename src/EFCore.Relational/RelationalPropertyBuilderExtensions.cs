@@ -185,5 +185,35 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] object value = null)
             => (PropertyBuilder<TProperty>)HasDefaultValue((PropertyBuilder)propertyBuilder, value);
+
+        /// <summary>
+        ///     Configures the property as capable of storing only fixed-length data, such as strings.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public static PropertyBuilder IsFixedLength(
+            [NotNull] this PropertyBuilder propertyBuilder,
+            bool fixedLength = true)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            var internalPropertyBuilder = propertyBuilder.GetInfrastructure<InternalPropertyBuilder>();
+            internalPropertyBuilder.Relational(ConfigurationSource.Explicit).IsFixedLength(fixedLength);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the property as capable of storing only fixed-length data, such as strings.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> IsFixedLength<TProperty>(
+            [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
+            bool fixedLength = true)
+            => (PropertyBuilder<TProperty>)IsFixedLength((PropertyBuilder)propertyBuilder, fixedLength);
     }
 }

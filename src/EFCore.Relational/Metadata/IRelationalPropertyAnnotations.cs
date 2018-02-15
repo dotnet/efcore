@@ -33,5 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The default value to use in the definition of the column when creating a column for this property.
         /// </summary>
         object DefaultValue { get; }
+
+        /// <summary>
+        ///     A flag indicating if the property as capable of storing only fixed-length data, such as strings.
+        /// </summary>
+        bool IsFixedLength { get; }
     }
 }

@@ -134,6 +134,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("unicode: false");
                 }
 
+                if (operation.IsFixedLength == true)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("fixedLength: true");
+                }
+
                 if (operation.MaxLength.HasValue)
                 {
                     builder
@@ -425,6 +432,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append("unicode: false");
                 }
 
+                if (operation.IsFixedLength == true)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("fixedLength: true");
+                }
+
                 if (operation.MaxLength.HasValue)
                 {
                     builder.AppendLine(",")
@@ -485,6 +499,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     builder
                         .AppendLine(",")
                         .Append("oldUnicode: false");
+                }
+
+                if (operation.OldColumn.IsFixedLength == true)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("oldFixedLength: true");
                 }
 
                 if (operation.OldColumn.MaxLength.HasValue)
@@ -919,6 +940,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         if (column.IsUnicode == false)
                         {
                             builder.Append("unicode: false, ");
+                        }
+
+                        if (column.IsFixedLength == true)
+                        {
+                            builder.Append("fixedLength: true, ");
                         }
 
                         if (column.MaxLength.HasValue)

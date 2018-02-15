@@ -29,8 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             [CanBeNull] ValueConverter converter,
             [CanBeNull] ValueComparer comparer,
             [CanBeNull] DbType? dbType = System.Data.DbType.Binary,
-            int? size = null)
-            : base(storeType, converter, comparer, dbType, size)
+            int? size = null,
+            bool fixedLength = false)
+            : base(storeType, converter, comparer, dbType, size, fixedLength)
         {
             _maxSpecificSize = CalculateSize(size);
         }
@@ -39,10 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             => size.HasValue && size < 8000 ? size.Value : 8000;
 
         public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleByteArrayTypeMapping(storeType, Converter, Comparer, DbType, size);
+            => new OracleByteArrayTypeMapping(storeType, Converter, Comparer, DbType, size, IsFixedLength);
 
         public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleByteArrayTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, Size);
+            => new OracleByteArrayTypeMapping(StoreType, ComposeConverter(converter), Comparer, DbType, Size, IsFixedLength);
 
         protected override void ConfigureParameter(DbParameter parameter)
         {

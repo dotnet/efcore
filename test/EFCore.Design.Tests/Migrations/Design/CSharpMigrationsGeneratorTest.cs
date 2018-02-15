@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.DefaultSchema,
                 RelationalAnnotationNames.Filter,
                 RelationalAnnotationNames.DbFunction,
-                RelationalAnnotationNames.MaxIdentifierLength
+                RelationalAnnotationNames.MaxIdentifierLength,
+                RelationalAnnotationNames.IsFixedLength,
             };
 
             // Add a line here if the code generator is supposed to handle this annotation
@@ -162,6 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     CoreAnnotationNames.TypeMapping,
                     (new LongTypeMapping("bigint"), "")
+                },
+                {
+                    RelationalAnnotationNames.IsFixedLength,
+                    (true, _nl + "." + nameof(RelationalPropertyBuilderExtensions.IsFixedLength) + "(true)")
                 }
             };
 

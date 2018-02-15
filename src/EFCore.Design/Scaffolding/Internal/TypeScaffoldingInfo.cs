@@ -17,13 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public TypeScaffoldingInfo([NotNull] Type clrType, bool inferred, bool? scaffoldUnicode, int? scaffoldMaxLength)
+        public TypeScaffoldingInfo(
+            [NotNull] Type clrType,
+            bool inferred,
+            bool? scaffoldUnicode,
+            int? scaffoldMaxLength,
+            bool? scaffoldFixedLength)
         {
             Check.NotNull(clrType, nameof(clrType));
 
             IsInferred = inferred;
             ScaffoldUnicode = scaffoldUnicode;
             ScaffoldMaxLength = scaffoldMaxLength;
+            ScaffoldFixedLength = scaffoldFixedLength;
             ClrType = clrType;
         }
 
@@ -44,6 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool? ScaffoldUnicode { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool? ScaffoldFixedLength { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

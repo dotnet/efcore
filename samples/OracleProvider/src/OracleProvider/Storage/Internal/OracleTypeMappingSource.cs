@@ -30,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             = new ByteTypeMapping("NUMBER(3)", DbType.Byte);
 
         private readonly OracleStringTypeMapping _fixedLengthUnicodeString
-            = new OracleStringTypeMapping("NCHAR", dbType: DbType.String, unicode: true);
+            = new OracleStringTypeMapping("NCHAR", dbType: DbType.String, unicode: true, fixedLength: true);
 
         private readonly OracleStringTypeMapping _variableLengthUnicodeString
             = new OracleStringTypeMapping("NVARCHAR2", dbType: null, unicode: true);
 
         private readonly OracleStringTypeMapping _fixedLengthAnsiString
-            = new OracleStringTypeMapping("CHAR", dbType: DbType.AnsiString);
+            = new OracleStringTypeMapping("CHAR", dbType: DbType.AnsiString, fixedLength: true);
 
         private readonly OracleStringTypeMapping _variableLengthAnsiString
             = new OracleStringTypeMapping("VARCHAR2", dbType: DbType.AnsiString);
@@ -206,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 if (clrType == typeof(string))
                 {
                     var isAnsi = mappingInfo.IsUnicode == false;
-                    var baseName = isAnsi ? "VARCHAR2" : "NVARCHAR2";
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
+                    var baseName = (isAnsi ? "" : "N") + (isFixedLength ? "CHAR" : "VARCHAR2");
                     var unboundedName = isAnsi ? "CLOB" : "NCLOB";
                     var maxSize = isAnsi ? 4000 : 2000;
 
@@ -220,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                         size == -1 ? unboundedName : baseName + "(" + size + ")",
                         isAnsi ? DbType.AnsiString : (DbType?)null,
                         !isAnsi,
-                        size);
+                        size,
+                        isFixedLength);
                 }
 
                 if (clrType == typeof(byte[]))

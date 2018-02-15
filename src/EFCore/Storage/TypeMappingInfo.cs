@@ -69,8 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
 
-            IsFixedLength = mappingHints.IsFixedLength;
-
             Precision = mappingHints.Precision;
 
             Scale = mappingHints.Scale;
@@ -113,10 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="type"> The CLR type in the model for which mapping is needed. </param>
         /// <param name="keyOrIndex"> If <c>true</c>, then a special mapping for a key or index may be returned. </param>
-        /// <param name="unicode"> Specifies Unicode or Ansi mapping, or <c>null</c> for default. </param>
+        /// <param name="unicode"> Specifies Unicode or ANSI mapping, or <c>null</c> for default. </param>
         /// <param name="size"> Specifies a size for the mapping, or <c>null</c> for default. </param>
         /// <param name="rowVersion"> Specifies a row-version, or <c>null</c> for default. </param>
-        /// <param name="fixedLength"> Specifies a fixed length mapping, or <c>null</c> for default. </param>
         /// <param name="precision"> Specifies a precision for the mapping, or <c>null</c> for default. </param>
         /// <param name="scale"> Specifies a scale for the mapping, or <c>null</c> for default. </param>
         protected TypeMappingInfo(
@@ -125,7 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             bool? unicode = null,
             int? size = null,
             bool? rowVersion = null,
-            bool? fixedLength = null,
             int? precision = null,
             int? scale = null)
             : this(type)
@@ -136,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IsRowVersion = rowVersion;
             Precision = precision;
             Scale = scale;
-            IsFixedLength = fixedLength;
         }
 
         /// <summary>
@@ -176,7 +171,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Size = source.Size ?? mappingHints.Size;
             IsUnicode = source.IsUnicode ?? mappingHints.IsUnicode;
-            IsFixedLength = source.IsFixedLength ?? mappingHints.IsFixedLength;
             Scale = source.Scale ?? mappingHints.Scale;
             Precision = source.Precision ?? mappingHints.Precision;
             ProviderClrType = CreateProviderClrType();
@@ -225,12 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual int? Scale { get; }
 
         /// <summary>
-        ///     Whether or not the mapped data type is fixed length.
-        /// </summary>
-        public virtual bool? IsFixedLength { get; }
-
-        /// <summary>
-        ///     The CLR type set to use when reading/writing to/from the database provider.
+        ///     The CLR type set to use when reading/writing to/from the store.
         /// </summary>
         public virtual Type ConfiguredProviderClrType { get; }
 
@@ -267,7 +256,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                && Size == other.Size
                && IsUnicode == other.IsUnicode
                && IsRowVersion == other.IsRowVersion
-               && IsFixedLength == other.IsFixedLength
                && Precision == other.Precision
                && Scale == other.Scale
                && Equals(_customConverter, other._customConverter);
@@ -295,7 +283,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             hashCode = (hashCode * 397) ^ (MemberInfo?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsUnicode?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (IsRowVersion?.GetHashCode() ?? 0);
-            hashCode = (hashCode * 397) ^ (IsFixedLength?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (Scale?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (Precision?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (_customConverter?.GetHashCode() ?? 0);

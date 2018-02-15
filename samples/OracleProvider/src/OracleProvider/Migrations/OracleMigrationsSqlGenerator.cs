@@ -23,6 +23,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
         }
 
+        protected override void ColumnDefinition(AddColumnOperation operation, IModel model, MigrationCommandListBuilder builder)
+            => ColumnDefinition(
+                operation.Schema,
+                operation.Table,
+                operation.Name,
+                operation.ClrType,
+                operation.ColumnType,
+                operation.IsUnicode,
+                operation.MaxLength,
+                operation.IsFixedLength,
+                operation.IsRowVersion,
+                operation.IsNullable,
+                operation.DefaultValue,
+                operation.DefaultValueSql,
+                operation.ComputedColumnSql,
+                operation,
+                model,
+                builder);
+
         protected override void Generate(MigrationOperation operation, IModel model, MigrationCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
@@ -74,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     IsNullable = operation.IsNullable,
                     DefaultValue = operation.DefaultValue,
                     DefaultValueSql = operation.DefaultValueSql,
-                    ComputedColumnSql = operation.ComputedColumnSql
+                    ComputedColumnSql = operation.ComputedColumnSql,
+                    IsFixedLength = operation.IsFixedLength
                 };
 
                 addColumnOperation.AddAnnotations(operation.GetAnnotations());
@@ -136,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 operation.ColumnType,
                 operation.IsUnicode,
                 operation.MaxLength,
+                operation.IsFixedLength,
                 operation.IsRowVersion,
                 operation.IsNullable,
                 operation.DefaultValue,
@@ -485,6 +506,7 @@ END;";
             string type,
             bool? unicode,
             int? maxLength,
+            bool? fixedLength,
             bool rowVersion,
             bool nullable,
             object defaultValue,
@@ -505,6 +527,7 @@ END;";
                 type,
                 unicode,
                 maxLength,
+                fixedLength,
                 rowVersion,
                 nullable,
                 defaultValue,
@@ -524,6 +547,7 @@ END;";
             [CanBeNull] string type,
             [CanBeNull] bool? unicode,
             [CanBeNull] int? maxLength,
+            [CanBeNull] bool? fixedLength,
             bool rowVersion,
             bool nullable,
             [CanBeNull] object defaultValue,
@@ -553,7 +577,7 @@ END;";
             builder
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(name))
                 .Append(" ")
-                .Append(type ?? GetColumnType(schema, table, name, clrType, unicode, maxLength, rowVersion, model));
+                .Append(type ?? GetColumnType(schema, table, name, clrType, unicode, maxLength, fixedLength, rowVersion, model));
 
             if (identity)
             {

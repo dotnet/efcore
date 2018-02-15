@@ -14,6 +14,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalBuilderExtensionsTest
     {
         [Fact]
+        public void Can_set_fixed_length()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .IsFixedLength();
+
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
+
+            Assert.True(property.Relational().IsFixedLength);
+
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Name)
+                .IsFixedLength(false);
+
+            Assert.False(property.Relational().IsFixedLength);
+        }
+
+        [Fact]
         public void Can_write_index_builder_extension_with_where_clauses()
         {
             var builder = CreateConventionModelBuilder();
