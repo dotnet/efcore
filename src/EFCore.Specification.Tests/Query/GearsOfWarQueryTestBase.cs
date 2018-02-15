@@ -4090,7 +4090,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
 
                 Assert.Equal(expected.Count, actual.Count);
-                
+
                 for (var i = 0; i < expected.Count; i++)
                 {
                     Assert.Equal(expected[i].Key, actual[i].Key);
@@ -4213,6 +4213,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from h in grouping.DefaultIfEmpty()
                     where MaybeScalar(h, () => h.Eradicated) != true
                     select h);
+        }
+
+        [ConditionalFact(Skip = "Issue #10974")]
+        public virtual void Include_collection_group_by_reference()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Gear>()
+                    .Include(g => g.Weapons)
+                    .GroupBy(g => g.Squad)
+                    .ToList();
+            }
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

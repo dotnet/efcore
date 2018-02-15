@@ -1272,6 +1272,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Join_GroupBy_entity_ToList()
+        {
+            using (var context = CreateContext())
+            {
+                var actual = (from c in context.Customers.OrderBy(c => c.CustomerID).Take(5)
+                              join o in context.Orders.OrderBy(o => o.OrderID).Take(50)
+                                on c.CustomerID equals o.CustomerID
+                             group o by c into grp
+                             select new
+                             {
+                                 C = grp.Key,
+                                 Os = grp.ToList()
+                             }).ToList();
+
+                var expected = (from c in Fixture.QueryAsserter.ExpectedData.Set<Customer>()
+                                            .OrderBy(c => c.CustomerID).Take(5)
+                                join o in Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                                            .OrderBy(o => o.OrderID).Take(50)
+                                    on c.CustomerID equals o.CustomerID
+                                group o by c into grp
+                                select new
+                                {
+                                    C = grp.Key,
+                                    Os = grp.ToList()
+                                }).ToList();
+
+                Assert.Equal(expected.Count, actual.Count);
+
+                for (var i = 0; i < expected.Count; i++)
+                {
+                    Assert.Equal(expected[i].C, actual[i].C);
+                    Assert.Equal(expected[i].Os, actual[i].Os);
+                }
+            }
+        }
+
         #endregion
     }
 }
