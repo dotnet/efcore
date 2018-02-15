@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping] =
-                new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                new FallbackRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
                     .FindMapping(property);
 
@@ -266,9 +266,9 @@ namespace Microsoft.EntityFrameworkCore
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
-                    new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    new FallbackRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));
 
         protected override ModelBuilder CreateConventionalModelBuilder()

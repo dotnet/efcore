@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     public class SqliteDatabaseModelFactory : IDatabaseModelFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public SqliteDatabaseModelFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             _logger = logger;
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
             if (notNull && defaultValue == "0")
             {
-                var normalizedType = _typeMapper.FindMapping(dataType).StoreType;
+                var normalizedType = _typeMappingSource.FindMapping(dataType).StoreType;
                 if (normalizedType == "INTEGER"
                     || normalizedType == "REAL")
                 {

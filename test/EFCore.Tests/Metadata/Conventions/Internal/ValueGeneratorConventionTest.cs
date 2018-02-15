@@ -441,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var conventions = new ConventionSet();
 
             conventions.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention(
-                TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()));
+                TestServiceFactory.Instance.Create<FallbackTypeMappingSource>()));
             conventions.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(new TestLogger<DbLoggerCategory.Model>()));
 
             var keyConvention = new ValueGeneratorConvention();

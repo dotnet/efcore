@@ -14,15 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         provider maps CLR types/values to database types/values.
     ///     </para>
     ///     <para>
-    ///         Warning: do not implement this interface directly. Instead, derive from <see cref="CoreTypeMapperBase" />
-    ///         for non-relational providers, or 'RelationalCoreTypeMapperBase' for relational providers.
+    ///         Warning: do not implement this interface directly. Instead, derive from <see cref="TypeMappingSource" />
+    ///         for non-relational providers, or 'RelationalTypeMappingSourceBase' for relational providers.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface ICoreTypeMapper
+    public interface ITypeMappingSource
     {
         /// <summary>
         ///     Finds the type mapping for a given <see cref="IProperty" />.

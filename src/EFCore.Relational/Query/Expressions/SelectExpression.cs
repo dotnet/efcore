@@ -624,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         /// </returns>
         [Obsolete("Use GetMappedProjectionTypes().")]
         public virtual IEnumerable<Type> GetProjectionTypes()
-            => GetMappedProjectionTypes().Select(t => t.StoreType);
+            => GetMappedProjectionTypes().Select(t => t.ProviderClrType);
 
         /// <summary>
         ///     Gets the types of the expressions in <see cref="Projection" />.
@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                             return new TypeMaterializationInfo(
                                 queryType,
                                 e.FindProperty(queryType),
-                                Dependencies.TypeMapper);
+                                Dependencies.TypeMappingSource);
                         }))
                 {
                     yield return typeMaterializationInfo;

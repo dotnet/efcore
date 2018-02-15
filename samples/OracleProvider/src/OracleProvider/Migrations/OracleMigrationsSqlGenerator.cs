@@ -209,8 +209,8 @@ END;";
             Check.NotNull(cycle, nameof(cycle));
             Check.NotNull(builder, nameof(builder));
 
-            var intTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(int));
-            var longTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(long));
+            var intTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(int));
+            var longTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
 
             builder
                 .Append(" INCREMENT BY ")
@@ -311,7 +311,7 @@ END;";
                 return;
             }
 
-            var stringTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(string));
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             builder
                 .Append("IF SCHEMA_ID(")
@@ -629,7 +629,7 @@ END;";
             Check.NotEmpty(newName, nameof(newName));
             Check.NotNull(builder, nameof(builder));
 
-            var stringTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(string));
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             builder
                 .Append("EXEC sp_rename ")

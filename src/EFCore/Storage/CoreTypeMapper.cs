@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return type == typeof(string)
                    || type.GetTypeInfo().IsValueType
                    || type == typeof(byte[])
-                   || Dependencies.ValueConverterSelector.ForTypes(type).Any(c => IsTypeMapped(c.StoreClrType));
+                   || Dependencies.ValueConverterSelector.ForTypes(type).Any(c => IsTypeMapped(c.ProviderClrType));
         }
     }
 }

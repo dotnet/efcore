@@ -14,14 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
     public class OracleUpdateSqlGenerator : UpdateSqlGenerator, IOracleUpdateSqlGenerator
     {
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         public OracleUpdateSqlGenerator(
             [NotNull] UpdateSqlGeneratorDependencies dependencies,
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
             : base(dependencies)
         {
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
         }
 
         public virtual ResultSetMapping AppendBatchInsertOperation(
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private string GetVariableType(ColumnModification columnModification)
         {
-            return _typeMapper.FindMapping(columnModification.Property).StoreType;
+            return _typeMappingSource.FindMapping(columnModification.Property).StoreType;
         }
 
         private void AppendInsertCommand(

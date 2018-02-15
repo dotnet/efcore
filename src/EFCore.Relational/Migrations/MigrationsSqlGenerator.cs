@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append("CREATE SEQUENCE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
-            var typeMapping = Dependencies.CoreTypeMapper.GetMapping(operation.ClrType);
+            var typeMapping = Dependencies.TypeMappingSource.GetMapping(operation.ClrType);
 
             if (operation.ClrType != typeof(long))
             {
@@ -535,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(typeMapping.StoreType);
 
                 // set the typeMapping for use with operation.StartValue (i.e. a long) below
-                typeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(long));
+                typeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
             }
 
             builder
@@ -946,7 +946,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var longTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(long));
+            var longTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
 
             builder
                 .Append("ALTER SEQUENCE ")
@@ -1147,8 +1147,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(cycle, nameof(cycle));
             Check.NotNull(builder, nameof(builder));
 
-            var intTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(int));
-            var longTypeMapping = Dependencies.CoreTypeMapper.GetMapping(typeof(long));
+            var intTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(int));
+            var longTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(long));
 
             builder
                 .Append(" INCREMENT BY ")
@@ -1303,13 +1303,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     && maxLength == property.GetMaxLength()
                     && rowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
                 {
-                    return Dependencies.CoreTypeMapper.FindMapping(property).StoreType;
+                    return Dependencies.TypeMappingSource.FindMapping(property).StoreType;
                 }
 
                 keyOrIndex = property.IsKey() || property.IsForeignKey();
             }
 
-            return Dependencies.CoreTypeMapper.FindMapping(clrType, keyOrIndex, unicode, maxLength, rowVersion).StoreType;
+            return Dependencies.TypeMappingSource.FindMapping(clrType, keyOrIndex, unicode, maxLength, rowVersion).StoreType;
         }
 
         /// <summary>
@@ -1334,7 +1334,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
             else if (defaultValue != null)
             {
-                var typeMapping = Dependencies.CoreTypeMapper.GetMappingForValue(defaultValue);
+                var typeMapping = Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
 
                 builder
                     .Append(" DEFAULT ")

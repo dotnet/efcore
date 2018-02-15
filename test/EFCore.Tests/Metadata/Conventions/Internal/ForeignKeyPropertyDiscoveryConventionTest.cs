@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogConflictingShadowForeignKeys.GenerateMessage(
+            Assert.Equal(CoreStrings.LogConflictingShadowForeignKeysWarning.GenerateMessage(
                 nameof(DependentEntity), nameof(PrincipalEntity), nameof(DependentEntity)), Log[0].Message);
         }
 

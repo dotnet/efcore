@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(valueTypes, nameof(valueTypes));
 
-            var mapper = Dependencies.TypeMapper;
+            var mapper = Dependencies.TypeMappingSource;
 
             return Create(valueTypes.Select(
                 (t, i) => new TypeMaterializationInfo(t, null, mapper, indexMap?[i] ?? -1)).ToList());
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     Expression valueExpression = Expression.Convert(
                         arrayAccess,
-                        converter.StoreType);
+                        converter.ProviderClrType);
 
                     valueExpression
                         = Expression.Convert(

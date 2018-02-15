@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>()).Apply(entityBuilder));
+                    TestServiceFactory.Instance.Create<FallbackTypeMappingSource>()).Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>())
+                        TestServiceFactory.Instance.Create<FallbackTypeMappingSource>())
                     .Apply(entityBuilder));
 
             Assert.Equal(
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Same(
                 entityBuilder, new PropertyDiscoveryConvention(
-                        TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>())
+                        TestServiceFactory.Instance.Create<FallbackTypeMappingSource>())
                     .Apply(entityBuilder));
 
             Assert.Empty(entityBuilder.Metadata.GetProperties());

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
     /// <summary>
     ///     A registry of <see cref="ValueConverterInfo" /> that can be used to find
     ///     the preferred converter to use to convert to and from a given model type
-    ///     to a store type that the database provider supports.
+    ///     to a type that the database provider supports.
     /// </summary>
     public interface IValueConverterSelector
     {
@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         ///     used to convert the given model type. Converters nearer the front of
         ///     the list should be used in preference to converters nearer the end.
         /// </summary>
-        /// <param name="modelType"> The type for which a converter is needed. </param>
-        /// <param name="storeClrType"> The store type to target, or null for any. </param>
+        /// <param name="modelClrType"> The type for which a converter is needed. </param>
+        /// <param name="providerClrType"> The store type to target, or null for any. </param>
         /// <returns> The converters available. </returns>
         IEnumerable<ValueConverterInfo> ForTypes(
-            [NotNull] Type modelType, 
-            [CanBeNull] Type storeClrType = null);
+            [NotNull] Type modelClrType, 
+            [CanBeNull] Type providerClrType = null);
     }
 }

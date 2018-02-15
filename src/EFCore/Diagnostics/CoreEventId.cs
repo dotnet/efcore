@@ -76,12 +76,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IncompatibleMatchingForeignKeyProperties,
             RequiredAttributeOnDependent,
             RequiredAttributeOnBothNavigations,
-            ConflictingShadowForeignKeys,
+            ConflictingShadowForeignKeysWarning,
             MultiplePrimaryKeyCandidates,
             MultipleNavigationProperties,
             MultipleInversePropertiesSameTarget,
-            NonDefiningInverseNavigation,
-            NonOwnershipInverseNavigation,
+            NonDefiningInverseNavigationWarning,
+            NonOwnershipInverseNavigationWarning,
             ForeignKeyAttributesOnBothProperties,
             ForeignKeyAttributesOnBothNavigations,
             ConflictingForeignKeyAttributesOnNavigationAndProperty
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ConflictingShadowForeignKeys = MakeModelId(Id.ConflictingShadowForeignKeys);
+        public static readonly EventId ConflictingShadowForeignKeysWarning = MakeModelId(Id.ConflictingShadowForeignKeysWarning);
 
         /// <summary>
         ///     <para>
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId NonDefiningInverseNavigation = MakeModelId(Id.NonDefiningInverseNavigation);
+        public static readonly EventId NonDefiningInverseNavigationWarning = MakeModelId(Id.NonDefiningInverseNavigationWarning);
 
         /// <summary>
         ///     <para>
@@ -491,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId NonOwnershipInverseNavigation = MakeModelId(Id.NonOwnershipInverseNavigation);
+        public static readonly EventId NonOwnershipInverseNavigationWarning = MakeModelId(Id.NonOwnershipInverseNavigationWarning);
 
         /// <summary>
         ///     <para>

@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class ServicePropertyDiscoveryConvention : IEntityTypeAddedConvention, IBaseTypeChangedConvention
     {
-        private readonly ICoreTypeMapper _typeMapper;
+        private readonly ITypeMappingSource _typeMappingSource;
         private readonly IParameterBindingFactories _parameterBindingFactories;
 
         /// <summary>
@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public ServicePropertyDiscoveryConvention(
-            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IParameterBindingFactories parameterBindingFactories)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
             _parameterBindingFactories = parameterBindingFactories;
         }
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 foreach (var propertyInfo in candidates)
                 {
                     if (!(propertyInfo.IsCandidateProperty()
-                          && _typeMapper.FindMapping(propertyInfo) != null)
+                          && _typeMappingSource.FindMapping(propertyInfo) != null)
                         && propertyInfo.IsCandidateProperty(publicOnly: false))
                     {
                         var factory = _parameterBindingFactories.FindFactory(propertyInfo.PropertyType, propertyInfo.Name);

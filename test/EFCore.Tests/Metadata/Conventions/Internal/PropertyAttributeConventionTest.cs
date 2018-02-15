@@ -527,8 +527,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static ICoreTypeMapper CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>();
+        private static ITypeMappingSource CreateTypeMapper()
+            => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();
 
         private class A
         {

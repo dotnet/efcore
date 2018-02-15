@@ -213,10 +213,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
-        private static IRelationalCoreTypeMapper CreateTypeMapper()
-            => new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+        private static IRelationalTypeMappingSource CreateTypeMapper()
+            => new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
 
         [Theory]

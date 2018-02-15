@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class SqlServerCoreTypeMapper : FallbackRelationalCoreTypeMapper
+    public class SqlServerTypeMappingSource : FallbackRelationalTypeMappingSource
     {
         private readonly RelationalTypeMapping _sqlVariant = new SqlServerSqlVariantTypeMapping("sql_variant");
         private readonly FloatTypeMapping _real = new SqlServerFloatTypeMapping("real");
@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public SqlServerCoreTypeMapper(
-            [NotNull] CoreTypeMapperDependencies dependencies,
-            [NotNull] RelationalTypeMapperDependencies relationalDependencies,
+        public SqlServerTypeMappingSource(
+            [NotNull] TypeMappingSourceDependencies dependencies,
+            [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies,
             [NotNull] IRelationalTypeMapper typeMapper)
             : base(dependencies, relationalDependencies, typeMapper)
         {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
         {
-            var targetClrType = mappingInfo.TargetClrType;
+            var targetClrType = mappingInfo.ProviderClrType;
 
             if (targetClrType != null
                 && _namedClrMappings.TryGetValue(targetClrType.FullName, out var mappingFunc))

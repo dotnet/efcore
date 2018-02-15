@@ -931,9 +931,9 @@
     <value>There are multiple navigations ({navigations}) configured with InversePropertyAttribute that point to the same inverse navigation '{inverseNavigation}'.</value>
     <comment>Information CoreEventId.MultipleInversePropertiesSameTarget string string</comment>
   </data>
-  <data name="LogConflictingShadowForeignKeys" xml:space="preserve">
+  <data name="LogConflictingShadowForeignKeysWarning" xml:space="preserve">
     <value>There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.</value>
-    <comment>Warning CoreEventId.ConflictingShadowForeignKeys string string string</comment>
+    <comment>Warning CoreEventId.ConflictingShadowForeignKeysWarning string string string</comment>
   </data>
   <data name="LogMultipleNavigationProperties" xml:space="preserve">
     <value>Relationship from '{firstEntityType}' to '{secondEntityType}' not configured because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}.</value>
@@ -949,13 +949,13 @@
   <data name="InvalidSetTypeWeak" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is mapped to mulptiple entity types and should they should be accessed through the defining entities.</value>
   </data>
-  <data name="LogNonDefiningInverseNavigation" xml:space="preserve">
+  <data name="LogNonDefiningInverseNavigationWarning" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'</value>
-    <comment>Warning CoreEventId.NonDefiningInverseNavigation string string string string string</comment>
+    <comment>Warning CoreEventId.NonDefiningInverseNavigationWarning string string string string string</comment>
   </data>
-  <data name="LogNonOwnershipInverseNavigation" xml:space="preserve">
+  <data name="LogNonOwnershipInverseNavigationWarning" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'</value>
-    <comment>Warning CoreEventId.NonOwnershipInverseNavigation string string string string string</comment>
+    <comment>Warning CoreEventId.NonOwnershipInverseNavigationWarning string string string string string</comment>
   </data>
   <data name="PropertyConceptualNullSensitive" xml:space="preserve">
     <value>The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.</value>

@@ -80,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
         public InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
         public DbContext Context => throw new NotImplementedException();
-        public event Action<object, EntityTrackedEventArgs> Tracked;
+        public event EventHandler<EntityTrackedEventArgs> Tracked;
         public void OnTracked(InternalEntityEntry internalEntityEntry, bool fromQuery) => Tracked?.Invoke(null, null);
-        public event Action<object, EntityStateEventArgs> StateChanged;
+        public event EventHandler<EntityStateChangedEventArgs> StateChanged;
         public void OnStateChanged(InternalEntityEntry internalEntityEntry, EntityState oldState) => StateChanged?.Invoke(null, null);
     }
 }

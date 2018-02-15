@@ -25,7 +25,7 @@ namespace System.Reflection
 
         public static Type FindCandidateNavigationPropertyType(
             this PropertyInfo propertyInfo,
-            ICoreTypeMapper typeMapper,
+            ITypeMappingSource typeMappingSource,
             IParameterBindingFactories parameterBindingFactories)
         {
             var targetType = propertyInfo.PropertyType;
@@ -38,7 +38,7 @@ namespace System.Reflection
             targetType = targetSequenceType ?? targetType;
             targetType = targetType.UnwrapNullableType();
 
-            if (typeMapper.FindMapping(propertyInfo) != null
+            if (typeMappingSource.FindMapping(propertyInfo) != null
                 || targetType.GetTypeInfo().IsInterface
                 || targetType.GetTypeInfo().IsValueType
                 || targetType == typeof(object)

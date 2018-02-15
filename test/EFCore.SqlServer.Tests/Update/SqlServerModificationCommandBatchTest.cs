@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         [Fact]
         public void AddCommand_returns_false_when_max_batch_size_is_reached()
         {
-            var typeMapper = new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
 
             var batch = new SqlServerModificationCommandBatch(

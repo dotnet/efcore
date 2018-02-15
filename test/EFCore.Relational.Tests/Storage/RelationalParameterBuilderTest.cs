@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_add_dynamic_parameter()
         {
-            var typeMapper = new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
 
             var parameterBuilder = new RelationalParameterBuilder(typeMapper);
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(false)]
         public void Can_add_type_mapped_parameter_by_type(bool nullable)
         {
-            var typeMapper = (IRelationalCoreTypeMapper)new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = (IRelationalTypeMappingSource)new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
             var typeMapping = typeMapper.FindMapping(nullable ? typeof(int?) : typeof(int));
             var parameterBuilder = new RelationalParameterBuilder(typeMapper);
@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData(false)]
         public void Can_add_type_mapped_parameter_by_property(bool nullable)
         {
-            var typeMapper = new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
 
             var property = new Model().AddEntityType("MyType").AddProperty("MyProp", typeof(string));
@@ -100,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Can_add_composite_parameter()
         {
-            var typeMapper = new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
 
             var parameterBuilder = new RelationalParameterBuilder(typeMapper);
@@ -136,9 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Does_not_add_empty_composite_parameter()
         {
-            var typeMapper = new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
 
             var parameterBuilder = new RelationalParameterBuilder(typeMapper);
@@ -151,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static RelationalTypeMapping GetMapping(
-            IRelationalCoreTypeMapper typeMapper,
+            IRelationalTypeMappingSource typeMappingSource,
             IProperty property)
-            => typeMapper.FindMapping(property);
+            => typeMappingSource.FindMapping(property);
     }
 }

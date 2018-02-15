@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
         private bool TryRewrite(SubQueryExpression subQueryExpression, bool forceToListResult, out Expression result)
         {
-            if (_queryCompilationContext.CorrelatedSubqueryMetadataMap.TryGetValue(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
+            if (_queryCompilationContext.TryGetCorrelatedSubqueryMetadata(subQueryExpression.QueryModel.MainFromClause, out var correlatedSubqueryMetadata))
             {
                 var parentQsre = new QuerySourceReferenceExpression(correlatedSubqueryMetadata.ParentQuerySource);
                 result = Rewrite(

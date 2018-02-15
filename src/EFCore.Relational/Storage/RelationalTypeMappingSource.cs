@@ -21,16 +21,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class RelationalCoreTypeMapperBase : CoreTypeMapperBase, IRelationalCoreTypeMapper
+    public abstract class RelationalTypeMappingSource : TypeMappingSource, IRelationalTypeMappingSource
     {
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational-specific dependencies for this service. </param>
-        protected RelationalCoreTypeMapperBase(
-            [NotNull] CoreTypeMapperDependencies dependencies,
-            [NotNull] RelationalTypeMapperDependencies relationalDependencies)
+        protected RelationalTypeMappingSource(
+            [NotNull] TypeMappingSourceDependencies dependencies,
+            [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -61,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => FindMapping((RelationalTypeMappingInfo)mappingInfo);
 
         /// <summary>
-        ///     Dependencies used to create this <see cref="RelationalCoreTypeMapperBase" />
+        ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
         /// </summary>
-        protected virtual RelationalTypeMapperDependencies RelationalDependencies { get; }
+        protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     <para>
@@ -166,13 +166,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new ConcreteRelationalTypeMappingInfo(
                     type, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale));
 
-        RelationalTypeMapping IRelationalCoreTypeMapper.FindMapping(IProperty property)
+        RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(IProperty property)
             => (RelationalTypeMapping)FindMapping(property);
 
-        RelationalTypeMapping IRelationalCoreTypeMapper.FindMapping(Type type)
+        RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(Type type)
             => (RelationalTypeMapping)FindMapping(type);
 
-        RelationalTypeMapping IRelationalCoreTypeMapper.FindMapping(MemberInfo member)
+        RelationalTypeMapping IRelationalTypeMappingSource.FindMapping(MemberInfo member)
             => (RelationalTypeMapping)FindMapping(member);
 
         private sealed class ConcreteRelationalTypeMappingInfo : RelationalTypeMappingInfo

@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         private readonly ICompositeMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly SelectExpression _targetSelectExpression;
         private readonly Expression _topLevelPredicate;
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             _compositeExpressionFragmentTranslator = dependencies.CompositeExpressionFragmentTranslator;
             _methodCallTranslator = dependencies.MethodCallTranslator;
             _memberTranslator = dependencies.MemberTranslator;
-            _typeMapper = dependencies.CoreTypeMapper;
+            _typeMappingSource = dependencies.TypeMappingSource;
             _queryModelVisitor = queryModelVisitor;
             _targetSelectExpression = targetSelectExpression;
             _topLevelPredicate = topLevelPredicate;
@@ -986,7 +986,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
         private bool IsStreamedSingleValueSupportedType(IStreamedDataInfo outputDataInfo)
             => outputDataInfo is StreamedSingleValueInfo streamedSingleValueInfo
-               && _typeMapper.FindMapping(streamedSingleValueInfo.DataType) != null;
+               && _typeMappingSource.FindMapping(streamedSingleValueInfo.DataType) != null;
 
         /// <summary>
         ///     Visits a constant expression.
@@ -1008,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                 ? expression.Value.GetType()
                 : expression.Type;
 
-            return _typeMapper.FindMapping(type) != null
+            return _typeMappingSource.FindMapping(type) != null
                 ? expression
                 : null;
         }
@@ -1024,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            return _typeMapper.FindMapping(expression.Type) != null
+            return _typeMappingSource.FindMapping(expression.Type) != null
                 ? expression
                 : null;
         }
@@ -1142,7 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
 
             var type = expression.ReferencedQuerySource.ItemType;
 
-            if (_typeMapper.FindMapping(type) != null)
+            if (_typeMappingSource.FindMapping(type) != null)
             {
                 var selectExpression = _queryModelVisitor.TryGetQuery(expression.ReferencedQuerySource);
 

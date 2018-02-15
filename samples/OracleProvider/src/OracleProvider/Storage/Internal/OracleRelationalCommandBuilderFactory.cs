@@ -19,22 +19,22 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     {
         public OracleRelationalCommandBuilderFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
-            : base(logger, typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            : base(logger, typeMappingSource)
         {
         }
 
         protected override IRelationalCommandBuilder CreateCore(
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            IRelationalCoreTypeMapper relationalTypeMapper)
-            => new OracleRelationalCommandBuilder(logger, relationalTypeMapper);
+            IRelationalTypeMappingSource relationalTypeMappingSource)
+            => new OracleRelationalCommandBuilder(logger, relationalTypeMappingSource);
 
         private sealed class OracleRelationalCommandBuilder : RelationalCommandBuilder
         {
             public OracleRelationalCommandBuilder(
                 IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                IRelationalCoreTypeMapper typeMapper)
-                : base(logger, typeMapper)
+                IRelationalTypeMappingSource typeMappingSource)
+                : base(logger, typeMappingSource)
             {
             }
 

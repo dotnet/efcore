@@ -76,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new FallbackRelationalCoreTypeMapper(
-                            TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        new FallbackRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<SqlServerTypeMapper>()))),
                 state,
                 CreateConnection());
@@ -130,9 +130,9 @@ namespace Microsoft.EntityFrameworkCore
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
-                    new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    new FallbackRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));
 
             var tests = new Func<Task>[threadCount];
@@ -180,9 +180,9 @@ namespace Microsoft.EntityFrameworkCore
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new FallbackRelationalCoreTypeMapper(
-                            TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        new FallbackRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<SqlServerTypeMapper>()))),
                 state,
                 CreateConnection());

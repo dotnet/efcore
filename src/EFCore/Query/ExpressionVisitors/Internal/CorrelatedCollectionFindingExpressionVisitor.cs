@@ -113,14 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
                         if (collectionNavigation != null)
                         {
-                            _queryModelVisitor.QueryCompilationContext.CorrelatedSubqueryMetadataMap[subQueryModel.MainFromClause] = new CorrelatedSubqueryMetadata
-                            {
-                                Index = _queryModelVisitor.QueryCompilationContext.CorrelatedSubqueryMetadataMap.Count,
-                                TrackingQuery = _trackingQuery,
-                                FirstNavigation = properties.OfType<INavigation>().First(),
-                                CollectionNavigation = collectionNavigation,
-                                ParentQuerySource = querySource
-                            };
+                            _queryModelVisitor.QueryCompilationContext.RegisterCorrelatedSubqueryMetadata(
+                                subQueryModel.MainFromClause,
+                                _trackingQuery,
+                                properties.OfType<INavigation>().First(),
+                                collectionNavigation,
+                                querySource);
 
                             return expression;
                         }

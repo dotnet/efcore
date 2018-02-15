@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var principals = property.FindPrincipals().ToList();
 
-            StoreClrType = principals
-                .Select(p => p.GetStoreClrType())
+            ConfiguredProviderClrType = principals
+                .Select(p => p.GetProviderClrType())
                 .FirstOrDefault(t => t != null)
                 ?.UnwrapNullableType();
 
@@ -54,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_customConverter != null)
             {
                 ValueConverterInfo = new ValueConverterInfo(
-                    _customConverter.ModelType,
-                    _customConverter.StoreType,
+                    _customConverter.ModelClrType,
+                    _customConverter.ProviderClrType,
                     i => _customConverter,
                     mappingHints);
             }
@@ -76,7 +76,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Scale = mappingHints.Scale;
 
             ModelClrType = property.ClrType.UnwrapNullableType();
+
+            ProviderClrType = CreateProviderClrType();
         }
+
+        private Type CreateProviderClrType()
+            => ValueConverterInfo?.ProviderClrType.UnwrapNullableType() ?? ConfiguredProviderClrType ?? ModelClrType;
 
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
@@ -87,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(type, nameof(type));
 
             ModelClrType = type.UnwrapNullableType();
+            ProviderClrType = CreateProviderClrType();
         }
 
         /// <summary>
@@ -99,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             ModelClrType = member.GetMemberType().UnwrapNullableType();
             MemberInfo = member;
+            ProviderClrType = CreateProviderClrType();
         }
 
         /// <summary>
@@ -145,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Property = source.Property;
             ModelClrType = source.ModelClrType;
-            StoreClrType = source.StoreClrType;
+            ConfiguredProviderClrType = source.ConfiguredProviderClrType;
             IsRowVersion = source.IsRowVersion;
             IsKeyOrIndex = source.IsKeyOrIndex;
 
@@ -154,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _customConverter = source._customConverter;
 
                 ValueConverterInfo = new ValueConverterInfo(
-                    _customConverter.ModelType,
-                    builtInConverter.StoreClrType,
+                    _customConverter.ModelClrType,
+                    builtInConverter.ProviderClrType,
                     i => _customConverter.ComposeWith(builtInConverter.Create()),
                     _customConverter.MappingHints.With(builtInConverter.MappingHints));
             }
@@ -172,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IsFixedLength = source.IsFixedLength ?? mappingHints.IsFixedLength;
             Scale = source.Scale ?? mappingHints.Scale;
             Precision = source.Precision ?? mappingHints.Precision;
+            ProviderClrType = CreateProviderClrType();
         }
 
         /// <summary>
@@ -222,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual bool? IsFixedLength { get; }
 
         /// <summary>
-        ///     The CLR type set to use when reading/writing to/from the store.
+        ///     The CLR type set to use when reading/writing to/from the database provider.
         /// </summary>
-        public virtual Type StoreClrType { get; }
+        public virtual Type ConfiguredProviderClrType { get; }
 
         /// <summary>
         ///     The field or property info for the property.
@@ -232,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual MemberInfo MemberInfo { get; }
 
         /// <summary>
-        ///     The <see cref="ValueConverter" /> to use when reading/writing to/from the store.
+        ///     The <see cref="ValueConverter" /> to use when reading/writing to/from the database provider.
         /// </summary>
         public virtual ValueConverterInfo? ValueConverterInfo { get; }
 
@@ -242,9 +250,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Type ModelClrType { get; }
 
         /// <summary>
-        ///     The CLR type targeted by the type mapping when reading/writing to/from the store.
+        ///     The CLR type targeted by the type mapping when reading/writing to/from the databaseProvider.
         /// </summary>
-        public virtual Type TargetClrType => ValueConverterInfo?.StoreClrType.UnwrapNullableType() ?? StoreClrType ?? ModelClrType;
+        public virtual Type ProviderClrType { get; }
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -254,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual bool Equals([NotNull] TypeMappingInfo other)
             => ModelClrType == other.ModelClrType
                && MemberInfo == other.MemberInfo
-               && StoreClrType == other.StoreClrType
+               && ConfiguredProviderClrType == other.ConfiguredProviderClrType
                && IsKeyOrIndex == other.IsKeyOrIndex
                && Size == other.Size
                && IsUnicode == other.IsUnicode
@@ -281,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The hash code. </returns>
         public override int GetHashCode()
         {
-            var hashCode = (StoreClrType != null ? StoreClrType.GetHashCode() : 0);
+            var hashCode = (ConfiguredProviderClrType != null ? ConfiguredProviderClrType.GetHashCode() : 0);
             hashCode = (hashCode * 397) ^ IsKeyOrIndex.GetHashCode();
             hashCode = (hashCode * 397) ^ (Size?.GetHashCode() ?? 0);
             hashCode = (hashCode * 397) ^ (MemberInfo?.GetHashCode() ?? 0);

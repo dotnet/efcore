@@ -95,9 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         public static RelationalTypeMapping GetMapping(
             Type type)
-            => (RelationalTypeMapping)new FallbackRelationalCoreTypeMapper(
-                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            => (RelationalTypeMapping)new FallbackRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
                 .FindMapping(type);
 
@@ -127,9 +127,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
         {
-            var mapping = new FallbackRelationalCoreTypeMapper(
-                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var mapping = new FallbackRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
                 .FindMapping("nvarchar(max)");
 
@@ -141,9 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
         {
-            var mapping = new FallbackRelationalCoreTypeMapper(
-                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var mapping = new FallbackRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
                 .FindMapping("varchar(max)");
 
@@ -157,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [InlineData("Microsoft.SqlServer.Types.SqlGeometry", "geometry")]
         public virtual void Get_named_mappings_for_sql_type(string typeName, string udtName)
         {
-            var mapper = (IRelationalCoreTypeMapper)new SqlServerCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var mapper = (IRelationalTypeMappingSource)new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
 
             var type = new FakeType(typeName);

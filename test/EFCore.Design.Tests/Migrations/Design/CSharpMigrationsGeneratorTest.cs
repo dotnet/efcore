@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.OwnedTypesAnnotation,
                 CoreAnnotationNames.TypeMapping,
                 CoreAnnotationNames.ValueConverter,
-                CoreAnnotationNames.StoreClrType,
                 CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.ProviderClrType,
                 RelationalAnnotationNames.ColumnName,
                 RelationalAnnotationNames.ColumnType,
                 RelationalAnnotationNames.DefaultValueSql,
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     _nl + "." + nameof(PropertyBuilder.HasConversion) + "(new " + nameof(ValueConverter) + "<long, long>(v => default(long), v => default(long)))")
                 },
                 {
-                    CoreAnnotationNames.StoreClrType,
+                    CoreAnnotationNames.ProviderClrType,
                     (typeof(long), "")
                 },
                 {

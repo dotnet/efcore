@@ -37,26 +37,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         public RelationalValueBufferFactoryDependencies(
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            TypeMapper = typeMapper;
+            TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
         ///     Gets the type mapper.
         /// </summary>
-        public IRelationalCoreTypeMapper TypeMapper { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalValueBufferFactoryDependencies With([NotNull] IRelationalCoreTypeMapper typeMapper)
-            => new RelationalValueBufferFactoryDependencies(typeMapper);
+        public RelationalValueBufferFactoryDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
+            => new RelationalValueBufferFactoryDependencies(typeMappingSource);
     }
 }

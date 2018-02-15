@@ -540,9 +540,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var fakeConnection = CreateConnection();
 
-            var typeMapper = (IRelationalCoreTypeMapper)new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+            var typeMapper = (IRelationalTypeMappingSource)new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>());
 
             var dbParameter = new FakeDbParameter { ParameterName = "FirstParameter", Value = 17, DbType = DbType.Int32 };

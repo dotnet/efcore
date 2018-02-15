@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
 
             new PropertyDiscoveryConvention(
-                    TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>())
+                    TestServiceFactory.Instance.Create<FallbackTypeMappingSource>())
                 .Apply(entityBuilder);
 
             return entityBuilder;

@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 if (dbFunction.Translation == null)
                 {
-                    if (RelationalDependencies.CoreTypeMapper.FindMapping(methodInfo.ReturnType) == null)
+                    if (RelationalDependencies.TypeMappingSource.FindMapping(methodInfo.ReturnType) == null)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DbFunctionInvalidReturnType(
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                     foreach (var parameter in methodInfo.GetParameters())
                     {
-                        if (RelationalDependencies.CoreTypeMapper.FindMapping(parameter.ParameterType) == null)
+                        if (RelationalDependencies.TypeMappingSource.FindMapping(parameter.ParameterType) == null)
                         {
                             throw new InvalidOperationException(
                                 RelationalStrings.DbFunctionInvalidParameterType(

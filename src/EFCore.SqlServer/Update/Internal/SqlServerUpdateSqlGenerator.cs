@@ -348,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var principalProperty = property.FindPrincipal();
 
                 typeName = principalProperty?.SqlServer().ColumnType
-                           ?? Dependencies.CoreTypeMapper.FindMapping(property.ClrType)?.StoreType;
+                           ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
             }
 
             if (property.ClrType == typeof(byte[])

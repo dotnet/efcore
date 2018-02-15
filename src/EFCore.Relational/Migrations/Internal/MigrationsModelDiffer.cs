@@ -67,18 +67,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public MigrationsModelDiffer(
-            [NotNull] IRelationalCoreTypeMapper typeMapper,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations,
             [NotNull] IChangeDetector changeDetector,
             [NotNull] StateManagerDependencies stateManagerDependencies,
             [NotNull] CommandBatchPreparerDependencies commandBatchPreparerDependencies)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
             Check.NotNull(stateManagerDependencies, nameof(stateManagerDependencies));
             Check.NotNull(commandBatchPreparerDependencies, nameof(commandBatchPreparerDependencies));
 
-            TypeMapper = typeMapper;
+            TypeMappingSource = typeMappingSource;
             MigrationsAnnotations = migrationsAnnotations;
             ChangeDetector = changeDetector;
             StateManagerDependencies = stateManagerDependencies;
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IRelationalCoreTypeMapper TypeMapper { get; }
+        protected virtual IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -838,8 +838,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 };
             }
 
-            var sourceTypeMapping = TypeMapper.GetMapping(source);
-            var targetTypeMapping = TypeMapper.GetMapping(target);
+            var sourceTypeMapping = TypeMappingSource.GetMapping(source);
+            var targetTypeMapping = TypeMappingSource.GetMapping(target);
 
             var sourceColumnType = sourceAnnotations.ColumnType
                                    ?? sourceTypeMapping.StoreType;
@@ -903,7 +903,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             };
 
             Initialize(
-                operation, target, TypeMapper.GetMapping(target), target.IsColumnNullable(),
+                operation, target, TypeMappingSource.GetMapping(target), target.IsColumnNullable(),
                 targetAnnotations, MigrationsAnnotations.For(target), inline);
 
             yield return operation;
@@ -938,7 +938,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             bool inline = false)
         {
             columnOperation.ClrType
-                = typeMapping.Converter?.StoreType
+                = typeMapping.Converter?.ProviderClrType
                   ?? typeMapping.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             columnOperation.ColumnType = property.GetConfiguredColumnType();

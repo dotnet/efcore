@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         [Obsolete("Use the constructor with most parameters")]
         public CoreConventionSetBuilderDependencies([NotNull] ITypeMapper typeMapper)
             : this(
-                new FallbackCoreTypeMapper(
-                    new CoreTypeMapperDependencies(
+                new FallbackTypeMappingSource(
+                    new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
                     typeMapper),
@@ -88,15 +88,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     </para>
         /// </summary>
         public CoreConventionSetBuilderDependencies(
-            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] ITypeMappingSource typeMappingSource,
             [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
             [CanBeNull] IParameterBindingFactories parameterBindingFactories,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
             [CanBeNull] ITypeMapper _ = null) // Only needed for D.I. to resolve this constructor
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            TypeMapper = typeMapper;
+            TypeMappingSource = typeMappingSource;
 
             if (parameterBindingFactories == null)
             {
@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ICoreTypeMapper TypeMapper { get; }
+        public ITypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -145,11 +145,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete("Use ICoreTypeMapper.")]
+        [Obsolete("Use TypeMappingSource.")]
         public CoreConventionSetBuilderDependencies With([NotNull] ITypeMapper typeMapper)
             => new CoreConventionSetBuilderDependencies(
-                new FallbackCoreTypeMapper(
-                    new CoreTypeMapperDependencies(
+                new FallbackTypeMappingSource(
+                    new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
                     typeMapper),
@@ -160,10 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public CoreConventionSetBuilderDependencies With([NotNull] ICoreTypeMapper typeMapper)
-            => new CoreConventionSetBuilderDependencies(typeMapper, ConstructorBindingFactory, ParameterBindingFactories, Logger);
+        public CoreConventionSetBuilderDependencies With([NotNull] ITypeMappingSource typeMappingSource)
+            => new CoreConventionSetBuilderDependencies(typeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="constructorBindingFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IConstructorBindingFactory constructorBindingFactory)
-            => new CoreConventionSetBuilderDependencies(TypeMapper, constructorBindingFactory, ParameterBindingFactories, Logger);
+            => new CoreConventionSetBuilderDependencies(TypeMappingSource, constructorBindingFactory, ParameterBindingFactories, Logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="logger"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            => new CoreConventionSetBuilderDependencies(TypeMapper, ConstructorBindingFactory, ParameterBindingFactories, logger);
+            => new CoreConventionSetBuilderDependencies(TypeMappingSource, ConstructorBindingFactory, ParameterBindingFactories, logger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -187,6 +187,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// <param name="parameterBindingFactories"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public CoreConventionSetBuilderDependencies With([NotNull] IParameterBindingFactories parameterBindingFactories)
-            => new CoreConventionSetBuilderDependencies(TypeMapper, ConstructorBindingFactory, parameterBindingFactories, Logger);
+            => new CoreConventionSetBuilderDependencies(TypeMappingSource, ConstructorBindingFactory, parameterBindingFactories, Logger);
     }
 }

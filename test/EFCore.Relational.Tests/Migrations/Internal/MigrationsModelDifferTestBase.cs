@@ -111,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             var ctx = RelationalTestHelpers.Instance.CreateContext(model);
             return new MigrationsModelDiffer(
-                new FallbackRelationalCoreTypeMapper(
-                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                new FallbackRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<ConcreteTypeMapper>()),
                 new MigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),

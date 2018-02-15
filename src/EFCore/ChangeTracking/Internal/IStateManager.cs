@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        event Action<object, EntityTrackedEventArgs> Tracked;
+        event EventHandler<EntityTrackedEventArgs> Tracked;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        event Action<object, EntityStateEventArgs> StateChanged;
+        event EventHandler<EntityStateChangedEventArgs> StateChanged;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

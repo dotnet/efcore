@@ -18,42 +18,42 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="TypeMaterializationInfo" /> instance.
         /// </summary>
-        /// <param name="modelType"> The type that is needed in the model after conversion. </param>
+        /// <param name="modelClrType"> The type that is needed in the model after conversion. </param>
         /// <param name="property"> The property associated with the type, or <c>null</c> if none. </param>
-        /// <param name="typeMapper"> The type mapper to use to find a mapping if the property does not have one already bound. </param>
+        /// <param name="typeMappingSource"> The type mapper to use to find a mapping if the property does not have one already bound. </param>
         /// <param name="index">
         ///     The index of the underlying result set that should be used for this type,
         ///     or -1 if no index mapping is needed.
         /// </param>
         public TypeMaterializationInfo(
-            [NotNull] Type modelType,
+            [NotNull] Type modelClrType,
             [CanBeNull] IProperty property,
-            [CanBeNull] IRelationalCoreTypeMapper typeMapper, 
+            [CanBeNull] IRelationalTypeMappingSource typeMappingSource, 
             int index = -1)
         {
-            Check.NotNull(modelType, nameof(modelType));
+            Check.NotNull(modelClrType, nameof(modelClrType));
 
             var mapping = property?.FindRelationalMapping()
-                      ?? typeMapper?.GetMapping(modelType);
+                      ?? typeMappingSource?.GetMapping(modelClrType);
 
-            StoreType = mapping?.Converter?.StoreType
-                        ?? modelType;
+            ProviderClrType = mapping?.Converter?.ProviderClrType
+                        ?? modelClrType;
 
-            ModelType = modelType;
+            ModelClrType = modelClrType;
             Mapping = mapping;
             Property = property;
             Index = index;
         }
 
         /// <summary>
-        ///     The type that will be read from the store.
+        ///     The type that will be read from the database provider.
         /// </summary>
-        public virtual Type StoreType { get; }
+        public virtual Type ProviderClrType { get; }
 
         /// <summary>
         ///     The type that is needed in the model after conversion.
         /// </summary>
-        public virtual Type ModelType { get; }
+        public virtual Type ModelClrType { get; }
 
         /// <summary>
         ///     The type mapping for the value to be read.
@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="other"> The object to compare with the current object. </param>
         /// <returns> <c>True</c> if the specified object is equal to the current object; otherwise, <c>false</c>. </returns>
         protected virtual bool Equals([NotNull] TypeMaterializationInfo other)
-            => StoreType == other.StoreType
-               && ModelType == other.ModelType
+            => ProviderClrType == other.ProviderClrType
+               && ModelClrType == other.ModelClrType
                && Equals(Mapping, other.Mapping)
                && Equals(Property, other.Property)
                && Index == other.Index;
@@ -102,8 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             unchecked
             {
-                var hashCode = StoreType.GetHashCode();
-                hashCode = (hashCode * 397) ^ ModelType.GetHashCode();
+                var hashCode = ProviderClrType.GetHashCode();
+                hashCode = (hashCode * 397) ^ ModelClrType.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Mapping?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ (Property?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ Index;

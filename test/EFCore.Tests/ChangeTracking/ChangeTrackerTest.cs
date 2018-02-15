@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_from_query()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             Seed();
 
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_from_Attach()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             using (var context = new LikeAZooContext())
             {
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_from_Add()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             using (var context = new LikeAZooContext())
             {
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_from_Update()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             using (var context = new LikeAZooContext())
             {
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_for_tracked_state_changes()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             using (var context = new LikeAZooContext())
             {
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_when_saving_changes()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             Seed();
 
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_fire_when_property_modified_flags_cause_state_change()
         {
             var tracked = new List<EntityTrackedEventArgs>();
-            var changed = new List<EntityStateEventArgs>();
+            var changed = new List<EntityStateChangedEventArgs>();
 
             using (var context = new LikeAZooContext())
             {
@@ -244,9 +244,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public void State_change_events_are_limited_to_the_current_context()
         {
             var tracked1 = new List<EntityTrackedEventArgs>();
-            var changed1 = new List<EntityStateEventArgs>();
+            var changed1 = new List<EntityStateChangedEventArgs>();
             var tracked2 = new List<EntityTrackedEventArgs>();
-            var changed2 = new List<EntityStateEventArgs>();
+            var changed2 = new List<EntityStateChangedEventArgs>();
 
             Seed();
 
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             int? id,
             EntityState oldState,
             EntityState newState,
-            EntityStateEventArgs changed)
+            EntityStateChangedEventArgs changed)
         {
             Assert.Equal(oldState, changed.OldState);
             Assert.Equal(newState, changed.NewState);
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private static void RegisterEvents(
             LikeAZooContext context,
             IList<EntityTrackedEventArgs> tracked,
-            IList<EntityStateEventArgs> changed)
+            IList<EntityStateChangedEventArgs> changed)
         {
             context.ChangeTracker.Tracked += (s, e) =>
             {
@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             };
         }
 
-        private void ChangeTracker_EnityStateChanging(object arg1, EntityStateEventArgs arg2)
+        private void ChangeTracker_EnityStateChanging(object arg1, EntityStateChangedEventArgs arg2)
         {
             throw new NotImplementedException();
         }

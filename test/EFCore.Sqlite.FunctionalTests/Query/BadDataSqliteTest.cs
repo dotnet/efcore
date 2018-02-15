@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public BadDataCommandBuilderFactory(
                 IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                IRelationalCoreTypeMapper typeMapper)
-                : base(logger, typeMapper)
+                IRelationalTypeMappingSource typeMappingSource)
+                : base(logger, typeMappingSource)
             {
             }
 
@@ -158,9 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override IRelationalCommandBuilder CreateCore(
                 IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                IRelationalCoreTypeMapper relationalTypeMapper)
+                IRelationalTypeMappingSource relationalTypeMappingSource)
                 => new BadDataRelationalCommandBuilder(
-                    logger, relationalTypeMapper, Values);
+                    logger, relationalTypeMappingSource, Values);
 
             private class BadDataRelationalCommandBuilder : RelationalCommandBuilder
             {
@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public BadDataRelationalCommandBuilder(
                     IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-                    IRelationalCoreTypeMapper typeMapper,
+                    IRelationalTypeMappingSource typeMappingSource,
                     object[] values)
-                    : base(logger, typeMapper)
+                    : base(logger, typeMappingSource)
                 {
                     _values = values;
                 }

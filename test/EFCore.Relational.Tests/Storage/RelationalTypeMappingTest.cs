@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
             }
 
-            public override Type ModelType { get; } = typeof(object);
-            public override Type StoreType { get; } = typeof(object);
+            public override Type ModelClrType { get; } = typeof(object);
+            public override Type ProviderClrType { get; } = typeof(object);
         }
 
         protected class FakeValueComparer : ValueComparer<object>

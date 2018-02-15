@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class FallbackRelationalCoreTypeMapper : RelationalCoreTypeMapperBase
+    public class FallbackRelationalTypeMappingSource : RelationalTypeMappingSource
     {
         private readonly IRelationalTypeMapper _relationalTypeMapper;
 
@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public FallbackRelationalCoreTypeMapper(
-            [NotNull] CoreTypeMapperDependencies dependencies,
-            [NotNull] RelationalTypeMapperDependencies relationalDependencies,
+        public FallbackRelationalTypeMappingSource(
+            [NotNull] TypeMappingSourceDependencies dependencies,
+            [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies,
             [NotNull] IRelationalTypeMapper typeMapper)
             : base(dependencies, relationalDependencies)
         {
@@ -69,14 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private RelationalTypeMapping FindMappingForClrType(RelationalTypeMappingInfo mappingInfo)
         {
-            if (mappingInfo.TargetClrType == null
+            if (mappingInfo.ProviderClrType == null
                 || (mappingInfo.StoreTypeName != null
                     && _relationalTypeMapper.FindMapping(mappingInfo.StoreTypeName) != null))
             {
                 return null;
             }
 
-            if (mappingInfo.TargetClrType == typeof(string)
+            if (mappingInfo.ProviderClrType == typeof(string)
                 && _relationalTypeMapper.StringMapper != null)
             {
                 return _relationalTypeMapper.StringMapper.FindMapping(
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     mappingInfo.Size);
             }
 
-            if (mappingInfo.TargetClrType == typeof(byte[])
+            if (mappingInfo.ProviderClrType == typeof(byte[])
                 && _relationalTypeMapper.ByteArrayMapper != null)
             {
                 return _relationalTypeMapper.ByteArrayMapper.FindMapping(
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                     mappingInfo.Size);
             }
 
-            return _relationalTypeMapper.FindMapping(mappingInfo.TargetClrType);
+            return _relationalTypeMapper.FindMapping(mappingInfo.ProviderClrType);
         }
 
         private RelationalTypeMapping FindMappingForStoreTypeName(RelationalTypeMappingInfo mappingInfo)
@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private RelationalTypeMapping FilterByClrType(RelationalTypeMapping mapping, RelationalTypeMappingInfo mappingInfo)
             => mapping != null
-               && (mappingInfo.TargetClrType == null
-                   || mappingInfo.TargetClrType == mapping.ClrType)
+               && (mappingInfo.ProviderClrType == null
+                   || mappingInfo.ProviderClrType == mapping.ClrType)
                 ? mapping
                 : null;
     }

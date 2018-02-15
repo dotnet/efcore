@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class FallbackCoreTypeMapper : CoreTypeMapperBase
+    public class FallbackTypeMappingSource : TypeMappingSource
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public FallbackCoreTypeMapper(
-            [NotNull] CoreTypeMapperDependencies dependencies,
+        public FallbackTypeMappingSource(
+            [NotNull] TypeMappingSourceDependencies dependencies,
             [NotNull] ITypeMapper typeMapper)
             : base(dependencies)
         {
@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             Check.NotNull(mappingInfo, nameof(mappingInfo));
 
-            return _typeMapper.IsTypeMapped(mappingInfo.TargetClrType)
-                ? new CoreTypeMapping(mappingInfo.TargetClrType)
+            return _typeMapper.IsTypeMapped(mappingInfo.ProviderClrType)
+                ? new CoreTypeMapping(mappingInfo.ProviderClrType)
                 : null;
         }
     }

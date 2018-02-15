@@ -15,18 +15,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class PropertyDiscoveryConvention : IEntityTypeAddedConvention, IBaseTypeChangedConvention
     {
-        private readonly ICoreTypeMapper _typeMapper;
+        private readonly ITypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyDiscoveryConvention(
-            [NotNull] ICoreTypeMapper typeMapper)
+            [NotNull] ITypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
             return propertyInfo.IsCandidateProperty()
-                   && _typeMapper.FindMapping(propertyInfo) != null;
+                   && _typeMappingSource.FindMapping(propertyInfo) != null;
         }
 
         /// <summary>

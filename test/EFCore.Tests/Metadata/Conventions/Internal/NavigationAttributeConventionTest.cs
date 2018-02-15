@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogNonDefiningInverseNavigation.GenerateMessage(
+            Assert.Equal(CoreStrings.LogNonDefiningInverseNavigationWarning.GenerateMessage(
                 nameof(Principal), nameof(Principal.Dependent), "Principal.Dependents#Dependent", nameof(Dependent.Principal),
                 nameof(Principal.Dependents)), Log[0].Message);
         }
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(1, Log.Count);
             Assert.Equal(LogLevel.Warning, Log[0].Level);
-            Assert.Equal(CoreStrings.LogNonOwnershipInverseNavigation.GenerateMessage(
+            Assert.Equal(CoreStrings.LogNonOwnershipInverseNavigationWarning.GenerateMessage(
                 nameof(Principal), nameof(Principal.Dependent), nameof(Dependent), nameof(Dependent.Principal),
                 nameof(Principal.Dependents)), Log[0].Message);
         }
@@ -779,8 +779,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        private static ICoreTypeMapper CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>();
+        private static ITypeMappingSource CreateTypeMapper()
+            => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();
 
         private ModelBuilder CreateModelBuilder()
         {

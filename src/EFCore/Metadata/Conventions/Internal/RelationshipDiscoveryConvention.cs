@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IEntityTypeMemberIgnoredConvention,
         INavigationAddedConvention
     {
-        private readonly ICoreTypeMapper _typeMapper;
+        private readonly ITypeMappingSource _typeMappingSource;
         private readonly IParameterBindingFactories _parameterBindingFactories;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
 
@@ -36,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationshipDiscoveryConvention(
-            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IParameterBindingFactories parameterBindingFactories,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
             _parameterBindingFactories = parameterBindingFactories;
             _logger = logger;
         }
@@ -804,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(_typeMapper, _parameterBindingFactories);
+            => Check.NotNull(propertyInfo, nameof(propertyInfo)).FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
 
         private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(EntityType entityType)
         {

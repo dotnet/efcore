@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class DynamicRelationalParameter : RelationalParameterBase
     {
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -23,15 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public DynamicRelationalParameter(
             [NotNull] string invariantName,
             [NotNull] string name,
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotEmpty(invariantName, nameof(invariantName));
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             InvariantName = invariantName;
             Name = name;
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             {
                 command.Parameters
                     .Add(
-                        _typeMapper.GetMappingForValue(null)
+                        _typeMappingSource.GetMappingForValue(null)
                             .CreateParameter(command, Name, null));
 
                 return;
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             var type = value.GetType();
 
             command.Parameters.Add(
-                _typeMapper.GetMapping(type)
+                _typeMappingSource.GetMapping(type)
                     .CreateParameter(command, Name, value, type.IsNullableType()));
         }
     }

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(clrType, nameof(clrType));
 
-            ClrType = converter?.ModelType ?? clrType;
+            ClrType = converter?.ModelClrType ?? clrType;
             Converter = converter;
             Comparer = comparer;
         }

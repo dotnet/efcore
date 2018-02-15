@@ -683,10 +683,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.Null(entityType.FindProperty("Up").GetStoreClrType());
-                Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetStoreClrType());
-                Assert.Same(typeof(long), entityType.FindProperty("Charm").GetStoreClrType());
-                Assert.Null(entityType.FindProperty("Strange").GetStoreClrType());
+                Assert.Null(entityType.FindProperty("Up").GetProviderClrType());
+                Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetProviderClrType());
+                Assert.Same(typeof(long), entityType.FindProperty("Charm").GetProviderClrType());
+                Assert.Null(entityType.FindProperty("Strange").GetProviderClrType());
             }
 
             

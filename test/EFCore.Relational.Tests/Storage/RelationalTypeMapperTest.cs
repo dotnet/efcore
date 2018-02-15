@@ -143,10 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 GetMapping(mapper, model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
         }
 
-        private static IRelationalCoreTypeMapper CreateTestTypeMapper()
-            => new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+        private static IRelationalTypeMappingSource CreateTestTypeMapper()
+            => new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<TestRelationalTypeMapper>());
         
         public static RelationalTypeMapping GetMapping(
@@ -263,9 +263,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         public static RelationalTypeMapping GetMapping(
-            IRelationalCoreTypeMapper typeMapper,
+            IRelationalTypeMappingSource typeMappingSource,
             IProperty property)
-            => typeMapper.FindMapping(property);
+            => typeMappingSource.FindMapping(property);
 
         protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
     }

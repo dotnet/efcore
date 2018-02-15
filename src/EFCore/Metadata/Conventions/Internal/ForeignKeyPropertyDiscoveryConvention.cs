@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         if (conflictingShadowFk != null)
                         {
                             conflictingFkFound = true;
-                            _logger.ConflictingShadowForeignKeys(conflictingShadowFk);
+                            _logger.ConflictingShadowForeignKeysWarning(conflictingShadowFk);
                         }
                     }
                 }

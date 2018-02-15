@@ -37,13 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             {
                 // NOTE: You may need to update AddEntityFrameworkDesignTimeServices() too
                 var services = new ServiceCollection()
-                    .AddSingleton<CoreTypeMapperDependencies>()
+                    .AddSingleton<TypeMappingSourceDependencies>()
                     .AddSingleton<RelationalTypeMapperDependencies>()
+                    .AddSingleton<RelationalTypeMappingSourceDependencies>()
                     .AddSingleton<ValueConverterSelectorDependencies>()
                     .AddSingleton<DiagnosticSource>(new DiagnosticListener(DbLoggerCategory.Name))
                     .AddSingleton<ILoggingOptions, LoggingOptions>()
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
-                    .AddSingleton<IRelationalCoreTypeMapper, FallbackRelationalCoreTypeMapper>()
+                    .AddSingleton<IRelationalTypeMappingSource, FallbackRelationalTypeMappingSource>()
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                     .AddLogging(x => x.SetMinimumLevel(LogLevel.Debug).AddProvider(new ListLoggerProvider(Log)));
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);

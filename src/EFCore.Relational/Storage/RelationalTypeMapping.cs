@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The method to use to read the value. </returns>
         public virtual MethodInfo GetDataReaderMethod()
         {
-            var type = (Converter?.StoreType ?? ClrType).UnwrapNullableType();
+            var type = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
 
             return _getXMethods.TryGetValue(type, out var method)
                 ? method

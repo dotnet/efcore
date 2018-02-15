@@ -91,12 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         /// <summary>
         ///     The CLR type used in the EF model.
         /// </summary>
-        public abstract Type ModelType { get; }
+        public abstract Type ModelClrType { get; }
 
         /// <summary>
         ///     The CLR type used when reading and writing from the store.
         /// </summary>
-        public abstract Type StoreType { get; }
+        public abstract Type ProviderClrType { get; }
 
         /// <summary>
         ///     Hints that can be used by the type mapper to create data types with appropriate
@@ -146,32 +146,32 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
                 return this;
             }
 
-            if (StoreType.UnwrapNullableType() != secondConverter.ModelType.UnwrapNullableType())
+            if (ProviderClrType.UnwrapNullableType() != secondConverter.ModelClrType.UnwrapNullableType())
             {
                 throw new ArgumentException(
                     CoreStrings.ConvertersCannotBeComposed(
-                        ModelType.ShortDisplayName(),
-                        StoreType.ShortDisplayName(),
-                        secondConverter.ModelType.ShortDisplayName(),
-                        secondConverter.StoreType.ShortDisplayName()));
+                        ModelClrType.ShortDisplayName(),
+                        ProviderClrType.ShortDisplayName(),
+                        secondConverter.ModelClrType.ShortDisplayName(),
+                        secondConverter.ProviderClrType.ShortDisplayName()));
             }
 
             var firstConverter
-                = StoreType.IsNullableType()
-                  && !secondConverter.ModelType.IsNullableType()
+                = ProviderClrType.IsNullableType()
+                  && !secondConverter.ModelClrType.IsNullableType()
                     ? ComposeWith(
                         (ValueConverter)Activator.CreateInstance(
                             typeof(CastingConverter<,>).MakeGenericType(
-                                StoreType,
-                                secondConverter.ModelType),
+                                ProviderClrType,
+                                secondConverter.ModelClrType),
                             MappingHints))
                     : this;
 
             return (ValueConverter)Activator.CreateInstance(
                 typeof(CompositeValueConverter<,,>).MakeGenericType(
-                    firstConverter.ModelType,
-                    firstConverter.StoreType,
-                    secondConverter.StoreType),
+                    firstConverter.ModelClrType,
+                    firstConverter.ProviderClrType,
+                    secondConverter.ProviderClrType),
                 firstConverter,
                 secondConverter,
                 firstConverter.MappingHints.With(secondConverter.MappingHints));

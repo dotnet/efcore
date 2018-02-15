@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public InversePropertyAttributeConvention(
-            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IParameterBindingFactories parameterBindingFactories,
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger)
-            : base(typeMapper, parameterBindingFactories)
+            : base(typeMappingSource, parameterBindingFactories)
         {
             _logger = logger;
         }
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 && ownership.PrincipalEntityType == targetEntityTypeBuilder.Metadata
                 && ownership.PrincipalToDependent?.GetIdentifyingMemberInfo() != inverseNavigationPropertyInfo)
             {
-                _logger.NonOwnershipInverseNavigation(entityType, navigationMemberInfo,
+                _logger.NonOwnershipInverseNavigationWarning(entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
                     ownership.PrincipalToDependent.GetIdentifyingMemberInfo());
                 return null;
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             if (entityType.DefiningEntityType == targetEntityTypeBuilder.Metadata
                 && entityType.DefiningNavigationName != inverseNavigationPropertyInfo.Name)
             {
-                _logger.NonDefiningInverseNavigation(entityType, navigationMemberInfo,
+                _logger.NonDefiningInverseNavigationWarning(entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
                     targetClrType.GetRuntimeProperties().First(p => p.Name == entityType.DefiningNavigationName));
                 return null;

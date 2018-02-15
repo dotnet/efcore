@@ -14,17 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     /// </summary>
     public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     {
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public ScaffoldingTypeMapper([NotNull] IRelationalCoreTypeMapper typeMapper)
+        public ScaffoldingTypeMapper([NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // This is because certain providers can have no type specified as a default type e.g. SQLite
             Check.NotNull(storeType, nameof(storeType));
 
-            var mapping = _typeMapper.FindMapping(storeType);
+            var mapping = _typeMappingSource.FindMapping(storeType);
             if (mapping == null)
             {
                 return null;
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (mapping.ClrType == typeof(byte[]))
             {
                 // Check for inference
-                var byteArrayMapping = _typeMapper.FindMapping(
+                var byteArrayMapping = _typeMappingSource.FindMapping(
                     typeof(byte[]),
                     keyOrIndex,
                     rowVersion: rowVersion,
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     canInfer = true;
 
                     // Check for size
-                    var sizedMapping = _typeMapper.FindMapping(
+                    var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(byte[]),
                         keyOrIndex,
                         rowVersion: rowVersion);
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             else if (mapping.ClrType == typeof(string))
             {
                 // Check for inference
-                var stringMapping = _typeMapper.FindMapping(
+                var stringMapping = _typeMappingSource.FindMapping(
                     typeof(string),
                     keyOrIndex,
                     unicode: mapping.IsUnicode,
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     canInfer = true;
 
                     // Check for unicode
-                    var unicodeMapping = _typeMapper.FindMapping(
+                    var unicodeMapping = _typeMappingSource.FindMapping(
                         typeof(string),
                         keyOrIndex,
                         unicode: true,
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     scaffoldUnicode = unicodeMapping.IsUnicode != stringMapping.IsUnicode ? (bool?)stringMapping.IsUnicode : null;
 
                     // Check for size
-                    var sizedMapping = _typeMapper.FindMapping(
+                    var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(string),
                         keyOrIndex,
                         unicode: mapping.IsUnicode);
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
             else
             {
-                var defaultMapping = _typeMapper.GetMapping(mapping.ClrType);
+                var defaultMapping = _typeMappingSource.GetMapping(mapping.ClrType);
 
                 if (defaultMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
                 {

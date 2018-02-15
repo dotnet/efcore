@@ -515,9 +515,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping] =
-                new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                new FallbackRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<TestRelationalTypeMapper>())
                     .FindMapping(property);
 
@@ -546,9 +546,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                 : base(
                     new RelationalCommandBuilderFactory(
                         new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                        new FallbackRelationalCoreTypeMapper(
-                            TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                        new FallbackRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())),
                     new RelationalSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
@@ -556,9 +556,9 @@ namespace Microsoft.EntityFrameworkCore.Update
                         RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>()),
                     new TypedRelationalValueBufferFactoryFactory(
                         new RelationalValueBufferFactoryDependencies(
-                            new FallbackRelationalCoreTypeMapper(
-                                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                            new FallbackRelationalTypeMappingSource(
+                                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                                 TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()))))
             {
                 ShouldAddCommand = true;

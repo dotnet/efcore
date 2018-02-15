@@ -29,28 +29,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             [CanBeNull] object value)
             => typeMapper == null
                 ? null
-                : new FallbackRelationalCoreTypeMapper(
-                        new CoreTypeMapperDependencies(
+                : new FallbackRelationalTypeMappingSource(
+                        new TypeMappingSourceDependencies(
                             new ValueConverterSelector(
                                 new ValueConverterSelectorDependencies())),
-                        new RelationalTypeMapperDependencies(),
+                        new RelationalTypeMappingSourceDependencies(),
                         typeMapper)
                     .GetMappingForValue(value);
 
         /// <summary>
         ///     Gets the relational database type for a given object, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="value"> The object to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMappingForValue(
-            [CanBeNull] this IRelationalCoreTypeMapper typeMapper,
+            [CanBeNull] this IRelationalTypeMappingSource typeMappingSource,
             [CanBeNull] object value)
             => value == null
                || value == DBNull.Value
-               || typeMapper == null
+               || typeMappingSource == null
                 ? RelationalTypeMapping.NullMapping
-                : typeMapper.FindMapping(value.GetType());
+                : typeMappingSource.FindMapping(value.GetType());
 
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.
@@ -62,28 +62,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] IProperty property)
-            => new FallbackRelationalCoreTypeMapper(
-                    new CoreTypeMapperDependencies(
+            => new FallbackRelationalTypeMappingSource(
+                    new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMapperDependencies(),
+                    new RelationalTypeMappingSourceDependencies(),
                     typeMapper)
                 .GetMapping(property);
 
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="property"> The property to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
-            [NotNull] this IRelationalCoreTypeMapper typeMapper,
+            [NotNull] this IRelationalTypeMappingSource typeMappingSource,
             [NotNull] IProperty property)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(property, nameof(property));
 
-            var mapping = typeMapper.FindMapping(property);
+            var mapping = typeMappingSource.FindMapping(property);
 
             if (mapping != null)
             {
@@ -107,28 +107,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] Type clrType)
-            => new FallbackRelationalCoreTypeMapper(
-                    new CoreTypeMapperDependencies(
+            => new FallbackRelationalTypeMappingSource(
+                    new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMapperDependencies(),
+                    new RelationalTypeMappingSourceDependencies(),
                     typeMapper)
                 .GetMapping(clrType);
 
         /// <summary>
         ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
         /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="clrType"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
-            [NotNull] this IRelationalCoreTypeMapper typeMapper,
+            [NotNull] this IRelationalTypeMappingSource typeMappingSource,
             [NotNull] Type clrType)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(clrType, nameof(clrType));
 
-            var mapping = typeMapper.FindMapping(clrType);
+            var mapping = typeMappingSource.FindMapping(clrType);
             if (mapping != null)
             {
                 return mapping;
@@ -152,11 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
             [NotNull] string typeName)
-            => new FallbackRelationalCoreTypeMapper(
-                    new CoreTypeMapperDependencies(
+            => new FallbackRelationalTypeMappingSource(
+                    new TypeMappingSourceDependencies(
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies())),
-                    new RelationalTypeMapperDependencies(),
+                    new RelationalTypeMappingSourceDependencies(),
                     typeMapper)
                 .GetMapping(typeName);
 
@@ -168,17 +168,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note that sometimes the same store type can have different mappings; this method returns the default.
         ///     </para>
         /// </summary>
-        /// <param name="typeMapper"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         /// <param name="typeName"> The type to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMapping(
-            [NotNull] this IRelationalCoreTypeMapper typeMapper,
+            [NotNull] this IRelationalTypeMappingSource typeMappingSource,
             [NotNull] string typeName)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(typeName, nameof(typeName));
 
-            var mapping = typeMapper.FindMapping(typeName);
+            var mapping = typeMappingSource.FindMapping(typeName);
             if (mapping != null)
             {
                 return mapping;

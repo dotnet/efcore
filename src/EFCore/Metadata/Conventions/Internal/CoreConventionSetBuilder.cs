@@ -38,26 +38,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var propertyDiscoveryConvention
                 = new PropertyDiscoveryConvention(
-                    Dependencies.TypeMapper);
+                    Dependencies.TypeMappingSource);
 
             var keyDiscoveryConvention
                 = new KeyDiscoveryConvention(Dependencies.Logger);
 
             var inversePropertyAttributeConvention
                 = new InversePropertyAttributeConvention(
-                    Dependencies.TypeMapper,
+                    Dependencies.TypeMappingSource,
                     Dependencies.ParameterBindingFactories,
                     Dependencies.Logger);
 
             var relationshipDiscoveryConvention
                 = new RelationshipDiscoveryConvention(
-                    Dependencies.TypeMapper,
+                    Dependencies.TypeMappingSource,
                     Dependencies.ParameterBindingFactories,
                     Dependencies.Logger);
 
             var servicePropertyDiscoveryConvention
                 = new ServicePropertyDiscoveryConvention(
-                    Dependencies.TypeMapper,
+                    Dependencies.TypeMappingSource,
                     Dependencies.ParameterBindingFactories);
 
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention());
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ForeignKeyAddedConventions.Add(
                 new ForeignKeyAttributeConvention(
-                    Dependencies.TypeMapper,
+                    Dependencies.TypeMappingSource,
                     Dependencies.ParameterBindingFactories,
                     Dependencies.Logger));
 
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             conventionSet.ModelBuiltConventions.Add(
                 new PropertyMappingValidationConvention(
-                    Dependencies.TypeMapper,
+                    Dependencies.TypeMappingSource,
                     Dependencies.ParameterBindingFactories));
 
             conventionSet.ModelBuiltConventions.Add(new RelationshipValidationConvention());

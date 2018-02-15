@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _logger;
-        private readonly IRelationalCoreTypeMapper _typeMapper;
+        private readonly IRelationalTypeMappingSource _typeMappingSource;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -22,20 +22,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public RelationalCommandBuilderFactory(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             _logger = logger;
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
         }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IRelationalCommandBuilder Create() => CreateCore(_logger, _typeMapper);
+        public virtual IRelationalCommandBuilder Create() => CreateCore(_logger, _typeMappingSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         protected virtual IRelationalCommandBuilder CreateCore(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            [NotNull] IRelationalCoreTypeMapper relationalTypeMapper)
+            [NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
             => new RelationalCommandBuilder(
                 logger,
-                relationalTypeMapper);
+                relationalTypeMappingSource);
     }
 }

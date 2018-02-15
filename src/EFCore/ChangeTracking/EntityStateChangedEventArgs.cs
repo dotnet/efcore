@@ -9,13 +9,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <summary>
     ///     Event arguments for the <see cref="ChangeTracker.StateChanged" /> event.
     /// </summary>
-    public class EntityStateEventArgs : EntityEntryEventArgs
+    public class EntityStateChangedEventArgs : EntityEntryEventArgs
     {
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public EntityStateEventArgs(
+        public EntityStateChangedEventArgs(
             [NotNull] InternalEntityEntry internalEntityEntry,
             EntityState oldState,
             EntityState newState)

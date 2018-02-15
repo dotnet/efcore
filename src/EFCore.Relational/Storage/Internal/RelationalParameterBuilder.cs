@@ -24,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalParameterBuilder(
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            TypeMapper = typeMapper;
+            TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual IRelationalCoreTypeMapper TypeMapper { get; }
+        protected virtual IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 new DynamicRelationalParameter(
                     Check.NotEmpty(invariantName, nameof(invariantName)),
                     Check.NotEmpty(name, nameof(name)),
-                    TypeMapper));
+                    TypeMappingSource));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected virtual RelationalParameterBuilder Create()
-            => new RelationalParameterBuilder(TypeMapper);
+            => new RelationalParameterBuilder(TypeMappingSource);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

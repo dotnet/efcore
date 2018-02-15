@@ -17,14 +17,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static ConventionSet Build()
             => new TestRelationalConventionSetBuilder(
-                new RelationalConventionSetBuilderDependencies(
-                    new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()),
-                    new FakeDiagnosticsLogger<DbLoggerCategory.Model>(),
-                    null,
-                    null))
+                    new RelationalConventionSetBuilderDependencies(
+                        new FallbackRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()),
+                        new FakeDiagnosticsLogger<DbLoggerCategory.Model>(),
+                        null,
+                        null,
+                        null))
                 .AddConventions(
                     TestServiceFactory.Instance.Create<CoreConventionSetBuilder>()
                         .CreateConventionSet());

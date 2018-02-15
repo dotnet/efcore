@@ -904,8 +904,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public List<(LogLevel Level, EventId Id, string Message)> Log { get; }
             = new List<(LogLevel, EventId, string)>();
 
-        private static ICoreTypeMapper CreateTypeMapper()
-            => TestServiceFactory.Instance.Create<FallbackCoreTypeMapper>();
+        private static ITypeMappingSource CreateTypeMapper()
+            => TestServiceFactory.Instance.Create<FallbackTypeMappingSource>();
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {

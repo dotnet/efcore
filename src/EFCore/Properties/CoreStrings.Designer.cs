@@ -2191,14 +2191,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     There are multiple relationships between '{dependentEntityType}' and '{principalEntityType}' without configured foreign key properties causing EF to create shadow properties on '{dependentType}' with names dependent on the discovery order.
         /// </summary>
-        public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeys
+        public static readonly EventDefinition<string, string, string> LogConflictingShadowForeignKeysWarning
             = new EventDefinition<string, string, string>(
-                CoreEventId.ConflictingShadowForeignKeys,
+                CoreEventId.ConflictingShadowForeignKeysWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Warning,
-                    CoreEventId.ConflictingShadowForeignKeys,
-                    _resourceManager.GetString("LogConflictingShadowForeignKeys")));
+                    CoreEventId.ConflictingShadowForeignKeysWarning,
+                    _resourceManager.GetString("LogConflictingShadowForeignKeysWarning")));
 
         /// <summary>
         ///     Relationship from '{firstEntityType}' to '{secondEntityType}' not configured because there are multiple properties on one entity type {navigationProperties} that could be matched with the properties on the other entity type {inverseNavigations}.
@@ -2243,26 +2243,26 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigation
+        public static readonly EventDefinition<string, string, string, string, string> LogNonDefiningInverseNavigationWarning
             = new EventDefinition<string, string, string, string, string>(
-                CoreEventId.NonDefiningInverseNavigation,
+                CoreEventId.NonDefiningInverseNavigationWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
-                    CoreEventId.NonDefiningInverseNavigation,
-                    _resourceManager.GetString("LogNonDefiningInverseNavigation")));
+                    CoreEventId.NonDefiningInverseNavigationWarning,
+                    _resourceManager.GetString("LogNonDefiningInverseNavigationWarning")));
 
         /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'
         /// </summary>
-        public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigation
+        public static readonly EventDefinition<string, string, string, string, string> LogNonOwnershipInverseNavigationWarning
             = new EventDefinition<string, string, string, string, string>(
-                CoreEventId.NonOwnershipInverseNavigation,
+                CoreEventId.NonOwnershipInverseNavigationWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
-                    CoreEventId.NonOwnershipInverseNavigation,
-                    _resourceManager.GetString("LogNonOwnershipInverseNavigation")));
+                    CoreEventId.NonOwnershipInverseNavigationWarning,
+                    _resourceManager.GetString("LogNonOwnershipInverseNavigationWarning")));
 
         /// <summary>
         ///     The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.

@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var clrType = FindValueConverter(property)?.StoreType
+            var clrType = FindValueConverter(property)?.ProviderClrType
                           ?? property.ClrType;
 
             stringBuilder
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             if (valueConverter != null)
             {
-                var storeType = Code.Reference(valueConverter.StoreType);
+                var storeType = Code.Reference(valueConverter.ProviderClrType);
 
                 stringBuilder
                     .AppendLine()
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             foreach (var consumed in annotations.Where(
                 a => a.Name == CoreAnnotationNames.ValueConverter
-                     || a.Name == CoreAnnotationNames.StoreClrType).ToList())
+                     || a.Name == CoreAnnotationNames.ProviderClrType).ToList())
             {
                 annotations.Remove(consumed);
             }

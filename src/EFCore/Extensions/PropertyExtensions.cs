@@ -146,12 +146,12 @@ namespace Microsoft.EntityFrameworkCore
                ?? Enumerable.Empty<IKey>();
 
         /// <summary>
-        ///     Gets the type that the property value will be converted to before being saved to the store.
+        ///     Gets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The store type, or <c>null</c> if none has been set. </returns>
-        public static Type GetStoreClrType([NotNull] this IProperty property)
-            => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.StoreClrType];
+        /// <returns> The provider type, or <c>null</c> if none has been set. </returns>
+        public static Type GetProviderClrType([NotNull] this IProperty property)
+            => (Type)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ProviderClrType];
 
         /// <summary>
         ///     Gets the custom <see cref="ValueConverter"/> set for this property.

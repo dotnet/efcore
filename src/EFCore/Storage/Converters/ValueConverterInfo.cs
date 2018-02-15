@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         ///     Creates a new <see cref="ValueConverterInfo" /> instance.
         /// </summary>
         /// <param name="modelClrType"> The CLR type used in the EF model. </param>
-        /// <param name="storeClrType"> The CLR type used when reading and writing from the store. </param>
+        /// <param name="providerClrType"> The CLR type used when reading and writing from the database provider. </param>
         /// <param name="factory"> A factory to create the converter, if needed. </param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the type mapper to create data types with appropriate
@@ -27,17 +27,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         /// </param>
         public ValueConverterInfo(
             [NotNull] Type modelClrType,
-            [NotNull] Type storeClrType,
+            [NotNull] Type providerClrType,
             [NotNull] Func<ValueConverterInfo, ValueConverter> factory,
             ConverterMappingHints mappingHints = default)
         {
             _factory = factory;
             Check.NotNull(modelClrType, nameof(modelClrType));
-            Check.NotNull(storeClrType, nameof(storeClrType));
+            Check.NotNull(providerClrType, nameof(providerClrType));
             Check.NotNull(factory, nameof(factory));
 
             ModelClrType = modelClrType;
-            StoreClrType = storeClrType;
+            ProviderClrType = providerClrType;
             MappingHints = mappingHints;
         }
 
@@ -47,9 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         public Type ModelClrType { get; }
 
         /// <summary>
-        ///     The CLR type used when reading and writing from the store.
+        ///     The CLR type used when reading and writing from the database provider.
         /// </summary>
-        public Type StoreClrType { get; }
+        public Type ProviderClrType { get; }
 
         /// <summary>
         ///     Hints that can be used by the type mapper to create data types with appropriate

@@ -340,9 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>true if the target type should have a defining query applied.</returns>
         public virtual bool ShouldApplyDefiningQuery(
             [NotNull] IEntityType entityType, [NotNull] IQuerySource querySource)
-        {
-            return true;
-        }
+            => true;
 
         private class EagerLoadingExpressionVisitor : QueryModelVisitorBase
         {

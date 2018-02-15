@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public abstract class CoreTypeMapperBase : ICoreTypeMapper
+    public abstract class TypeMappingSource : ITypeMappingSource
     {
         private readonly ConcurrentDictionary<TypeMappingInfo, CoreTypeMapping> _explicitMappings
             = new ConcurrentDictionary<TypeMappingInfo, CoreTypeMapping>();
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected CoreTypeMapperBase([NotNull] CoreTypeMapperDependencies dependencies)
+        protected TypeMappingSource([NotNull] TypeMappingSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Dependencies used to create this <see cref="CoreTypeMapperBase" />
+        ///     Dependencies used to create this <see cref="TypeMappingSource" />
         /// </summary>
-        protected virtual CoreTypeMapperDependencies Dependencies { get; }
+        protected virtual TypeMappingSourceDependencies Dependencies { get; }
 
         /// <summary>
         ///     <para>
@@ -77,30 +77,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     var mappingInfoUsed = mappingInfo;
 
-                    var mapping = mappingInfoUsed.StoreClrType == null
-                                  || mappingInfoUsed.StoreClrType == mappingInfoUsed.ModelClrType
+                    var mapping = mappingInfoUsed.ConfiguredProviderClrType == null
+                                  || mappingInfoUsed.ConfiguredProviderClrType == mappingInfoUsed.ModelClrType
                         ? FindMapping(mappingInfoUsed)
                         : null;
 
                     if (mapping == null)
                     {
-                        var sourceType = mappingInfo.ValueConverterInfo?.StoreClrType ?? mappingInfo.ModelClrType;
+                        var sourceType = mappingInfo.ValueConverterInfo?.ProviderClrType ?? mappingInfo.ModelClrType;
 
                         if (sourceType != null)
                         {
                             foreach (var converterInfo in Dependencies
                                 .ValueConverterSelector
-                                .ForTypes(sourceType, mappingInfo.StoreClrType))
+                                .ForTypes(sourceType, mappingInfo.ConfiguredProviderClrType))
                             {
                                 mappingInfoUsed = mappingInfo.WithBuiltInConverter(converterInfo);
                                 mapping = FindMapping(mappingInfoUsed);
 
                                 if (mapping == null
-                                    && mappingInfo.StoreClrType != null)
+                                    && mappingInfo.ConfiguredProviderClrType != null)
                                 {
                                     foreach (var secondConverterInfo in Dependencies
                                         .ValueConverterSelector
-                                        .ForTypes(mappingInfo.StoreClrType))
+                                        .ForTypes(mappingInfo.ConfiguredProviderClrType))
                                     {
                                         var secondMappingInfoUsed = mappingInfoUsed.WithBuiltInConverter(secondConverterInfo);
                                         mapping = FindMapping(secondMappingInfoUsed);

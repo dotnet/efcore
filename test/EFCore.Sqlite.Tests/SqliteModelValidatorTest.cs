@@ -86,9 +86,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
-                = new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                = new FallbackRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<SqliteTypeMapper>())
                     .FindMapping(property);
 
@@ -105,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
                     TestServiceFactory.Instance.Create<SqliteTypeMapper>(),
-                    new FallbackRelationalCoreTypeMapper(
-                        TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                    new FallbackRelationalTypeMappingSource(
+                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<SqliteTypeMapper>())));
 
         protected override ModelBuilder CreateConventionalModelBuilder()

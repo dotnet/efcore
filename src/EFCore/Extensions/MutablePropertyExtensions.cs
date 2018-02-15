@@ -110,12 +110,12 @@ namespace Microsoft.EntityFrameworkCore
             => ((IProperty)property).GetContainingKeys().Cast<IMutableKey>();
 
         /// <summary>
-        ///     Sets the type that the property value will be converted to before being saved to the store.
+        ///     Sets the type that the property value will be converted to before being sent to the database provider.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <param name="storeClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
-        public static void SetStoreClrType([NotNull] this IMutableProperty property, [CanBeNull] Type storeClrType)
-            => property[CoreAnnotationNames.StoreClrType] = storeClrType;
+        /// <param name="providerClrType"> The type to use, or <c>null</c> to remove any previously set type. </param>
+        public static void SetProviderClrType([NotNull] this IMutableProperty property, [CanBeNull] Type providerClrType)
+            => property[CoreAnnotationNames.ProviderClrType] = providerClrType;
 
         /// <summary>
         ///     Sets the custom <see cref="ValueConverter"/> for this property.
@@ -125,10 +125,10 @@ namespace Microsoft.EntityFrameworkCore
         public static void SetValueConverter([NotNull] this IMutableProperty property, [CanBeNull] ValueConverter converter)
         {
             if (converter != null
-                && converter.ModelType.UnwrapNullableType() != property.ClrType.UnwrapNullableType())
+                && converter.ModelClrType.UnwrapNullableType() != property.ClrType.UnwrapNullableType())
             {
                 throw new ArgumentException(CoreStrings.ConverterPropertyMismatch(
-                    converter.ModelType.ShortDisplayName(),
+                    converter.ModelClrType.ShortDisplayName(),
                     property.DeclaringEntityType.DisplayName(),
                     property.Name,
                     property.ClrType.ShortDisplayName()));

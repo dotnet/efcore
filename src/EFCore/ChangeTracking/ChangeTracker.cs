@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An event fired when an entity is tracked by the context, either because it was returned
         ///     from a tracking query, or because it was attached or added to the context.
         /// </summary>
-        public event Action<object, EntityTrackedEventArgs> Tracked
+        public event EventHandler<EntityTrackedEventArgs> Tracked
         {
             add => StateManager.Tracked += value;
             remove => StateManager.Tracked -= value;
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Use the <see cref="Tracked" /> event to get notified when the context begins tracking an entity.
         ///     </para>
         /// </summary>
-        public event Action<object, EntityStateEventArgs> StateChanged
+        public event EventHandler<EntityStateChangedEventArgs> StateChanged
         {
             add => StateManager.StateChanged += value;
             remove => StateManager.StateChanged -= value;

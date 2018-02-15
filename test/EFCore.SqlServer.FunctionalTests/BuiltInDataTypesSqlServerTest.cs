@@ -2706,7 +2706,7 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         {
             using (var context = CreateContext())
             {
-                var typeMapper = context.GetService<IRelationalCoreTypeMapper>();
+                var typeMapper = context.GetService<IRelationalTypeMappingSource>();
 
                 foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
                 {

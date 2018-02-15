@@ -73,11 +73,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         /// <summary>
         ///     The CLR type used in the EF model.
         /// </summary>
-        public override Type ModelType => typeof(TModel);
+        public override Type ModelClrType => typeof(TModel);
 
         /// <summary>
         ///     The CLR type used when reading and writing from the store.
         /// </summary>
-        public override Type StoreType => typeof(TStore);
+        public override Type ProviderClrType => typeof(TStore);
     }
 }

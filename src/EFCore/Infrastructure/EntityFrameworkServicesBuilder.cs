@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityMaterializerSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICoreConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ITypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(ICoreTypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(ITypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ILoggerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityMaterializerSource, EntityMaterializerSource>();
             TryAdd<ICoreConventionSetBuilder, CoreConventionSetBuilder>();
             TryAdd<ITypeMapper, CoreTypeMapper>();
-            TryAdd<ICoreTypeMapper, FallbackCoreTypeMapper>();
+            TryAdd<ITypeMappingSource, FallbackTypeMappingSource>();
             TryAdd<IModelCustomizer, ModelCustomizer>();
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
             TryAdd<ILoggerFactory, LoggerFactory>();
@@ -289,6 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ModelValidatorDependencies>()
                 .AddDependencySingleton<CoreConventionSetBuilderDependencies>()
                 .AddDependencySingleton<CoreTypeMapperDependencies>()
+                .AddDependencySingleton<TypeMappingSourceDependencies>()
                 .AddDependencySingleton<ModelCustomizerDependencies>()
                 .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
                 .AddDependencySingleton<ValueConverterSelectorDependencies>()

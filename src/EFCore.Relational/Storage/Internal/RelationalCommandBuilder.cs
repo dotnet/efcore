@@ -26,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public RelationalCommandBuilder(
             [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
-            [NotNull] IRelationalCoreTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             _logger = logger;
-            ParameterBuilder = new RelationalParameterBuilder(typeMapper);
+            ParameterBuilder = new RelationalParameterBuilder(typeMappingSource);
         }
 
         IndentedStringBuilder IInfrastructure<IndentedStringBuilder>.Instance

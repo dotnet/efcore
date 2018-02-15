@@ -771,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                    || _typeMapping.ClrType.IsInstanceOfType(value)
                    || (value.GetType().IsInteger() && _typeMapping.ClrType.IsInteger()))
                 ? _typeMapping
-                : Dependencies.CoreTypeMapper.GetMappingForValue(value);
+                : Dependencies.TypeMappingSource.GetMappingForValue(value);
 
         /// <summary>
         ///     Visit a TableExpression.
@@ -1501,7 +1501,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
 
             _relationalCommandBuilder.Append(" AS ");
 
-            var typeMapping = Dependencies.CoreTypeMapper.FindMapping(explicitCastExpression.Type);
+            var typeMapping = Dependencies.TypeMappingSource.FindMapping(explicitCastExpression.Type);
 
             if (typeMapping == null)
             {
@@ -1615,7 +1615,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                 _relationalCommandBuilder.AddParameter(
                     parameterExpression.Name,
                     parameterName,
-                    _typeMapping ?? Dependencies.CoreTypeMapper.GetMapping(parameterExpression.Type),
+                    _typeMapping ?? Dependencies.TypeMappingSource.GetMapping(parameterExpression.Type),
                     parameterExpression.Type.IsNullableType());
             }
 

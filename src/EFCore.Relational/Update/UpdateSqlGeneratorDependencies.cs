@@ -44,16 +44,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     </para>
         /// </summary>
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
-        /// <param name="coreTypeMapper"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         public UpdateSqlGeneratorDependencies(
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IRelationalCoreTypeMapper coreTypeMapper)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(coreTypeMapper, nameof(coreTypeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             SqlGenerationHelper = sqlGenerationHelper;
-            CoreTypeMapper = coreTypeMapper;
+            TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalCoreTypeMapper CoreTypeMapper { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -74,16 +74,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         public UpdateSqlGeneratorDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
             => new UpdateSqlGeneratorDependencies(
                 sqlGenerationHelper,
-                CoreTypeMapper);
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="coreTypeMapper"> A replacement for the current dependency of this type. </param>
+        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public UpdateSqlGeneratorDependencies With([NotNull] IRelationalCoreTypeMapper coreTypeMapper)
+        public UpdateSqlGeneratorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
             => new UpdateSqlGeneratorDependencies(
                 SqlGenerationHelper,
-                coreTypeMapper);
+                typeMappingSource);
     }
 }

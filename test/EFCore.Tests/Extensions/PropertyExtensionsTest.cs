@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Extensions
             var entityType = model.AddEntityType("Entity");
             var property = entityType.AddProperty("Property", typeof(int));
 
-            Assert.Null(property.GetStoreClrType());
+            Assert.Null(property.GetProviderClrType());
 
-            property.SetStoreClrType(typeof(long));
-            Assert.Same(typeof(long), property.GetStoreClrType());
+            property.SetProviderClrType(typeof(long));
+            Assert.Same(typeof(long), property.GetProviderClrType());
 
-            property.SetStoreClrType(null);
-            Assert.Null(property.GetStoreClrType());
+            property.SetProviderClrType(null);
+            Assert.Null(property.GetProviderClrType());
         }
 
         [Fact]

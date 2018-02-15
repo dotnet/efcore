@@ -48,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(clrType, CreateTypeMapper().FindMapping(typeName).ClrType);
         }
 
-        private static IRelationalCoreTypeMapper CreateTypeMapper()
-            => new FallbackRelationalCoreTypeMapper(
-                TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+        private static IRelationalTypeMappingSource CreateTypeMapper()
+            => new FallbackRelationalTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<SqliteTypeMapper>());
 
         public static RelationalTypeMapping GetMapping(

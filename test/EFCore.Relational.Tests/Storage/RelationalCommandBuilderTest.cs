@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var commandBuilder = new RelationalCommandBuilder(
                 new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                new FallbackRelationalCoreTypeMapper(
-                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                new FallbackRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()));
 
             var command = commandBuilder.Build();
@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var commandBuilder = new RelationalCommandBuilder(
                 new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>(),
-                new FallbackRelationalCoreTypeMapper(
-                    TestServiceFactory.Instance.Create<CoreTypeMapperDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMapperDependencies>(),
+                new FallbackRelationalTypeMappingSource(
+                    TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>()));
 
             commandBuilder.ParameterBuilder.AddParameter(

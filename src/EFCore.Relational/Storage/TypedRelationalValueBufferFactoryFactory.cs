@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(valueTypes, nameof(valueTypes));
 
-            var mapper = Dependencies.TypeMapper;
+            var mapper = Dependencies.TypeMappingSource;
 
             return Create(valueTypes.Select(
                 (t, i) => new TypeMaterializationInfo(t, null, mapper, indexMap?[i] ?? -1)).ToList());
@@ -156,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (converter != null)
             {
-                if (expression.Type != converter.StoreType)
+                if (expression.Type != converter.ProviderClrType)
                 {
-                    expression = Expression.Convert(expression, converter.StoreType);
+                    expression = Expression.Convert(expression, converter.ProviderClrType);
                 }
 
                 expression = ReplacingExpressionVisitor.Replace(
@@ -167,9 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     converter.ConvertFromStoreExpression.Body);
             }
 
-            if (expression.Type != materializationInfo.ModelType)
+            if (expression.Type != materializationInfo.ModelClrType)
             {
-                expression = Expression.Convert(expression, materializationInfo.ModelType);
+                expression = Expression.Convert(expression, materializationInfo.ModelClrType);
             }
 
             var exceptionParameter

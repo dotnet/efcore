@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return services
                 .AddSingleton<AnnotationCodeGeneratorDependencies>()
-                .AddSingleton<CoreTypeMapperDependencies>()
+                .AddSingleton<TypeMappingSourceDependencies>()
                 .AddSingleton<CSharpMigrationOperationGeneratorDependencies>()
                 .AddSingleton<CSharpMigrationsGeneratorDependencies>()
                 .AddSingleton<CSharpSnapshotGeneratorDependencies>()
@@ -55,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<ModelCodeGeneratorDependencies>()
                 .AddSingleton<ProviderCodeGeneratorDependencies>()
                 .AddSingleton<RelationalTypeMapperDependencies>()
+                .AddSingleton<TypeMappingSourceDependencies>()
+                .AddSingleton<RelationalTypeMappingSourceDependencies>()
                 .AddSingleton<ValueConverterSelectorDependencies>()
                 .AddSingleton<ICandidateNamingService, CandidateNamingService>()
                 .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
@@ -74,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                 .AddSingleton(reporter)
                 .AddSingleton<IPluralizer, NullPluralizer>()
-                .AddSingleton<IRelationalCoreTypeMapper, FallbackRelationalCoreTypeMapper>()
+                .AddSingleton<IRelationalTypeMappingSource, FallbackRelationalTypeMappingSource>()
                 .AddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()

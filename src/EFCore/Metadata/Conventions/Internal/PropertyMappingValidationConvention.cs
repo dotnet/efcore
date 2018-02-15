@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     /// </summary>
     public class PropertyMappingValidationConvention : IModelBuiltConvention
     {
-        private readonly ICoreTypeMapper _typeMapper;
+        private readonly ITypeMappingSource _typeMappingSource;
         private readonly IParameterBindingFactories _parameterBindingFactories;
 
         /// <summary>
@@ -27,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertyMappingValidationConvention(
-            [NotNull] ICoreTypeMapper typeMapper,
+            [NotNull] ITypeMappingSource typeMappingSource,
             [NotNull] IParameterBindingFactories parameterBindingFactories)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(parameterBindingFactories, nameof(parameterBindingFactories));
 
-            _typeMapper = typeMapper;
+            _typeMappingSource = typeMappingSource;
             _parameterBindingFactories = parameterBindingFactories;
         }
 
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(property, nameof(property));
 
-            return _typeMapper.FindMapping(property) != null;
+            return _typeMappingSource.FindMapping(property) != null;
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return propertyInfo.FindCandidateNavigationPropertyType(_typeMapper, _parameterBindingFactories);
+            return propertyInfo.FindCandidateNavigationPropertyType(_typeMappingSource, _parameterBindingFactories);
         }
     }
 }

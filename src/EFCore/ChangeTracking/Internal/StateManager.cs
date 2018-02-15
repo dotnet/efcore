@@ -937,7 +937,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public event Action<object, EntityTrackedEventArgs> Tracked;
+        public event EventHandler<EntityTrackedEventArgs> Tracked;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public event Action<object, EntityStateEventArgs> StateChanged;
+        public event EventHandler<EntityStateChangedEventArgs> StateChanged;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -964,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var @event = StateChanged;
 
-            @event?.Invoke(Context.ChangeTracker, new EntityStateEventArgs(internalEntityEntry, oldState, internalEntityEntry.EntityState));
+            @event?.Invoke(Context.ChangeTracker, new EntityStateChangedEventArgs(internalEntityEntry, oldState, internalEntityEntry.EntityState));
         }
     }
 }
