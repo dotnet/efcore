@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public PropertiesSnapshot(
-            [CanBeNull] List<Tuple<InternalPropertyBuilder, ConfigurationSource>> properties,
-            [CanBeNull] List<Tuple<InternalIndexBuilder, ConfigurationSource>> indexes,
-            [CanBeNull] List<Tuple<InternalKeyBuilder, ConfigurationSource?, ConfigurationSource>> keys,
-            [CanBeNull] List<Tuple<InternalRelationshipBuilder, EntityTypeSnapshot, ConfigurationSource>> relationships)
+            [CanBeNull] List<InternalPropertyBuilder> properties,
+            [CanBeNull] List<InternalIndexBuilder> indexes,
+            [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
+            [CanBeNull] List<(InternalRelationshipBuilder, EntityTypeSnapshot)> relationships)
         {
             Properties = properties;
             Indexes = indexes;
@@ -31,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Relationships = relationships;
         }
 
-        private List<Tuple<InternalPropertyBuilder, ConfigurationSource>> Properties { [DebuggerStepThrough] get; }
-        private List<Tuple<InternalRelationshipBuilder, EntityTypeSnapshot, ConfigurationSource>> Relationships { [DebuggerStepThrough] get; set; }
-        private List<Tuple<InternalIndexBuilder, ConfigurationSource>> Indexes { [DebuggerStepThrough] get; set; }
-        private List<Tuple<InternalKeyBuilder, ConfigurationSource?, ConfigurationSource>> Keys { [DebuggerStepThrough] get; set; }
+        private List<InternalPropertyBuilder> Properties { [DebuggerStepThrough] get; }
+        private List<(InternalRelationshipBuilder, EntityTypeSnapshot)> Relationships { [DebuggerStepThrough] get; set; }
+        private List<InternalIndexBuilder> Indexes { [DebuggerStepThrough] get; set; }
+        private List<(InternalKeyBuilder, ConfigurationSource?)> Keys { [DebuggerStepThrough] get; set; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add([NotNull] List<Tuple<InternalRelationshipBuilder,EntityTypeSnapshot, ConfigurationSource>> relationships)
+        public virtual void Add([NotNull] List<(InternalRelationshipBuilder, EntityTypeSnapshot)> relationships)
         {
             if (Relationships == null)
             {
@@ -56,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add([NotNull] List<Tuple<InternalIndexBuilder, ConfigurationSource>> indexes)
+        public virtual void Add([NotNull] List<InternalIndexBuilder> indexes)
         {
             if (Indexes == null)
             {
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void Add([NotNull] List<Tuple<InternalKeyBuilder, ConfigurationSource?, ConfigurationSource>> keys)
+        public virtual void Add([NotNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys)
         {
             if (Keys == null)
             {
@@ -92,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (Properties != null)
             {
-                foreach (var propertyTuple in Properties)
+                foreach (var propertyBuilder in Properties)
                 {
-                    propertyTuple.Item1.Attach(entityTypeBuilder, propertyTuple.Item2);
+                    propertyBuilder.Attach(entityTypeBuilder);
                 }
             }
 
@@ -102,19 +101,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 foreach (var detachedKeyTuple in Keys)
                 {
-                    detachedKeyTuple.Item1.Attach(entityTypeBuilder.Metadata.RootType().Builder, detachedKeyTuple.Item2, detachedKeyTuple.Item3);
+                    detachedKeyTuple.Item1.Attach(entityTypeBuilder.Metadata.RootType().Builder, detachedKeyTuple.Item2);
                 }
             }
 
             if (Indexes != null)
             {
-                foreach (var indexBuilderTuple in Indexes)
+                foreach (var indexBuilder in Indexes)
                 {
-                    var originalEntityType = indexBuilderTuple.Item1.Metadata.DeclaringEntityType;
+                    var originalEntityType = indexBuilder.Metadata.DeclaringEntityType;
                     var targetEntityTypeBuilder = originalEntityType.Name == entityTypeBuilder.Metadata.Name
                         ? entityTypeBuilder
                         : originalEntityType.Builder;
-                    indexBuilderTuple.Item1.Attach(targetEntityTypeBuilder, indexBuilderTuple.Item2);
+                    indexBuilder.Attach(targetEntityTypeBuilder);
                 }
             }
 
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 foreach (var detachedRelationshipTuple in Relationships.Where(r => r.Item2 != null))
                 {
-                    var newRelationship = detachedRelationshipTuple.Item1.Attach(entityTypeBuilder, detachedRelationshipTuple.Item3);
+                    var newRelationship = detachedRelationshipTuple.Item1.Attach(entityTypeBuilder);
                     if (newRelationship != null)
                     {
                         detachedRelationshipTuple.Item2.Attach(
@@ -131,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 foreach (var detachedRelationshipTuple in Relationships.Where(r => r.Item2 == null))
                 {
-                    detachedRelationshipTuple.Item1.Attach(entityTypeBuilder, detachedRelationshipTuple.Item3);
+                    detachedRelationshipTuple.Item1.Attach(entityTypeBuilder);
                 }
             }
         }

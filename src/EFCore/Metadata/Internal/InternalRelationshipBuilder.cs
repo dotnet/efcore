@@ -893,8 +893,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var otherOwnership = otherOwnerships.Single();
-                        var detachedConfigurationSource = Metadata.DeclaringEntityType.Builder
-                            .RemoveForeignKey(Metadata, Metadata.GetConfigurationSource()).Value;
+                        Metadata.DeclaringEntityType.Builder.RemoveForeignKey(Metadata, Metadata.GetConfigurationSource());
 
                         if (otherOwnership.Builder.IsWeakTypeDefinition(configurationSource) == null)
                         {
@@ -913,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 Metadata.PrincipalEntityType,
                                 declaringType.GetConfigurationSource()).Metadata;
 
-                        newRelationshipBuilder = Attach(newEntityType.Builder, detachedConfigurationSource);
+                        newRelationshipBuilder = Attach(newEntityType.Builder);
 
                         ModelBuilder.Metadata.ConventionDispatcher.Tracker.Update(
                             Metadata, newRelationshipBuilder.Metadata);
@@ -1818,14 +1817,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     && Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityTypeBuilder.Metadata)
                     && Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityTypeBuilder.Metadata)));
 
-            var dependentEntityType = dependentEntityTypeBuilder.Metadata;
-            var principalEntityType = principalEntityTypeBuilder.Metadata;
             InternalRelationshipBuilder newRelationshipBuilder;
             using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.StartBatch())
             {
                 newRelationshipBuilder = GetOrCreateRelationshipBuilder(
-                    principalEntityType,
-                    dependentEntityType,
+                    principalEntityTypeBuilder.Metadata,
+                    dependentEntityTypeBuilder.Metadata,
                     navigationToPrincipal,
                     navigationToDependent,
                     dependentProperties != null && dependentProperties.Any() ? dependentProperties : null,
@@ -1854,9 +1851,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var entityTypeBuilder = principalEntityTypeBuilder;
                     principalEntityTypeBuilder = dependentEntityTypeBuilder;
                     dependentEntityTypeBuilder = entityTypeBuilder;
-
-                    dependentEntityType = dependentEntityTypeBuilder.Metadata;
-                    principalEntityType = principalEntityTypeBuilder.Metadata;
 
                     var navigation = navigationToPrincipal;
                     navigationToPrincipal = navigationToDependent;
@@ -2020,6 +2014,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                      null,
                                                      navigationToPrincipalConfigurationSource.Value)
                                                  ?? newRelationshipBuilder;
+                        var oldNavigation = oldRelationshipInverted
+                            ? Metadata.PrincipalToDependent
+                            : Metadata.DependentToPrincipal;
+                        if (oldNavigation != null
+                            && oldNavigation != newRelationshipBuilder.Metadata.DependentToPrincipal)
+                        {
+                            newRelationshipBuilder.Metadata.DependentToPrincipal?.Builder.MergeAnnotationsFrom(oldNavigation);
+                        }
                     }
                 }
                 if (navigationToDependent != null)
@@ -2040,6 +2042,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                                      navigationToDependent,
                                                      navigationToDependentConfigurationSource.Value)
                                                  ?? newRelationshipBuilder;
+                        var oldNavigation = oldRelationshipInverted
+                            ? Metadata.DependentToPrincipal
+                            : Metadata.PrincipalToDependent;
+                        if (oldNavigation != null
+                            && oldNavigation != newRelationshipBuilder.Metadata.PrincipalToDependent)
+                        {
+                            newRelationshipBuilder.Metadata.PrincipalToDependent?.Builder.MergeAnnotationsFrom(oldNavigation);
+                        }
                     }
                 }
                 if (isOwnership.HasValue)
@@ -2617,9 +2627,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder Attach(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
+        public virtual InternalRelationshipBuilder Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
+            var configurationSource = Metadata.GetConfigurationSource();
             var model = Metadata.DeclaringEntityType.Model;
             InternalEntityTypeBuilder principalEntityTypeBuilder;
             EntityType principalEntityType;

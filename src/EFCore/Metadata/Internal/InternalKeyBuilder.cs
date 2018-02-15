@@ -29,8 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalKeyBuilder Attach(
             [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
-            ConfigurationSource? primaryKeyConfigurationSource,
-            ConfigurationSource configurationSource)
+            ConfigurationSource? primaryKeyConfigurationSource)
         {
             var propertyNames = Metadata.Properties.Select(p => p.Name).ToList();
             foreach (var propertyName in propertyNames)
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            var newKeyBuilder = entityTypeBuilder.HasKey(propertyNames, configurationSource);
+            var newKeyBuilder = entityTypeBuilder.HasKey(propertyNames, Metadata.GetConfigurationSource());
 
             newKeyBuilder?.MergeAnnotationsFrom(Metadata);
 

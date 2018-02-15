@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -20,15 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public EntityTypeSnapshot(
-            [CanBeNull] List<Tuple<string, ConfigurationSource>> ignoredMembers,
-            [CanBeNull] IReadOnlyCollection<object> seedData,
+            [CanBeNull] EntityType entityType,
             [CanBeNull] PropertiesSnapshot properties,
-            [CanBeNull] List<Tuple<InternalIndexBuilder, ConfigurationSource>> indexes,
-            [CanBeNull] List<Tuple<InternalKeyBuilder, ConfigurationSource?, ConfigurationSource>> keys,
-            [CanBeNull] List<Tuple<InternalRelationshipBuilder, EntityTypeSnapshot, ConfigurationSource>> relationships)
+            [CanBeNull] List<InternalIndexBuilder> indexes,
+            [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
+            [CanBeNull] List<(InternalRelationshipBuilder, EntityTypeSnapshot)> relationships)
         {
-            IgnoredMembers = ignoredMembers;
-            SeedData = seedData;
+            EntityType = entityType;
             Properties = properties ?? new PropertiesSnapshot(null, null, null, null);
             if (indexes != null)
             {
@@ -44,8 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private IReadOnlyList<Tuple<string, ConfigurationSource>> IgnoredMembers { [DebuggerStepThrough] get; }
-        private IReadOnlyCollection<object> SeedData { [DebuggerStepThrough] get; }
+        private EntityType EntityType { [DebuggerStepThrough] get; }
         private PropertiesSnapshot Properties { [DebuggerStepThrough] get; }
 
         /// <summary>
@@ -54,19 +50,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
-            if (IgnoredMembers != null)
+            entityTypeBuilder.MergeAnnotationsFrom(EntityType);
+
+            foreach (var ignoredMember in EntityType.GetIgnoredMembers())
             {
-                foreach (var ignoredTuple in IgnoredMembers)
-                {
-                    entityTypeBuilder.Ignore(ignoredTuple.Item1, ignoredTuple.Item2);
-                }
+                entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredMemberConfigurationSource(ignoredMember).Value);
             }
 
             Properties.Attach(entityTypeBuilder);
 
-            if (SeedData != null)
+            var seedData = EntityType.GetRawSeedData();
+            if (seedData != null)
             {
-                entityTypeBuilder.Metadata.AddSeedData(SeedData.ToArray());
+                entityTypeBuilder.Metadata.AddSeedData(seedData.ToArray());
             }
         }
     }

@@ -42,8 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalIndexBuilder Attach(
-            [NotNull] InternalEntityTypeBuilder entityTypeBuilder, ConfigurationSource configurationSource)
+        public virtual InternalIndexBuilder Attach([NotNull] InternalEntityTypeBuilder entityTypeBuilder)
         {
             var properties = entityTypeBuilder.GetActualProperties(Metadata.Properties, null);
             if (properties == null)
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var newIndexBuilder = entityTypeBuilder.HasIndex(properties, configurationSource);
+            var newIndexBuilder = entityTypeBuilder.HasIndex(properties, Metadata.GetConfigurationSource());
             newIndexBuilder?.MergeAnnotationsFrom(Metadata);
 
             var isUniqueConfigurationSource = Metadata.GetIsUniqueConfigurationSource();

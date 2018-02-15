@@ -116,15 +116,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected virtual void MergeAnnotationsFrom([NotNull] ConventionalAnnotatable annotatable)
+        public virtual void MergeAnnotationsFrom([NotNull] ConventionalAnnotatable annotatable)
+            => MergeAnnotationsFrom(annotatable, ConfigurationSource.Explicit);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual void MergeAnnotationsFrom(
+            [NotNull] ConventionalAnnotatable annotatable,
+            ConfigurationSource minimalConfigurationSource)
         {
             foreach (var annotation in annotatable.GetAnnotations())
             {
-                HasAnnotation(
-                    annotation.Name,
-                    annotation.Value,
-                    annotation.GetConfigurationSource(),
-                    canOverrideSameSource: false);
+                var configurationSource = annotation.GetConfigurationSource();
+                if (configurationSource.Overrides(minimalConfigurationSource))
+                {
+                    HasAnnotation(
+                        annotation.Name,
+                        annotation.Value,
+                        configurationSource,
+                        canOverrideSameSource: false);
+                }
             }
         }
     }

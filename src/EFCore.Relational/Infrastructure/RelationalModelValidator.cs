@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (mappedType.BaseType != null
                     || mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
                         .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                                   && fk.PrincipalEntityType != mappedType
+                                   && fk.PrincipalEntityType.RootType() != mappedType
                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType)))
                 {
                     continue;
