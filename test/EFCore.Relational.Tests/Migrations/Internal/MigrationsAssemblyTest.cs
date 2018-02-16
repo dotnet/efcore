@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -36,7 +39,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         () => CreateMigrationsAssembly().GetMigrationId("Spike"))
                     .Message);
 
-        private IMigrationsAssembly CreateMigrationsAssembly()
+        [Fact]
+        public void Migrations_ignores_the_unattributed()
+        {
+            var logger = new TestLogger<DbLoggerCategory.Migrations> { EnabledFor = LogLevel.Warning };
+            var assembly = CreateMigrationsAssembly(logger);
+
+            var result = assembly.Migrations;
+
+            Assert.Equal(2, result.Count);
+            Assert.DoesNotContain(result, t => t.GetType() == typeof(MigrationWithoutAttribute));
+            Assert.Equal(
+                RelationalStrings.LogMigrationAttributeMissingWarning.GenerateMessage(nameof(MigrationWithoutAttribute)),
+                logger.Message);
+        }
+
+        private IMigrationsAssembly CreateMigrationsAssembly(
+            IDiagnosticsLogger<DbLoggerCategory.Migrations> logger = null)
             => new MigrationsAssembly(
                 new CurrentDbContext(new Context()),
                 new DbContextOptions<DbContext>(
@@ -44,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         { typeof(FakeRelationalOptionsExtension), new FakeRelationalOptionsExtension() }
                     }),
-                new MigrationsIdGenerator());
+                new MigrationsIdGenerator(),
+                logger ?? new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
 
         private class Context : DbContext
         {
@@ -62,6 +82,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [DbContext(typeof(Context))]
         [Migration("20150302103100_FLUTTER")]
         private class Migration2 : Migration
+        {
+            protected override void Up(MigrationBuilder migrationBuilder)
+            {
+            }
+        }
+
+        [DbContext(typeof(Context))]
+        private class MigrationWithoutAttribute : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
             {

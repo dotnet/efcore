@@ -938,6 +938,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     RelationalEventId.BatchReadyForExecution,
                     _resourceManager.GetString("LogBatchReadyForExecution")));
 
+        /// <summary>
+        ///     A MigrationAttribute isn't specified on the '{class}' class.
+        /// </summary>
+        public static readonly EventDefinition<string> LogMigrationAttributeMissingWarning
+            = new EventDefinition<string>(
+                RelationalEventId.MigrationAttributeMissingWarning,
+                LogLevel.Warning,
+                LoggerMessage.Define<string>(
+                    LogLevel.Warning,
+                    RelationalEventId.MigrationAttributeMissingWarning,
+                    _resourceManager.GetString("LogMigrationAttributeMissingWarning")));
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

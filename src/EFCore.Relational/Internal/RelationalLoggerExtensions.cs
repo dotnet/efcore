@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -1106,6 +1107,42 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var d = (EventDefinition<string>)definition;
             var p = (MigrationAssemblyEventData)payload;
             return d.GenerateMessage(p.MigrationsAssembly.Assembly.GetName().Name);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static void MigrationAttributeMissingWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            [NotNull] TypeInfo migrationType)
+        {
+            var definition = RelationalStrings.LogMigrationAttributeMissingWarning;
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics,
+                    warningBehavior,
+                    migrationType.Name);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new MigrationTypeEventData(
+                        definition,
+                        MigrationAttributeMissingWarning,
+                        migrationType));
+            }
+        }
+
+        private static string MigrationAttributeMissingWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (MigrationTypeEventData)payload;
+            return d.GenerateMessage(p.MigrationType.Name);
         }
 
         /// <summary>

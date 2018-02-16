@@ -58,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MigrationGeneratingUpScript,
             MigrationsNotApplied,
             MigrationsNotFound,
+            MigrationAttributeMissingWarning,
 
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -409,6 +410,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId MigrationsNotFound = MakeMigrationsId(Id.MigrationsNotFound);
+
+        /// <summary>
+        ///     <para>
+        ///         A MigrationAttribute isn't specified on the class.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MigrationAttributeMissingWarning = MakeMigrationsId(Id.MigrationAttributeMissingWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);

@@ -459,4 +459,8 @@
     <value>Executing {batchCommandsCount} update commands as a batch.</value>
     <comment>Debug RelationalEventId.BatchReadyForExecution int</comment>
   </data>
+  <data name="LogMigrationAttributeMissingWarning" xml:space="preserve">
+    <value>A MigrationAttribute isn't specified on the '{class}' class.</value>
+    <comment>Warning RelationalEventId.MigrationAttributeMissingWarning string</comment>
+  </data>
 </root>

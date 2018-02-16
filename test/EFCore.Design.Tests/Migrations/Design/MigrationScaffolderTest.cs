@@ -56,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 = new MigrationsAssembly(
                     currentContext,
                     new DbContextOptions<TContext>().WithExtension(new FakeRelationalOptionsExtension()),
-                    idGenerator);
+                    idGenerator,
+                    new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
             var historyRepository = new MockHistoryRepository();
 
             var services = RelationalTestHelpers.Instance.CreateContextServices();

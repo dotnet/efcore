@@ -73,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(QueryModel), () => queryModel },
                 { typeof(MethodCallExpression), () => Expression.Call(constantExpression, typeof(object).GetMethod("ToString")) },
                 { typeof(Expression), () => constantExpression },
-                { typeof(IProperty), () => property }
+                { typeof(IProperty), () => property },
+                { typeof(TypeInfo), () => typeof(object).GetTypeInfo() }
             };
 
             TestEventLogging(

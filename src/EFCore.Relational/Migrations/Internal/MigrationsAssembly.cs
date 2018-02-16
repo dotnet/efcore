@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -29,11 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public MigrationsAssembly(
             [NotNull] ICurrentDbContext currentContext,
             [NotNull] IDbContextOptions options,
-            [NotNull] IMigrationsIdGenerator idGenerator)
+            [NotNull] IMigrationsIdGenerator idGenerator,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Migrations> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(options, nameof(options));
             Check.NotNull(idGenerator, nameof(idGenerator));
+            Check.NotNull(logger, nameof(logger));
 
             var contextType = currentContext.Context.GetType();
 
@@ -44,14 +47,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             _idGenerator = idGenerator;
             _migrations = new LazyRef<IReadOnlyDictionary<string, TypeInfo>>(
-                () => (
+                () =>
+                {
+                    var result = new Dictionary<string, TypeInfo>();
+                    var items =
                         from t in Assembly.GetConstructibleTypes()
                         where t.IsSubclassOf(typeof(Migration))
                               && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType
                         let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
                         orderby id
-                        select new { Key = id, Element = t })
-                    .ToDictionary(i => i.Key, i => i.Element));
+                        select (id, t);
+                    foreach (var (id, t) in items)
+                    {
+                        if (id == null)
+                        {
+                            logger.MigrationAttributeMissingWarning(t);
+
+                            continue;
+                        }
+
+                        result.Add(id, t);
+                    }
+
+                    return result;
+                });
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
                         from t in Assembly.GetConstructibleTypes()
