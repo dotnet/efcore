@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                if (useDetach) 
+                if (useDetach)
                 {
                     Assert.Null(parent.Children);
                 }
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Children", "ParentProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Children", "ParentProxy")),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
                 }
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                if (useDetach) 
+                if (useDetach)
                 {
                     Assert.Null(child.Parent);
                 }
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Parent", "ChildProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "ChildProxy")),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
                 }
@@ -182,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                if (useDetach) 
+                if (useDetach)
                 {
                     Assert.Null(single.Parent);
                 }
@@ -191,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Parent", "SingleProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "SingleProxy")),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
                 }
@@ -251,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 }
 
-                if (useDetach) 
+                if (useDetach)
                 {
                     Assert.Null(parent.Single);
                 }
@@ -260,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Single", "ParentProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Single", "ParentProxy")),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
                 }

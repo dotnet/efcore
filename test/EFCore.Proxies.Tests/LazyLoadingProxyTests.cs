@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Texts", "PhoneProxy")),
+                    CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Texts", "PhoneProxy")),
                 Assert.Throws<InvalidOperationException>(
                     () => phone.Texts).Message);
         }

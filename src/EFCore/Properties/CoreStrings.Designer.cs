@@ -2019,14 +2019,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.
         /// </summary>
-        public static readonly EventDefinition<string, string> LogLazyLoadOnDisposedContextWarning
+        public static readonly EventDefinition<string, string> LogLazyLoadOnDisposedContext
             = new EventDefinition<string, string>(
                 CoreEventId.LazyLoadOnDisposedContextWarning,
                 LogLevel.Warning,
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     CoreEventId.LazyLoadOnDisposedContextWarning,
-                    _resourceManager.GetString("LogLazyLoadOnDisposedContextWarning")));
+                    _resourceManager.GetString("LogLazyLoadOnDisposedContext")));
 
         /// <summary>
         ///     Cannot create a DbSet for '{typeName}' because it is a query type. Use the DbContext.Query method to create a DbQuery instead.

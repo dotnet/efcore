@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity")),
+                    CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Nav", "WarningAsErrorEntity")),
                 Assert.Throws<InvalidOperationException>(
                     () => entity.Nav).Message);
         }
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(entity.Nav);
 
             Assert.Contains(
-                CoreStrings.LogLazyLoadOnDisposedContextWarning.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Nav", "WarningAsErrorEntity"),
                 Log.Select(l => l.Message));
         }
 

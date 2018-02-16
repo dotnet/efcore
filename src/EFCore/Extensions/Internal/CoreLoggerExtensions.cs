@@ -661,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] object entityType,
             [NotNull] string navigationName)
         {
-            var definition = CoreStrings.LogLazyLoadOnDisposedContextWarning;
+            var definition = CoreStrings.LogLazyLoadOnDisposedContext;
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)

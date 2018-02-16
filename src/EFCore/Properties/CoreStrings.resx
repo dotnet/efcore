@@ -871,7 +871,7 @@
     <value>Navigation property '{navigation}' of entity type '{entityType}' is being lazy-loaded.</value>
     <comment>Information CoreEventId.NavigationLazyLoading string string</comment>
   </data>
-  <data name="LogLazyLoadOnDisposedContextWarning" xml:space="preserve">
+  <data name="LogLazyLoadOnDisposedContext" xml:space="preserve">
     <value>An attempt was made to lazy-load navigation property '{navigation}' on entity type '{entityType}' after the associated DbContext was disposed.</value>
     <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning string string</comment>
   </data>
