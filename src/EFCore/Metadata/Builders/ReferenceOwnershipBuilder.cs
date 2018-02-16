@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -104,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     RelatedEntityType,
                     ConfigurationSource.Explicit),
                 this,
-                foreignKeySet: true);
+                foreignKeySet: foreignKeyPropertyNames.Any());
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -128,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
                     ConfigurationSource.Explicit),
                 this,
-                principalKeySet: true);
+                principalKeySet: keyPropertyNames.Any());
 
         /// <summary>
         ///     Configures how a delete operation is applied to dependent entities in the relationship when the

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     RelatedEntityType,
                     ConfigurationSource.Explicit),
                 this,
-                foreignKeySet: true);
+                foreignKeySet: foreignKeyPropertyNames.Any());
 
         /// <summary>
         ///     <para>
@@ -154,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
                     ConfigurationSource.Explicit),
                 this,
-                principalKeySet: true);
+                principalKeySet: keyPropertyNames.Any());
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
