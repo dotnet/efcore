@@ -132,7 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         yield return column;
                     }
 
-                    yield return createTableOperation.PrimaryKey;
+                    if (createTableOperation.PrimaryKey != null)
+                    {
+                        yield return createTableOperation.PrimaryKey;
+                    }
 
                     foreach (var uniqueConstraint in createTableOperation.UniqueConstraints)
                     {
