@@ -6,8 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Only required when preparing to run the EFCore1 benchmarks project -->
-    <DotNetCoreRuntime Include="1.1.4" Condition=" '$(IsBuildingBenchmarks)' == 'true' " />
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp20PackageVersion)" />
     <DotNetCoreRuntime Include="$(MicrosoftNETCoreApp21PackageVersion)" />
 

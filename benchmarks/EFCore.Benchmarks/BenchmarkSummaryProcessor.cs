@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             =>
 #if NET461
             ".NET Framework";
-#elif NETCOREAPP1_1
-            ".NET Core 1.1";
 #elif NETCOREAPP2_0
             ".NET Core 2.0";
+#elif NETCOREAPP2_1
+            ".NET Core 2.1";
 #endif
 
 
