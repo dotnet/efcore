@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     A simple default implementation of <see cref="ITypeMapper" />
     /// </summary>
+    [Obsolete("Use TypeMappingSource")]
     public class CoreTypeMapper : ITypeMapper
     {
         /// <summary>

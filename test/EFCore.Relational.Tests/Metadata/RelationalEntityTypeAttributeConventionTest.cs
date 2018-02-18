@@ -60,10 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
                 new PropertyDiscoveryConvention(
-                    new FallbackRelationalTypeMappingSource(
+                    new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<FakeRelationalTypeMapper>())));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
             var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 

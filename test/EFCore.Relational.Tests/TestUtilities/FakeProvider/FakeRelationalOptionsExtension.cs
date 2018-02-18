@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection)
                 .TryAdd<IDatabaseProvider, DatabaseProvider<FakeRelationalOptionsExtension>>()
                 .TryAdd<ISqlGenerationHelper, RelationalSqlGenerationHelper>()
-                .TryAdd<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .TryAdd<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .TryAdd<IMigrationsSqlGenerator, TestRelationalMigrationSqlGenerator>()
                 .TryAdd<IConventionSetBuilder, TestRelationalConventionSetBuilder>()
                 .TryAdd<IMemberTranslator, TestRelationalCompositeMemberTranslator>()

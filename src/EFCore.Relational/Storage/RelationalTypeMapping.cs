@@ -110,35 +110,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (converter != null)
             {
-                if (converter.MappingHints.Size != null)
-                {
-                    size = converter.MappingHints.Size;
-                }
-                else if (converter.MappingHints.SizeFunction != null
-                         && size != null)
+                size = size ?? converter.MappingHints.Size;
+
+                if (converter.MappingHints.SizeFunction != null
+                    && size != null)
                 {
                     size = converter.MappingHints.SizeFunction(size.Value);
                 }
             }
 
             Size = size;
-
-            if (size != null)
-            {
-                var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
-                if (openParen > 0)
-                {
-                    var closeParen = storeType.IndexOf(")", openParen + 1, StringComparison.Ordinal);
-
-                    if (closeParen > openParen
-                        && int.TryParse(storeType.Substring(openParen + 1, closeParen - openParen - 1), out var oldSize)
-                        && size != oldSize)
-                    {
-                        storeType = storeType.Substring(0, openParen + 1) + size + ")";
-                    }
-                }
-            }
-
             StoreType = storeType;
         }
 
@@ -221,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 parameter.DbType = DbType.Value;
             }
 
-            if (Size.HasValue)
+            if (Size.HasValue
+                && Size.Value != -1)
             {
                 parameter.Size = Size.Value;
             }

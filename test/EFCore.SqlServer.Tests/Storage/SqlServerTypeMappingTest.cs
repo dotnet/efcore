@@ -95,10 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         public static RelationalTypeMapping GetMapping(
             Type type)
-            => (RelationalTypeMapping)new FallbackRelationalTypeMappingSource(
+            => (RelationalTypeMapping)new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
 
         public override void GenerateSqlLiteral_returns_ByteArray_literal()
@@ -127,10 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_Unicode_String_literal()
         {
-            var mapping = new FallbackRelationalTypeMappingSource(
+            var mapping = new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping("nvarchar(max)");
 
             var literal = mapping.GenerateSqlLiteral("A Unicode String");
@@ -141,10 +139,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public virtual void GenerateSqlLiteralValue_returns_NonUnicode_String_literal()
         {
-            var mapping = new FallbackRelationalTypeMappingSource(
+            var mapping = new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>())
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping("varchar(max)");
 
             var literal = mapping.GenerateSqlLiteral("A Non-Unicode String");
@@ -159,8 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapper = (IRelationalTypeMappingSource)new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
             var type = new FakeType(typeName);
 

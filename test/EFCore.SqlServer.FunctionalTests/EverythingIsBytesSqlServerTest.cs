@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -183,17 +182,11 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
-                    serviceCollection.AddSingleton<IRelationalTypeMapper, SqlServerBytesTypeMapper>());
+                    serviceCollection.AddSingleton<IRelationalTypeMappingSource, SqlServerBytesTypeMappingSource>());
         }
 
-        public class SqlServerBytesTypeMapper : RelationalTypeMapper
+        public class SqlServerBytesTypeMappingSource : RelationalTypeMappingSource
         {
-            private readonly SqlServerByteArrayTypeMapping _unboundedBinary
-                = new SqlServerByteArrayTypeMapping("varbinary(max)");
-
-            private readonly SqlServerByteArrayTypeMapping _keyBinary
-                = new SqlServerByteArrayTypeMapping("varbinary(900)", dbType: DbType.Binary, size: 900);
-
             private readonly SqlServerByteArrayTypeMapping _rowversion
                 = new SqlServerByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
@@ -204,11 +197,11 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                 = new SqlServerByteArrayTypeMapping("binary");
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
-            private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
-            public SqlServerBytesTypeMapper(
-                RelationalTypeMapperDependencies relationalDependencies)
-                : base(relationalDependencies)
+            public SqlServerBytesTypeMappingSource(
+                TypeMappingSourceDependencies dependencies,
+                RelationalTypeMappingSourceDependencies relationalDependencies)
+                : base(dependencies, relationalDependencies)
             {
                 _storeTypeMappings
                     = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
@@ -217,40 +210,66 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
                         { "binary", _fixedLengthBinary },
                         { "image", _variableLengthBinary },
                         { "rowversion", _rowversion },
-                        { "timestamp", _rowversion },
                         { "varbinary", _variableLengthBinary }
                     };
-
-                _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>();
-
-                ByteArrayMapper
-                    = new ByteArrayRelationalTypeMapper(
-                        maxBoundedLength: 8000,
-                        defaultMapping: _unboundedBinary,
-                        unboundedMapping: _unboundedBinary,
-                        keyMapping: _keyBinary,
-                        rowVersionMapping: _rowversion,
-                        createBoundedMapping: size => new SqlServerByteArrayTypeMapping(
-                            "varbinary(" + size + ")",
-                            DbType.Binary,
-                            size));
             }
 
-            public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
+            protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+            {
+                var mapping = FindRawMapping(mappingInfo);
 
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
-                => _clrTypeMappings;
+                if (mapping == null)
+                {
+                    return null;
+                }
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
-                => _storeTypeMappings;
+                mapping = mapping.CloneWithFacetedName(mappingInfo);
 
-            public override RelationalTypeMapping FindMapping(Type clrType)
-                => clrType == typeof(byte[])
-                    ? _unboundedBinary
-                    : base.FindMapping(clrType);
+                return mapping;
+            }
 
-            protected override bool RequiresKeyMapping(IProperty property)
-                => base.RequiresKeyMapping(property) || property.IsIndex();
+            private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+            {
+                var clrType = mappingInfo.ProviderClrType;
+                var storeTypeName = mappingInfo.StoreTypeName;
+                var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
+
+                if (storeTypeName != null)
+                {
+                    if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
+                        || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+                    {
+                        return clrType == null
+                               || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
+                    }
+                }
+
+                if (clrType != null)
+                {
+                    if (clrType == typeof(byte[]))
+                    {
+                        if (mappingInfo.IsRowVersion == true)
+                        {
+                            return _rowversion;
+                        }
+
+                        var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                        if (size > 8000)
+                        {
+                            size = null;
+                        }
+
+                        return new SqlServerByteArrayTypeMapping(
+                            "varbinary(" + (size == null ? "max" : size.ToString()) + ")",
+                            DbType.Binary,
+                            size);
+                    }
+                }
+
+                return null;
+            }
         }
     }
 }

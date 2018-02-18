@@ -47,7 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="typeMapper"> The type mapper. </param>
         /// <param name="typeMappingSource"> The type mapper. </param>
         public RelationalModelValidatorDependencies(
+#pragma warning disable 618
             [NotNull] IRelationalTypeMapper typeMapper,
+#pragma warning restore 618
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));

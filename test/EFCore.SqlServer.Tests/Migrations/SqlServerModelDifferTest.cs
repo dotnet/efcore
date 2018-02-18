@@ -569,10 +569,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var ctx = SqlServerTestHelpers.Instance.CreateContext(model);
             return new MigrationsModelDiffer(
-                new FallbackRelationalTypeMappingSource(
+                new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new SqlServerMigrationsAnnotationProvider(
                     new MigrationsAnnotationProviderDependencies()),
                 ctx.GetService<IChangeDetector>(),

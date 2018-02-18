@@ -99,10 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(valueTypes, nameof(valueTypes));
 
-            var mapper = Dependencies.TypeMappingSource;
+            var mappingSource = Dependencies.TypeMappingSource;
 
             return Create(valueTypes.Select(
-                (t, i) => new TypeMaterializationInfo(t, null, mapper, indexMap?[i] ?? -1)).ToList());
+                (t, i) => new TypeMaterializationInfo(t, null, mappingSource, indexMap?[i] ?? -1)).ToList());
         }
 
         /// <summary>

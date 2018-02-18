@@ -4,8 +4,8 @@
 #if !Test20
 using System;
 using System.Collections.Generic;
+using System.Data;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -148,9 +148,9 @@ StringForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
 UnicodeDataTypes.Id ---> [nvarchar] [MaxLength = 64]
-UnicodeDataTypes.StringAnsi ---> [nullable nvarchar] [MaxLength = -1]
-UnicodeDataTypes.StringAnsi3 ---> [nullable nvarchar] [MaxLength = 3]
-UnicodeDataTypes.StringAnsi9000 ---> [nullable nvarchar] [MaxLength = -1]
+UnicodeDataTypes.StringAnsi ---> [nullable varchar] [MaxLength = -1]
+UnicodeDataTypes.StringAnsi3 ---> [nullable varchar] [MaxLength = 3]
+UnicodeDataTypes.StringAnsi9000 ---> [nullable varchar] [MaxLength = -1]
 UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 ";
@@ -174,16 +174,6 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     .ConfigureWarnings(
                         c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
                             .Log(SqlServerEventId.DecimalTypeDefaultWarning));
-
-            //protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            //{
-            //    base.OnModelCreating(modelBuilder, context);
-
-            //    modelBuilder.Entity<MaxLengthDataTypes>(b =>
-            //    {
-            //        b.Property(e => e.ByteArray5).HasMaxLength(10); // Because Base64 encoding
-            //    });
-            //}
         }
 
         public class SqlServerStringsTestStoreFactory : SqlServerTestStoreFactory
@@ -192,74 +182,112 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
             public override IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
                 => base.AddProviderServices(
-                    serviceCollection.AddSingleton<IRelationalTypeMapper, SqlServerStringsTypeMapper>());
+                    serviceCollection.AddSingleton<IRelationalTypeMappingSource, SqlServerStringsTypeMappingSource>());
         }
 
-        public class SqlServerStringsTypeMapper : RelationalTypeMapper
+        public class SqlServerStringsTypeMappingSource : RelationalTypeMappingSource
         {
+            private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
+                = new SqlServerStringTypeMapping("nchar", dbType: DbType.String, unicode: true);
+
             private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
                 = new SqlServerStringTypeMapping("nvarchar", dbType: null, unicode: true);
 
-            private readonly SqlServerStringTypeMapping _unboundedUnicodeString
-                = new SqlServerStringTypeMapping("nvarchar(max)", dbType: null, unicode: true);
+            private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
+                = new SqlServerStringTypeMapping("char", dbType: DbType.AnsiString);
 
-            private readonly SqlServerStringTypeMapping _keyUnicodeString
-                = new SqlServerStringTypeMapping("nvarchar(450)", dbType: null, unicode: true, size: 450);
+            private readonly SqlServerStringTypeMapping _variableLengthAnsiString
+                = new SqlServerStringTypeMapping("varchar", dbType: DbType.AnsiString);
 
             private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
-            private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
-            public SqlServerStringsTypeMapper(
-                RelationalTypeMapperDependencies dependencies)
-                : base(dependencies)
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            public SqlServerStringsTypeMappingSource(
+                TypeMappingSourceDependencies dependencies,
+                RelationalTypeMappingSourceDependencies relationalDependencies)
+                : base(dependencies, relationalDependencies)
             {
                 _storeTypeMappings
                     = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                     {
+                        { "char varying", _variableLengthAnsiString },
+                        { "char", _fixedLengthAnsiString },
+                        { "character varying", _variableLengthAnsiString },
+                        { "character", _fixedLengthAnsiString },
                         { "national char varying", _variableLengthUnicodeString },
                         { "national character varying", _variableLengthUnicodeString },
-                        { "nvarchar", _variableLengthUnicodeString }
+                        { "national character", _fixedLengthUnicodeString },
+                        { "nchar", _fixedLengthUnicodeString },
+                        { "ntext", _variableLengthUnicodeString },
+                        { "nvarchar", _variableLengthUnicodeString },
+                        { "text", _variableLengthAnsiString },
+                        { "varchar", _variableLengthAnsiString }
                     };
-
-                _clrTypeMappings = new Dictionary<Type, RelationalTypeMapping>();
-
-                StringMapper
-                    = new StringRelationalTypeMapper(
-                        maxBoundedAnsiLength: 4000,
-                        defaultAnsiMapping: _unboundedUnicodeString,
-                        unboundedAnsiMapping: _unboundedUnicodeString,
-                        keyAnsiMapping: _keyUnicodeString,
-                        createBoundedAnsiMapping: size => new SqlServerStringTypeMapping(
-                            "nvarchar(" + size + ")",
-                            dbType: null,
-                            unicode: true,
-                            size: size),
-                        maxBoundedUnicodeLength: 4000,
-                        defaultUnicodeMapping: _unboundedUnicodeString,
-                        unboundedUnicodeMapping: _unboundedUnicodeString,
-                        keyUnicodeMapping: _keyUnicodeString,
-                        createBoundedUnicodeMapping: size => new SqlServerStringTypeMapping(
-                            "nvarchar(" + size + ")",
-                            dbType: null,
-                            unicode: true,
-                            size: size));
             }
 
-            public override IStringRelationalTypeMapper StringMapper { get; }
+            /// <summary>
+            ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+            ///     directly from your code. This API may change or be removed in future releases.
+            /// </summary>
+            protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+            {
+                var mapping = FindRawMapping(mappingInfo);
 
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
-                => _clrTypeMappings;
+                if (mapping == null)
+                {
+                    return null;
+                }
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
-                => _storeTypeMappings;
+                mapping = mapping.CloneWithFacetedName(mappingInfo);
 
-            public override RelationalTypeMapping FindMapping(Type clrType)
-                => clrType == typeof(string)
-                    ? _unboundedUnicodeString
-                    : base.FindMapping(clrType);
+                return mapping;
+            }
 
-            protected override bool RequiresKeyMapping(IProperty property)
-                => base.RequiresKeyMapping(property) || property.IsIndex();
+            private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
+            {
+                var clrType = mappingInfo.ProviderClrType;
+                var storeTypeName = mappingInfo.StoreTypeName;
+                var storeTypeNameBase = mappingInfo.StoreTypeNameBase;
+
+                if (storeTypeName != null)
+                {
+                    if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
+                        || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+                    {
+                        return clrType == null
+                               || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
+                    }
+                }
+
+                if (clrType != null)
+                {
+                    if (clrType == typeof(string))
+                    {
+                        var isAnsi = mappingInfo.IsUnicode == false;
+                        var baseName = isAnsi ? "varchar" : "nvarchar";
+                        var maxSize = isAnsi ? 8000 : 4000;
+
+                        var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+                        if (size > maxSize)
+                        {
+                            size = null;
+                        }
+
+                        return new SqlServerStringTypeMapping(
+                            baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                            isAnsi ? DbType.AnsiString : (DbType?)null,
+                            !isAnsi,
+                            size);
+                    }
+                }
+
+                return null;
+            }
         }
     }
 }

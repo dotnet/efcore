@@ -1638,9 +1638,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
+                        Assert.IsType<AlterColumnOperation>(operations[0]); // Because the column type changed
 
-                        var operation = Assert.IsType<UpdateDataOperation>(operations[0]);
+                        var operation = Assert.IsType<UpdateDataOperation>(operations[1]);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Puma", operation.Table);
 
@@ -4147,9 +4148,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
+                        Assert.IsType<AlterColumnOperation>(operations[0]); // Because index property has different type mapping
 
-                        var operation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                        var operation = Assert.IsType<CreateIndexOperation>(operations[1]);
                         Assert.Equal("dbo", operation.Schema);
                         Assert.Equal("Animal", operation.Table);
                         Assert.Equal("IX_Animal_Name", operation.Name);
@@ -4220,7 +4222,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     },
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
+                        Assert.IsType<AlterColumnOperation>(operations[1]); // Because index property has different type mapping
 
                         var operation = Assert.IsType<DropIndexOperation>(operations[0]);
                         Assert.Equal("dbo", operation.Schema);

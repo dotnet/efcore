@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         ///     </para>
         /// </summary>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public NumberToBytesConverter(ConverterMappingHints mappingHints = default)

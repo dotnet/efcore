@@ -844,7 +844,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var typeMapper = context.GetService<IRelationalTypeMapper>();
+                var typeMapper = context.GetService<IRelationalTypeMappingSource>();
 
                 foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
                 {

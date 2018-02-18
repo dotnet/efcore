@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private static IReverseEngineerScaffolder CreateScaffolder()
             => new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices()
-                .AddSingleton<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
                 .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()

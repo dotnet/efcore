@@ -54,7 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] ICompositeMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator,
+#pragma warning disable 618
             [NotNull] IRelationalTypeMapper relationalTypeMapper,
+#pragma warning restore 618
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
@@ -94,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
         public IRelationalTypeMapper RelationalTypeMapper { get; }
 
         /// <summary>
-        ///     The type mapper.
+        ///     The type mapping source.
         /// </summary>
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 

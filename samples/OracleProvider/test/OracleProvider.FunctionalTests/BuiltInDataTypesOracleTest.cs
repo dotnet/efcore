@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Sql_translation_uses_type_mapper_when_constant()
+        public void Sql_translation_uses_type_mapping_when_constant()
         {
             using (var context = CreateContext())
             {
@@ -103,7 +103,7 @@ WHERE ""e"".""Time"" = INTERVAL '0 0:1:2.000' DAY TO SECOND",
         }
 
         [Fact]
-        public void Sql_translation_uses_type_mapper_when_parameter()
+        public void Sql_translation_uses_type_mapping_when_parameter()
         {
             using (var context = CreateContext())
             {
@@ -699,12 +699,12 @@ WHERE ""e"".""Time"" = :timeSpan_0",
                 @":p0='77'
 :p1='0x0A0B0C' (Size = 3)
 :p2='Wor' (Size = 3) (DbType = AnsiString)
-:p3='Thr' (Size = 2000)
-:p4='Lon' (Size = 2000)
-:p5='Let' (Size = 2000)
-:p6='The' (Size = 2000)
-:p7='Squ' (Size = 2000)
-:p8='Col' (Size = 2000)
+:p3='Thr' (Size = 3)
+:p4='Lon' (Size = 3)
+:p5='Let' (Size = 3)
+:p6='The' (Size = 3)
+:p7='Squ' (Size = 3)
+:p8='Col' (Size = 3)
 :p9='Won' (Size = 3)
 :p10='Int' (Size = 3)
 :p11='0x0B0C0D' (Size = 3)
@@ -770,12 +770,12 @@ WHERE ""e"".""Time"" = :timeSpan_0",
                 @":p0='78'
 :p1='' (Size = 3) (DbType = Binary)
 :p2='' (Size = 3) (DbType = AnsiString)
-:p3='' (Size = 2000)
-:p4='' (Size = 2000)
-:p5='' (Size = 2000)
-:p6='' (Size = 2000)
-:p7='' (Size = 2000)
-:p8='' (Size = 2000)
+:p3='' (Size = 3)
+:p4='' (Size = 3)
+:p5='' (Size = 3)
+:p6='' (Size = 3)
+:p7='' (Size = 3)
+:p8='' (Size = 3)
 :p9='' (Size = 3)
 :p10='' (Size = 3)
 :p11='' (Size = 3) (DbType = Binary)
@@ -1231,13 +1231,13 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
             Assert.Equal(
                 @":p0='0x0A0B0C' (Size = 3)
 :p1='Wor' (Size = 3) (DbType = AnsiString)
-:p2='Thr' (Size = 2000)
-:p3='Lon' (Size = 2000)
-:p4='Let' (Size = 2000)
+:p2='Thr' (Size = 3)
+:p3='Lon' (Size = 3)
+:p4='Let' (Size = 3)
 :p5='77'
-:p6='The' (Size = 2000)
-:p7='Squ' (Size = 2000)
-:p8='Col' (Size = 2000)
+:p6='The' (Size = 3)
+:p7='Squ' (Size = 3)
+:p8='Col' (Size = 3)
 :p9='Won' (Size = 3)
 :p10='Int' (Size = 3)
 :p11='0x0B0C0D' (Size = 3)
@@ -1303,13 +1303,13 @@ cur1='' (Nullable = false) (Direction = Output) (DbType = Object)",
             Assert.Equal(
                 @":p0='' (Size = 3) (DbType = Binary)
 :p1='' (Size = 3) (DbType = AnsiString)
-:p2='' (Size = 2000)
-:p3='' (Size = 2000)
-:p4='' (Size = 2000)
+:p2='' (Size = 3)
+:p3='' (Size = 3)
+:p4='' (Size = 3)
 :p5='78'
-:p6='' (Size = 2000)
-:p7='' (Size = 2000)
-:p8='' (Size = 2000)
+:p6='' (Size = 3)
+:p7='' (Size = 3)
+:p8='' (Size = 3)
 :p9='' (Size = 3)
 :p10='' (Size = 3)
 :p11='' (Size = 3) (DbType = Binary)
@@ -2112,7 +2112,7 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
         {
             using (var context = CreateContext())
             {
-                var typeMapper = context.GetService<IRelationalTypeMappingSource>();
+                var mappingSource = context.GetService<IRelationalTypeMappingSource>();
 
                 foreach (var property in context.Model.GetEntityTypes().SelectMany(e => e.GetDeclaredProperties()))
                 {
@@ -2123,7 +2123,7 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
                     {
                         Assert.Equal(
                             columnType.ToLowerInvariant(),
-                            typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
+                            mappingSource.FindMapping(property).StoreType.ToLowerInvariant());
                     }
                 }
             }

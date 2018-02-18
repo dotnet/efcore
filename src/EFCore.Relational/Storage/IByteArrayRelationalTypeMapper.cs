@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
@@ -12,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use IRelationalTypeMappingSource.")]
     public interface IByteArrayRelationalTypeMapper
     {
         /// <summary>

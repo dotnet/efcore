@@ -43,6 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 argumentName, enumType);
 
         /// <summary>
+        ///     The application or database provider is using an Obsolete TypeMapper API even after the provider has implemented a TypeMappingSource. The code must be updated to use the non-obsolete replacement APIs, as indicated by the Obsolete compiler warnings.
+        /// </summary>
+        public static string StillUsingTypeMapper
+            => GetString("StillUsingTypeMapper");
+
+        /// <summary>
         ///     The properties expression '{expression}' is not valid. The expression should represent a property access: 't =&gt; t.MyProperty'. When specifying multiple properties use an anonymous type: 't =&gt; new {{ t.MyProperty1, t.MyProperty2 }}'.
         /// </summary>
         public static string InvalidPropertiesExpression([CanBeNull] object expression)

@@ -65,7 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRawSqlCommandBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+#pragma warning disable 618
                 { typeof(IRelationalTypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+#pragma warning restore 618
                 { typeof(IRelationalTypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalValueBufferFactoryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMaterializerFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -143,7 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
             TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
             TryAdd<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>();
+#pragma warning disable 618
+            TryAdd<IRelationalTypeMapper, ObsoleteRelationalTypeMapper>();
             TryAdd<ITypeMapper>(p => p.GetService<IRelationalTypeMapper>());
+#pragma warning restore 618
             TryAdd<IRelationalTypeMappingSource, FallbackRelationalTypeMappingSource>();
             TryAdd<ITypeMappingSource>(p => p.GetService<IRelationalTypeMappingSource>());
             TryAdd<IRelationalValueBufferFactoryFactory, TypedRelationalValueBufferFactoryFactory>();

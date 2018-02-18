@@ -54,7 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISingletonUpdateSqlGenerator updateSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
+#pragma warning disable 618
             [NotNull] IRelationalTypeMapper typeMapper,
+#pragma warning restore 618
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));

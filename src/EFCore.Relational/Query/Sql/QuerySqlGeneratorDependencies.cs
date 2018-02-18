@@ -49,7 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+#pragma warning disable 618
             [NotNull] IRelationalTypeMapper relationalTypeMapper,
+#pragma warning restore 618
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
@@ -89,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         public IRelationalTypeMapper RelationalTypeMapper { get; }
 
         /// <summary>
-        ///     The type mapper.
+        ///     The type mapping source.
         /// </summary>
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 

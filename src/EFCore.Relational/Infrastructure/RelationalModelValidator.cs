@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the type mapper.
         /// </summary>
-        [Obsolete("Use ICoreTypeMapper instead")]
+        [Obsolete("Use IRelationalTypeMappingSource.")]
         protected virtual IRelationalTypeMapper TypeMapper => RelationalDependencies.TypeMapper;
 
         /// <summary>

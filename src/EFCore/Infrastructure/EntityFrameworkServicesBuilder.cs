@@ -68,7 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IEntityFinderSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityMaterializerSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICoreConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+#pragma warning disable 618
                 { typeof(ITypeMapper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+#pragma warning restore 618
                 { typeof(ITypeMappingSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCustomizer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -207,7 +209,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IEntityFinderSource, EntityFinderSource>();
             TryAdd<IEntityMaterializerSource, EntityMaterializerSource>();
             TryAdd<ICoreConventionSetBuilder, CoreConventionSetBuilder>();
+#pragma warning disable 618
             TryAdd<ITypeMapper, CoreTypeMapper>();
+#pragma warning restore 618
             TryAdd<ITypeMappingSource, FallbackTypeMappingSource>();
             TryAdd<IModelCustomizer, ModelCustomizer>();
             TryAdd<IModelCacheKeyFactory, ModelCacheKeyFactory>();
@@ -288,7 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<ValueGeneratorCacheDependencies>()
                 .AddDependencySingleton<ModelValidatorDependencies>()
                 .AddDependencySingleton<CoreConventionSetBuilderDependencies>()
+#pragma warning disable 618
                 .AddDependencySingleton<CoreTypeMapperDependencies>()
+#pragma warning restore 618
                 .AddDependencySingleton<TypeMappingSourceDependencies>()
                 .AddDependencySingleton<ModelCustomizerDependencies>()
                 .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()

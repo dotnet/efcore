@@ -296,9 +296,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static ScaffoldingTypeMapper CreateMapper()
             => new ScaffoldingTypeMapper(
-                new FallbackRelationalTypeMappingSource(
+                new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>()));
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
     }
 }

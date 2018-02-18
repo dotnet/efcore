@@ -76,10 +76,9 @@ namespace Microsoft.EntityFrameworkCore
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new FallbackRelationalTypeMappingSource(
+                        new SqlServerTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<SqlServerTypeMapper>()))),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 state,
                 CreateConnection());
 
@@ -130,10 +129,9 @@ namespace Microsoft.EntityFrameworkCore
                 new UpdateSqlGeneratorDependencies(
                     new SqlServerSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
-                    new FallbackRelationalTypeMappingSource(
+                    new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
             var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -180,10 +178,9 @@ namespace Microsoft.EntityFrameworkCore
                     new UpdateSqlGeneratorDependencies(
                         new SqlServerSqlGenerationHelper(
                             new RelationalSqlGenerationHelperDependencies()),
-                        new FallbackRelationalTypeMappingSource(
+                        new SqlServerTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<SqlServerTypeMapper>()))),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 state,
                 CreateConnection());
 

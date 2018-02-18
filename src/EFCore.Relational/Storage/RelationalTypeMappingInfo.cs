@@ -19,6 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public abstract class RelationalTypeMappingInfo : TypeMappingInfo
     {
+        private readonly int? _parsedSize;
+        private readonly int? _parsedPrecision;
+        private readonly int? _parsedScale;
+        private readonly bool _isMax;
+
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
         /// </summary>
@@ -26,10 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected RelationalTypeMappingInfo([NotNull] IProperty property)
             : base(property)
         {
-            StoreTypeName = property
+            var storeTypeName = property
                 .FindPrincipals()
                 .Select(p => (string)p[RelationalAnnotationNames.ColumnType])
                 .FirstOrDefault(t => t != null);
+
+            StoreTypeName = storeTypeName;
+            StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
 
         /// <summary>
@@ -50,6 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotEmpty(storeTypeName, nameof(storeTypeName));
 
             StoreTypeName = storeTypeName;
+            StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
 
         /// <summary>
@@ -65,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (attribute != null)
             {
                 StoreTypeName = attribute.TypeName;
+                StoreTypeNameBase = ParseStoreTypeName(attribute.TypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
             }
         }
 
@@ -79,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             : base(source, builtInConverter)
         {
             StoreTypeName = source.StoreTypeName;
+            StoreTypeNameBase = ParseStoreTypeName(source.StoreTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
         }
 
         /// <summary>
@@ -105,10 +116,90 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
         }
 
+        private string ParseStoreTypeName(
+            string storeTypeName,
+            out int? size,
+            out int? precision,
+            out int? scale,
+            out bool isMax)
+        {
+            size = null;
+            precision = null;
+            scale = null;
+            isMax = false;
+
+            if (storeTypeName != null)
+            {
+                var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);
+                if (openParen > 0)
+                {
+                    var closeParen = storeTypeName.IndexOf(")", openParen + 1, StringComparison.Ordinal);
+                    if (closeParen > openParen)
+                    {
+                        var comma = storeTypeName.IndexOf(",", openParen + 1, StringComparison.Ordinal);
+                        if (comma > openParen
+                            && comma < closeParen)
+                        {
+                            if (int.TryParse(storeTypeName.Substring(openParen + 1, comma - openParen - 1), out var parsedPrecision))
+                            {
+                                precision = parsedPrecision;
+                            }
+
+                            if (int.TryParse(storeTypeName.Substring(comma + 1, closeParen - comma - 1), out var parsedScale))
+                            {
+                                scale = parsedScale;
+                            }
+                        }
+                        else
+                        {
+                            var sizeString = storeTypeName.Substring(openParen + 1, closeParen - openParen - 1).Trim();
+                            if (sizeString.Equals("max", StringComparison.OrdinalIgnoreCase))
+                            {
+                                isMax = true;
+                            }
+                            else if (int.TryParse(sizeString, out var parsedSize))
+                            {
+                                size = parsedSize;
+                            }
+                        }
+
+                        return storeTypeName.Substring(0, openParen);
+                    }
+                }
+            }
+
+            return storeTypeName;
+        }
+
         /// <summary>
         ///     The provider-specific relational type name for which mapping is needed.
         /// </summary>
         public virtual string StoreTypeName { get; }
+
+        /// <summary>
+        ///     The provider-specific relational type name, with any size/precision/scale removed.
+        /// </summary>
+        public virtual string StoreTypeNameBase { get; }
+
+        /// <summary>
+        ///     <c>True</c> if the store type name ends in "(max)".
+        /// </summary>
+        public virtual bool StoreTypeNameSizeIsMax => _isMax;
+
+        /// <summary>
+        ///     Indicates the store-size to use for the mapping, or null if none.
+        /// </summary>
+        public override int? Size => base.Size ?? _parsedSize;
+
+        /// <summary>
+        ///     The suggested precision of the mapped data type.
+        /// </summary>
+        public override int? Precision => base.Precision ?? _parsedPrecision;
+
+        /// <summary>
+        ///     The suggested scale of the mapped data type.
+        /// </summary>
+        public override int? Scale => base.Scale ?? _parsedScale;
 
         /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.

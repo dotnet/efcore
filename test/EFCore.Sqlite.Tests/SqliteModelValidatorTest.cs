@@ -86,10 +86,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
-                = new FallbackRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<SqliteTypeMapper>())
+                = TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()
                     .FindMapping(property);
 
         protected override IModelValidator CreateModelValidator()
@@ -104,11 +101,10 @@ namespace Microsoft.EntityFrameworkCore
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    TestServiceFactory.Instance.Create<SqliteTypeMapper>(),
-                    new FallbackRelationalTypeMappingSource(
-                        TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<SqliteTypeMapper>())));
+#pragma warning disable 618
+                    new ObsoleteRelationalTypeMapper(), 
+#pragma warning restore 618
+                    TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()));
 
         protected override ModelBuilder CreateConventionalModelBuilder()
             => SqliteTestHelpers.Instance.CreateConventionBuilder();

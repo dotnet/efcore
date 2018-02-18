@@ -92,7 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [CanBeNull] IConstructorBindingFactory constructorBindingFactory,
             [CanBeNull] IParameterBindingFactories parameterBindingFactories,
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
+#pragma warning disable 618
             [CanBeNull] ITypeMapper _ = null) // Only needed for D.I. to resolve this constructor
+#pragma warning restore 618
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 

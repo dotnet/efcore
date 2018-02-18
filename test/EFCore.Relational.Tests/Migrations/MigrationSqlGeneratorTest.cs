@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.AddColumnOperation_without_column_type();
 
             Assert.Equal(
-                "ALTER TABLE \"People\" ADD \"Alias\" just_string(2000) NOT NULL;" + EOL,
+                "ALTER TABLE \"People\" ADD \"Alias\" just_string(max) NOT NULL;" + EOL,
                 Sql);
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.AddColumnOperation_with_shared_column();
 
             Assert.Equal(
-                "ALTER TABLE \"Base\" ADD \"Foo\" just_string(2000) NULL;" + EOL,
+                "ALTER TABLE \"Base\" ADD \"Foo\" just_string(max) NULL;" + EOL,
                 Sql);
         }
 

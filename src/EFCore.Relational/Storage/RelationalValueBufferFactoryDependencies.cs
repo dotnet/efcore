@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the constructor at any point in this process.
         ///     </para>
         /// </summary>
-        /// <param name="typeMappingSource"> The type mapper. </param>
+        /// <param name="typeMappingSource"> The type mapping source. </param>
         public RelationalValueBufferFactoryDependencies(
             [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Gets the type mapper.
+        ///     Gets the type mapping source.
         /// </summary>
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 

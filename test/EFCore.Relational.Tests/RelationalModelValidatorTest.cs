@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(Animal), nameof(Animal.Id),
-                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "default_int_mapping", "just_string(2000)"),
+                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "default_int_mapping", "just_string(max)"),
                 modelBuilder.Model);
         }
 
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "just_string(2000)", "default_int_mapping"), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Type), nameof(Dog), nameof(Dog.Type), nameof(Cat.Type), nameof(Animal), "just_string(max)", "default_int_mapping"), modelBuilder.Model);
         }
 
         [Fact]
@@ -810,10 +810,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void GenerateMapping(IMutableProperty property)
             => property[CoreAnnotationNames.TypeMapping]
-                = new FallbackRelationalTypeMappingSource(
+                = new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>())
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                     .FindMapping(property);
 
         protected override void SetBaseType(EntityType entityType, EntityType baseEntityType)
@@ -875,11 +874,12 @@ namespace Microsoft.EntityFrameworkCore
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>(),
-                    new FallbackRelationalTypeMappingSource(
+#pragma warning disable 618
+                    new ObsoleteRelationalTypeMapper(),
+#pragma warning restore 618
+                    new TestRelationalTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<TestRelationalTypeMapper>())));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
         protected override ModelBuilder CreateConventionalModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();

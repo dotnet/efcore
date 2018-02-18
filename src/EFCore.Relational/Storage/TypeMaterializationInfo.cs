@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="modelClrType"> The type that is needed in the model after conversion. </param>
         /// <param name="property"> The property associated with the type, or <c>null</c> if none. </param>
-        /// <param name="typeMappingSource"> The type mapper to use to find a mapping if the property does not have one already bound. </param>
+        /// <param name="typeMappingSource"> The type mapping source to use to find a mapping if the property does not have one already bound. </param>
         /// <param name="index">
         ///     The index of the underlying result set that should be used for this type,
         ///     or -1 if no index mapping is needed.

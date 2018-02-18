@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use IRelationalTypeMappingSource.")]
     public interface IRelationalTypeMapper : ITypeMapper
     {
         /// <summary>

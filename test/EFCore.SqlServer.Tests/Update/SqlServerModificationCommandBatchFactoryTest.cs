@@ -18,10 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie", b => b.MaxBatchSize(1));
 
-            var typeMapper = new FallbackRelationalTypeMappingSource(
+            var typeMapper = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
@@ -51,10 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Update
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer("Database=Crunchie");
 
-            var typeMapper = new FallbackRelationalTypeMappingSource(
+            var typeMapper = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
 
             var factory = new SqlServerModificationCommandBatchFactory(

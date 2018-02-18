@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use RelationalTypeMappingSource.")]
     public class StringRelationalTypeMapper : IStringRelationalTypeMapper
     {
         private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedAnsiMappings

@@ -49,10 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static IRelationalTypeMappingSource CreateTypeMapper()
-            => new FallbackRelationalTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<SqliteTypeMapper>());
+            => TestServiceFactory.Instance.Create<SqliteTypeMappingSource>();
 
         public static RelationalTypeMapping GetMapping(
             Type type)

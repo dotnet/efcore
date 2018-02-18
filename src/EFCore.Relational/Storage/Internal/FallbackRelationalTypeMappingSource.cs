@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class FallbackRelationalTypeMappingSource : RelationalTypeMappingSource
     {
+#pragma warning disable 618
         private readonly IRelationalTypeMapper _relationalTypeMapper;
+#pragma warning restore 618
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -22,7 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public FallbackRelationalTypeMappingSource(
             [NotNull] TypeMappingSourceDependencies dependencies,
             [NotNull] RelationalTypeMappingSourceDependencies relationalDependencies,
+#pragma warning disable 618
             [NotNull] IRelationalTypeMapper typeMapper)
+#pragma warning restore 618
             : base(dependencies, relationalDependencies)
         {
             _relationalTypeMapper = typeMapper;

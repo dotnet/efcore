@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         protected ValueConverter(
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         public abstract Type ProviderClrType { get; }
 
         /// <summary>
-        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
         public virtual ConverterMappingHints MappingHints { get; }

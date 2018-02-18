@@ -2195,10 +2195,11 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"))),
                 new RelationalModelValidatorDependencies(
-                    TestServiceFactory.Instance.Create<SqlServerTypeMapper>(),
+#pragma warning disable 618
+                    TestServiceFactory.Instance.Create<ObsoleteRelationalTypeMapper>(),
+#pragma warning restore 618
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<SqlServerTypeMapper>())));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
     }
 }

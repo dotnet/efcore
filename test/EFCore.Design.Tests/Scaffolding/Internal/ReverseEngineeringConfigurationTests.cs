@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var reverseEngineer = new ServiceCollection()
                 .AddEntityFrameworkDesignTimeServices()
-                .AddSingleton<IRelationalTypeMapper, TestRelationalTypeMapper>()
+                .AddSingleton<IRelationalTypeMappingSource, TestRelationalTypeMappingSource>()
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IDatabaseModelFactory, FakeDatabaseModelFactory>()
                 .AddSingleton<IProviderCodeGenerator, TestProviderCodeGenerator>()

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
             => serviceCollection
-                .AddSingleton<IRelationalTypeMapper, OracleTypeMapper>()
+                .AddSingleton<IRelationalTypeMappingSource, OracleTypeMappingSource>()
                 .AddSingleton<IDatabaseModelFactory, OracleDatabaseModelFactory>()
                 .AddSingleton<IProviderCodeGenerator, OracleCodeGenerator>()
                 .AddSingleton<IAnnotationCodeGenerator, OracleAnnotationCodeGenerator>();

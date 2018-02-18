@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         /// <param name="convertToStoreExpression"> An expression to convert objects when writing data to the store. </param>
         /// <param name="convertFromStoreExpression"> An expression to convert objects when reading data from the store. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the type mapper to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public ValueConverter(

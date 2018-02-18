@@ -68,10 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     new Model(),
                     migrationAssembly,
                     new MigrationsModelDiffer(
-                        new FallbackRelationalTypeMappingSource(
+                        new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                            TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()), 
                         new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<StateManagerDependencies>(),

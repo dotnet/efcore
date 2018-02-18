@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use ITypeMappingSource.")]
     public interface ITypeMapper
     {
         /// <summary>

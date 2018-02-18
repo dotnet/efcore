@@ -883,19 +883,6 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
-        [Fact]
-        public virtual ModelBuilder Timestamp_takes_precedence_over_MaxLength_with_value()
-        {
-            var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<TimestampAndMaxlen>().Ignore(x => x.MaxTimestamp);
-
-            Validate(modelBuilder);
-
-            Assert.Equal(100, GetProperty<TimestampAndMaxlen>(modelBuilder, "NonMaxTimestamp").GetMaxLength());
-
-            return modelBuilder;
-        }
-
         protected class TimestampAndMaxlen
         {
             public int Id { get; set; }

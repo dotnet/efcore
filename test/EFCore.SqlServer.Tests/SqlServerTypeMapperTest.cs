@@ -214,10 +214,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static IRelationalTypeMappingSource CreateTypeMapper()
-            => new FallbackRelationalTypeMappingSource(
+            => new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<SqlServerTypeMapper>());
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         [Theory]
         [InlineData(true)]
@@ -669,7 +668,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("dec", typeof(decimal), null, false)]
         [InlineData("decimal", typeof(decimal), null, false)]
         [InlineData("float", typeof(double), null, false)] // This is correct. SQL Server 'float' type maps to C# double
-        [InlineData("float(10, 8)", typeof(double), null, false)]
+        [InlineData("float(10,8)", typeof(double), null, false)]
         [InlineData("image", typeof(byte[]), null, false)]
         [InlineData("int", typeof(int), null, false)]
         [InlineData("money", typeof(decimal), null, false)]
@@ -732,6 +731,65 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 SqlServerStrings.UnqualifiedDataType(typeName),
                 Assert.Throws<ArgumentException>(() => mapper.FindMapping(typeName)).Message);
+        }
+
+        [Theory]
+        [InlineData("char varying")]
+        [InlineData("char")]
+        [InlineData("character varying")]
+        [InlineData("character")]
+        [InlineData("national char varying")]
+        [InlineData("national character varying")]
+        [InlineData("national character")]
+        [InlineData("nchar")]
+        [InlineData("nvarchar")]
+        [InlineData("varchar")]
+        [InlineData("VarCHaR")]
+        [InlineData("VARCHAR")]
+        public void Can_map_string_base_type_name_and_size(string typeName)
+        {
+            var builder = CreateModelBuilder();
+
+            var property = builder.Entity<StringCheese>()
+                .Property(e => e.StringWithSize)
+                .HasColumnType(typeName)
+                .HasMaxLength(2018)
+                .Metadata;
+
+            var mapping = CreateTypeMapper().FindMapping(property);
+
+            Assert.Same(typeof(string), mapping.ClrType);
+            Assert.Equal(2018, mapping.Size);
+            Assert.Equal(typeName.StartsWith("n", StringComparison.OrdinalIgnoreCase), mapping.IsUnicode);
+            Assert.Equal(typeName + "(2018)", mapping.StoreType);
+        }
+
+        [Theory]
+        [InlineData("binary varying")]
+        [InlineData("binary")]
+        [InlineData("varbinary")]
+        public void Can_map_binary_base_type_name_and_size(string typeName)
+        {
+            var builder = CreateModelBuilder();
+
+            var property = builder.Entity<StringCheese>()
+                .Property(e => e.BinaryWithSize)
+                .HasColumnType(typeName)
+                .HasMaxLength(2018)
+                .Metadata;
+
+            var mapping = CreateTypeMapper().FindMapping(property);
+
+            Assert.Same(typeof(byte[]), mapping.ClrType);
+            Assert.Equal(2018, mapping.Size);
+            Assert.Equal(typeName + "(2018)", mapping.StoreType);
+        }
+
+        private class StringCheese
+        {
+            public int Id { get; set; }
+            public string StringWithSize { get; set; }
+            public byte[] BinaryWithSize { get; set; }
         }
 
         [Fact]

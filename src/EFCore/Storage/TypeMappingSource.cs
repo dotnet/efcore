@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     <para>
-        ///         Overridden by database provider type mappers to find a type mapping for the given info.
+        ///         Overridden by database providers to find a type mapping for the given info.
         ///     </para>
         ///     <para>
         ///         The mapping info is populated with as much information about the required type mapping as

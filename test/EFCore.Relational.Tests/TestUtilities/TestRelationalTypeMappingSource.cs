@@ -8,16 +8,19 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestRelationalTypeMapper : RelationalTypeMapper
+    public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
     {
-        private static readonly RelationalTypeMapping _string = new StringTypeMapping("just_string(2000)");
-        private static readonly RelationalTypeMapping _unboundedString = new StringTypeMapping("just_string(max)");
-        private static readonly RelationalTypeMapping _stringKey = new StringTypeMapping("just_string(450)", dbType: null, unicode: true, size: 450);
-        private static readonly RelationalTypeMapping _ansiStringKey = new StringTypeMapping("ansi_string(900)", dbType: null, unicode: false, size: 900);
-        private static readonly RelationalTypeMapping _unboundedBinary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
-        private static readonly RelationalTypeMapping _binary = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
-        private static readonly RelationalTypeMapping _binaryKey = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
-        private static readonly RelationalTypeMapping _rowversion = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
+        private static readonly RelationalTypeMapping _string
+            = new StringTypeMapping("just_string(2000)");
+
+        private static readonly RelationalTypeMapping _binary
+            = new ByteArrayTypeMapping("just_binary(max)", dbType: DbType.Binary);
+
+        private static readonly RelationalTypeMapping _binaryKey
+            = new ByteArrayTypeMapping("just_binary(900)", dbType: DbType.Binary, size: 900);
+
+        private static readonly RelationalTypeMapping _rowversion
+            = new ByteArrayTypeMapping("rowversion", dbType: DbType.Binary, size: 8);
 
         private static readonly RelationalTypeMapping _defaultIntMapping
             = new IntTypeMapping("default_int_mapping", dbType: DbType.Int32);
@@ -58,12 +61,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static readonly RelationalTypeMapping _defaultTimeSpanMapping
             = new TimeSpanTypeMapping("default_timespan_mapping");
 
-        public TestRelationalTypeMapper(
-            RelationalTypeMapperDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>
             {
@@ -93,53 +90,65 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 { "dec", _defaultDecimalMapping }
             };
 
-        public override IByteArrayRelationalTypeMapper ByteArrayMapper { get; }
-            = new ByteArrayRelationalTypeMapper(
-                2000,
-                _binary,
-                _unboundedBinary,
-                _binaryKey,
-                _rowversion, size => new ByteArrayTypeMapping(
-                    "just_binary(" + size + ")",
-                    DbType.Binary,
-                    size: size));
-
-        public override IStringRelationalTypeMapper StringMapper { get; }
-            = new StringRelationalTypeMapper(
-                2000,
-                _string,
-                _unboundedString,
-                _ansiStringKey,
-                size => new StringTypeMapping(
-                    "ansi_string(" + size + ")",
-                    dbType: DbType.AnsiString,
-                    unicode: false,
-                    size: size),
-                2000,
-                _string,
-                _unboundedString,
-                _stringKey,
-                size => new StringTypeMapping(
-                    "just_string(" + size + ")",
-                    dbType: null,
-                    unicode: true,
-                    size: size));
-
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetClrTypeMappings()
-            => _simpleMappings;
-
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetStoreTypeMappings()
-            => _simpleNameMappings;
-
-        public override RelationalTypeMapping FindMapping(Type clrType)
+        public TestRelationalTypeMappingSource(
+            TypeMappingSourceDependencies dependencies,
+            RelationalTypeMappingSourceDependencies relationalDependencies)
+            : base(dependencies, relationalDependencies)
         {
-            var underlyingType = clrType.UnwrapNullableType().UnwrapEnumType();
+        }
 
-            return underlyingType == typeof(string)
-                ? _string
-                : (underlyingType == typeof(byte[])
-                    ? _binary
-                    : base.FindMapping(clrType));
+        protected override RelationalTypeMapping FindMapping(RelationalTypeMappingInfo mappingInfo)
+        {
+            var clrType = mappingInfo.ProviderClrType;
+            var storeTypeName = mappingInfo.StoreTypeName;
+
+            if (clrType != null)
+            {
+                if (clrType == typeof(string))
+                {
+                    var isAnsi = mappingInfo.IsUnicode == false;
+                    var baseName = isAnsi ? "ansi_string" : "just_string";
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+
+                    return new StringTypeMapping(
+                        storeTypeName ?? baseName + "(" + (size == null ? "max" : size.ToString()) + ")",
+                        isAnsi ? DbType.AnsiString : (DbType?)null,
+                        !isAnsi,
+                        size);
+                }
+
+                if (clrType == typeof(byte[]))
+                {
+                    if (mappingInfo.IsRowVersion == true)
+                    {
+                        return _rowversion;
+                    }
+
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+
+                    return new ByteArrayTypeMapping(
+                        storeTypeName ?? "just_binary(" + (size == null ? "max" : size.ToString()) + ")",
+                        DbType.Binary,
+                        size);
+                }
+
+                if (_simpleMappings.TryGetValue(clrType, out var mapping))
+                {
+                    return storeTypeName != null
+                           && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
+                        ? mapping.Clone(storeTypeName, mapping.Size)
+                        : mapping;
+                }
+            }
+
+            if (storeTypeName != null
+                && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
+                && (clrType == null || mappingFromName.ClrType == clrType))
+            {
+                return mappingFromName;
+            }
+
+            return null;
         }
     }
 }

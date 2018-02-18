@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     /// </summary>
+    [Obsolete("Use TypeMappingSource")]
     public sealed class CoreTypeMapperDependencies
     {
         /// <summary>

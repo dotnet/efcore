@@ -95,7 +95,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Model> logger,
             [CanBeNull] ICurrentDbContext currentContext,
             [CanBeNull] IDbSetFinder setFinder,
+#pragma warning disable 618
             [CanBeNull] IRelationalTypeMapper typeMapper)
+#pragma warning restore 618
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -144,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         /// <param name="typeMapper"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        [Obsolete("Use IRelationalCoreTypeMapper.")]
+        [Obsolete("Use IRelationalTypeMappingSource.")]
         public RelationalConventionSetBuilderDependencies With([NotNull] IRelationalTypeMapper typeMapper)
             => new RelationalConventionSetBuilderDependencies(
                 new FallbackRelationalTypeMappingSource(

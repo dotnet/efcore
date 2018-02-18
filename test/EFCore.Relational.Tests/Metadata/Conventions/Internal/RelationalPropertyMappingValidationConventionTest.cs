@@ -5,7 +5,6 @@ using System;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -43,10 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         protected override PropertyMappingValidationConvention CreateConvention()
             => new PropertyMappingValidationConvention(
-                new FallbackRelationalTypeMappingSource(
+                new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<TestRelationalTypeMapper>()),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 TestServiceFactory.Instance.Create<IParameterBindingFactories>());
     }
 }

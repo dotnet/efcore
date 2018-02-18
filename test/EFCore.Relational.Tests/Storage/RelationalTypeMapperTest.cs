@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetTypeMapping(typeof(string));
 
-            Assert.Equal("just_string(2000)", mapping.StoreType);
+            Assert.Equal("just_string(max)", mapping.StoreType);
         }
 
         [Fact]
@@ -45,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetTypeMapping(typeof(string), 2020);
 
-            Assert.Equal("just_string(max)", mapping.StoreType);
+            Assert.Equal("just_string(2020)", mapping.StoreType);
+            Assert.Equal(2020, mapping.Size);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetTypeMapping(typeof(byte[]), 2020);
 
-            Assert.Equal("just_binary(max)", mapping.StoreType);
+            Assert.Equal("just_binary(2020)", mapping.StoreType);
         }
 
         private RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
@@ -87,13 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [Fact]
         public void Does_simple_mapping_from_name()
         {
-            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").StoreType);
+            Assert.Equal("int", GetNamedMapping(typeof(int), "int").StoreType);
         }
 
         [Fact]
         public void Does_default_mapping_for_unrecognized_store_type()
         {
-            Assert.Equal("default_int_mapping", GetNamedMapping(typeof(int), "int").StoreType);
+            Assert.Equal("int", GetNamedMapping(typeof(int), "int").StoreType);
         }
 
         [Fact]
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(max)");
 
-            Assert.Equal("just_string(2000)", mapping.StoreType);
+            Assert.Equal("some_string(max)", mapping.StoreType);
         }
 
         [Fact]
@@ -109,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetNamedMapping(typeof(string), "some_string(666)");
 
-            Assert.Equal("just_string(2000)", mapping.StoreType);
+            Assert.Equal("some_string(666)", mapping.StoreType);
+            Assert.Equal(666, mapping.Size);
         }
 
         [Fact]
@@ -117,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var mapping = GetNamedMapping(typeof(byte[]), "some_binary(max)");
 
-            Assert.Equal("just_binary(max)", mapping.StoreType);
+            Assert.Equal("some_binary(max)", mapping.StoreType);
         }
 
         private RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
@@ -144,10 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         private static IRelationalTypeMappingSource CreateTestTypeMapper()
-            => new FallbackRelationalTypeMappingSource(
+            => new TestRelationalTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<TestRelationalTypeMapper>());
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
         
         public static RelationalTypeMapping GetMapping(
             Type type)
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [Fact]
-        public void Key_store_type_if_preferred_if_specified()
+        public void Key_store_type_is_preferred_if_specified()
         {
             var model = CreateModel();
             var mapper = CreateTestTypeMapper();
