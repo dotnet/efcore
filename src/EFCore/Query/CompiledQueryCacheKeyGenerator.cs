@@ -71,9 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         protected struct CompiledQueryCacheKey
         {
-            private static readonly ExpressionEqualityComparer _expressionEqualityComparer
-                = new ExpressionEqualityComparer();
-
             private readonly Expression _query;
             private readonly IModel _model;
             private readonly QueryTrackingBehavior _queryTrackingBehavior;
@@ -120,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return ReferenceEquals(_model, other._model)
                        && _queryTrackingBehavior == other._queryTrackingBehavior
                        && _async == other._async
-                       && _expressionEqualityComparer.Equals(_query, other._query);
+                       && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
             }
 
             /// <summary>
@@ -133,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 unchecked
                 {
-                    var hashCode = _expressionEqualityComparer.GetHashCode(_query);
+                    var hashCode = ExpressionEqualityComparer.Instance.GetHashCode(_query);
                     hashCode = (hashCode * 397) ^ _model.GetHashCode();
                     hashCode = (hashCode * 397) ^ (int)_queryTrackingBehavior;
                     hashCode = (hashCode * 397) ^ _async.GetHashCode();

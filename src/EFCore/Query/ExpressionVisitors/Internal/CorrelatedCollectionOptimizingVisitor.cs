@@ -33,9 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly QueryModel _parentQueryModel;
 
-        private static readonly ExpressionEqualityComparer _expressionEqualityComparer
-            = new ExpressionEqualityComparer();
-
         private readonly static MethodInfo _correlateSubqueryMethodInfo
             = typeof(IQueryBuffer).GetMethod(nameof(IQueryBuffer.CorrelateSubquery));
 
@@ -478,7 +475,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
 
             if (!orderings.Any(
-                o => _expressionEqualityComparer.Equals(o.Expression, orderingExpression)
+                o => ExpressionEqualityComparer.Instance.Equals(o.Expression, orderingExpression)
                     || AreEquivalentPropertyExpressions(o.Expression, orderingExpression)))
             {
                 orderings.Add(new Ordering(orderingExpression, OrderingDirection.Asc));

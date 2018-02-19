@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [Fact]
         public void Member_init_expressions_are_compared_correctly()
         {
-            var expressionComparer = new ExpressionEqualityComparer();
+            var expressionComparer = ExpressionEqualityComparer.Instance;
 
             var addMethod = typeof(List<string>).GetTypeInfo().GetDeclaredMethod("Add");
 
