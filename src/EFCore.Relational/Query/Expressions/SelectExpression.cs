@@ -29,8 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
         internal string DebugView => ToString();
 #endif
 
-        private static readonly ExpressionEqualityComparer _expressionEqualityComparer = new ExpressionEqualityComparer();
-
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
         private readonly List<Expression> _projection = new List<Expression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
@@ -377,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 var outerProjection = expressionToAdd.LiftExpressionFromSubquery(subquery);
 
                 var memberInfo = _memberInfoProjectionMapping.FirstOrDefault(
-                        kvp => _expressionEqualityComparer.Equals(kvp.Value, expression))
+                        kvp => ExpressionEqualityComparer.Instance.Equals(kvp.Value, expression))
                     .Key;
 
                 if (memberInfo != null)
@@ -562,8 +560,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             var projectionIndex
                 = _projection.FindIndex(
-                    e => _expressionEqualityComparer.Equals(e, expression)
-                         || _expressionEqualityComparer.Equals((e as AliasExpression)?.Expression, expression));
+                    e => ExpressionEqualityComparer.Instance.Equals(e, expression)
+                         || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, expression));
 
             if (projectionIndex != -1)
             {
@@ -574,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             if (!(expression is ColumnExpression || expression is ColumnReferenceExpression))
             {
-                var indexInOrderBy = _orderBy.FindIndex(o => _expressionEqualityComparer.Equals(o.Expression, expression));
+                var indexInOrderBy = _orderBy.FindIndex(o => ExpressionEqualityComparer.Instance.Equals(o.Expression, expression));
 
                 if (indexInOrderBy != -1)
                 {
@@ -781,8 +779,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
 
             return _projection
                 .FindIndex(
-                    e => _expressionEqualityComparer.Equals(e, projectedExpressionToSearch)
-                         || _expressionEqualityComparer.Equals((e as AliasExpression)?.Expression, projectedExpressionToSearch));
+                    e => ExpressionEqualityComparer.Instance.Equals(e, projectedExpressionToSearch)
+                         || ExpressionEqualityComparer.Instance.Equals((e as AliasExpression)?.Expression, projectedExpressionToSearch));
         }
 
         /// <summary>
@@ -914,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
             var unwrappedOrderingExpression = UnwrapNullableExpression(ordering.Expression.RemoveConvert()).RemoveConvert();
             var unwrappedExpressionToMatch = UnwrapNullableExpression(expressionToMatch.RemoveConvert()).RemoveConvert();
 
-            return _expressionEqualityComparer.Equals(unwrappedOrderingExpression, unwrappedExpressionToMatch);
+            return ExpressionEqualityComparer.Instance.Equals(unwrappedOrderingExpression, unwrappedExpressionToMatch);
         }
 
         private Expression UnwrapNullableExpression(Expression expression)
