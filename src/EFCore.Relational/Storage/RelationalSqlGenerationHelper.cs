@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -62,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     The generated string.
         /// </returns>
+        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
         public virtual string EscapeLiteral(string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
@@ -70,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="literal">The value to be escaped.</param>
+        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
         public virtual void EscapeLiteral(StringBuilder builder, string literal)
         {
             Check.NotNull(literal, nameof(literal));

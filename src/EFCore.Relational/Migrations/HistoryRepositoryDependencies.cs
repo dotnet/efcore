@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="sqlGenerationHelper"> Helpers for generating update SQL. </param>
         /// <param name="coreConventionSetBuilder"> The core convention set to use when creating the model. </param>
         /// <param name="conventionSetBuilders"> The convention sets to use when creating the model. </param>
+        /// <param name="typeMappingSource"> The type mapper. </param>
         public HistoryRepositoryDependencies(
             [NotNull] IRelationalDatabaseCreator databaseCreator,
             [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
@@ -72,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] ICoreConventionSetBuilder coreConventionSetBuilder,
-            [NotNull] IEnumerable<IConventionSetBuilder> conventionSetBuilders)
+            [NotNull] IEnumerable<IConventionSetBuilder> conventionSetBuilders,
+            [NotNull] IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
@@ -83,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(coreConventionSetBuilder, nameof(coreConventionSetBuilder));
             Check.NotNull(conventionSetBuilders, nameof(conventionSetBuilders));
+            Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             DatabaseCreator = databaseCreator;
             RawSqlCommandBuilder = rawSqlCommandBuilder;
@@ -93,6 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             SqlGenerationHelper = sqlGenerationHelper;
             CoreConventionSetBuilder = coreConventionSetBuilder;
             ConventionSetBuilder = new CompositeConventionSetBuilder((IReadOnlyList<IConventionSetBuilder>)conventionSetBuilders);
+            TypeMappingSource = typeMappingSource;
         }
 
         /// <summary>
@@ -146,6 +150,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 : new[] { ConventionSetBuilder };
 
         /// <summary>
+        ///     The type mapper.
+        /// </summary>
+        public IRelationalTypeMappingSource TypeMappingSource { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="databaseCreator"> A replacement for the current dependency of this type. </param>
@@ -160,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -177,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -194,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -211,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -228,7 +241,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -245,7 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 migrationsSqlGenerator,
                 SqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -262,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 sqlGenerationHelper,
                 CoreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -279,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 MigrationsSqlGenerator,
                 SqlGenerationHelper,
                 coreConventionSetBuilder,
-                ConventionSetBuilders);
+                ConventionSetBuilders,
+                TypeMappingSource);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -298,6 +315,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 CoreConventionSetBuilder,
                 conventionSetBuilder is CompositeConventionSetBuilder compositeConventionSetBuilder
                     ? compositeConventionSetBuilder.Builders
-                    : new[] { conventionSetBuilder });
+                    : new[] { conventionSetBuilder },
+                TypeMappingSource);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="typeMappingSource"> The type mapper. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public HistoryRepositoryDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
+            => new HistoryRepositoryDependencies(
+                DatabaseCreator,
+                RawSqlCommandBuilder,
+                Connection,
+                Options,
+                ModelDiffer,
+                MigrationsSqlGenerator,
+                SqlGenerationHelper,
+                CoreConventionSetBuilder,
+                ConventionSetBuilders,
+                typeMappingSource);
     }
 }

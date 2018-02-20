@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -27,9 +28,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         protected override string ExistsSql
-            => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = '" +
-               SqlGenerationHelper.EscapeLiteral(TableName) +
-               "' AND \"type\" = 'table';";
+        {
+            get
+            {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
+                return "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = " +
+                    stringTypeMapping.GenerateSqlLiteral(TableName) +
+                    " AND \"type\" = 'table';";
+            }
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

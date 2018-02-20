@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Text;
 using JetBrains.Annotations;
 
@@ -50,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="literal"> The value to be escaped. </param>
         /// <returns> The generated string. </returns>
+        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
         string EscapeLiteral([NotNull] string literal);
 
         /// <summary>
@@ -57,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="literal"> The value to be escaped. </param>
+        [Obsolete("Use IRelationalTypeMappingSource.GetMapping(typeof(string)).GenerateSqlLiteral() instead.")]
         void EscapeLiteral([NotNull] StringBuilder builder, [NotNull] string literal);
 
         /// <summary>
@@ -64,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="identifier"> The identifier to be escaped. </param>
         /// <returns> The generated string. </returns>
+        [Obsolete("Use DelimitIdentifier() instead.")]
         string EscapeIdentifier([NotNull] string identifier);
 
         /// <summary>
@@ -71,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="builder"> The <see cref="StringBuilder" /> to write generated string to. </param>
         /// <param name="identifier"> The identifier to be escaped. </param>
+        [Obsolete("Use DelimitIdentifier() instead.")]
         void EscapeIdentifier([NotNull] StringBuilder builder, [NotNull] string identifier);
 
         /// <summary>

@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'dbo.People') AND [c].[name] = N'LuckyNumber');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL +
                 "ALTER TABLE [dbo].[People] ADD DEFAULT 7 FOR [LuckyNumber];" + EOL,
@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'LuckyNumber');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL,
                 Sql);
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'Id');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Id');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;" + EOL,
                 Sql);
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'FullName');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'FullName');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [People] DROP COLUMN [FullName];" + EOL +
                 "ALTER TABLE [People] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL,
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'FullName');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'FullName');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] DROP COLUMN [FullName];" + EOL +
                 "ALTER TABLE [Person] ADD [FullName] AS [FirstName] + ' ' + [LastName];" + EOL +
@@ -355,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NOT NULL;" + EOL +
                 "ALTER TABLE [Person] ADD INDEX [IX_Person_Name] NONCLUSTERED ([Name]);" + EOL,
@@ -392,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;" + EOL,
                 Sql);
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
                 "CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);" + EOL,
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL,
                 Sql);
@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'FirstName');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'FirstName');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [FirstName] nvarchar(450) NOT NULL;" + EOL +
                 "CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]);" + EOL,
@@ -546,7 +546,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Name');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;" + EOL +
                 "GO" + EOL +
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'Person') AND [c].[name] = N'Id');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Id');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;" + EOL,
                 Sql);
@@ -653,8 +653,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind]" + EOL +
-                "ON (NAME = 'Narf', FILENAME = '" + expectedFile + "')" + EOL +
-                "LOG ON (NAME = 'Narf_log', FILENAME = '" + expectedLog + "');" + EOL +
+                "ON (NAME = N'Narf', FILENAME = N'" + expectedFile + "')" + EOL +
+                "LOG ON (NAME = N'Narf_log', FILENAME = N'" + expectedLog + "');" + EOL +
                 "GO" + EOL +
                 EOL +
                 "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
@@ -676,8 +676,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind]" + EOL +
-                "ON (NAME = 'Narf', FILENAME = '" + expectedFile + "')" + EOL +
-                "LOG ON (NAME = 'Narf_log', FILENAME = '" + expectedLog + "');" + EOL +
+                "ON (NAME = N'Narf', FILENAME = N'" + expectedFile + "')" + EOL +
+                "LOG ON (NAME = N'Narf_log', FILENAME = N'" + expectedLog + "');" + EOL +
                 "GO" + EOL +
                 EOL +
                 "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
@@ -703,8 +703,8 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind]" + EOL +
-                "ON (NAME = 'Narf', FILENAME = '" + expectedFile + "')" + EOL +
-                "LOG ON (NAME = 'Narf_log', FILENAME = '" + expectedLog + "');" + EOL +
+                "ON (NAME = N'Narf', FILENAME = N'" + expectedFile + "')" + EOL +
+                "LOG ON (NAME = N'Narf_log', FILENAME = N'" + expectedLog + "');" + EOL +
                 "GO" + EOL +
                 EOL +
                 "IF SERVERPROPERTY('EngineEdition') <> 5" + EOL +
@@ -884,7 +884,7 @@ namespace Microsoft.EntityFrameworkCore
                 "SELECT @var0 = [d].[name]" + EOL +
                 "FROM [sys].[default_constraints] [d]" + EOL +
                 "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]" + EOL +
-                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'dbo.People') AND [c].[name] = N'LuckyNumber');" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'[dbo].[People]') AND [c].[name] = N'LuckyNumber');" + EOL +
                 "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [dbo].[People] DROP CONSTRAINT [' + @var0 + '];');" + EOL +
                 "ALTER TABLE [dbo].[People] DROP COLUMN [LuckyNumber];" + EOL,
                 Sql);
@@ -979,7 +979,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.Name', N'FullName', N'COLUMN';" + EOL,
+                "EXEC sp_rename N'[dbo].[People].[Name]', N'FullName', N'COLUMN';" + EOL,
                 Sql);
         }
 
@@ -996,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People.IX_People_Name', N'IX_People_FullName', N'INDEX';" + EOL,
+                "EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';" + EOL,
                 Sql);
         }
 
@@ -1027,7 +1027,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.EntityFrameworkHiLoSequence', N'MySequence';" + EOL,
+                "EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';" + EOL,
                 Sql);
         }
 
@@ -1043,7 +1043,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.People', N'Person';" + EOL,
+                "EXEC sp_rename N'[dbo].[People]', N'Person';" + EOL,
                 Sql);
         }
 
@@ -1135,7 +1135,7 @@ namespace Microsoft.EntityFrameworkCore
             base.InsertDataOperation();
 
             Assert.Equal(
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'People'))" + EOL +
+                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'[People]'))" + EOL +
                 "    SET IDENTITY_INSERT [People] ON;" + EOL +
                 "INSERT INTO [People] ([Id], [Full Name])" + EOL +
                 "VALUES (0, NULL)," + EOL +
@@ -1143,7 +1143,7 @@ namespace Microsoft.EntityFrameworkCore
                 "(2, N'John Snow')," + EOL +
                 "(3, N'Arya Stark')," + EOL +
                 "(4, N'Harry Strickland');" + EOL +
-                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'People'))" + EOL +
+                "IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'[People]'))" + EOL +
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);
         }

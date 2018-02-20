@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
 
             Assert.Equal(
-                "IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL" + EOL +
+                "IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL" + EOL +
                 "BEGIN" + EOL +
                 "    CREATE TABLE [__EFMigrationsHistory] (" + EOL +
                 "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sql = CreateHistoryRepository("my").GetCreateIfNotExistsScript();
 
             Assert.Equal(
-                "IF OBJECT_ID(N'my.__EFMigrationsHistory') IS NULL" + EOL +
+                "IF OBJECT_ID(N'[my].[__EFMigrationsHistory]') IS NULL" + EOL +
                 "BEGIN" + EOL +
                 "    IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');" + EOL +
                 "    CREATE TABLE [my].[__EFMigrationsHistory] (" + EOL +

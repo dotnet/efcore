@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -345,19 +346,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 throw new InvalidOperationException(SqlServerStrings.IndexTableRequired);
             }
 
-            var qualifiedName = new StringBuilder();
-            if (operation.Schema != null)
-            {
-                qualifiedName
-                    .Append(operation.Schema)
-                    .Append(".");
-            }
-            qualifiedName
-                .Append(operation.Table)
-                .Append(".")
-                .Append(operation.Name);
-
-            Rename(qualifiedName.ToString(), operation.NewName, "INDEX", builder);
+            Rename(
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
+                    "." +
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                operation.NewName,
+                "INDEX",
+                builder);
             builder.EndCommand(suppressTransaction: IsMemoryOptimized(operation, model, operation.Schema, operation.Table));
         }
 
@@ -376,16 +371,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var name = operation.Name;
             if (operation.NewName != null)
             {
-                var qualifiedName = new StringBuilder();
-                if (operation.Schema != null)
-                {
-                    qualifiedName
-                        .Append(operation.Schema)
-                        .Append(".");
-                }
-                qualifiedName.Append(operation.Name);
-
-                Rename(qualifiedName.ToString(), operation.NewName, builder);
+                Rename(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
+                    operation.NewName,
+                    builder);
 
                 name = operation.NewName;
             }
@@ -449,16 +438,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var name = operation.Name;
             if (operation.NewName != null)
             {
-                var qualifiedName = new StringBuilder();
-                if (operation.Schema != null)
-                {
-                    qualifiedName
-                        .Append(operation.Schema)
-                        .Append(".");
-                }
-                qualifiedName.Append(operation.Name);
-
-                Rename(qualifiedName.ToString(), operation.NewName, builder);
+                Rename(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
+                    operation.NewName,
+                    builder);
 
                 name = operation.NewName;
             }
@@ -599,15 +582,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 return;
             }
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(string));
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             builder
                 .Append("IF SCHEMA_ID(")
                 .Append(stringTypeMapping.GenerateSqlLiteral(operation.Name))
-                .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(Dependencies.SqlGenerationHelper.StatementTerminator)
-                .Append("')")
+                .Append(") IS NULL EXEC(")
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        "CREATE SCHEMA " +
+                            Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name) +
+                            Dependencies.SqlGenerationHelper.StatementTerminator))
+                .Append(")")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
         }
@@ -633,6 +619,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (!string.IsNullOrEmpty(operation.FileName))
             {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
                 var fileName = ExpandFileName(operation.FileName);
                 var name = Path.GetFileNameWithoutExtension(fileName);
 
@@ -644,17 +632,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 builder
                     .AppendLine()
-                    .Append("ON (NAME = '")
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(name))
-                    .Append("', FILENAME = '")
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(fileName))
-                    .Append("')")
+                    .Append("ON (NAME = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(name))
+                    .Append(", FILENAME = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(fileName))
+                    .Append(")")
                     .AppendLine()
-                    .Append("LOG ON (NAME = '")
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(logName))
-                    .Append("', FILENAME = '")
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(logFileName))
-                    .Append("')");
+                    .Append("LOG ON (NAME = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(logName))
+                    .Append(", FILENAME = ")
+                    .Append(stringTypeMapping.GenerateSqlLiteral(logFileName))
+                    .Append(")");
             }
 
             builder
@@ -973,19 +961,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var qualifiedName = new StringBuilder();
-            if (operation.Schema != null)
-            {
-                qualifiedName
-                    .Append(operation.Schema)
-                    .Append(".");
-            }
-            qualifiedName
-                .Append(operation.Table)
-                .Append(".")
-                .Append(operation.Name);
-
-            Rename(qualifiedName.ToString(), operation.NewName, "COLUMN", builder);
+            Rename(
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
+                    "." +
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                operation.NewName,
+                "COLUMN",
+                builder);
             builder.EndCommand();
         }
 
@@ -1062,18 +1044,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'");
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Schema))
-                    .Append(".");
-            }
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             builder
-                .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Table))
-                .AppendLine("'))");
+                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(")
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
+                .AppendLine("))");
 
             using (builder.Indent())
             {
@@ -1093,18 +1071,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             builder.Append(sqlBuilder.ToString());
 
             builder
-                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(N'");
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Schema))
-                    .Append(".");
-            }
-
-            builder
-                .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(operation.Table))
-                .AppendLine("'))");
+                .Append("IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [object_id] = OBJECT_ID(")
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
+                .AppendLine("))");
 
             using (builder.Indent())
             {
@@ -1411,7 +1382,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotEmpty(newName, nameof(newName));
             Check.NotNull(builder, nameof(builder));
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.FindMapping(typeof(string));
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
             builder
                 .Append("EXEC sp_rename ")
@@ -1509,6 +1480,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotEmpty(columnName, nameof(columnName));
             Check.NotNull(builder, nameof(builder));
 
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
             var variable = "@var" + _variableCounter++;
 
             builder
@@ -1520,25 +1493,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .AppendLine(" = [d].[name]")
                 .AppendLine("FROM [sys].[default_constraints] [d]")
                 .AppendLine("INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]")
-                .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(N'");
-
-            if (schema != null)
-            {
-                builder
-                    .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(schema))
-                    .Append(".");
-            }
-
-            builder
-                .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(tableName))
-                .Append("') AND [c].[name] = N'")
-                .Append(Dependencies.SqlGenerationHelper.EscapeLiteral(columnName))
-                .AppendLine("');")
+                .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(")
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema)))
+                .Append(") AND [c].[name] = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(columnName))
+                .AppendLine(");")
                 .Append("IF ")
                 .Append(variable)
-                .Append(" IS NOT NULL EXEC(N'ALTER TABLE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema))
-                .Append(" DROP CONSTRAINT [' + ")
+                .Append(" IS NOT NULL EXEC(")
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        "ALTER TABLE " +
+                            Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
+                            " DROP CONSTRAINT ["))
+                .Append(" + ")
                 .Append(variable)
                 .Append(" + ']")
                 .Append(Dependencies.SqlGenerationHelper.StatementTerminator)

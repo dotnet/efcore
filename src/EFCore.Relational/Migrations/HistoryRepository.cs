@@ -251,6 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotNull(row, nameof(row));
 
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
             return new StringBuilder().Append("INSERT INTO ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append(" (")
@@ -258,11 +260,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(", ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(ProductVersionColumnName))
                 .AppendLine(")")
-                .Append("VALUES ('")
-                .Append(SqlGenerationHelper.EscapeLiteral(row.MigrationId))
-                .Append("', '")
-                .Append(SqlGenerationHelper.EscapeLiteral(row.ProductVersion))
-                .Append("')")
+                .Append("VALUES (")
+                .Append(stringTypeMapping.GenerateSqlLiteral(row.MigrationId))
+                .Append(", ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(row.ProductVersion))
+                .Append(")")
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .ToString();
         }
@@ -276,13 +278,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
             return new StringBuilder().Append("DELETE FROM ")
                 .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append("WHERE ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-                .Append(" = '")
-                .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
-                .Append("'")
+                .Append(" = ")
+                .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .ToString();
         }
