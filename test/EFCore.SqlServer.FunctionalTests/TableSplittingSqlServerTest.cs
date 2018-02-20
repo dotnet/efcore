@@ -25,14 +25,24 @@ FROM [Vehicles] AS [v]
 WHERE [v].[Discriminator] IN (N'PoweredVehicle', N'Vehicle') AND [v].[Operator_Discriminator] IN (N'LicensedOperator', N'Operator')");
         }
 
-        public override void Can_query_shared_derived()
+        public override void Can_query_shared_derived_hierarchy()
         {
-            base.Can_query_shared_derived();
+            base.Can_query_shared_derived_hierarchy();
+
+            AssertSql(
+                @"SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[FuelType], [v].[GrainGeometry]
+FROM [Vehicles] AS [v]
+WHERE (([v].[Discriminator] = N'PoweredVehicle') AND [v].[Engine_Discriminator] IN (N'SolidRocket', N'IntermittentCombustionEngine', N'ContinuousCombustionEngine')) AND [v].[FuelTank_Discriminator] IN (N'SolidFuelTank', N'FuelTank')");
+        }
+
+        public override void Can_query_shared_derived_nonhierarchy()
+        {
+            base.Can_query_shared_derived_nonhierarchy();
 
             AssertSql(
                 @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
 FROM [Vehicles] AS [v]
-WHERE ([v].[Engine_Discriminator] = N'CombustionEngine') AND ([v].[Discriminator] = N'PoweredVehicle')");
+WHERE ([v].[Discriminator] = N'PoweredVehicle') AND [v].[Engine_Discriminator] IN (N'SolidRocket', N'IntermittentCombustionEngine', N'ContinuousCombustionEngine')");
         }
 
         public override void Can_change_dependent_instance_non_derived()

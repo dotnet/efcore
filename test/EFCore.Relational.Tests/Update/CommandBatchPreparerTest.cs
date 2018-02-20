@@ -779,7 +779,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 Assert.Equal(
                     RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "{Id: 42}", state),
+                        nameof(FakeEntity), nameof(FakeEntity), nameof(RelatedFakeEntity), "{Id: 42}", state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: true)
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 Assert.Equal(
                     RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(FakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
+                        nameof(FakeEntity), nameof(FakeEntity), nameof(RelatedFakeEntity), state),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: false)

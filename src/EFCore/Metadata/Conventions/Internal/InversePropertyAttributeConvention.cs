@@ -128,11 +128,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         existingInverse.GetIdentifyingMemberInfo(), existingInverseType, entityType.Model, referencingNavigationsWithAttribute))
                 {
                     var fk = existingInverse.ForeignKey;
-                    if (fk.GetConfigurationSource() == ConfigurationSource.DataAnnotation)
-                    {
-                        fk.DeclaringEntityType.Builder.RemoveForeignKey(fk, ConfigurationSource.DataAnnotation);
-                    }
+                    fk.DeclaringEntityType.Builder.RemoveForeignKey(fk, ConfigurationSource.DataAnnotation);
                 }
+
+                var existingRelationship = entityTypeBuilder.Metadata.FindNavigation(navigationMemberInfo)?.ForeignKey;
+                existingRelationship?.DeclaringEntityType.Builder.RemoveForeignKey(existingRelationship, ConfigurationSource.DataAnnotation);
 
                 return entityTypeBuilder.Metadata.FindNavigation(navigationMemberInfo)?.ForeignKey.Builder;
             }

@@ -492,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     s.Name,
                     t.Name,
                     StringComparison.OrdinalIgnoreCase),
-                (s, t, c) => s.GetRootTypes().Any(se => t.GetRootTypes().Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))),
+                (s, t, c) => string.Equals(s.GetRootType().Name, t.GetRootType().Name, StringComparison.OrdinalIgnoreCase),
                 (s, t, c) => s.EntityTypes.Any(se => t.EntityTypes.Any(te => string.Equals(se.Name, te.Name, StringComparison.OrdinalIgnoreCase))));
 
         /// <summary>
@@ -605,8 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private static IEnumerable<IProperty> GetSortedProperties(TableMapping target)
-            => target.GetRootTypes()
-                .SelectMany(GetSortedProperties)
+            => GetSortedProperties(target.GetRootType())
                 .Distinct((x, y) => x.Relational().ColumnName == y.Relational().ColumnName);
 
         private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType)
@@ -642,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var clrType = clrProperty.DeclaringType;
                 var index = clrType.GetTypeInfo().DeclaredProperties
-                    .IndexOf(clrProperty, new PropertyInfoEuqlityComparer());
+                    .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
@@ -657,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     && fk.DeclaringEntityType.Relational().TableName == entityType.Relational().TableName
                     && fk == fk.DeclaringEntityType
                         .FindForeignKey(
-                            fk.DeclaringEntityType.FindDeclaredPrimaryKey().Properties,
+                            fk.DeclaringEntityType.FindPrimaryKey().Properties,
                             entityType.FindPrimaryKey(),
                             entityType)))
             {
@@ -674,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var clrType = clrProperty.DeclaringType;
                 var index = clrType.GetTypeInfo().DeclaredProperties
-                    .IndexOf(clrProperty, new PropertyInfoEuqlityComparer());
+                    .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
 
                 types.GetOrAddNew(clrType)[index] = clrProperty;
             }
@@ -711,8 +710,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(GetSortedProperties));
         }
 
-        private class PropertyInfoEuqlityComparer : IEqualityComparer<PropertyInfo>
+        private class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
         {
+            private PropertyInfoEqualityComparer()
+            {
+            }
+
+            public static readonly PropertyInfoEqualityComparer Instance = new PropertyInfoEqualityComparer();
+
             public bool Equals(PropertyInfo x, PropertyInfo y)
                 => x.IsSameAs(y);
 
@@ -805,9 +810,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var primaryKey = entityType.FindDeclaredPrimaryKey();
             if (primaryKey != null)
             {
-                var definingForeignKey = entityType.FindForeignKeys(primaryKey.Properties)
-                    .Where(fk => fk.PrincipalEntityType.Relational().TableName == entityType.Relational().TableName)
-                    .FirstOrDefault();
+                var definingForeignKey = entityType
+                    .FindForeignKeys(primaryKey.Properties)
+                    .FirstOrDefault(fk => fk.PrincipalEntityType.Relational().TableName == entityType.Relational().TableName);
                 if (definingForeignKey?.DependentToPrincipal != null)
                 {
                     return definingForeignKey.DependentToPrincipal.Name;

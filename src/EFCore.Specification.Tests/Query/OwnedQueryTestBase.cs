@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [Fact(Skip = "Issue#10971")]
+        [Fact]
         public virtual void Query_when_group_by()
         {
             using (var context = CreateContext())

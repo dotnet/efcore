@@ -436,32 +436,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            // Set base type as null to remove the entityType from directly derived types of the base type
-            var baseType = entityType.BaseType;
-            entityType.Builder.HasBaseType((EntityType)null, configurationSource);
-
-            var entityTypeBuilder = entityType.Builder;
-            foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
-            {
-                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
-                Debug.Assert(removed.HasValue);
-            }
-
-            foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
-            {
-                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
-                Debug.Assert(removed.HasValue);
-            }
-
-            foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
-            {
-                var derivedEntityTypeBuilder = directlyDerivedType.Builder
-                    .HasBaseType(baseType, configurationSource);
-                Debug.Assert(derivedEntityTypeBuilder != null);
-            }
-
             using (Metadata.ConventionDispatcher.StartBatch())
             {
+                var entityTypeBuilder = entityType.Builder;
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+                {
+                    var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
+
+                foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
+                {
+                    var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
+                    Debug.Assert(removed.HasValue);
+                }
+
+                foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
+                {
+                    var derivedEntityTypeBuilder = directlyDerivedType.Builder
+                        .HasBaseType(entityType.BaseType, configurationSource);
+                    Debug.Assert(derivedEntityTypeBuilder != null);
+                }
+
                 foreach (var definedType in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())
                 {
                     RemoveEntityType(definedType, configurationSource);

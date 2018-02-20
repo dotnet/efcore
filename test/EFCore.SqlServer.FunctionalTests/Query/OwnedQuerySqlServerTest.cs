@@ -2,18 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class OwnedQuerySqlServerTest : OwnedQueryTestBase<OwnedQuerySqlServerTest.OwnedQuerySqlServerFixture>
+    public class OwnedQuerySqlServerTest : RelationalOwnedQueryTestBase<OwnedQuerySqlServerTest.OwnedQuerySqlServerFixture>
     {
-        public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture)
+        public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            fixture.TestSqlLoggerFactory.Clear();
+            //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         public override void Query_for_base_type_loads_all_owned_navs()
@@ -21,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Query_for_base_type_loads_all_owned_navs();
 
 
-            // See issue#10067
+            // See issue #10067
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t].[Id], [t0].[Id], [t0].[LeafBAddress_Country_Name], [t1].[Id], [t2].[Id], [t2].[LeafAAddress_Country_Name], [t3].[Id], [t4].[Id], [t4].[BranchAddress_Country_Name], [t5].[Id], [t6].[Id], [t6].[PersonAddress_Country_Name]
 FROM [OwnedPerson] AS [o]
@@ -162,7 +160,51 @@ WHERE [o].[Discriminator] = N'LeafA'");
         {
             base.Query_when_group_by();
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [op].[Id], [op].[Discriminator], [t].[Id], [t0].[Id], [t0].[LeafBAddress_Country_Name], [t1].[Id], [t2].[Id], [t2].[LeafAAddress_Country_Name], [t3].[Id], [t4].[Id], [t4].[BranchAddress_Country_Name], [t5].[Id], [t6].[Id], [t6].[PersonAddress_Country_Name]
+FROM [OwnedPerson] AS [op]
+LEFT JOIN (
+    SELECT [op.LeafBAddress].*
+    FROM [OwnedPerson] AS [op.LeafBAddress]
+    WHERE [op.LeafBAddress].[Discriminator] = N'LeafB'
+) AS [t] ON [op].[Id] = [t].[Id]
+LEFT JOIN (
+    SELECT [op.LeafBAddress.Country].*
+    FROM [OwnedPerson] AS [op.LeafBAddress.Country]
+    WHERE [op.LeafBAddress.Country].[Discriminator] = N'LeafB'
+) AS [t0] ON [t].[Id] = [t0].[Id]
+LEFT JOIN (
+    SELECT [op.LeafAAddress].*
+    FROM [OwnedPerson] AS [op.LeafAAddress]
+    WHERE [op.LeafAAddress].[Discriminator] = N'LeafA'
+) AS [t1] ON [op].[Id] = [t1].[Id]
+LEFT JOIN (
+    SELECT [op.LeafAAddress.Country].*
+    FROM [OwnedPerson] AS [op.LeafAAddress.Country]
+    WHERE [op.LeafAAddress.Country].[Discriminator] = N'LeafA'
+) AS [t2] ON [t1].[Id] = [t2].[Id]
+LEFT JOIN (
+    SELECT [op.BranchAddress].*
+    FROM [OwnedPerson] AS [op.BranchAddress]
+    WHERE [op.BranchAddress].[Discriminator] IN (N'LeafA', N'Branch')
+) AS [t3] ON [op].[Id] = [t3].[Id]
+LEFT JOIN (
+    SELECT [op.BranchAddress.Country].*
+    FROM [OwnedPerson] AS [op.BranchAddress.Country]
+    WHERE [op.BranchAddress.Country].[Discriminator] IN (N'LeafA', N'Branch')
+) AS [t4] ON [t3].[Id] = [t4].[Id]
+LEFT JOIN (
+    SELECT [op.PersonAddress].*
+    FROM [OwnedPerson] AS [op.PersonAddress]
+    WHERE [op.PersonAddress].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+) AS [t5] ON [op].[Id] = [t5].[Id]
+LEFT JOIN (
+    SELECT [op.PersonAddress.Country].*
+    FROM [OwnedPerson] AS [op.PersonAddress.Country]
+    WHERE [op.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+) AS [t6] ON [t5].[Id] = [t6].[Id]
+WHERE [op].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
+ORDER BY [op].[Id]");
         }
 
         public override void Query_when_subquery()
@@ -224,10 +266,9 @@ ORDER BY [t].[Id]");
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        public class OwnedQuerySqlServerFixture : OwnedQueryFixtureBase
+        public class OwnedQuerySqlServerFixture : RelationalOwnedQueryFixture
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
         }
     }
 }

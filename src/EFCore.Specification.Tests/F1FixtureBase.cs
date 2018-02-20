@@ -48,9 +48,7 @@ namespace Microsoft.EntityFrameworkCore
 
             modelBuilder.Entity<TestDriver>();
             modelBuilder.Entity<TitleSponsor>()
-                .Ignore(s => s.Details);
-            // #8973
-            //.OwnsOne(s => s.Details);
+                .OwnsOne(s => s.Details);
 
             // TODO: Sponsor * <-> * Team. Many-to-many relationships are not supported without CLR class for join table. See issue #1368
         }

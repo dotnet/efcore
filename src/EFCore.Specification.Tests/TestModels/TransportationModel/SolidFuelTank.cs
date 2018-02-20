@@ -1,19 +1,20 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 {
-    public class PoweredVehicle : Vehicle
+    public class SolidFuelTank : FuelTank
     {
-        public Engine Engine { get; set; }
+        public string GrainGeometry { get; set; }
+        public SolidRocket Rocket { get; set; }
 
         public override bool Equals(object obj)
-            => obj is PoweredVehicle other
+            => obj is SolidFuelTank other
                && base.Equals(other)
-               && Equals(Engine, other.Engine);
+               && GrainGeometry == other.GrainGeometry;
 
         public override int GetHashCode()
             => base.GetHashCode() * 397
-               ^ Engine.GetHashCode();
+               ^ GrainGeometry.GetHashCode();
     }
 }

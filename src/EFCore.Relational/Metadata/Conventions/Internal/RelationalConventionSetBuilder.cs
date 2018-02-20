@@ -50,9 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             var sharedTableConvention = new SharedTableConvention();
 
+            var discriminatorConvention =new DiscriminatorConvention();
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(sharedTableConvention);
-            conventionSet.BaseEntityTypeChangedConventions.Add(new DiscriminatorConvention());
+            conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
+            conventionSet.BaseEntityTypeChangedConventions.Add(discriminatorConvention);
             conventionSet.BaseEntityTypeChangedConventions.Add(
                 new TableNameFromDbSetConvention(Dependencies.Context?.Context, Dependencies.SetFinder));
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sharedTableConvention);

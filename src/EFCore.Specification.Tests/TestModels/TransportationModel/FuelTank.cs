@@ -8,17 +8,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         public string VehicleName { get; set; }
         public string FuelType { get; set; }
         public string Capacity { get; set; }
-        public PoweredVehicle Vehicle { get; set; }
+        // #9005
+        //public PoweredVehicle Vehicle { get; set; }
         public CombustionEngine Engine { get; set; }
 
         public override bool Equals(object obj)
-        {
-            return obj is FuelTank other
-                   && VehicleName == other.VehicleName
-                   && FuelType == other.FuelType
-                   && Capacity == other.Capacity;
-        }
+            => obj is FuelTank other
+               && VehicleName == other.VehicleName
+               && FuelType == other.FuelType
+               && Capacity == other.Capacity;
 
-        public override int GetHashCode() => VehicleName.GetHashCode();
+        public override int GetHashCode()
+            => (VehicleName.GetHashCode() * 397
+                ^ FuelType.GetHashCode()) * 397
+               ^ Capacity.GetHashCode();
     }
 }

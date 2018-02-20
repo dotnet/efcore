@@ -100,29 +100,30 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             foreach (var entityType in entityTypes)
             {
                 var principalList = new List<IEntityType>();
-                if (!dependents.TryGetValue(entityType, out var dependentList))
-                {
-                    dependentList = new List<IEntityType>();
-                    dependents[entityType] = dependentList;
-                }
-
                 foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey().Properties))
                 {
                     if (foreignKey.PrincipalKey.IsPrimaryKey()
-                        && entityTypes.Contains(foreignKey.PrincipalEntityType))
+                        && entityTypes.Contains(foreignKey.PrincipalEntityType)
+                        && !foreignKey.IsIntraHierarchical())
                     {
-                        var principalEntityType = foreignKey.PrincipalEntityType;
-                        principalList.Add(principalEntityType);
-                        if (!dependents.TryGetValue(principalEntityType, out dependentList))
-                        {
-                            dependentList = new List<IEntityType>();
-                            dependents[principalEntityType] = dependentList;
-                        }
-                        ((List<IEntityType>)dependentList).Add(entityType);
+                        principalList.Add(foreignKey.PrincipalEntityType);
                     }
                 }
-
                 principals[entityType] = principalList;
+
+                var dependentList = new List<IEntityType>();
+                foreach (var referencingForeignKey in entityType.FindPrimaryKey().GetReferencingForeignKeys())
+                {
+                    if (referencingForeignKey.PrincipalEntityType.IsAssignableFrom(entityType)
+                        && entityTypes.Contains(referencingForeignKey.DeclaringEntityType)
+                        && !referencingForeignKey.IsIntraHierarchical()
+                        && PropertyListComparer.Instance.Compare(
+                            referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties, referencingForeignKey.Properties) == 0)
+                    {
+                        dependentList.Add(referencingForeignKey.DeclaringEntityType);
+                    }
+                }
+                dependents[entityType] = dependentList;
             }
 
             return createElement => new SharedTableEntryMap<TValue>(

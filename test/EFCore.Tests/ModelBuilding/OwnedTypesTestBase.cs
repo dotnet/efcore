@@ -349,6 +349,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Owned<BookLabel>();
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel);
 
                 modelBuilder.Validate();
 

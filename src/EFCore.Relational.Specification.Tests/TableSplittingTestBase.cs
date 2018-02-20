@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,19 +29,35 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(4, context.Set<Operator>().ToList().Count);
+                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
                 }
             }
         }
 
-        [Fact(Skip = "#10791 Incorrect data")]
-        public virtual void Can_query_shared_derived()
+        [Fact]
+        public virtual void Can_query_shared_derived_hierarchy()
         {
             using (CreateTestStore(OnModelCreating))
             {
                 using (var context = CreateContext())
                 {
-                    Assert.Equal(1, context.Set<FuelTank>().ToList().Count);
+                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Can_query_shared_derived_nonhierarchy()
+        {
+            using (CreateTestStore(modelBuilder =>
+            {
+                OnModelCreating(modelBuilder);
+                modelBuilder.Ignore<SolidFuelTank>();
+            }))
+            {
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
                 }
             }
         }
@@ -51,18 +68,20 @@ namespace Microsoft.EntityFrameworkCore
             Test_roundtrip(OnModelCreating);
         }
 
-        [Fact]
+        // #9005
+        // [Fact]
         public virtual void Can_use_with_chained_relationships()
         {
             Test_roundtrip(
                 modelBuilder =>
                     {
                         OnModelCreating(modelBuilder);
-                        modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
+                        //modelBuilder.Entity<FuelTank>(eb => { eb.Ignore(e => e.Vehicle); });
                     });
         }
 
-        [Fact(Skip = "Issue#10971")]
+        // #9005
+        // [Fact]
         public virtual void Can_use_with_fanned_relationships()
         {
             Test_roundtrip(
@@ -81,6 +100,33 @@ namespace Microsoft.EntityFrameworkCore
                 using (var context = CreateContext())
                 {
                     context.AssertSeeded();
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Inserting_dependent_with_just_one_parent_throws()
+        {
+            using (CreateTestStore(OnModelCreating))
+            {
+                using (var context = CreateContext())
+                {
+                    context.Add(new PoweredVehicle
+                    {
+                        Name = "Fuel transport",
+                        SeatingCapacity = 1,
+                        Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
+                    });
+                    context.Add(new FuelTank
+                    {
+                        Capacity = "10000 l",
+                        FuelType = "Gas",
+                        VehicleName = "Fuel transport"
+                    });
+
+                    Assert.Equal(RelationalStrings.SharedRowEntryCountMismatchSensitive(
+                        nameof(PoweredVehicle), "Vehicles", nameof(Engine), "{Name: Fuel transport}", "Added"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
         }

@@ -200,15 +200,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 foreach (var command in modificationCommandIdentityMap.Values)
                 {
-                    if ((command.EntityState != EntityState.Added
+                    if (command.EntityState != EntityState.Added
                          && command.EntityState != EntityState.Deleted)
-                        || (command.Entries.Any(e => modificationCommandIdentityMap.GetPrincipals(e.EntityType).Count == 0)
-                            && command.Entries.Any(e => modificationCommandIdentityMap.GetDependents(e.EntityType).Count == 0)))
                     {
                         continue;
                     }
 
-                    var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") + command.TableName;
                     foreach (var entry in command.Entries)
                     {
                         foreach (var principalEntityType in modificationCommandIdentityMap.GetPrincipals(entry.EntityType))
@@ -217,6 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 principalEntry => principalEntry != entry
                                                   && principalEntityType.IsAssignableFrom(principalEntry.EntityType)))
                             {
+                                var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") + command.TableName;
                                 if (_sensitiveLoggingEnabled)
                                 {
                                     throw new InvalidOperationException(
@@ -243,6 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 dependentEntry => dependentEntry != entry
                                                   && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType)))
                             {
+                                var tableName = (string.IsNullOrEmpty(command.Schema) ? "" : command.Schema + ".") + command.TableName;
                                 if (_sensitiveLoggingEnabled)
                                 {
                                     throw new InvalidOperationException(

@@ -20,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Team>().Property<byte[]>("Version")
                 .ValueGeneratedOnAddOrUpdate()
                 .IsConcurrencyToken();
+
+            modelBuilder.Entity<TitleSponsor>()
+                .OwnsOne(s => s.Details)
+                .Property(d => d.Space).HasColumnType("decimal(18,2)");
         }
     }
 }
