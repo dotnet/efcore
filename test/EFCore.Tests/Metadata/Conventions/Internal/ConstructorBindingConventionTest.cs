@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -29,7 +28,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Binds_to_most_parameters_that_resolve()
+        public void Binds_to_parameterless_constructor_if_no_services()
+        {
+            var constructorBinding = GetBinding<BlogSeveralNoServices>();
+
+            Assert.NotNull(constructorBinding);
+
+            var parameters = constructorBinding.Constructor.GetParameters();
+            var bindings = constructorBinding.ParameterBindings;
+
+            Assert.Equal(0, parameters.Length);
+            Assert.Equal(0, bindings.Count);
+        }
+
+        private class BlogSeveralNoServices : Blog
+        {
+            public BlogSeveralNoServices()
+            {
+            }
+
+            public BlogSeveralNoServices(string title, int id)
+            {
+            }
+
+            public BlogSeveralNoServices(string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralNoServices(string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+        }
+
+        [Fact]
+        public void Binds_to_least_parameters_if_no_services()
         {
             var constructorBinding = GetBinding<BlogSeveral>();
 
@@ -38,24 +70,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var parameters = constructorBinding.Constructor.GetParameters();
             var bindings = constructorBinding.ParameterBindings;
 
-            Assert.Equal(3, parameters.Length);
-            Assert.Equal(3, bindings.Count);
+            Assert.Equal(2, parameters.Length);
+            Assert.Equal(2, bindings.Count);
 
             Assert.Equal("title", parameters[0].Name);
-            Assert.Equal("shadow", parameters[1].Name);
-            Assert.Equal("id", parameters[2].Name);
+            Assert.Equal("id", parameters[1].Name);
 
             Assert.Equal("Title", bindings[0].ConsumedProperties.First().Name);
-            Assert.Equal("Shadow", bindings[1].ConsumedProperties.First().Name);
-            Assert.Equal("Id", bindings[2].ConsumedProperties.First().Name);
+            Assert.Equal("Id", bindings[1].ConsumedProperties.First().Name);
         }
 
         private class BlogSeveral : Blog
         {
-            public BlogSeveral()
-            {
-            }
-
             public BlogSeveral(string title, int id)
             {
             }
@@ -65,6 +91,270 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public BlogSeveral(string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+        }
+
+        [Fact]
+        public void Binds_to_zero_scalars_one_service()
+        {
+            var constructorBinding = GetBinding<BlogOneService>();
+
+            Assert.NotNull(constructorBinding);
+
+            var parameters = constructorBinding.Constructor.GetParameters();
+            var bindings = constructorBinding.ParameterBindings;
+
+            Assert.Equal(1, parameters.Length);
+            Assert.Equal(1, bindings.Count);
+
+            Assert.Equal("loader", parameters[0].Name);
+        }
+
+        private class BlogOneService : Blog
+        {
+            public BlogOneService()
+            {
+            }
+
+            public BlogOneService(string title, int id)
+            {
+            }
+
+            public BlogOneService(string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogOneService(string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogOneService(ILazyLoader loader)
+            {
+            }
+
+            public BlogOneService(ILazyLoader loader, string title, int id)
+            {
+            }
+
+            public BlogOneService(ILazyLoader loader, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogOneService(ILazyLoader loader, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+        }
+
+        [Fact]
+        public void Binds_to_least_scalars_one_service()
+        {
+            var constructorBinding = GetBinding<BlogSeveralOneService>();
+
+            Assert.NotNull(constructorBinding);
+
+            var parameters = constructorBinding.Constructor.GetParameters();
+            var bindings = constructorBinding.ParameterBindings;
+
+            Assert.Equal(3, parameters.Length);
+            Assert.Equal(3, bindings.Count);
+
+            Assert.Equal("loader", parameters[0].Name);
+            Assert.Equal("title", parameters[1].Name);
+            Assert.Equal("id", parameters[2].Name);
+
+            Assert.Equal("Title", bindings[1].ConsumedProperties.First().Name);
+            Assert.Equal("Id", bindings[2].ConsumedProperties.First().Name);
+        }
+
+        private class BlogSeveralOneService : Blog
+        {
+            public BlogSeveralOneService()
+            {
+            }
+
+            public BlogSeveralOneService(string title, int id)
+            {
+            }
+
+            public BlogSeveralOneService(string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralOneService(string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogSeveralOneService(ILazyLoader loader, string title, int id)
+            {
+            }
+
+            public BlogSeveralOneService(ILazyLoader loader, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralOneService(ILazyLoader loader, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+        }
+
+        [Fact]
+        public void Binds_to_zero_scalars_two_services()
+        {
+            var constructorBinding = GetBinding<BlogTwoServices>();
+
+            Assert.NotNull(constructorBinding);
+
+            var parameters = constructorBinding.Constructor.GetParameters();
+            var bindings = constructorBinding.ParameterBindings;
+
+            Assert.Equal(2, parameters.Length);
+            Assert.Equal(2, bindings.Count);
+
+            Assert.Equal("context", parameters[0].Name);
+            Assert.Equal("loader", parameters[1].Name);
+        }
+
+        private class BlogTwoServices : Blog
+        {
+            public BlogTwoServices()
+            {
+            }
+
+            public BlogTwoServices(string title, int id)
+            {
+            }
+
+            public BlogTwoServices(string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogTwoServices(string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogTwoServices(ILazyLoader loader)
+            {
+            }
+
+            public BlogTwoServices(ILazyLoader loader, string title, int id)
+            {
+            }
+
+            public BlogTwoServices(ILazyLoader loader, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogTwoServices(ILazyLoader loader, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogTwoServices(DbContext context)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, string title, int id)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, ILazyLoader loader)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, ILazyLoader loader, string title, int id)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, ILazyLoader loader, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogTwoServices(DbContext context, ILazyLoader loader, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+        }
+
+        [Fact]
+        public void Binds_to_least_scalars_two_services()
+        {
+            var constructorBinding = GetBinding<BlogSeveralTwoServices>();
+
+            Assert.NotNull(constructorBinding);
+
+            var parameters = constructorBinding.Constructor.GetParameters();
+            var bindings = constructorBinding.ParameterBindings;
+
+            Assert.Equal(4, parameters.Length);
+            Assert.Equal(4, bindings.Count);
+
+            Assert.Equal("context", parameters[0].Name);
+            Assert.Equal("loader", parameters[1].Name);
+            Assert.Equal("title", parameters[2].Name);
+            Assert.Equal("id", parameters[3].Name);
+
+            Assert.Equal("Title", bindings[2].ConsumedProperties.First().Name);
+            Assert.Equal("Id", bindings[3].ConsumedProperties.First().Name);
+        }
+
+        private class BlogSeveralTwoServices : Blog
+        {
+            public BlogSeveralTwoServices()
+            {
+            }
+
+            public BlogSeveralTwoServices(string title, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(ILazyLoader loader, string title, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(ILazyLoader loader, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(ILazyLoader loader, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(DbContext context, string title, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(DbContext context, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(DbContext context, string title, Guid? shadow, bool dummy, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(DbContext context, ILazyLoader loader, string title, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(DbContext context, ILazyLoader loader, string title, Guid? shadow, int id)
+            {
+            }
+
+            public BlogSeveralTwoServices(DbContext context, ILazyLoader loader, string title, Guid? shadow, bool dummy, int id)
             {
             }
         }
@@ -82,10 +372,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
         private class BlogConflict : Blog
         {
-            public BlogConflict()
-            {
-            }
-
             public BlogConflict(string title, int id)
             {
             }
@@ -350,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Throws_if_no_usable_constructor()
         {
             Assert.Equal(
-                CoreStrings.ConstructorNotFound(nameof(BlogNone), "dummy', 'notTitle', 'did"),
+                CoreStrings.ConstructorNotFound(nameof(BlogNone), "did', 'notTitle', 'dummy"),
                 Assert.Throws<InvalidOperationException>(() => GetBinding<BlogNone>()).Message);
         }
 
