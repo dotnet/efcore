@@ -9,6 +9,7 @@
     <MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>2.1.0-preview2-30131</MicrosoftAspNetCoreHostingWebHostBuilderFactorySourcesPackageVersion>
     <MicrosoftAzureDocumentDBCorePackageVersion>1.7.1</MicrosoftAzureDocumentDBCorePackageVersion>
     <MicrosoftCodeAnalysisCSharpPackageVersion>2.6.1</MicrosoftCodeAnalysisCSharpPackageVersion>
+    <MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>2.6.1</MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion>
     <MicrosoftCSharpPackageVersion>4.5.0-preview2-26130-01</MicrosoftCSharpPackageVersion>
     <MicrosoftDataSqliteCorePackageVersion>2.1.0-preview2-30131</MicrosoftDataSqliteCorePackageVersion>
     <MicrosoftExtensionsCachingMemoryPackageVersion>2.1.0-preview2-30131</MicrosoftExtensionsCachingMemoryPackageVersion>
