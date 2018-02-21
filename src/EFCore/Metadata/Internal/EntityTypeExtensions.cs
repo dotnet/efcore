@@ -77,11 +77,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return builder.ToString();
         }
 
+
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
+            => new List<IEntityType>(GetAllBaseTypes(entityType)) { entityType };
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static IEnumerable<IEntityType> GetAllBaseTypes([NotNull] this IEntityType entityType)
         {
             var baseTypes = new List<IEntityType>();
             var currentEntityType = entityType;
@@ -92,7 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             baseTypes.Reverse();
-            baseTypes.Add(entityType);
 
             return baseTypes;
         }

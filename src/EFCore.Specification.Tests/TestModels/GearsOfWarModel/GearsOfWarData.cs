@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public IReadOnlyList<SquadMission> SquadMissions { get; }
         public IReadOnlyList<Weapon> Weapons { get; }
         public IReadOnlyList<LocustLeader> LocustLeaders { get; }
+        public IReadOnlyList<LocustHighCommand> LocustHighCommands { get; }
 
         public GearsOfWarData()
         {
@@ -31,8 +32,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             Gears = CreateGears();
             LocustLeaders = CreateLocustLeaders();
             Factions = CreateFactions();
+            LocustHighCommands = CreateHighCommands();
 
-            WireUp(Squads, Missions, SquadMissions, Cities, Weapons, Tags, Gears, LocustLeaders, Factions);
+            WireUp(Squads, Missions, SquadMissions, Cities, Weapons, Tags, Gears, LocustLeaders, Factions, LocustHighCommands);
             WireUp2(LocustLeaders, Factions);
         }
 
@@ -82,6 +84,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             if (typeof(TEntity) == typeof(LocustLeader))
             {
                 return (IQueryable<TEntity>)LocustLeaders.AsQueryable();
+            }
+
+            if (typeof(TEntity) == typeof(LocustHighCommand))
+            {
+                return (IQueryable<TEntity>)LocustHighCommands.AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
@@ -221,6 +228,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 new LocustHorde { Id = 2, Name = "Swarm", Eradicated = false, CommanderName = "Unknown" }
             };
 
+        public static IReadOnlyList<LocustHighCommand> CreateHighCommands()
+            => new List<LocustHighCommand>
+            {
+                new LocustHighCommand { Id = 1, Name = "Locust Main Command", IsOperational = true },
+            };
+        
         public static void WireUp(
             IReadOnlyList<Squad> squads,
             IReadOnlyList<Mission> missions,
@@ -230,7 +243,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             IReadOnlyList<CogTag> tags,
             IReadOnlyList<Gear> gears,
             IReadOnlyList<LocustLeader> locustLeaders,
-            IReadOnlyList<Faction> factions)
+            IReadOnlyList<Faction> factions,
+            IReadOnlyList<LocustHighCommand> locustHighCommands)
         {
             squadMissions[0].Mission = missions[0];
             squadMissions[0].MissionId = missions[0].Id;
@@ -351,6 +365,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 
             ((LocustHorde)factions[0]).Commander = ((LocustCommander)locustLeaders[3]);
             ((LocustHorde)factions[1]).Commander = ((LocustCommander)locustLeaders[5]);
+
+            locustHighCommands[0].Commanders = new List<LocustCommander> { (LocustCommander)locustLeaders[3], (LocustCommander)locustLeaders[5] };
+
+            ((LocustCommander)locustLeaders[3]).HighCommand = locustHighCommands[0];
+            ((LocustCommander)locustLeaders[3]).HighCommandId = 1;
+
+            ((LocustCommander)locustLeaders[5]).HighCommand = locustHighCommands[0];
+            ((LocustCommander)locustLeaders[5]).HighCommandId = 1;
         }
 
         public static void WireUp2(

@@ -4243,6 +4243,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name);
         }
 
+        [ConditionalFact]
+        public virtual void Select_required_navigation_on_derived_type()
+        {
+            AssertQuery<LocustLeader>(
+                lls => lls.Select(ll => ((LocustCommander)ll).HighCommand.Name),
+                lls => lls.Select(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.Name : null));
+        }
+
+        [ConditionalFact]
+        public virtual void Where_required_navigation_on_derived_type()
+        {
+            AssertQuery<LocustLeader>(
+                lls => lls.Where(ll => ((LocustCommander)ll).HighCommand.IsOperational),
+                lls => lls.Where(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.IsOperational : false));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

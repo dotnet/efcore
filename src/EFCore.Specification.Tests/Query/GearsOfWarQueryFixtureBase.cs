@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(Mission), e => e?.Id },
                 { typeof(Squad), e => e?.Id },
                 { typeof(SquadMission), e => e?.SquadId + " " + e?.MissionId },
-                { typeof(Weapon), e => e?.Id }
+                { typeof(Weapon), e => e?.Id },
+                { typeof(LocustHighCommand), e => e?.Id },
             };
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
@@ -272,11 +273,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             modelBuilder.Entity<LocustHorde>().HasBaseType<Faction>();
             modelBuilder.Entity<LocustHorde>().HasMany(h => h.Leaders).WithOne();
-            modelBuilder.Entity<LocustHorde>().HasOne(h => h.Commander).WithOne(c => c.CommandingFaction);
+
+            // TODO: explicit FK declaration can be removed once #11019 is fixed
+            modelBuilder.Entity<LocustHorde>().HasOne(h => h.Commander).WithOne(c => c.CommandingFaction).HasForeignKey<LocustHorde>(k => k.CommanderName); 
 
             modelBuilder.Entity<LocustLeader>().HasKey(l => l.Name);
             modelBuilder.Entity<LocustCommander>().HasBaseType<LocustLeader>();
             modelBuilder.Entity<LocustCommander>().HasOne(c => c.DefeatedBy).WithOne().HasForeignKey<LocustCommander>(c => new { c.DefeatedByNickname, c.DefeatedBySquadId });
+
+            modelBuilder.Entity<LocustHighCommand>().HasKey(l => l.Id);
+            modelBuilder.Entity<LocustHighCommand>().Property(l => l.Id).ValueGeneratedNever();
         }
 
         protected override void Seed(GearsOfWarContext context) => GearsOfWarContext.Seed(context);

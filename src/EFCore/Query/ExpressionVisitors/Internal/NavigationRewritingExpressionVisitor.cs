@@ -1000,7 +1000,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 var addNullCheckToOuterKeySelector = optionalNavigationInChain;
 
                 if (!navigation.ForeignKey.IsRequired
-                    || !navigation.IsDependentToPrincipal())
+                    || !navigation.IsDependentToPrincipal()
+                    || (navigation.DeclaringEntityType.ClrType != querySourceReferenceExpression.Type
+                        && navigation.DeclaringEntityType.GetAllBaseTypes().Any(t => t.ClrType == querySourceReferenceExpression.Type)))
                 {
                     optionalNavigationInChain = true;
                 }

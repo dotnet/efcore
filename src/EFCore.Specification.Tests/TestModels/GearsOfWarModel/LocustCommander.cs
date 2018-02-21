@@ -10,5 +10,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public string DefeatedByNickname { get; set; }
         public int? DefeatedBySquadId { get; set; }
         public Gear DefeatedBy { get; set; }
+
+        public LocustHighCommand HighCommand { get; set; }
+        public int HighCommandId { get; set; }
     }
 }
