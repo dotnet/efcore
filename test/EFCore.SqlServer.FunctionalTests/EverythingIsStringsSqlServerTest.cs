@@ -160,6 +160,14 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class EverythingIsStringsSqlServerFixture : BuiltInDataTypesFixtureBase
         {
+            public override bool StrictEquality => true;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override string StoreName { get; } = "EverythingIsStrings";
 
             protected override ITestStoreFactory TestStoreFactory => SqlServerStringsTestStoreFactory.Instance;

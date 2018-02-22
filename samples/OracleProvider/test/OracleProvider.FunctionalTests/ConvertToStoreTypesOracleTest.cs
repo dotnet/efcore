@@ -26,6 +26,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConvertToStoreTypesOracleFixture : ConvertToStoreTypesFixtureBase
         {
+            public override bool StrictEquality => false;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => false;
+
+            public override bool SupportsLargeStringComparisons => false;
+
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 

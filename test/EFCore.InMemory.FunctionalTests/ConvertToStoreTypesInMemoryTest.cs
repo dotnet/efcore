@@ -17,6 +17,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
+            public override bool StrictEquality => true;
+
+            public override bool SupportsAnsi => false;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             public override bool SupportsBinaryKeys => false;
 
             public override DateTime DefaultDateTime => new DateTime();

@@ -160,6 +160,14 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 
         public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
+            public override bool StrictEquality => true;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => false;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override string StoreName { get; } = "EverythingIsBytes";
 
             protected override ITestStoreFactory TestStoreFactory => SqlServerBytesTestStoreFactory.Instance;

@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                         }
                         else
                         {
-                            substitutions[i] = GetTypeMapping(value).GenerateSqlLiteral(value);
+                            substitutions[i] = GenerateSqlLiteral(value);
                         }
                     }
 
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
                             case ExpressionType.Constant:
                                 var value = ((ConstantExpression)expression).Value;
                                 substitutions[i]
-                                    = GetTypeMapping(value).GenerateSqlLiteral(value);
+                                    = GenerateSqlLiteral(value);
 
                                 break;
 
@@ -765,13 +765,31 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
             _relationalCommandBuilder.AppendLines(sql);
         }
 
-        private RelationalTypeMapping GetTypeMapping(object value)
-            => _typeMapping != null
-               && (value == null
-                   || _typeMapping.ClrType.IsInstanceOfType(value)
-                   || (value.GetType().IsInteger() && _typeMapping.ClrType.IsInteger()))
-                ? _typeMapping
-                : Dependencies.TypeMappingSource.GetMappingForValue(value);
+        private string GenerateSqlLiteral(object value)
+        {
+            var mapping = _typeMapping;
+            var mappingClrType = mapping?.ClrType.UnwrapNullableType();
+
+            if (mappingClrType != null
+                && (value == null
+                    || mappingClrType.IsInstanceOfType(value)
+                    || value.GetType().IsInteger()
+                    && (mappingClrType.IsInteger()
+                        || mappingClrType.IsEnum)))
+            {
+                if (value?.GetType().IsInteger() == true
+                    && mappingClrType.IsEnum)
+                {
+                    value = Enum.ToObject(mappingClrType, value);
+                }
+            }
+            else
+            {
+                mapping = Dependencies.TypeMappingSource.GetMappingForValue(value);
+            }
+
+            return mapping.GenerateSqlLiteral(value);
+        }
 
         /// <summary>
         ///     Visit a TableExpression.
@@ -1584,14 +1602,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            var value = constantExpression.Value;
-
-            var mapping = GetTypeMapping(value);
-
-            _relationalCommandBuilder.Append(
-                value == null
-                    ? "NULL"
-                    : mapping.GenerateSqlLiteral(value));
+            _relationalCommandBuilder.Append(GenerateSqlLiteral(constantExpression.Value));
 
             return constantExpression;
         }

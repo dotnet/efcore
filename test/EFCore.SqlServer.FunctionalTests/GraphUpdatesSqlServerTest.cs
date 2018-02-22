@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_One_to_one_relationships_are_one_to_one();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("IX_OptionalSingle1_RootId", updateException.InnerException.Message);
 
                 return updateException;
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_One_to_one_relationships_are_one_to_one();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("PK_RequiredSingle1", updateException.InnerException.Message);
 
                 return updateException;
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_One_to_one_with_AK_relationships_are_one_to_one();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("IX_OptionalSingleAk1_RootId", updateException.InnerException.Message);
 
                 return updateException;
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_One_to_one_with_AK_relationships_are_one_to_one();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("IX_RequiredSingleAk1_RootId", updateException.InnerException.Message);
 
                 return updateException;
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Save_required_one_to_one_changed_by_reference(changeMechanism);
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingle2_RequiredSingle1_Id", updateException.InnerException.Message);
 
                 return updateException;
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Sever_required_one_to_one(changeMechanism);
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingle2_RequiredSingle1_Id", updateException.InnerException.Message);
 
                 return updateException;
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_are_cascade_deleted();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Required2_Required1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_many_to_one_dependents_are_orphaned();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Optional2_Optional1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_one_to_one_are_orphaned();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalSingle2_OptionalSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_are_cascade_deleted();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingle2_RequiredSingle1_Id", updateException.InnerException.Message);
 
                 return updateException;
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_are_cascade_deleted();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingle2_RequiredNonPkSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalAk2_OptionalAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredAk2_RequiredAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_one_to_one_with_alternate_key_are_orphaned();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalSingleAk2_OptionalSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_with_alternate_key_are_cascade_deleted();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingleAk2_RequiredSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingleAk2_RequiredNonPkSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_are_cascade_deleted_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Required2_Required1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_are_cascade_deleted_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingle2_RequiredSingle1_Id", updateException.InnerException.Message);
 
                 return updateException;
@@ -243,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_are_cascade_deleted_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingle2_RequiredNonPkSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredAk2_RequiredAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingleAk2_RequiredSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingleAk2_RequiredNonPkSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_many_to_one_dependents_are_orphaned_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Optional2_Optional1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_one_to_one_are_orphaned_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalSingle2_OptionalSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalAk2_OptionalAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_one_to_one_with_alternate_key_are_orphaned_in_store();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalSingleAk2_OptionalSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_are_cascade_deleted_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Required2_Required1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_many_to_one_dependents_are_orphaned_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Optional2_Optional1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_one_to_one_are_orphaned_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalSingle2_OptionalSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_are_cascade_deleted_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingle2_RequiredSingle1_Id", updateException.InnerException.Message);
 
                 return updateException;
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_are_cascade_deleted_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingle2_RequiredNonPkSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_many_to_one_dependents_with_alternate_key_are_orphaned_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalAk2_OptionalAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredAk2_RequiredAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Optional_one_to_one_with_alternate_key_are_orphaned_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_OptionalSingleAk2_OptionalSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -403,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingleAk2_RequiredSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -413,7 +413,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_starting_detached();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingleAk2_RequiredNonPkSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_are_cascade_detached_when_Added();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_Required2_Required1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_are_cascade_detached_when_Added();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingle2_RequiredSingle1_Id", updateException.InnerException.Message);
 
                 return updateException;
@@ -443,7 +443,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_are_cascade_detached_when_Added();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingle2_RequiredNonPkSingle1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_many_to_one_dependents_with_alternate_key_are_cascade_detached_when_Added();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredAk2_RequiredAk1_ParentId", updateException.InnerException.Message);
 
                 return updateException;
@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_one_to_one_with_alternate_key_are_cascade_detached_when_Added();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredSingleAk2_RequiredSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var updateException = base.Required_non_PK_one_to_one_with_alternate_key_are_cascade_detached_when_Added();
 
-                // Disabled check -- see issue #1103
+                // Disabled check -- see issue #11031
                 //Assert.Contains("FK_RequiredNonPkSingleAk2_RequiredNonPkSingleAk1_BackId", updateException.InnerException.Message);
 
                 return updateException;

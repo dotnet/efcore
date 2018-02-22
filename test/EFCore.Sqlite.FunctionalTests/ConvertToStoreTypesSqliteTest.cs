@@ -21,6 +21,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConvertToStoreTypesSqliteFixture : ConvertToStoreTypesFixtureBase
         {
+            public override bool StrictEquality => false;
+
+            public override bool SupportsAnsi => false;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 
@@ -31,6 +39,14 @@ namespace Microsoft.EntityFrameworkCore
             public override bool SupportsBinaryKeys => true;
 
             public override DateTime DefaultDateTime => new DateTime();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                // Issue #11036
+                modelBuilder.Entity<BuiltInNullableDataTypes>().Ignore(e => e.TestNullableUnsignedInt64);
+            }
         }
     }
 }

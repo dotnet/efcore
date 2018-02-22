@@ -157,6 +157,14 @@ User.Id ---> [uniqueidentifier]
 
         public class CustomConvertersSqlServerFixture : CustomConvertersFixtureBase
         {
+            public override bool StrictEquality => true;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
 
             public override bool SupportsBinaryKeys => true;

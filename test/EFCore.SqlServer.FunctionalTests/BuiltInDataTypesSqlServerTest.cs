@@ -36,12 +36,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Can_perform_query_with_ansi_strings()
-        {
-            Can_perform_query_with_ansi_strings_test(supportsAnsi: true);
-        }
-
-        [Fact]
         public void Sql_translation_uses_type_mapper_when_constant()
         {
             using (var context = CreateContext())
@@ -468,12 +462,6 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
                 object param62 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.SqlVariantInt == param62));
             }
-        }
-
-        [Fact]
-        public virtual void Can_query_using_any_nullable_data_type_as_literal()
-        {
-            Can_query_using_any_nullable_data_type_as_literal_helper(strictEquality: true);
         }
 
         [Fact]
@@ -2827,6 +2815,14 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 
         public class BuiltInDataTypesSqlServerFixture : BuiltInDataTypesFixtureBase
         {
+            public override bool StrictEquality => true;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override ITestStoreFactory TestStoreFactory
                 => SqlServerTestStoreFactory.Instance;
 

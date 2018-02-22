@@ -73,15 +73,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public virtual void Can_perform_query_with_ansi_strings()
-        {
-            Can_perform_query_with_ansi_strings_test(
-                supportsAnsi: true,
-                supportsUnicodeToAnsiConversion: false,
-                supportsLargeStringComparisons: false);
-        }
-
-        [Fact]
         public void Sql_translation_uses_type_mapping_when_constant()
         {
             using (var context = CreateContext())
@@ -360,12 +351,6 @@ WHERE ""e"".""Time"" = :timeSpan_0",
                 decimal? param40 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.Numeric == param40));
             }
-        }
-
-        [Fact]
-        public virtual void Can_query_using_any_nullable_data_type_as_literal()
-        {
-            Can_query_using_any_nullable_data_type_as_literal_helper(strictEquality: false);
         }
 
         [Fact]
@@ -2133,6 +2118,14 @@ UnicodeDataTypes.StringUnicode ---> [NVARCHAR2] [MaxLength = 4000]
 
         public class BuiltInDataTypesOracleFixture : BuiltInDataTypesFixtureBase
         {
+            public override bool StrictEquality => false;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => false;
+
+            public override bool SupportsLargeStringComparisons => false;
+
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 

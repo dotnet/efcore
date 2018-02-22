@@ -60,10 +60,10 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual void Can_perform_query_with_ansi_strings_test(
-            bool supportsAnsi, bool supportsUnicodeToAnsiConversion = true, bool supportsLargeStringComparisons = true)
+        [Fact]
+        public virtual void Can_perform_query_with_ansi_strings_test()
         {
-            var shortString = supportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
+            var shortString = Fixture.SupportsUnicodeToAnsiConversion ? "Ϩky" : "sky";
             var longString = new string('Ϩ', Fixture.LongStringLength);
 
             using (var context = CreateContext())
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(context.Set<UnicodeDataTypes>().Where(e => e.Id == 799 && e.StringAnsi == shortString).ToList().SingleOrDefault());
                 Assert.NotNull(context.Set<UnicodeDataTypes>().Where(e => e.Id == 799 && e.StringAnsi3 == shortString).ToList().SingleOrDefault());
 
-                if (supportsLargeStringComparisons)
+                if (Fixture.SupportsLargeStringComparisons)
                 {
                     Assert.NotNull(context.Set<UnicodeDataTypes>().Where(e => e.Id == 799 && e.StringAnsi9000 == longString).ToList().SingleOrDefault());
                 }
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(shortString, entity.StringDefault);
                 Assert.Equal(shortString, entity.StringUnicode);
 
-                if (supportsAnsi && supportsUnicodeToAnsiConversion)
+                if (Fixture.SupportsAnsi && Fixture.SupportsUnicodeToAnsiConversion)
                 {
                     Assert.NotEqual(shortString, entity.StringAnsi);
                     Assert.NotEqual(shortString, entity.StringAnsi3);
@@ -503,7 +503,8 @@ namespace Microsoft.EntityFrameworkCore
             return entityEntry;
         }
 
-        protected virtual void Can_query_using_any_nullable_data_type_as_literal_helper(bool strictEquality)
+        [Fact]
+        public virtual void Can_query_using_any_nullable_data_type_as_literal()
         {
             using (var context = CreateContext())
             {
@@ -554,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Same(
                     entity,
-                    strictEquality
+                    Fixture.StrictEquality
                         ? context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableDouble == -1.23456789).ToList().Single()
                         : context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && -e.TestNullableDouble + -1.23456789 < 1E-5).ToList().Single());
 
@@ -578,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Same(
                     entity,
-                    strictEquality
+                    Fixture.StrictEquality
                         ? context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && e.TestNullableSingle == -1.234F).ToList().Single()
                         : context.Set<BuiltInNullableDataTypes>().Where(e => e.Id == 12 && -e.TestNullableSingle + -1.234F < 1E-5).ToList().Single());
 
@@ -1203,9 +1204,18 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
+            public abstract bool StrictEquality { get; }
+
+            public abstract bool SupportsAnsi { get; }
+
+            public abstract bool SupportsUnicodeToAnsiConversion { get; }
+
+            public abstract bool SupportsLargeStringComparisons { get; }
+
             public abstract bool SupportsBinaryKeys { get; }
 
             public abstract DateTime DefaultDateTime { get; }
+
         }
 
         protected class BuiltInDataTypesBase

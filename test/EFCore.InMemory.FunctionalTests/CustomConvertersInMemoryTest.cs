@@ -15,6 +15,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
+            public override bool StrictEquality => true;
+
+            public override bool SupportsAnsi => false;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
             public override bool SupportsBinaryKeys => false;

@@ -27,18 +27,6 @@ namespace Microsoft.EntityFrameworkCore
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [Fact]
-        public virtual void Can_perform_query_with_ansi_strings()
-        {
-            Can_perform_query_with_ansi_strings_test(supportsAnsi: false);
-        }
-
-        [Fact]
-        public virtual void Can_query_using_any_nullable_data_type_as_literal()
-        {
-            Can_query_using_any_nullable_data_type_as_literal_helper(strictEquality: false);
-        }
-
         [Fact(Skip = "See issue #8205")]
         public virtual void Can_insert_and_query_decimal()
         {
@@ -863,6 +851,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class BuiltInDataTypesSqliteFixture : BuiltInDataTypesFixtureBase
         {
+            public override bool StrictEquality => false;
+
+            public override bool SupportsAnsi => false;
+
+            public override bool SupportsUnicodeToAnsiConversion => true;
+
+            public override bool SupportsLargeStringComparisons => true;
+
             protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
 

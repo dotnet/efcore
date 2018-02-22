@@ -21,6 +21,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class CustomConvertersOracleFixture : CustomConvertersFixtureBase
         {
+            public override bool StrictEquality => false;
+
+            public override bool SupportsAnsi => true;
+
+            public override bool SupportsUnicodeToAnsiConversion => false;
+
+            public override bool SupportsLargeStringComparisons => false;
+
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
 
             public override bool SupportsBinaryKeys => true;
