@@ -256,9 +256,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 return Expression.Constant(detachableContext.DetachContext());
             }
 
-            return !_inLambda
-                   && _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
-                   && !_queryableTypeInfo.IsAssignableFrom(constantExpression.Type.GetTypeInfo())
+            return _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
+                && (!_inLambda
+                    || (!constantExpression.IsEntityQueryable()
+                        && constantExpression.Value is IQueryable))
                 ? TryExtractParameter(constantExpression)
                 : constantExpression;
         }
