@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class QueryProviderTest
     {
-        [Fact]
+        [Fact(Skip = "Issue#11043")]
         public void Non_generic_ExecuteQuery_does_not_throw()
         {
             var context = new TestContext();

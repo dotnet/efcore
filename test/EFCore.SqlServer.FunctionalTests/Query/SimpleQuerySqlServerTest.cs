@@ -130,6 +130,20 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__get_Item_0");
         }
 
+        public override void Method_with_constant_queryable_arg()
+        {
+            base.Method_with_constant_queryable_arg();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI')",
+                //
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'FOO')");
+        }
+
         public override void Entity_equality_self()
         {
             base.Entity_equality_self();

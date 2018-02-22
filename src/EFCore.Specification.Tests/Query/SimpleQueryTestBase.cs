@@ -6,14 +6,17 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
+using Microsoft.Extensions.Caching.Memory;
 using Xunit;
 
 // ReSharper disable ReplaceWithSingleCallToAny
@@ -169,12 +172,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var count = QueryableArgQuery(context, new[] { "ALFKI" }.AsQueryable()).Count();
+                var cache = (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
+                        .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
+                        ?.GetValue(((IInfrastructure<IServiceProvider>)context).GetService<ICompiledQueryCache>());
 
+                cache.Compact(1);
+
+                var count = QueryableArgQuery(context, new[] { "ALFKI" }.AsQueryable()).Count();
                 Assert.Equal(1, count);
+                Assert.Equal(1, cache.Count);
 
                 count = QueryableArgQuery(context, new[] { "FOO" }.AsQueryable()).Count();
-
+                Assert.Equal(1, cache.Count);
                 Assert.Equal(0, count);
             }
         }
