@@ -153,5 +153,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] Func<T, bool> predicate, [NotNull] T alternate)
             => source.Where(predicate).FirstOr(alternate);
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public static bool Any([NotNull] this IEnumerable source)
+        {
+            foreach (var _ in source)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

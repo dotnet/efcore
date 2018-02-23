@@ -698,7 +698,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual void Detects_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
+        public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
             Logger = CreateLogger(sensitiveDataLoggingEnabled);
             var modelBuilder = CreateModelBuilder();
@@ -727,6 +727,44 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         nameof(SampleEntity.ReferencedEntity),
                         nameof(ReferencedEntity),
                         $"{{'{nameof(ReferencedEntity.SampleEntityId)}'}}"),
+                modelBuilder.Model);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
+        {
+            Logger = CreateLogger(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<SampleEntity>(e =>
+            {
+                e.SeedData(new SampleEntity
+                {
+                    Id = 1,
+                    OtherSamples = new HashSet<SampleEntity>(new[]
+                    {
+                        new SampleEntity
+                        {
+                            Id = 2
+                        }
+                    })
+                });
+            });
+
+            VerifyError(
+                sensitiveDataLoggingEnabled
+                    ? CoreStrings.SeedDatumNavigationSensitive(
+                        nameof(SampleEntity),
+                        $"{nameof(SampleEntity.Id)}:1",
+                        nameof(SampleEntity.OtherSamples),
+                        nameof(SampleEntity),
+                        "{'SampleEntityId'}")
+                    : CoreStrings.SeedDatumNavigation(
+                        nameof(SampleEntity),
+                        nameof(SampleEntity.OtherSamples),
+                        nameof(SampleEntity),
+                        "{'SampleEntityId'}"),
                 modelBuilder.Model);
         }
 

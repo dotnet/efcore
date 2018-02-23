@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -515,7 +516,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     foreach (var navigation in entityType.GetNavigations())
                     {
                         if (seedDatum.TryGetValue(navigation.Name, out var value)
-                            && value != null)
+                            && ((navigation.IsCollection() && value is IEnumerable collection && collection.Any())
+                                || (!navigation.IsCollection() && value != null)))
                         {
                             if (sensitiveDataLogged)
                             {
