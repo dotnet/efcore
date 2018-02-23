@@ -1105,7 +1105,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors
                         : nullCompensatedExpression;
                 }
                 case DiscriminatorPredicateExpression discriminatorPredicateExpression:
-                    return new DiscriminatorPredicateExpression(base.VisitExtension(expression), discriminatorPredicateExpression.QuerySource);
+                    return new DiscriminatorPredicateExpression(
+                        base.VisitExtension(expression), discriminatorPredicateExpression.QuerySource);
+
                 default:
                     return base.VisitExtension(expression);
             }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Expressions;
 using Remotion.Linq.Parsing;
 
@@ -54,10 +55,34 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
             else if (expression is PredicateJoinExpressionBase joinExpression)
             {
+                joinExpression.Predicate = new DiscriminatorPredicateOptimizingVisitor().Visit(joinExpression.Predicate);
+
                 joinExpression.Predicate = new EqualityPredicateInExpressionOptimizer().Visit(joinExpression.Predicate);
             }
 
             return base.VisitExtension(expression);
+        }
+
+        private class DiscriminatorPredicateOptimizingVisitor : RelinqExpressionVisitor
+        {
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    && binaryExpression.Left.RemoveConvert() is ConditionalExpression conditionalExpression
+                    && conditionalExpression.Test is DiscriminatorPredicateExpression discriminatorPredicateExpression
+                    && conditionalExpression.IfFalse.IsNullConstantExpression())
+                {
+                    return Expression.AndAlso(
+                        discriminatorPredicateExpression.Reduce(),
+                        Expression.Equal(
+                            conditionalExpression.IfTrue.Type == binaryExpression.Right.Type
+                                ? conditionalExpression.IfTrue
+                                : Expression.Convert(conditionalExpression.IfTrue, binaryExpression.Right.Type),
+                            binaryExpression.Right));
+                }
+
+                return base.VisitBinary(binaryExpression);
+            }
         }
     }
 }
