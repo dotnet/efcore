@@ -258,8 +258,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
 
             return _partialEvaluationInfo.IsEvaluatableExpression(constantExpression)
                 && (!_inLambda
-                    || (!constantExpression.IsEntityQueryable()
-                        && constantExpression.Value is IQueryable))
+                    && !(constantExpression.Value is IQueryable))
+                || (_inLambda
+                    && constantExpression.Value is IQueryable
+                    && !(constantExpression.Type.IsGenericType
+                        && constantExpression.Type.BaseType.IsGenericType
+                        && constantExpression.Type.BaseType.GetTypeInfo().GetGenericTypeDefinition() == typeof(DbSet<>)))
                 ? TryExtractParameter(constantExpression)
                 : constantExpression;
         }
@@ -476,7 +480,6 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             switch (expression.NodeType)
             {
                 case ExpressionType.MemberAccess:
-                {
                     var memberExpression = (MemberExpression)expression;
                     var @object = Evaluate(memberExpression.Expression, out parameterName);
 
@@ -513,17 +516,15 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
 
                     break;
-                }
+
                 case ExpressionType.Constant:
-                {
                     return ((ConstantExpression)expression).Value;
-                }
+
                 case ExpressionType.Call:
-                {
                     parameterName = ((MethodCallExpression)expression).Method.Name;
 
                     break;
-                }
+
             }
 
             try
