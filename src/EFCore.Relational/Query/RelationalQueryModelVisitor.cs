@@ -374,12 +374,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     switch (tableExpressionBase)
                                     {
                                         case PredicateJoinExpressionBase predicateJoinExpressionBase:
-                                        {
                                             predicateJoinExpressionBase.Predicate
                                                 = sqlTableReferenceReplacingVisitor.Visit(predicateJoinExpressionBase.Predicate);
 
                                             break;
-                                        }
+
 
                                         // TODO: Visit sub-query (SelectExpression) here?
                                     }
@@ -419,10 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         case ColumnExpression columnExpression
                         when ReferenceEquals(columnExpression.Table, _oldTableExpression):
-                        {
                             return new ColumnExpression(
                                 columnExpression.Name, columnExpression.Property, _newTableExpression);
-                        }
                     }
 
                     return base.Visit(expression);
@@ -434,7 +431,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 switch (expression)
                 {
                     case ColumnExpression columnExpression:
-                    {
                         if (columnExpression.Table is TableExpression tableExpression)
                         {
                             _tables.Add(tableExpression);
@@ -442,20 +438,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
 
                         return expression;
-                    }
+
                     case BinaryExpression binaryExpression:
-                    {
                         return base.Visit(binaryExpression);
-                    }
+
                     case NullableExpression nullableExpression:
-                    {
                         return base.Visit(nullableExpression);
-                    }
+
                     case UnaryExpression unaryExpression
                     when unaryExpression.NodeType == ExpressionType.Convert:
-                    {
                         return base.Visit(unaryExpression);
-                    }
+
                 }
 
                 _canEliminate = false;
@@ -1331,12 +1324,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
             {
-                if (typeBinaryExpression.NodeType != ExpressionType.TypeIs)
-                {
-                    return base.VisitTypeBinary(typeBinaryExpression);
-                }
-
-                if (!(typeBinaryExpression.Expression is QuerySourceReferenceExpression qsre))
+                if (typeBinaryExpression.NodeType != ExpressionType.TypeIs
+                    || !(typeBinaryExpression.Expression is QuerySourceReferenceExpression qsre))
                 {
                     return base.VisitTypeBinary(typeBinaryExpression);
                 }
