@@ -148,12 +148,12 @@ namespace Microsoft.EntityFrameworkCore
                                         .HasForeignKey<FuelTank>(e => e.VehicleName)
                                         .OnDelete(DeleteBehavior.Restrict);
                                 });
+                        modelBuilder.Ignore<SolidFuelTank>();
+                        modelBuilder.Ignore<SolidRocket>();
                     }))
             {
                 using (var context = CreateContext())
                 {
-                    context.AssertSeeded();
-
                     var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
                     bike.Operator = new Operator { Name = "Chris Horner" };
@@ -193,6 +193,8 @@ namespace Microsoft.EntityFrameworkCore
                                         .HasForeignKey<FuelTank>(e => e.VehicleName)
                                         .OnDelete(DeleteBehavior.Restrict);
                                 });
+                        modelBuilder.Ignore<SolidFuelTank>();
+                        modelBuilder.Ignore<SolidRocket>();
                     }))
             {
                 using (var context = CreateContext())
