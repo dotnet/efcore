@@ -227,8 +227,54 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the <see cref="EntityEntry.State" /> must be set.
         /// </param>
         public virtual void TrackGraph(
+             [NotNull] object rootEntity,
+             [NotNull] Action<EntityEntryGraphNode> callback)
+             => TrackGraph(rootEntity, callback, (n, c) =>
+             {
+                 if (n.Entry.State != EntityState.Detached)
+                 {
+                     return false;
+                 }
+
+                 ((Action<EntityEntryGraphNode>)c)(n);
+
+                 return n.Entry.State != EntityState.Detached;
+             });
+
+        /// <summary>
+        ///     <para>
+        ///         Begins tracking an entity and any entities that are reachable by traversing it's navigation properties.
+        ///         Traversal is recursive so the navigation properties of any discovered entities will also be scanned.
+        ///         The specified <paramref name="callback" /> is called for each discovered entity and must set the
+        ///         <see cref="EntityEntry.State" /> that each entity should be tracked in. If no state is set, the entity
+        ///         remains untracked. 
+        ///     </para>
+        ///     <para>
+        ///         This method is designed for use in disconnected scenarios where entities are retrieved using one instance of
+        ///         the context and then changes are saved using a different instance of the context. An example of this is a
+        ///         web service where one service call retrieves entities from the database and another service call persists
+        ///         any changes to the entities. Each service call uses a new instance of the context that is disposed when the
+        ///         call is complete.
+        ///     </para>
+        ///     <para>
+        ///         Typically traversal of the graph should stop whenever an already tracked entity is encountered or when
+        ///         an entity is reached that should not be tracked. For this typical behavior, use the 
+        ///         <see cref="TrackGraph(object,Action{EntityEntryGraphNode})"/> overload. This overload, on the other hand,
+        ///         allows the callback to decide when traversal will end, but the onus is then on the caller to ensure that
+        ///         traversal will not enter an infinite loop.
+        ///     </para>
+        /// </summary>
+        /// <param name="rootEntity"> The entity to begin traversal from. </param>
+        /// <param name="state"> An arbitrary state object passed to the callback. </param>
+        /// <param name="callback">
+        ///     An delegate to configure the change tracking information for each entity. The second parameter to the 
+        ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
+        ///     if the callback returns <c>false</c>.
+        /// </param>
+        public virtual void TrackGraph(
             [NotNull] object rootEntity,
-            [NotNull] Action<EntityEntryGraphNode> callback)
+            [CanBeNull] object state,
+            [NotNull] Func<EntityEntryGraphNode, object, bool> callback)
         {
             Check.NotNull(rootEntity, nameof(rootEntity));
             Check.NotNull(callback, nameof(callback));
@@ -237,17 +283,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             GraphIterator.TraverseGraph(
                 new EntityEntryGraphNode(rootEntry, null, null),
-                n =>
-                    {
-                        if (n.Entry.State != EntityState.Detached)
-                        {
-                            return false;
-                        }
-
-                        callback(n);
-
-                        return n.Entry.State != EntityState.Detached;
-                    });
+                state,
+                callback);
         }
 
         private IStateManager StateManager { get; }

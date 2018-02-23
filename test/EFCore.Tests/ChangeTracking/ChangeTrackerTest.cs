@@ -1737,6 +1737,117 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         [Fact]
+        public void TrackGraph_overload_can_visit_an_already_attached_graph()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category = new Category
+                {
+                    Id = 1,
+                    Products = new List<Product>
+                    {
+                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
+                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
+                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
+                    }
+                };
+
+                context.Attach(category);
+
+                var visited = new HashSet<object>();
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(
+                    category, visited, (e, v) =>
+                    {
+                        if (((HashSet<object>)v).Contains(e.Entry.Entity))
+                        {
+                            return false;
+                        }
+
+                        ((HashSet<object>)v).Add(e.Entry.Entity);
+
+                        traversal.Add(NodeString(e));
+
+                        return true;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Category:1",
+                        "Category:1 ---Products--> Product:1",
+                        "Product:1 ---Details--> ProductDetails:1",
+                        "Category:1 ---Products--> Product:2",
+                        "Product:2 ---Details--> ProductDetails:2",
+                        "Category:1 ---Products--> Product:3",
+                        "Product:3 ---Details--> ProductDetails:3"
+                    },
+                    traversal);
+
+                Assert.Equal(7, visited.Count);
+            }
+        }
+
+        [Fact]
+        public void TrackGraph_overload_can_visit_a_graph_without_attaching()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                var category = new Category
+                {
+                    Id = 1,
+                    Products = new List<Product>
+                    {
+                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
+                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
+                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
+                    }
+                };
+
+                var visited = new HashSet<object>();
+                var traversal = new List<string>();
+
+                context.ChangeTracker.TrackGraph(
+                    category, visited, (e, v) =>
+                    {
+                        if (((HashSet<object>)v).Contains(e.Entry.Entity))
+                        {
+                            return false;
+                        }
+
+                        ((HashSet<object>)v).Add(e.Entry.Entity);
+
+                        traversal.Add(NodeString(e));
+
+                        return true;
+                    });
+
+                Assert.Equal(
+                    new List<string>
+                    {
+                        "<None> -----> Category:1",
+                        "Category:1 ---Products--> Product:1",
+                        "Product:1 ---Details--> ProductDetails:1",
+                        "Category:1 ---Products--> Product:2",
+                        "Product:2 ---Details--> ProductDetails:2",
+                        "Category:1 ---Products--> Product:3",
+                        "Product:3 ---Details--> ProductDetails:3"
+                    },
+                    traversal);
+
+                Assert.Equal(7, visited.Count);
+
+                foreach (var entity in new object[] { category }
+                    .Concat(category.Products)
+                    .Concat(category.Products.Select(e => e.Details)))
+                {
+                    Assert.Equal(EntityState.Detached, context.Entry(entity).State);
+                }
+            }
+        }
+
+        [Fact]
         public void Does_not_throw_when_instance_of_unmapped_derived_type_is_used()
         {
             using (var context = new EarlyLearningCenter())

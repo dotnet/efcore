@@ -31,9 +31,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _graphIterator.TraverseGraph(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {
-                    NodeState = ( entityState, forceStateWhenUnknownKey )
+                    NodeState = entityState
                 },
-                PaintAction);
+                forceStateWhenUnknownKey,
+                (n, s) => PaintAction(n, (bool)s));
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -47,12 +48,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => _graphIterator.TraverseGraphAsync(
                 new EntityEntryGraphNode(rootEntry, null, null)
                 {
-                    NodeState = (entityState, forceStateWhenUnknownKey)
+                    NodeState = entityState
                 },
-                PaintActionAsync,
+                forceStateWhenUnknownKey,
+                (n, s, c) => PaintActionAsync(n, (bool)s, c),
                 cancellationToken);
 
-        private bool PaintAction(EntityEntryGraphNode node)
+        private bool PaintAction(EntityEntryGraphNode node, bool force)
         {
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
@@ -60,19 +62,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            var (State, Force) = ((EntityState State, bool Force))node.NodeState;
+            var entityState = (EntityState)node.NodeState;
 
             internalEntityEntry.SetEntityState(
                 internalEntityEntry.IsKeySet
-                    ? State
+                    ? entityState
                     : EntityState.Added,
                 acceptChanges: true,
-                forceStateWhenUnknownKey: Force);
+                forceStateWhenUnknownKey: force);
 
             return true;
         }
 
-        private static async Task<bool> PaintActionAsync(EntityEntryGraphNode node, CancellationToken cancellationToken)
+        private static async Task<bool> PaintActionAsync(EntityEntryGraphNode node, bool force, CancellationToken cancellationToken)
         {
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
@@ -80,14 +82,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            var (State, Force) = ((EntityState State, bool Force))node.NodeState;
+            var entityState = (EntityState)node.NodeState;
 
             await internalEntityEntry.SetEntityStateAsync(
                 internalEntityEntry.IsKeySet || internalEntityEntry.EntityType.IsOwned()
-                    ? State
+                    ? entityState
                     : EntityState.Added,
                 acceptChanges: true,
-                forceStateWhenUnknownKey: Force,
+                forceStateWhenUnknownKey: force,
                 cancellationToken: cancellationToken);
 
             return true;
