@@ -756,10 +756,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (!assertOrder)
                 {
-                    if (elementSorter == null
-                        && expected[0] != null)
+                    if (elementSorter == null)
                     {
-                        _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
+                        var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
+                        if (firstNonNullableElement != null)
+                        {
+                            _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
+                        }
                     }
 
                     if (elementSorter != null)
@@ -822,10 +825,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 if (!assertOrder)
                 {
-                    if (elementSorter == null
-                        && expected[0] != null)
+                    if (elementSorter == null)
                     {
-                        _entitySorters.TryGetValue(expected[0].GetType(), out elementSorter);
+                        var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
+                        if (firstNonNullableElement != null)
+                        {
+                            _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out elementSorter);
+                        }
                     }
 
                     if (elementSorter != null)

@@ -3952,5 +3952,46 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => l1s.Where(l1 => names.All(n => l1.OneToOne_Optional_FK.Name != n)),
                 l1s => l1s.Where(l1 => names.All(n => Maybe(l1.OneToOne_Optional_FK, () => l1.OneToOne_Optional_FK.Name) != n)));
         }
+
+        [ConditionalFact]
+        public virtual void Include_after_SelectMany_and_reference_navigation()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Include(l3 => l3.OneToMany_Optional),
+                new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional, "OneToMany_Optional") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_after_multiple_SelectMany_and_reference_navigation()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).SelectMany(l2 => l2.OneToMany_Optional).Select(l3 => l3.OneToOne_Required_FK).Include(l4 => l4.OneToMany_Required_Self),
+                new List<IExpectedInclude> { new ExpectedInclude<Level4>(l4 => l4.OneToMany_Required_Self, "OneToMany_Required_Self") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_after_SelectMany_and_multiple_reference_navigations()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Select(l3 => l3.OneToOne_Required_FK).Include(l4 => l4.OneToMany_Optional_Self),
+                l1s => l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Select(l3 => Maybe(l3, () => l3.OneToOne_Required_FK)),
+                new List<IExpectedInclude> { new ExpectedInclude<Level4>(l4 => l4.OneToMany_Optional_Self, "OneToMany_Optional_Self") });
+        }
+
+        [ConditionalFact]
+        public virtual void Include_after_SelectMany_and_reference_navigation_with_another_SelectMany_with_Distinct()
+        {
+            AssertIncludeQuery<Level1>(
+                l1s => from lOuter in l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK).Include(l3 => l3.OneToMany_Optional)
+                       from lInner in lOuter.OneToMany_Optional.Distinct()
+                       where lInner != null
+                       select lOuter,
+                l1s => from lOuter in l1s.SelectMany(l1 => l1.OneToMany_Required).Select(l2 => l2.OneToOne_Optional_FK)
+                       where lOuter != null
+                       from lInner in lOuter.OneToMany_Optional.Distinct()
+                       where lInner != null
+                       select lOuter,
+                new List<IExpectedInclude> { new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional, "OneToMany_Optional") });
+        }
     }
 }

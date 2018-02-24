@@ -1196,15 +1196,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     ReferenceReplacingExpressionVisitor
                         .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
-            foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
-            {
-                if (includeResultOperator.PathFromQuerySource.TryGetReferencedQuerySource()
-                    == additionalFromClauseBeingProcessed)
-                {
-                    includeResultOperator.PathFromQuerySource = querySourceReferenceExpression;
-                    includeResultOperator.QuerySource = querySourceReferenceExpression.ReferencedQuerySource;
-                }
-            }
+            AdjustIncludeAnnotations(querySourceMapping, additionalFromClauseBeingProcessed, querySourceReferenceExpression.ReferencedQuerySource);
 
             return querySourceReferenceExpression;
         }
@@ -1259,15 +1251,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                         e => ReferenceReplacingExpressionVisitor
                             .ReplaceClauseReferences(e, querySourceMapping, throwOnUnmappedReferences: false));
 
-                    foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
-                    {
-                        if (includeResultOperator.PathFromQuerySource.TryGetReferencedQuerySource()
-                            == additionalFromClauseBeingProcessed)
-                        {
-                            includeResultOperator.PathFromQuerySource = navigationJoin.QuerySourceReferenceExpression;
-                            includeResultOperator.QuerySource = navigationJoin.QuerySourceReferenceExpression.ReferencedQuerySource;
-                        }
-                    }
+                    AdjustIncludeAnnotations(querySourceMapping, additionalFromClauseBeingProcessed, navigationJoin.QuerySourceReferenceExpression.ReferencedQuerySource);
 
                     return navigationJoin.QuerySourceReferenceExpression;
                 }
@@ -1278,6 +1262,23 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
 
             return outerQuerySourceReferenceExpression;
+        }
+
+        private void AdjustIncludeAnnotations(QuerySourceMapping querySourceMapping, IQuerySource querySourceBeingProcessed, IQuerySource resultQuerySource)
+        {
+            foreach (var includeResultOperator in _queryModelVisitor.QueryCompilationContext.QueryAnnotations.OfType<IncludeResultOperator>())
+            {
+                includeResultOperator.PathFromQuerySource
+                    = ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(
+                        includeResultOperator.PathFromQuerySource,
+                        querySourceMapping,
+                        throwOnUnmappedReferences: false);
+
+                if (includeResultOperator.QuerySource == querySourceBeingProcessed)
+                {
+                    includeResultOperator.QuerySource = resultQuerySource;
+                }
+            }
         }
 
         private JoinClause BuildJoinFromNavigation(
