@@ -205,7 +205,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             if (_disallowedMappings.Contains(mapping.StoreType))
             {
-                throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(mapping.StoreType));
+                var propertyName = mappingInfo.Property?.Name
+                                   ?? mappingInfo.MemberInfo?.Name;
+
+                if (propertyName == null)
+                {
+                    throw new ArgumentException(SqlServerStrings.UnqualifiedDataType(mapping.StoreType));
+                }
+
+                throw new ArgumentException(SqlServerStrings.UnqualifiedDataTypeOnProperty(mapping.StoreType, propertyName));
             }
 
             return mapping;

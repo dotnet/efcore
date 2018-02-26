@@ -25,8 +25,12 @@ namespace Microsoft.EntityFrameworkCore
             var model = new Model();
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
-            entityType.AddProperty("ImBool", typeof(bool)).Relational().DefaultValue = true;
             entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValue = true;
+            entityType.AddProperty("ImNotUsed", typeof(bool)).Relational().DefaultValue = true;
+
+            var property = entityType.AddProperty("ImBool", typeof(bool));
+            property.Relational().DefaultValue = true;
+            property.ValueGenerated = ValueGenerated.OnAdd;
 
             VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning.GenerateMessage("ImBool", "E"), model);
         }
@@ -37,8 +41,12 @@ namespace Microsoft.EntityFrameworkCore
             var model = new Model();
             var entityType = model.AddEntityType(typeof(E));
             SetPrimaryKey(entityType);
-            entityType.AddProperty("ImBool", typeof(bool)).Relational().DefaultValueSql = "TRUE";
             entityType.AddProperty("ImNot", typeof(bool?)).Relational().DefaultValueSql = "TRUE";
+            entityType.AddProperty("ImNotUsed", typeof(bool)).Relational().DefaultValueSql = "TRUE";
+
+            var property = entityType.AddProperty("ImBool", typeof(bool));
+            property.Relational().DefaultValueSql = "TRUE";
+            property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
             VerifyWarning(RelationalStrings.LogBoolWithDefaultWarning.GenerateMessage("ImBool", "E"), model);
         }

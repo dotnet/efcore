@@ -424,11 +424,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
+            DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
+
             TryDetectChanges();
 
             try
             {
-                return DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
+                var entitiesSaved = DbContextDependencies.StateManager.SaveChanges(acceptAllChangesOnSuccess);
+
+                DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
+
+                return entitiesSaved;
             }
             catch (Exception exception)
             {
@@ -513,11 +519,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             CheckDisposed();
 
+            DbContextDependencies.UpdateLogger.SaveChangesStarting(this);
+
             TryDetectChanges();
 
             try
             {
-                return await DbContextDependencies.StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+                var entitiesSaved = await DbContextDependencies.StateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+
+                DbContextDependencies.UpdateLogger.SaveChangesCompleted(this, entitiesSaved);
+
+                return entitiesSaved;
             }
             catch (Exception exception)
             {
@@ -583,6 +595,8 @@ namespace Microsoft.EntityFrameworkCore
             if (_dbContextPool == null
                 && !_disposed)
             {
+                _dbContextDependencies?.InfrastructureLogger.ContextDisposed(this);
+
                 _disposed = true;
 
                 _dbContextDependencies?.StateManager.Unsubscribe();
@@ -591,6 +605,7 @@ namespace Microsoft.EntityFrameworkCore
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
+
             }
         }
 

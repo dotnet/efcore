@@ -122,6 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             public int Id { get; set; }
             public bool ImBool { get; set; }
+            public bool ImNotUsed { get; set; }
             public bool? ImNot { get; set; }
         }
 

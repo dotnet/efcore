@@ -35,6 +35,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 dataType);
 
         /// <summary>
+        ///     Data type '{dataType}' for property '{property}' is not supported in this form. Either specify the length explicitly in the type name, for example as '{dataType}(16)', or remove the data type and use APIs such as HasMaxLength to allow EF choose the data type.
+        /// </summary>
+        public static string UnqualifiedDataTypeOnProperty([CanBeNull] object dataType, [CanBeNull] object property)
+            => string.Format(
+                GetString("UnqualifiedDataTypeOnProperty", nameof(dataType), nameof(property)),
+                dataType, property);
+
+        /// <summary>
         ///     SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
         /// </summary>
         public static string SequenceBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)

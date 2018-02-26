@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -79,10 +80,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
         public InternalEntityEntry GetPrincipalUsingPreStoreGeneratedValues(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
         public InternalEntityEntry GetPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) => throw new NotImplementedException();
-        public DbContext Context => throw new NotImplementedException();
+        public DbContext Context => new DbContext(new DbContextOptionsBuilder().UseInMemoryDatabase("D").Options);
         public event EventHandler<EntityTrackedEventArgs> Tracked;
         public void OnTracked(InternalEntityEntry internalEntityEntry, bool fromQuery) => Tracked?.Invoke(null, null);
         public event EventHandler<EntityStateChangedEventArgs> StateChanged;
         public void OnStateChanged(InternalEntityEntry internalEntityEntry, EntityState oldState) => StateChanged?.Invoke(null, null);
+        public bool SensitiveLoggingEnabled { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
     }
 }

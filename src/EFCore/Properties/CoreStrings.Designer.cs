@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     The service dependencies type '{dependenciesType}' has been registered innapropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.
+        ///     The service dependencies type '{dependenciesType}' has been registered inappropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.
         /// </summary>
         public static string BadDependencyRegistration([CanBeNull] object dependenciesType)
             => string.Format(
@@ -523,6 +523,306 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     LogLevel.Error,
                     CoreEventId.SaveChangesFailed,
                     _resourceManager.GetString("LogExceptionDuringSaveChanges")));
+
+        /// <summary>
+        ///     DetectChanges starting for '{contextType}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogDetectChangesStarting
+            = new EventDefinition<string>(
+                CoreEventId.DetectChangesStarting,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    CoreEventId.DetectChangesStarting,
+                    _resourceManager.GetString("LogDetectChangesStarting")));
+
+        /// <summary>
+        ///     DetectChanges completed for '{contextType}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogDetectChangesCompleted
+            = new EventDefinition<string>(
+                CoreEventId.DetectChangesCompleted,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    CoreEventId.DetectChangesCompleted,
+                    _resourceManager.GetString("LogDetectChangesCompleted")));
+
+        /// <summary>
+        ///     Unchanged '{entityType}.{property}' detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogPropertyChangeDetected
+            = new EventDefinition<string, string>(
+                CoreEventId.PropertyChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.PropertyChangeDetected,
+                    _resourceManager.GetString("LogPropertyChangeDetected")));
+
+        /// <summary>
+        ///     Unchanged '{entityType}.{property}' detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, object, object, string> LogPropertyChangeDetectedSensitive
+            = new EventDefinition<string, string, object, object, string>(
+                CoreEventId.PropertyChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, object, object, string>(
+                    LogLevel.Debug,
+                    CoreEventId.PropertyChangeDetected,
+                    _resourceManager.GetString("LogPropertyChangeDetectedSensitive")));
+
+        /// <summary>
+        ///     Foreign key property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogForeignKeyChangeDetected
+            = new EventDefinition<string, string>(
+                CoreEventId.ForeignKeyChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ForeignKeyChangeDetected,
+                    _resourceManager.GetString("LogForeignKeyChangeDetected")));
+
+        /// <summary>
+        ///     Foreign key property '{entityType}.{property}' detected as changed from '{oldValue}' to '{newValue}' for entity with key '{keyValues}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, object, object, string> LogForeignKeyChangeDetectedSensitive
+            = new EventDefinition<string, string, object, object, string>(
+                CoreEventId.ForeignKeyChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, object, object, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ForeignKeyChangeDetected,
+                    _resourceManager.GetString("LogForeignKeyChangeDetectedSensitive")));
+
+        /// <summary>
+        ///     Detected {addedCount} entities added and {removedCount} entities removed from navigation property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<int, int, string, string> LogCollectionChangeDetected
+            = new EventDefinition<int, int, string, string>(
+                CoreEventId.CollectionChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<int, int, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.CollectionChangeDetected,
+                    _resourceManager.GetString("LogCollectionChangeDetected")));
+
+        /// <summary>
+        ///     Detected {addedCount} entities added and {removedCount} entities removed from navigation property '{entityType}.{property}' on entity with key '{keyValues}'.
+        /// </summary>
+        public static readonly EventDefinition<int, int, string, string, string> LogCollectionChangeDetectedSensitive
+            = new EventDefinition<int, int, string, string, string>(
+                CoreEventId.CollectionChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<int, int, string, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.CollectionChangeDetected,
+                    _resourceManager.GetString("LogCollectionChangeDetectedSensitive")));
+
+        /// <summary>
+        ///     Navigation property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogReferenceChangeDetected
+            = new EventDefinition<string, string>(
+                CoreEventId.ReferenceChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ReferenceChangeDetected,
+                    _resourceManager.GetString("LogReferenceChangeDetected")));
+
+        /// <summary>
+        ///     Navigation property '{entityType}.{property}' for entity with key '{keyValues}' detected as changed.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogReferenceChangeDetectedSensitive
+            = new EventDefinition<string, string, string>(
+                CoreEventId.ReferenceChangeDetected,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ReferenceChangeDetected,
+                    _resourceManager.GetString("LogReferenceChangeDetectedSensitive")));
+
+        /// <summary>
+        ///     Cascade state change of '{entityType}' entity to '{state}' due to deletion of parent '{parentType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, EntityState, string> LogCascadeDelete
+            = new EventDefinition<string, EntityState, string>(
+                CoreEventId.CascadeDelete,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, EntityState, string>(
+                    LogLevel.Debug,
+                    CoreEventId.CascadeDelete,
+                    _resourceManager.GetString("LogCascadeDelete")));
+
+        /// <summary>
+        ///     Cascade state change of '{entityType}' entity with key '{keyValues}' to '{state}' due to deletion of parent '{parentType}' entity with key '{parentKeyValues}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, EntityState, string, string> LogCascadeDeleteSensitive
+            = new EventDefinition<string, string, EntityState, string, string>(
+                CoreEventId.CascadeDelete,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, EntityState, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.CascadeDelete,
+                    _resourceManager.GetString("LogCascadeDeleteSensitive")));
+
+        /// <summary>
+        ///     '{entityType}' entity changed to '{state}' state due to severed required relationship to parent '{parentType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, EntityState, string> LogCascadeDeleteOrphan
+            = new EventDefinition<string, EntityState, string>(
+                CoreEventId.CascadeDeleteOrphan,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, EntityState, string>(
+                    LogLevel.Debug,
+                    CoreEventId.CascadeDeleteOrphan,
+                    _resourceManager.GetString("LogCascadeDeleteOrphan")));
+
+        /// <summary>
+        ///     '{entityType}' entity with key '{keyValues}' changed to '{state}' state due to severed required relationship to parent '{parentType}' entity.
+        /// </summary>
+        public static readonly EventDefinition<string, string, EntityState, string> LogCascadeDeleteOrphanSensitive
+            = new EventDefinition<string, string, EntityState, string>(
+                CoreEventId.CascadeDeleteOrphan,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, EntityState, string>(
+                    LogLevel.Debug,
+                    CoreEventId.CascadeDeleteOrphan,
+                    _resourceManager.GetString("LogCascadeDeleteOrphanSensitive")));
+
+        /// <summary>
+        ///     Context '{contextType}' started tracking '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, string> LogStartedTracking
+            = new EventDefinition<string, string>(
+                CoreEventId.StartedTracking,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.StartedTracking,
+                    _resourceManager.GetString("LogStartedTracking")));
+
+        /// <summary>
+        ///     Context '{contextType}' started tracking '{entityType}' entity with key '{keyValues}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogStartedTrackingSensitive
+            = new EventDefinition<string, string, string>(
+                CoreEventId.StartedTracking,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.StartedTracking,
+                    _resourceManager.GetString("LogStartedTrackingSensitive")));
+
+        /// <summary>
+        ///     An '{entityType}' entity tracked by '{contextType}' changed from '{oldState}' to '{newState}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, string, EntityState, EntityState> LogStateChanged
+            = new EventDefinition<string, string, EntityState, EntityState>(
+                CoreEventId.StateChanged,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, EntityState, EntityState>(
+                    LogLevel.Debug,
+                    CoreEventId.StateChanged,
+                    _resourceManager.GetString("LogStateChanged")));
+
+        /// <summary>
+        ///     The '{entityType}' entity with key '{keyValues}' tracked by '{contextType}' changed from '{oldState}' to '{newState}'.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string, EntityState, EntityState> LogStateChangedSensitive
+            = new EventDefinition<string, string, string, EntityState, EntityState>(
+                CoreEventId.StateChanged,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, string, EntityState, EntityState>(
+                    LogLevel.Debug,
+                    CoreEventId.StateChanged,
+                    _resourceManager.GetString("LogStateChangedSensitive")));
+
+        /// <summary>
+        ///     '{contextType}' generated a value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogValueGenerated
+            = new EventDefinition<string, string, string>(
+                CoreEventId.ValueGenerated,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ValueGenerated,
+                    _resourceManager.GetString("LogValueGenerated")));
+
+        /// <summary>
+        ///     '{contextType}' generated value '{keyValue}' for the '{property}' property of new '{entityType}' entity.
+        /// </summary>
+        public static readonly EventDefinition<string, object, string, string> LogValueGeneratedSensitive
+            = new EventDefinition<string, object, string, string>(
+                CoreEventId.ValueGenerated,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, object, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ValueGenerated,
+                    _resourceManager.GetString("LogValueGeneratedSensitive")));
+
+        /// <summary>
+        ///     '{contextType}' generated a temporary value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        /// </summary>
+        public static readonly EventDefinition<string, string, string> LogTempValueGenerated
+            = new EventDefinition<string, string, string>(
+                CoreEventId.ValueGenerated,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ValueGenerated,
+                    _resourceManager.GetString("LogTempValueGenerated")));
+
+        /// <summary>
+        ///     '{contextType}' generated temporary value '{keyValue}' for the '{property}' property of new '{entityType}' entity.
+        /// </summary>
+        public static readonly EventDefinition<string, object, string, string> LogTempValueGeneratedSensitive
+            = new EventDefinition<string, object, string, string>(
+                CoreEventId.ValueGenerated,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, object, string, string>(
+                    LogLevel.Debug,
+                    CoreEventId.ValueGenerated,
+                    _resourceManager.GetString("LogTempValueGeneratedSensitive")));
+
+        /// <summary>
+        ///     SaveChanges starting for '{contextType}'.
+        /// </summary>
+        public static readonly EventDefinition<string> LogSaveChangesStarting
+            = new EventDefinition<string>(
+                CoreEventId.SaveChangesStarting,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    CoreEventId.SaveChangesStarting,
+                    _resourceManager.GetString("LogSaveChangesStarting")));
+
+        /// <summary>
+        ///     SaveChanges completed for '{contextType}' with {savedCount} entities written to the database.
+        /// </summary>
+        public static readonly EventDefinition<string, int> LogSaveChangesCompleted
+            = new EventDefinition<string, int>(
+                CoreEventId.SaveChangesCompleted,
+                LogLevel.Debug,
+                LoggerMessage.Define<string, int>(
+                    LogLevel.Debug,
+                    CoreEventId.SaveChangesCompleted,
+                    _resourceManager.GetString("LogSaveChangesCompleted")));
+
+        /// <summary>
+        ///     '{contextType}' disposed.
+        /// </summary>
+        public static readonly EventDefinition<string> LogContextDisposed
+            = new EventDefinition<string>(
+                CoreEventId.ContextDisposed,
+                LogLevel.Debug,
+                LoggerMessage.Define<string>(
+                    LogLevel.Debug,
+                    CoreEventId.ContextDisposed,
+                    _resourceManager.GetString("LogContextDisposed")));
 
         /// <summary>
         ///     The EF.Property&lt;T&gt; method may only be used within LINQ queries.
@@ -699,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
+        ///     The association between entity types '{firstType}' and '{secondType}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string RelationshipConceptualNull([CanBeNull] object firstType, [CanBeNull] object secondType)
             => string.Format(
@@ -931,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 derivedType, rootType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.
+        ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendant of '{entityType}'.
         /// </summary>
         public static string CircularInheritance([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
             => string.Format(
@@ -1105,7 +1405,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, baseEntityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendent of '{baseClrType}'.
+        ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendant of '{baseClrType}'.
         /// </summary>
         public static string NotAssignableClrBaseType([CanBeNull] object entityType, [CanBeNull] object baseEntityType, [CanBeNull] object clrType, [CanBeNull] object baseClrType)
             => string.Format(
@@ -2239,7 +2539,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Cannot create a DbSet for '{typeName}' because it is mapped to mulptiple entity types and should they should be accessed through the defining entities.
+        ///     Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types and should they should be accessed through the defining entities.
         /// </summary>
         public static string InvalidSetTypeWeak([CanBeNull] object typeName)
             => string.Format(
@@ -2279,7 +2579,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType, keyValue);
 
         /// <summary>
-        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.
+        ///     The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.
         /// </summary>
         public static string RelationshipConceptualNullSensitive([CanBeNull] object firstType, [CanBeNull] object secondType, [CanBeNull] object secondKeyValue)
             => string.Format(

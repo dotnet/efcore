@@ -110,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         // Null the FK properties to reflect that the navigation has been nulled out.
                         ConditionallyNullForeignKeyProperties(entry, oldTargetEntry, foreignKey);
+                        entry.SetRelationshipSnapshotValue(navigation, null);
                     }
 
                     if (inverse != null)

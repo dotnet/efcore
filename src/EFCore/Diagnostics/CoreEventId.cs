@@ -48,6 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Update events
             SaveChangesFailed = CoreBaseId,
             DuplicateDependentEntityTypeInstanceWarning,
+            CascadeDelete,
+            CascadeDeleteOrphan,
+            SaveChangesStarting,
+            SaveChangesCompleted,
 
             // Query events
             QueryIterationFailed = CoreBaseId + 100,
@@ -69,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ExecutionStrategyRetrying,
             LazyLoadOnDisposedContextWarning,
             NavigationLazyLoading,
+            ContextDisposed,
 
             // Model events
             ShadowPropertyCreated = CoreBaseId + 600,
@@ -84,7 +89,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             NonOwnershipInverseNavigationWarning,
             ForeignKeyAttributesOnBothProperties,
             ForeignKeyAttributesOnBothNavigations,
-            ConflictingForeignKeyAttributesOnNavigationAndProperty
+            ConflictingForeignKeyAttributesOnNavigationAndProperty,
+
+            // ChangeTracking events
+            DetectChangesStarting = CoreBaseId + 800,
+            DetectChangesCompleted,
+            PropertyChangeDetected,
+            ForeignKeyChangeDetected,
+            CollectionChangeDetected,
+            ReferenceChangeDetected,
+            StartedTracking,
+            StateChanged,
+            ValueGenerated
         }
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
@@ -537,5 +553,207 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ConflictingForeignKeyAttributesOnNavigationAndProperty = MakeModelId(Id.ConflictingForeignKeyAttributesOnNavigationAndProperty);
+
+        private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
+        private static EventId MakeChangeTrackingId(Id id) => new EventId((int)id, _changeTrackingPrefix + id);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges is starting.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="DbContextEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DetectChangesStarting = MakeChangeTrackingId(Id.DetectChangesStarting);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has completed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="DbContextEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DetectChangesCompleted = MakeChangeTrackingId(Id.DetectChangesCompleted);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has detected a change in a property value.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId PropertyChangeDetected = MakeChangeTrackingId(Id.PropertyChangeDetected);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has detected a change in a foreign key property value.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ForeignKeyChangeDetected = MakeChangeTrackingId(Id.ForeignKeyChangeDetected);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has detected entities were added and/or removed from a collection
+        ///         navigation property.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CollectionChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CollectionChangeDetected = MakeChangeTrackingId(Id.CollectionChangeDetected);
+
+        /// <summary>
+        ///     <para>
+        ///         DetectChanges has detected a change to the entity references by another entity.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ReferenceChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ReferenceChangeDetected = MakeChangeTrackingId(Id.ReferenceChangeDetected);
+
+        /// <summary>
+        ///     <para>
+        ///         An entity is being tracked by the <see cref="DbContext"/>.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="EntityEntryEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId StartedTracking = MakeChangeTrackingId(Id.StartedTracking);
+
+        /// <summary>
+        ///     <para>
+        ///         An entity tracked by the <see cref="DbContext"/> is changing from one
+        ///         <see cref="EntityState"/> to another.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="StateChangedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId StateChanged = MakeChangeTrackingId(Id.StateChanged);
+
+        /// <summary>
+        ///     <para>
+        ///         A property of a tracked entity is getting a generated value.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.ChangeTracking" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyValueEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ValueGenerated = MakeChangeTrackingId(Id.ValueGenerated);
+
+        /// <summary>
+        ///     <para>
+        ///         An entity is being deleted or detached because its parent was deleted.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CascadeDeleteEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CascadeDelete = MakeUpdateId(Id.CascadeDelete);
+
+        /// <summary>
+        ///     <para>
+        ///         An entity is being deleted or detached because the required relationship to its
+        ///         parent was severed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CascadeDeleteOrphanEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CascadeDeleteOrphan = MakeUpdateId(Id.CascadeDeleteOrphan);
+
+        /// <summary>
+        ///     <para>
+        ///         <see cref="DbContext.SaveChanges()"/> or one of its overloads started.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="DbContextEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId SaveChangesStarting = MakeUpdateId(Id.SaveChangesStarting);
+
+        /// <summary>
+        ///     <para>
+        ///         <see cref="DbContext.SaveChanges()"/> or one of its overloads has completed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="SaveChangesCompletedEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId SaveChangesCompleted = MakeUpdateId(Id.SaveChangesCompleted);
+
+        /// <summary>
+        ///     <para>
+        ///         The <see cref="DbContext"/> is being disposed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="DbContextEventData" /> payload when used with a
+        ///         <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ContextDisposed = MakeInfraId(Id.ContextDisposed);
     }
 }

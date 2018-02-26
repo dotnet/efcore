@@ -4,12 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local
@@ -20,6 +26,431 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ChangeTrackerTest
     {
+        [Fact]
+        public void DetectChanges_is_logged()
+        {
+            Seed();
+
+            using (var context = new LikeAZooContext())
+            {
+                _log.Clear();
+
+                context.SaveChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.DetectChangesStarting.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(CoreStrings.LogDetectChangesStarting.GenerateMessage(nameof(LikeAZooContext)), message);
+
+                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.DetectChangesCompleted.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(CoreStrings.LogDetectChangesCompleted.GenerateMessage(nameof(LikeAZooContext)), message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Detect_property_change_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Find(1);
+
+                _log.Clear();
+
+                cat.Name = "Smoke-a-doke";
+                context.ChangeTracker.DetectChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogPropertyChangeDetectedSensitive.GenerateMessage(nameof(Cat), nameof(Cat.Name), "Smokey", "Smoke-a-doke", "{Id: 1}")
+                        : CoreStrings.LogPropertyChangeDetected.GenerateMessage(nameof(Cat), nameof(Cat.Name)),
+                    message);
+
+                _log.Clear();
+
+                cat.Name = "Little Artichoke";
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Empty(_log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Detect_foreign_key_property_change_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
+
+                _log.Clear();
+
+                var hat = cat.Hats.Single(h => h.Id == 77);
+                hat.CatId = 2;
+                context.ChangeTracker.DetectChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogForeignKeyChangeDetectedSensitive.GenerateMessage(nameof(Hat), nameof(Hat.CatId), 1, 2, "{Id: 77}")
+                        : CoreStrings.LogForeignKeyChangeDetected.GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
+                    message);
+
+                _log.Clear();
+
+                hat.CatId = 1;
+                context.ChangeTracker.DetectChanges();
+
+                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ForeignKeyChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogForeignKeyChangeDetectedSensitive.GenerateMessage(nameof(Hat), nameof(Hat.CatId), 2, 1, "{Id: 77}")
+                        : CoreStrings.LogForeignKeyChangeDetected.GenerateMessage(nameof(Hat), nameof(Hat.CatId)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Detect_collection_change_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
+                var hat = cat.Hats.Single(h => h.Id == 77);
+
+                _log.Clear();
+
+                cat.Hats.Clear();
+                context.ChangeTracker.DetectChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogCollectionChangeDetectedSensitive.GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats), "{Id: 1}")
+                        : CoreStrings.LogCollectionChangeDetected.GenerateMessage(0, 1, nameof(Cat), nameof(Cat.Hats)),
+                    message);
+
+                _log.Clear();
+
+                cat.Hats.Add(hat);
+                context.ChangeTracker.DetectChanges();
+
+                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CollectionChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogCollectionChangeDetectedSensitive.GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Hats), "{Id: 1}")
+                        : CoreStrings.LogCollectionChangeDetected.GenerateMessage(1, 0, nameof(Cat), nameof(Cat.Hats)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Detect_reference_change_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
+                var hat = cat.Hats.Single(h => h.Id == 77);
+
+                _log.Clear();
+
+                hat.Cat = null;
+                context.ChangeTracker.DetectChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogReferenceChangeDetectedSensitive.GenerateMessage(nameof(Hat), nameof(Hat.Cat), "{Id: 77}")
+                        : CoreStrings.LogReferenceChangeDetected.GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
+                    message);
+
+                _log.Clear();
+
+                hat.Cat = cat;
+                context.ChangeTracker.DetectChanges();
+
+                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ReferenceChangeDetected.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogReferenceChangeDetectedSensitive.GenerateMessage(nameof(Hat), nameof(Hat.Cat), "{Id: 77}")
+                        : CoreStrings.LogReferenceChangeDetected.GenerateMessage(nameof(Hat), nameof(Hat.Cat)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Start_tracking_is_logged_from_query(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                _log.Clear();
+                context.Cats.Find(1);
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.StartedTracking.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogStartedTrackingSensitive.GenerateMessage(nameof(Cat), "{Id: 1}", nameof(LikeAZooContextSensitive))
+                        : CoreStrings.LogStartedTracking.GenerateMessage(nameof(Cat), nameof(LikeAZooContext)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Start_tracking_is_logged_from_attach(bool sensitive)
+        {
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                _log.Clear();
+                context.Attach(new Hat(88));
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.StartedTracking.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogStartedTrackingSensitive.GenerateMessage(nameof(Hat), "{Id: 88}", nameof(LikeAZooContextSensitive))
+                        : CoreStrings.LogStartedTracking.GenerateMessage(nameof(Hat), nameof(LikeAZooContext)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void State_change_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Find(1);
+
+                _log.Clear();
+
+                context.Entry(cat).State = EntityState.Deleted;
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.StateChanged.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogStateChangedSensitive.GenerateMessage(nameof(Cat), "{Id: 1}", nameof(LikeAZooContextSensitive), EntityState.Unchanged, EntityState.Deleted)
+                        : CoreStrings.LogStateChanged.GenerateMessage(nameof(Cat), nameof(LikeAZooContext), EntityState.Unchanged, EntityState.Deleted),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, false)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(true, false, true)]
+        [InlineData(false, true, true)]
+        [InlineData(true, true, true)]
+        public async Task Value_generation_is_logged(bool sensitive, bool async, bool temporary)
+        {
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                ResetValueGenerator(
+                    context,
+                    context.Model.FindEntityType(typeof(Hat)).FindProperty(nameof(Hat.Id)),
+                    temporary);
+
+                _log.Clear();
+
+                if (async)
+                {
+                    context.Add(new Hat(0));
+                }
+                else
+                {
+                    await context.AddAsync(new Hat(0));
+                }
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ValueGenerated.Id);
+                Assert.Equal(LogLevel.Debug, level);
+
+                if (temporary)
+                {
+                    Assert.Equal(
+                        sensitive
+                            ? CoreStrings.LogTempValueGeneratedSensitive.GenerateMessage(nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
+                            : CoreStrings.LogTempValueGenerated.GenerateMessage(nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
+                        message);
+                }
+                else
+                {
+                    Assert.Equal(
+                        sensitive
+                            ? CoreStrings.LogValueGeneratedSensitive.GenerateMessage(nameof(LikeAZooContextSensitive), 1, nameof(Hat.Id), nameof(Hat))
+                            : CoreStrings.LogValueGenerated.GenerateMessage(nameof(LikeAZooContext), nameof(Hat.Id), nameof(Hat)),
+                        message);
+                }
+            }
+        }
+
+        private static void ResetValueGenerator(DbContext context, IProperty property, bool generateTemporaryValues)
+        {
+            var cache = context.GetService<IValueGeneratorCache>();
+
+            var generator = (ResettableValueGenerator)cache.GetOrAdd(
+                property,
+                property.DeclaringEntityType,
+                (p, e) => new ResettableValueGenerator());
+
+            generator.Reset(generateTemporaryValues);
+        }
+
+        private class ResettableValueGenerator : ValueGenerator<int>
+        {
+            private int _current;
+            private bool _generatesTemporaryValues;
+
+            public override bool GeneratesTemporaryValues => _generatesTemporaryValues;
+
+            public override int Next(EntityEntry entry)
+                => Interlocked.Increment(ref _current);
+
+            public void Reset(bool generateTemporaryValues)
+            {
+                _generatesTemporaryValues = generateTemporaryValues;
+                _current = 0;
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Cascade_delete_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
+
+                context.Entry(cat).State = EntityState.Deleted;
+
+                _log.Clear();
+
+                context.SaveChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CascadeDelete.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogCascadeDeleteSensitive.GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat), "{Id: 1}")
+                        : CoreStrings.LogCascadeDelete.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Cascade_delete_orphan_is_logged(bool sensitive)
+        {
+            Seed(sensitive);
+
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
+            {
+                var cat = context.Cats.Include(e => e.Hats).Single(e => e.Id == 1);
+
+                cat.Hats.Clear();
+
+                _log.Clear();
+
+                context.SaveChanges();
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.CascadeDeleteOrphan.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(
+                    sensitive
+                        ? CoreStrings.LogCascadeDeleteOrphanSensitive.GenerateMessage(nameof(Hat), "{Id: 77}", EntityState.Deleted, nameof(Cat))
+                        : CoreStrings.LogCascadeDeleteOrphan.GenerateMessage(nameof(Hat), EntityState.Deleted, nameof(Cat)),
+                    message);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task SaveChanges_is_logged(bool async)
+        {
+            Seed();
+
+            using (var context = new LikeAZooContext())
+            {
+                var cat = context.Cats.Find(1);
+
+                context.Entry(cat).State = EntityState.Deleted;
+
+                _log.Clear();
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
+
+                var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.SaveChangesStarting.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(CoreStrings.LogSaveChangesStarting.GenerateMessage(nameof(LikeAZooContext)), message);
+
+
+                (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.SaveChangesCompleted.Id);
+                Assert.Equal(LogLevel.Debug, level);
+                Assert.Equal(CoreStrings.LogSaveChangesCompleted.GenerateMessage(nameof(LikeAZooContext), 1), message);
+            }
+        }
+
+        [Fact]
+        public void Context_Dispose_is_logged()
+        {
+            using (var context = new LikeAZooContext())
+            {
+                context.Cats.Find(1);
+
+                _log.Clear();
+            }
+
+            var (level, _, message) = _log.Single(e => e.Id.Id == CoreEventId.ContextDisposed.Id);
+            Assert.Equal(LogLevel.Debug, level);
+            Assert.Equal(CoreStrings.LogContextDisposed.GenerateMessage(nameof(LikeAZooContext)), message);
+        }
+
         [Fact]
         public void State_change_events_fire_from_query()
         {
@@ -348,23 +779,64 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public int Id { get; private set; }
 
             public string Name { get; set; }
+
+            public ICollection<Hat> Hats { get; } = new List<Hat>();
         }
+
+        private class Hat
+        {
+            public Hat(int id) => Id = id;
+
+            // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+            public int Id { get; private set; }
+
+            public string Color { get; set; }
+
+            public int CatId { get; set; }
+            public Cat Cat { get; set; }
+        }
+
+        private static readonly List<(LogLevel Level, EventId Id, string Message)> _log
+            = new List<(LogLevel, EventId, string)>();
+             
+        private static readonly LoggerFactory _loggerFactory
+            = new LoggerFactory(new[] { new ListLoggerProvider(_log) });
 
         private class LikeAZooContext : DbContext
         {
             public DbSet<Cat> Cats { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(nameof(LikeAZooContext));
+                => optionsBuilder
+                    .UseLoggerFactory(_loggerFactory)
+                    .UseInMemoryDatabase(nameof(LikeAZooContext));
         }
 
-        private void Seed()
+        private class LikeAZooContextSensitive : LikeAZooContext
         {
-            using (var context = new LikeAZooContext())
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .EnableSensitiveDataLogging()
+                    .UseLoggerFactory(_loggerFactory)
+                    .UseInMemoryDatabase(nameof(LikeAZooContextSensitive));
+        }
+
+        private void Seed(bool sensitive = false)
+        {
+            using (var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext())
             {
                 context.Database.EnsureDeleted();
 
-                context.AddRange(new Cat(1), new Cat(2));
+                var cat1 = new Cat(1) { Name = "Smokey" };
+                var cat2 = new Cat(2) { Name = "Sid" };
+
+                cat1.Hats.Add(
+                    new Hat(77)
+                    {
+                        Color = "Pine Green"
+                    });
+
+                context.AddRange(cat1, cat2);
 
                 context.SaveChanges();
             }
@@ -1953,6 +2425,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class ChangeDetectorProxy : ChangeDetector
         {
+            public ChangeDetectorProxy(
+                IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+                ILoggingOptions loggingOptions)
+                : base(logger, loggingOptions)
+            {
+            }
+
             public bool DetectChangesCalled { get; set; }
 
             public override void DetectChanges(InternalEntityEntry entry)

@@ -289,7 +289,7 @@
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
   </data>
   <data name="BadDependencyRegistration" xml:space="preserve">
-    <value>The service dependencies type '{dependenciesType}' has been registered innapropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.</value>
+    <value>The service dependencies type '{dependenciesType}' has been registered inappropriately in the service collection. Service dependencies types must only be registered by Entity Framework, or in rare cases by database providers and then only to change the service lifetime.</value>
   </data>
   <data name="BadValueGeneratorType" xml:space="preserve">
     <value>The type '{givenType}' cannot be used a a value generator because it does not inherit from '{expectedType}'.</value>
@@ -307,6 +307,106 @@
   <data name="LogExceptionDuringSaveChanges" xml:space="preserve">
     <value>An exception occurred in the database while saving changes for context type '{contextType}'.{newline}{error}</value>
     <comment>Error CoreEventId.SaveChangesFailed Type string Exception</comment>
+  </data>
+  <data name="LogDetectChangesStarting" xml:space="preserve">
+    <value>DetectChanges starting for '{contextType}'.</value>
+    <comment>Debug CoreEventId.DetectChangesStarting string</comment>
+  </data>
+  <data name="LogDetectChangesCompleted" xml:space="preserve">
+    <value>DetectChanges completed for '{contextType}'.</value>
+    <comment>Debug CoreEventId.DetectChangesCompleted string</comment>
+  </data>
+  <data name="LogPropertyChangeDetected" xml:space="preserve">
+    <value>Unchanged '{entityType}.{property}' detected as changed and will be marked as modified. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
+    <comment>Debug CoreEventId.PropertyChangeDetected string string</comment>
+  </data>
+  <data name="LogPropertyChangeDetectedSensitive" xml:space="preserve">
+    <value>Unchanged '{entityType}.{property}' detected as changed from '{oldValue}' to '{newValue}' and will be marked as modified for entity with key '{keyValues}'.</value>
+    <comment>Debug CoreEventId.PropertyChangeDetected string string object object string</comment>
+  </data>
+  <data name="LogForeignKeyChangeDetected" xml:space="preserve">
+    <value>Foreign key property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see property values.</value>
+    <comment>Debug CoreEventId.ForeignKeyChangeDetected string string</comment>
+  </data>
+  <data name="LogForeignKeyChangeDetectedSensitive" xml:space="preserve">
+    <value>Foreign key property '{entityType}.{property}' detected as changed from '{oldValue}' to '{newValue}' for entity with key '{keyValues}'.</value>
+    <comment>Debug CoreEventId.ForeignKeyChangeDetected string string object object string</comment>
+  </data>
+  <data name="LogCollectionChangeDetected" xml:space="preserve">
+    <value>Detected {addedCount} entities added and {removedCount} entities removed from navigation property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.CollectionChangeDetected int int string string</comment>
+  </data>
+  <data name="LogCollectionChangeDetectedSensitive" xml:space="preserve">
+    <value>Detected {addedCount} entities added and {removedCount} entities removed from navigation property '{entityType}.{property}' on entity with key '{keyValues}'.</value>
+    <comment>Debug CoreEventId.CollectionChangeDetected int int string string string</comment>
+  </data>
+  <data name="LogReferenceChangeDetected" xml:space="preserve">
+    <value>Navigation property '{entityType}.{property}' detected as changed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.ReferenceChangeDetected string string</comment>
+  </data>
+  <data name="LogReferenceChangeDetectedSensitive" xml:space="preserve">
+    <value>Navigation property '{entityType}.{property}' for entity with key '{keyValues}' detected as changed.</value>
+    <comment>Debug CoreEventId.ReferenceChangeDetected string string string</comment>
+  </data>
+  <data name="LogCascadeDelete" xml:space="preserve">
+    <value>Cascade state change of '{entityType}' entity to '{state}' due to deletion of parent '{parentType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.CascadeDelete string EntityState string</comment>
+  </data>
+  <data name="LogCascadeDeleteSensitive" xml:space="preserve">
+    <value>Cascade state change of '{entityType}' entity with key '{keyValues}' to '{state}' due to deletion of parent '{parentType}' entity with key '{parentKeyValues}'.</value>
+    <comment>Debug CoreEventId.CascadeDelete string string EntityState string string</comment>
+  </data>
+  <data name="LogCascadeDeleteOrphan" xml:space="preserve">
+    <value>'{entityType}' entity changed to '{state}' state due to severed required relationship to parent '{parentType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.CascadeDeleteOrphan string EntityState string</comment>
+  </data>
+  <data name="LogCascadeDeleteOrphanSensitive" xml:space="preserve">
+    <value>'{entityType}' entity with key '{keyValues}' changed to '{state}' state due to severed required relationship to parent '{parentType}' entity.</value>
+    <comment>Debug CoreEventId.CascadeDeleteOrphan string string EntityState string</comment>
+  </data>
+  <data name="LogStartedTracking" xml:space="preserve">
+    <value>Context '{contextType}' started tracking '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.StartedTracking string string</comment>
+  </data>
+  <data name="LogStartedTrackingSensitive" xml:space="preserve">
+    <value>Context '{contextType}' started tracking '{entityType}' entity with key '{keyValues}'.</value>
+    <comment>Debug CoreEventId.StartedTracking string string string</comment>
+  </data>
+  <data name="LogStateChanged" xml:space="preserve">
+    <value>An '{entityType}' entity tracked by '{contextType}' changed from '{oldState}' to '{newState}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.StateChanged string string EntityState EntityState</comment>
+  </data>
+  <data name="LogStateChangedSensitive" xml:space="preserve">
+    <value>The '{entityType}' entity with key '{keyValues}' tracked by '{contextType}' changed from '{oldState}' to '{newState}'.</value>
+    <comment>Debug CoreEventId.StateChanged string string string EntityState EntityState</comment>
+  </data>
+  <data name="LogValueGenerated" xml:space="preserve">
+    <value>'{contextType}' generated a value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.ValueGenerated string string string</comment>
+  </data>
+  <data name="LogValueGeneratedSensitive" xml:space="preserve">
+    <value>'{contextType}' generated value '{keyValue}' for the '{property}' property of new '{entityType}' entity.</value>
+    <comment>Debug CoreEventId.ValueGenerated string object string string</comment>
+  </data>
+  <data name="LogTempValueGenerated" xml:space="preserve">
+    <value>'{contextType}' generated a temporary value for the '{property}' property of new '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <comment>Debug CoreEventId.ValueGenerated string string string</comment>
+  </data>
+  <data name="LogTempValueGeneratedSensitive" xml:space="preserve">
+    <value>'{contextType}' generated temporary value '{keyValue}' for the '{property}' property of new '{entityType}' entity.</value>
+    <comment>Debug CoreEventId.ValueGenerated string object string string</comment>
+  </data>
+  <data name="LogSaveChangesStarting" xml:space="preserve">
+    <value>SaveChanges starting for '{contextType}'.</value>
+    <comment>Debug CoreEventId.SaveChangesStarting string</comment>
+  </data>
+  <data name="LogSaveChangesCompleted" xml:space="preserve">
+    <value>SaveChanges completed for '{contextType}' with {savedCount} entities written to the database.</value>
+    <comment>Debug CoreEventId.SaveChangesCompleted string int</comment>
+  </data>
+  <data name="LogContextDisposed" xml:space="preserve">
+    <value>'{contextType}' disposed.</value>
+    <comment>Debug CoreEventId.ContextDisposed string</comment>
   </data>
   <data name="PropertyMethodInvoked" xml:space="preserve">
     <value>The EF.Property&lt;T&gt; method may only be used within LINQ queries.</value>
@@ -375,7 +475,7 @@
     <value>The property '{property}' on entity type '{entityType}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.</value>
   </data>
   <data name="RelationshipConceptualNull" xml:space="preserve">
-    <value>The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
+    <value>The association between entity types '{firstType}' and '{secondType}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
   </data>
   <data name="PropertyConceptualNull" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.  Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -463,7 +563,7 @@
     <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not included in a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation property on a type that is included in the model.</value>
   </data>
   <data name="CircularInheritance" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>
+    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendant of '{entityType}'.</value>
   </data>
   <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined.</value>
@@ -529,7 +629,7 @@
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{entityType}' is a shadow state entity type while '{baseEntityType}' is not.</value>
   </data>
   <data name="NotAssignableClrBaseType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendent of '{baseClrType}'.</value>
+    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendant of '{baseClrType}'.</value>
   </data>
   <data name="PropertyWrongEntityClrType" xml:space="preserve">
     <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
@@ -950,7 +1050,7 @@
     <value>The owned entity type '{entityType}' cannot have a base type.</value>
   </data>
   <data name="InvalidSetTypeWeak" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because it is mapped to mulptiple entity types and should they should be accessed through the defining entities.</value>
+    <value>Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types and should they should be accessed through the defining entities.</value>
   </data>
   <data name="LogNonDefiningInverseNavigationWarning" xml:space="preserve">
     <value>The navigation '{targetEntityType}.{inverseNavigation}' cannot be used as the inverse of '{weakEntityType}.{navigation}' because it's not the defining navigation '{definingNavigation}'</value>
@@ -964,7 +1064,7 @@
     <value>The property '{property}'  is marked as null on entity '{entityType}' with the key value '{keyValue}', but this cannot be saved because the property is marked as required.</value>
   </data>
   <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
-    <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.</value>
+    <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed but the relationship is either marked as 'Required' or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, then setup the relationship to use cascade deletes.</value>
   </data>
   <data name="IncompatiblePrincipalEntry" xml:space="preserve">
     <value>The foreign key {foreignKey} set on '{dependentEntityType}' matches an entity of type '{foundPrincipalEntityType}', however the principal entity type should be assignable to '{principalEntityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>

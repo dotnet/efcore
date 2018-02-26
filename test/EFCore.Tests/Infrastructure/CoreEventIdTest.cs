@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Xunit;
@@ -59,7 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IReadOnlyList<Exception>), () => new[] { new Exception() } },
                 { typeof(IProperty), () => property },
                 { typeof(INavigation), () => navigation },
-                { typeof(IForeignKey), () => foreignKey }
+                { typeof(IForeignKey), () => foreignKey },
+                { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
+                { typeof(ISet<object>), () => new HashSet<object>() }
             };
 
             TestEventLogging(typeof(CoreEventId), typeof(CoreLoggerExtensions), fakeFactories);
@@ -68,6 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private class FakeServiceProvider : IServiceProvider
         {
             public object GetService(Type serviceType) => null;
+        }
+
+        private class FakeInternalEntityEntry : InternalEntityEntry
+        {
+            public FakeInternalEntityEntry(IEntityType entityType)
+                : base(new FakeStateManager(), entityType)
+            {
+            }
+
+            public override object Entity { get; }
         }
     }
 }

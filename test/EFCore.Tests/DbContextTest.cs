@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -611,6 +612,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private class ChangeDetectorProxy : ChangeDetector
         {
+            public ChangeDetectorProxy(
+                IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+                ILoggingOptions loggingOptions)
+                : base(logger, loggingOptions)
+            {
+            }
+
             public bool DetectChangesCalled { get; set; }
 
             public override void DetectChanges(InternalEntityEntry entry)

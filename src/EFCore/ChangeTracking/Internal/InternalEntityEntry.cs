@@ -977,12 +977,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
 
-            if (fks.Any(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
+            var cascadeFk = fks.FirstOrDefault(fk => fk.DeleteBehavior == DeleteBehavior.Cascade);
+            if (cascadeFk != null)
             {
-                SetEntityState(
-                    EntityState == EntityState.Added
-                        ? EntityState.Detached
-                        : EntityState.Deleted);
+                var cascadeState = EntityState == EntityState.Added
+                    ? EntityState.Detached
+                    : EntityState.Deleted;
+
+                if (StateManager.SensitiveLoggingEnabled)
+                {
+                    StateManager.UpdateLogger.CascadeDeleteOrphanSensitive(this, cascadeFk.PrincipalEntityType, cascadeState);
+                }
+                else
+                {
+                    StateManager.UpdateLogger.CascadeDeleteOrphan(this, cascadeFk.PrincipalEntityType, cascadeState);
+                }
+
+                SetEntityState(cascadeState);
             }
             else if (fks.Any())
             {

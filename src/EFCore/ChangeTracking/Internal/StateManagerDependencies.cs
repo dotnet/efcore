@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] IDbSetSource setSource,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
         {
             InternalEntityEntryFactory = internalEntityEntryFactory;
             InternalEntityEntrySubscriber = internalEntityEntrySubscriber;
@@ -74,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityMaterializerSource = entityMaterializerSource;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
+            ChangeTrackingLogger = changeTrackingLogger;
         }
 
         /// <summary>
@@ -155,6 +157,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
         /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> ChangeTrackingLogger { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="internalEntityEntryFactory"> A replacement for the current dependency of this type. </param>
@@ -173,7 +181,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -194,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -215,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -236,7 +247,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -257,7 +269,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -278,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -299,7 +313,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -320,7 +335,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -341,7 +357,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -362,7 +379,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 setSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -383,7 +401,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 entityMaterializerSource,
                 LoggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -404,7 +423,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 loggingOptions,
-                UpdateLogger);
+                UpdateLogger,
+                ChangeTrackingLogger);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -425,6 +445,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 SetSource,
                 EntityMaterializerSource,
                 LoggingOptions,
-                updateLogger);
+                updateLogger,
+                ChangeTrackingLogger);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="changeTrackingLogger"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public StateManagerDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
+            => new StateManagerDependencies(
+                InternalEntityEntryFactory,
+                InternalEntityEntrySubscriber,
+                InternalEntityEntryNotifier,
+                ValueGenerationManager,
+                Model,
+                Database,
+                ConcurrencyDetector,
+                CurrentContext,
+                EntityFinderSource,
+                SetSource,
+                EntityMaterializerSource,
+                LoggingOptions,
+                UpdateLogger,
+                changeTrackingLogger);
     }
 }

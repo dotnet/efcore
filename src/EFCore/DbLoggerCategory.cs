@@ -102,5 +102,12 @@ namespace Microsoft.EntityFrameworkCore
         public class Migrations : LoggerCategory<Migrations>
         {
         }
+
+        /// <summary>
+        ///     Logger category for messages from change detection and tracking.
+        /// </summary>
+        public class ChangeTracking : LoggerCategory<ChangeTracking>
+        {
+        }
     }
 }

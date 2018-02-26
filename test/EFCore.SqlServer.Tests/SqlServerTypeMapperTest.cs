@@ -734,6 +734,38 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Theory]
+        [InlineData("binary varying")]
+        [InlineData("binary")]
+        [InlineData("char varying")]
+        [InlineData("char")]
+        [InlineData("character varying")]
+        [InlineData("character")]
+        [InlineData("national char varying")]
+        [InlineData("national character varying")]
+        [InlineData("national character")]
+        [InlineData("nchar")]
+        [InlineData("nvarchar")]
+        [InlineData("varbinary")]
+        [InlineData("varchar")]
+        [InlineData("VarCHaR")] // case-insensitive
+        [InlineData("VARCHAR")]
+        public void Throws_for_naked_type_name_on_property(string typeName)
+        {
+            var builder = CreateModelBuilder();
+
+            var property = builder.Entity<StringCheese>()
+                .Property(e => e.StringWithSize)
+                .HasColumnType(typeName)
+                .Metadata;
+
+            var mapper = CreateTypeMapper();
+
+            Assert.Equal(
+                SqlServerStrings.UnqualifiedDataTypeOnProperty(typeName, nameof(StringCheese.StringWithSize)),
+                Assert.Throws<ArgumentException>(() => mapper.FindMapping(property)).Message);
+        }
+
+        [Theory]
         [InlineData("char varying")]
         [InlineData("char")]
         [InlineData("character varying")]
