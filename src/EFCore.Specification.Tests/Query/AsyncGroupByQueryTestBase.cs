@@ -1121,7 +1121,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task OrderBy_Skip_GroupBy()
         {
             await AssertQuery<Order>(
-                os => os.OrderBy(o => o.OrderDate).Skip(800).GroupBy(o => o.CustomerID),
+                os => os.OrderBy(o => o.OrderDate).ThenBy(o => o.OrderID).Skip(800).GroupBy(o => o.CustomerID),
                 elementSorter: GroupingSorter<string, object>(),
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.OrderDate),
                 entryCount: 30);
