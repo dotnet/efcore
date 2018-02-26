@@ -123,5 +123,16 @@ namespace Microsoft.EntityFrameworkCore
 
             model[CoreAnnotationNames.PropertyAccessModeAnnotation] = propertyAccessMode;
         }
+
+        /// <summary>
+        ///     Sets the default change tracking strategy to use for entities in the model. This strategy indicates how the
+        ///     context detects changes to properties for an instance of an entity type.
+        /// </summary>
+        /// <param name="model"> The model to set the default change tracking strategy for. </param>
+        /// <param name="changeTrackingStrategy"> The strategy to use. </param>
+        public static void SetChangeTrackingStrategy(
+            [NotNull] this IMutableModel model,
+            ChangeTrackingStrategy changeTrackingStrategy)
+            => Check.NotNull(model, nameof(model)).AsModel().ChangeTrackingStrategy = changeTrackingStrategy;
     }
 }

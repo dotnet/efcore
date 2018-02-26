@@ -3343,22 +3343,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Change_tracking_can_be_set_to_anything_for_full_notification_entities()
         {
             var model = BuildFullNotificationEntityModel();
-            model.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            model.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
             var entityType = model.FindEntityType(typeof(FullNotificationEntity));
 
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.Snapshot;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
             Assert.Equal(ChangeTrackingStrategy.Snapshot, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
             Assert.Equal(ChangeTrackingStrategy.ChangedNotifications, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, entityType.GetChangeTrackingStrategy());
 
-            entityType.ChangeTrackingStrategy = ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues;
+            entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues, entityType.GetChangeTrackingStrategy());
         }
 

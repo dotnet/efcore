@@ -426,5 +426,16 @@ namespace Microsoft.EntityFrameworkCore
 
             entityType[CoreAnnotationNames.NavigationAccessModeAnnotation] = propertyAccessMode;
         }
+
+        /// <summary>
+        ///     Sets the change tracking strategy to use for this entity type. This strategy indicates how the
+        ///     context detects changes to properties for an instance of the entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to set the change tracking strategy for. </param>
+        /// <param name="changeTrackingStrategy"> The strategy to use. </param>
+        public static void SetChangeTrackingStrategy(
+            [NotNull] this IMutableEntityType entityType,
+            ChangeTrackingStrategy changeTrackingStrategy)
+            => Check.NotNull(entityType, nameof(entityType)).AsEntityType().ChangeTrackingStrategy = changeTrackingStrategy;
     }
 }
