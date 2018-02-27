@@ -2298,13 +2298,13 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<PastEmployee>(b => { b.Property<string>("Shadow4"); });
 
                 modelBuilder.Entity<Building>()
-                    .HasOne(b => b.PrincipalMailRoom)
+                    .HasOne<MailRoom>(nameof(Building.PrincipalMailRoom))
                     .WithMany()
                     .HasForeignKey(b => b.PrincipalMailRoomId);
 
                 modelBuilder.Entity<MailRoom>()
-                    .HasOne(m => m.Building)
-                    .WithMany(b => b.MailRooms)
+                    .HasOne<Building>(nameof(MailRoom.Building))
+                    .WithMany(nameof(Building.MailRooms))
                     .HasForeignKey(m => m.BuildingId);
 
                 modelBuilder.Entity<Office>().HasKey(o => new { o.Number, o.BuildingId });

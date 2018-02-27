@@ -276,10 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             where TRelatedEntity : class
         {
             var navigation = navigationExpression?.GetPropertyAccess();
-            var relatedEntityType =
-                Builder.Metadata.FindInDefinitionPath(typeof(TRelatedEntity)) ??
-                Builder.ModelBuilder.Metadata.FindEntityType(typeof(TRelatedEntity), navigation?.Name, Builder.Metadata) ??
-                Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
+            var relatedEntityType = FindRelatedEntityType<TRelatedEntity>(navigation?.Name);
 
             return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
@@ -289,6 +286,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     relatedEntityType.Builder, navigation, ConfigurationSource.Explicit,
                     setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where this entity type has a reference that points
+        ///         to a single instance of the other type in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}})" />
+        ///         or
+        ///         <see
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
+        ///         to fully configure the relationship. Calling just this method without the chained call will not
+        ///         produce a valid relationship.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this entity type that represents the relationship. If
+        ///     no property is specified, the relationship will be configured without a navigation property on this
+        ///     end.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
+            [CanBeNull] string navigationName)
+            where TRelatedEntity : class
+        {
+            var relatedEntityType = FindRelatedEntityType<TRelatedEntity>(navigationName);
+
+            return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
+                Builder.Metadata,
+                relatedEntityType,
+                navigationName,
+                Builder.Navigation(
+                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
+                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType));
+        }
+
+        private EntityType FindRelatedEntityType<TRelatedEntity>(string navigationName)
+            where TRelatedEntity : class
+            => Builder.Metadata.FindInDefinitionPath(typeof(TRelatedEntity)) ??
+               Builder.ModelBuilder.Metadata.FindEntityType(typeof(TRelatedEntity), navigationName, Builder.Metadata) ??
+               Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
 
         /// <summary>
         ///     <para>
@@ -332,6 +373,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 Builder.Metadata,
                 relatedEntityType,
                 navigation,
+                relationship);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures a relationship where this entity type has a collection that contains
+        ///         instances of the other type in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
+        ///         to fully configure the relationship. Calling just this method without the chained call will not
+        ///         produce a valid relationship.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
+        /// <param name="navigationName">
+        ///     The name of the collection navigation property on this entity type that represents the relationship. If
+        ///     no property is specified, the relationship will be configured without a navigation property on this
+        ///     end.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
+            [NotNull] string navigationName)
+            where TRelatedEntity : class
+        {
+            Check.NotEmpty(navigationName, nameof(navigationName));
+
+            var relatedEntityType = Builder.ModelBuilder.Entity(typeof(TRelatedEntity), ConfigurationSource.Explicit).Metadata;
+
+            InternalRelationshipBuilder relationship;
+            using (var batch = Builder.Metadata.Model.ConventionDispatcher.StartBatch())
+            {
+                relationship = relatedEntityType.Builder
+                    .Relationship(Builder, ConfigurationSource.Explicit)
+                    .IsUnique(false, ConfigurationSource.Explicit)
+                    .RelatedEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit)
+                    .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
+                relationship = batch.Run(relationship);
+            }
+
+            return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
+                Builder.Metadata,
+                relatedEntityType,
+                navigationName,
                 relationship);
         }
 

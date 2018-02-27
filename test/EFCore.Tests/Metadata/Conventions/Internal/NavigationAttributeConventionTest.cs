@@ -754,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public void Navigation_attribute_convention_runs_for_private_property()
         {
             var modelBuilder = CreateModelBuilder();
-            var referenceBuilder = modelBuilder.Entity<BlogDetails>().HasOne(typeof(Post), "Post").WithOne();
+            var referenceBuilder = modelBuilder.Entity<BlogDetails>().HasOne<Post>("Post").WithOne();
 
             Assert.False(referenceBuilder.Metadata.Properties.First().IsNullable);
         }

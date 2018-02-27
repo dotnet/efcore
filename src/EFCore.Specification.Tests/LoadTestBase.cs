@@ -5973,35 +5973,35 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             b.Property(e => e.AlternateId).ValueGeneratedOnAdd();
 
-                            b.HasMany(e => e.Children)
-                                .WithOne(e => e.Parent)
+                            b.HasMany<Child>(nameof(Parent.Children))
+                                .WithOne(nameof(Child.Parent))
                                 .HasForeignKey(e => e.ParentId);
 
-                            b.HasOne(e => e.SinglePkToPk)
-                                .WithOne(e => e.Parent)
+                            b.HasOne<SinglePkToPk>(nameof(Parent.SinglePkToPk))
+                                .WithOne(nameof(SinglePkToPk.Parent))
                                 .HasForeignKey<SinglePkToPk>(e => e.Id)
                                 .IsRequired();
 
-                            b.HasOne(e => e.Single)
+                            b.HasOne<Single>(nameof(Parent.Single))
                                 .WithOne(e => e.Parent)
                                 .HasForeignKey<Single>(e => e.ParentId);
 
-                            b.HasMany(e => e.ChildrenAk)
+                            b.HasMany<ChildAk>(nameof(Parent.ChildrenAk))
                                 .WithOne(e => e.Parent)
                                 .HasPrincipalKey(e => e.AlternateId)
                                 .HasForeignKey(e => e.ParentId);
 
-                            b.HasOne(e => e.SingleAk)
+                            b.HasOne<SingleAk>(nameof(Parent.SingleAk))
                                 .WithOne(e => e.Parent)
                                 .HasPrincipalKey<Parent>(e => e.AlternateId)
                                 .HasForeignKey<SingleAk>(e => e.ParentId);
 
                             b.HasMany(e => e.ChildrenShadowFk)
-                                .WithOne(e => e.Parent)
+                                .WithOne(nameof(ChildShadowFk.Parent))
                                 .HasPrincipalKey(e => e.Id)
                                 .HasForeignKey("ParentId");
 
-                            b.HasOne(e => e.SingleShadowFk)
+                            b.HasOne<SingleShadowFk>(nameof(Parent.SingleShadowFk))
                                 .WithOne(e => e.Parent)
                                 .HasPrincipalKey<Parent>(e => e.Id)
                                 .HasForeignKey<SingleShadowFk>("ParentId");
@@ -6011,7 +6011,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasPrincipalKey(e => new { e.AlternateId, e.Id })
                                 .HasForeignKey(e => new { e.ParentAlternateId, e.ParentId });
 
-                            b.HasOne(e => e.SingleCompositeKey)
+                            b.HasOne<SingleCompositeKey>(nameof(Parent.SingleCompositeKey))
                                 .WithOne(e => e.Parent)
                                 .HasPrincipalKey<Parent>(e => new { e.AlternateId, e.Id })
                                 .HasForeignKey<SingleCompositeKey>(e => new { e.ParentAlternateId, e.ParentId });
