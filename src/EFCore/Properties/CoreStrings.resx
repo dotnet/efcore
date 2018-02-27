@@ -269,7 +269,7 @@
     <comment>Debug CoreEventId.ServiceProviderCreated</comment>
   </data>
   <data name="LogManyServiceProvidersCreated" xml:space="preserve">
-    <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
+    <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. This is commonly caused by injection of a new singleton service instance into every DbContext instance. For example, calling UseLoggerFactory passing in a new instance each time--see https://go.microsoft.com/fwlink/?linkid=869049 for more details. Consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
     <comment>Warning CoreEventId.ManyServiceProvidersCreatedWarning</comment>
   </data>
   <data name="LogContextInitialized" xml:space="preserve">
