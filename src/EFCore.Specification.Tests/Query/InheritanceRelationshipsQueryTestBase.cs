@@ -89,18 +89,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_reference_with_inheritance2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedReferenceOnBase);
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
         [Fact]
         public virtual void Include_reference_with_inheritance_reverse()
         {
@@ -143,18 +131,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.BaseEntities.Include(e => e.BaseReferenceOnBase).Where(e => e.Name != "Bar");
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_reference_with_inheritance_with_filter2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedReferenceOnBase).Where(e => e.Name != "Bar");
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);
@@ -234,18 +210,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_collection_with_inheritance2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedCollectionOnBase);
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
         [Fact]
         public virtual void Include_collection_with_inheritance_reverse()
         {
@@ -268,18 +232,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(6, result.Count);
                 Assert.Equal(3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_collection_with_inheritance_with_filter2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedCollectionOnBase).Where(e => e.Name != "Bar");
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
             }
         }
 
@@ -367,18 +319,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_reference_with_inheritance_on_derived3()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedReferenceOnBase);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
         [Fact]
         public virtual void Include_reference_with_inheritance_on_derived4()
         {
@@ -421,18 +361,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.DerivedEntities.Include(e => e.BaseReferenceOnDerived).Where(e => e.Name != "Bar");
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_reference_with_inheritance_on_derived_with_filter3()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedReferenceOnBase).Where(e => e.Name != "Bar");
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);
@@ -524,20 +452,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
+        [Fact]
         public virtual void Include_collection_with_inheritance_on_derived3()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedCollectionOnBase);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Include_collection_with_inheritance_on_derived4()
         {
             using (var context = CreateContext())
             {
@@ -572,36 +488,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_reference_reference2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedReferenceOnBase.NestedReference);
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
         [Fact]
         public virtual void Nested_include_with_inheritance_reference_reference3()
         {
             using (var context = CreateContext())
             {
                 var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase.NestedReference);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_reference_reference4()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedReferenceOnBase.NestedReference);
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);
@@ -632,36 +524,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_reference_collection2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedReferenceOnBase.NestedCollection);
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
         [Fact]
         public virtual void Nested_include_with_inheritance_reference_collection3()
         {
             using (var context = CreateContext())
             {
                 var query = context.DerivedEntities.Include(e => e.BaseReferenceOnBase.NestedCollection);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_reference_collection4()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedReferenceOnBase.NestedCollection);
                 var result = query.ToList();
 
                 Assert.Equal(3, result.Count);
@@ -693,42 +561,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_collection_reference2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedCollectionOnBase).ThenInclude(e => e.NestedReference);
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_collection_reference3()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedCollectionOnBase).ThenInclude(e => e.NestedReference);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_collection_reference4()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedCollectionOnBase).ThenInclude(e => e.NestedReference);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
         [Fact]
         public virtual void Nested_include_with_inheritance_collection_reference_reverse()
         {
@@ -751,42 +583,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(6, result.Count);
                 Assert.Equal(3, result.SelectMany(e => e.BaseCollectionOnBase.OfType<DerivedCollectionOnBase>()).Count(e => e.DerivedProperty != 0));
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_collection_collection2()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.BaseEntities.Include(e => e.DerivedCollectionOnBase).ThenInclude(e => e.NestedCollection);
-                var result = query.ToList();
-
-                Assert.Equal(6, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_collection_collection3()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedCollectionOnBase).ThenInclude(e => e.NestedCollection);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
-            }
-        }
-
-        [ConditionalFact(Skip = "Test does not pass.")] // TODO: See issue#7160
-        public virtual void Nested_include_with_inheritance_collection_collection4()
-        {
-            using (var context = CreateContext())
-            {
-                var query = context.DerivedEntities.Include(e => e.DerivedCollectionOnBase).ThenInclude(e => e.NestedCollection);
-                var result = query.ToList();
-
-                Assert.Equal(3, result.Count);
             }
         }
 

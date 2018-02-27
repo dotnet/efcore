@@ -20,16 +20,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
         public BaseReferenceOnBase BaseReferenceOnBase { get; set; }
 
         [NotMapped]
-        public DerivedReferenceOnBase DerivedReferenceOnBase { get; set; }
-
-        [NotMapped]
         public ReferenceOnBase ReferenceOnBase { get; set; }
 
         [NotMapped]
         public List<BaseCollectionOnBase> BaseCollectionOnBase { get; set; }
-
-        [NotMapped]
-        public List<DerivedCollectionOnBase> DerivedCollectionOnBase { get; set; }
 
         [NotMapped]
         public List<CollectionOnBase> CollectionOnBase { get; set; }

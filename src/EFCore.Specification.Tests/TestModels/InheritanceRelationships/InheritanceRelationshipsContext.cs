@@ -162,10 +162,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
             {
                 Name = "Base1",
                 BaseReferenceOnBase = brob1,
-                DerivedReferenceOnBase = drob1,
                 ReferenceOnBase = rob1,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { bcob11 },
-                DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob11 },
                 CollectionOnBase = new List<CollectionOnBase> { cob11, cob12 }
             };
 
@@ -180,9 +178,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
             var baseEntity3 = new BaseInheritanceRelationshipEntity
             {
                 Name = "Base3",
-                DerivedReferenceOnBase = drob2,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { dcob21 },
-                DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob21 }
             };
 
             context.BaseEntities.AddRange(baseEntity1, baseEntity2, baseEntity3);
@@ -192,10 +188,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
                 Name = "Derived1(4)",
                 BaseSelfRerefenceOnDerived = baseEntity1,
                 BaseReferenceOnBase = drob1,
-                DerivedReferenceOnBase = drob3,
                 ReferenceOnBase = rob3,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { dcob11, dcob12 },
-                DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob31, dcob32 },
                 CollectionOnBase = new List<CollectionOnBase> { cob31, cob32 },
                 BaseReferenceOnDerived = brod1,
                 DerivedReferenceOnDerived = drod1,
@@ -221,9 +215,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
             {
                 Name = "Derived3(6)",
                 BaseSelfRerefenceOnDerived = baseEntity3,
-                DerivedReferenceOnBase = drob4,
                 BaseCollectionOnBase = new List<BaseCollectionOnBase> { bcob21 },
-                DerivedCollectionOnBase = new List<DerivedCollectionOnBase> { dcob41 },
                 DerivedReferenceOnDerived = drod2,
                 BaseCollectionOnDerived = new List<BaseCollectionOnDerived> { dcod11, dcod12 },
                 DerivedCollectionOnDerived = new List<DerivedCollectionOnDerived> { dcod21 }
