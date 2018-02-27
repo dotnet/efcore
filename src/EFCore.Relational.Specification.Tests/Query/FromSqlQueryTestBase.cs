@@ -5,7 +5,9 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -621,11 +623,12 @@ FROM ""Customers""")
         {
             using (var context = CreateContext())
             {
+                var boolMapping = (RelationalTypeMapping)context.GetService<ITypeMappingSource>().FindMapping(typeof(bool));
                 var actual = context.Set<Product>()
                     .FromSql(
                         @"SELECT *
 FROM ""Products""
-WHERE ""Discontinued"" <> 1
+WHERE ""Discontinued"" <> " + boolMapping.GenerateSqlLiteral(true) + @"
 AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")")
                     .Select(p => p.ProductName)
                     .ToArray();
