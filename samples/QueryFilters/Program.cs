@@ -118,6 +118,9 @@ namespace Samples
 
     public class BloggingContext : DbContext
     {
+        private static readonly ILoggerFactory _loggerFactory
+            = new LoggerFactory().AddConsole((s, l) => l == LogLevel.Information && !s.EndsWith("Connection"));
+
         private readonly string _tenantId;
 
         public BloggingContext(string tenant)
@@ -133,7 +136,7 @@ namespace Samples
             optionsBuilder
                 .UseSqlServer(
                     @"Server=(localdb)\mssqllocaldb;Database=Demo.QueryFilters;Trusted_Connection=True;ConnectRetryCount=0;")
-                .UseLoggerFactory(new LoggerFactory().AddConsole((s, l) => l == LogLevel.Information && !s.EndsWith("Connection")));
+                .UseLoggerFactory(_loggerFactory);
         }
 
         #region Configuration
