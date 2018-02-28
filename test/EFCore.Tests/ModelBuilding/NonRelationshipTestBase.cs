@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
@@ -302,7 +303,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_set_property_annotation_when_no_clr_property()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 var propertyBuilder = modelBuilder
                     .Entity<Customer>()
@@ -359,7 +359,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Properties_can_be_ignored()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
                 var entityType = (IEntityType)modelBuilder.Entity<Quarks>().Metadata;
 
@@ -664,7 +663,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(PropertyAccessMode.FieldDuringConstruction, quarksType.FindProperty("Down").GetPropertyAccessMode());
                 Assert.Equal(PropertyAccessMode.Property, quarksType.FindProperty("Up").GetPropertyAccessMode());
             }
-            
+
             [Fact]
             public virtual void Properties_can_have_store_type_set()
             {
@@ -689,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(entityType.FindProperty("Strange").GetProviderClrType());
             }
 
-            
+
             [Fact]
             public virtual void Properties_can_have_value_converter_set_non_generic()
             {

@@ -412,7 +412,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Entity<CreateTableEntity1>().Property(e => e.A).HasColumnName("C"),
+                modelBuilder => modelBuilder.Entity<CreateTableEntity1>(b =>
+                {
+                    b.Property(e => e.C).HasColumnName("C");
+                    b.Property(e => e.A).HasColumnName("C");
+                }),
                 operations =>
                 {
                     var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
@@ -4517,18 +4521,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         common.Entity("Person").Property<int>("Id");
                         common.Entity("Animal").Property<int>("Id");
-                        common.Entity("GameAnimal").HasBaseType("Animal").Property<int>("HunterId");
-                        common.Entity("EndangeredAnimal").HasBaseType("Animal").Property<int>("HunterId");
+                        common.Entity("GameAnimal").HasBaseType("Animal").Property<int>("HunterId").HasColumnName("HunterId");
+                        common.Entity("EndangeredAnimal").HasBaseType("Animal").Property<int>("HunterId").HasColumnName("HunterId");
                     },
                 source => { },
                 target =>
                     {
                         target.Entity(
                             "GameAnimal",
-                            x => { x.HasOne("Person").WithMany().HasForeignKey("HunterId"); });
+                            x =>
+                            {
+                                x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
+                                x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            });
                         target.Entity(
                             "EndangeredAnimal",
-                            x => { x.HasOne("Person").WithMany().HasForeignKey("HunterId"); });
+                            x =>
+                            {
+                                x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
+                                x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                            });
                     },
                 operations =>
                     {
@@ -4553,26 +4565,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 common =>
-                    {
-                        common.Entity("Person").Property<int>("Id");
-                        common.Entity("Animal").Property<int>("Id");
-                        common.Entity("GameAnimal").HasBaseType("Animal").Property<int>("HunterId");
-                        common.Entity(
-                            "GameAnimal",
-                            x => { x.HasOne("Person").WithMany().HasForeignKey("HunterId"); });
-                    },
+                {
+                    common.Entity("Person").Property<int>("Id");
+                    common.Entity("Animal").Property<int>("Id");
+                    common.Entity("GameAnimal").HasBaseType("Animal").Property<int>("HunterId").HasColumnName("HunterId");
+                    common.Entity(
+                        "GameAnimal",
+                        x =>
+                        {
+                            x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
+                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                        });
+                },
                 source => { },
                 target =>
-                    {
-                        target.Entity("EndangeredAnimal").HasBaseType("Animal").Property<int>("HunterId");
-                        target.Entity(
-                            "EndangeredAnimal",
-                            x => { x.HasOne("Person").WithMany().HasForeignKey("HunterId"); });
-                    },
+                {
+                    target.Entity("EndangeredAnimal").HasBaseType("Animal").Property<int>("HunterId").HasColumnName("HunterId");
+                    target.Entity(
+                        "EndangeredAnimal",
+                        x =>
+                        {
+                            x.HasOne("Person").WithMany().HasForeignKey("HunterId").HasConstraintName("FK_Animal_Person_HunterId");
+                            x.HasIndex("HunterId").HasName("IX_Animal_HunterId");
+                        });
+                },
                 operations =>
-                    {
-                        Assert.Equal(0, operations.Count);
-                    });
+                {
+                    Assert.Equal(0, operations.Count);
+                });
         }
 
         [Fact]
@@ -6497,17 +6517,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Rename_property_on_dependent_and_add_similar_to_principal_with_shared_table()
         {
             Execute(
+                common => common
+                    .Entity<OldOrder>(x =>
+                    {
+                        x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id");
+                    })
+                    .Entity<Address>().ToTable("OldOrder"),
                 source => source
-                    .Entity<OldOrder>(x => x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id"))
-                    .Entity<Address>().ToTable("OldOrder").Property<int>("OldZip"),
+                    .Entity<OldOrder>(x => { })
+                    .Entity<Address>().Property<int>("OldZip"),
                 target => target
-                    .Entity<OldOrder>(
-                        x =>
-                        {
-                            x.Property<int>("NotZip");
-                            x.HasOne(o => o.Billing).WithOne().HasForeignKey<Address>("Id");
-                        })
-                    .Entity<Address>().ToTable("OldOrder").Property<int>("NewZip"),
+                    .Entity<OldOrder>(x => x.Property<int>("NotZip"))
+                    .Entity<Address>().Property<int>("NewZip"),
                 operations =>
                 {
                     Assert.Equal(2, operations.Count);
@@ -6603,6 +6624,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        protected override ModelBuilder CreateModelBuilder() => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
     }
 }

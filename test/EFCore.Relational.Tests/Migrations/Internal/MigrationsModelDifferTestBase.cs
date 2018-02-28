@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
@@ -40,10 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceModelBuilder = CreateModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
+            sourceModelBuilder.GetInfrastructure().Metadata.Validate();
 
             var targetModelBuilder = CreateModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
+            targetModelBuilder.GetInfrastructure().Metadata.Validate();
 
             var modelDiffer = CreateModelDiffer(targetModelBuilder.Model);
 
@@ -104,11 +107,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return jaggedArray;
         }
 
-        protected abstract ModelBuilder CreateModelBuilder();
+        protected abstract TestHelpers TestHelpers { get; }
+        protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder();
+        protected virtual IModelValidator CreateModelValidator() => TestHelpers.CreateContextServices().GetRequiredService<IModelValidator>();
 
         protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
         {
-            var ctx = RelationalTestHelpers.Instance.CreateContext(model);
+            var ctx = TestHelpers.CreateContext(model);
             return new MigrationsModelDiffer(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

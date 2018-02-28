@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Converters;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -1133,8 +1132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .AppendLine($"b.{nameof(EntityTypeBuilder.SeedData)}(new[]")
-                .AppendLine("{");
+                .AppendLine($"b.{nameof(EntityTypeBuilder.SeedData)}(");
 
             using (stringBuilder.Indent())
             {
@@ -1179,7 +1177,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .AppendLine("});");
+                .AppendLine(");");
         }
     }
 }

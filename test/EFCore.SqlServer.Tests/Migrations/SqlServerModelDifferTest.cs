@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     }));
         }
 
-        protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
         protected override MigrationsModelDiffer CreateModelDiffer(IModel model)
         {

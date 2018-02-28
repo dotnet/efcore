@@ -167,6 +167,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
                 => Wrap(EntityTypeBuilder.UsePropertyAccessMode(propertyAccessMode));
 
+            public override TestEntityTypeBuilder<TEntity> SeedData(params TEntity[] data)
+                => Wrap(EntityTypeBuilder.SeedData(data));
+
             public EntityTypeBuilder Instance => EntityTypeBuilder;
         }
 

@@ -190,8 +190,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public virtual string GetDisplayName(Type entityType) => entityType.Name;
 
-            public virtual ModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-                => ModelBuilder.UsePropertyAccessMode(propertyAccessMode);
+            public virtual TestModelBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            {
+                ModelBuilder.UsePropertyAccessMode(propertyAccessMode);
+
+                return this;
+            }
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>
@@ -242,6 +246,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestEntityTypeBuilder<TEntity> HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy);
 
             public abstract TestEntityTypeBuilder<TEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
+
+            public abstract TestEntityTypeBuilder<TEntity> SeedData(params TEntity[] data);
         }
 
         public class TestKeyBuilder

@@ -483,27 +483,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if (!seedDatum.TryGetValue(property.Name, out var value)
                             || value == null)
                         {
-                            if (!property.IsNullable)
+                            if (!property.IsNullable
+                                && (!property.RequiresValueGenerator()
+                                    || property.IsKey()))
                             {
                                 throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                             }
                         } else if (property.RequiresValueGenerator()
+                                   && property.IsKey()
                                    && property.ClrType.IsDefaultValue(value))
                         {
                             throw new InvalidOperationException(CoreStrings.SeedDatumMissingValue(entityType.DisplayName(), property.Name));
                         }
-                        else
+                        else if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
                         {
-                            if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                            if (sensitiveDataLogged)
                             {
-                                if (sensitiveDataLogged)
-                                {
-                                    throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValueSensitive(
-                                        entityType.DisplayName(), value, property.Name, property.ClrType.DisplayName()));
-                                }
-                                throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValue(
-                                    entityType.DisplayName(), property.Name, property.ClrType.DisplayName()));
+                                throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValueSensitive(
+                                    entityType.DisplayName(), value, property.Name, property.ClrType.DisplayName()));
                             }
+                            throw new InvalidOperationException(CoreStrings.SeedDatumIncompatibleValue(
+                                entityType.DisplayName(), property.Name, property.ClrType.DisplayName()));
                         }
                     }
 

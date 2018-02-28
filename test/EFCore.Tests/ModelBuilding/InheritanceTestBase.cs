@@ -77,7 +77,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<SelfRefManyToOneDerived>();
+                modelBuilder.Entity<SelfRefManyToOneDerived>().SeedData(new SelfRefManyToOneDerived
+                {
+                    Id = 1,
+                    SelfRefId = 1
+                });
                 modelBuilder.Entity<SelfRefManyToOne>();
 
                 modelBuilder.Validate();

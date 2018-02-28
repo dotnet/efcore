@@ -2044,32 +2044,51 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
         {
             Test(
                 builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>(eb =>
                     {
-                        builder.Entity<EntityWithOneProperty>()
-                            .Ignore(e => e.EntityWithTwoProperties)
-                            .SeedData(
-                                new EntityWithOneProperty { Id = 42 });
-                        builder.Ignore<EntityWithTwoProperties>();
-                    },
+
+                        eb.Ignore(e => e.EntityWithTwoProperties);
+                        eb.Property<decimal?>("OptionalProperty");
+                        eb.SeedData(
+                            new EntityWithOneProperty
+                            {
+                                Id = 42
+                            },
+                            new
+                            {
+                                Id = 43,
+                                OptionalProperty = 4.3M
+                            });
+                    });
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
                 GetHeading() + @"
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
     {
         b.Property<int>(""Id"")
             .ValueGeneratedOnAdd();
 
+        b.Property<decimal?>(""OptionalProperty"");
+
         b.HasKey(""Id"");
 
         b.ToTable(""EntityWithOneProperty"");
 
-        b.SeedData(new[]
-        {
-            new { Id = 42 }
-        });
+        b.SeedData(
+            new { Id = 42 },
+            new { Id = 43, OptionalProperty = 4.3m }
+        );
     });
 ",
                 o => Assert.Collection(
-                    o.GetEntityTypes().Select(e => e.GetSeedData().Single()),
-                    seed => Assert.Equal(42, seed["Id"])));
+                    o.GetEntityTypes().SelectMany(e => e.GetSeedData()),
+                    seed => Assert.Equal(42, seed["Id"]),
+                    seed =>
+                    {
+                        Assert.Equal(43, seed["Id"]);
+                        Assert.Equal(4.3m, seed["OptionalProperty"]);
+                    }));
         }
 
         [Fact]
@@ -2097,10 +2116,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.ToTable(""EntityWithOneProperty"");
 
-        b.SeedData(new[]
-        {
+        b.SeedData(
             new { Id = 27 }
-        });
+        );
     });
 
 builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
@@ -2114,10 +2132,9 @@ builder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServer
 
         b.ToTable(""EntityWithTwoProperties"");
 
-        b.SeedData(new[]
-        {
+        b.SeedData(
             new { Id = 42, AlternateId = 43 }
-        });
+        );
     });
 ",
                 o => Assert.Collection(

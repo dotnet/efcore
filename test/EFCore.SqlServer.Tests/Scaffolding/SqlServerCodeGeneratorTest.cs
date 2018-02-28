@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     public class SqlServerCodeGeneratorTest
