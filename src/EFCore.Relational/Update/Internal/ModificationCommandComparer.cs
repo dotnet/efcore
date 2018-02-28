@@ -63,14 +63,33 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 var xEntry = x.Entries[0];
                 var yEntry = y.Entries[0];
 
-                var key = xEntry.EntityType.FindPrimaryKey();
-
-                for (var i = 0; i < key.Properties.Count; i++)
+                var xEntityType = xEntry.EntityType;
+                var yEntityType = yEntry.EntityType;
+                var xKey = xEntry.EntityType.FindPrimaryKey();
+                var yKey = xKey;
+                if (xEntityType != yEntityType)
                 {
-                    var keyProperty = key.Properties[i];
-                    var compare = GetComparer(keyProperty.ClrType);
+                    result = StringComparer.Ordinal.Compare(xEntityType.Name, yEntityType.Name);
+                    if (0 != result)
+                    {
+                        return result;
+                    }
 
-                    result = compare(xEntry.GetCurrentValue(keyProperty), yEntry.GetCurrentValue(keyProperty));
+                    result = StringComparer.Ordinal.Compare(xEntityType.DefiningNavigationName, yEntityType.DefiningNavigationName);
+                    if (0 != result)
+                    {
+                        return result;
+                    }
+
+                    yKey = yEntry.EntityType.FindPrimaryKey();
+                }
+
+                for (var i = 0; i < xKey.Properties.Count; i++)
+                {
+                    var xKeyProperty = xKey.Properties[i];
+                    var compare = GetComparer(xKeyProperty.ClrType);
+
+                    result = compare(xEntry.GetCurrentValue(xKeyProperty), yEntry.GetCurrentValue(yKey.Properties[i]));
                     if (0 != result)
                     {
                         return result;

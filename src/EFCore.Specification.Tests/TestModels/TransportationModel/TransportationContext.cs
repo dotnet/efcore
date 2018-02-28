@@ -72,50 +72,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
         }
 
         public void AssertSeeded()
-        {
-            Assert.Equal(CreateVehicles().OrderBy(v => v.Name).ToList(), Load(Vehicles).OrderBy(v => v.Name).ToList());
-        }
-
-        // TODO: Instead use derived includes when available
-        public DbSet<Vehicle> Load(DbSet<Vehicle> vehicles)
-        {
-            foreach (var vehicle in vehicles)
-            {
-                Load(vehicle);
-            }
-
-            return vehicles;
-        }
-
-        private void Load(Vehicle vehicle)
-        {
-            if (vehicle != null)
-            {
-                switch (vehicle)
-                {
-                    case PoweredVehicle v:
-                        Entry(v).Reference(e => e.Engine).Load();
-                        Load(v.Engine);
-                        goto default;
-                    default:
-                        Entry(vehicle).Reference(e => e.Operator).Load();
-                        break;
-                }
-            }
-        }
-
-        private void Load(Engine engine)
-        {
-            if (engine != null)
-            {
-                switch (engine)
-                {
-                    case CombustionEngine en:
-                        en.FuelTank = Set<FuelTank>().SingleOrDefault(f => f.VehicleName == en.VehicleName);
-                        break;
-                }
-            }
-        }
+            => Assert.Equal(CreateVehicles().OrderBy(v => v.Name).ToList(),
+                Vehicles
+                    .Include(v => v.Operator)
+                    .Include(v => ((PoweredVehicle)v).Engine)
+                    .ThenInclude(e => (e as CombustionEngine).FuelTank)
+                    .OrderBy(v => v.Name).ToList());
 
         protected IEnumerable<Vehicle> CreateVehicles()
             => new List<Vehicle>

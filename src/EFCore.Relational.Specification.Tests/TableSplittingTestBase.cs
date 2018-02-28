@@ -23,6 +23,31 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Can_update_just_dependents()
+        {
+            using (CreateTestStore(OnModelCreating))
+            {
+                Operator firstOperator;
+                Engine firstEngine;
+                using (var context = CreateContext())
+                {
+                    firstOperator = context.Set<Operator>().OrderBy(o => o.VehicleName).First();
+                    firstOperator.Name += "1";
+                    firstEngine = context.Set<Engine>().OrderBy(o => o.VehicleName).First();
+                    firstEngine.Description += "1";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(firstOperator.Name, context.Set<Operator>().OrderBy(o => o.VehicleName).First().Name);
+                    Assert.Equal(firstEngine.Description, context.Set<Engine>().OrderBy(o => o.VehicleName).First().Description);
+                }
+            }
+        }
+
+        [Fact]
         public virtual void Can_query_shared()
         {
             using (CreateTestStore(OnModelCreating))
