@@ -977,6 +977,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual IEnumerable<ForeignKey> GetForeignKeys()
+            => _baseType?.GetForeignKeys().Concat(_foreignKeys) ?? _foreignKeys;
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual IEnumerable<ForeignKey> FindDeclaredForeignKeys([NotNull] IReadOnlyList<IProperty> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -1133,14 +1140,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
             => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
-        private SortedSet<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
-
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual IEnumerable<ForeignKey> GetForeignKeys()
-            => _baseType?.GetForeignKeys().Concat(_foreignKeys) ?? _foreignKeys;
+        public virtual IEnumerable<ForeignKey> GetDerivedReferencingForeignKeysInclusive()
+            => GetDeclaredReferencingForeignKeys().Concat(GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingForeignKeys()));
+
+        private SortedSet<ForeignKey> DeclaredReferencingForeignKeys { get; set; }
 
         #endregion
 

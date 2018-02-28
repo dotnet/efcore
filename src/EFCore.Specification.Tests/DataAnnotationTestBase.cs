@@ -1671,6 +1671,50 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void InversePropertyAttribute_removes_ambiguity_when_combined_with_other_attributes()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+            modelBuilder.Entity<Relation>();
+
+            var accountNavigation = model.FindEntityType(typeof(Relation)).FindNavigation(nameof(Relation.AccountManager));
+            Assert.Equal(nameof(User.AccountManagerRelations), accountNavigation?.FindInverse()?.Name);
+            Assert.Equal(nameof(Relation.AccountId), accountNavigation?.ForeignKey.Properties.First().Name);
+
+            var salesNavigation = model.FindEntityType(typeof(Relation)).FindNavigation(nameof(Relation.SalesManager));
+            Assert.Equal(nameof(User.SalesManagerRelations), salesNavigation?.FindInverse()?.Name);
+            Assert.Equal(nameof(Relation.SalesId), salesNavigation?.ForeignKey.Properties.First().Name);
+
+            Validate(modelBuilder);
+        }
+
+        public class User
+        {
+            [Key]
+            public int UserUId { get; set; }
+
+            [InverseProperty(nameof(Relation.AccountManager))]
+            public virtual ICollection<Relation> AccountManagerRelations { get; set; }
+
+            public virtual ICollection<Relation> SalesManagerRelations { get; set; }
+        }
+
+        public class Relation
+        {
+            public string Id { get; set; }
+
+            public int AccountId { get; set; }
+
+            [ForeignKey(nameof(AccountId))]
+            public virtual User AccountManager { get; set; }
+
+            public int SalesId { get; set; }
+
+            [ForeignKey(nameof(SalesId))]
+            public virtual User SalesManager { get; set; }
+        }
+
+        [Fact]
         public virtual void InversePropertyAttribute_removes_ambiguity_with_base_type_bidirectional()
         {
             var modelBuilder = CreateModelBuilder();

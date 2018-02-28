@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         IForeignKeyUniquenessChangedConvention,
         IKeyAddedConvention,
         IKeyRemovedConvention,
+        IPrimaryKeyChangedConvention,
         IModelBuiltConvention
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Model> _logger;
@@ -105,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 if (foreignKey.IsUnique
-                    && !foreignKey.IsSelfReferencing()
-                    && foreignKey.DeclaringEntityType.BaseType == null)
+                    && foreignKey.DeclaringEntityType.BaseType == null
+                    && !foreignKey.IsSelfReferencing())
                 {
                     // Try to use PK properties if principal end is not ambiguous
                     if (!ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
@@ -445,16 +446,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, Key key)
         {
-            var fks = key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList();
-            foreach (var foreignKey in fks)
+            var foreignKeys = key.DeclaringEntityType.GetDerivedForeignKeysInclusive().ToList();
+            foreach (var foreignKey in foreignKeys)
             {
-                if (foreignKey.Builder != null
-                    && (!foreignKey.IsUnique
-                        || foreignKey.DeclaringEntityType.BaseType != null))
+                if (!foreignKey.IsUnique
+                    || foreignKey.DeclaringEntityType.BaseType != null)
                 {
                     Apply(foreignKey.Builder);
                 }
             }
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        bool IPrimaryKeyChangedConvention.Apply(InternalEntityTypeBuilder entityTypeBuilder, Key previousPrimaryKey)
+        {
+            var foreignKeys = entityTypeBuilder.Metadata.GetDerivedForeignKeysInclusive().ToList();
+            foreach (var foreignKey in foreignKeys)
+            {
+                if (foreignKey.IsUnique
+                    && ConfigurationSource.Convention.Overrides(foreignKey.GetForeignKeyPropertiesConfigurationSource()))
+                {
+                    Apply(foreignKey.Builder);
+                }
+            }
+
+            var referencingForeignKeys = entityTypeBuilder.Metadata.GetDerivedReferencingForeignKeysInclusive().ToList();
+            foreach (var referencingForeignKey in referencingForeignKeys)
+            {
+                if (ConfigurationSource.Convention.Overrides(referencingForeignKey.GetForeignKeyPropertiesConfigurationSource()))
+                {
+                    Apply(referencingForeignKey.Builder);
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

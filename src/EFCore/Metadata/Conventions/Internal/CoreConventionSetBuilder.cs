@@ -109,6 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
 
+            conventionSet.PrimaryKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PrimaryKeyChangedConventions.Add(valueGeneratorConvention);
 
             conventionSet.KeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);

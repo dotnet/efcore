@@ -1017,32 +1017,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [Fact]
-        public void Removing_key_removes_referencing_foreign_key_of_lower_or_equal_source()
-        {
-            var modelBuilder = CreateModelBuilder();
-            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            var key = principalEntityBuilder.HasKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Convention);
-            dependentEntityBuilder.HasForeignKey(
-                    principalEntityBuilder,
-                    new[]
-                    {
-                        dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
-                        dependentEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
-                    }, ConfigurationSource.DataAnnotation)
-                .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.DataAnnotation);
-
-            Assert.Null(principalEntityBuilder.RemoveKey(key.Metadata, ConfigurationSource.Convention));
-            Assert.Equal(ConfigurationSource.DataAnnotation, principalEntityBuilder.RemoveKey(key.Metadata, ConfigurationSource.DataAnnotation));
-
-            Assert.Equal(
-                new[] { Order.CustomerIdProperty.Name, Order.CustomerUniqueProperty.Name },
-                dependentEntityBuilder.Metadata.GetProperties().Select(p => p.Name));
-            Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
-            Assert.Empty(principalEntityBuilder.Metadata.GetKeys());
-        }
-
-        [Fact]
         public void PrimaryKey_returns_same_instance_for_clr_properties()
         {
             var modelBuilder = CreateModelBuilder();

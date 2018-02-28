@@ -45,8 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     currentKey.Properties
                         .Where(p => !p.Name.Equals(propertyBuilder.Metadata.Name, StringComparison.OrdinalIgnoreCase))
                         .Select(p => p.Name));
-                properties.Sort(StringComparer.OrdinalIgnoreCase);
-                entityTypeBuilder.RemoveKey(currentKey, ConfigurationSource.DataAnnotation);
+                if (properties.Count > 1)
+                {
+                    properties.Sort(StringComparer.OrdinalIgnoreCase);
+                    entityTypeBuilder.RemoveKey(currentKey, ConfigurationSource.DataAnnotation);
+                }
             }
 
             entityTypeBuilder.PrimaryKey(properties, ConfigurationSource.DataAnnotation);

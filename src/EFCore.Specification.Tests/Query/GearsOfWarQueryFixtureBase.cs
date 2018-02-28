@@ -274,8 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<LocustHorde>().HasBaseType<Faction>();
             modelBuilder.Entity<LocustHorde>().HasMany(h => h.Leaders).WithOne();
 
-            // TODO: explicit FK declaration can be removed once #11019 is fixed
-            modelBuilder.Entity<LocustHorde>().HasOne(h => h.Commander).WithOne(c => c.CommandingFaction).HasForeignKey<LocustHorde>(k => k.CommanderName); 
+            modelBuilder.Entity<LocustHorde>().HasOne(h => h.Commander).WithOne(c => c.CommandingFaction);
 
             modelBuilder.Entity<LocustLeader>().HasKey(l => l.Name);
             modelBuilder.Entity<LocustCommander>().HasBaseType<LocustLeader>();

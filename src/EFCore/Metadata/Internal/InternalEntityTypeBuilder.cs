@@ -215,14 +215,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.Model.ConventionDispatcher.StartBatch())
             {
-                foreach (var foreignKey in key.GetReferencingForeignKeys().ToList())
-                {
-                    var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
-                    Debug.Assert(removed.HasValue);
-                }
+                var detachedRelationships = key.GetReferencingForeignKeys().ToList().Select(DetachRelationship).ToList();
 
                 var removedKey = Metadata.RemoveKey(key.Properties);
                 Debug.Assert(removedKey == key);
+
+                foreach (var detachedRelationship in detachedRelationships)
+                {
+                    detachedRelationship.Item1.Attach(detachedRelationship.Item1.Metadata.DeclaringEntityType.Builder);
+                }
 
                 RemoveShadowPropertiesIfUnused(key.Properties);
                 foreach (var property in key.Properties)
