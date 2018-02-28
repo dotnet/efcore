@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqliteEventId.SchemaConfiguredWarning,
                 LogLevel.Warning,
+                "SqliteEventId.SchemaConfiguredWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     SqliteEventId.SchemaConfiguredWarning,
@@ -51,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqliteEventId.SequenceConfiguredWarning,
                 LogLevel.Warning,
+                "SqliteEventId.SequenceConfiguredWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     SqliteEventId.SequenceConfiguredWarning,
@@ -69,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 SqliteEventId.SchemasNotSupportedWarning,
                 LogLevel.Warning,
+                "SqliteEventId.SchemasNotSupportedWarning",
                 LoggerMessage.Define(
                     LogLevel.Warning,
                     SqliteEventId.SchemasNotSupportedWarning,
@@ -81,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, bool, string>(
                 SqliteEventId.ColumnFound,
                 LogLevel.Debug,
+                "SqliteEventId.ColumnFound",
                 LoggerMessage.Define<string, string, string, bool, string>(
                     LogLevel.Debug,
                     SqliteEventId.ColumnFound,
@@ -93,6 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, long, string, string>(
                 SqliteEventId.ForeignKeyFound,
                 LogLevel.Debug,
+                "SqliteEventId.ForeignKeyFound",
                 LoggerMessage.Define<string, long, string, string>(
                     LogLevel.Debug,
                     SqliteEventId.ForeignKeyFound,
@@ -105,6 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqliteEventId.ForeignKeyReferencesMissingTableWarning,
                 LogLevel.Warning,
+                "SqliteEventId.ForeignKeyReferencesMissingTableWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     SqliteEventId.ForeignKeyReferencesMissingTableWarning,
@@ -117,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqliteEventId.TableFound,
                 LogLevel.Debug,
+                "SqliteEventId.TableFound",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     SqliteEventId.TableFound,
@@ -129,6 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqliteEventId.MissingTableWarning,
                 LogLevel.Warning,
+                "SqliteEventId.MissingTableWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     SqliteEventId.MissingTableWarning,
@@ -141,6 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
                 LogLevel.Warning,
+                "SqliteEventId.ForeignKeyPrincipalColumnMissingWarning",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Warning,
                     SqliteEventId.ForeignKeyPrincipalColumnMissingWarning,
@@ -153,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, bool?>(
                 SqliteEventId.IndexFound,
                 LogLevel.Debug,
+                "SqliteEventId.IndexFound",
                 LoggerMessage.Define<string, string, bool?>(
                     LogLevel.Debug,
                     SqliteEventId.IndexFound,
@@ -165,6 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqliteEventId.PrimaryKeyFound,
                 LogLevel.Debug,
+                "SqliteEventId.PrimaryKeyFound",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     SqliteEventId.PrimaryKeyFound,
@@ -177,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqliteEventId.UniqueConstraintFound,
                 LogLevel.Debug,
+                "SqliteEventId.UniqueConstraintFound",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     SqliteEventId.UniqueConstraintFound,

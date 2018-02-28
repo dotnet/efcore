@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqlServerEventId.DecimalTypeDefaultWarning,
                 LogLevel.Warning,
+                "SqlServerEventId.DecimalTypeDefaultWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     SqlServerEventId.DecimalTypeDefaultWarning,
@@ -93,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqlServerEventId.ByteIdentityColumnWarning,
                 LogLevel.Warning,
+                "SqlServerEventId.ByteIdentityColumnWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     SqlServerEventId.ByteIdentityColumnWarning,
@@ -129,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqlServerEventId.DefaultSchemaFound,
                 LogLevel.Debug,
+                "SqlServerEventId.DefaultSchemaFound",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     SqlServerEventId.DefaultSchemaFound,
@@ -141,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqlServerEventId.TypeAliasFound,
                 LogLevel.Debug,
+                "SqlServerEventId.TypeAliasFound",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     SqlServerEventId.TypeAliasFound,
@@ -153,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new FallbackEventDefinition(
                 SqlServerEventId.ColumnFound,
                 LogLevel.Debug,
+                "SqlServerEventId.ColumnFound",
                 _resourceManager.GetString("LogFoundColumn"));
 
         /// <summary>
@@ -162,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 SqlServerEventId.ForeignKeyFound,
                 LogLevel.Debug,
+                "SqlServerEventId.ForeignKeyFound",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Debug,
                     SqlServerEventId.ForeignKeyFound,
@@ -174,6 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
                 LogLevel.Warning,
+                "SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Warning,
                     SqlServerEventId.ForeignKeyReferencesMissingPrincipalTableWarning,
@@ -186,6 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqlServerEventId.MissingSchemaWarning,
                 LogLevel.Warning,
+                "SqlServerEventId.MissingSchemaWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     SqlServerEventId.MissingSchemaWarning,
@@ -198,6 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqlServerEventId.MissingTableWarning,
                 LogLevel.Warning,
+                "SqlServerEventId.MissingTableWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     SqlServerEventId.MissingTableWarning,
@@ -210,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new FallbackEventDefinition(
                 SqlServerEventId.SequenceFound,
                 LogLevel.Debug,
+                "SqlServerEventId.SequenceFound",
                 _resourceManager.GetString("LogFoundSequence"));
 
         /// <summary>
@@ -219,6 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 SqlServerEventId.TableFound,
                 LogLevel.Debug,
+                "SqlServerEventId.TableFound",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     SqlServerEventId.TableFound,
@@ -245,6 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, bool>(
                 SqlServerEventId.IndexFound,
                 LogLevel.Debug,
+                "SqlServerEventId.IndexFound",
                 LoggerMessage.Define<string, string, bool>(
                     LogLevel.Debug,
                     SqlServerEventId.IndexFound,
@@ -257,6 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqlServerEventId.PrimaryKeyFound,
                 LogLevel.Debug,
+                "SqlServerEventId.PrimaryKeyFound",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     SqlServerEventId.PrimaryKeyFound,
@@ -269,6 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 SqlServerEventId.UniqueConstraintFound,
                 LogLevel.Debug,
+                "SqlServerEventId.UniqueConstraintFound",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     SqlServerEventId.UniqueConstraintFound,
@@ -281,6 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,
                 LogLevel.Warning,
+                "SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Warning,
                     SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning,

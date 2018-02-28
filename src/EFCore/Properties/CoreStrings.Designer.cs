@@ -407,6 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 CoreEventId.ServiceProviderCreated,
                 LogLevel.Debug,
+                "CoreEventId.ServiceProviderCreated",
                 LoggerMessage.Define(
                     LogLevel.Debug,
                     CoreEventId.ServiceProviderCreated,
@@ -419,6 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 CoreEventId.ManyServiceProvidersCreatedWarning,
                 LogLevel.Warning,
+                "CoreEventId.ManyServiceProvidersCreatedWarning",
                 LoggerMessage.Define(
                     LogLevel.Warning,
                     CoreEventId.ManyServiceProvidersCreatedWarning,
@@ -431,6 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.ContextInitialized,
                 LogLevel.Information,
+                "CoreEventId.ContextInitialized",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Information,
                     CoreEventId.ContextInitialized,
@@ -507,6 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<Type, string, Exception>(
                 CoreEventId.QueryIterationFailed,
                 LogLevel.Error,
+                "CoreEventId.QueryIterationFailed",
                 LoggerMessage.Define<Type, string, Exception>(
                     LogLevel.Error,
                     CoreEventId.QueryIterationFailed,
@@ -519,6 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<Type, string, Exception>(
                 CoreEventId.SaveChangesFailed,
                 LogLevel.Error,
+                "CoreEventId.SaveChangesFailed",
                 LoggerMessage.Define<Type, string, Exception>(
                     LogLevel.Error,
                     CoreEventId.SaveChangesFailed,
@@ -531,6 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.DetectChangesStarting,
                 LogLevel.Debug,
+                "CoreEventId.DetectChangesStarting",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     CoreEventId.DetectChangesStarting,
@@ -543,6 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.DetectChangesCompleted,
                 LogLevel.Debug,
+                "CoreEventId.DetectChangesCompleted",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     CoreEventId.DetectChangesCompleted,
@@ -555,6 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.PropertyChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.PropertyChangeDetected",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     CoreEventId.PropertyChangeDetected,
@@ -567,6 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, object, object, string>(
                 CoreEventId.PropertyChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.PropertyChangeDetected",
                 LoggerMessage.Define<string, string, object, object, string>(
                     LogLevel.Debug,
                     CoreEventId.PropertyChangeDetected,
@@ -579,6 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.ForeignKeyChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.ForeignKeyChangeDetected",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     CoreEventId.ForeignKeyChangeDetected,
@@ -591,6 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, object, object, string>(
                 CoreEventId.ForeignKeyChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.ForeignKeyChangeDetected",
                 LoggerMessage.Define<string, string, object, object, string>(
                     LogLevel.Debug,
                     CoreEventId.ForeignKeyChangeDetected,
@@ -603,6 +614,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<int, int, string, string>(
                 CoreEventId.CollectionChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.CollectionChangeDetected",
                 LoggerMessage.Define<int, int, string, string>(
                     LogLevel.Debug,
                     CoreEventId.CollectionChangeDetected,
@@ -615,6 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<int, int, string, string, string>(
                 CoreEventId.CollectionChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.CollectionChangeDetected",
                 LoggerMessage.Define<int, int, string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.CollectionChangeDetected,
@@ -627,6 +640,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.ReferenceChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.ReferenceChangeDetected",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     CoreEventId.ReferenceChangeDetected,
@@ -639,6 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 CoreEventId.ReferenceChangeDetected,
                 LogLevel.Debug,
+                "CoreEventId.ReferenceChangeDetected",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.ReferenceChangeDetected,
@@ -651,6 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, EntityState, string>(
                 CoreEventId.CascadeDelete,
                 LogLevel.Debug,
+                "CoreEventId.CascadeDelete",
                 LoggerMessage.Define<string, EntityState, string>(
                     LogLevel.Debug,
                     CoreEventId.CascadeDelete,
@@ -663,6 +679,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, EntityState, string, string>(
                 CoreEventId.CascadeDelete,
                 LogLevel.Debug,
+                "CoreEventId.CascadeDelete",
                 LoggerMessage.Define<string, string, EntityState, string, string>(
                     LogLevel.Debug,
                     CoreEventId.CascadeDelete,
@@ -675,6 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, EntityState, string>(
                 CoreEventId.CascadeDeleteOrphan,
                 LogLevel.Debug,
+                "CoreEventId.CascadeDeleteOrphan",
                 LoggerMessage.Define<string, EntityState, string>(
                     LogLevel.Debug,
                     CoreEventId.CascadeDeleteOrphan,
@@ -687,6 +705,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, EntityState, string>(
                 CoreEventId.CascadeDeleteOrphan,
                 LogLevel.Debug,
+                "CoreEventId.CascadeDeleteOrphan",
                 LoggerMessage.Define<string, string, EntityState, string>(
                     LogLevel.Debug,
                     CoreEventId.CascadeDeleteOrphan,
@@ -699,6 +718,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.StartedTracking,
                 LogLevel.Debug,
+                "CoreEventId.StartedTracking",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     CoreEventId.StartedTracking,
@@ -711,6 +731,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 CoreEventId.StartedTracking,
                 LogLevel.Debug,
+                "CoreEventId.StartedTracking",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.StartedTracking,
@@ -723,6 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, EntityState, EntityState>(
                 CoreEventId.StateChanged,
                 LogLevel.Debug,
+                "CoreEventId.StateChanged",
                 LoggerMessage.Define<string, string, EntityState, EntityState>(
                     LogLevel.Debug,
                     CoreEventId.StateChanged,
@@ -735,6 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, EntityState, EntityState>(
                 CoreEventId.StateChanged,
                 LogLevel.Debug,
+                "CoreEventId.StateChanged",
                 LoggerMessage.Define<string, string, string, EntityState, EntityState>(
                     LogLevel.Debug,
                     CoreEventId.StateChanged,
@@ -747,6 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 CoreEventId.ValueGenerated,
                 LogLevel.Debug,
+                "CoreEventId.ValueGenerated",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.ValueGenerated,
@@ -759,6 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, object, string, string>(
                 CoreEventId.ValueGenerated,
                 LogLevel.Debug,
+                "CoreEventId.ValueGenerated",
                 LoggerMessage.Define<string, object, string, string>(
                     LogLevel.Debug,
                     CoreEventId.ValueGenerated,
@@ -771,6 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 CoreEventId.ValueGenerated,
                 LogLevel.Debug,
+                "CoreEventId.ValueGenerated",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Debug,
                     CoreEventId.ValueGenerated,
@@ -783,6 +809,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, object, string, string>(
                 CoreEventId.ValueGenerated,
                 LogLevel.Debug,
+                "CoreEventId.ValueGenerated",
                 LoggerMessage.Define<string, object, string, string>(
                     LogLevel.Debug,
                     CoreEventId.ValueGenerated,
@@ -795,6 +822,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.SaveChangesStarting,
                 LogLevel.Debug,
+                "CoreEventId.SaveChangesStarting",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     CoreEventId.SaveChangesStarting,
@@ -807,6 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, int>(
                 CoreEventId.SaveChangesCompleted,
                 LogLevel.Debug,
+                "CoreEventId.SaveChangesCompleted",
                 LoggerMessage.Define<string, int>(
                     LogLevel.Debug,
                     CoreEventId.SaveChangesCompleted,
@@ -819,6 +848,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.ContextDisposed,
                 LogLevel.Debug,
+                "CoreEventId.ContextDisposed",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     CoreEventId.ContextDisposed,
@@ -1093,6 +1123,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.QueryModelCompiling,
                 LogLevel.Debug,
+                "CoreEventId.QueryModelCompiling",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     CoreEventId.QueryModelCompiling,
@@ -1105,6 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.QueryModelOptimized,
                 LogLevel.Debug,
+                "CoreEventId.QueryModelOptimized",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     CoreEventId.QueryModelOptimized,
@@ -1117,6 +1149,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.NavigationIncluded,
                 LogLevel.Debug,
+                "CoreEventId.NavigationIncluded",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     CoreEventId.NavigationIncluded,
@@ -1129,6 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.QueryExecutionPlanned,
                 LogLevel.Debug,
+                "CoreEventId.QueryExecutionPlanned",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     CoreEventId.QueryExecutionPlanned,
@@ -1615,6 +1649,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 CoreEventId.SensitiveDataLoggingEnabledWarning,
                 LogLevel.Warning,
+                "CoreEventId.SensitiveDataLoggingEnabledWarning",
                 LoggerMessage.Define(
                     LogLevel.Warning,
                     CoreEventId.SensitiveDataLoggingEnabledWarning,
@@ -1777,6 +1812,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.IncludeIgnoredWarning,
                 LogLevel.Warning,
+                "CoreEventId.IncludeIgnoredWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     CoreEventId.IncludeIgnoredWarning,
@@ -1791,12 +1827,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
 
         /// <summary>
-        ///     Warning as error exception for warning '{eventId}': {message} To suppress this Exception use the DbContextOptionsBuilder.ConfigureWarnings API. ConfigureWarnings can be used when overriding the DbContext.OnConfiguring method or using AddDbContext on the application service provider.
+        ///     Error generated for warning '{eventName}: {message}'. This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.
         /// </summary>
-        public static string WarningAsErrorTemplate([CanBeNull] object eventId, [CanBeNull] object message)
+        public static string WarningAsErrorTemplate([CanBeNull] object eventName, [CanBeNull] object message, [CanBeNull] object eventId)
             => string.Format(
-                GetString("WarningAsErrorTemplate", nameof(eventId), nameof(message)),
-                eventId, message);
+                GetString("WarningAsErrorTemplate", nameof(eventName), nameof(message), nameof(eventId)),
+                eventName, message, eventId);
 
         /// <summary>
         ///     Cannot access a disposed object. A common cause of this error is disposing a context that was resolved from dependency injection and then later trying to use the same context instance elsewhere in your application. This may occur if you are calling Dispose() on the context, or wrapping the context in a using statement. If you are using dependency injection, you should let the dependency injection container take care of disposing context instances.
@@ -1897,6 +1933,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.RowLimitingOperationWithoutOrderByWarning,
                 LogLevel.Warning,
+                "CoreEventId.RowLimitingOperationWithoutOrderByWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     CoreEventId.RowLimitingOperationWithoutOrderByWarning,
@@ -1925,6 +1962,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.FirstWithoutOrderByAndFilterWarning,
                 LogLevel.Warning,
+                "CoreEventId.FirstWithoutOrderByAndFilterWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     CoreEventId.FirstWithoutOrderByAndFilterWarning,
@@ -2123,6 +2161,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning,
                 LogLevel.Warning,
+                "CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning,
@@ -2135,6 +2174,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<object, object>(
                 CoreEventId.PossibleUnintendedReferenceComparisonWarning,
                 LogLevel.Warning,
+                "CoreEventId.PossibleUnintendedReferenceComparisonWarning",
                 LoggerMessage.Define<object, object>(
                     LogLevel.Warning,
                     CoreEventId.PossibleUnintendedReferenceComparisonWarning,
@@ -2147,6 +2187,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
                 LogLevel.Warning,
+                "CoreEventId.DuplicateDependentEntityTypeInstanceWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     CoreEventId.DuplicateDependentEntityTypeInstanceWarning,
@@ -2293,6 +2334,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.ShadowPropertyCreated,
                 LogLevel.Information,
+                "CoreEventId.ShadowPropertyCreated",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.ShadowPropertyCreated,
@@ -2305,6 +2347,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<int, string, Exception>(
                 CoreEventId.ExecutionStrategyRetrying,
                 LogLevel.Information,
+                "CoreEventId.ExecutionStrategyRetrying",
                 LoggerMessage.Define<int, string, Exception>(
                     LogLevel.Information,
                     CoreEventId.ExecutionStrategyRetrying,
@@ -2317,6 +2360,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.NavigationLazyLoading,
                 LogLevel.Information,
+                "CoreEventId.NavigationLazyLoading",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.NavigationLazyLoading,
@@ -2329,6 +2373,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.LazyLoadOnDisposedContextWarning,
                 LogLevel.Warning,
+                "CoreEventId.LazyLoadOnDisposedContextWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     CoreEventId.LazyLoadOnDisposedContextWarning,
@@ -2405,6 +2450,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.RedundantIndexRemoved,
                 LogLevel.Information,
+                "CoreEventId.RedundantIndexRemoved",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.RedundantIndexRemoved,
@@ -2417,6 +2463,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.IncompatibleMatchingForeignKeyProperties,
                 LogLevel.Information,
+                "CoreEventId.IncompatibleMatchingForeignKeyProperties",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.IncompatibleMatchingForeignKeyProperties,
@@ -2429,6 +2476,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.RequiredAttributeOnDependent,
                 LogLevel.Information,
+                "CoreEventId.RequiredAttributeOnDependent",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.RequiredAttributeOnDependent,
@@ -2441,6 +2489,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.RequiredAttributeOnBothNavigations,
                 LogLevel.Information,
+                "CoreEventId.RequiredAttributeOnBothNavigations",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Information,
                     CoreEventId.RequiredAttributeOnBothNavigations,
@@ -2453,6 +2502,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.ForeignKeyAttributesOnBothNavigations,
                 LogLevel.Information,
+                "CoreEventId.ForeignKeyAttributesOnBothNavigations",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Information,
                     CoreEventId.ForeignKeyAttributesOnBothNavigations,
@@ -2465,6 +2515,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string, string, string>(
                 CoreEventId.ForeignKeyAttributesOnBothProperties,
                 LogLevel.Information,
+                "CoreEventId.ForeignKeyAttributesOnBothProperties",
                 LoggerMessage.Define<string, string, string, string, string, string>(
                     LogLevel.Information,
                     CoreEventId.ForeignKeyAttributesOnBothProperties,
@@ -2477,6 +2528,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty,
                 LogLevel.Information,
+                "CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Information,
                     CoreEventId.ConflictingForeignKeyAttributesOnNavigationAndProperty,
@@ -2489,6 +2541,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 CoreEventId.MultipleInversePropertiesSameTarget,
                 LogLevel.Information,
+                "CoreEventId.MultipleInversePropertiesSameTarget",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Information,
                     CoreEventId.MultipleInversePropertiesSameTarget,
@@ -2501,6 +2554,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 CoreEventId.ConflictingShadowForeignKeysWarning,
                 LogLevel.Warning,
+                "CoreEventId.ConflictingShadowForeignKeysWarning",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Warning,
                     CoreEventId.ConflictingShadowForeignKeysWarning,
@@ -2513,6 +2567,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string>(
                 CoreEventId.MultipleNavigationProperties,
                 LogLevel.Information,
+                "CoreEventId.MultipleNavigationProperties",
                 LoggerMessage.Define<string, string, string, string>(
                     LogLevel.Information,
                     CoreEventId.MultipleNavigationProperties,
@@ -2525,6 +2580,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string>(
                 CoreEventId.MultiplePrimaryKeyCandidates,
                 LogLevel.Information,
+                "CoreEventId.MultiplePrimaryKeyCandidates",
                 LoggerMessage.Define<string, string, string>(
                     LogLevel.Information,
                     CoreEventId.MultiplePrimaryKeyCandidates,
@@ -2553,6 +2609,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string, string>(
                 CoreEventId.NonDefiningInverseNavigationWarning,
                 LogLevel.Warning,
+                "CoreEventId.NonDefiningInverseNavigationWarning",
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
                     CoreEventId.NonDefiningInverseNavigationWarning,
@@ -2565,6 +2622,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, string, string, string>(
                 CoreEventId.NonOwnershipInverseNavigationWarning,
                 LogLevel.Warning,
+                "CoreEventId.NonOwnershipInverseNavigationWarning",
                 LoggerMessage.Define<string, string, string, string, string>(
                     LogLevel.Warning,
                     CoreEventId.NonOwnershipInverseNavigationWarning,

@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         CoreEventId.DuplicateDependentEntityTypeInstanceWarning.ToString(),
                         CoreStrings.LogDuplicateDependentEntityTypeInstance.GenerateMessage(
                             typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child2) + "#" + typeof(ChildPN).ShortDisplayName(),
-                            typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName())),
+                            typeof(ParentPN).ShortDisplayName() + "." + nameof(ParentPN.Child1) + "#" + typeof(ChildPN).ShortDisplayName()),
+                        "CoreEventId.DuplicateDependentEntityTypeInstanceWarning"),
                     Assert.Throws<InvalidOperationException>(() => context.Entry(principal).Reference(p => p.Child2).TargetEntry).Message);
             }
         }

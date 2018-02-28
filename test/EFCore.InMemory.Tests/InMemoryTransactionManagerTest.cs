@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     InMemoryEventId.TransactionIgnoredWarning,
-                    InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
+                    InMemoryStrings.LogTransactionsNotSupported.GenerateMessage(),
+                    "InMemoryEventId.TransactionIgnoredWarning"),
                 Assert.Throws<InvalidOperationException>(action).Message);
         }
 

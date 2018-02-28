@@ -20,13 +20,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates an event definition instance.
         /// </summary>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
-        /// <param name="level"> The <see cref="Microsoft.Extensions.Logging.LogLevel" /> at which the event will be logged. </param>
+        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="logAction"> A cached delegate for logging the event. </param>
         public EventDefinition(
             EventId eventId,
             LogLevel level,
             [NotNull] Action<ILogger, TParam, Exception> logAction)
-            : base(eventId, level)
+            : this(eventId, level, null, logAction)
+        {
+        }
+
+        /// <summary>
+        ///     Creates an event definition instance.
+        /// </summary>
+        /// <param name="eventId"> The <see cref="EventId" />. </param>
+        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
+        /// <param name="logAction"> A cached delegate for logging the event. </param>
+        /// <param name="eventIdCode"> A string representing the code that should be passed to ConfigureWanings. </param>
+        public EventDefinition(
+            EventId eventId,
+            LogLevel level,
+            [CanBeNull] string eventIdCode,
+            [NotNull] Action<ILogger, TParam, Exception> logAction)
+            : base(eventId, level, eventIdCode)
         {
             Check.NotNull(logAction, nameof(logAction));
 

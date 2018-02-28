@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalStrings.LogKeyHasDefaultValue.GenerateMessage(nameof(Login1.UserName), nameof(Login1))),
+                    RelationalStrings.LogKeyHasDefaultValue.GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
+                    "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 
             return modelBuilder;

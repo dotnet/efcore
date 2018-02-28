@@ -18,13 +18,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates an event definition instance.
         /// </summary>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
-        /// <param name="level"> The <see cref="Microsoft.Extensions.Logging.LogLevel" /> at which the event will be logged. </param>
+        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
         /// <param name="messageFormat"> The parameterized message definition. </param>
         public FallbackEventDefinition(
             EventId eventId,
             LogLevel level,
             [NotNull] string messageFormat)
-            : base(eventId, level)
+            : this(eventId, level, null, messageFormat)
+        {
+        }
+
+        /// <summary>
+        ///     Creates an event definition instance.
+        /// </summary>
+        /// <param name="eventId"> The <see cref="EventId" />. </param>
+        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
+        /// <param name="eventIdCode"> A string representing the code that should be passed to ConfigureWanings. </param>
+        /// <param name="messageFormat"> The parameterized message definition. </param>
+        public FallbackEventDefinition(
+            EventId eventId,
+            LogLevel level,
+            [CanBeNull] string eventIdCode,
+            [NotNull] string messageFormat)
+            : base(eventId, level, eventIdCode)
         {
             Check.NotEmpty(messageFormat, nameof(messageFormat));
 

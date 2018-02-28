@@ -64,6 +64,7 @@ namespace <#= model.Namespace #>
             = new FallbackEventDefinition(
                 <#= resource.EventId #>,
                 LogLevel.<#= resource.Level #>,
+                "<#= resource.EventId #>",
                 _resourceManager.GetString("<#= resource.Name #>"));
 <#
             }
@@ -75,6 +76,7 @@ namespace <#= model.Namespace #>
             = new EventDefinition<#= genericTypes #>(
                 <#= resource.EventId #>,
                 LogLevel.<#= resource.Level #>,
+                "<#= resource.EventId #>",
                 LoggerMessage.Define<#= genericTypes #>(
                     LogLevel.<#= resource.Level #>,
                     <#= resource.EventId #>,

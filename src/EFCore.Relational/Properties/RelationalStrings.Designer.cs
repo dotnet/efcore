@@ -87,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.BoolWithDefaultWarning,
                 LogLevel.Warning,
+                "RelationalEventId.BoolWithDefaultWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     RelationalEventId.BoolWithDefaultWarning,
@@ -117,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ConnectionOpening,
                 LogLevel.Debug,
+                "RelationalEventId.ConnectionOpening",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.ConnectionOpening,
@@ -129,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ConnectionOpened,
                 LogLevel.Debug,
+                "RelationalEventId.ConnectionOpened",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.ConnectionOpened,
@@ -141,6 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ConnectionClosing,
                 LogLevel.Debug,
+                "RelationalEventId.ConnectionClosing",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.ConnectionClosing,
@@ -153,6 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ConnectionClosed,
                 LogLevel.Debug,
+                "RelationalEventId.ConnectionClosed",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.ConnectionClosed,
@@ -165,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ConnectionError,
                 LogLevel.Error,
+                "RelationalEventId.ConnectionError",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Error,
                     RelationalEventId.ConnectionError,
@@ -177,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.TransactionStarted,
                 LogLevel.Debug,
+                "RelationalEventId.TransactionStarted",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.TransactionStarted,
@@ -189,6 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.TransactionUsed,
                 LogLevel.Debug,
+                "RelationalEventId.TransactionUsed",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.TransactionUsed,
@@ -201,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.TransactionCommitted,
                 LogLevel.Debug,
+                "RelationalEventId.TransactionCommitted",
                 LoggerMessage.Define(
                     LogLevel.Debug,
                     RelationalEventId.TransactionCommitted,
@@ -213,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.TransactionRolledBack,
                 LogLevel.Debug,
+                "RelationalEventId.TransactionRolledBack",
                 LoggerMessage.Define(
                     LogLevel.Debug,
                     RelationalEventId.TransactionRolledBack,
@@ -225,6 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.TransactionDisposed,
                 LogLevel.Debug,
+                "RelationalEventId.TransactionDisposed",
                 LoggerMessage.Define(
                     LogLevel.Debug,
                     RelationalEventId.TransactionDisposed,
@@ -237,6 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.TransactionError,
                 LogLevel.Error,
+                "RelationalEventId.TransactionError",
                 LoggerMessage.Define(
                     LogLevel.Error,
                     RelationalEventId.TransactionError,
@@ -249,6 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.DataReaderDisposing,
                 LogLevel.Debug,
+                "RelationalEventId.DataReaderDisposing",
                 LoggerMessage.Define(
                     LogLevel.Debug,
                     RelationalEventId.DataReaderDisposing,
@@ -325,6 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.AmbientTransactionWarning,
                 LogLevel.Warning,
+                "RelationalEventId.AmbientTransactionWarning",
                 LoggerMessage.Define(
                     LogLevel.Warning,
                     RelationalEventId.AmbientTransactionWarning,
@@ -337,6 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<object>(
                 RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
                 LogLevel.Warning,
+                "RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning",
                 LoggerMessage.Define<object>(
                     LogLevel.Warning,
                     RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning,
@@ -349,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
                 LogLevel.Warning,
+                "RelationalEventId.QueryPossibleExceptionWithAggregateOperator",
                 LoggerMessage.Define(
                     LogLevel.Warning,
                     RelationalEventId.QueryPossibleExceptionWithAggregateOperator,
@@ -367,6 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.MigrationGeneratingDownScript,
                 LogLevel.Debug,
+                "RelationalEventId.MigrationGeneratingDownScript",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.MigrationGeneratingDownScript,
@@ -379,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.MigrationGeneratingUpScript,
                 LogLevel.Debug,
+                "RelationalEventId.MigrationGeneratingUpScript",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.MigrationGeneratingUpScript,
@@ -391,6 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.MigrationApplying,
                 LogLevel.Information,
+                "RelationalEventId.MigrationApplying",
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
                     RelationalEventId.MigrationApplying,
@@ -403,6 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.MigrationReverting,
                 LogLevel.Information,
+                "RelationalEventId.MigrationReverting",
                 LoggerMessage.Define<string>(
                     LogLevel.Information,
                     RelationalEventId.MigrationReverting,
@@ -415,6 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.MigrateUsingConnection,
                 LogLevel.Debug,
+                "RelationalEventId.MigrateUsingConnection",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.MigrateUsingConnection,
@@ -427,6 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 RelationalEventId.MigrationsNotApplied,
                 LogLevel.Information,
+                "RelationalEventId.MigrationsNotApplied",
                 LoggerMessage.Define(
                     LogLevel.Information,
                     RelationalEventId.MigrationsNotApplied,
@@ -439,6 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.MigrationsNotFound,
                 LogLevel.Debug,
+                "RelationalEventId.MigrationsNotFound",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.MigrationsNotFound,
@@ -475,6 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ModelValidationKeyDefaultValueWarning,
                 LogLevel.Warning,
+                "RelationalEventId.ModelValidationKeyDefaultValueWarning",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Warning,
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
@@ -527,6 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<object>(
                 RelationalEventId.QueryClientEvaluationWarning,
                 LogLevel.Warning,
+                "RelationalEventId.QueryClientEvaluationWarning",
                 LoggerMessage.Define<object>(
                     LogLevel.Warning,
                     RelationalEventId.QueryClientEvaluationWarning,
@@ -555,6 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, System.Data.CommandType, int, string, string>(
                 RelationalEventId.CommandExecuting,
                 LogLevel.Debug,
+                "RelationalEventId.CommandExecuting",
                 LoggerMessage.Define<string, System.Data.CommandType, int, string, string>(
                     LogLevel.Debug,
                     RelationalEventId.CommandExecuting,
@@ -567,6 +593,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                 RelationalEventId.CommandExecuted,
                 LogLevel.Information,
+                "RelationalEventId.CommandExecuted",
                 LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
                     LogLevel.Information,
                     RelationalEventId.CommandExecuted,
@@ -579,6 +606,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                 RelationalEventId.CommandError,
                 LogLevel.Error,
+                "RelationalEventId.CommandError",
                 LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
                     LogLevel.Error,
                     RelationalEventId.CommandError,
@@ -795,6 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string, string>(
                 RelationalEventId.ConnectionError,
                 LogLevel.Debug,
+                "RelationalEventId.ConnectionError",
                 LoggerMessage.Define<string, string>(
                     LogLevel.Debug,
                     RelationalEventId.ConnectionError,
@@ -897,6 +926,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.AmbientTransactionEnlisted,
                 LogLevel.Debug,
+                "RelationalEventId.AmbientTransactionEnlisted",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.AmbientTransactionEnlisted,
@@ -909,6 +939,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.ExplicitTransactionEnlisted,
                 LogLevel.Debug,
+                "RelationalEventId.ExplicitTransactionEnlisted",
                 LoggerMessage.Define<string>(
                     LogLevel.Debug,
                     RelationalEventId.ExplicitTransactionEnlisted,
@@ -921,6 +952,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<int, int>(
                 RelationalEventId.BatchSmallerThanMinBatchSize,
                 LogLevel.Debug,
+                "RelationalEventId.BatchSmallerThanMinBatchSize",
                 LoggerMessage.Define<int, int>(
                     LogLevel.Debug,
                     RelationalEventId.BatchSmallerThanMinBatchSize,
@@ -933,6 +965,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<int>(
                 RelationalEventId.BatchReadyForExecution,
                 LogLevel.Debug,
+                "RelationalEventId.BatchReadyForExecution",
                 LoggerMessage.Define<int>(
                     LogLevel.Debug,
                     RelationalEventId.BatchReadyForExecution,
@@ -945,6 +978,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<string>(
                 RelationalEventId.MigrationAttributeMissingWarning,
                 LogLevel.Warning,
+                "RelationalEventId.MigrationAttributeMissingWarning",
                 LoggerMessage.Define<string>(
                     LogLevel.Warning,
                     RelationalEventId.MigrationAttributeMissingWarning,

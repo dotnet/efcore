@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
+                        InMemoryStrings.LogTransactionsNotSupported.GenerateMessage(),
+                        "InMemoryEventId.TransactionIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.BeginTransaction()).Message);
             }
@@ -54,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryStrings.LogTransactionsNotSupported.GenerateMessage()),
+                        InMemoryStrings.LogTransactionsNotSupported.GenerateMessage(),
+                        "InMemoryEventId.TransactionIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
 #endif
@@ -84,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.FirstWithoutOrderByAndFilterWarning.ToString(),
                         CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
-                            "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs...")),
+                            "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs..."),
+                        "CoreEventId.FirstWithoutOrderByAndFilterWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.WarningAsErrorEntities.FirstOrDefault()).Message);
             }
@@ -99,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.FirstWithoutOrderByAndFilterWarning.ToString(),
                         CoreStrings.LogFirstWithoutOrderByAndFilter.GenerateMessage(
-                            "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs...")),
+                            "(from WarningAsErrorEntity <generated>_1 in DbSet<WarningAsErrorEntity> select [<generated>_1]).Firs..."),
+                        "CoreEventId.FirstWithoutOrderByAndFilterWarning"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.WarningAsErrorEntities.FirstOrDefault()).Message);
             }
@@ -124,7 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(
                     CoreStrings.WarningAsErrorTemplate(
                         CoreEventId.IncludeIgnoredWarning.ToString(),
-                        CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav")),
+                        CoreStrings.LogIgnoredInclude.GenerateMessage("[e].Nav"),
+                        "CoreEventId.IncludeIgnoredWarning"),
                     Assert.Throws<InvalidOperationException>(
                         ()
                             => context.WarningAsErrorEntities.Include(e => e.Nav).OrderBy(e => e.Id).Select(e => e.Id).ToList()).Message);
@@ -156,7 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                    CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Nav", "WarningAsErrorEntity")),
+                    CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Nav", "WarningAsErrorEntity"),
+                    "CoreEventId.LazyLoadOnDisposedContextWarning"),
                 Assert.Throws<InvalidOperationException>(
                     () => entity.Nav).Message);
         }

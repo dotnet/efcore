@@ -56,7 +56,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Children", "ParentProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Children", "ParentProxy"),
+                            "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Children).Message);
                 }
@@ -123,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "ChildProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "ChildProxy"),
+                            "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => child.Parent).Message);
                 }
@@ -192,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "SingleProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Parent", "SingleProxy"),
+                            "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => single.Parent).Message);
                 }
@@ -261,7 +264,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(
                         CoreStrings.WarningAsErrorTemplate(
                             CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Single", "ParentProxy")),
+                            CoreStrings.LogLazyLoadOnDisposedContext.GenerateMessage("Single", "ParentProxy"),
+                            "CoreEventId.LazyLoadOnDisposedContextWarning"),
                         Assert.Throws<InvalidOperationException>(
                             () => parent.Single).Message);
                 }

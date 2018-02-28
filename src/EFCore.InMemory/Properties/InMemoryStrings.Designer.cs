@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition<int>(
                 InMemoryEventId.ChangesSaved,
                 LogLevel.Information,
+                "InMemoryEventId.ChangesSaved",
                 LoggerMessage.Define<int>(
                     LogLevel.Information,
                     InMemoryEventId.ChangesSaved,
@@ -37,6 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             = new EventDefinition(
                 InMemoryEventId.TransactionIgnoredWarning,
                 LogLevel.Warning,
+                "InMemoryEventId.TransactionIgnoredWarning",
                 LoggerMessage.Define(
                     LogLevel.Warning,
                     InMemoryEventId.TransactionIgnoredWarning,
