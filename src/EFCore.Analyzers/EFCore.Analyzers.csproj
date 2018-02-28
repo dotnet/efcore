@@ -1,17 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
         <Description>CSharp Analyzers for Entity Framework Core.</Description>
         <PackageTags>efcore</PackageTags>
+        <MinClientVersion>3.6</MinClientVersion>
 
         <VerifyVersion>false</VerifyVersion>
         <VersionPrefix>$(ExperimentalVersionPrefix)</VersionPrefix>
         <VersionSuffix>$(ExperimentalVersionSuffix)</VersionSuffix>
         <PackageVersion>$(ExperimentalPackageVersion)</PackageVersion>
-
+        
         <TargetFramework>netstandard2.0</TargetFramework>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <EnableApiCheck>false</EnableApiCheck>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <CodeAnalysisRuleSet>..\EFCore.ruleset</CodeAnalysisRuleSet>
     </PropertyGroup>
 
     <ItemGroup>
