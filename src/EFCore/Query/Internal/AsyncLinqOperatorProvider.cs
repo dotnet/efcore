@@ -233,66 +233,97 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [UsedImplicitly]
         // ReSharper disable once InconsistentNaming
-        private static IAsyncEnumerable<TrackingGrouping<TKey, TElement>> _TrackGroupedEntities<TKey, TElement>(
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _TrackGroupedEntities<TKey, TElement>(
             IAsyncEnumerable<IGrouping<TKey, TElement>> groupings,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
             IList<Func<TElement, object>> entityAccessors)
-        {
-            return _Select(
-                groupings,
-                g => new TrackingGrouping<TKey, TElement>(
-                    g,
-                    queryContext,
-                    entityTrackingInfos,
-                    entityAccessors));
-        }
+            => new TrackingGroupingAsyncEnumerable<TKey, TElement>(
+                groupings, queryContext, entityTrackingInfos, entityAccessors);
 
-        private sealed class TrackingGrouping<TKey, TElement> : IGrouping<TKey, TElement>
+        private sealed class TrackingGroupingAsyncEnumerable<TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
         {
-            private readonly IGrouping<TKey, TElement> _grouping;
+            private readonly IAsyncEnumerable<IGrouping<TKey, TElement>> _groupings;
             private readonly QueryContext _queryContext;
             private readonly IList<EntityTrackingInfo> _entityTrackingInfos;
             private readonly IList<Func<TElement, object>> _entityAccessors;
 
-            public TrackingGrouping(
-                IGrouping<TKey, TElement> grouping,
+            public TrackingGroupingAsyncEnumerable(
+                IAsyncEnumerable<IGrouping<TKey, TElement>> groupings,
                 QueryContext queryContext,
                 IList<EntityTrackingInfo> entityTrackingInfos,
                 IList<Func<TElement, object>> entityAccessors)
             {
-                _grouping = grouping;
+                _groupings = groupings;
                 _queryContext = queryContext;
                 _entityTrackingInfos = entityTrackingInfos;
                 _entityAccessors = entityAccessors;
             }
 
-            public TKey Key => _grouping.Key;
-
-            IEnumerator<TElement> IEnumerable<TElement>.GetEnumerator()
+            public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
             {
                 _queryContext.BeginTrackingQuery();
 
-                foreach (var result in _grouping)
-                {
-                    if (result != null)
-                    {
-                        for (var i = 0; i < _entityTrackingInfos.Count; i++)
-                        {
-                            var entity = _entityAccessors[i](result);
+                return new Enumerator(
+                    _groupings.GetEnumerator(),
+                    _queryContext,
+                    _entityTrackingInfos,
+                    _entityAccessors);
+            }
 
-                            if (entity != null)
+            private sealed class Enumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            {
+                private readonly IAsyncEnumerator<IGrouping<TKey, TElement>> _asyncEnumerator;
+                private readonly QueryContext _queryContext;
+                private readonly IList<EntityTrackingInfo> _entityTrackingInfos;
+                private readonly IList<Func<TElement, object>> _entityAccessors;
+
+                public Enumerator(
+                    IAsyncEnumerator<IGrouping<TKey, TElement>> asyncEnumerator,
+                    QueryContext queryContext,
+                    IList<EntityTrackingInfo> entityTrackingInfos,
+                    IList<Func<TElement, object>> entityAccessors)
+                {
+                    _asyncEnumerator = asyncEnumerator;
+                    _queryContext = queryContext;
+                    _entityTrackingInfos = entityTrackingInfos;
+                    _entityAccessors = entityAccessors;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (!await _asyncEnumerator.MoveNext())
+                    {
+                        return false;
+                    }
+
+                    var grouping = _asyncEnumerator.Current;
+
+                    foreach (var result in grouping)
+                    {
+                        if (result != null)
+                        {
+                            for (var i = 0; i < _entityTrackingInfos.Count; i++)
                             {
-                                _queryContext.StartTracking(entity, _entityTrackingInfos[i]);
+                                var entity = _entityAccessors[i](result);
+
+                                if (entity != null)
+                                {
+                                    _queryContext.StartTracking(entity, _entityTrackingInfos[i]);
+                                }
                             }
                         }
                     }
 
-                    yield return result;
-                }
-            }
+                    Current = grouping;
 
-            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TElement>)this).GetEnumerator();
+                    return true;
+                }
+
+                public IGrouping<TKey, TElement> Current { get; private set; }
+
+                public void Dispose() => _asyncEnumerator.Dispose();
+            }
         }
 
         /// <summary>

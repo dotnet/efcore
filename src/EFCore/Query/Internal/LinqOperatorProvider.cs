@@ -223,61 +223,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             IList<EntityTrackingInfo> entityTrackingInfos,
             IList<Func<TElement, object>> entityAccessors)
         {
-            return groupings
-                .Select(
-                    g =>
-                        new TrackingGrouping<TKey, TElement>(
-                            g,
-                            queryContext,
-                            entityTrackingInfos,
-                            entityAccessors));
-        }
+            queryContext.BeginTrackingQuery();
 
-        private sealed class TrackingGrouping<TKey, TElement> : IGrouping<TKey, TElement>
-        {
-            private readonly IGrouping<TKey, TElement> _grouping;
-            private readonly QueryContext _queryContext;
-            private readonly IList<EntityTrackingInfo> _entityTrackingInfos;
-            private readonly IList<Func<TElement, object>> _entityAccessors;
-
-            public TrackingGrouping(
-                IGrouping<TKey, TElement> grouping,
-                QueryContext queryContext,
-                IList<EntityTrackingInfo> entityTrackingInfos,
-                IList<Func<TElement, object>> entityAccessors)
+            foreach (var grouping in groupings)
             {
-                _grouping = grouping;
-                _queryContext = queryContext;
-                _entityTrackingInfos = entityTrackingInfos;
-                _entityAccessors = entityAccessors;
-            }
-
-            public TKey Key => _grouping.Key;
-
-            public IEnumerator<TElement> GetEnumerator()
-            {
-                _queryContext.BeginTrackingQuery();
-
-                foreach (var result in _grouping)
+                foreach (var result in grouping)
                 {
                     if (result != null)
                     {
-                        for (var i = 0; i < _entityTrackingInfos.Count; i++)
+                        for (var i = 0; i < entityTrackingInfos.Count; i++)
                         {
-                            var entity = _entityAccessors[i](result);
+                            var entity = entityAccessors[i](result);
 
                             if (entity != null)
                             {
-                                _queryContext.StartTracking(entity, _entityTrackingInfos[i]);
+                                queryContext.StartTracking(entity, entityTrackingInfos[i]);
                             }
                         }
                     }
-
-                    yield return result;
                 }
-            }
 
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+                yield return grouping;
+            }
         }
 
         /// <summary>

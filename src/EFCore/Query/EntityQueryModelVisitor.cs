@@ -1070,12 +1070,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
 
-        private bool TryOptimizeCorrelatedCollections([NotNull] QueryModel queryModel)
+        private void TryOptimizeCorrelatedCollections([NotNull] QueryModel queryModel)
         {
             // TODO: disabled for cross joins - problem is outer query containing cross join can produce duplicate results
-            if (queryModel.BodyClauses.OfType<AdditionalFromClause>().Where(c => !IsPartOfLeftJoinPattern(c, queryModel)).Any())
+            if (queryModel.BodyClauses.OfType<AdditionalFromClause>().Any(c => !IsPartOfLeftJoinPattern(c, queryModel)))
             {
-                return false;
+                return;
             }
 
             var correlatedCollectionOptimizer = new CorrelatedCollectionOptimizingVisitor(
@@ -1106,17 +1106,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     VisitOrderByClause(orderByClause, queryModel, queryModel.BodyClauses.IndexOf(orderByClause));
                 }
-
-                return true;
             }
-
-            return false;
         }
 
-        private bool IsPartOfLeftJoinPattern(AdditionalFromClause additionalFromClause, QueryModel queryModel)
+        private static bool IsPartOfLeftJoinPattern(AdditionalFromClause additionalFromClause, QueryModel queryModel)
         {
             var index = queryModel.BodyClauses.IndexOf(additionalFromClause);
-            var groupJoinClause = queryModel.BodyClauses.ElementAtOrDefault(index - 1) as GroupJoinClause;
 
             var subQueryModel
                 = (additionalFromClause?.FromExpression as SubQueryExpression)
@@ -1125,7 +1120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var referencedQuerySource
                 = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
-            if (groupJoinClause != null
+            if (queryModel.BodyClauses.ElementAtOrDefault(index - 1) is GroupJoinClause groupJoinClause
                 && groupJoinClause == referencedQuerySource
                 && queryModel.CountQuerySourceReferences(groupJoinClause) == 1
                 && subQueryModel.BodyClauses.Count == 0
@@ -1406,9 +1401,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static Expression ShiftMemberAccess(Expression targetExpression, Expression currentExpression)
         {
-            var memberExpression = currentExpression as MemberExpression;
-
-            if (memberExpression == null)
+            if (!(currentExpression is MemberExpression memberExpression))
             {
                 return targetExpression;
             }

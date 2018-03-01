@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
     /// </summary>
     public class CorrelatedCollectionFindingExpressionVisitor : RelinqExpressionVisitor
     {
-        private EntityQueryModelVisitor _queryModelVisitor;
-        private CorrelatedSubqueryOptimizationValidator _validator;
+        private readonly EntityQueryModelVisitor _queryModelVisitor;
 
         private static readonly MethodInfo _toListMethodInfo
             = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToList));
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private static readonly MethodInfo _toArrayMethodInfo
             = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.ToArray));
 
-        private bool _trackingQuery;
+        private readonly bool _trackingQuery;
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -93,14 +92,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         private void TryMarkSubQuery(SubQueryExpression expression)
         {
             var subQueryModel = expression.QueryModel;
+
             subQueryModel.SelectClause.TransformExpressions(Visit);
-
-            if (_validator == null)
-            {
-                _validator = new CorrelatedSubqueryOptimizationValidator();
-            }
-
-            if (_validator.CanTryOptimizeCorrelatedSubquery(subQueryModel))
+            
+            if (CorrelatedSubqueryOptimizationValidator.CanTryOptimizeCorrelatedSubquery(subQueryModel))
             {
                 // if the query passes validation it becomes a candidate for future optimization
                 // optimization can't always be performed, e.g. when client-eval is needed
@@ -128,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             }
         }
 
-        private class CorrelatedSubqueryOptimizationValidator
+        private static class CorrelatedSubqueryOptimizationValidator
         {
-            public bool CanTryOptimizeCorrelatedSubquery(QueryModel queryModel)
+            public static bool CanTryOptimizeCorrelatedSubquery(QueryModel queryModel)
             {
                 if (queryModel.ResultOperators.Count > 0)
                 {
@@ -142,7 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 definedQuerySourcesFinder.VisitQueryModel(queryModel);
 
                 // second pass makes sure that all qsres reference only query sources that were discovered in the first step, i.e. nothing from the outside
-                var qsreScopeValidator = new ReferencedQuerySourcesScopeValidatingVisitor(queryModel.MainFromClause, definedQuerySourcesFinder.QuerySources);
+                var qsreScopeValidator = new ReferencedQuerySourcesScopeValidatingVisitor(
+                    queryModel.MainFromClause, definedQuerySourcesFinder.QuerySources);
+
                 qsreScopeValidator.VisitQueryModel(queryModel);
 
                 return qsreScopeValidator.AllQuerySourceReferencesInScope;
@@ -174,11 +171,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
             }
 
-            private class ReferencedQuerySourcesScopeValidatingVisitor : QueryModelVisitorBase
+            private sealed class ReferencedQuerySourcesScopeValidatingVisitor : QueryModelVisitorBase
             {
                 private class InnerVisitor : TransformingQueryModelExpressionVisitor<ReferencedQuerySourcesScopeValidatingVisitor>
                 {
-                    private ISet<IQuerySource> _querySourcesInScope;
+                    private readonly ISet<IQuerySource> _querySourcesInScope;
 
                     public InnerVisitor(ISet<IQuerySource> querySourcesInScope, ReferencedQuerySourcesScopeValidatingVisitor transformingQueryModelVisitor)
                         : base(transformingQueryModelVisitor)
@@ -200,8 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                 }
 
                 // query source that can reference something outside the scope, e.g. main from clause that contains the correlated navigation
-                private IQuerySource _exemptQuerySource;
-                private InnerVisitor _innerVisitor;
+                private readonly IQuerySource _exemptQuerySource;
+                private readonly InnerVisitor _innerVisitor;
 
                 public ReferencedQuerySourcesScopeValidatingVisitor(IQuerySource exemptQuerySource, ISet<IQuerySource> querySourcesInScope)
                 {

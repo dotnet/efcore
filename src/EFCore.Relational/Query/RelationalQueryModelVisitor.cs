@@ -25,7 +25,6 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -1088,7 +1087,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return false;
             }
 
-            var injectParametersFinder = new InjectParametersFindingVisitor(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod);
+            var injectParametersFinder
+                = new InjectParametersFindingVisitor(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod);
+
             injectParametersFinder.Visit(Expression);
 
             return !injectParametersFinder.InjectParametersFound;
@@ -1096,7 +1097,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class InjectParametersFindingVisitor : ExpressionVisitorBase
         {
-            private MethodInfo _injectParametersMethod;
+            private readonly MethodInfo _injectParametersMethod;
 
             public InjectParametersFindingVisitor(MethodInfo injectParametersMethod)
             {
@@ -1223,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private class GroupByPreProcessor : QueryModelVisitorBase
         {
-            private QueryCompilationContext _queryCompilationContext;
+            private readonly QueryCompilationContext _queryCompilationContext;
 
             public GroupByPreProcessor(QueryCompilationContext queryCompilationContext)
             {
@@ -1368,9 +1369,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool IsShapedQueryExpression(Expression expression)
         {
-            var methodCallExpression = expression as MethodCallExpression;
-
-            if (methodCallExpression == null)
+            if (!(expression is MethodCallExpression methodCallExpression))
             {
                 return false;
             }
@@ -2145,7 +2144,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var parameterName = OuterQueryParameterNamePrefix + property.Name;
                     var parameterWithSamePrefixCount
-                        = QueryCompilationContext.ParentQueryReferenceParameters.Count(p => p.StartsWith(parameterName, StringComparison.Ordinal));
+                        = QueryCompilationContext.ParentQueryReferenceParameters.Count(
+                            p => p.StartsWith(parameterName, StringComparison.Ordinal));
 
                     if (parameterWithSamePrefixCount > 0)
                     {

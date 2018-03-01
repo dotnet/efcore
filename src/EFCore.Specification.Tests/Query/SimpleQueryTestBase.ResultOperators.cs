@@ -63,6 +63,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void GroupBy_tracking_after_dispose()
+        {
+            List<IGrouping<string, Order>> groups;
+
+            using (var context = CreateContext())
+            {
+                groups = context.Orders.GroupBy(o => o.CustomerID).ToList();
+            }
+
+            groups[0].First();
+        }
+
+        [ConditionalFact]
         public virtual void Sum_with_no_arg()
         {
             AssertSingleResult<Order>(os => os.Select(o => o.OrderID).Sum());

@@ -30,6 +30,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
+        [ConditionalFact]
+        public virtual async Task GroupBy_tracking_after_dispose()
+        {
+            List<IGrouping<string, Order>> groups;
+
+            using (var context = CreateContext())
+            {
+                groups = await context.Orders.GroupBy(o => o.CustomerID).ToListAsync();
+            }
+
+            groups[0].First();
+        }
 
         [ConditionalFact]
         public virtual async Task Query_simple()
