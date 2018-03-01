@@ -42,11 +42,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Enum64).HasConversion<long>();
                         b.Property(e => e.Enum32).HasConversion<long>();
                         b.Property(e => e.Enum16).HasConversion<long>();
-                        b.Property(e => e.Enum8).HasConversion<string>();
+                        b.Property(e => e.Enum8).HasConversion<string>().HasMaxLength(17);
                         b.Property(e => e.EnumU64).HasConversion<long>();
                         b.Property(e => e.EnumU32).HasConversion<long>();
                         b.Property(e => e.EnumU16).HasConversion<long>();
-                        b.Property(e => e.EnumS8).HasConversion<string>();
+                        b.Property(e => e.EnumS8).HasConversion<string>().IsUnicode(false);
                     });
 
                 modelBuilder.Entity<BuiltInNullableDataTypes>(

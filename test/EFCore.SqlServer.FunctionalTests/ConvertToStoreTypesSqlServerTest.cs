@@ -29,8 +29,8 @@ BinaryKeyDataType.Id ---> [nvarchar] [MaxLength = 632]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]
-BuiltInDataTypes.Enum8 ---> [nvarchar] [MaxLength = 512]
-BuiltInDataTypes.EnumS8 ---> [nvarchar] [MaxLength = 512]
+BuiltInDataTypes.Enum8 ---> [nchar] [MaxLength = 17]
+BuiltInDataTypes.EnumS8 ---> [varchar] [MaxLength = 512]
 BuiltInDataTypes.EnumU16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.EnumU32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.EnumU64 ---> [bigint] [Precision = 19 Scale = 0]
@@ -175,6 +175,13 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                     .ConfigureWarnings(
                         c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
                             .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Enum8).IsFixedLength();
+            }
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.TestDateTime).HasConversion(v => v.ToBinary(), v => DateTime.FromBinary(v));
                         b.Property(e => e.TestTimeSpan).HasConversion(v => v.TotalMilliseconds, v => TimeSpan.FromMilliseconds(v));
                         b.Property(e => e.TestSingle).HasConversion(new CastingConverter<float, double>());
-                        b.Property(e => e.TestBoolean).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
+                        b.Property(e => e.TestBoolean).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yeps")).HasMaxLength(4);
                         b.Property(e => e.TestByte).HasConversion(v => (ushort)v, v => (byte)v);
                         b.Property(e => e.TestUnsignedInt16).HasConversion(v => (ulong)v, v => (ushort)v);
                         b.Property(e => e.TestUnsignedInt32).HasConversion(v => (ulong)v, v => (uint)v);
@@ -105,13 +105,16 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.EnumU32).HasConversion(v => (ulong)v, v => (EnumU32)v);
                         b.Property(e => e.EnumU16).HasConversion(v => (ulong)v, v => (EnumU16)v);
 
-                        b.Property(e => e.EnumS8).HasConversion(
-                            v => v.ToString(),
-                            v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : default);
+                        b.Property(e => e.EnumS8)
+                            .HasConversion(
+                                v => v.ToString(),
+                                v => v == nameof(EnumS8.SomeValue) ? EnumS8.SomeValue : default)
+                            .HasMaxLength(24);
 
                         b.Property(e => e.Enum8).HasConversion(
-                            v => v.ToString(),
-                            v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : default);
+                                v => v.ToString(),
+                                v => v == nameof(Enum8.SomeValue) ? Enum8.SomeValue : default)
+                            .IsUnicode(false);
 
                         b.Property(e => e.TestDateTimeOffset).HasConversion(
                             v => v.ToUnixTimeMilliseconds(),

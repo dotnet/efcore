@@ -29,14 +29,14 @@ BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]
-BuiltInDataTypes.Enum8 ---> [nvarchar] [MaxLength = -1]
-BuiltInDataTypes.EnumS8 ---> [nvarchar] [MaxLength = -1]
+BuiltInDataTypes.Enum8 ---> [varchar] [MaxLength = -1]
+BuiltInDataTypes.EnumS8 ---> [nvarchar] [MaxLength = 24]
 BuiltInDataTypes.EnumU16 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInDataTypes.EnumU32 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInDataTypes.EnumU64 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.PartitionId ---> [bigint] [Precision = 19 Scale = 0]
-BuiltInDataTypes.TestBoolean ---> [nvarchar] [MaxLength = -1]
+BuiltInDataTypes.TestBoolean ---> [nchar] [MaxLength = 4]
 BuiltInDataTypes.TestByte ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestCharacter ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestDateTime ---> [bigint] [Precision = 19 Scale = 0]
@@ -177,6 +177,13 @@ User.Id ---> [uniqueidentifier]
                     .ConfigureWarnings(
                         c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
                             .Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.TestBoolean).IsFixedLength();
+            }
         }
     }
 }
