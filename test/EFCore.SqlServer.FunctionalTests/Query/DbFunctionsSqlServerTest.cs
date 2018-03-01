@@ -225,97 +225,152 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                         e => EF.Functions.FreeText(e.City, e.FirstName.ToUpper())));
             }
         }
-#endif
 
-        public override void DateDiff_Year()
+        [ConditionalFact]
+        public virtual void DateDiff_Year()
         {
-            base.DateDiff_Year();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffYear(c.OrderDate, DateTime.Now) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(YEAR, [c].[OrderDate], GETDATE()) = 0");
+            }
         }
 
-        public override void DateDiff_Month()
+        [ConditionalFact]
+        public virtual void DateDiff_Month()
         {
-            base.DateDiff_Month();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffMonth(c.OrderDate, DateTime.Now) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(MONTH, [c].[OrderDate], GETDATE()) = 0");
+            }
         }
 
-        public override void DateDiff_Day()
+        [ConditionalFact]
+        public virtual void DateDiff_Day()
         {
-            base.DateDiff_Day();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffDay(c.OrderDate, DateTime.Now) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(DAY, [c].[OrderDate], GETDATE()) = 0");
+            }
         }
 
-        public override void DateDiff_Hour()
+        [ConditionalFact]
+        public virtual void DateDiff_Hour()
         {
-            base.DateDiff_Hour();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffHour(c.OrderDate, DateTime.Now) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(HOUR, [c].[OrderDate], GETDATE()) = 0");
+            }
         }
 
-        public override void DateDiff_Minute()
+        [ConditionalFact]
+        public virtual void DateDiff_Minute()
         {
-            base.DateDiff_Minute();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffMinute(c.OrderDate, DateTime.Now) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(MINUTE, [c].[OrderDate], GETDATE()) = 0");
+            }
         }
 
-        public override void DateDiff_Second()
+        [ConditionalFact]
+        public virtual void DateDiff_Second()
         {
-            base.DateDiff_Second();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffSecond(c.OrderDate, DateTime.Now) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(SECOND, [c].[OrderDate], GETDATE()) = 0");
+            }
         }
 
-        public override void DateDiff_Millisecond()
+        [ConditionalFact]
+        public virtual void DateDiff_Millisecond()
         {
-            base.DateDiff_Millisecond();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffMillisecond(DateTime.Now, DateTime.Now.AddDays(1)) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(MILLISECOND, GETDATE(), DATEADD(day, 1E0, GETDATE())) = 0");
+            }
         }
 
-        public override void DateDiff_Microsecond()
+        [ConditionalFact]
+        public virtual void DateDiff_Microsecond()
         {
-            base.DateDiff_Microsecond();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffMicrosecond(DateTime.Now, DateTime.Now.AddSeconds(1)) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(MICROSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
+            }
         }
 
-        public override void DateDiff_Nanosecond()
+        [ConditionalFact]
+        public virtual void DateDiff_Nanosecond()
         {
-            base.DateDiff_Nanosecond();
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffNanosecond(DateTime.Now, DateTime.Now.AddSeconds(1)) == 0);
 
-            AssertSql(
-                @"SELECT COUNT(*)
+                Assert.Equal(0, count);
+                AssertSql(
+                    @"SELECT COUNT(*)
 FROM [Orders] AS [c]
 WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, 1E0, GETDATE())) = 0");
+            }
         }
+#endif
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
