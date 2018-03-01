@@ -206,7 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 targetEntityExpression,
                                 navigation.DeclaringType.ClrType),
                             includeCollectionMethodCall,
-                            Expression.Default(includeCollectionMethodInfo.ReturnType))
+                            includeCollectionMethodInfo.ReturnType == typeof(Task)
+                                ? (Expression)Expression.Constant(Task.CompletedTask)
+                                : Expression.Default(includeCollectionMethodInfo.ReturnType))
                         : (Expression)includeCollectionMethodCall;
             }
 

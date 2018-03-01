@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             bool assertOrder = false,
             int entryCount = 0)
             where TItem1 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
+            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount).GetAwaiter().GetResult();
 
         public List<object> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
@@ -383,7 +383,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0)
             where TItem1 : class
             where TItem2 : class
-            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
+            => Fixture.QueryAsserter.AssertIncludeQuery(actualQuery, expectedQuery, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount).GetAwaiter().GetResult();
 
         #endregion
 

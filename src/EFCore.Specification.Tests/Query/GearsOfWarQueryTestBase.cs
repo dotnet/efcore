@@ -4259,6 +4259,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 lls => lls.Where(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.IsOperational : false));
         }
 
+        // Remember to add any new tests to Async version of this test class
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

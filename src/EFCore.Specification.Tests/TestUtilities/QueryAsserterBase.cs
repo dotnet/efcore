@@ -155,24 +155,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertIncludeQuery
 
-        public abstract List<object> AssertIncludeQuery<TItem1>(
+        public abstract Task<List<object>> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            bool isAsync = false)
             where TItem1 : class;
 
-        public abstract List<object> AssertIncludeQuery<TItem1, TItem2>(
+        public abstract Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            bool isAsync = false)
             where TItem1 : class
             where TItem2 : class;
 

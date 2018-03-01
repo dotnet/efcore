@@ -730,28 +730,35 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertIncludeQuery
 
-        public List<object> AssertIncludeQuery<TItem1>(
+        public Task<List<object>> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            bool isAsync = false)
             where TItem1 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync);
 
-        public override List<object> AssertIncludeQuery<TItem1>(
+        public override async Task<List<object>> AssertIncludeQuery<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            bool isAsync = false)
         {
             using (var context = _contextCreator())
             {
-                var actual = actualQuery(SetExtractor.Set<TItem1>(context)).ToList();
+                var actual = isAsync
+                    ? await actualQuery(
+                        SetExtractor.Set<TItem1>(context)).ToListAsync()
+                    : actualQuery(
+                        SetExtractor.Set<TItem1>(context)).ToList();
+
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToList();
 
                 if (!assertOrder)
@@ -793,31 +800,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public List<object> AssertIncludeQuery<TItem1, TItem2>(
+        public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            bool isAsync = false)
             where TItem1 : class
             where TItem2 : class
-            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount);
+            => AssertIncludeQuery(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync);
 
-        public override List<object> AssertIncludeQuery<TItem1, TItem2>(
+        public override async Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<dynamic, object> elementSorter = null,
             List<Func<dynamic, object>> clientProjections = null,
             bool assertOrder = false,
-            int entryCount = 0)
+            int entryCount = 0,
+            bool isAsync = false)
         {
             using (var context = _contextCreator())
             {
-                var actual = actualQuery(
-                    SetExtractor.Set<TItem1>(context),
-                    SetExtractor.Set<TItem2>(context)).ToList();
+                var actual = isAsync
+                    ? await actualQuery(
+                        SetExtractor.Set<TItem1>(context),
+                        SetExtractor.Set<TItem2>(context)).ToListAsync()
+                    : actualQuery(
+                        SetExtractor.Set<TItem1>(context),
+                        SetExtractor.Set<TItem2>(context)).ToList();
 
                 var expected = expectedQuery(
                     ExpectedData.Set<TItem1>(),

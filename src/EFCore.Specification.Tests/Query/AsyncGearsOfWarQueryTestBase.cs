@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
@@ -20,6 +21,495 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
+
+        [ConditionalFact]
+        public virtual async Task Entity_equality_empty()
+        {
+            await AssertQuery<Gear>(
+                gs => gs.Where(g => g == new Gear()));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_one_to_one_and_one_to_many()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons", "Gear"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons", "Gear")
+            };
+
+            await AssertIncludeQuery<CogTag>(
+                ts => ts.Include(t => t.Gear.Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task ToString_guid_property_projection()
+        {
+            await AssertQuery<CogTag>(
+                ts => ts.Select(ct => new { A = ct.GearNickName, B = ct.Id.ToString() }),
+                elementSorter: e => e.B,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.A, a.A);
+                    Assert.Equal(e.B.ToLower(), a.B.ToLower());
+                });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_one_to_one_and_one_to_many_self_reference()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Weapon>(w => w.Owner, "Owner"),
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons", "Owner"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons", "Owner")
+            };
+
+            await AssertIncludeQuery<Weapon>(
+                ws => ws.Include(w => w.Owner.Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_one_to_one_optional_and_one_to_one_required()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "Gear"),
+                new ExpectedInclude<Officer>(o => o.Squad, "Squad", "Gear")
+            };
+
+            await AssertIncludeQuery<CogTag>(
+                ts => ts.Include(t => t.Gear.Squad),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_one_to_one_and_one_to_one_and_one_to_many()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "Gear"),
+                new ExpectedInclude<Officer>(o => o.Squad, "Squad", "Gear"),
+                new ExpectedInclude<Squad>(s => s.Members, "Members", "Gear.Squad")
+            };
+
+            await AssertIncludeQuery<CogTag>(
+                ts => ts.Include(t => t.Gear.Squad.Members),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_circular()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.CityOfBirth.StationedGears),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_circular_with_filter()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.CityOfBirth.StationedGears).Where(g => g.Nickname == "Marcus"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_using_alternate_key()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.Weapons).Where(g => g.Nickname == "Marcus"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_multiple_include_then_include()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.AssignedCity, "AssignedCity"),
+                new ExpectedInclude<Officer>(o => o.AssignedCity, "AssignedCity"),
+                new ExpectedInclude<City>(c => c.BornGears, "BornGears", "AssignedCity"),
+                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "AssignedCity.BornGears"),
+                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "AssignedCity.BornGears"),
+                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "AssignedCity"),
+                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "AssignedCity.StationedGears"),
+                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "AssignedCity.StationedGears"),
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<City>(c => c.BornGears, "BornGears", "CityOfBirth"),
+                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "CityOfBirth.BornGears"),
+                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "CityOfBirth.BornGears"),
+                new ExpectedInclude<City>(c => c.StationedGears, "StationedGears", "CityOfBirth"),
+                new ExpectedInclude<Gear>(g => g.Tag, "Tag", "CityOfBirth.StationedGears"),
+                new ExpectedInclude<Officer>(o => o.Tag, "Tag", "CityOfBirth.StationedGears")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => g.AssignedCity.BornGears).ThenInclude(g => g.Tag)
+                    .Include(g => g.AssignedCity.StationedGears).ThenInclude(g => g.Tag)
+                    .Include(g => g.CityOfBirth.BornGears).ThenInclude(g => g.Tag)
+                    .Include(g => g.CityOfBirth.StationedGears).ThenInclude(g => g.Tag)
+                    .OrderBy(g => g.Nickname),
+                expectedIncludes,
+                assertOrder: true);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_navigation_on_derived_type()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.OfType<Officer>().Include(o => o.Reports),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task String_based_Include_navigation_on_derived_type()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(o => o.Reports, "Reports")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.OfType<Officer>().Include("Reports"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Select_Where_Navigation_Included()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<CogTag>(t => t.Gear, "Gear")
+            };
+
+            await AssertIncludeQuery<CogTag>(
+                ts => from t in ts.Include(o => o.Gear)
+                      where t.Gear.Nickname == "Marcus"
+                      select t,
+                ts => from t in ts
+                      where Maybe(t.Gear, () => t.Gear.Nickname) == "Marcus"
+                      select t,
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_join_reference1()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
+            };
+
+            await AssertIncludeQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    gs.Join(
+                        ts,
+                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        (g, t) => g).Include(g => g.CityOfBirth),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_join_reference2()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth"),
+                new ExpectedInclude<Officer>(o => o.CityOfBirth, "CityOfBirth")
+            };
+
+            await AssertIncludeQuery<CogTag, Gear>(
+                (ts, gs) =>
+                    ts.Join(
+                        gs,
+                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        (t, g) => g).Include(g => g.CityOfBirth),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_join_collection1()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+            };
+
+            await AssertIncludeQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    gs.Join(
+                        ts,
+                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        (g, t) => g).Include(g => g.Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_with_join_collection2()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"),
+                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
+            };
+
+            await AssertIncludeQuery<CogTag, Gear>(
+                (ts, gs) =>
+                    ts.Join(
+                        gs,
+                        t => new { SquadId = t.GearSquadId, Nickname = t.GearNickName },
+                        g => new { SquadId = (int?)g.SquadId, g.Nickname },
+                        (t, g) => g).Include(g => g.Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_reference_on_derived_type_using_string()
+        {
+            await AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include("DefeatedBy"),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_reference_on_derived_type_using_string_nested1()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.Squad, "Squad", "DefeatedBy"),
+            };
+
+            await AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include("DefeatedBy.Squad"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_reference_on_derived_type_using_string_nested2()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy"),
+                new ExpectedInclude<Officer>(o => o.Reports, "Reports", "DefeatedBy"),
+                new ExpectedInclude<Gear>(g => g.CityOfBirth, "CityOfBirth", "DefeatedBy.Reports"),
+            };
+
+            await AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include("DefeatedBy.Reports.CityOfBirth"),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_reference_on_derived_type_using_lambda()
+        {
+            await AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include(ll => ((LocustCommander)ll).DefeatedBy),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_reference_on_derived_type_using_lambda_with_soft_cast()
+        {
+            await AssertIncludeQuery<LocustLeader>(
+                lls => lls.Include(ll => (ll as LocustCommander).DefeatedBy),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_reference_on_derived_type_using_lambda_with_tracking()
+        {
+            await AssertIncludeQuery<LocustLeader>(
+                lls => lls.AsTracking().Include(ll => ((LocustCommander)ll).DefeatedBy),
+                new List<IExpectedInclude> { new ExpectedInclude<LocustCommander>(lc => lc.DefeatedBy, "DefeatedBy") },
+                entryCount: 7);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_collection_on_derived_type_using_string()
+        {
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include("Reports"),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_collection_on_derived_type_using_lambda()
+        {
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => ((Officer)g).Reports),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_collection_on_derived_type_using_lambda_with_soft_cast()
+        {
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => (g as Officer).Reports),
+                new List<IExpectedInclude> { new ExpectedInclude<Officer>(o => o.Reports, "Reports") });
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_base_navigation_on_derived_entity()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(e => e.Tag, "Tag"),
+                new ExpectedInclude<Officer>(e => e.Weapons, "Weapons")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => ((Officer)g).Tag).Include(g => ((Officer)g).Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task ThenInclude_collection_on_derived_after_base_reference()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<CogTag>(e => e.Gear, "Gear"),
+                new ExpectedInclude<Officer>(e => e.Weapons, "Weapons", "Gear")
+            };
+
+            await AssertIncludeQuery<CogTag>(
+                ts => ts.Include(t => t.Gear).ThenInclude(g => (g as Officer).Weapons),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task ThenInclude_collection_on_derived_after_derived_reference()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy"),
+            };
+
+            await AssertIncludeQuery<Faction>(
+                fs => fs.Include(f => (f as LocustHorde).Commander).ThenInclude(c => (c.DefeatedBy as Officer).Reports),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task ThenInclude_collection_on_derived_after_derived_collection()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Reports"),
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => ((Officer)g).Reports).ThenInclude(g => ((Officer)g).Reports),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task ThenInclude_reference_on_derived_after_derived_collection()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustHorde>(e => e.Leaders, "Leaders"),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Leaders")
+            };
+
+            await AssertIncludeQuery<Faction>(
+                fs => fs.Include(f => ((LocustHorde)f).Leaders).ThenInclude(l => ((LocustCommander)l).DefeatedBy),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Multiple_derived_included_on_one_method()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<LocustHorde>(e => e.Commander, "Commander"),
+                new ExpectedInclude<LocustCommander>(e => e.DefeatedBy, "DefeatedBy", "Commander"),
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports", "Commander.DefeatedBy" )
+            };
+
+            await AssertIncludeQuery<Faction>(
+                fs => fs.Include(f => (((LocustHorde)f).Commander.DefeatedBy as Officer).Reports),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Include_on_derived_multi_level()
+        {
+            var expectedIncludes = new List<IExpectedInclude>
+            {
+                new ExpectedInclude<Officer>(e => e.Reports, "Reports"),
+                new ExpectedInclude<Gear>(e => e.Squad, "Squad", "Reports"),
+                new ExpectedInclude<Squad>(e => e.Missions, "Missions", "Reports.Squad")
+            };
+
+            await AssertIncludeQuery<Gear>(
+                gs => gs.Include(g => ((Officer)g).Reports).ThenInclude(g => g.Squad.Missions),
+                expectedIncludes);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Projecting_nullable_bool_in_conditional_works()
+        {
+            await AssertQuery<CogTag>(
+                cgs =>
+                    cgs.Select(
+                        cg =>
+                            new
+                            {
+                                Prop = cg.Gear != null ? cg.Gear.HasSoulPatch : false
+                            }),
+                e => e.Prop);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Enum_ToString_is_client_eval()
+        {
+            await AssertQuery<Gear>(
+                gs =>
+                    gs.OrderBy(g => g.SquadId)
+                        .ThenBy(g => g.Nickname)
+                        .Select(g => g.Rank.ToString()));
+        }
 
         [ConditionalFact]
         public virtual async Task Correlated_collections_naked_navigation_with_ToList()
