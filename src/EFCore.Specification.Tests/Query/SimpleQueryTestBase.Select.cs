@@ -610,5 +610,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(e => string.Format("{0}", e.EmployeeID))
                     .Skip(1));
         }
+
+        [ConditionalFact]
+        public virtual void Projection_containing_DateTime_subtraction()
+        {
+            AssertQueryScalar<Order>(
+                os => os.Where(o => o.OrderID < 10300)
+                    .Select(o => o.OrderDate.Value - new DateTime(1997, 1, 1)));
+        }
     }
 }

@@ -203,6 +203,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
 
+        public void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<TimeSpan>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(query, query, assertOrder);
+
         public void AssertQueryScalar<TItem1, TResult>(
             Func<IQueryable<TItem1>, IQueryable<TResult>> query,
             bool assertOrder = false)
@@ -294,6 +300,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public void AssertQueryScalar<TItem1>(
             Func<IQueryable<TItem1>, IQueryable<bool?>> query,
+            bool assertOrder = false)
+            where TItem1 : class
+            => AssertQueryScalar(query, query, assertOrder);
+
+        public void AssertQueryScalar<TItem1>(
+            Func<IQueryable<TItem1>, IQueryable<TimeSpan?>> query,
             bool assertOrder = false)
             where TItem1 : class
             => AssertQueryScalar(query, query, assertOrder);
