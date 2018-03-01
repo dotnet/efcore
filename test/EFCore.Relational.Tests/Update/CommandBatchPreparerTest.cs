@@ -419,6 +419,41 @@ namespace Microsoft.EntityFrameworkCore.Update
                         new[] { anotherFakeEntry, fakeEntry, relatedFakeEntry }).ToArray()).Message);
         }
 
+        [InlineData(true)]
+        [InlineData(false)]
+        [Theory]
+        public void Batch_command_throws_on_commands_with_duplicate_values_for_unique_indexes(bool sensitiveLogging)
+        {
+            var model = CreateCyclicFKModel();
+            var configuration = CreateContextServices(model);
+            var stateManager = configuration.GetRequiredService<IStateManager>();
+
+            var fakeEntry = stateManager.GetOrCreateEntry(new FakeEntity
+            {
+                Id = 1,
+                UniqueValue = "Test"
+            });
+            fakeEntry.SetEntityState(EntityState.Deleted);
+
+            var fakeEntry2 = stateManager.GetOrCreateEntry(new FakeEntity
+            {
+                Id = 2,
+                UniqueValue = "Test2"
+            });
+            fakeEntry2.SetEntityState(EntityState.Modified);
+            fakeEntry2.SetOriginalValue(fakeEntry.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
+            fakeEntry2.SetPropertyModified(fakeEntry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
+
+            Assert.Equal(
+                sensitiveLogging
+                    ? RelationalStrings.DuplicateUniqueIndexValuesRemovedSensitive(
+                        nameof(FakeEntity), "{Id: 2}", "{Id: 1}", "{UniqueValue: Test}")
+                    : RelationalStrings.DuplicateUniqueIndexValuesRemoved(nameof(FakeEntity), "{'UniqueValue'}"),
+                Assert.Throws<InvalidOperationException>(
+                    () => CreateCommandBatchPreparer(stateManager: stateManager, sensitiveLogging: sensitiveLogging)
+                        .BatchCommands(new[] { fakeEntry, fakeEntry2 }).ToArray()).Message);
+        }
+
         [Fact]
         public void BatchCommands_creates_valid_batch_for_shared_table_added_entities()
         {

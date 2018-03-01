@@ -984,6 +984,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     RelationalEventId.MigrationAttributeMissingWarning,
                     _resourceManager.GetString("LogMigrationAttributeMissingWarning")));
 
+        /// <summary>
+        ///     There are multiple entities of type '{entityType}' that had the same value for the unique index {index}. Configure the index as non-unique if duplicates should be allowed. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the values.
+        /// </summary>
+        public static string DuplicateUniqueIndexValuesRemoved([CanBeNull] object entityType, [CanBeNull] object index)
+            => string.Format(
+                GetString("DuplicateUniqueIndexValuesRemoved", nameof(entityType), nameof(index)),
+                entityType, index);
+
+        /// <summary>
+        ///     The entities of type '{entityType}' with key values {firstKeyValues} and {secondKeyValues} had the same value for the unique index {indexValue}. Configure the index as non-unique if duplicates should be allowed.
+        /// </summary>
+        public static string DuplicateUniqueIndexValuesRemovedSensitive([CanBeNull] object entityType, [CanBeNull] object firstKeyValues, [CanBeNull] object secondKeyValues, [CanBeNull] object indexValue)
+            => string.Format(
+                GetString("DuplicateUniqueIndexValuesRemovedSensitive", nameof(entityType), nameof(firstKeyValues), nameof(secondKeyValues), nameof(indexValue)),
+                entityType, firstKeyValues, secondKeyValues, indexValue);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
