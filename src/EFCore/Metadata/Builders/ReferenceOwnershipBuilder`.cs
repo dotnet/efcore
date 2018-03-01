@@ -86,13 +86,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasForeignKey(
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
-                Builder.HasForeignKey(
-                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
-                    RelatedEntityType,
-                    ConfigurationSource.Explicit),
+        {
+            Builder = Builder.HasForeignKey(
+                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
+                RelatedEntityType,
+                ConfigurationSource.Explicit);
+            return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
+                Builder,
                 this,
                 foreignKeySet: foreignKeyPropertyNames.Any());
+        }
 
         /// <summary>
         ///     <para>
@@ -125,13 +128,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasForeignKey(
             [NotNull] Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
-            => new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
-                Builder.HasForeignKey(
-                    Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(),
-                    RelatedEntityType,
-                    ConfigurationSource.Explicit),
+        {
+            Builder = Builder.HasForeignKey(
+                Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression)).GetPropertyAccessList(),
+                RelatedEntityType,
+                ConfigurationSource.Explicit);
+            return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
+                Builder,
                 this,
                 foreignKeySet: true);
+        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -150,12 +156,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
-                Builder.HasPrincipalKey(
-                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
-                    ConfigurationSource.Explicit),
+        {
+            Builder = Builder.HasPrincipalKey(
+                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
+                ConfigurationSource.Explicit);
+            return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
+                Builder,
                 this,
                 principalKeySet: keyPropertyNames.Any());
+        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -182,12 +191,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> HasPrincipalKey(
             [NotNull] Expression<Func<TEntity, object>> keyExpression)
-            => new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
-                Builder.HasPrincipalKey(
-                    Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
-                    ConfigurationSource.Explicit),
+        {
+            Builder = Builder.HasPrincipalKey(
+                Check.NotNull(keyExpression, nameof(keyExpression)).GetPropertyAccessList(),
+                ConfigurationSource.Explicit);
+            return new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
+                Builder,
                 this,
                 principalKeySet: true);
+        }
 
         /// <summary>
         ///     Configures how a delete operation is applied to dependent entities in the relationship when the
@@ -196,8 +208,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceOwnershipBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceOwnershipBuilder<TEntity, TRelatedEntity>(
-                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+        {
+            Builder = Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit);
+            return this;
+        }
 
         /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in

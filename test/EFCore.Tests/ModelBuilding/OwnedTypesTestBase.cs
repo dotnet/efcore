@@ -176,7 +176,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<SpecialBookLabel>();
                 modelBuilder.Ignore<BookDetails>();
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.Label).HasForeignKey("BookLabelId");
+                modelBuilder.Entity<Book>().OwnsOne(b => b.Label, l =>
+                {
+                    l.HasForeignKey("BookLabelId");
+                    l.HasForeignKeyAnnotation("Foo", "Bar");
+                });
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).HasForeignKey("BookLabelId");
 
                 modelBuilder.Validate();
@@ -186,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
                 Assert.Equal(typeof(int), bookOwnership1.DeclaringEntityType.GetForeignKeys().Single().Properties.Single().ClrType);
                 Assert.Equal(typeof(int), bookOwnership1.DeclaringEntityType.GetForeignKeys().Single().Properties.Single().ClrType);
+                Assert.Equal("Bar", bookOwnership1["Foo"]);
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(3, model.GetEntityTypes().Count());
@@ -285,6 +290,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         sb.OwnsOne(l => l.AnotherBookLabel);
                     });
                 });
+
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
                 {
                     bb.OwnsOne(l => l.SpecialBookLabel, sb =>
@@ -314,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         ab.OwnsOne(l => l.SpecialBookLabel);
                     });
                 });
+
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
                 {
                     bb.OwnsOne(l => l.AnotherBookLabel, ab =>
@@ -329,6 +336,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         sb.OwnsOne(l => l.AnotherBookLabel);
                     });
                 });
+
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel, bb =>
                 {
                     bb.OwnsOne(l => l.SpecialBookLabel, sb =>

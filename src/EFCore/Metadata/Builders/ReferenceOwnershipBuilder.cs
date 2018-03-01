@@ -99,13 +99,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceOwnershipBuilder HasForeignKey(
             [NotNull] params string[] foreignKeyPropertyNames)
-            => new ReferenceOwnershipBuilder(
-                Builder.HasForeignKey(
-                    Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
-                    RelatedEntityType,
-                    ConfigurationSource.Explicit),
+        {
+            Builder = Builder.HasForeignKey(
+                Check.NotNull(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames)),
+                RelatedEntityType,
+                ConfigurationSource.Explicit);
+            return new ReferenceOwnershipBuilder(
+                Builder,
                 this,
                 foreignKeySet: foreignKeyPropertyNames.Any());
+        }
 
         /// <summary>
         ///     Configures the unique property(s) that this relationship targets. Typically you would only call this
@@ -124,12 +127,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceOwnershipBuilder HasPrincipalKey(
             [NotNull] params string[] keyPropertyNames)
-            => new ReferenceOwnershipBuilder(
-                Builder.HasPrincipalKey(
-                    Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
-                    ConfigurationSource.Explicit),
+        {
+            Builder = Builder.HasPrincipalKey(
+                Check.NotNull(keyPropertyNames, nameof(keyPropertyNames)),
+                ConfigurationSource.Explicit);
+            return new ReferenceOwnershipBuilder(
+                Builder,
                 this,
                 principalKeySet: keyPropertyNames.Any());
+        }
 
         /// <summary>
         ///     Configures how a delete operation is applied to dependent entities in the relationship when the
@@ -138,7 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior"> The action to perform. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceOwnershipBuilder OnDelete(DeleteBehavior deleteBehavior)
-            => new ReferenceOwnershipBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
+        {
+            Builder = Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit);
+            return this;
+        }
 
         /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
