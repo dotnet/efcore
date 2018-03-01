@@ -577,5 +577,15 @@ FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
 OFFSET @__p_0 ROWS");
         }
+
+        public override void Projection_containing_DateTime_subtraction()
+        {
+            base.Projection_containing_DateTime_subtraction();
+
+            AssertSql(
+                @"SELECT [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10300");
+        }
     }
 }
