@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
                     }
-                    
+
                     return _executionStrategy.Execute(_executionStrategy.RetriesOnFailure, _bufferlessMoveNext, null);
                 }
 

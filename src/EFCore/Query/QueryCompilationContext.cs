@@ -367,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (entityType != null
                         && !entityType.IsQueryType
                         && (_referencedEntityTypes > 0
-                            || entityType.ShadowPropertyCount() > 0))
+                            || entityType.GetDerivedTypesInclusive().Any(et => et.ShadowPropertyCount() > 0)))
                     {
                         _requiresBuffering = true;
 
