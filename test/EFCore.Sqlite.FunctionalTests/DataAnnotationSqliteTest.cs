@@ -64,7 +64,12 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
             var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
-            Assert.Equal("TEXT", TestServiceFactory.Instance.Create<SqliteTypeMappingSource>().GetMapping(property).StoreType);
+#if Test20
+            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMapper>().FindMapping(property).StoreType;
+#else
+            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMappingSource>().GetMapping(property).StoreType;
+#endif
+            Assert.Equal("TEXT", storeType);
 
             return modelBuilder;
         }
@@ -74,7 +79,12 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
 
             var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
-            Assert.Equal("BLOB", TestServiceFactory.Instance.Create<SqliteTypeMappingSource>().GetMapping(property).StoreType);
+#if Test20
+            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMapper>().FindMapping(property).StoreType;
+#else
+            var storeType = TestServiceFactory.Instance.Create<SqliteTypeMappingSource>().GetMapping(property).StoreType;
+#endif
+            Assert.Equal("BLOB", storeType);
 
             return modelBuilder;
         }

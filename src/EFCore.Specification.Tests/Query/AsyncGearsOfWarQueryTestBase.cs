@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class AsyncGearsOfWarQueryTestBase<TFixture> : AsyncQueryTestBase<TFixture>
@@ -501,6 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Prop);
         }
 
+#if !Test20
         [ConditionalFact]
         public virtual async Task Enum_ToString_is_client_eval()
         {
@@ -510,6 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ThenBy(g => g.Nickname)
                         .Select(g => g.Rank.ToString()));
         }
+#endif
 
         [ConditionalFact]
         public virtual async Task Correlated_collections_naked_navigation_with_ToList()

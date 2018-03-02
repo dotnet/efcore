@@ -790,6 +790,7 @@ LEFT JOIN (
 ) AS [t] ON ([cg].[GearNickName] = [t].[Nickname]) AND ([cg].[GearSquadId] = [t].[SquadId])");
         }
 
+#if !Test20
         public override async Task Enum_ToString_is_client_eval()
         {
             await base.Enum_ToString_is_client_eval();
@@ -800,6 +801,7 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [g].[SquadId], [g].[Nickname]");
         }
+#endif
 
         public override async Task Correlated_collections_naked_navigation_with_ToList()
         {

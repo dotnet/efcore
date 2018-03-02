@@ -17,8 +17,10 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+#if !Test20
         [Fact]
         public abstract void Identifiers_are_generated_correctly();
+#endif
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());

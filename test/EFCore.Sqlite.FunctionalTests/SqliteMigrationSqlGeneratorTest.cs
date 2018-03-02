@@ -326,6 +326,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
 
+#if !Test20
         [Fact]
         public virtual void RenameIndexOperation()
         {
@@ -349,6 +350,7 @@ namespace Microsoft.EntityFrameworkCore
                 @"CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void RenameIndexOperations_throws_when_no_model()

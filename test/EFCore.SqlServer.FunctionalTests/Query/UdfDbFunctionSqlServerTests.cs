@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
+// ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -44,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Customer Customer { get; set; }
         }
 
+        // ReSharper disable once InconsistentNaming
         protected class UDFSqlContext : DbContext
         {
             #region DbSets
@@ -283,6 +285,7 @@ WHERE [c].[Id] = @__customerId_0");
             }
         }
 
+#if !Test20
         [Fact]
         public void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Static()
         {
@@ -612,6 +615,7 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_2");
             }
         }
+#endif
 
         [Fact]
         public void Scalar_Nested_Function_Unwind_Client_Eval_Where_Static()
@@ -810,6 +814,7 @@ FROM [Customers] AS [c]");
             }
         }
 
+#if !Test20
         [Fact]
         public void Scalar_Nested_Function_BCL_UDF_Static()
         {
@@ -826,7 +831,7 @@ FROM [Customers] AS [c]
 WHERE 3 = ABS([dbo].[CustomerOrderCount]([c].[Id]))");
             }
         }
-
+#endif
 
         [Fact]
         public void Scalar_Nested_Function_UDF_Client_Static()
@@ -844,6 +849,7 @@ FROM [Customers] AS [c]");
             }
         }
 
+#if !Test20
         [Fact]
         public void Scalar_Nested_Function_UDF_BCL_Static()
         {
@@ -860,6 +866,7 @@ FROM [Customers] AS [c]
 WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
             }
         }
+#endif
 
         [Fact]
         public void Nullable_navigation_property_access_preserves_schema_for_sql_function()
@@ -884,6 +891,7 @@ ORDER BY [o].[Id]");
 
         #region Instance
 
+#if !Test20
         [Fact]
         public void Scalar_Function_Non_Static()
         {
@@ -905,7 +913,7 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = 1");
             }
         }
-
+#endif
 
         [Fact]
         private void Scalar_Function_Extension_Method_Instance()
@@ -947,6 +955,7 @@ WHERE [c].[Id] = @__customerId_0");
             }
         }
 
+#if !Test20
         [Fact]
         public void Scalar_Function_ClientEval_Method_As_Translateable_Method_Parameter_Instance()
         {
@@ -1276,6 +1285,7 @@ FROM [Customers] AS [c]
 WHERE [c].[Id] = @__customerId_4");
             }
         }
+#endif
 
         [Fact]
         public void Scalar_Nested_Function_Unwind_Client_Eval_Where_Instance()
@@ -1474,6 +1484,7 @@ FROM [Customers] AS [c]");
             }
         }
 
+#if !Test20
         [Fact]
         public void Scalar_Nested_Function_BCL_UDF_Instance()
         {
@@ -1524,6 +1535,7 @@ FROM [Customers] AS [c]
 WHERE 3 = [dbo].[CustomerOrderCount](ABS([c].[Id]))");
             }
         }
+#endif
 
         #endregion
 

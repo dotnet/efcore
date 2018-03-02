@@ -33,7 +33,6 @@ WHERE [Id] = @p1;
 SELECT @@ROWCOUNT;"
             }, assertOrder: false);
         }
-#endif
 
         public override void Identifiers_are_generated_correctly()
         {
@@ -47,5 +46,6 @@ SELECT @@ROWCOUNT;"
                 Assert.Equal("IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~", entityType.GetIndexes().Single().Relational().Name);
             }
         }
+#endif
     }
 }

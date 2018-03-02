@@ -110,6 +110,7 @@ DROP SEQUENCE [IntSequence];
 DROP SEQUENCE [BigIntSequence];");
         }
 
+#if !Test20
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_not_null_if_decimal()
@@ -218,6 +219,7 @@ DROP SEQUENCE [dbo].[Sequence];
 
 DROP SEQUENCE [db2].[Sequence];");
         }
+#endif
 
         #endregion
 
@@ -464,6 +466,7 @@ DROP TABLE [dbo].[K2];
 DROP TABLE [db.2].[K2];");
         }
 
+#if !Test20
         [Fact]
         public void Complex_filtering_validation()
         {
@@ -558,6 +561,7 @@ DROP TABLE [db2].[JustTableName];
 DROP TABLE [db2].[DependentTable];
 DROP TABLE [db2].[PrincipalTable];");
         }
+#endif
 
         #endregion
 
@@ -787,6 +791,7 @@ DROP TABLE PrincipalTable;");
 
         #region ColumnFacets
 
+#if !Test20
         [Fact]
         public void Column_with_type_alias_assigns_underlying_store_type()
         {
@@ -848,6 +853,7 @@ CREATE TABLE NumericColumns (
                     },
                 "DROP TABLE NumericColumns;");
         }
+#endif
 
         [Fact]
         public void Max_length_of_negative_one_translate_to_max_in_store_type()
@@ -926,6 +932,7 @@ CREATE TABLE LengthColumns (
                 "DROP TABLE LengthColumns;");
         }
 
+#if !Test20
         [Fact]
         public void Default_max_length_are_added_to_binary_varbinary()
         {
@@ -1097,6 +1104,7 @@ CREATE TABLE DefaultRequiredLengthNvarcharColumns (
                     },
                 "DROP TABLE DefaultRequiredLengthNvarcharColumns;");
         }
+#endif
 
         [Fact]
         public void Datetime_types_have_precision_if_non_null_scale()
@@ -1275,6 +1283,7 @@ CREATE TABLE DefaultComputedValues (
                 "DROP TABLE DefaultComputedValues;");
         }
 
+#if !Test20
         [Fact]
         public void Default_value_matching_clr_default_is_not_stored()
         {
@@ -1368,6 +1377,7 @@ CREATE TABLE ValueGeneratedProperties (
                     },
                 "DROP TABLE ValueGeneratedProperties;");
         }
+#endif
 
         [Fact]
         public void ConcurrencyToken_is_set_for_rowVersion()
@@ -1522,6 +1532,7 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
                 "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredIndex;");
         }
 
+#if !Test20
         [Fact]
         public void Set_clustered_false_for_primary_key_if_different_clustered_constraint()
         {
@@ -1546,6 +1557,7 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
                     },
                 "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint;");
         }
+#endif
 
         [Fact]
         public void Set_primary_key_name_from_index()
@@ -2012,6 +2024,7 @@ CREATE TABLE Blank (
                 "DROP TABLE Blank;");
         }
 
+#if !Test20
         [Fact]
         public void Warn_missing_principal_table_for_foreign_key()
         {
@@ -2039,6 +2052,7 @@ CREATE TABLE DependentTable (
 DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
+#endif
 
         #endregion
 

@@ -626,6 +626,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
         }
 
+#if !Test20
         [Fact]
         public virtual void CreateDatabaseOperation()
         {
@@ -712,6 +713,7 @@ namespace Microsoft.EntityFrameworkCore
                 "END;" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void AlterDatabaseOperationOperation()
@@ -794,6 +796,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable()
         {
@@ -812,6 +815,7 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);" + EOL,
                 Sql);
         }
+#endif
 
         [Fact]
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter()
@@ -886,6 +890,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         [Fact]
         public virtual void DropDatabaseOperation()
         {
@@ -902,6 +907,7 @@ namespace Microsoft.EntityFrameworkCore
                 "DROP DATABASE [Northwind];" + EOL,
                 Sql);
         }
+#endif
 
         public override void DropIndexOperation()
         {
@@ -1123,6 +1129,7 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
+#if !Test20
         public override void InsertDataOperation()
         {
             base.InsertDataOperation();
@@ -1140,6 +1147,7 @@ namespace Microsoft.EntityFrameworkCore
                 "    SET IDENTITY_INSERT [People] OFF;" + EOL,
                 Sql);
         }
+#endif
 
         public override void DeleteDataOperation_simple_key()
         {

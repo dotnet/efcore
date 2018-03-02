@@ -354,6 +354,7 @@ CREATE TABLE DefaultValue (
                 @"DROP TABLE DefaultValue;");
         }
 
+#if !Test20
         [Theory]
         [InlineData("DOUBLE NOT NULL DEFAULT 0")]
         [InlineData("FLOAT NOT NULL DEFAULT 0")]
@@ -375,6 +376,7 @@ CREATE TABLE DefaultValue (
                 },
                 "DROP TABLE DefaultValueClr");
         }
+#endif
 
         #endregion
 
