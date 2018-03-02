@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Queen, int>), default),
                 (typeof(EnumToNumberConverter<Queen, long>), default),
                 (typeof(EnumToNumberConverter<Queen, decimal>), default),
-                (typeof(EnumToStringConverter<Queen>), new ConverterMappingHints(size: 512)),
+                (typeof(EnumToStringConverter<Queen>), default),
                 (typeof(CompositeValueConverter<Queen, int, byte[]>), new ConverterMappingHints(size: 4)),
                 (typeof(EnumToNumberConverter<Queen, short>), default),
                 (typeof(EnumToNumberConverter<Queen, byte>), default),
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _selector.ForTypes(typeof(Gnr)).ToList(),
                 (typeof(EnumToNumberConverter<Gnr, ulong>), default),
                 (typeof(EnumToNumberConverter<Gnr, decimal>), new ConverterMappingHints(precision: 20, scale: 0)),
-                (typeof(EnumToStringConverter<Gnr>), new ConverterMappingHints(size: 512)),
+                (typeof(EnumToStringConverter<Gnr>), default),
                 (typeof(CompositeValueConverter<Gnr, ulong, byte[]>), new ConverterMappingHints(size: 8)),
                 (typeof(EnumToNumberConverter<Gnr, int>), default),
                 (typeof(EnumToNumberConverter<Gnr, long>), default),
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _selector.ForTypes(typeof(Velvets)).ToList(),
                 (typeof(EnumToNumberConverter<Velvets, long>), default),
                 (typeof(EnumToNumberConverter<Velvets, decimal>), new ConverterMappingHints(precision: 20, scale: 0)),
-                (typeof(EnumToStringConverter<Velvets>), new ConverterMappingHints(size: 512)),
+                (typeof(EnumToStringConverter<Velvets>), default),
                 (typeof(CompositeValueConverter<Velvets, long, byte[]>), new ConverterMappingHints(size: 8)),
                 (typeof(EnumToNumberConverter<Velvets, int>), default),
                 (typeof(EnumToNumberConverter<Velvets, short>), default),
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 (typeof(EnumToNumberConverter<Nwa, long>), default),
                 (typeof(EnumToNumberConverter<Nwa, ulong>), default),
                 (typeof(EnumToNumberConverter<Nwa, decimal>), default),
-                (typeof(EnumToStringConverter<Nwa>), new ConverterMappingHints(size: 512)),
+                (typeof(EnumToStringConverter<Nwa>), default),
                 (typeof(CompositeValueConverter<Nwa, byte, byte[]>), new ConverterMappingHints(size: 1)),
                 (typeof(EnumToNumberConverter<Nwa, sbyte>), default),
                 (typeof(EnumToNumberConverter<Nwa, double>), default),
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             AssertConverters(
                 _selector.ForTypes(typeof(Queen), typeof(string)).ToList(),
-                (typeof(EnumToStringConverter<Queen>), new ConverterMappingHints(size: 512)));
+                (typeof(EnumToStringConverter<Queen>), default));
         }
 
         [Fact]

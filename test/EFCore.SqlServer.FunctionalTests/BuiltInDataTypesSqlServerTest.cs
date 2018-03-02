@@ -505,7 +505,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p25='85.5'
 @p26='83.3'
 @p27='Value4' (Nullable = false) (Size = 20)
-@p28='Value2' (Nullable = false) (Size = 512) (DbType = AnsiString)
+@p28='Value2' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p29='84.4'
 @p30='a8f9f951-145f-4545-ac60-b92ff57ada47'
 @p31='78'
@@ -695,7 +695,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p25='85.5' (Nullable = true)
 @p26='83.3' (Nullable = true)
 @p27='Value4' (Size = 20)
-@p28='Value2' (Size = 512) (DbType = AnsiString)
+@p28='Value2' (Size = 8000) (DbType = AnsiString)
 @p29='84.4' (Nullable = true)
 @p30='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
 @p31='78' (Nullable = true)
@@ -881,7 +881,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p25=''
 @p26=''
 @p27='' (Size = 20)
-@p28='' (Size = 512) (DbType = AnsiString)
+@p28='' (Size = 8000) (DbType = AnsiString)
 @p29=''
 @p30='' (DbType = Guid)
 @p31='' (DbType = Int64)
@@ -1266,7 +1266,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='85.5'
 @p25='83.3'
 @p26='Value4' (Nullable = false) (Size = 20)
-@p27='Value2' (Nullable = false) (Size = 512) (DbType = AnsiString)
+@p27='Value2' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p28='84.4'
 @p29='a8f9f951-145f-4545-ac60-b92ff57ada47'
 @p30='77'
@@ -1452,7 +1452,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24='85.5' (Nullable = true)
 @p25='83.3' (Nullable = true)
 @p26='Value4' (Size = 20)
-@p27='Value2' (Size = 512) (DbType = AnsiString)
+@p27='Value2' (Size = 8000) (DbType = AnsiString)
 @p28='84.4' (Nullable = true)
 @p29='a8f9f951-145f-4545-ac60-b92ff57ada47' (Nullable = true)
 @p30='77' (Nullable = true)
@@ -1638,7 +1638,7 @@ WHERE [e].[TimeSpanAsTime] = @__timeSpan_0",
 @p24=''
 @p25=''
 @p26='' (Size = 20)
-@p27='' (Size = 512) (DbType = AnsiString)
+@p27='' (Size = 8000) (DbType = AnsiString)
 @p28=''
 @p29='' (DbType = Guid)
 @p30='78' (Nullable = true)

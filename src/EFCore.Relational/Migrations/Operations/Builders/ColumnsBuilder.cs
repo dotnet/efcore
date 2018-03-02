@@ -45,7 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        [Obsolete("Use the overload with the most parameters.")]
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
             [CanBeNull] string type,
             bool? unicode,

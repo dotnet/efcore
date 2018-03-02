@@ -60,7 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
-        [Obsolete("Use the overload with the most parameters.")]
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
             [NotNull] string table,
@@ -378,7 +377,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     The previous SQL expression used to compute the column value. Can be <c>null</c>, in which case previous value is considered unknown.
         /// </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
-        [Obsolete("Use the overload with the most parameters.")]
         public virtual AlterOperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
             [NotNull] string table,

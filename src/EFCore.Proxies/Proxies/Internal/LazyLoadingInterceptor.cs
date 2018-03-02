@@ -44,11 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             var methodName = invocation.Method.Name;
 
-            if (invocation.Method == _lazyLoaderGetter)
+            if (_lazyLoaderGetter.Equals(invocation.Method))
             {
                 invocation.ReturnValue = _loader;
             }
-            else if (invocation.Method == _lazyLoaderSetter)
+            else if (_lazyLoaderSetter.Equals(invocation.Method))
             {
                 _loader = (ILazyLoader)invocation.Arguments[0];
             }

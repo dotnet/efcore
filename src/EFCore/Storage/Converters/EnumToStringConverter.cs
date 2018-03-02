@@ -13,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
     public class EnumToStringConverter<TEnum> : ValueConverter<TEnum, string>
         where TEnum : struct
     {
-        private static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 512);
-
         /// <summary>
         ///     Creates a new instance of this converter. This converter does not preserve order.
         /// </summary>
@@ -24,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         ///     facets for the converted data.
         /// </param>
         public EnumToStringConverter(ConverterMappingHints mappingHints = default)
-            : base(v => v.ToString(), ToEnum(), mappingHints.With(_defaultHints))
+            : base(v => v.ToString(), ToEnum(), mappingHints)
         {
         }
 
@@ -32,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Converters
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TEnum), typeof(string), i => new EnumToStringConverter<TEnum>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(typeof(TEnum), typeof(string), i => new EnumToStringConverter<TEnum>(i.MappingHints));
 
         private static Expression<Func<string, TEnum>> ToEnum()
         {
