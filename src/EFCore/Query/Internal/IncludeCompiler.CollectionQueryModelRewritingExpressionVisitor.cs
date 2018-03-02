@@ -25,9 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private sealed class CollectionQueryModelRewritingExpressionVisitor : RelinqExpressionVisitor
         {
-            private static readonly ExpressionEqualityComparer _expressionEqualityComparer
-                = new ExpressionEqualityComparer();
-
             private readonly QueryCompilationContext _queryCompilationContext;
             private readonly QueryModel _parentQueryModel;
             private readonly IncludeCompiler _includeCompiler;
@@ -204,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         propertyExpression.Type);
 
                     if (!orderings.Any(
-                        o => _expressionEqualityComparer.Equals(o.Expression, orderingExpression)
+                        o => ExpressionEqualityComparer.Instance.Equals(o.Expression, orderingExpression)
                              || (o.Expression.RemoveConvert() is MemberExpression memberExpression1
                                  && propertyExpression is MethodCallExpression methodCallExpression
                                  && MatchEfPropertyToMemberExpression(memberExpression1, methodCallExpression))
@@ -225,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var propertyName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
 
                     return memberExpression.Member.Name.Equals(propertyName)
-                           && _expressionEqualityComparer.Equals(memberExpression.Expression.RemoveConvert(), methodCallExpression.Arguments[0].RemoveConvert());
+                           && ExpressionEqualityComparer.Instance.Equals(memberExpression.Expression.RemoveConvert(), methodCallExpression.Arguments[0].RemoveConvert());
                 }
 
                 return false;
@@ -553,7 +550,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             projectionIndex
                                 = subQueryProjection
                                     // Do NOT use orderingExpression variable here
-                                    .FindIndex(e => _expressionEqualityComparer.Equals(e.RemoveConvert(), ordering.Expression.RemoveConvert()));
+                                    .FindIndex(e => ExpressionEqualityComparer.Instance.Equals(e.RemoveConvert(), ordering.Expression.RemoveConvert()));
                         }
 
                         if (projectionIndex == -1)
