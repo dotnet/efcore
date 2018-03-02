@@ -3078,7 +3078,7 @@ WHERE ([t].[__RowNumber__] > @__p_0) AND ([t].[__RowNumber__] <= (@__p_0 + @__p_
         #region Bug10301
 
         [Fact]
-        public virtual void MultiContext()
+        public virtual void MultiContext_query_filter_test()
         {
             using (CreateDatabase10301())
             {
@@ -3161,6 +3161,86 @@ WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
                 : base(options)
             {
             }
+        }
+
+        #endregion
+
+        #region Bug11104
+
+        [Fact]
+        public virtual void QueryBuffer_requirement_is_computed_when_querying_base_type_while_derived_type_has_shadow_prop()
+        {
+            using (CreateDatabase11104())
+            {
+                using (var context = new MyContext11104(_options))
+                {
+                    var query = context.Bases.ToList();
+
+                    var derived1 = Assert.Single(query);
+                    Assert.Equal(derived1.GetType(), typeof(Derived1));
+
+                    AssertSql(
+                        @"SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
+FROM [Bases] AS [b]
+WHERE [b].[IsTwo] IN (1, 0)");
+                }
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase11104()
+        {
+            return CreateTestStore(
+                () => new MyContext11104(_options),
+                context =>
+                {
+                    context.AddRange(
+                        new Derived1 { IsTwo = false }
+                    );
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+        }
+
+        public class MyContext11104 : DbContext
+        {
+            public DbSet<Base> Bases { get; set; }
+
+            public MyContext11104(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Blog10301> Blogs { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Base>()
+                    .HasDiscriminator(x => x.IsTwo)
+                    .HasValue<Derived1>(false)
+                    .HasValue<Derived2>(true);
+            }
+        }
+
+        public abstract class Base
+        {
+            public int Id { get; set; }
+            public bool IsTwo { get; set; }
+        }
+
+        public class Derived1 : Base
+        {
+            public Stuff MoreStuff { get; set; }
+        }
+
+        public class Derived2 : Base
+        {
+        }
+
+        public class Stuff
+        {
+            public int Id { get; set; }
         }
 
         #endregion
