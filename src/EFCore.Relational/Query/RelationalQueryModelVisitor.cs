@@ -1497,7 +1497,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             innerShaper.UpdateQuerySource(fromClause);
 
-            Expression
+            var newExpression
                 = Expression.Call(
                     // ReSharper disable once PossibleNullReferenceException
                     outerShapedQuery.Method
@@ -1506,6 +1506,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     outerShapedQuery.Arguments[0],
                     outerShapedQuery.Arguments[1],
                     Expression.Constant(compositeShaper));
+
+            Expression = CompensateForInjectParameters(Expression, newExpression);
 
             return true;
         }
@@ -1604,7 +1606,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 innerShaper.UpdateQuerySource(joinClause);
 
-                Expression
+                var newExpression
                     = Expression.Call(
                         // ReSharper disable once PossibleNullReferenceException
                         outerShapedQuery.Method
@@ -1613,9 +1615,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                         outerShapedQuery.Arguments[0],
                         outerShapedQuery.Arguments[1],
                         Expression.Constant(compositeShaper));
+
+                Expression = CompensateForInjectParameters(Expression, newExpression);
             }
 
             return true;
+        }
+
+        private Expression CompensateForInjectParameters(Expression originalExpression, Expression newExpression)
+        {
+            if (originalExpression is MethodCallExpression methodCall
+                && methodCall.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod))
+            {
+                var newMethodInfo = newExpression.Type != methodCall.Arguments[1].Type
+                    ? QueryCompilationContext.QueryMethodProvider.InjectParametersMethod.MakeGenericMethod(newExpression.Type.TryGetSequenceType())
+                    : methodCall.Method;
+
+                return Expression.Call(newMethodInfo, methodCall.Arguments[0], newExpression, methodCall.Arguments[2], methodCall.Arguments[3]);
+            }
+
+            return newExpression;
         }
 
         private bool TryFlattenGroupJoin(
@@ -1756,8 +1775,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     outerShapedQuery.Arguments[0],
                     outerShapedQuery.Arguments[1]);
 
-            Expression =
-                Expression.Call(
+            var newExpression
+                = Expression.Call(
                     groupJoinMethod,
                     Expression.Convert(
                         QueryContextParameter,
@@ -1767,6 +1786,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(innerShaper),
                     groupJoinMethodCallExpression.Arguments[3],
                     groupJoinMethodCallExpression.Arguments[4]);
+
+            Expression = CompensateForInjectParameters(Expression, newExpression);
 
             return true;
         }
@@ -1830,8 +1851,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _unflattenedGroupJoinClauses.Remove(groupJoinClause);
             _flattenedAdditionalFromClauses.Add(additionalFromClause);
 
-            var groupJoinMethodCallExpression = (MethodCallExpression)Expression;
-
+            var groupJoinMethodCallExpression = (MethodCallExpression)UnwraptInjectParameterSourceExpression(Expression);
             var outerShapedQuery = (MethodCallExpression)groupJoinMethodCallExpression.Arguments[0];
             var innerShapedQuery = (MethodCallExpression)groupJoinMethodCallExpression.Arguments[1];
 
@@ -1874,7 +1894,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
-            Expression
+            var newExpression
                 = Expression.Call(
                     outerShapedQuery.Method
                         .GetGenericMethodDefinition()
@@ -1883,8 +1903,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     outerShapedQuery.Arguments[1],
                     Expression.Constant(compositeShaper));
 
+            Expression = CompensateForInjectParameters(Expression, newExpression);
+
             return true;
         }
+
+        private Expression UnwraptInjectParameterSourceExpression(Expression expression)
+            => expression is MethodCallExpression methodCall
+                && methodCall.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod)
+            ? methodCall.Arguments[1]
+            : expression;
 
         #endregion
 

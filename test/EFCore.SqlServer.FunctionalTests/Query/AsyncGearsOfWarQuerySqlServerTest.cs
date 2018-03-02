@@ -2079,6 +2079,96 @@ WHERE [w.Owner.Squad.Members].[Discriminator] IN (N'Officer', N'Gear')
 ORDER BY [t6].[Nickname], [t6].[SquadId], [t6].[Nickname0], [t6].[SquadId0], [t6].[FullName], [t6].[Id], [t6].[Id0], [Nickname1]");
         }
 
+        public override async Task Outer_parameter_in_join_key()
+        {
+            await base.Outer_parameter_in_join_key();
+
+            AssertSql(
+                @"SELECT [o].[FullName]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY [o].[Nickname]",
+                //
+                @"@_outer_FullName='Damon Baird' (Size = 450)
+
+SELECT [t].[Note]
+FROM [Tags] AS [t]
+INNER JOIN [Gears] AS [g] ON @_outer_FullName = [g].[FullName]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')",
+                //
+                @"@_outer_FullName='Marcus Fenix' (Size = 450)
+
+SELECT [t].[Note]
+FROM [Tags] AS [t]
+INNER JOIN [Gears] AS [g] ON @_outer_FullName = [g].[FullName]
+WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+        }
+
+        public override async Task Outer_parameter_in_group_join_key()
+        {
+            await base.Outer_parameter_in_group_join_key();
+
+            AssertSql(
+                @"SELECT [o].[FullName]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY [o].[Nickname]",
+                //
+                @"@_outer_FullName1='Damon Baird' (Size = 450)
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].*
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON @_outer_FullName1 = [t0].[FullName]
+ORDER BY (SELECT 1)",
+                //
+                @"@_outer_FullName1='Marcus Fenix' (Size = 450)
+
+SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].*
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON @_outer_FullName1 = [t0].[FullName]
+ORDER BY (SELECT 1)");
+        }
+
+
+        public override async Task Outer_parameter_in_group_join_with_DefaultIfEmpty()
+        {
+            await base.Outer_parameter_in_group_join_with_DefaultIfEmpty();
+
+            AssertSql(
+                @"SELECT [o].[FullName]
+FROM [Gears] AS [o]
+WHERE [o].[Discriminator] = N'Officer'
+ORDER BY [o].[Nickname]",
+                //
+                @"@_outer_FullName1='Damon Baird' (Size = 450)
+
+SELECT [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].*
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON @_outer_FullName1 = [t0].[FullName]",
+                //
+                @"@_outer_FullName1='Marcus Fenix' (Size = 450)
+
+SELECT [t].[Note]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].*
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
+) AS [t0] ON @_outer_FullName1 = [t0].[FullName]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

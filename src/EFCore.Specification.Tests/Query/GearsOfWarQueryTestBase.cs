@@ -4267,6 +4267,75 @@ namespace Microsoft.EntityFrameworkCore.Query
                 lls => lls.Where(ll => ll is LocustCommander ? ((LocustCommander)ll).HighCommand.IsOperational : false));
         }
 
+        [ConditionalFact]
+        public virtual void Outer_parameter_in_join_key()
+        {
+            AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals g.FullName
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
+
+        [ConditionalFact]
+        public virtual void Outer_parameter_in_join_key_inner_and_outer()
+        {
+            AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals o.Nickname
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
+
+        [ConditionalFact]
+        public virtual void Outer_parameter_in_group_join_key()
+        {
+            AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals g.FullName into grouping
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
+
+        [ConditionalFact]
+        public virtual void Outer_parameter_in_group_join_with_DefaultIfEmpty()
+        {
+            AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals g.FullName into grouping
+                                      from g in grouping.DefaultIfEmpty()
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
+
         // Remember to add any new tests to Async version of this test class
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

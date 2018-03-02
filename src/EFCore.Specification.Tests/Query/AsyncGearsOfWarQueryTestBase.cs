@@ -1291,5 +1291,57 @@ namespace Microsoft.EntityFrameworkCore.Query
                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
+
+        [ConditionalFact]
+        public virtual async Task Outer_parameter_in_join_key()
+        {
+            await AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals g.FullName
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Outer_parameter_in_group_join_key()
+        {
+            await AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals g.FullName into grouping
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
+
+        [ConditionalFact]
+        public virtual async Task Outer_parameter_in_group_join_with_DefaultIfEmpty()
+        {
+            await AssertQuery<Gear, CogTag>(
+                (gs, ts) =>
+                    from o in gs.OfType<Officer>()
+                    orderby o.Nickname
+                    select new
+                    {
+                        Collection = (from t in ts
+                                      join g in gs on o.FullName equals g.FullName into grouping
+                                      from g in grouping.DefaultIfEmpty()
+                                      select t.Note).ToList()
+                    },
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+        }
     }
 }
